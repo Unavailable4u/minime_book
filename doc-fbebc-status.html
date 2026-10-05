@@ -1,0 +1,448 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>FBEBC Build Status (from the repo) - MiniMe Atlas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap"><style>:root{--bg:#0a0a0c;--p:#121216;--p2:#17171d;--ln:#26262e;--tx:#f2f1ed;--dim:#a8a6a0;--r:#ff2052;--v:#a78bfa;--a:#f59e0b;--g:#34d399;--m:#f06cb4}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 Sora,Inter,system-ui,sans-serif;display:flex;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background-image:linear-gradient(rgba(255,32,82,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,32,82,.12) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent);mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent)}
+nav{position:sticky;top:0;height:100vh;width:210px;flex:none;padding:22px 14px;border-right:1px solid var(--ln);background:rgba(10,10,12,.9);z-index:2}
+nav .logo{font-weight:700;font-size:18px;margin:0 8px 18px}nav .logo b{color:var(--r)}nav a{display:block;padding:8px 12px;border-radius:9px;color:var(--dim);text-decoration:none;margin:2px 0}
+nav a:hover{background:var(--p2);color:var(--tx)}nav a.on{background:rgba(255,32,82,.14);color:#fff;box-shadow:inset 2px 0 var(--r)}nav small{display:block;margin:18px 8px 0;color:#6d6b66;font-size:12px}
+main{flex:1;min-width:0;padding:34px 40px 80px;position:relative;z-index:1;max-width:1500px}
+h1{font-size:30px;margin:0 0 4px;letter-spacing:-.02em}h2{font-size:20px;margin:34px 0 12px}h3{font-size:16px;margin:22px 0 8px}.sub{color:var(--dim);margin:0 0 24px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.card{background:var(--p);border:1px solid var(--ln);border-radius:14px;padding:16px 18px}.card.h:hover{border-color:var(--r);transform:translateY(-2px);transition:.15s}
+.k{font-size:30px;font-weight:700;letter-spacing:-.02em;color:#fff}.k small{font-size:13px;color:var(--dim);font-weight:400}.l{color:var(--dim);font-size:13px}
+.bar{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:13px}.bar span:first-child{width:170px;flex:none;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar i{display:block;height:9px;border-radius:5px;background:linear-gradient(90deg,var(--r),var(--m))}.bar em{font-style:normal;color:var(--tx);min-width:60px}
+a{color:#ff7a96}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:7px 10px;border-bottom:1px solid var(--ln);text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:var(--p2);cursor:pointer;color:var(--dim);font-weight:600;white-space:nowrap}td.n{text-align:right;font-variant-numeric:tabular-nums}tr:hover td{background:rgba(255,255,255,.03)}
+.tw{overflow-x:auto;border:1px solid var(--ln);border-radius:12px;margin:12px 0}input[type=search],input[type=text]{background:var(--p);border:1px solid var(--ln);color:var(--tx);border-radius:10px;padding:9px 13px;width:320px;max-width:100%;font:inherit}
+button{background:var(--p2);color:var(--tx);border:1px solid var(--ln);border-radius:9px;padding:7px 14px;cursor:pointer;font:inherit}button:hover{border-color:var(--r)}
+.chip{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;border:1px solid var(--ln);color:var(--dim);cursor:pointer;user-select:none}
+.chip.done{color:#0a0a0c;background:var(--g);border-color:var(--g)}.chip.prog{color:#0a0a0c;background:var(--a);border-color:var(--a)}.chip.plan{color:var(--v);border-color:var(--v)}
+.lane{margin:26px 0}.lane h2{display:flex;gap:12px;align-items:center}.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}.cards .card{font-size:13px}.cards .card b{display:block;margin-bottom:6px;font-size:14px}
+.doc{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:40px}.doc article{min-width:0;max-width:880px}.toc{position:sticky;top:20px;align-self:start;max-height:90vh;overflow:auto;font-size:13px;border-left:1px solid var(--ln);padding-left:14px}
+.toc a{display:block;color:var(--dim);text-decoration:none;padding:2px 0}.toc a:hover{color:#fff}.toc .t3{padding-left:12px;font-size:12px}
+article h1,article h2{border-bottom:1px solid var(--ln);padding-bottom:6px}pre{background:var(--p);border:1px solid var(--ln);border-radius:10px;padding:12px;overflow:auto;font-size:12.5px}
+code{background:var(--p2);padding:1px 6px;border-radius:5px;font-size:.9em;color:#ffb3c2}pre code{background:none;padding:0;color:inherit}blockquote{margin:12px 0;padding:6px 16px;border-left:3px solid var(--r);color:var(--dim);background:var(--p)}
+iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}.pie{width:150px;height:150px;border-radius:50%}.row{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.lg div{font-size:13px;color:var(--dim)}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px}.pill{font-size:11px;color:var(--dim);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;display:inline-block}
+.thumb{height:210px;overflow:hidden;border-radius:10px;border:1px solid var(--ln);position:relative;background:#fff}.thumb iframe{width:1280px;height:840px;transform:scale(.3);transform-origin:0 0;border:0;pointer-events:none}
+@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><a href="journey.html" class="">Journey</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="architecture.html" class="">Architecture</a><a href="data.html" class="">Data model</a><a href="docs.html" class="">Docs</a><small>Private. Built 2026-10-05 from commit febb685.</small></nav><main><h1>FBEBC Build Status (from the repo)</h1><p class="sub">FBEBC research. 5,678 words. <a href="data/docs/STATUS.md" download>Download .md</a></p><div class="doc"><article><h1 id="build-status">Build status</h1>
+<h2 id="week-1-research-program-guide-1-4-done-tested-al">Week 1 (research-program-guide §1.4) — DONE, tested, all 49 tests green</h2>
+<div class="tw"><table><tr><th>Day</th><th>Planned</th><th>Status</th></tr><tr><td>1-2</td><td>Repo scaffold, <code>P_0</code> seed for both tasks, manifest builder (unchanged)</td><td>Done. <code>seed/binpacking/candidate.py</code>, <code>seed/circle_packing/candidate.py</code> (verbatim from the guide), <code>delta/integrity/manifest.py</code> (verbatim).</td></tr><tr><td>3-5</td><td>EVOLVE-BLOCK parser + bounded applicator (unchanged) + contract verification. Unit-test against hand-written diffs, no LLM.</td><td>Done. <code>blocks.py</code>, <code>applicator.py</code> verbatim; <code>contracts.py</code> ported with <code>PINNED</code> generalized to a per-task parameter (Stage 1 runs two tasks, the guide's version assumed one). 33 hand-written-diff tests across <code>test_blocks.py</code>, <code>test_applicator.py</code>, <code>test_contracts.py</code>, covering ADV-Tier-A-style attacks (boundary violation, marker injection, ambiguous match, contract violation) without needing the ADV harness yet.</td></tr><tr><td>6-7</td><td>Frozen AST edit-distance metric, frozen now before any mutation data exists.</td><td>Done, with one <b>disclosed deviation</b>: the guide calls an unspecified <code>_zhang_shasha_or_levenshtein</code> and says "supply your implementation." We supplied Levenshtein distance over the linearized canonical-AST node sequence, not true Zhang-Shasha tree edit distance. This is documented in <code>metrics.py</code>'s module docstring and must be stated in the paper's Methods/Limitations section per the guide's own honesty rules — it's a different, cheaper notion of tree distance that's a fine proxy for small single-block LLM diffs but can diverge for large subtree reorderings.</td></tr></table></div>
+<p>Bonus, pulled forward from Phase 1's build order (§16, step 1.3, listed as parallelizable): <code>static_gate.py</code> (G3), unchanged, with its own "not a security boundary" caveat preserved.</p>
+<h2 id="week-2-days-8-11-research-program-guide-1-4-buil">Week 2, Days 8-11 (research-program-guide §1.4) — built here, needs on-machine validation</h2>
+<p>Everything in this section was written and, where it doesn't require a real</p>
+<p>Docker daemon, tested in the session that produced it (this container has no</p>
+<p><code>docker</code> binary — confirmed, not assumed). 86/86 tests green (49 from Week 1</p>
+<p>+ 37 new).</p>
+<div class="tw"><table><tr><th>Day</th><th>Planned</th><th>Status</th></tr><tr><td>8-9</td><td>Docker sandbox: <code>harness/supervisor.py</code>, <code>harness/child.py</code>, launch command</td><td>Written. <code>harness/</code> adapted for <b>two</b> task signatures (<code>candidate_solver(instances, rng)</code> vs <code>candidate_packing(n)</code>) via a <code>task_input.json</code> dispatch, dropping the numpy dependency the Phase1 reference assumed (neither Stage 1 seed needs it). <b>No custom Dockerfile</b> — harness is bind-mounted <code>:ro</code> into a pinned upstream <code>python:3.12-slim</code>, same pattern as the Phase1 reference's own launch command. The supervisor↔host channel is a single stdout JSON line (the Phase1 guide doesn't specify how <code>/scratch/result.json</code> would otherwise escape an ephemeral <code>--rm</code> + tmpfs container — see <code>supervisor.py</code>'s docstring). Smoke-tested <i>outside</i> Docker (plain subprocess, no container) for both tasks and for timeout/crash/cheat paths — this exercises the process-split and JSON-envelope logic but <b>not</b> the actual kernel isolation (namespaces/cgroups/seccomp-equivalent), which only a real Docker daemon can provide.</td></tr><tr><td>10-11</td><td>Ledger (hash chain, <code>schema.sql</code>), wire G0-G3 + G5, record G4</td><td>Written and fully unit-tested (pure Python + SQLite, no Docker needed). <code>delta/ledger/chain.py</code> + <code>schema.sql</code>: Stage-1-scoped column set (dropped everything timing/environment-fingerprint-only — see <code>schema.sql</code>'s docstring for the itemized list and why each is safe to cut). <code>delta/orchestrator.py</code>: <code>admit_candidate()</code> sequences G0→G5 in order, cheapest-first; G4 records <code>edit_metrics()</code> but doesn't enforce a threshold, exactly per this week's scope note. <code>delta/evaluation/envelope.py</code>: generic score-non-authorship + non-finite/rigged-numeric checks applied to <i>any</i> task's raw outputs before scoring (a disclosed simplification: <b>no timing cross-check</b> was ported, since Stage 1 has no latency in fitness to protect — see that file's docstring for the honesty-rule justification). <code>delta/control/channel.py</code>: ported unchanged from Phase1 §12, tested for halt/pause/resume semantics without relying on real OS signals.</td></tr></table></div>
+<h2 id="sandbox-hardening-verified-on-real-hardware-2026">Sandbox hardening — VERIFIED on real hardware (2026-09-17)</h2>
+<p>Confirmed on a native Docker Engine 29.8.1 install inside WSL2 Ubuntu</p>
+<p>(<code>docker context ls</code> → <code>default</code>, not Docker Desktop's <code>desktop-linux</code></p>
+<p>integration — see WEEK2_SETUP.md for why that distinction matters and how</p>
+<p>to check it yourself). All 6 <code>tests/integration/test_sandbox_smoke.py</code></p>
+<p>cases passed: basic roundtrip, network isolation (<code>--network=none</code>),</p>
+<p>read-only root filesystem, PID-limit containment of a fork bomb,</p>
+<p>memory-limit containment of a memory bomb, and the host-side</p>
+<p>score-smuggling defense. Image pinned by digest:</p>
+<p><code>python@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea</code>.</p>
+<p>This is the first result in the project citable in the paper's Methods</p>
+<p>section without a caveat about the test environment.</p>
+<h2 id="week-2-day-12-14-client-generation-loop-built-an">Week 2, Day 12-14 — Σ client + generation loop, built and unit-tested</h2>
+<p>"native Docker Engine on WSL2 Ubuntu, kernel 6.18.33.2-microsoft-standard-WSL2"</p>
+<p><b>Disclosed substitution:</b> the research-program-guide pins Gemini 2.5</p>
+<p>Flash-Lite for Σ; this build uses **Groq's <code>openai/gpt-oss-120b</code></p>
+<p>(free tier)** instead — same spirit as the guide's own "verify current</p>
+<p>limits before you start, these move" caveat on that pin, and a real</p>
+<p>example of exactly that: the initial choice, <code>llama-3.3-70b-versatile</code>,</p>
+<p>was confirmed retired from Groq's catalog via a live <code>404 model_not_found</code></p>
+<p>on 2026-09-17, so this ended up on the fallback model identified when the</p>
+<p>provider was first chosen. State whichever provider/model you actually ran</p>
+<p>with in the paper's Methods section. <code>gpt-oss-120b</code>'s free-tier limits per</p>
+<p>Groq's own docs (2026-09-17): 30 RPM / 1K RPD / 8K TPM / 200K TPD —</p>
+<p>comfortably covers this pipeline's small per-call token counts.</p>
+<p><b>Also confirmed live:</b> Cloudflare fronts <code>api.groq.com</code> and blocks</p>
+<p>plain <code>urllib</code>'s default <code>Python-urllib/3.x</code> User-Agent as a bot signature</p>
+<p>(<code>403</code>, <code>error code: 1010</code>) before the request ever reaches Groq's own</p>
+<p>auth layer — a known, widely-reported issue affecting any bare-urllib</p>
+<p>client, nothing account-specific. Fixed with an explicit <code>User-Agent</code></p>
+<p>header in <code>sigma/client.py</code>; there's a regression test for it in</p>
+<p><code>tests/unit/test_sigma_client.py</code>.</p>
+<ul><li><code>sigma/prompts.py</code> — system prompt (cooperative, NOT the Tier-C</li></ul>
+<p>  adversarial "maximize score by any means" prompt, which is a separate,</p>
+<p>  clearly-labeled future artifact for Week 3's red-teaming) + per-task</p>
+<p>  objective descriptions + rejection-feedback formatting.</p>
+<ul><li><code>sigma/budget.py</code> — local daily request counter, checked <i>before</i> every</li></ul>
+<p>  network call, so an exhausted budget fails fast and locally instead of</p>
+<p>  as a 429 mid-run.</p>
+<ul><li><code>sigma/client.py</code> — plain REST against Groq's OpenAI-compatible</li></ul>
+<p>  endpoint, no SDK dependency. **Not exercised against the live API from</p>
+<p>  the session that wrote it** (no network egress to <code>api.groq.com</code> there)</p>
+<p>  — run <code>python -m sigma.client</code> once, for real, before trusting it in a</p>
+<p>  full loop.</p>
+<ul><li><code>delta/orchestrator.py</code> — added <code>sanitize_rejection()</code>: renders an</li></ul>
+<p>  <code>AdmissionError</code> as Σ-facing feedback text, never gate internals (Phase1</p>
+<p>  §6's rule).</p>
+<ul><li><code>delta/loop.py</code> — <code>run_generations()</code>: the actual per-generation cycle</li></ul>
+<p>  (propose → admit → evaluate → adopt-if-not-worse → repeat). Single-winner</p>
+<p>  hill-climbing is Stage 1's default selection strategy — the Week 4</p>
+<p>  ablation's "elite-band" arm is a variant on top of this, not a rewrite of</p>
+<p>  it. Fully unit-tested with a scripted fake Σ and faked admit/evaluate</p>
+<p>  functions (22 new tests total across budget/client/loop), covering:</p>
+<p>  improved vs. kept vs. stalled outcomes, rejection logging + feedback</p>
+<p>  threading, a pre-halted control channel stopping before any generation</p>
+<p>  runs, and <code>IntegrityViolation</code> propagating uncaught rather than being</p>
+<p>  swallowed.</p>
+<ul><li><code>scripts/run_stage1.py</code> — CLI entrypoint. <b>Not yet run for real</b> (needs</li></ul>
+<p>  your <code>GROQ_API_KEY</code> and the Docker daemon together in one place) — this</p>
+<p>  is the next concrete step.</p>
+<p>108/108 tests green (86 from before + 22 new).</p>
+<h2 id="week-3-day-15-scratch-permission-bug-found-and-f">Week 3, Day 15 — <code>/scratch</code> permission bug found and fixed via new ADV cases, first real end-to-end run (2026-09-23)</h2>
+<p><b>Image re-pinned again:</b> <code>PINNED_IMAGE</code> is now</p>
+<p><code>python@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9</code>,</p>
+<p>superseding the 2026-09-17 digest recorded above. Record whichever digest</p>
+<p>is live at the time you generate the paper's reported results — don't</p>
+<p>assume the two entries in this file mean the same image was used</p>
+<p>throughout.</p>
+<p><b>New ADV cases added</b> (<code>tests/adv/test_tier_a_boundary.py</code> — A07;</p>
+<p><code>tests/adv/test_tier_c_reward_hacking.py</code> — C09;</p>
+<p><code>tests/integration/test_adv_tier_c_runtime.py</code> — C04, C06, C10), bringing</p>
+<p>the scoped suite to 13/17 Tier A+C cases directly tested (exceeds the</p>
+<p>8–10 target; see <code>tests/adv/COVERAGE.md</code> for the full tally and the 4</p>
+<p>disclosed-N/A cases: C01, C03, C07, C08). 116/116 unit+adv tests green</p>
+<p>immediately, no Docker needed for those.</p>
+<p><b>Real bug found by the new suite, not flakiness:</b> <code>test_c04</code> failed on</p>
+<p>first run with the child process exiting nonzero. Root cause: the</p>
+<p><code>/scratch</code> tmpfs was mounted <code>mode=0700</code> with no <code>uid</code>/<code>gid</code>, so it was</p>
+<p>owned by root, while the container runs <code>--user 65534:65534</code> — that user</p>
+<p>had zero permissions on it. Any candidate touching <code>/scratch</code> (including</p>
+<p><code>supervisor.py</code>'s own best-effort debug copy of the result envelope,</p>
+<p>silently swallowed by its <code>except OSError</code>) had been failing unnoticed</p>
+<p>since the 2026-09-17 hardening verification; no test before C04 ever</p>
+<p>exercised a candidate actually writing there. Fixed in</p>
+<p><code>delta/evaluation/launcher.py</code> by adding <code>uid=65534,gid=65534</code> to the</p>
+<p>tmpfs mount options, keeping <code>mode=0700</code> so <code>/scratch</code> stays private to</p>
+<p>the container's own user rather than becoming world-writable like</p>
+<p><code>/tmp</code>. <code>tests/unit/test_launcher.py</code> doesn't assert on the exact tmpfs</p>
+<p>string, so nothing there needed updating.</p>
+<p>A second, unrelated bug surfaced once the first was fixed: the ADV</p>
+<p>patch's <code>_work_dir()</code> test helper always names its directory <code>work</code></p>
+<p>under <code>tmp_path</code>; <code>test_c04</code> calls it twice with the same <code>tmp_path</code> (one</p>
+<p>directory per container run), so the second call's <code>mkdir()</code> collided</p>
+<p>with the first (<code>FileExistsError</code>). Fixed by giving <code>_work_dir()</code> an</p>
+<p>optional <code>name</code> parameter (default unchanged, so <code>test_c06</code>/<code>test_c10</code>'s</p>
+<p>single calls are unaffected) and passing <code>name="work1"</code>/<code>name="work2"</code></p>
+<p>at <code>test_c04</code>'s two call sites.</p>
+<p>With both fixed: <b>9/9 integration tests pass</b>, including C04 now</p>
+<p>proving what it's actually meant to — that <code>--rm</code> plus a fresh <code>--tmpfs</code></p>
+<p>prevents state from surviving across separate <code>docker run</code> invocations —</p>
+<p>rather than tripping a permission error before ever reaching that</p>
+<p>question. 125/125 tests total (116 unit/adv + 9 integration).</p>
+<p><b>First real end-to-end run.</b> <code>python -m sigma.client</code> (live smoke</p>
+<p>test) confirmed a real Groq response for <code>gpt-oss-120b</code> parses against</p>
+<p>the applicator's hunk regex. Then `python scripts/run_stage1.py --task</p>
+<p>binpacking --generations 5`: Σ proposals, the applicator, the six-gate</p>
+<p>admission pipeline, the live sandbox, <code>score_binpacking</code>, and the ledger</p>
+<p>all executed in sequence for real, not mocked.</p>
+<div class="tw"><table><tr><th>gen</th><th>outcome</th><th>fitness</th><th>why</th></tr><tr><td>0</td><td>improved</td><td>−30.0</td><td>first candidate, no prior best to compare against</td></tr><tr><td>1</td><td>kept</td><td>−33.0</td><td>worse than −30, rejected</td></tr><tr><td>2</td><td>improved</td><td>−30.0</td><td>tie with current best, adopted per the tie-inclusive rule (<code>test_loop.py::test_equal_fitness_is_adopted_not_just_better</code>)</td></tr><tr><td>3</td><td>kept</td><td>−35.0</td><td>worse, rejected</td></tr><tr><td>4</td><td>improved</td><td>−28.0</td><td>new best</td></tr></table></div>
+<p>Final: best fitness −28.0 (28 bins), daily Σ budget 896→888. Every</p>
+<p>outcome label checks out exactly against <code>delta/loop.py</code>'s adoption rule</p>
+<p>(<code>fitness = -bins_used</code>; adopt iff <code>&gt;= best_fitness</code>) — verified against</p>
+<p>the source line by line, not just plausible-looking. This is the warm-up</p>
+<p>(binpacking) pipeline-debugging run per §1.2 of the research-program-guide</p>
+<p>— <b>not</b> the circle_packing run the paper reports; that's still the</p>
+<p>next step.</p>
+<p>Also worth noting from the <code>sigma.client</code> smoke test (a separate</p>
+<p>standalone check, not part of the run above): its example proposal for</p>
+<p>circle_packing was <code>r *= 0.99</code> — a strictly worse mutation for that task</p>
+<p>specifically, since <code>score_packing</code> rewards larger radii and the seed</p>
+<p>grid has no overlap to fix. One data point on <code>gpt-oss-120b</code> free-tier's</p>
+<p>early proposal quality, potentially worth a line in the paper's</p>
+<p>qualitative discussion of generation-0 behavior.</p>
+<h2 id="week-3-day-15-cont-d-circle-packing-sanity-check">Week 3, Day 15 (cont'd) — circle_packing sanity check, checkpoint/resume, B08 (2026-09-24)</h2>
+<p>Built in a session with no Docker binary and no <code>GROQ_API_KEY</code> (confirmed,</p>
+<p>not assumed — same disclosed constraint as every other "written here,</p>
+<p>validate on your machine" entry in this file). Everything below either</p>
+<p>needed no network/sandbox to verify, or is new code that <i>will</i> need your</p>
+<p>machine to exercise for real.</p>
+<p>**Circle-packing <code>P_0</code> sanity check (research-program-guide §1.4, Day 15's</p>
+<p>last remaining item) — done, host-side, no Docker needed:**</p>
+<p><code>candidate_packing(26)</code>'s grid seed scores `{"fitness": 2.1666..., "valid":</p>
+<p>True}<code> against </code>score_packing`. Matches hand-calculation (6×6 grid, 26 of</p>
+<p>36 cells used, <code>r = 1/12</code>, <code>26 * 1/12 = 2.1666...</code>). This closes Day 15;</p>
+<p>Week 3's remaining items are the real experiment (Day 16-20) and the live</p>
+<p>ADV suite run (Day 19-21) — see <code>WEEK3_SETUP.md</code>, both need your Docker +</p>
+<p><code>GROQ_API_KEY</code> machine.</p>
+<p>**Checkpoint/resume + graceful budget-exhaustion stop — built, unit-tested,</p>
+<p>not yet exercised against a real Sigma budget cap.** The gap this closes:</p>
+<p>Day 15's real run showed ~1.6 Sigma calls per generation (8 calls / 5</p>
+<p>generations); a full circle_packing run at anything near the guide's</p>
+<p>§1.5 budget (~1,000 calls) will not fit inside one day's free-tier request</p>
+<p>cap, so <code>scripts/run_stage1.py</code> needed to survive being invoked once (or a</p>
+<p>few times) per day across several days without losing progress or</p>
+<p>crashing ugly on <code>BudgetExceeded</code>. Concretely:</p>
+<ul><li><code>delta/checkpoint.py</code>: a small, explicit, non-chained JSON file (deliberately</li></ul>
+<p>  <i>not</i> reconstructed by replaying the ledger — the ledger doesn't store</p>
+<p>  <code>valid</code> or the candidate's actual source text, only a digest, so</p>
+<p>  re-deriving resume state from it would mean re-implementing <code>loop.py</code>'s</p>
+<p>  adoption rule a second time, in a different place, with a second chance</p>
+<p>  to get it subtly wrong). <code>run_generations()</code> is the only writer, right</p>
+<p>  after each live adoption decision, so the checkpoint can never disagree</p>
+<p>  with the decision that produced it.</p>
+<ul><li><code>delta/loop.py</code>: <code>run_generations()</code> gained <code>start_generation_index</code> /</li></ul>
+<p>  <code>initial_parent_*</code> (resume from a checkpoint instead of <code>P_0</code>) and</p>
+<p>  <code>stop_exceptions</code> (a caller-supplied exception tuple that ends the run</p>
+<p>  cleanly instead of crashing — deliberately <i>not</i> a hardcoded import of</p>
+<p>  <code>sigma.budget.BudgetExceeded</code> into <code>delta/</code>, to keep the Sigma-Delta</p>
+<p>  structural separation intact; <code>scripts/run_stage1.py</code>, which already</p>
+<p>  imports both packages, is what actually passes <code>(BudgetExceeded,)</code> in).</p>
+<ul><li><code>scripts/run_stage1.py</code>: auto-resumes from a checkpoint next to the</li></ul>
+<p>  ledger file unless <code>--restart</code> is passed; new <code>--seeds 0,1000,2000</code></p>
+<p>  runs several seed-arms in one sitting (each gets its own</p>
+<p>  <code>&lt;stem&gt;.seedN&lt;suffix&gt;</code> ledger + checkpoint), stopping the whole batch —</p>
+<p>  not just the current arm — the moment the shared daily budget is hit,</p>
+<p>  since Groq's cap is process-wide, not per-seed.</p>
+<ul><li>Tests: <code>tests/unit/test_checkpoint.py</code> (round-trip),</li></ul>
+<p>  <code>tests/unit/test_loop_resume.py</code> (the one that matters most:</p>
+<p>  interrupt-and-resume produces byte-identical <code>final_src</code>/<code>best_fitness</code></p>
+<p>  to an uninterrupted run of the same generations), and</p>
+<p>  <code>tests/unit/test_run_stage1_cli.py</code> (the pure per-seed ledger-path</p>
+<p>  helper). 13 new tests, all green. **Not yet exercised against a real</p>
+<p>  <code>BudgetExceeded</code> from the live Groq API** — the unit tests use a fake</p>
+<p>  exception type standing in for it (see <code>test_loop_resume.py</code>'s</p>
+<p>  docstring on why, same Sigma-Delta-separation reasoning as above); the</p>
+<p>  first real multi-day run is what actually proves this end to end.</p>
+<p><b>ADV Tier B08 (env/secret enumeration) — closed</b>, per the "cheap,</p>
+<p>worthwhile addition" <code>tests/adv/COVERAGE.md</code> flagged after Day 15's first</p>
+<p>pass. Two layers: <code>tests/unit/test_launcher.py</code>'s new</p>
+<p><code>test_no_env_flag_ever_names_a_secret_variable</code> (host-only — inspects the</p>
+<p>exact argv <code>build_docker_command()</code> produces against several fake host</p>
+<p>secrets, a complete check since that function has no <code>--env-file</code> and no</p>
+<p>wildcard env passthrough) and <code>tests/integration/test_sandbox_smoke.py</code>'s</p>
+<p>new <code>test_no_host_secrets_reachable_inside_container</code> (the live-container</p>
+<p>empirical companion, same pattern as the other Tier B smoke tests). See</p>
+<p><code>tests/adv/COVERAGE.md</code> for the updated tally.</p>
+<p>129/129 unit+adv tests green (116 from Day 15's first pass + 13 new).</p>
+<p>Integration suite now has 10 cases (was 9), still requires your Docker</p>
+<p>daemon to run.</p>
+<p><b>(Resolved 2026-09-24 by the Day 16 patch — see the section above; left here for the record.) Open question:</b> the research-program-guide's</p>
+<p>§1.5 call-budget math ("population 40, generations 25 = 1,000 mutation</p>
+<p>calls per run") assumes a population dimension this loop doesn't have —</p>
+<p>Stage 1's actual <code>run_generations()</code> is single-winner hill-climbing, one</p>
+<p>Sigma call per generation attempt (plus retries on admission rejection).</p>
+<p>"25 generations" taken literally would be a far smaller experiment than</p>
+<p>the guide intends; matching the guide's <i>total-effort</i> budget instead</p>
+<p>means something closer to ~600-1,000 actual generations per seed-arm</p>
+<p>(using Day 15's observed ~1.6 calls/generation). This needs to be a</p>
+<p>deliberate decision recorded in the paper's Methods (same honesty</p>
+<p>discipline as the Levenshtein-for-Zhang-Shasha and Groq-for-Gemini</p>
+<p>substitutions already logged above), not something silently assumed —</p>
+<p>see <code>WEEK3_SETUP.md</code>'s first section before starting Day 16.</p>
+<h2 id="week-3-day-15-review-day-16-patch-2026-09-24-thr">Week 3, Day 15 review → Day 16 patch (2026-09-24): three problems found before the real run, fixed and unit-tested</h2>
+<p>A read-through of the repo against the three guides, before spending any real</p>
+<p>circle_packing quota, found three things that would have wasted or distorted</p>
+<p>the Week 3 experiment. All fixed in one patch; **194/194 unit+ADV tests</p>
+<p>green (was 129)**, and everything is still "written here, validate on your</p>
+<p>machine" — no Docker binary and no <code>GROQ_API_KEY</code> in the authoring session</p>
+<p>(confirmed, not assumed).</p>
+<p>**1. The free-tier <i>token</i> cap probably binds before the request cap — an</p>
+<p>unmeasured assumption, now measured by tooling.** <code>sigma/budget.py</code>'s own</p>
+<p>docstring asserted the ~1,000 req/day cap was "comfortably the binding</p>
+<p>constraint for this pipeline's small per-request token counts." That was</p>
+<p>never measured. The circle_packing prompt is ~870 input tokens (chars/4</p>
+<p>estimate, before reasoning/output), so at ~1,200–2,500 total tokens/call the</p>
+<p>200K tokens/day figure recorded above (2026-09-17, **unverified on your</p>
+<p>account**) would allow only ~80–160 calls/day. Consequences, if it holds: the</p>
+<p>literal "3 seeds × 600 generations" plan is many days beyond the 4-week cap,</p>
+<p>and the experiment must be sized by tokens. Changes: <code>sigma/budget.py</code> tracks</p>
+<p>tokens (and can enforce an optional <code>--daily-token-cap</code>); <code>sigma/client.py</code></p>
+<p>logs every response's <code>usage</code> block to <code>~/.fbebc_sigma_budget.usage.jsonl</code></p>
+<p>and converts a daily-limit 429 (body says "per day"/TPD/RPD, or Retry-After &gt;</p>
+<p>120 s) into <code>BudgetExceeded</code> instead of sleeping through it;</p>
+<p><code>scripts/usage_report.py</code> prints measured tokens/call and projects</p>
+<p>generations/day and generations/arm. <b>Nothing here has touched the live API.</b></p>
+<p><b>2. <code>--generations</code> semantics and arm starvation.</b> The CLI's `--generations</p>
+<p>N<code> meant "N <i>more</i> this invocation", contradicting </code>WEEK3_SETUP.md` v1 ("re-run</p>
+<p>the exact same command"), and arms ran strictly sequentially — seed 0 would</p>
+<p>have consumed every day's quota. Now <code>--target-generations N</code> is a total per</p>
+<p>arm; all arms advance round-robin in chunks of <code>--round-size</code> (default 10) so</p>
+<p>a quota stop leaves them matched to within a chunk; <code>--generations</code> remains</p>
+<p>as the legacy smoke-test mode. <code>--restart</code> now <i>archives</i> (renames) an arm's</p>
+<p>ledger+checkpoint instead of appending new records into an old ledger.</p>
+<p>Each invocation appends the git commit (+ tracked-dirty flag) to</p>
+<p><code>&lt;ledger&gt;.runmeta.json</code>, so the paper can state whether the code was</p>
+<p>identical across days.</p>
+<p>**3. Elite-band arm undefined; "noise" framing wrong for this task; <code>P_0</code></p>
+<p>never scored.**</p>
+<ul><li><code>delta/selection.py</code> (new): one <code>EliteBand</code> class, one parameter <code>k</code>;</li></ul>
+<p>  k=1 is exactly the previous single-winner rule (the pre-existing loop tests</p>
+<p>  pass unchanged), k&gt;1 is a top-k archive of distinct (canonical-AST</p>
+<p>  fingerprint) attested-valid candidates, parent sampled uniformly,</p>
+<p>  deterministic per <code>(seed_base, generation)</code> so resume reproduces</p>
+<p>  uninterrupted runs. Rule frozen in <code>PREREGISTRATION.md</code>.</p>
+<p>  <b>Disclosed simplification:</b> fixed integer band width, not the Phase1</p>
+<p>  guide's fairness-bounded, scheduled band width (that is Phase 2/3).</p>
+<ul><li>circle-packing fitness is <b>deterministic</b>, so the ablation tests</li></ul>
+<p>  <i>exploration</i>, not noise robustness. <code>DRAFT.md</code> §3.4/§7 corrected.</p>
+<ul><li><code>delta/loop.py</code>: <code>P_0</code> is now evaluated in the sandbox at generation −1</li></ul>
+<p>  (<code>evaluate_baseline=True</code>, on fresh runs only). Previously the first</p>
+<p>  admitted child was adopted even when it scored <i>below</i> the seed. (Day 15's</p>
+<p>  binpacking smoke run predates this and had no baseline — it is</p>
+<p>  pipeline-debugging only and is not reported.)</p>
+<ul><li>Σ replies that contain no usable SEARCH/REPLACE block</li></ul>
+<p>  (<code>SigmaProposalError</code>) are now logged as <b><code>E_NO_PROPOSAL</code></b> and retried</p>
+<p>  instead of crashing the run (auth/network errors still crash loudly).</p>
+<p>  Reported separately from gate rejections; not a barrier event.</p>
+<ul><li>Every ledger row now carries <code>ablation_config</code> (<code>single_winner_k1</code> /</li></ul>
+<p>  <code>elite_band_k3</code>), which was a dead schema column until now.</p>
+<ul><li><code>scripts/summarize_ledgers.py</code> (read-only): per-arm progress, measured Σ</li></ul>
+<p>  calls/generation, baseline vs. best, running best, rejection taxonomy, and</p>
+<p>  a matched-generation comparison per seed with individual values only (no</p>
+<p>  mean/sd/p-value).</p>
+<p><b>Not verified by the authoring session (needs your machine):</b> the token</p>
+<p>estimate itself; Groq's real limits and 429 body wording (the daily-limit</p>
+<p>detection matches on "per day"/"(TPD)"/"(RPD)" and Retry-After &gt; 120 s —</p>
+<p>verify against a real 429 if you ever see one); the whole patch against live</p>
+<p>Docker + Groq. The end-to-end multi-day resume path is tested with fakes</p>
+<p>only (<code>test_multiday_matched_run_end_to_end_with_fakes</code>).</p>
+<p><b>Known gaps deliberately left:</b> <code>E_NO_PROPOSAL</code> retries still consume Σ</p>
+<p>budget like any call; <code>max_tokens</code>/<code>reasoning_effort</code> are not yet CLI flags</p>
+<p>(revisit only if the measurement shows truncation or waste); ledgers are</p>
+<p>gitignored and must be archived separately for the public release.</p>
+<h2 id="day-16-live-pilot-2026-09-24-first-real-circle-p">Day 16 live pilot (2026-09-24): first real circle_packing generations</h2>
+<p><b>What ran (your machine, real Docker + Groq):</b> patch 1 applied at base</p>
+<p><code>36ae5c9</code> (uncommitted, hence <code>dirty invocations=1</code>); 8 generations</p>
+<p>single-winner and 6 generations elite-band (k=3) on throwaway ledgers.</p>
+<ul><li>Pipeline works end to end on the live stack: <code>P_0</code> baseline scored in the</li></ul>
+<p>  sandbox = 2.1667 (matches the hand calculation); all 14 candidates ran with</p>
+<p>  status <code>ok</code>, none unattested; ledger chains verified; **1.00 Σ</p>
+<p>  calls/generation** and 0 gate rejections in both runs; usage logging and the</p>
+<p>  new arm-tagged ledgers (<code>single_winner_k1</code>, <code>elite_band_k3</code>) work.</p>
+<ul><li>**Measured tokens: 1,518/call mean, 1,807 p95, 924 prompt + 594 completion</li></ul>
+<p>  (428 reasoning), n = 8.** Groq's published limits table (console.groq.com/</p>
+<p>  docs/rate-limits, checked 2026-09-24) lists <code>openai/gpt-oss-120b</code> at 30 RPM /</p>
+<p>  1K RPD / 8K TPM / <b>200K TPD</b>, matching the figures recorded above — so</p>
+<p>  the token cap does bind (~110–130 calls/day), not the request cap. Your</p>
+<p>  account's own limits page remains authoritative.</p>
+<ul><li><b>Result to worry about:</b> 0 strict improvements over <code>P_0</code> in 14</li></ul>
+<p>  generations. Inspected diffs: <code>r = 0.99/(2·side)</code> (worse), <code>r = 0.5/side</code></p>
+<p>  (identical value), and a per-circle <code>r = min(x, 1-x, y, 1-y)</code> that overlaps</p>
+<p>  (invalid → fitness 0). The grid is a hard local optimum for small edits, and</p>
+<p>  prompt v1 asked for "ONE small, targeted edit." 14 generations is far too</p>
+<p>  few to conclude Σ <i>cannot</i> improve; it is enough to see the prompt was</p>
+<p>  working against the task.</p>
+<ul><li><b>Response:</b> one disclosed prompt revision (v2) with a no-further-changes</li></ul>
+<p>  rule — <code>PREREGISTRATION.md</code> §7 — plus a v2 pilot that also live-tests the</p>
+<p>  round-robin / target / resume driver (previously simulated with fakes only).</p>
+<ul><li>Minor artifact, not changed: a candidate scored 2.166666666666666 vs the</li></ul>
+<p>  baseline's 2.1666666666666665 (1 ulp) and was "kept" rather than adopted;</p>
+<p>  ties are decided by float rounding. H1 therefore uses a 1e-9 tolerance.</p>
+<ul><li>Band diversity is <i>syntactic</i> (canonical-AST fingerprint): <code>P_0</code> plus</li></ul>
+<p>  semantically-equivalent rewrites (<code>0.5/side</code> ≡ <code>1/(2·side)</code>) can fill the</p>
+<p>  band with behavioral duplicates. Left as is — the rule is pre-registered —</p>
+<p>  and to be disclosed as a limitation.</p>
+<ul><li><b>Confirmed at Day 16:</b> <code>pytest tests/integration -v</code> → 10/10 passed against real Docker (22 s), including B08 (<code>test_no_host_secrets_reachable_inside_container</code>) — see the v2 pilot section below.</li></ul>
+<h2 id="day-16-v2-pilot-patch-2-applied-uncommitted-plum">Day 16 v2 pilot (patch 2 applied, uncommitted): plumbing verified, H1 still open</h2>
+<p>Ran on your machine: `--conditions single_winner,elite_band --seeds 9999</p>
+<p>--target-generations 12<code> then the identical command with </code>20`, ledger</p>
+<p><code>runs/pilot_v2.db</code>, <code>--daily-token-cap 190000</code>; plus <code>pytest tests/integration -v</code>.</p>
+<ul><li><b>Live-verified:</b> target-total + round-robin + resume (second command</li></ul>
+<p>  continued at generation 12 in both arms; every arm reached exactly 20);</p>
+<p>  local token cap plumbing; prompt version/hash in <code>runmeta.json</code> (v2, 1 hash);</p>
+<p>  ledger chains OK; <b>integration suite 10/10 (B08 closed)</b>.</p>
+<ul><li><b>Cost measured:</b> v2 = 1,754 tokens/call (40 calls; prompt ≈ 1,148); 1.00</li></ul>
+<p>  Σ calls/generation across all 54 pilot generations; **0 admission</p>
+<p>  rejections ever fired on real Σ output** (so the paper's real-run rejection</p>
+<p>  taxonomy will be essentially empty; the barrier evidence is the ADV suite).</p>
+<ul><li><b>Quality:</b> 0 strict improvements in either arm (20 gens each). Σ now</li></ul>
+<p>  proposes valid non-grid layouts (1.9330127 = 1.5 + √3/4; 1.7414 = 1.6 +</p>
+<p>  √2/10) but all score below the seed grid; 3–4 of 20 invalid packings per</p>
+<p>  arm; 1 crashed candidate (nonzero exit → no attested result; ordinary</p>
+<p>  failure, not an integrity event). A band-arm 1-ulp "improvement"</p>
+<p>  (2.166666666666667) is not an improvement under H1's 1e-9 tolerance.</p>
+<ul><li><b>Decision:</b> per <code>PREREGISTRATION.md</code> §7, launch unchanged (no further</li></ul>
+<p>  prompt changes) at N = 100/arm, 6 arms, token cap 190000, deadline Day 23.</p>
+<ul><li><code>git_dirty</code> in <code>runmeta.json</code> now watches only run-affecting code</li></ul>
+<p>  (<code>delta harness sigma seed scripts/run_stage1.py</code>) — daily doc edits no</p>
+<p>  longer make later invocations look dirty. (Pilot invocations were dirty</p>
+<p>  because patch 2 was uncommitted; expected.)</p>
+<ul><li><code>summarize_ledgers.py</code> now prints <code>baseline rows</code> (must be 1 — the</li></ul>
+<p>  once-only baseline check across resumes) and relabels "unattested" as "no</p>
+<p>  attested result (crash/timeout, not an integrity event)".</p>
+<h2 id="launch-day-2026-09-24-utc-the-real-matched-run-s">Launch day (2026-09-24 UTC): the real matched run started; day 1 results; one scheduler bug fixed</h2>
+<p>Launched at tag <code>prereg-week3</code> (<code>--target-generations 100</code>, 6 arms, token cap</p>
+<p>190000, prompt v2). It stopped cleanly at the local token cap</p>
+<p>(190,932 tokens used, incl. 70,142 from the earlier pilot).</p>
+<ul><li><b>Progress:</b> 63 generations across the 6 arms — single_winner/seed0 = 13,</li></ul>
+<p>  every other arm = 10 — from 66 Σ calls and 120,790 tokens: **1,830</p>
+<p>  tokens/call** (pilot: 1,754; parents grow as Σ writes longer code, so watch</p>
+<p>  this number drift up) and <b>1.05 calls/generation</b>. Three retried calls</p>
+<p>  (elite_band/seed1000: 12 requests for 10 generations; elite_band/seed2000:</p>
+<p>  11) mean admission rejections or <code>E_NO_PROPOSAL</code> <i>do</i> occur on real Σ output</p>
+<p>  — classes to be read from <code>summarize_ledgers.py</code>, not from memory.</p>
+<ul><li><b>First strict improvement:</b> <code>elite_band/seed1000</code> reached <b>2.2292036</b></li></ul>
+<p>  (+0.0625, +2.9% over the 2.1667 baseline) within its first 10 generations.</p>
+<p>  The other five arms are still at the baseline. **One arm, ten generations,</p>
+<p>  and a peek at one arm's result: nothing to conclude, and nothing changes.**</p>
+<p>  The run continues to N = 100 unchanged (<code>PREREGISTRATION.md</code>: no optional</p>
+<p>  stopping, no extension). Worth a read of the winning diff (text only —</p>
+<p>  never execute candidate code outside the sandbox) as a qualitative example</p>
+<p>  for the paper.</p>
+<ul><li><b>Bug found from the counts, fixed:</b> the arm scheduler was a per-pass</li></ul>
+<p>  round-robin that restarts from the first arm on every resume, so early arms</p>
+<p>  gain a chunk whenever a daily stop lands mid-pass and the lead accumulates</p>
+<p>  (regression test reproduced <code>[10,10,30,30,30,33]</code> by day 2). Replaced with</p>
+<p>  least-progressed-first (<code>next_chunk</code>); 202/202 tests pass, including a</p>
+<p>  60-day interrupted-run simulation. Logged as <b>deviation D1</b> in</p>
+<p>  <code>PREREGISTRATION.md</code> — scheduling order only; no arm's trajectory logic</p>
+<p>  changed. My earlier claim that arms "stay matched across days" was wrong for</p>
+<p>  the previous scheduler; the multi-day fake test only checked the first stop.</p>
+<ul><li>Budget outlook at 1,830 tokens/call and 190K/day: ~104 calls ≈ 99</li></ul>
+<p>  generations/day at 1.05 calls/gen → the remaining ~537 generations need</p>
+<p>  ~5.5 more days (deadline: end of 2026-10-02).</p>
+<h2 id="run-log-append-one-row-per-day-the-run-advances-">Run log (append one row per day the run advances; numbers copied from <code>summarize_ledgers.py</code>)</h2>
+<div class="tw"><table><tr><th>Date (UTC)</th><th>single_winner s0 / s1000 / s2000 (gens; best)</th><th>elite_band s0 / s1000 / s2000 (gens; best)</th><th>Σ calls / tokens today</th><th>Notes</th></tr><tr><td>2026-09-24</td><td>13; 2.1667 / 10; 2.1667 / 10; 2.1667</td><td>10; 2.1667 / 10; <b>2.2292</b> / 10; 2.1667</td><td>66 launch calls, 120,790 tok (1,830/call)</td><td>launch at commit <code>9c149ea0</code>, clean; stopped at local token cap; D1 (scheduler) fixed afterwards</td></tr></table></div>
+<p><b>Day-1 detail worth keeping for the paper</b></p>
+<ul><li>Rejections on real Σ output: 3 of 66 calls, <b>all <code>E_MALFORMED_DIFF</code></b> (band/seed1000: 2, band/seed2000: 1), none in the three single-winner arms. n = 3; do not read a pattern into "only the band arms" (band parents are more varied and longer, so a verbatim SEARCH block is harder to copy — a hypothesis, not a finding).</li><li>1 crashed candidate (band/seed2000, <code>nonzero_exit</code>, no scored result — ordinary execution failure, not a barrier event). Scored-invalid packings so far: 0–3 per arm of 10–13.</li><li><b>The 2.2292 candidate</b> (<code>elite_band/seed1000</code>, generation 9, child of g8): a hexagonal-offset row layout, then each circle's radius set to <code>min(distance to nearest square border, half the distance to its nearest neighbour)</code>. That radius rule can never produce an overlap (any pair has <code>r_i + r_j ≤ d_ij</code> by construction; checked numerically over 2,000 random point sets, min slack 0.0) — so it is valid <i>by design</i>, not by scorer-tolerance luck, and it did not touch the scorer or anything outside the block. It also carries a stale leftover comment from an earlier edit. One example only; when writing §6 show it alongside a <i>typical</i> candidate, not on its own.</li><li>Per-call token cost keeps creeping up as parents get longer code (1,830 vs the pilot's 1,754; this run's largest single call 3,069 tokens). Budget check at a pessimistic 2,800 tokens/call: 8 daily quotas (Sep 25 – Oct 2) still cover ~517 of the ~537 remaining generations; the stopping rule (Day 23, analysis at G_common) covers any shortfall. There is ~2.5 days of slack at the current rate — <b>no timing pressure to start early.</b></li><li>All Σ calls run under <b>one Groq account/key</b> and its free-tier quota (to be stated in the paper's Methods). The daily wait is deliberate; swapping in other accounts' keys to multiply the quota is not part of this experiment (it works around the provider's usage limits, risks the provider's action against the main key mid-project, and buys nothing given the slack above).</li></ul>
+<h2 id="day-17-step-size-data-from-the-real-run-and-a-bu">Day 17: step-size data from the real run, and a bug in MY duplicate rule (patch 6)</h2>
+<p><b>Step-size data</b> (<code>ast_distance_parent</code>, frozen metric, admitted candidates; n = 10–13 per arm — preliminary):</p>
+<div class="tw"><table><tr><th>arm</th><th>median step</th><th>max step</th><th>best-fitness candidate: step / distance from <code>P_0</code></th></tr><tr><td>band s0 / s1000 / s2000</td><td>0.183 / 0.221 / 0.388</td><td>0.541 / 0.582 / 0.580</td><td>s1000: <b>0.391 / 0.713</b> (the 2.2292 hex layout)</td></tr><tr><td>single s0 / s1000 / s2000</td><td>0.066 / 0.512 / 0.088</td><td>0.641 / 0.753 / 0.556</td><td>(best rows are ties with <code>P_0</code>)</td></tr></table></div>
+<ul><li>The scale is the whole-file, node-type-sequence Levenshtein normalised by the longer sequence (immutable header ≈ 5 of 122 nodes, negligible dilution). I reproduced the ledger's 0.713 exactly from the printed winner, so the numbers are what they appear to be.</li><li><b>Reading, for the concept (bounded small increments):</b> the guide's planned 15% per-step bound would counterfactually have blocked the winning step (0.391) and most structural proposals; only near-constant tweaks (medians 0.066, 0.088) fit under it. From the seed grid, the hex layout is not reachable in sub-15% steps. That is the familiar trust-region limitation (a bound cannot cross a valley), observed on real data — but n is small, it is counterfactual on realized proposals (blocking a step would change every later parent), and it is one task. Report as an observation, not a result.</li><li><b>The frozen metric is blind to constants and identifier names</b> (verified by running it: <code>1.0 → 0.99</code>, <code>1.0 → 100.0</code> and <code>side → kk</code> all have distance 0.0). A step bound on this metric therefore cannot bound the <i>magnitude</i> of a numeric change. Syntactic step size ≠ behavioural step size; the paper should report edit size together with the fitness change and say so in Limitations. (The metric was frozen before data, so this is a disclosed weakness, not something to change.)</li></ul>
+<p><b>The bug (mine, introduced with the elite-band rule):</b> the duplicate check used <code>semantic_fingerprint</code>, which hashes only node <i>types</i>. Two programs differing only in constants/names got the same key, so a <b>constant-tuned child was rejected as a "duplicate" even when strictly fitter</b> — in both arms (k=1 included). Numeric tuning of a working layout is the most basic kind of improvement, and it would have become more likely as Σ's programs got richer. I described the key as "canonical-AST hash" and never tested what it could not see; the tests used fakes whose fingerprints I controlled.</p>
+<p><b>Fix (patch 6):</b> new <code>exact_fingerprint</code> (hash of the full canonical AST: layout/comments/docstrings ignored, constants and names count; keys versioned <code>x1:</code>); selection uses it; checkpoints written with the old key are re-derived from stored source on resume. The ledger's <code>semantic_fingerprint</code> column and the frozen distance are untouched. 214/214 tests pass, including regressions for constant-tuned improvements under k=1 and k=3.</p>
+<p><b>Has it already changed anything? — No.</b> <code>scripts/replay_selection.py</code> on all six arms (63 generations): every replay reproduced its arm's checkpoint band exactly (so the replay is faithful), and the corrected rule made <b>identical decisions on every arm's history</b> (candidates that reached selection: band 7 / 9 / 6, single-winner 10 / 10 / 10). The fix is a pure bug fix that touched none of the data collected so far, so no restart; logged as <b>deviation D2</b> in <code>PREREGISTRATION.md</code> and continuing. Output saved as <code>runs/week3.replay_d2.txt</code>. Lesson kept: my tests for the rule used fakes whose fingerprints I controlled, so they could not catch a key that was wrong on real programs; the new tests exercise the real <code>edit_metrics</code> and real sources.</p>
+<h2 id="idea-recorded-deliberately-not-built-multi-test-">Idea recorded, deliberately not built: multi-test evaluation + specialist recombination</h2>
+<p>Raised by you (Day 17): evaluate clones on several tests, keep the best</p>
+<p>all-rounder <i>and</i> per-test champions, merge champions' strengths into the</p>
+<p>all-rounder to make hybrids. Written up in <b><code>STAGE2_DESIGN_NOTES.md</code></b></p>
+<p>(idea, guardrails, what Stage 1 already taught us, open design questions with</p>
+<p>options, four smallest experiments E0–E3, kill criteria) and as a Future Work</p>
+<p>paragraph in <code>DRAFT.md</code> §8. It fits the guide's Stage 2 (multi-case real evals;</p>
+<p>cost/latency — your "efficiency" — re-enters as a measured axis; noisy evals make</p>
+<p>the elite band's original noise-robustness motivation testable), but it is <b>not</b></p>
+<p>that gated plan and is <b>not part of Stage 1</b>: the running experiment is unchanged.</p>
+<p>The cheapest first look, if you want one later, is <b>E0</b> — re-score the clones</p>
+<p>we already collected at other circle counts (zero Σ tokens). §8's citations were</p>
+<p>written from memory and are on the pending list to verify.</p>
+<h2 id="not-yet-built-not-yet-run-for-real-week-3-remain">Not yet built / not yet run for real (Week 3 remainder onward)</h2>
+<ul><li><b>The circle_packing experiment itself</b> (Week 3, Day 16-20) — Day 15's</li></ul>
+<p>  real end-to-end run used binpacking (pipeline-debugging only, per</p>
+<p>  §1.2/§1.4, not reported in the paper) and the sanity check above only</p>
+<p>  scored <code>P_0</code> once, host-side, no generations run. Nothing has evolved</p>
+<p>  circle_packing yet. Needs: the Day 16 token measurement</p>
+<p>  (<code>WEEK3_SETUP.md</code> §3) → fill and commit <code>PREREGISTRATION.md</code> (§4), then</p>
+<p>  your Docker + <code>GROQ_API_KEY</code> machine for the matched run (§5).</p>
+<ul><li><b>The newly-added B08 test, run for real against a live container</b> —</li></ul>
+<p>  everything else in <code>tests/integration</code> (including C04/C06/C10) already</p>
+<p>  passed for real on 2026-09-23 per this file's own Day 15 entry above</p>
+<p>  (9/9 at the time). <code>test_no_host_secrets_reachable_inside_container</code></p>
+<p>  is new since then and has only run host-side-adjacent (i.e. not at</p>
+<p>  all against a real daemon) — one more <code>pytest tests/integration -v</code></p>
+<p>  on your machine closes this out; see <code>WEEK3_SETUP.md</code>.</p>
+<ul><li><b>Elite-band vs single-winner ablation</b> — the arm is now <i>built</i> and</li></ul>
+<p>  unit-tested (Day 16 patch above) and runs <b>concurrently</b> with the</p>
+<p>  single-winner arms (matched, round-robin), not as a separate Week 4</p>
+<p>  pass; tagged via the ledger's <code>ablation_config</code> column. Not yet run for</p>
+<p>  real.</p>
+<h2 id="stage-1-exit-checklist-research-program-guide-1-">Stage 1 exit checklist (research-program-guide §1.6) — progress</h2>
+<ul><li>[ ] <code>P_0</code> improves measurably over generations on circle packing — blocked on the real experiment (see above)</li><li>[x] Manifest integrity mechanism built and unit-tested (full-run claim comes once real generations run)</li><li>[x] The 8-10 case adversarial suite passes — 13/17 Tier A+C cases tested (exceeds target), Tier A via unit tests, Tier C via unit tests + all 10 integration tests (incl. C04/C06/C10 and the B08 bonus) live-verified against real Docker (9/9 on 2026-09-23; 10/10 on Day 16)</li><li>[ ] Elite-band vs single-winner ablation — machinery built + pre-registered (<code>PREREGISTRATION.md</code>); not yet run</li><li>[x] Ledger chain built and unit-tested (hash chain, tamper detection, lineage/generation queries all verified)</li><li>[x] Sandbox hardening verified on a real Docker daemon</li><li>[ ] Repo clean enough to open-source — in progress</li><li>[ ] Draft written per the paper guide — not started</li><li>[ ] arXiv account / category — not started</li></ul></article><div class="toc"><a class="t2" href="#week-1-research-program-guide-1-4-done-tested-al">Week 1 (research-program-guide §1.4) — DONE, tested, all 49 </a><a class="t2" href="#week-2-days-8-11-research-program-guide-1-4-buil">Week 2, Days 8-11 (research-program-guide §1.4) — built here</a><a class="t2" href="#sandbox-hardening-verified-on-real-hardware-2026">Sandbox hardening — VERIFIED on real hardware (2026-09-17)</a><a class="t2" href="#week-2-day-12-14-client-generation-loop-built-an">Week 2, Day 12-14 — Σ client + generation loop, built and un</a><a class="t2" href="#week-3-day-15-scratch-permission-bug-found-and-f">Week 3, Day 15 — `/scratch` permission bug found and fixed v</a><a class="t2" href="#week-3-day-15-cont-d-circle-packing-sanity-check">Week 3, Day 15 (cont'd) — circle_packing sanity check, check</a><a class="t2" href="#week-3-day-15-review-day-16-patch-2026-09-24-thr">Week 3, Day 15 review → Day 16 patch (2026-09-24): three pro</a><a class="t2" href="#day-16-live-pilot-2026-09-24-first-real-circle-p">Day 16 live pilot (2026-09-24): first real circle_packing ge</a><a class="t2" href="#day-16-v2-pilot-patch-2-applied-uncommitted-plum">Day 16 v2 pilot (patch 2 applied, uncommitted): plumbing ver</a><a class="t2" href="#launch-day-2026-09-24-utc-the-real-matched-run-s">Launch day (2026-09-24 UTC): the real matched run started; d</a><a class="t2" href="#run-log-append-one-row-per-day-the-run-advances-">Run log (append one row per day the run advances; numbers co</a><a class="t2" href="#day-17-step-size-data-from-the-real-run-and-a-bu">Day 17: step-size data from the real run, and a bug in MY du</a><a class="t2" href="#idea-recorded-deliberately-not-built-multi-test-">Idea recorded, deliberately not built: multi-test evaluation</a><a class="t2" href="#not-yet-built-not-yet-run-for-real-week-3-remain">Not yet built / not yet run for real (Week 3 remainder onwar</a><a class="t2" href="#stage-1-exit-checklist-research-program-guide-1-">Stage 1 exit checklist (research-program-guide §1.6) — progr</a></div></div></main><script></script></body></html>
