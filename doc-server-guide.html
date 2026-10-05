@@ -1,0 +1,217 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Server Management &amp; Splitting Guide - MiniMe Atlas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap"><style>:root{--bg:#0a0a0c;--p:#121216;--p2:#17171d;--ln:#26262e;--tx:#f2f1ed;--dim:#a8a6a0;--r:#ff2052;--v:#a78bfa;--a:#f59e0b;--g:#34d399;--m:#f06cb4}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 Sora,Inter,system-ui,sans-serif;display:flex;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background-image:linear-gradient(rgba(255,32,82,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,32,82,.12) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent);mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent)}
+nav{position:sticky;top:0;height:100vh;width:210px;flex:none;padding:22px 14px;border-right:1px solid var(--ln);background:rgba(10,10,12,.9);z-index:2}
+nav .logo{font-weight:700;font-size:18px;margin:0 8px 18px}nav .logo b{color:var(--r)}nav a{display:block;padding:8px 12px;border-radius:9px;color:var(--dim);text-decoration:none;margin:2px 0}
+nav a:hover{background:var(--p2);color:var(--tx)}nav a.on{background:rgba(255,32,82,.14);color:#fff;box-shadow:inset 2px 0 var(--r)}nav small{display:block;margin:18px 8px 0;color:#6d6b66;font-size:12px}
+main{flex:1;min-width:0;padding:34px 40px 80px;position:relative;z-index:1;max-width:1500px}
+h1{font-size:30px;margin:0 0 4px;letter-spacing:-.02em}h2{font-size:20px;margin:34px 0 12px}h3{font-size:16px;margin:22px 0 8px}.sub{color:var(--dim);margin:0 0 24px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.card{background:var(--p);border:1px solid var(--ln);border-radius:14px;padding:16px 18px}.card.h:hover{border-color:var(--r);transform:translateY(-2px);transition:.15s}
+.k{font-size:30px;font-weight:700;letter-spacing:-.02em;color:#fff}.k small{font-size:13px;color:var(--dim);font-weight:400}.l{color:var(--dim);font-size:13px}
+.bar{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:13px}.bar span:first-child{width:170px;flex:none;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar i{display:block;height:9px;border-radius:5px;background:linear-gradient(90deg,var(--r),var(--m))}.bar em{font-style:normal;color:var(--tx);min-width:60px}
+a{color:#ff7a96}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:7px 10px;border-bottom:1px solid var(--ln);text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:var(--p2);cursor:pointer;color:var(--dim);font-weight:600;white-space:nowrap}td.n{text-align:right;font-variant-numeric:tabular-nums}tr:hover td{background:rgba(255,255,255,.03)}
+.tw{overflow-x:auto;border:1px solid var(--ln);border-radius:12px;margin:12px 0}input[type=search],input[type=text]{background:var(--p);border:1px solid var(--ln);color:var(--tx);border-radius:10px;padding:9px 13px;width:320px;max-width:100%;font:inherit}
+button{background:var(--p2);color:var(--tx);border:1px solid var(--ln);border-radius:9px;padding:7px 14px;cursor:pointer;font:inherit}button:hover{border-color:var(--r)}
+.chip{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;border:1px solid var(--ln);color:var(--dim);cursor:pointer;user-select:none}
+.chip.done{color:#0a0a0c;background:var(--g);border-color:var(--g)}.chip.prog{color:#0a0a0c;background:var(--a);border-color:var(--a)}.chip.plan{color:var(--v);border-color:var(--v)}
+.lane{margin:26px 0}.lane h2{display:flex;gap:12px;align-items:center}.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}.cards .card{font-size:13px}.cards .card b{display:block;margin-bottom:6px;font-size:14px}
+.doc{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:40px}.doc article{min-width:0;max-width:880px}.toc{position:sticky;top:20px;align-self:start;max-height:90vh;overflow:auto;font-size:13px;border-left:1px solid var(--ln);padding-left:14px}
+.toc a{display:block;color:var(--dim);text-decoration:none;padding:2px 0}.toc a:hover{color:#fff}.toc .t3{padding-left:12px;font-size:12px}
+article h1,article h2{border-bottom:1px solid var(--ln);padding-bottom:6px}pre{background:var(--p);border:1px solid var(--ln);border-radius:10px;padding:12px;overflow:auto;font-size:12.5px}
+code{background:var(--p2);padding:1px 6px;border-radius:5px;font-size:.9em;color:#ffb3c2}pre code{background:none;padding:0;color:inherit}blockquote{margin:12px 0;padding:6px 16px;border-left:3px solid var(--r);color:var(--dim);background:var(--p)}
+iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}.pie{width:150px;height:150px;border-radius:50%}.row{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.lg div{font-size:13px;color:var(--dim)}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px}.pill{font-size:11px;color:var(--dim);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;display:inline-block}
+.thumb{height:210px;overflow:hidden;border-radius:10px;border:1px solid var(--ln);position:relative;background:#fff}.thumb iframe{width:1280px;height:840px;transform:scale(.3);transform-origin:0 0;border:0;pointer-events:none}
+@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><a href="journey.html" class="">Journey</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="architecture.html" class="">Architecture</a><a href="data.html" class="">Data model</a><a href="docs.html" class="">Docs</a><small>Private. Built 2026-10-05 from commit febb685.</small></nav><main><h1>Server Management &amp; Splitting Guide</h1><p class="sub">MiniMe core. 2,448 words. <a href="data/docs/minime_server_management_guide.md" download>Download .md</a></p><div class="doc"><article><h1 id="minime-server-management-splitting-guide">MiniMe — Server Management &amp; Splitting Guide</h1>
+<p>*A practical execution guide, separate from but built directly on <code>minime_roadmap.md</code> (business/phasing)</p>
+<p>and <code>minime_technical_roadmap.md</code> (architecture). This document answers one question only: **when and</p>
+<p>how do you actually split servers, and how do you manage them once split** — sequenced against your</p>
+<p>real phases (0 → 1 → 2 → 3a → 3b), not against a generic "best practice" timeline.*</p>
+<p>Verified against the live repo (<code>docker-compose.yml</code>, <code>backend.Dockerfile</code>, <code>frontend.Dockerfile</code>,</p>
+<p><code>backend/api/routes/system.py</code>) as of this writing:</p>
+<ul><li>Backend: FastAPI, port <code>8000</code>, already exposes <code>GET /api/health</code> → <code>{"status": "ok"}</code>.</li><li>Frontend: Next.js, port <code>3000</code>, talks to backend via <code>NEXT_PUBLIC_API_URL</code>.</li><li>Compose already separates the two into distinct containers/build contexts — you are <i>not</i> starting</li></ul>
+<p>  from a monolith, you're starting from "two containers on one host."</p>
+<ul><li>A <code>backend-latency-probe</code> endpoint already exists and times Postgres/Redis round-trips — reuse this</li></ul>
+<p>  when you're deciding where a new server should physically sit (co-location matters, per that code's</p>
+<p>  own comments).</p>
+<ul><li><code>daemon/</code> exists but is explicitly flagged in the roadmap as <b>out of scope for hosting decisions</b></li></ul>
+<p>  until a tier's revenue funds a real security audit of it. Do not put it on any internet-facing server</p>
+<p>  in the meantime.</p>
+<hr>
+<h2 id="guiding-rule-splitting-is-gated-not-scheduled">Guiding rule: splitting is gated, not scheduled</h2>
+<p>The business roadmap's core discipline (Part 3.5/3.6) — don't build the next tier until operational</p>
+<p>capacity and demand both justify it — applies identically to infrastructure. **Don't split servers</p>
+<p>ahead of the phase that needs it.** Every extra server is something you personally patch, monitor, pay</p>
+<p>for, and debug at 2am, solo, until Phase 3a's hiring. The failure mode to avoid isn't "under-scaled and</p>
+<p>slow" (fixable in an afternoon) — it's "over-built and unmaintained" (a solo founder quietly not</p>
+<p>patching three droplets while building Moderate).</p>
+<p>So this guide is phase-gated:</p>
+<div class="tw"><table><tr><th>Roadmap phase</th><th>Infra state</th><th>Why not more</th></tr><tr><td>Phase 0 (now → Apr 2027)</td><td>1 server, Docker Compose, no public billing</td><td>No paying users yet — nothing to protect at scale</td></tr><tr><td>Phase 1 (pilot)</td><td>1 server, hardened, real monitoring</td><td>Pilot traffic is bounded and known in advance</td></tr><tr><td>Phase 2 (Basic launch)</td><td><b>First real split</b> — LB + 2 backend + reverse proxy</td><td>Real money and real strangers now hit this</td></tr><tr><td>Phase 3a (Moderate)</td><td>Horizontal scale-out, dedicated agent workers</td><td>Second tier's load profile differs from Basic's</td></tr><tr><td>Phase 3b (Ultimate)</td><td>Kubernetes or equivalent, autoscaling</td><td>Third model tier, longest-running agent jobs</td></tr></table></div>
+<hr>
+<h2 id="phase-0-now-one-server-done-properly">Phase 0 (now) — one server, done properly</h2>
+<p>You don't need a second server yet. You need the <i>first</i> one to be boring and correct.</p>
+<p><b>Setup:</b></p>
+<ul><li>1 VPS (DigitalOcean droplet or Hetzner CX, 2–4 vCPU / 4–8GB is plenty at this stage).</li><li>Docker Compose as it exists in the repo today — no changes needed to <code>docker-compose.yml</code> structurally.</li><li>Add <b>Caddy</b> in front on the same box, reverse-proxying to <code>localhost:3000</code> (frontend) and</li></ul>
+<p>  <code>localhost:8000/api/*</code> (backend). Caddy gets you automatic HTTPS with almost no config — this is the</p>
+<p>  single highest-value/lowest-effort addition available to you right now.</p>
+<ul><li>Point your domain at this box through Cloudflare (free plan) for DNS + basic DDoS/WAF — no code changes</li></ul>
+<p>  required, just DNS.</p>
+<p><b>Management practices to start now, not later:</b></p>
+<ul><li><b>Cost-per-task logging</b> — per the roadmap's Part 15 #1, this is the single highest-leverage thing to</li></ul>
+<p>  have running before anything else. It also happens to be the data you'll need to size Phase 2's servers</p>
+<p>  correctly instead of guessing.</p>
+<ul><li><b>Health checks are already there</b> — <code>GET /api/health</code> exists. Point Caddy's (or later, your load</li></ul>
+<p>  balancer's) health check at it now, even solo, so you build the habit before it's load-bearing.</p>
+<ul><li><b>Key consolidation</b> — you're running on ~57 free-tier keys today (per the technical roadmap's audit).</li></ul>
+<p>  Before Phase 2, this needs to become a real 5–8 provider production shortlist. Do this on the <i>current</i></p>
+<p>  single server first — it's a config change, not an infra change, and it's much easier to get right</p>
+<p>  before you're also managing multiple hosts.</p>
+<ul><li><b>Backups</b> — Supabase and Upstash are already managed/backed-up externally, which is a real advantage;</li></ul>
+<p>  the only thing living solely on your one droplet is your Docker config and any local secrets. Keep</p>
+<p>  <code>.env</code> files backed up somewhere off that box (a password manager or encrypted secret store — never a</p>
+<p>  public repo; note the repo already runs Gitleaks pre-commit + CI scanning, keep that habit).</p>
+<p><b>Don't do yet:</b> load balancer, second server, Kubernetes, API gateway. All of these add operational</p>
+<p>surface with zero users to justify it.</p>
+<hr>
+<h2 id="phase-1-pilot-same-one-server-hardened">Phase 1 (pilot) — same one server, hardened</h2>
+<p>Per the roadmap, Phase 1's job is producing real cost-per-task and usage data for Basic's tier profile —</p>
+<p>not scaling. Pilot traffic is small and bounded (a Seed Fund cohort or a BD-connected pilot customer),</p>
+<p>so a second server still isn't justified.</p>
+<p><b>What changes from Phase 0:</b></p>
+<ul><li>Real per-user rate limiting (independent of provider limits) — this is now protecting against a known</li></ul>
+<p>  but external set of pilot users, not just yourself.</p>
+<ul><li>Basic monitoring dashboard — even a simple one (Grafana + the metrics you're already logging, or just</li></ul>
+<p>  a scheduled script emailing you a daily summary) so pilot problems surface before the pilot user tells</p>
+<p>  you.</p>
+<ul><li>Multi-tenancy and isolation should already be <i>real</i> by this point (per the roadmap's Phase 0 technical</li></ul>
+<p>  work) — this is where you find out if it actually holds under real concurrent pilot users, on the one</p>
+<p>  server you already have.</p>
+<p><b>Still don't:</b> split servers. If the pilot is generating more load than one droplet handles comfortably,</p>
+<p>that's a data point for sizing Phase 2's servers, not a reason to prematurely add a second box to a</p>
+<p>system still running on Compose without a load balancer in front.</p>
+<hr>
+<h2 id="phase-2-basic-launch-the-first-real-split">Phase 2 (Basic launch) — the first real split</h2>
+<p>This is the actual point in your roadmap where splitting earns its cost: real billing, real strangers,</p>
+<p>real uptime expectations. This is "Phase 2 – First real production" from the technical roadmap, made</p>
+<p>concrete against your actual repo.</p>
+<h3 id="target-architecture">Target architecture</h3>
+<pre>Internet
+   │
+   ▼
+Cloudflare (DNS + CDN + WAF)
+   │
+   ▼
+Load Balancer  (DO LB / Hetzner LB — health check → GET /api/health)
+   │
+   ▼
+Caddy (reverse proxy, TLS termination, one instance per node or a
+       dedicated small proxy node — either works at this size)
+   │
+   ├──► Frontend nodes ×2  (Next.js containers, built from frontend.Dockerfile)
+   │
+   └──► Backend nodes ×2   (FastAPI containers, built from backend.Dockerfile)
+              │
+              ▼
+   External managed services (unchanged): Supabase, Upstash, Pusher</pre>
+<h3 id="concrete-steps">Concrete steps</h3>
+<ol><li><b>Split frontend and backend onto separate node groups first</b>, before adding more of either. They</li></ol>
+<p>   scale differently (frontend is nearly stateless and cheap to replicate; backend is where agent calls</p>
+<p>   and cost live) and have different failure modes. The repo's Dockerfiles already build them</p>
+<p>   independently — this is a deploy-topology change, not a code change.</p>
+<ol><li><b>Two backend nodes minimum</b>, behind the load balancer, both pointed at the same Supabase/Upstash</li></ol>
+<p>   instances. <code>NEXT_PUBLIC_API_URL</code> on the frontend nodes should point at the load balancer's address,</p>
+<p>   not at a single backend node's IP.</p>
+<ol><li><b>Health checks become load-bearing now.</b> Configure the load balancer to poll <code>GET /api/health</code> on</li></ol>
+<p>   each backend node and pull unhealthy nodes out of rotation automatically. This endpoint already exists</p>
+<p>   — you're wiring it up, not building it.</p>
+<ol><li><b>Reverse proxy / TLS</b>: Caddy in front, same as Phase 0/1, just now proxying to multiple upstream</li></ol>
+<p>   nodes instead of <code>localhost</code>.</p>
+<ol><li><b>Rate limiting at the edge</b>, not just per-user in application code — Basic is your highest-call-volume</li></ol>
+<p>   tier by design (per the roadmap's Part 4.2a), so this is where a runaway client or an abuse pattern</p>
+<p>   would actually hurt.</p>
+<ol><li><b>Consider whether an API gateway (Kong/Traefik) earns its cost yet.</b> The technical roadmap correctly</li></ol>
+<p>   flags this as optional at first pass — add it when you specifically need per-API-key limits, central</p>
+<p>   auth across nodes, or per-tier request shaping, not just because it's "the more sophisticated option."</p>
+<p>   At two backend nodes, a good reverse proxy config often covers what you need.</p>
+<ol><li><b>Keep the daemon off every internet-facing node.</b> Nothing in this phase changes the roadmap's</li></ol>
+<p>   decision to keep it deferred until a funded security audit.</p>
+<h3 id="where-each-node-should-physically-live">Where each node should physically live</h3>
+<p>Use the repo's existing <code>backend-latency-probe</code> endpoint before choosing a region/provider for your new</p>
+<p>nodes — it already measures real Postgres/Redis round-trip latency, not just a region label. Co-locate</p>
+<p>backend nodes in the same region as Supabase and Upstash if the probe shows meaningful latency savings;</p>
+<p>don't assume "same continent" is close enough.</p>
+<h3 id="management-practices-that-start-mattering-here">Management practices that start mattering here</h3>
+<ul><li><b>Deploys</b>: move from "SSH in and <code>docker compose up</code>" to a scripted deploy (even a simple CI job</li></ul>
+<p>  that builds, pushes, and rolls each node) — with two nodes per tier, manual per-box deploys will drift.</p>
+<ul><li><b>Secrets across nodes</b>: your consolidated 5–8 provider keys now need to be distributed consistently</li></ul>
+<p>  to every backend node, not just one <code>.env</code> file on one box. A secrets manager (even your cloud</p>
+<p>  provider's built-in one) beats copy-pasting <code>.env</code> files node to node.</p>
+<ul><li><b>Zero-downtime rollout</b>: with 2 backend nodes, you can roll one at a time behind the load balancer's</li></ul>
+<p>  health check — deploy to node A, wait for it to pass health checks, drain traffic to node B, repeat.</p>
+<p>  This is the actual payoff of having split in the first place.</p>
+<ul><li><b>Logging/observability centralization</b>: two nodes means two sets of logs. Ship them somewhere</li></ul>
+<p>  central (even a simple log aggregator) before you need to debug an issue that only reproduces on one</p>
+<p>  node.</p>
+<p><b>Don't do yet:</b> Kubernetes. Two frontend + two backend nodes behind a load balancer is a complete,</p>
+<p>production-grade setup that doesn't need an orchestrator to manage.</p>
+<hr>
+<h2 id="phase-3a-moderate-scale-out-don-t-re-architect">Phase 3a (Moderate) — scale out, don't re-architect</h2>
+<p>Per the roadmap's gates (3.5/3.6), this phase only starts once Basic's operational load is manageable</p>
+<p><i>and</i> real demand signal exists for a second tier. Assuming both gates clear:</p>
+<ul><li>Moderate's load profile differs from Basic's (per Part 4.2a: fewer, larger, more expensive calls,</li></ul>
+<p>  smaller user base) — this usually means <b>fewer additional backend nodes than you'd guess</b>, tuned</p>
+<p>  for longer-running requests rather than raw concurrency.</p>
+<ul><li>This is the natural point to introduce <b>background workers / task queues</b> for agents whose work is</li></ul>
+<p>  long-running, using Redis (already on Upstash) with Celery, ARQ, or Taskiq — per the technical</p>
+<p>  roadmap's design rule #2: never run heavy agent work on the same process serving HTTP. Add a worker</p>
+<p>  node pool, separate from the request-serving backend nodes, rather than growing the backend node count</p>
+<p>  further.</p>
+<ul><li>Add real usage dashboards and basic abuse detection now if you haven't already — the roadmap</li></ul>
+<p>  explicitly gates Moderate's <i>build</i> on these existing for Basic, since they're what frees up the hours</p>
+<p>  Moderate's build needs.</p>
+<p>Architecture becomes:</p>
+<pre>LB → Caddy → Frontend nodes
+              → Backend (request-serving) nodes — Basic + Moderate routing by tier
+                    → Worker node pool (queue-consuming, long-running agent jobs)</pre>
+<p>Still no Kubernetes required at this point unless node count or deploy frequency has grown enough that</p>
+<p>manual node management is itself consuming real hours — that's the actual trigger, not "it's the next</p>
+<p>step everyone takes."</p>
+<hr>
+<h2 id="phase-3b-ultimate-this-is-where-kubernetes-earns">Phase 3b (Ultimate) — this is where Kubernetes earns its place</h2>
+<p>By the time Ultimate is gated open (again: operational capacity + demand signal, not calendar), you</p>
+<p>likely have: 3 tiers' worth of routing, a worker pool that's grown, frontier-model jobs that run longer</p>
+<p>and need different resource limits per job, and — per the master timeline — a team of 3–5, not solo.</p>
+<p>This is the point where the technical roadmap's Phase 3 recommendation (EKS/GKE/DOKS + Ingress +</p>
+<p>horizontal pod autoscaling on CPU/queue depth) actually pays for its added complexity, because:</p>
+<ul><li>You now have enough distinct node types (frontend, Basic/Moderate backend, Ultimate backend, workers)</li></ul>
+<p>  that manual provisioning is genuinely error-prone.</p>
+<ul><li>Autoscaling on queue depth matters once Ultimate's frontier-model jobs create genuinely variable,</li></ul>
+<p>  bursty load.</p>
+<ul><li>You have the headcount (per Part 8's hiring plan) to actually run it — this is explicitly the</li></ul>
+<p>  precondition the roadmap's operational-capacity gate is protecting.</p>
+<p>Don't pull this phase forward. A solo or two-person team running Kubernetes for Basic-tier traffic is</p>
+<p>solving a problem you don't have yet at the cost of hours you need elsewhere.</p>
+<hr>
+<h2 id="cross-phase-reference-component-choices">Cross-phase reference: component choices</h2>
+<div class="tw"><table><tr><th>Layer</th><th>Phase 0–1</th><th>Phase 2</th><th>Phase 3a–3b</th></tr><tr><td>DNS/CDN/WAF</td><td>Cloudflare (free)</td><td>Cloudflare (free)</td><td>Cloudflare (free or paid)</td></tr><tr><td>Load balancer</td><td>— (single box)</td><td>DO/Hetzner managed LB</td><td>Cloud LB or Ingress controller</td></tr><tr><td>Reverse proxy</td><td>Caddy, same box</td><td>Caddy, dedicated or per-node</td><td>Ingress (Traefik/Kong)</td></tr><tr><td>Frontend</td><td>1 container</td><td>2 containers</td><td>N containers, autoscaled</td></tr><tr><td>Backend</td><td>1 container</td><td>2 containers</td><td>N containers, tier-routed</td></tr><tr><td>Background workers</td><td>none</td><td>none</td><td>Celery/ARQ/Taskiq pool</td></tr><tr><td>Orchestration</td><td>Docker Compose</td><td>Docker Compose per node</td><td>Kubernetes</td></tr><tr><td>Database</td><td>Supabase (unchanged)</td><td>Supabase (unchanged)</td><td>Supabase or managed Postgres</td></tr><tr><td>Redis/vector</td><td>Upstash (unchanged)</td><td>Upstash (unchanged)</td><td>Upstash (unchanged)</td></tr><tr><td>Secrets</td><td>local <code>.env</code>, backed up</td><td>secrets manager</td><td>secrets manager + k8s secrets</td></tr></table></div>
+<p>Database, Redis/vector, and realtime (Pusher) stay externally managed at every phase per the technical</p>
+<p>roadmap's own recommendation — nothing above changes that.</p>
+<hr>
+<h2 id="infra-specific-checklist-extends-the-roadmap-s-p">Infra-specific checklist (extends the roadmap's Part 15)</h2>
+<ol><li>Caddy + Cloudflare in front of the single Phase 0 server — this week, not "eventually."</li><li>Cost-per-task logging live before anything else — you need this data to size Phase 2's node count</li></ol>
+<p>   correctly instead of guessing.</p>
+<ol><li>Consolidate the ~57 free-tier keys to a real 5–8 provider shortlist on the <i>current single server</i>,</li></ol>
+<p>   before Phase 2 multiplies the number of places a key has to live correctly.</p>
+<ol><li>Wire the load balancer's health check to the existing <code>GET /api/health</code> the moment Phase 2 starts —</li></ol>
+<p>   don't build a new endpoint, use what's already there.</p>
+<ol><li>Use <code>backend-latency-probe</code>'s real Postgres/Redis timing, not a region label, when choosing where</li></ol>
+<p>   Phase 2's new nodes physically sit.</p>
+<ol><li>Keep <code>daemon/</code> off every internet-facing node at every phase, until its own funded security audit</li></ol>
+<p>   happens — this isn't a hosting decision to revisit per-phase, it's a standing rule.</p>
+<ol><li>Don't add a load balancer, second server, or API gateway before Phase 2's real billing goes live —</li></ol>
+<p>   each is easy to add later and expensive to babysit solo, early.</p>
+<ol><li>Don't add Kubernetes before Phase 3b's headcount and load profile actually justify it.</li></ol></article><div class="toc"><a class="t2" href="#guiding-rule-splitting-is-gated-not-scheduled">Guiding rule: splitting is gated, not scheduled</a><a class="t2" href="#phase-0-now-one-server-done-properly">Phase 0 (now) — one server, done properly</a><a class="t2" href="#phase-1-pilot-same-one-server-hardened">Phase 1 (pilot) — same one server, hardened</a><a class="t2" href="#phase-2-basic-launch-the-first-real-split">Phase 2 (Basic launch) — the first real split</a><a class="t3" href="#target-architecture">Target architecture</a><a class="t3" href="#concrete-steps">Concrete steps</a><a class="t3" href="#where-each-node-should-physically-live">Where each node should physically live</a><a class="t3" href="#management-practices-that-start-mattering-here">Management practices that start mattering here</a><a class="t2" href="#phase-3a-moderate-scale-out-don-t-re-architect">Phase 3a (Moderate) — scale out, don't re-architect</a><a class="t2" href="#phase-3b-ultimate-this-is-where-kubernetes-earns">Phase 3b (Ultimate) — this is where Kubernetes earns its pla</a><a class="t2" href="#cross-phase-reference-component-choices">Cross-phase reference: component choices</a><a class="t2" href="#infra-specific-checklist-extends-the-roadmap-s-p">Infra-specific checklist (extends the roadmap's Part 15)</a></div></div></main><script></script></body></html>

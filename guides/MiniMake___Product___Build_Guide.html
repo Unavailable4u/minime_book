@@ -1,0 +1,2497 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}</style><style>:root{color-scheme:light dark;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}}:root[data-theme="dark"]{color-scheme:dark;--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}:root[data-theme="light"]{color-scheme:light}@media print{:root,:root[data-theme="dark"]{color-scheme:light;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}}body{background:var(--md-bg);color:var(--md-text);max-width:720px;margin:0 auto;padding:32px;display:flex;flex-direction:column;gap:10px;font:14px/1.55 -apple-system,BlinkMacSystemFont,'SF Pro','Segoe UI',sans-serif;overflow-wrap:break-word}body>:first-child{margin-top:0}h1,h2,h3,h4,h5,h6{margin:6px 0 0;line-height:1.25;font-weight:600;text-wrap:balance}h1{font-size:1.35em}h2{font-size:1.15em;color:var(--md-muted)}h3,h4,h5,h6{font-size:1em}p,ul,ol,blockquote,table,pre,hr{margin:0}strong{font-weight:600}a{color:var(--md-link);text-decoration:none}a:hover{text-decoration:underline}ul,ol{display:flex;flex-direction:column;gap:6px;padding-left:22px}ul{list-style:disc}ol{list-style:decimal}:is(li,td,th)>*+:is(p,ul,ol,blockquote){margin-top:6px}blockquote{display:flex;flex-direction:column;gap:10px;border-left:2px solid var(--md-rule);padding-left:10px;color:var(--md-muted)}:not(pre)>code{background:var(--md-fill);padding:1px 3px;border-radius:4px;font:.92em 'SF Mono',ui-monospace,Menlo,Consolas,monospace}a>code{background:none;color:inherit}pre{background:var(--md-fill);padding:10px 12px;border-radius:6px;overflow-x:auto;font:12px/1.5 'SF Mono',ui-monospace,Menlo,Consolas,monospace;margin-block:4px}pre code{background:none;padding:0;font:inherit}table{width:100%;border-collapse:separate;border-spacing:2px;font:inherit}th,td{padding:6px 8px;border-radius:3px;text-align:left;vertical-align:top}th{background:var(--md-fill-strong);font-weight:600}td{background:var(--md-fill)}:is(th,td) :not(pre)>code{background:transparent}hr{border:0;border-top:1px solid var(--md-rule-strong);margin-block:10px}img{max-width:100%;height:auto;border-radius:4px}</style>
+</head><body>
+<h1>MiniMake — Product &amp; Build Guide</h1>
+<h3>The merged, research-driven specification</h3>
+<p><em>Version 1.0 · written 2026-10-02 · for the MiniMe founder · companion to <code>minimate_guide.md</code> and <code>minimake_design_note.md</code></em></p>
+<p><em>Names: <strong>MiniMake</strong> (the coding agent, formerly &quot;MiniCode&quot;) and <strong>MiniMate</strong> (the personal automation system, formerly &quot;miniU&quot;). Paths and commands use the new names (<code>minimake</code>, <code>~/.minimake/</code>, <code>MINIMAKE.md</code>).</em></p>
+<hr>
+<h2>0. How to read this guide</h2>
+<p><strong>What this is.</strong> A complete specification of MiniMake, the coding agent that runs on the user's machine and gets its intelligence from the MiniMe backend. It is built from (a) research across about 30 tools, docs and papers collected on 2026-10-02, (b) your Financial Strategy Rulebook, Technical Roadmap and old CLI plan, and (c) what I read in your repository and system-explanation diagrams in earlier turns.</p>
+<p><strong>What this is not.</strong> It is not a promise that everything here should be built. Section 16 sequences the work, and most items are tagged so you can cut them.</p>
+<p><strong>Tags used throughout</strong></p>
+<table>
+<thead>
+<tr>
+<th>Tag</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[R:Sx]</strong></td>
+<td>Researched; Sx is a source in Appendix H. Official docs are marked <em>(official)</em>, everything else is third-party or vendor-reported.</td>
+</tr>
+<tr>
+<td><strong>[M]</strong></td>
+<td>Specific to your MiniMe repo, rulebook or roadmap.</td>
+</tr>
+<tr>
+<td><strong>[P]</strong></td>
+<td>My proposal. A design choice, not a fact.</td>
+</tr>
+<tr>
+<td><strong>[A]</strong></td>
+<td>An assumption I made for arithmetic. Replace it with a measurement as soon as you have one.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Verdict words</strong> in the feature matrix: <strong>Adopt</strong> (copy the idea as is), <strong>Adapt</strong> (copy with changes for MiniMe), <strong>Build</strong> (nobody does it well, MiniMe's own), <strong>Later</strong> (good, not in v1), <strong>Skip</strong> (not worth it for you).</p>
+<p><strong>Honest limits.</strong></p>
+<ul>
+<li>Benchmark numbers are vendor-run or leaderboard-reported and I did not reproduce any of them.</li>
+<li>Several sources are third-party blogs. Where a fact matters for a decision, I say which source it comes from so you can verify it.</li>
+<li>Gemini CLI's status changed in 2026 (see §2.1); product facts about fast-moving tools may already be stale.</li>
+<li>I have not run your app or the daemon. Statements about your code are from reading it.</li>
+</ul>
+<hr>
+<h2>1. Executive summary</h2>
+<p><strong>MiniMake in one paragraph.</strong> A terminal-first coding agent that executes tools on the user's own machine while the reasoning loop, model routing, project context, review panel and metering live on the MiniMe backend. It reads and edits files, runs commands in an OS-level sandbox, plans before acting, keeps checkpoints so any change can be undone, and can be driven from the terminal, from editors (through ACP) or remotely from the MiniMe web app. Its edge over Claude Code and Codex is not a better loop; it is MiniMe's project context, multi-model orchestration, security-review pipeline and cost control, offered as one premium product.</p>
+<p><strong>The ten decisions this guide makes</strong></p>
+<ol>
+<li><strong>Brain on the server, hands on the machine, durable session log in between.</strong> Anthropic published exactly this pattern for its Managed Agents service and gave reasons that match your situation [R:S5]. It also fits your existing daemon bridge.</li>
+<li><strong>The harness is the product.</strong> On the Terminal-Bench 2.0 data in one survey, the same model (Claude Opus 4.6) scored 58.0% in Claude Code and 76.4% in a different harness, an 18-point spread [R:S25]. Loop quality, tool design and context handling matter as much as the model.</li>
+<li><strong>Small tool set, progressive disclosure, grep-first search.</strong> Claude Code runs about 20 tools and the team says the bar to add one is high [R:S6]. They removed over 80% of the system prompt for the Claude 5 generation with no measurable loss on their coding evals [R:S7].</li>
+<li><strong>Layered safety, enforced locally.</strong> Permission modes, allow/ask/deny rules, an OS sandbox for shell commands, hooks, and a classifier for an &quot;auto&quot; mode. The local client enforces hard limits even if the backend says &quot;approved&quot; [R:S3, S4] [P].</li>
+<li><strong>Adopt open standards instead of inventing formats.</strong> <code>AGENTS.md</code>, <code>SKILL.md</code> (Agent Skills), MCP, and ACP for editor integration [R:S26, S27, S28]. This is how you &quot;use VS Code&quot; without building an editor.</li>
+<li><strong>Checkpoints, resumable sessions, worktrees, parallel agents</strong> are table stakes now, found in Claude Code, Codex, Cline, Cursor and Gemini CLI [R:S2, S15, S16].</li>
+<li><strong>MiniMe's moat:</strong> project context (instructions, parts, wiring, wireframes), your reviewer and security-reviewer roles, model-tier routing, and the browser app as a control surface [M].</li>
+<li><strong>Meter by agent credits, not raw tokens.</strong> Agent loops re-read context every step, so the rulebook's &quot;cached tokens count fully&quot; rule would drain a user's pool in a few sessions [M] (§14).</li>
+<li><strong>Use cheap-but-strong models for the main loop.</strong> On Terminal-Bench 2.1, GPT-5.6 Luna scored 75.7% and Claude Sonnet 5 scored 74.6%, at a fraction of the price [R:S25] [M]. Test with your own eval before relying on this.</li>
+<li><strong>Gate release on security.</strong> Invite-only beta first, external audit before general availability [M], consistent with how Codex, Cline and Claude Code all treat shell access as the main risk [R:S9, S13, S4].</li>
+</ol>
+<hr>
+<h2>2. Research base</h2>
+<h3>2.1 Tools examined and what stood out</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Kind</th>
+<th>What stood out (the &quot;exceptional&quot; thing)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Claude Code</strong> <em>(official docs)</em></td>
+<td>Terminal agent, also desktop/IDE/web</td>
+<td>The deepest extension model: CLAUDE.md, rules, skills, subagents, hooks, MCP, plugins, output styles, dynamic workflows, checkpoints, four permission modes including a classifier-driven &quot;auto&quot;, native sandboxing, cloud sessions and Remote Control [R:S1, S2, S3, S4].</td>
+</tr>
+<tr>
+<td><strong>OpenAI Codex</strong></td>
+<td>CLI + IDE + cloud + app</td>
+<td>OS-enforced sandbox in three modes (read-only, workspace-write, danger-full-access) with Seatbelt on macOS and Landlock/seccomp on Linux; <code>.git</code> and <code>.codex</code> stay read-only even in workspace-write; network off by default; Apache-2.0 Rust core; runs as an MCP server too [R:S9, S10, S11].</td>
+</tr>
+<tr>
+<td><strong>Aider</strong></td>
+<td>Terminal pair programmer</td>
+<td>Tree-sitter repo map with PageRank ranking; architect/editor two-model split (a strong model plans, a cheaper one edits); auto-commit per change; lint and test auto-fix loop; watch mode with <code>AI?</code> comments so any editor works [R:S12].</td>
+</tr>
+<tr>
+<td><strong>Cline</strong></td>
+<td>VS Code agent + CLI</td>
+<td>Per-tool-category auto-approve, YOLO mode, Plan/Act, checkpoints, Memory Bank, Focus Chain (a persistent to-do), Auto Compact, subagents, deep planning, MCP marketplace, headless mode, ACP integration [R:S13].</td>
+</tr>
+<tr>
+<td><strong>OpenCode</strong></td>
+<td>Open-source terminal agent</td>
+<td>Client/server split (agent on your machine, drive it from anywhere), Build and Plan agents, LSP built in, PTY manager, 75+ providers, shareable session links [R:S14].</td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td>Terminal agent</td>
+<td>Policy Engine, trusted folders, checkpointing with <code>/restore</code>, several sandbox technologies, token caching, remote subagents, hooks migrated from Claude Code. A third-party source reports it was replaced by Antigravity CLI on 2026-06-18 and that free access ended [R:S15, S35]. Verify before relying on it.</td>
+</tr>
+<tr>
+<td><strong>Cursor</strong></td>
+<td>AI IDE</td>
+<td>Own agent-trained model (Composer), up to 8 parallel agents on git worktrees or cloud VMs, Background Agents, BugBot PR review, rules with glob scoping, memories, hooks, an auto-review run mode [R:S16].</td>
+</tr>
+<tr>
+<td><strong>Devin / Windsurf (Devin Desktop)</strong></td>
+<td>Cloud agent + IDE</td>
+<td>Playbooks, Knowledge, Machine Snapshots, secrets manager, DeepWiki/Devin Search with citations, Devin Review (flags copied or moved code), screen-recorded verification, self-review and autofix [R:S17].</td>
+</tr>
+<tr>
+<td><strong>Kiro</strong></td>
+<td>Spec-driven IDE</td>
+<td>Three-file specs (requirements in EARS notation, design, tasks), steering files with inclusion modes, agent hooks, Autopilot vs Supervised modes, bugfix specs [R:S18].</td>
+</tr>
+<tr>
+<td><strong>Roo Code / Kilo Code</strong></td>
+<td>VS Code agents</td>
+<td>Custom modes (Architect read-only, Code, Debug, Ask), Orchestrator/Boomerang tasks, bring-your-own embedding index [R:S19].</td>
+</tr>
+<tr>
+<td><strong>OpenHands</strong></td>
+<td>Open-source platform</td>
+<td>Event-sourced architecture (append-only log, deterministic replay), condenser for memory, workspace abstraction (local, Docker, remote), stuck detection, security analyzer [R:S20].</td>
+</tr>
+<tr>
+<td><strong>GitHub Copilot coding agent / Agent HQ</strong></td>
+<td>Cloud agent</td>
+<td>Agent firewall, <code>copilot-setup-steps.yml</code>, session logs, subagent visibility, running several vendors' agents on one task and comparing PRs [R:S30].</td>
+</tr>
+<tr>
+<td><strong>Amp (Sourcegraph)</strong></td>
+<td>Terminal + editor agent</td>
+<td>Oracle subagent (a stronger model for hard decisions), Librarian (cross-repo search), cloud threads you can share [R:S31].</td>
+</tr>
+<tr>
+<td><strong>Augment Context Engine</strong></td>
+<td>Context service via MCP</td>
+<td>Indexed semantic retrieval offered to any agent; vendor reports 70%+ quality gain, so the &quot;grep vs index&quot; debate is now empirical [R:S31].</td>
+</tr>
+<tr>
+<td><strong>Replit Agent</strong></td>
+<td>Browser app builder</td>
+<td>Agent tests the app in a real browser; checkpoints capture workspace, conversation and databases; effort-based pricing [R:S32].</td>
+</tr>
+<tr>
+<td><strong>Zed / ACP</strong></td>
+<td>Editor + open protocol</td>
+<td>Agent Client Protocol: JSON-RPC over stdio between editors and agents, backed by Zed, JetBrains, GitHub, Google and Cognition [R:S27].</td>
+</tr>
+</tbody>
+</table>
+<h3>2.2 What the benchmarks say, and how far to trust them</h3>
+<ul>
+<li><strong>Terminal-Bench 2.1</strong> (leaderboard snapshot dated 2026-09): GPT-6 Astra in Codex CLI 87.4%, Claude Fable 5 in Claude Code 83.8%, GPT-5.5 in Codex CLI 83.1%, Claude Opus 4.8 78.9%, GPT-5.6 Terra 78.4%, GPT-5.6 Luna 75.7%, Claude Sonnet 5 74.6% [R:S25]. Another tracker reported Codex with GPT-5.6 Sol at 89.5% and Claude Code with Opus 5 at 89.1% in an independent run [R:S25].</li>
+<li><strong>Harness spread is large.</strong> One survey found Opus 4.6 ranging from 58.0% in Claude Code to 76.4% in a research harness, and GPT-5 ranging from 33.9% in a minimal harness to 49.6% in Codex CLI, differences &quot;substantially larger than the standard errors&quot; [R:S25].</li>
+<li><strong>Cost spread is large too.</strong> In one test of three harnesses on two self-hosted models, accuracy varied by about 8 points while spend varied about 2x; on one model Codex solved one more task than Claude Code for half the GPU time [R:S25].</li>
+<li><strong>Retrieval is contested.</strong> Anthropic's tool team moved from vector indexing to grep because Claude could build its own context [R:S6]. Several May–July 2026 measurements instead favored indexed retrieval, with one vendor-run test reporting 70%+ quality gains [R:S31]. Treat all of these as claims to test in your own eval.</li>
+<li><strong>Caution.</strong> These are leaderboards and vendor posts. They tell you where to look, not what your users will experience.</li>
+</ul>
+<h3>2.3 Twelve lessons from the research</h3>
+<ol>
+<li><strong>The loop is simple; everything around it is hard.</strong> Claude Code describes three blending phases: gather context, act, verify [R:S2]. The surrounding work is context, safety, extensibility and reliability.</li>
+<li><strong>Separate brain, hands and session.</strong> Anthropic found that putting all three in one container made the server a &quot;pet&quot;: a crash lost the session, debugging was blind, and credentials sat next to model-generated code [R:S5].</li>
+<li><strong>Credentials must never be reachable from where model-generated code runs.</strong> Their fix: tokens live in a vault or are wired into git remotes at setup, and MCP calls go through a proxy that fetches credentials per session [R:S5].</li>
+<li><strong>The session log is not the context window.</strong> Keep the full event log durable outside the model's context and let the harness decide what to show [R:S5]. OpenHands makes the same choice with an append-only event stream that enables replay [R:S20].</li>
+<li><strong>Harness assumptions go stale as models improve.</strong> Context resets that helped Sonnet 4.5 were dead weight on Opus 4.5 [R:S5]; to-do reminders that helped older models constrained newer ones [R:S6].</li>
+<li><strong>Fewer rules, more judgment.</strong> For newer models, examples in tool descriptions constrained exploration; expressive parameters worked better; repeated instructions could be deleted [R:S7].</li>
+<li><strong>Progressive disclosure beats upfront loading.</strong> Skills load descriptions first and bodies on demand; MCP tool schemas are deferred behind tool search [R:S1, S7].</li>
+<li><strong>Guardrails belong in code, not prompts.</strong> &quot;A request in CLAUDE.md is not a guarantee; a PreToolUse hook that blocks is enforcement&quot; [R:S1].</li>
+<li><strong>Sandbox plus permissions, not either alone.</strong> Claude Code pairs a bubblewrap/Seatbelt sandbox with permission modes; Codex pairs sandbox modes with approval policies [R:S3, S9]. Without filesystem isolation, a compromised agent can backdoor system resources to reach the network [R:S3].</li>
+<li><strong>Reversibility is a feature.</strong> Checkpoints (Claude Code, Cline, Gemini CLI, Replit) and git-based undo (Aider, Codex) make autonomy tolerable; remote actions cannot be checkpointed and need permission rules instead [R:S2].</li>
+<li><strong>Extension marketplaces are an attack surface.</strong> Snyk's February 2026 study, as cited by the OpenClaw community glossary, reported 36% of ClawHub skills with security flaws, 13.4% critical, 283 leaking credentials [R:S21].</li>
+<li><strong>Open standards won.</strong> <code>SKILL.md</code> is now an open spec adopted by Claude Code, Codex, Cursor, Gemini CLI, OpenClaw and others [R:S28]; ACP is the LSP of agents [R:S27]; MCP's July 2026 spec made servers stateless and moved long-running work to a tasks extension [R:S26].</li>
+</ol>
+<hr>
+<h2>3. Feature harvest: what to adopt, adapt, build, later, skip</h2>
+<p>The table below is the heart of the research. &quot;Seen in&quot; names where the feature is strongest. &quot;Ver.&quot; is the version in which MiniMake should have it (v0 internal, v1 beta, v2 GA, v3 later).</p>
+<h3>3.1 Agent loop and orchestration</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Seen in</th>
+<th>Verdict</th>
+<th>Ver.</th>
+<th>Why / note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gather → act → verify loop with interrupt/steer</td>
+<td>Claude Code [S2]</td>
+<td>Adopt</td>
+<td>v0</td>
+<td>The baseline. Let the user interrupt (Esc) or queue a message mid-run.</td>
+</tr>
+<tr>
+<td>Plan mode (read-only, produces a reviewable plan)</td>
+<td>Claude Code, Cursor, OpenCode, Cline, Roo [S1,S14,S16]</td>
+<td>Adopt</td>
+<td>v0</td>
+<td>Cheap to build: restrict the tool set to read-only and add an exit-plan tool.</td>
+</tr>
+<tr>
+<td>Clarifying questions via a structured tool</td>
+<td>Claude Code AskUserQuestion, Cursor plan mode [S6,S16]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Anthropic found plain-text and output-format approaches unreliable; a blocking tool worked [S6].</td>
+</tr>
+<tr>
+<td>Task list the model can edit (not a rigid to-do)</td>
+<td>Claude Code Task tool, Cline Focus Chain [S6,S13]</td>
+<td>Adapt</td>
+<td>v1</td>
+<td>Anthropic replaced to-dos with tasks because newer models and subagents needed dependencies and shared state [S6].</td>
+</tr>
+<tr>
+<td>Subagents with isolated context</td>
+<td>Claude Code, Codex, Gemini, Cline, Amp, Copilot [S1,S11,S15,S13,S31,S30]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Research and verification in separate contexts keep the main window clean.</td>
+</tr>
+<tr>
+<td>Strong &quot;oracle&quot; model for hard decisions</td>
+<td>Amp [S31]</td>
+<td>Adapt</td>
+<td>v1</td>
+<td>Maps to your tier ladder: cheap main loop, escalate to a stronger model on request or failure.</td>
+</tr>
+<tr>
+<td>Architect/editor two-model split</td>
+<td>Aider [S12]</td>
+<td>Adapt</td>
+<td>v1</td>
+<td>Reported to cut premium-model cost 30–50% on complex tasks [S12]; fits your multi-model chains.</td>
+</tr>
+<tr>
+<td>Dynamic workflows (scripted fan-out of many subagents)</td>
+<td>Claude Code [S1]</td>
+<td>Later</td>
+<td>v3</td>
+<td>Valuable for audits and migrations; build after subagents are stable.</td>
+</tr>
+<tr>
+<td>Cross-session messaging</td>
+<td>Claude Code [S1]</td>
+<td>Later</td>
+<td>v3</td>
+<td>Needed only with many parallel sessions.</td>
+</tr>
+<tr>
+<td>Stuck detection and loop breakers</td>
+<td>OpenHands [S20]; your <code>run_guard</code> failure breaker [M]</td>
+<td>Adopt</td>
+<td>v0</td>
+<td>You already have a breaker; add repeated-identical-action detection.</td>
+</tr>
+<tr>
+<td>Hooks that can force the agent to continue (Stop hook)</td>
+<td>Claude Code [S34]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Lets teams enforce &quot;tests must pass before stopping&quot;.</td>
+</tr>
+</tbody>
+</table>
+<h3>3.2 Context, memory and instructions</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Seen in</th>
+<th>Verdict</th>
+<th>Ver.</th>
+<th>Why / note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Project instruction file, hierarchical (global, repo, subdirectory), with <code>@imports</code></td>
+<td>CLAUDE.md, AGENTS.md, GEMINI.md [S1,S11,S15]</td>
+<td>Adopt</td>
+<td>v0</td>
+<td>Read <code>MINIMAKE.md</code> and also <code>AGENTS.md</code> and <code>CLAUDE.md</code> if present, so users keep one file.</td>
+</tr>
+<tr>
+<td>Path-scoped rules that load only for matching files</td>
+<td>Claude Code <code>.claude/rules</code>, Cursor globs, Kiro inclusion modes [S1,S16,S18]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Saves context; keep the main file under about 200 lines [S1].</td>
+</tr>
+<tr>
+<td>Auto memory the agent writes itself</td>
+<td>Claude Code, Cursor Memories [S2,S16]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>First 200 lines or 25 KB loaded at start in Claude Code [S2]. Store as plain files the user can edit.</td>
+</tr>
+<tr>
+<td>Compaction: clear old tool outputs first, then summarize; stop after repeated thrashing</td>
+<td>Claude Code [S2]</td>
+<td>Adopt</td>
+<td>v0</td>
+<td>Add a &quot;compact instructions&quot; section users can control.</td>
+</tr>
+<tr>
+<td>Durable session log separate from the context window</td>
+<td>Managed Agents, OpenHands [S5,S20]</td>
+<td>Adopt</td>
+<td>v0</td>
+<td>Your Redis/DB run log; the harness decides what enters context.</td>
+</tr>
+<tr>
+<td>Scratchpad for working notes</td>
+<td>Your CLI plan [M]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Keeps long-task state out of the resent payload.</td>
+</tr>
+<tr>
+<td>Tree-sitter repo map with ranking</td>
+<td>Aider [S12]</td>
+<td>Adapt</td>
+<td>v2</td>
+<td>Cheap structural context; use alongside grep, not instead.</td>
+</tr>
+<tr>
+<td>Semantic code index</td>
+<td>Augment, Cursor, Roo [S31,S16,S19]</td>
+<td>Later</td>
+<td>v3</td>
+<td>Start grep-first; add an optional local index only if your eval shows gains.</td>
+</tr>
+<tr>
+<td>LSP diagnostics and symbol navigation</td>
+<td>OpenCode, Claude Code plugins [S14,S1]</td>
+<td>Adopt</td>
+<td>v2</td>
+<td>Diagnostics after each edit catch errors without running tests.</td>
+</tr>
+<tr>
+<td>Progressive disclosure of tools (tool search for deferred schemas)</td>
+<td>Claude Code [S1,S7]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Essential once MCP and skills grow.</td>
+</tr>
+<tr>
+<td>Prompt-cache-friendly context ordering</td>
+<td>Claude Code [S5,S6]</td>
+<td>Adopt</td>
+<td>v0</td>
+<td>Stable prefix, append-only history; this drives your cost (§14).</td>
+</tr>
+</tbody>
+</table>
+<h3>3.3 Tools and editing</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Seen in</th>
+<th>Verdict</th>
+<th>Ver.</th>
+<th>Why / note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exact-string edit that fails if not unique</td>
+<td>Claude Code</td>
+<td>Adopt</td>
+<td>v0</td>
+<td>Predictable, easy to review.</td>
+</tr>
+<tr>
+<td><code>apply_patch</code> unified diff for multi-hunk edits</td>
+<td>Codex [S11]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Better for large coordinated changes.</td>
+</tr>
+<tr>
+<td>Aider-style edit formats (whole/diff/udiff)</td>
+<td>Aider [S12]</td>
+<td>Skip</td>
+<td>–</td>
+<td>Model-specific tuning you do not need if tool-calling is reliable.</td>
+</tr>
+<tr>
+<td>Read-before-write rule</td>
+<td>Claude Code</td>
+<td>Adopt</td>
+<td>v0</td>
+<td>Prevents blind overwrites. Your code editor agent already refuses edits to unseen files [M].</td>
+</tr>
+<tr>
+<td>Grep and glob tools (ripgrep)</td>
+<td>Claude Code [S6]</td>
+<td>Adopt</td>
+<td>v0</td>
+<td>The most consequential tools [S6].</td>
+</tr>
+<tr>
+<td>Background shell with output polling and kill</td>
+<td>Claude Code, OpenCode PTY [S2,S14]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Dev servers, watchers, long builds.</td>
+</tr>
+<tr>
+<td>Web fetch and web search</td>
+<td>Claude Code, Cline [S2,S13]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Route through MiniMe's search provider.</td>
+</tr>
+<tr>
+<td>Browser/preview verification (agent tests its own app)</td>
+<td>Replit App Testing, Devin screen recording [S32,S17]</td>
+<td>Later</td>
+<td>v3</td>
+<td>High value for web projects; costs a browser runtime.</td>
+</tr>
+<tr>
+<td>Notebook editing</td>
+<td>Claude Code, Cline [S2,S13]</td>
+<td>Skip</td>
+<td>–</td>
+<td>Not your audience yet.</td>
+</tr>
+</tbody>
+</table>
+<h3>3.4 Permissions, sandbox, safety</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Seen in</th>
+<th>Verdict</th>
+<th>Ver.</th>
+<th>Why / note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Modes: plan, ask (manual), accept-edits, auto, bypass</td>
+<td>Claude Code [S2,S4]</td>
+<td>Adapt</td>
+<td>v0–v2</td>
+<td>Ship plan, ask, accept-edits first; auto after you have a classifier eval; bypass only inside a container.</td>
+</tr>
+<tr>
+<td>Allow/ask/deny rules with patterns, scoped managed &gt; user &gt; project</td>
+<td>Claude Code [S1]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Exact strings first; patterns later.</td>
+</tr>
+<tr>
+<td>OS sandbox: Seatbelt (macOS), bubblewrap or Landlock+seccomp (Linux)</td>
+<td>Claude Code, Codex [S3,S9,S10]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Biggest single safety win; also cuts prompts.</td>
+</tr>
+<tr>
+<td>Network egress through a proxy with domain allowlist, prompt on new domain</td>
+<td>Claude Code [S3]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Breaks the &quot;exfiltrate&quot; leg of the lethal trifecta [S29].</td>
+</tr>
+<tr>
+<td>Protected paths (<code>.git</code>, tool config) read-only even in write mode</td>
+<td>Codex [S10]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Blocks agent self-modification and hook tampering.</td>
+</tr>
+<tr>
+<td>Classifier-based auto mode</td>
+<td>Claude Code, Cursor 3.6 [S4,S16]</td>
+<td>Adapt</td>
+<td>v2</td>
+<td>Needs a strong eval; local hard limits still apply.</td>
+</tr>
+<tr>
+<td>Policy engine / managed settings for teams</td>
+<td>Gemini CLI, Claude Code [S15,S4]</td>
+<td>Later</td>
+<td>v3</td>
+<td>Needed when selling to teams.</td>
+</tr>
+<tr>
+<td>Hooks (PreToolUse can block with exit code 2; four handler types)</td>
+<td>Claude Code [S34]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Deterministic guardrails; HTTP hooks let your backend observe.</td>
+</tr>
+<tr>
+<td>Secrets vault, tokens never visible to the model</td>
+<td>Managed Agents, Devin secrets [S5,S17]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>See §8.6.</td>
+</tr>
+<tr>
+<td>Taint tracking (untrusted content in context → stricter approvals)</td>
+<td>Security literature [S29]</td>
+<td>Build</td>
+<td>v2</td>
+<td>Few products do this; a differentiator.</td>
+</tr>
+<tr>
+<td>Per-device credentials and revocation</td>
+<td>–</td>
+<td>Build</td>
+<td>v1</td>
+<td>Fixes the shared-token weakness in your daemon [M].</td>
+</tr>
+</tbody>
+</table>
+<h3>3.5 Extensibility</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Seen in</th>
+<th>Verdict</th>
+<th>Ver.</th>
+<th>Why / note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Skills (<code>SKILL.md</code>, descriptions first, body on demand)</td>
+<td>Claude Code, Codex, Cursor, Gemini, Zed [S28,S1]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Use the open spec so users bring existing skills.</td>
+</tr>
+<tr>
+<td>Slash commands (custom prompts as files)</td>
+<td>Claude Code, Gemini TOML, Codex [S1,S15]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Skills cover most of it; keep a few built-ins.</td>
+</tr>
+<tr>
+<td>Plugins bundling skills, hooks, subagents, MCP</td>
+<td>Claude Code, Gemini extensions [S1,S15]</td>
+<td>Later</td>
+<td>v3</td>
+<td>Do not open a marketplace until you can scan submissions (§10.6).</td>
+</tr>
+<tr>
+<td>MCP client (stdio and Streamable HTTP; OAuth)</td>
+<td>All [S26]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>You already have an MCP client [M]; update for the 2026-07-28 spec.</td>
+</tr>
+<tr>
+<td>Run MiniMake as an MCP server</td>
+<td>Codex [S11]</td>
+<td>Later</td>
+<td>v3</td>
+<td>Lets other agents call it.</td>
+</tr>
+<tr>
+<td>Output styles</td>
+<td>Claude Code [S1]</td>
+<td>Later</td>
+<td>v3</td>
+<td>Low priority.</td>
+</tr>
+<tr>
+<td>Custom modes/personas</td>
+<td>Roo, Kilo [S19]</td>
+<td>Adapt</td>
+<td>v2</td>
+<td>Map to your backend roles (planner, reviewer, security reviewer).</td>
+</tr>
+<tr>
+<td>Spec-driven mode (requirements, design, tasks files)</td>
+<td>Kiro [S18]</td>
+<td>Adapt</td>
+<td>v2</td>
+<td>Fits MiniMe's Plan tab; reuse the same artifacts.</td>
+</tr>
+</tbody>
+</table>
+<h3>3.6 Workflow features</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Seen in</th>
+<th>Verdict</th>
+<th>Ver.</th>
+<th>Why / note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Checkpoints and rewind (file snapshots before edits)</td>
+<td>Claude Code, Cline, Gemini, Replit [S2,S13,S15,S32]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Does not cover remote effects; say so in the UI.</td>
+</tr>
+<tr>
+<td>Resume and fork sessions</td>
+<td>Claude Code [S2]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Cheap with a durable event log.</td>
+</tr>
+<tr>
+<td>Git worktrees for parallel sessions</td>
+<td>Claude Code, Cursor, Cline, Gemini [S2,S16,S13,S15]</td>
+<td>Adopt</td>
+<td>v2</td>
+<td>Safe parallelism without a custom merge system.</td>
+</tr>
+<tr>
+<td>Optional auto-commit per change</td>
+<td>Aider [S12]</td>
+<td>Adapt</td>
+<td>v2</td>
+<td>Off by default; noisy for squash-merge teams [S12].</td>
+</tr>
+<tr>
+<td>Lint and test auto-fix loop</td>
+<td>Aider [S12]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Configurable commands; stop after N failures.</td>
+</tr>
+<tr>
+<td>Watch mode (<code>AI?</code> comments in files)</td>
+<td>Aider [S12]</td>
+<td>Later</td>
+<td>v3</td>
+<td>Nice for editor-agnostic use.</td>
+</tr>
+<tr>
+<td>Headless mode (<code>-p</code>) for CI and scripts</td>
+<td>Claude Code, Gemini, Codex, Cline [S2,S15,S11,S13]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Also the basis for scheduled runs.</td>
+</tr>
+<tr>
+<td>PR review agent, review on every diff</td>
+<td>BugBot, Devin Review, Copilot [S16,S17,S30]</td>
+<td>Build</td>
+<td>v2</td>
+<td>Reuse your reviewer and security-reviewer roles [M].</td>
+</tr>
+<tr>
+<td>Cloud/remote sessions and teleport</td>
+<td>Claude Code, Codex cloud, Cursor [S2,S16,S11]</td>
+<td>Adapt</td>
+<td>v3</td>
+<td>Browser-to-MiniMake handoff (§11.9).</td>
+</tr>
+<tr>
+<td>Remote Control (drive a local session from the browser)</td>
+<td>Claude Code [S2]</td>
+<td>Build</td>
+<td>v2</td>
+<td>A natural use of the MiniMe web app.</td>
+</tr>
+<tr>
+<td>Multi-vendor comparison runs</td>
+<td>Copilot Agent HQ [S30]</td>
+<td>Later</td>
+<td>v3</td>
+<td>Cost multiplies; skip for now.</td>
+</tr>
+<tr>
+<td>Scheduled/background runs</td>
+<td>Cowork, Claude Code Routines [S23,S1]</td>
+<td>Later</td>
+<td>MiniMate</td>
+<td>Belongs mainly in MiniMate.</td>
+</tr>
+</tbody>
+</table>
+<h3>3.7 Interface</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Seen in</th>
+<th>Verdict</th>
+<th>Ver.</th>
+<th>Why / note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TUI with streaming, diffs, status line, queued messages</td>
+<td>Claude Code, OpenCode, Codex [S2,S14]</td>
+<td>Adopt</td>
+<td>v0–v1</td>
+<td>See §12.</td>
+</tr>
+<tr>
+<td>Editor integration via ACP</td>
+<td>Zed, JetBrains, Kiro, Devin Desktop [S27]</td>
+<td>Adopt</td>
+<td>v2</td>
+<td>One adapter gives you VS Code-class editors without building one.</td>
+</tr>
+<tr>
+<td>Shareable session links</td>
+<td>OpenCode, Amp [S14,S31]</td>
+<td>Later</td>
+<td>v3</td>
+<td>Needs redaction and access controls.</td>
+</tr>
+<tr>
+<td>Mobile/web control</td>
+<td>Claude Code, Codex, Copilot [S2,S11,S30]</td>
+<td>Build</td>
+<td>v2</td>
+<td>Through your existing web app.</td>
+</tr>
+<tr>
+<td>Cost and context meters in the UI</td>
+<td>Claude Code <code>/context</code>, Replit effort pricing [S2,S32]</td>
+<td>Adopt</td>
+<td>v1</td>
+<td>Your rulebook's &quot;four numbers&quot; rule fits here [M].</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>4. Product definition</h2>
+<h3>4.1 Positioning</h3>
+<ul>
+<li><strong>For whom:</strong> MiniMe users who generate projects in the browser and want to continue on their own machine with real toolchains, plus developers who want a cheaper, more controllable alternative to Claude Code or Codex [P].</li>
+<li><strong>Promise:</strong> &quot;The agent that already knows your project, runs on your machine, shows you everything it does, and can be undone.&quot;</li>
+<li><strong>Why switch from Claude Code or Codex:</strong> (1) it starts with your MiniMe plan, wireframes and instructions; (2) it uses the best-value model for each step instead of one vendor's model; (3) every change can be reviewed by your reviewer and security-review roles before you accept it; (4) one bill and one cost meter; (5) it connects to the browser app for handoff and remote control [M][P].</li>
+<li><strong>Honest competitive picture:</strong> Claude Code and Codex lead public terminal benchmarks [S25]. MiniMake should not claim to beat them on raw coding skill at launch. It should win on context, cost, review and integration.</li>
+</ul>
+<h3>4.2 Principles</h3>
+<ol>
+<li><strong>Local execution, server reasoning.</strong> Code never runs on your servers.</li>
+<li><strong>Nothing irreversible without a human.</strong> Approval is local and cannot be bypassed by the backend.</li>
+<li><strong>Small and legible.</strong> Few tools, few modes, short prompts.</li>
+<li><strong>Open formats.</strong> <code>AGENTS.md</code>, <code>SKILL.md</code>, MCP, ACP.</li>
+<li><strong>Measure everything.</strong> Cost per task, success per task, approval rate, rewind rate.</li>
+<li><strong>Degrade gracefully.</strong> If a model fails or quota runs out, the run pauses with a clear message; it never silently switches to something worse (rulebook rule) [M].</li>
+</ol>
+<h3>4.3 Non-goals (for v1)</h3>
+<ul>
+<li>A full IDE, debugger or extension system. Use ACP and the user's editor.</li>
+<li>A plugin marketplace.</li>
+<li>Local models (maybe later through the same chain mechanism).</li>
+<li>General personal automation. That is MiniMate.</li>
+<li>Windows-native sandboxing. Support WSL2 first; Claude Code's own sandbox also requires WSL2 on Windows [S3].</li>
+</ul>
+<hr>
+<h2>5. Architecture</h2>
+<h3>5.1 The shape: brain, hands, session</h3>
+<p>Anthropic's engineering team describes three virtualized parts of an agent: a <strong>session</strong> (an append-only log of everything that happened), a <strong>harness</strong> (the loop that calls the model and routes tool calls), and a <strong>sandbox</strong> (where code runs and files are edited), each replaceable without disturbing the others [R:S5]. MiniMake maps onto this directly:</p>
+<pre><code>                       USER&#39;S MACHINE (hands)                          MINIME BACKEND (brain)
+  ┌───────────────────────────────────────────────────┐        ┌─────────────────────────────────────────┐
+  │ minimake CLI/TUI ──┐                              │        │  Run manager (create, resume, cancel)   │
+  │ editor via ACP ────┼─► Local agent host           │  WS    │  Agent loop executor (stateless worker) │
+  │ browser remote ────┘   ├ policy engine (hard)     │◄──────►│  Context assembler + prompt cache plan  │
+  │                        ├ tool executor            │ (TLS,  │  Model router (tiers, chains, fallback) │
+  │                        ├ sandbox runner           │ device │  Tool broker (schemas, remote calls)    │
+  │                        │   (Seatbelt/bwrap/Landlock)│ creds) │  Reviewer / security-reviewer roles     │
+  │                        ├ checkpoint store         │        │  Classifier (auto mode), summarizer     │
+  │                        ├ secret/redaction filter  │        │  MCP proxy + credential vault           │
+  │                        ├ keychain (device creds)  │        │  Metering, ledger, plan limits          │
+  │                        └ local config (MINIMAKE.md,│        │  ┌──────────────────────────────────┐   │
+  │                           skills, hooks, rules)   │        │  │ SESSION LOG (durable, append-only)│   │
+  └───────────────────────────────────────────────────┘        │  │ Postgres + Redis (hot state)      │   │
+                                                                │  └──────────────────────────────────┘   │
+                                                                └─────────────────────────────────────────┘
+</code></pre>
+<h3>5.2 Why this split is right for MiniMe</h3>
+<ul>
+<li><strong>Your daemon already connects outward</strong> to the backend, so it works behind home routers and needs no inbound ports [M].</li>
+<li><strong>A crash on either side is survivable.</strong> The session log lives outside both. A new worker can pick a run up from the last event; a reconnecting client can ask for events after the last one it saw. This is the <code>wake(sessionId)</code> / <code>getSession</code> / <code>emitEvent</code> idea from Managed Agents [S5].</li>
+<li><strong>Time to first token improves</strong> when the brain starts without waiting for a sandbox; Anthropic reported roughly 60% lower median and over 90% lower p95 time to first token after decoupling [S5].</li>
+<li><strong>Provider keys and prompts stay on your servers.</strong> The client never holds model keys.</li>
+</ul>
+<h3>5.3 Trust boundaries</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Trusted for</th>
+<th>Not trusted for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local policy engine</td>
+<td>Final say on whether a tool call may run; hard denies; sandbox setup</td>
+<td>Nothing; it is the root of trust on the device</td>
+</tr>
+<tr>
+<td>Backend</td>
+<td>Reasoning, routing, metering, classifier suggestions</td>
+<td>Approving anything the local policy denies; reading secrets; choosing the sandbox</td>
+</tr>
+<tr>
+<td>Model output</td>
+<td>Nothing. It is untrusted input to the policy engine</td>
+<td></td>
+</tr>
+<tr>
+<td>Tool results (files, web pages, MCP responses)</td>
+<td>Nothing. Treated as data, labeled by trust level</td>
+<td></td>
+</tr>
+<tr>
+<td>Skills, hooks, plugins</td>
+<td>Only after install review; project-level ones prompt for trust on first use</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3>5.4 Deployment: one codebase, separate process</h3>
+<p><strong>[P]</strong> Do not copy the repository. Create a second entry point in the same repo that imports the shared orchestration core and leaves out chat, notebooks, research and other tabs. Reasons: improvements to routing, metering and guards then benefit both products; keys, ledger and plans stay single-sourced (your rulebook wants one meter and one price list) [M]. Keep it a <strong>separate process</strong> because your current backend runs one uvicorn process with a small agent thread pool and per-request deadlines, and long agent sessions plus WebSockets should not compete with chat traffic [M].</p>
+<p>Suggested layout:</p>
+<pre><code>backend/
+  eo/                    # shared orchestration core (existing)
+  utils/                 # shared (llm_client, quota, audit, redaction)
+  minimake/              # NEW
+    server.py            # FastAPI app: /v1/code/*, /ws/device
+    loop.py              # agent loop executor
+    tools_schema.py      # tool JSON schemas + risk levels
+    context.py           # prompt assembly, compaction, caching plan
+    session_log.py       # append-only events, replay, cursors
+    policy_classifier.py # auto-mode classifier
+    review.py            # reviewer / security-reviewer hooks into eo roles
+    metering.py          # agent credits, per-run ceilings
+    devices.py           # device pairing, credentials, revocation
+daemon/ → minimake/      # client (rename; keep path_guard, tools)
+</code></pre>
+<h3>5.5 One step, end to end</h3>
+<ol>
+<li>User types a task. CLI sends <code>user_message</code> over the device socket.</li>
+<li>Backend appends the event to the session log, assembles context (system prompt, <code>MINIMAKE.md</code> content sent by the client, rules matched to files, memory, recent history), picks a model, calls it with tool schemas.</li>
+<li>Model streams text and returns tool calls. Backend streams <code>text_delta</code> events to the client and appends them.</li>
+<li>For each tool call, backend sends <code>tool_proposed</code> with a call ID.</li>
+<li>Client policy engine decides: <strong>allow</strong> (rule or mode), <strong>ask</strong> (render approval prompt), or <strong>deny</strong>. A PreToolUse hook may block or modify it.</li>
+<li>If allowed, the client runs the tool (in the sandbox for shell), redacts secrets from the output, truncates it, and sends <code>tool_result</code>.</li>
+<li>Backend appends the result, updates budgets, loops to step 2 until the model stops, a limit hits, or the user cancels.</li>
+</ol>
+<h3>5.6 What to reuse from your repo [M]</h3>
+<table>
+<thead>
+<tr>
+<th>Existing piece</th>
+<th>Reuse as</th>
+<th>Change needed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Daemon WebSocket with <code>request_id</code>, timeouts, failed pending calls on disconnect</td>
+<td>Transport</td>
+<td>Add protocol version, resume cursor, device auth</td>
+</tr>
+<tr>
+<td><code>list_dir</code>, <code>read_file</code>, <code>write_file</code>, <code>delete</code>, <code>execute_command</code> with <code>path_guard</code></td>
+<td>Seed tools</td>
+<td>Add edit, grep, glob, background shell, checkpoints</td>
+</tr>
+<tr>
+<td>Propose/confirm gate with <code>action_id</code></td>
+<td>Approval shape</td>
+<td>Move the decision to the client; many calls per run; persist state</td>
+</tr>
+<tr>
+<td><code>run_guard</code> (Redis): cancel flag, failure breaker, token budget, <code>grant_more</code></td>
+<td>Run controls</td>
+<td>Add dollar ceiling and step limit</td>
+</tr>
+<tr>
+<td><code>tool_budget</code> (default 15 calls, triggers pause/resume)</td>
+<td>Step budget</td>
+<td>Raise defaults; per-mode limits</td>
+</tr>
+<tr>
+<td>MCP client, audit log, event emitter, quota sentinel</td>
+<td>Integrations, audit, push, limits</td>
+<td>Update MCP to 2026-07-28 spec</td>
+</tr>
+<tr>
+<td>Code editor agent guardrails: secret-file filtering, nonce-wrapped file contents, refuse edits to unseen files</td>
+<td>Safety patterns</td>
+<td>Port to local tools</td>
+</tr>
+<tr>
+<td>Reviewer and security-reviewer roles, tier router, model chains</td>
+<td>Review panel and routing</td>
+<td>Expose as <code>/review</code> and pre-accept checks</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>6. Agent loop and orchestration</h2>
+<h3>6.1 The loop</h3>
+<pre><code>run(run_id):
+  state = load_or_create(run_id)                  # from session log
+  while state.status == RUNNING:
+      guard = run_guard.check(run_id)             # cancel flag, failure breaker, budgets
+      if guard.stop: pause_or_end(guard.reason); break
+
+      ctx   = assemble_context(state)             # §9; stable prefix, cache plan
+      model = route(state.mode, state.step, state.signals)
+      reply = model.call(ctx, tools=visible_tools(state))   # streamed
+      emit(reply.text)                            # to client + session log
+
+      if reply.tool_calls:
+          for call in reply.tool_calls:           # parallel when independent
+              result = broker.execute(call)       # remote call to client; policy applied there
+              append_result(state, call, result)
+          meter(state, reply.usage)
+          verify_hooks(state)                     # diagnostics, lint/test if configured
+      else:
+          if stop_hooks_allow(state): state.status = COMPLETED
+          else: append_hook_feedback(state)       # forces the model to continue
+</code></pre>
+<p>Notes grounded in the research:</p>
+<ul>
+<li>The loop is deliberately boring. Claude Code's own description is three blending phases of gathering context, acting, and verifying, repeated until done, with the user able to interrupt at any time [S2].</li>
+<li>Parallel tool calls matter for latency: batch independent reads and searches in one step.</li>
+<li><strong>Stop is a decision, not just &quot;no tool calls&quot;.</strong> A Stop hook can refuse to let the run end (for example &quot;tests must pass&quot;), as Claude Code hooks can [S34].</li>
+</ul>
+<h3>6.2 Run states</h3>
+<pre><code>created → running ⇄ awaiting_approval → completed
+              │             │
+              ├─► paused_budget ──(grant more)──► running
+              ├─► paused_disconnected ──(reconnect)──► running
+              ├─► paused_error ──(retry/switch model)──► running
+              └─► cancelled | failed | expired
+</code></pre>
+<ul>
+<li><strong>Persist</strong> <code>status</code>, <code>step</code>, <code>mode</code>, <code>model_chain_position</code>, <code>budget_spent</code>, <code>last_event_seq</code>, and <code>taint</code> in the database; append every event to the session log (§13.3).</li>
+<li><strong>While waiting</strong> for approval or reconnect, no worker thread is held; the run is just rows. A queue or timer resumes it [M: your current pool is small].</li>
+<li><strong>Expire</strong> idle paused runs after a configurable time (suggest 24 h) and tell the user.</li>
+</ul>
+<h3>6.3 Limits and stop conditions</h3>
+<table>
+<thead>
+<tr>
+<th>Limit</th>
+<th>Default [P]</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Steps per run</td>
+<td>60 (raise by plan)</td>
+<td>Prevents endless loops; your tool-call default of 15 was set for chat [M]</td>
+</tr>
+<tr>
+<td>Dollar ceiling per run</td>
+<td>By plan (see §14.4)</td>
+<td>Your rulebook already caps runs ($0.60 / $2.50 / $8) but for chat-sized work [M]</td>
+</tr>
+<tr>
+<td>Same action repeated</td>
+<td>3 identical failing calls</td>
+<td>Stuck detection [S20]</td>
+</tr>
+<tr>
+<td>Consecutive tool failures</td>
+<td>3</td>
+<td>Reuses your failure breaker [M]</td>
+</tr>
+<tr>
+<td>Wall-clock per tool call</td>
+<td>120 s foreground, unlimited background with kill</td>
+<td>Shell timeouts</td>
+</tr>
+<tr>
+<td>Context fill</td>
+<td>Compact at ~80%, stop auto-compacting after repeated thrash</td>
+<td>Claude Code stops auto-compaction after a few attempts if one output refills context immediately [S2]</td>
+</tr>
+</tbody>
+</table>
+<h3>6.4 System prompt principles</h3>
+<p>The July 2026 context-engineering guidance from the Claude Code team is the best current reference [R:S7]:</p>
+<ul>
+<li><strong>Say what the product is and what it is doing; cut the rest.</strong> They removed over 80% of the system prompt for the newest models with no measurable loss on their coding evals.</li>
+<li><strong>Prefer judgment to rules.</strong> Instead of &quot;never write comments&quot;, say &quot;match the surrounding code's comment density, naming and idiom&quot;.</li>
+<li><strong>Put tool usage in tool descriptions, not in the system prompt, and skip examples.</strong> Examples can narrow how the model explores. Design expressive parameters instead (for example, an enum for task status hints at how to use it).</li>
+<li><strong>Progressive disclosure.</strong> Move verification and review procedures into skills; defer rarely used tool schemas behind tool search.</li>
+<li><strong>Re-evaluate on each model upgrade.</strong> Keep a prompt eval so you can delete rules that older models needed. <strong>[P]</strong> Version the system prompt per model family in the model router.</li>
+</ul>
+<h3>6.5 Plan mode, questions, tasks</h3>
+<ul>
+<li><strong>Plan mode:</strong> the visible tools are read-only plus <code>ExitPlan</code>. The model writes a plan; the user approves, edits or rejects. Cursor's plan mode produces a reviewable markdown plan [S16]; Claude Code, OpenCode and Cline have the same split [S1, S14, S13].</li>
+<li><strong>Questions:</strong> a blocking <code>AskUser</code> tool with structured options and a free-text escape. Anthropic reports this worked after two failed attempts (extra parameters on the plan tool, then a custom markdown output format) [S6].</li>
+<li><strong>Tasks:</strong> a small task tool with <code>pending / in_progress / completed</code>, optional dependencies and the ability to edit or delete tasks. Anthropic moved from rigid to-dos with reminders to tasks because newer models took reminders as a rule to follow the list literally [S6].</li>
+</ul>
+<h3>6.6 Subagents</h3>
+<table>
+<thead>
+<tr>
+<th>Subagent</th>
+<th>Tools</th>
+<th>Model class</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>explore</code></td>
+<td>read, grep, glob, list (no write, no shell)</td>
+<td>cheap</td>
+<td>Read many files, return a summary [S1]</td>
+</tr>
+<tr>
+<td><code>plan</code></td>
+<td>same as explore</td>
+<td>main</td>
+<td>Draft a plan for the main agent</td>
+</tr>
+<tr>
+<td><code>review</code></td>
+<td>read, grep, git diff</td>
+<td>strong</td>
+<td>Review a diff; wires to your reviewer role [M]</td>
+</tr>
+<tr>
+<td><code>security-review</code></td>
+<td>read, grep, dependency tools</td>
+<td>strong</td>
+<td>Your security reviewer role [M]</td>
+</tr>
+<tr>
+<td><code>general</code></td>
+<td>all except spawning</td>
+<td>main</td>
+<td>Parallel independent subtasks</td>
+</tr>
+</tbody>
+</table>
+<p>Rules [P]: own context window; return a summary only; cannot spawn further subagents; share the run's budget; their tool calls appear collapsed in the UI but are fully logged (Copilot made subagent activity visible in session logs for the same reason [S30]); the parent can set a tool allowlist and model.</p>
+<h3>6.7 Verification</h3>
+<p>The &quot;verify&quot; half of the loop is where quality comes from:</p>
+<ol>
+<li><strong>Diagnostics after edit</strong> (LSP if present, else syntax check). Surface only new errors.</li>
+<li><strong>Project commands</strong> from <code>MINIMAKE.md</code> or config: <code>lint_cmd</code>, <code>test_cmd</code>, <code>build_cmd</code>. Aider's lint-and-test auto-fix loop is the model: failures go back to the model until they pass or it reports what it could not fix [S12].</li>
+<li><strong>Completion check:</strong> before the final message the model must list what it verified and what it did not. A Stop hook can enforce this.</li>
+<li><strong>Independent review</strong> (optional, v2): run your reviewer role on the diff before the user accepts it.</li>
+</ol>
+<h3>6.8 Model routing and failure handling [M][P]</h3>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Normal step</td>
+<td>Main model from the plan's chain (§14.2)</td>
+</tr>
+<tr>
+<td>Planning or hard decision</td>
+<td>Escalate to stronger model (&quot;oracle&quot; pattern [S31])</td>
+</tr>
+<tr>
+<td>Summarization, classifier, titles</td>
+<td>Cheapest class</td>
+</tr>
+<tr>
+<td>Provider error, rate limit, timeout</td>
+<td>Retry with backoff, then next model in chain; <strong>tell the user</strong> when quality class changes</td>
+</tr>
+<tr>
+<td>Context overflow</td>
+<td>Compact, then retry once; otherwise pause with message</td>
+</tr>
+<tr>
+<td>Quota exhausted</td>
+<td>Pause; user may grant more; never silently downgrade (rulebook rule 7)</td>
+</tr>
+<tr>
+<td>Model returns malformed tool call</td>
+<td>Re-ask once with the error; count toward failure breaker</td>
+</tr>
+</tbody>
+</table>
+<h3>6.9 Streaming and interrupts</h3>
+<ul>
+<li>Stream text and tool progress token by token.</li>
+<li><strong>Esc</strong> cancels the running tool and waits; typing a message queues it and the model reads it after the current tool finishes (Claude Code behavior [S2]).</li>
+<li>Cancel must kill the process group on the user's machine and set the Redis cancel flag so the backend stops calling the model [M].</li>
+</ul>
+<h3>6.10 Replay and debugging</h3>
+<p>Because every model call and tool result is an event, any run can be replayed offline against the same inputs, and a bad run can be turned into an eval case with one command. OpenHands credits its append-only event log and immutable configuration for deterministic replay and easy debugging [S20]. <strong>[P]</strong> Store the exact prompt and tool schemas hash with each model call.</p>
+<hr>
+<h2>7. Tools</h2>
+<h3>7.1 Design rules (from Anthropic's tool team) [R:S6, S7]</h3>
+<ol>
+<li><strong>A small, deliberate set.</strong> Claude Code has about 20 tools and treats each new one as a cost, because each is another option for the model to think about [S6].</li>
+<li><strong>Shape tools to what the model is good at.</strong> Watch transcripts, remove tools it fights with, and add structure where free text failed (the AskUser tool) [S6].</li>
+<li><strong>Let the model find its own context.</strong> A Grep tool beat pre-indexed retrieval in their experience because the model could build context itself [S6]. Keep an optional index as an experiment [S31].</li>
+<li><strong>Add capability through progressive disclosure, not new tools.</strong> Skills and subagents extend what the agent can do without enlarging the tool list [S6].</li>
+<li><strong>No examples in tool descriptions</strong> for the newest models; use expressive parameters instead [S7].</li>
+<li><strong>Defer rarely used tools</strong> behind a tool-search mechanism so idle MCP tools cost almost nothing [S1].</li>
+</ol>
+<h3>7.2 Tool catalog</h3>
+<p>Risk levels: <strong>R0</strong> read-only, <strong>R1</strong> write inside project, <strong>R2</strong> run command, <strong>R3</strong> network or outside project, <strong>R4</strong> irreversible or external effect.</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Version</th>
+<th>Risk</th>
+<th>What it does</th>
+<th>Key behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read_file</code></td>
+<td>v0</td>
+<td>R0</td>
+<td>Read text with line range; images and PDFs later</td>
+<td>Records &quot;seen&quot; state for read-before-write; denies protected files</td>
+</tr>
+<tr>
+<td><code>list_dir</code></td>
+<td>v0</td>
+<td>R0</td>
+<td>Directory listing</td>
+<td>Respects ignore files</td>
+</tr>
+<tr>
+<td><code>glob</code></td>
+<td>v0</td>
+<td>R0</td>
+<td>Find files by pattern</td>
+<td></td>
+</tr>
+<tr>
+<td><code>grep</code></td>
+<td>v0</td>
+<td>R0</td>
+<td>Regex search (ripgrep) with context lines</td>
+<td>Output size capped; most-used tool [S6]</td>
+</tr>
+<tr>
+<td><code>edit_file</code></td>
+<td>v0</td>
+<td>R1</td>
+<td>Replace an exact string; fail if not unique unless <code>replace_all</code></td>
+<td>Shows a diff; takes a checkpoint first</td>
+</tr>
+<tr>
+<td><code>write_file</code></td>
+<td>v0</td>
+<td>R1</td>
+<td>Create or overwrite</td>
+<td>Requires prior read for existing files; atomic write (temp file, validate, rename) [P]</td>
+</tr>
+<tr>
+<td><code>apply_patch</code></td>
+<td>v1</td>
+<td>R1</td>
+<td>Apply a unified diff with several hunks</td>
+<td>Codex-style [S11]</td>
+</tr>
+<tr>
+<td><code>delete_path</code></td>
+<td>v0</td>
+<td>R1/R4</td>
+<td>Delete a file or empty dir</td>
+<td>Inside project: R1 with checkpoint; outside: denied</td>
+</tr>
+<tr>
+<td><code>bash</code></td>
+<td>v0</td>
+<td>R2</td>
+<td>Run a shell command</td>
+<td>Sandboxed; timeout; env sanitized (§8.5); streams output</td>
+</tr>
+<tr>
+<td><code>bash_background</code> + <code>bash_output</code> + <code>bash_kill</code></td>
+<td>v1</td>
+<td>R2</td>
+<td>Long-running processes</td>
+<td>Dev servers, watchers [S2, S14]</td>
+</tr>
+<tr>
+<td><code>web_fetch</code></td>
+<td>v1</td>
+<td>R3</td>
+<td>Fetch a URL, return text</td>
+<td>Domain allowlist; marks session <strong>tainted</strong></td>
+</tr>
+<tr>
+<td><code>web_search</code></td>
+<td>v1</td>
+<td>R3</td>
+<td>Search the web</td>
+<td>Via MiniMe search provider; marks taint</td>
+</tr>
+<tr>
+<td><code>ask_user</code></td>
+<td>v1</td>
+<td>R0</td>
+<td>Blocking structured questions</td>
+<td>[S6]</td>
+</tr>
+<tr>
+<td><code>plan_exit</code></td>
+<td>v0</td>
+<td>R0</td>
+<td>Present plan for approval</td>
+<td>Only tool besides read-only ones in plan mode</td>
+</tr>
+<tr>
+<td><code>tasks</code></td>
+<td>v1</td>
+<td>R0</td>
+<td>Create/update/list tasks with dependencies</td>
+<td>[S6]</td>
+</tr>
+<tr>
+<td><code>spawn_subagent</code></td>
+<td>v1</td>
+<td>R0</td>
+<td>Run a subagent</td>
+<td>§6.6</td>
+</tr>
+<tr>
+<td><code>skill</code></td>
+<td>v1</td>
+<td>R0</td>
+<td>Load a skill body</td>
+<td>Progressive disclosure [S1]</td>
+</tr>
+<tr>
+<td><code>tool_search</code></td>
+<td>v1</td>
+<td>R0</td>
+<td>Load schemas of deferred tools</td>
+<td>[S1]</td>
+</tr>
+<tr>
+<td><code>memory</code></td>
+<td>v1</td>
+<td>R1</td>
+<td>Read/write auto-memory notes</td>
+<td>Plain files the user can edit</td>
+</tr>
+<tr>
+<td><code>git</code> (read-only: status, diff, log, show)</td>
+<td>v1</td>
+<td>R0</td>
+<td>Fast structured git reads</td>
+<td>Mutations go through <code>bash</code> so permissions apply</td>
+</tr>
+<tr>
+<td><code>lsp</code> (diagnostics, definition, references)</td>
+<td>v2</td>
+<td>R0</td>
+<td>Code intelligence</td>
+<td>Diagnostics after edits [S1, S14]</td>
+</tr>
+<tr>
+<td><code>repo_map</code></td>
+<td>v2</td>
+<td>R0</td>
+<td>Ranked outline of the repo</td>
+<td>Aider-style [S12]</td>
+</tr>
+<tr>
+<td>MCP tools</td>
+<td>v1</td>
+<td>per server</td>
+<td>External services</td>
+<td>Namespaced <code>mcp__server__tool</code>; trust level per server</td>
+</tr>
+<tr>
+<td><code>browser_check</code></td>
+<td>v3</td>
+<td>R3</td>
+<td>Open the app in a headless browser and report</td>
+<td>Replit/Devin-style self-testing [S32, S17]</td>
+</tr>
+</tbody>
+</table>
+<h3>7.3 Schemas (examples to implement against)</h3>
+<pre><code class="language-json">{
+  &#34;name&#34;: &#34;edit_file&#34;,
+  &#34;description&#34;: &#34;Replace exactly one occurrence of old_string with new_string in a file you have read. Fails if old_string is missing or appears more than once, unless replace_all is true.&#34;,
+  &#34;input_schema&#34;: {
+    &#34;type&#34;: &#34;object&#34;,
+    &#34;properties&#34;: {
+      &#34;path&#34;:        {&#34;type&#34;: &#34;string&#34;},
+      &#34;old_string&#34;:  {&#34;type&#34;: &#34;string&#34;},
+      &#34;new_string&#34;:  {&#34;type&#34;: &#34;string&#34;},
+      &#34;replace_all&#34;: {&#34;type&#34;: &#34;boolean&#34;, &#34;default&#34;: false}
+    },
+    &#34;required&#34;: [&#34;path&#34;, &#34;old_string&#34;, &#34;new_string&#34;]
+  }
+}
+</code></pre>
+<pre><code class="language-json">{
+  &#34;name&#34;: &#34;bash&#34;,
+  &#34;description&#34;: &#34;Run a shell command in the project directory inside the sandbox. Returns stdout, stderr and exit code. Use background mode for servers and watchers.&#34;,
+  &#34;input_schema&#34;: {
+    &#34;type&#34;: &#34;object&#34;,
+    &#34;properties&#34;: {
+      &#34;command&#34;:     {&#34;type&#34;: &#34;string&#34;},
+      &#34;timeout_s&#34;:   {&#34;type&#34;: &#34;integer&#34;, &#34;default&#34;: 120},
+      &#34;background&#34;:  {&#34;type&#34;: &#34;boolean&#34;, &#34;default&#34;: false},
+      &#34;reason&#34;:      {&#34;type&#34;: &#34;string&#34;, &#34;description&#34;: &#34;One line shown in the approval prompt&#34;}
+    },
+    &#34;required&#34;: [&#34;command&#34;]
+  }
+}
+</code></pre>
+<pre><code class="language-json">{
+  &#34;name&#34;: &#34;tasks&#34;,
+  &#34;description&#34;: &#34;Create, update or list tasks for this run.&#34;,
+  &#34;input_schema&#34;: {
+    &#34;type&#34;: &#34;object&#34;,
+    &#34;properties&#34;: {
+      &#34;action&#34;: {&#34;enum&#34;: [&#34;create&#34;, &#34;update&#34;, &#34;delete&#34;, &#34;list&#34;]},
+      &#34;id&#34;:     {&#34;type&#34;: &#34;string&#34;},
+      &#34;title&#34;:  {&#34;type&#34;: &#34;string&#34;},
+      &#34;status&#34;: {&#34;enum&#34;: [&#34;pending&#34;, &#34;in_progress&#34;, &#34;completed&#34;]},
+      &#34;depends_on&#34;: {&#34;type&#34;: &#34;array&#34;, &#34;items&#34;: {&#34;type&#34;: &#34;string&#34;}}
+    },
+    &#34;required&#34;: [&#34;action&#34;]
+  }
+}
+</code></pre>
+<h3>7.4 Tool-result handling</h3>
+<ul>
+<li><strong>Truncate</strong> large outputs with a clear marker and a way to fetch more (offset parameters); Claude Code clears old tool outputs first when context fills [S2].</li>
+<li><strong>Redact</strong> secrets before results leave the machine (§8.5).</li>
+<li><strong>Label trust:</strong> every result carries <code>trust: local_project | local_other | external</code> so the policy engine can taint the session.</li>
+<li><strong>Wrap file contents</strong> in nonce-delimited blocks and tell the model they are data. Your code editor agent already does this [M].</li>
+</ul>
+<hr>
+<h2>8. Permissions, sandbox and security</h2>
+<blockquote>
+<p>This section decides whether MiniMake is safe to ship. Everything here is enforced <strong>on the user's machine</strong>.</p>
+</blockquote>
+<h3>8.1 The threat model in one picture</h3>
+<p>Simon Willison's &quot;lethal trifecta&quot; names the dangerous combination: private data, untrusted content, and a way to communicate externally. An agent that has all three can be tricked by instructions hidden in content it reads [R:S29]. Coding agents are useful precisely because they have all three (they read your code, read web pages and issues, and run commands), so the job is to <strong>reduce blast radius</strong>, not to hope the model resists [S29].</p>
+<p>Where untrusted text can enter MiniMake: web pages and search results, files in cloned repos, issue and PR text, dependency READMEs, MCP tool descriptions and responses, command output, skills and plugins [S29]. The security community's consensus in 2026 is that prompt injection is not solved; the effective defenses are architectural: least privilege, allowlists, sandboxing, human approval for risky actions, and removing one leg of the trifecta [S29].</p>
+<table>
+<thead>
+<tr>
+<th>Attack</th>
+<th>Example</th>
+<th>Primary defense</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Indirect prompt injection</td>
+<td>A README tells the agent to upload <code>~/.ssh</code></td>
+<td>Sandbox (no network, no home access) + egress allowlist + taint-tightened approvals</td>
+</tr>
+<tr>
+<td>Tool poisoning</td>
+<td>A malicious MCP server hides instructions in a tool description</td>
+<td>Trust levels per server; review descriptions; no auto-approve for new servers</td>
+</tr>
+<tr>
+<td>Supply chain via skills/plugins</td>
+<td>A marketplace skill exfiltrates credentials</td>
+<td>No marketplace in v1; signed, scanned skills later (§10.6)</td>
+</tr>
+<tr>
+<td>Self-modification</td>
+<td>Agent edits its own hooks or config to disable checks</td>
+<td>Protected paths read-only; config changes require approval</td>
+</tr>
+<tr>
+<td>Credential theft</td>
+<td>Model reads env vars or <code>.env</code></td>
+<td>Sanitized env; read-deny on secret paths; redaction</td>
+</tr>
+<tr>
+<td>Backend compromise</td>
+<td>Attacker makes the backend send &quot;approved&quot;</td>
+<td>Local policy is final; hard denies cannot be overridden remotely</td>
+</tr>
+<tr>
+<td>Rogue device</td>
+<td>Stolen shared token registers as another user's daemon</td>
+<td>Per-device credentials bound to user; revocation</td>
+</tr>
+<tr>
+<td>Runaway cost</td>
+<td>Loop burns tokens</td>
+<td>Step, dollar and failure limits</td>
+</tr>
+</tbody>
+</table>
+<h3>8.2 Permission modes</h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Behavior</th>
+<th>Ship in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>plan</strong></td>
+<td>Read-only tools only; no shell</td>
+<td>v0</td>
+</tr>
+<tr>
+<td><strong>ask</strong> (default)</td>
+<td>Reads inside the project are free; every write and command asks</td>
+<td>v0</td>
+</tr>
+<tr>
+<td><strong>accept-edits</strong></td>
+<td>Project file edits and a short list of filesystem commands (<code>mkdir</code>, <code>mv</code>, <code>cp</code>) allowed without asking; other commands ask</td>
+<td>v1</td>
+</tr>
+<tr>
+<td><strong>auto</strong></td>
+<td>A classifier approves or blocks; the user is asked only for risky actions</td>
+<td>v2</td>
+</tr>
+<tr>
+<td><strong>bypass</strong></td>
+<td>No prompts. Only inside a container or VM; not offered by default; requires an explicit flag and a visible banner</td>
+<td>v2, restricted</td>
+</tr>
+</tbody>
+</table>
+<p>Reference behavior: Claude Code's Manual mode starts read-only and asks before edits and shell commands; Accept Edits auto-approves edits and a fixed set of filesystem commands; Plan explores without editing; Auto uses a separate classifier model to approve most actions and block risky ones, and explicit ask and deny rules still apply [S2, S4]. Codex has analogous approval policies (<code>untrusted</code>, <code>on-request</code>, <code>never</code>) paired with sandbox modes [S11]. Cline warns that its YOLO mode disables all safety checks and recommends isolated environments [S13]. Kiro installs in Autopilot by default, which one reviewer flagged as a risk; your default should be the safe one [S18].</p>
+<h3>8.3 Rules</h3>
+<p>Rule syntax <strong>[P]</strong>, modeled on Claude Code's allow/ask/deny rules [S1]:</p>
+<pre><code class="language-toml"># .minimake/settings.toml  (project)   ~/.minimake/settings.toml (user)   /etc/minimake/managed.toml (org)
+[permissions]
+allow = [
+  &#34;bash(npm test)&#34;,
+  &#34;bash(git status)&#34;,
+  &#34;bash(git diff:*)&#34;,
+  &#34;edit_file(src/**)&#34;,
+  &#34;web_fetch(domain:docs.python.org)&#34;,
+]
+ask = [
+  &#34;bash(git push:*)&#34;,
+  &#34;bash(npm install:*)&#34;,
+]
+deny = [
+  &#34;read_file(.env*)&#34;,
+  &#34;read_file(~/.ssh/**)&#34;,
+  &#34;bash(curl:*)&#34;,
+  &#34;bash(rm -rf:*)&#34;,
+]
+</code></pre>
+<ul>
+<li><strong>Evaluation order:</strong> deny, then ask, then allow; managed settings override user, which override project (Claude Code layering [S1]).</li>
+<li><strong>Exact strings first.</strong> Saved approvals are the exact command the user approved, not a pattern the model proposed. No blanket &quot;always allow&quot;.</li>
+<li><strong>Parse compound commands.</strong> <code>a &amp;&amp; b | c</code> must be split and each part checked; otherwise <code>allow bash(ls)</code> lets <code>ls &amp;&amp; curl evil</code> through. <strong>[P]</strong> Use a real shell parser; unknown syntax falls back to &quot;ask&quot;.</li>
+<li><strong>Project-level rules and hooks require a trust prompt</strong> the first time a folder is opened, like Gemini CLI's trusted folders [S15].</li>
+</ul>
+<h3>8.4 Sandbox</h3>
+<table>
+<thead>
+<tr>
+<th>OS</th>
+<th>Mechanism</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>macOS</td>
+<td>Seatbelt (<code>sandbox-exec</code>) profiles</td>
+<td>Codex and Claude Code use this [S9, S3]</td>
+</tr>
+<tr>
+<td>Linux</td>
+<td>bubblewrap for filesystem; Landlock + seccomp as alternative</td>
+<td>Claude Code uses bubblewrap [S3]; Codex uses Landlock/seccomp [S9, S10]. Landlock may not work inside containers without the right host support [S9]</td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>WSL2 first; native later</td>
+<td>Claude Code's sandbox requires WSL2 [S3]</td>
+</tr>
+</tbody>
+</table>
+<p>Policy <strong>[P]</strong> (matching what Codex and Claude Code do by default [S9, S3, S10]):</p>
+<ul>
+<li><strong>Writable:</strong> the project directory and a temp dir. <strong>Read-only inside it:</strong> <code>.git/</code>, <code>.minimake/</code>, shell rc files. Codex keeps <code>.git</code> and <code>.codex</code> read-only even in workspace-write [S10].</li>
+<li><strong>Readable:</strong> the project, system directories needed for toolchains. <strong>Denied:</strong> home directory secrets (<code>~/.ssh</code>, <code>~/.aws</code>, browser profiles, keychains).</li>
+<li><strong>Network:</strong> off by default for sandboxed commands; allowed through a local proxy with a <strong>domain allowlist</strong>; the first time a command needs a new domain the user is prompted [S3].</li>
+<li><strong>Both filesystem and network isolation are required.</strong> Without filesystem isolation a compromised agent can alter system files to gain network access, and without network isolation it can leak files [S3].</li>
+<li><strong>Auto-allow variant:</strong> commands that run fully inside the sandbox can skip prompts; commands that need to escape (new domain, outside paths) fall back to the normal permission flow [S3].</li>
+<li><strong>Escape hatch:</strong> a retry &quot;outside the sandbox&quot; must go through full approval and be logged separately [S3].</li>
+</ul>
+<h3>8.5 Environment and secrets</h3>
+<ul>
+<li>Start the shell with a <strong>sanitized environment</strong>: strip variables matching <code>*KEY*</code>, <code>*TOKEN*</code>, <code>*SECRET*</code>, <code>*PASSWORD*</code>, cloud credentials; allow named exceptions per project.</li>
+<li><strong>Two-form denylist</strong> (from your CLI plan [M]): a human-readable list in settings and a hard-coded list in the read tools that refuses <code>.env*</code>, private keys, credential stores. The hard-coded form cannot be edited by the model or by a project file.</li>
+<li><strong>Redaction filter</strong> on every tool result before it leaves the machine: pattern-based secret detection (cloud keys, JWTs, private-key blocks, high-entropy strings near words like &quot;key&quot;). Your rulebook already makes secret and PII redaction mandatory before external model calls [M].</li>
+<li><strong>Git credentials</strong> are used through the OS credential helper so <code>git push</code> works without the model seeing the token. Managed Agents does the equivalent by wiring the token into the git remote at setup so the agent never handles it [S5].</li>
+<li><strong>MCP OAuth tokens</strong> live in the OS keychain; MiniMake calls MCP servers through a local proxy so the model sees results, not credentials (the vault-plus-proxy pattern from Managed Agents [S5]).</li>
+</ul>
+<h3>8.6 Taint tracking (a differentiator) [P]</h3>
+<p>Each session carries <code>tainted: bool</code>. It becomes true when untrusted content (<code>trust: external</code>) enters the context. While tainted:</p>
+<ul>
+<li>Any tool that can move data out (network, <code>git push</code>, MCP write tools, email-like tools) <strong>requires human approval even in accept-edits or auto mode</strong>.</li>
+<li>Writes outside the project are denied.</li>
+<li>The UI shows a visible &quot;tainted&quot; marker with the reason, and the user can clear it only by starting a fresh context or explicitly accepting the risk.</li>
+</ul>
+<p>This follows the pattern recommended for MCP-heavy setups: egress goes through an allowlist and tainted sessions need a human gate [S29]. It is rare in shipping products, which makes it a credible security feature to market.</p>
+<h3>8.7 Auto mode classifier</h3>
+<ul>
+<li>A separate small model reviews proposed actions with a policy prompt and returns allow / block / ask. Claude Code's classifier blocks actions that escalate beyond the request, target unrecognized infrastructure, or appear driven by hostile content the agent read [S3, S4].</li>
+<li><strong>MiniMake rules [P]:</strong> (1) the classifier only runs on calls that survived the local deny rules; (2) it can only move a call from &quot;ask&quot; to &quot;allow&quot;, never override a deny; (3) it never sees secrets; (4) every verdict is logged; (5) ship it only after an eval of at least a few hundred labeled tool calls including injection attempts, and report false-allow rate as a release gate.</li>
+<li>The verdict comes from your backend, so a compromised backend could always say &quot;allow&quot;; that is why the sandbox and hard denies remain the real protection.</li>
+</ul>
+<h3>8.8 Hooks as deterministic guardrails</h3>
+<p>Hooks run a script or HTTP call at lifecycle events and can block. In Claude Code, <code>PreToolUse</code> exit code 2 blocks the call and shows the reason to the model; <code>Stop</code> exit code 2 forces the agent to continue; four handler types exist (command, http, prompt, agent) [S34]. The docs state the principle plainly: a CLAUDE.md instruction is a request; a hook is enforcement [S1].</p>
+<p>MiniMake events <strong>[P]</strong>: <code>SessionStart</code>, <code>UserPromptSubmit</code>, <code>PreToolUse</code>, <code>PermissionRequest</code>, <code>PostToolUse</code>, <code>PostToolUseFailure</code>, <code>SubagentStart/Stop</code>, <code>PreCompact</code>, <code>Stop</code>, <code>SessionEnd</code>. Exit 0 allows, 2 blocks. Project hooks need the folder-trust prompt. Hooks run <strong>outside</strong> the model's context and cost nothing unless they return text [S1].</p>
+<h3>8.9 Device identity and the backend link</h3>
+<p>Fixing the weakness found in the current daemon [M] (one shared pairing token; WebSocket path takes the workspace from the URL):</p>
+<ol>
+<li><strong>Pair with device-code flow:</strong> <code>minimake login</code> shows a short code; the user approves in the web app; the CLI receives a long-lived device credential stored in the OS keychain.</li>
+<li><strong>Per-connection short-lived token</strong> (JWT) signed by the backend, containing user ID, device ID and expiry; verified on connect.</li>
+<li><strong>Server verifies ownership</strong> of any workspace or project the device asks to touch.</li>
+<li><strong>Revocation list</strong> checked on connect and on a heartbeat; a &quot;sign out all devices&quot; button.</li>
+<li><strong>TLS only;</strong> pin the backend certificate or use a trusted CA bundle.</li>
+</ol>
+<h3>8.10 Audit, kill switch and transparency</h3>
+<ul>
+<li><strong>Audit log</strong> of every proposal, decision (who or what decided), tool result summary and hook outcome, kept locally and sent to the backend log. Your <code>audit_log</code> utility already exists [M].</li>
+<li><strong>Kill switch:</strong> <code>Ctrl+C</code> twice, a <code>minimake stop</code> command, and a web button that sets the cancel flag.</li>
+<li><strong>Always show</strong> the exact command before it runs, the files an edit touches, and the current mode, sandbox status and taint state in the status line.</li>
+</ul>
+<h3>8.11 Enterprise controls (v3) [S4, S15]</h3>
+<p>Managed settings that users cannot override (permission rules, allowed MCP servers, sandbox policy, model allowlist, disabled bypass mode), policy files like Gemini CLI's Policy Engine, and OpenTelemetry export of usage and events [S15, S4].</p>
+<hr>
+<h2>9. Context, memory and instructions</h2>
+<h3>9.1 What goes into the context window</h3>
+<p>Order matters for caching: <strong>stable things first, changing things last.</strong></p>
+<ol>
+<li>System prompt (short; product and role only) [S7].</li>
+<li>Tool schemas (core tools full; deferred tools as names only) [S1].</li>
+<li>Instruction files: global <code>~/.minimake/MINIMAKE.md</code>, repo <code>MINIMAKE.md</code>, subdirectory files as the agent enters them, plus <code>AGENTS.md</code> / <code>CLAUDE.md</code> if present. Claude Code loads all levels additively and loads subdirectory files as it works in them; keep each under about 200 lines [S1].</li>
+<li>Rules matched to files currently in play (path-scoped) [S1].</li>
+<li>Auto-memory index (first ~200 lines or 25 KB) [S2].</li>
+<li>MiniMe project context if the project is linked: instructions, plan, parts and wiring summaries, wireframe summaries [M].</li>
+<li>Conversation history (compacted when needed).</li>
+<li>Tool results (older ones cleared first on pressure) [S2].</li>
+</ol>
+<h3>9.2 Instruction file spec</h3>
+<p><code>MINIMAKE.md</code> is plain Markdown. Guidance from Anthropic's team: keep it light, describe what the repo is for, spend tokens on <strong>gotchas</strong> the model cannot see from the file tree, and avoid stating obvious things; use references to skills for procedures such as how to verify work [S7].</p>
+<pre><code class="language-markdown"># Project: soil-monitor
+Firmware for an ESP32 soil sensor plus a small Flask dashboard.
+
+## Gotchas
+- Pin 34 is input-only; do not drive it.
+- `config.h` is generated by `make config`; never edit it by hand.
+
+## Commands
+- test: `pytest -q`
+- build: `make build`
+- lint: `ruff check .`
+
+## Verification
+See skill `verify-firmware`.
+</code></pre>
+<p><code>@path</code> imports pull in other files. A <code>/init</code> command drafts the file from the repo, as Claude Code and Codex do [S2, S11], and <code>/doctor</code> can propose trimming an oversized one [S1].</p>
+<h3>9.3 Memory</h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Contents</th>
+<th>Storage</th>
+<th>Loaded</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Instructions</td>
+<td>Rules the user wrote</td>
+<td><code>MINIMAKE.md</code> files</td>
+<td>Always</td>
+</tr>
+<tr>
+<td>Auto-memory</td>
+<td>Things the agent learned about the user and project</td>
+<td><code>~/.minimake/memory/&lt;project&gt;/MEMORY.md</code> + topic files</td>
+<td>Index at start</td>
+</tr>
+<tr>
+<td>Session log</td>
+<td>Everything that happened</td>
+<td>Backend DB</td>
+<td>Never wholesale; queried or summarized</td>
+</tr>
+<tr>
+<td>Scratchpad</td>
+<td>Working notes for the current long task</td>
+<td>Run-scoped file</td>
+<td>On demand</td>
+</tr>
+<tr>
+<td>Skills</td>
+<td>Procedures</td>
+<td><code>SKILL.md</code> folders</td>
+<td>Description at start; body on use</td>
+</tr>
+</tbody>
+</table>
+<p>Rules <strong>[P]</strong>: memory is plain files the user can read, edit and delete; nothing sensitive (secrets, personal data) is auto-saved; every auto-memory write is shown in the UI; project memory is separate from user memory; a <code>/memory</code> command lists and edits. Anthropic notes that newer models save relevant memories automatically, replacing the old <code>#</code>-to-save habit [S7].</p>
+<h3>9.4 Compaction</h3>
+<ul>
+<li>When context nears the limit, <strong>clear old tool outputs first</strong>, then summarize the conversation; keep user requests and key code snippets [S2].</li>
+<li>Let users add &quot;compact instructions&quot; (what to keep) in <code>MINIMAKE.md</code> or pass a focus to <code>/compact</code> [S2].</li>
+<li><strong>Stop auto-compacting</strong> after repeated failures where one huge output refills the window, and show an error with recovery steps [S2].</li>
+<li>Because the full session log is stored outside the context, nothing is lost when compaction drops messages; the harness can re-fetch positional slices of the log if the model needs earlier detail [S5].</li>
+</ul>
+<h3>9.5 Retrieval strategy</h3>
+<ol>
+<li><strong>Default: grep, glob, read</strong> with the model driving [S6].</li>
+<li><strong>v2: repo map</strong> (tree-sitter outline ranked by relevance) as a cheap orientation block, as Aider does with PageRank over symbol references [S12].</li>
+<li><strong>v3, only if your own eval shows a gain: local semantic index.</strong> Evidence is mixed: Anthropic's team chose grep [S6], while May–July 2026 tests and Augment's vendor benchmark favored indexes [S31]. Roo Code lets users pick their own embedding provider and vector store, which is a good model if you add one [S19].</li>
+</ol>
+<hr>
+<h2>10. Extensibility</h2>
+<h3>10.1 Skills (open standard)</h3>
+<p>A skill is a folder with <code>SKILL.md</code> (YAML frontmatter with at least <code>name</code> and <code>description</code>, then instructions) and optional <code>scripts/</code>, <code>references/</code>, <code>assets/</code>. Agents load only name and description at startup, the body when a task matches, and bundled files only when referenced [R:S28]. The format was created by Anthropic, released openly and adopted by Claude Code, Codex, Cursor, Gemini CLI, OpenClaw and others [S28]; Zed supports it too, with a <code>disable-model-invocation</code> flag and a recommended body under 500 lines [S27].</p>
+<p>MiniMake <strong>[P]</strong>: read skills from <code>~/.minimake/skills</code>, <code>&lt;repo&gt;/.minimake/skills</code>, and (with a trust prompt) <code>&lt;repo&gt;/.agents/skills</code> and <code>.claude/skills</code> so users bring existing skills; support <code>disable-model-invocation: true</code> for skills with side effects; ship a few built-in skills (<code>verify</code>, <code>review</code>, <code>create-skill</code>, <code>init</code>); allow a skill to run in an isolated subagent context.</p>
+<h3>10.2 Slash commands</h3>
+<p>Built-in set (see Appendix D for the full catalog): <code>/help</code>, <code>/init</code>, <code>/mode</code>, <code>/model</code>, <code>/plan</code>, <code>/review</code>, <code>/security-review</code>, <code>/compact</code>, <code>/context</code>, <code>/cost</code>, <code>/memory</code>, <code>/rewind</code>, <code>/resume</code>, <code>/fork</code>, <code>/mcp</code>, <code>/hooks</code>, <code>/permissions</code>, <code>/doctor</code>, <code>/login</code>, <code>/logout</code>, <code>/sandbox</code>, <code>/clear</code>. User skills appear as <code>/skill-name</code>.</p>
+<h3>10.3 Subagents as files</h3>
+<p><code>.minimake/agents/&lt;name&gt;.md</code> with frontmatter (<code>name</code>, <code>description</code>, <code>tools</code>, <code>model</code>, <code>skills</code>, <code>max_steps</code>) and a prompt body. Claude Code resolves duplicate names by priority (managed &gt; CLI &gt; project &gt; user &gt; plugin) [S1]; copy that precedence.</p>
+<h3>10.4 Hooks</h3>
+<p>See §8.8. Handler types: command, http, prompt (one LLM call), agent (multi-turn with tools). Prompt and agent hooks are good for judgment calls such as &quot;did the model actually verify?&quot; [S34].</p>
+<h3>10.5 MCP</h3>
+<ul>
+<li><strong>Client:</strong> stdio and Streamable HTTP. The 2026-07-28 spec removes protocol-level sessions and the session-ID header, moves long-running work into an official <strong>tasks extension</strong> (server returns a task handle; client polls <code>tasks/get</code> and can send input via <code>tasks/update</code>), deprecates dynamic client registration in favor of Client ID Metadata Documents, tightens OAuth (issuer binding, OAuth 2.1/OIDC), and adds a formal deprecation lifecycle with at least a twelve-month window [R:S26]. <strong>[P]</strong> Build against this spec and keep a compatibility shim for older servers.</li>
+<li><strong>Trust levels</strong> per server: <code>trusted</code> (first-party or reviewed), <code>ask</code> (default), <code>blocked</code>. Tool descriptions from non-trusted servers are shown to the user at install, and their responses taint the session.</li>
+<li><strong>Cline's lesson:</strong> MCP is often the real security answer; a careful local agent becomes risky when every user installs unreviewed servers with broad auto-approve. Keep <code>autoApprove</code> empty for write, delete, network and payment-adjacent tools [S13].</li>
+<li><strong>Tool search:</strong> defer schemas so ten servers do not cost thousands of tokens each turn [S1].</li>
+</ul>
+<h3>10.6 Plugins and marketplace (later)</h3>
+<p>Plugins bundle skills, subagents, hooks and MCP definitions into a versioned installable unit, namespaced (<code>/plugin:skill</code>) to avoid collisions [S1]. <strong>Do not open a public marketplace until you can scan and sign submissions.</strong> The OpenClaw ecosystem is the cautionary example: one analysis cited by its community found over a third of marketplace skills had security flaws and hundreds leaked credentials, and a security team demonstrated a malicious third-party skill that exfiltrated data without the user noticing [S21]. <strong>[P]</strong> Order of trust: built-in → your curated first-party → verified publishers (signed, scanned, permission manifest) → community (off by default).</p>
+<h3>10.7 Modes and roles (MiniMe-specific) [M][P]</h3>
+<p>Map Roo/Kilo-style modes (Architect, Code, Debug, Ask, Orchestrator [S19]) onto your backend roles. Users see simple modes; the backend chooses the role and model chain:</p>
+<table>
+<thead>
+<tr>
+<th>User-facing mode</th>
+<th>Backend role</th>
+<th>Tools</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>plan</code></td>
+<td>planner</td>
+<td>read-only</td>
+</tr>
+<tr>
+<td><code>code</code> (default)</td>
+<td>builder</td>
+<td>full</td>
+</tr>
+<tr>
+<td><code>debug</code></td>
+<td>debugger</td>
+<td>full, prompt tuned for reproduce-isolate-fix</td>
+</tr>
+<tr>
+<td><code>review</code></td>
+<td>reviewer / security reviewer</td>
+<td>read-only + git diff</td>
+</tr>
+<tr>
+<td><code>ask</code></td>
+<td>explainer</td>
+<td>read-only, no plan output</td>
+</tr>
+</tbody>
+</table>
+<h3>10.8 Output styles (later)</h3>
+<p>A named style changes tone and format (concise, explanatory, teaching). Claude Code separates this from instructions: CLAUDE.md says what the project is, an output style says how to respond [S1]. Low priority.</p>
+<hr>
+<h2>11. Workflows</h2>
+<h3>11.1 Checkpoints and rewind</h3>
+<ul>
+<li><strong>Before every file edit</strong>, snapshot the affected files locally (content-addressed store under <code>~/.minimake/checkpoints/&lt;run_id&gt;/</code>).</li>
+<li><strong>Rewind</strong> (<code>Esc Esc</code> or <code>/rewind</code>) restores files to an earlier step and optionally rewinds the conversation. Claude Code works this way: checkpoints are separate from git, survive resume, cover only file changes, and skip symlinked and hard-linked files [S2].</li>
+<li><strong>Be honest in the UI:</strong> actions on remote systems (databases, APIs, deployments) cannot be checkpointed and rely on permissions instead [S2].</li>
+<li>Replit's checkpoints also capture conversation context and connected databases [S32]; for MiniMake, file plus conversation is enough.</li>
+<li>Gemini CLI checkpoints before destructive actions and offers <code>/restore</code> [S15].</li>
+</ul>
+<h3>11.2 Sessions</h3>
+<ul>
+<li>Sessions are stored locally and in the backend log. <code>minimake --resume</code> reopens the same session ID; <code>--fork</code> copies history into a new ID [S2].</li>
+<li><strong>Same session open in two terminals:</strong> warn and offer to fork.</li>
+<li>Sessions are tied to a directory; branches change the files but not the conversation [S2].</li>
+</ul>
+<h3>11.3 Git integration</h3>
+<ul>
+<li>Read git state (branch, dirty files, recent commits) into context [S2].</li>
+<li><strong>Never</strong> commit, push, rebase or reset without approval; treat them as R2/R3.</li>
+<li><strong>Optional auto-commit per change</strong> (off by default; Aider commits every AI edit with a generated message, which is clean for history but noisy for squash-merge teams [S12]).</li>
+<li><strong>Optional &quot;AI authored&quot; trailer</strong> on commits the agent makes.</li>
+</ul>
+<h3>11.4 Parallel work with worktrees</h3>
+<ul>
+<li><code>minimake --worktree feature-x</code> creates a git worktree and a session bound to it; up to N parallel sessions per user by plan.</li>
+<li>Cursor runs up to eight parallel agents on worktrees or cloud machines [S16]; Claude Code recommends worktrees for parallel sessions [S2]; Gemini and Cline list worktrees as a feature [S15, S13].</li>
+<li>A <strong>&quot;compare runs&quot;</strong> view (v3) shows diffs from several agents on one task, the idea behind Copilot Agent HQ's side-by-side PRs [S30]. It multiplies cost, so keep it opt-in.</li>
+</ul>
+<h3>11.5 Headless and CI</h3>
+<ul>
+<li><code>minimake -p &quot;task&quot;</code> runs once, prints the result and exits; <code>--output-format json</code> for scripts (Claude Code, Gemini and Cline have equivalents [S2, S15, S13]).</li>
+<li>A <strong>GitHub Action / CI wrapper</strong> for PR review and fix-the-failing-check tasks. Claude Code and Amp have review bots [S1, S31].</li>
+<li>Headless runs use <strong>bypass-free</strong> policies: explicit allow rules only, no prompts; anything not allowed fails the run.</li>
+</ul>
+<h3>11.6 Lint, test and build loops</h3>
+<p>Configure once in <code>MINIMAKE.md</code> or settings:</p>
+<pre><code class="language-toml">[verify]
+lint  = &#34;ruff check .&#34;
+test  = &#34;pytest -q&#34;
+build = &#34;make build&#34;
+after_edit = [&#34;lint&#34;]        # run after each edit batch
+before_finish = [&#34;test&#34;]     # Stop hook blocks until this passes
+max_fix_attempts = 3
+</code></pre>
+<h3>11.7 Review before accept (MiniMe-specific) [M][P]</h3>
+<p><code>/review</code> runs your reviewer role on the current diff; <code>/security-review</code> runs the security reviewer plus dependency and secret scans. Output is a short list of findings with file and line, which the user can send back to the agent as tasks. Devin Review and BugBot show how popular this is: Devin Review organizes large diffs, detects copied or moved code, flags likely bugs and can trigger autofixes [S17, S16]. Because you already have reviewer roles and a security aggregator, this is MiniMake's strongest differentiator and costs little to build.</p>
+<h3>11.8 Spec-driven mode (later) [S18]</h3>
+<p>Kiro's three files are a useful pattern: <code>requirements.md</code> (user stories with acceptance criteria in EARS notation), <code>design.md</code> (architecture, data models, interfaces), <code>tasks.md</code> (sequenced tasks linked to requirements) [S18]. <strong>[P]</strong> Reuse MiniMe's Plan tab outputs as these files when a project is linked. Offer both Feature specs and Bugfix specs. Keep it optional; some users want to just chat.</p>
+<h3>11.9 Browser ↔ MiniMake handoff and remote control</h3>
+<p>The recommended design (see also earlier discussion): <strong>explicit pull and push on your existing version table, with a &quot;checked out in MiniMake&quot; banner in the browser</strong>, not live two-way sync.</p>
+<ul>
+<li><strong>Pull:</strong> <code>minimake pull &lt;project&gt;</code> writes the cloud project to a folder, skipping junk (<code>node_modules</code>, <code>.git</code>, build output).</li>
+<li><strong>Checked out:</strong> browser code files become read-only with a banner and a &quot;release checkout&quot; button.</li>
+<li><strong>Push:</strong> <code>minimake push</code> sends changed files; each becomes a new version in history; push carries the version it pulled from and is rejected if the cloud moved on.</li>
+<li><strong>Remote control (v2):</strong> the web app shows a live run (messages, diffs, approvals) from the backend session log and can approve or cancel. Claude Code's Remote Control runs the session on your machine and drives it from a browser while files stay local [S2]. Approvals made remotely still pass the local hard deny rules.</li>
+<li><strong>Git later:</strong> an optional GitHub link where push also creates a branch. Claude Code's cloud/teleport flow uses a pushed branch as the handoff and, for non-GitHub repos, bundles the local repo (up to 100 MB) [S2].</li>
+</ul>
+<h3>11.10 Scheduled and background runs</h3>
+<p>Reserved for MiniMate (see <code>minimate_guide.md</code>). MiniMake v1 supports <strong>background shells</strong> and <strong>headless runs</strong>, but no unattended agent runs.</p>
+<hr>
+<h2>12. Surfaces and UX</h2>
+<h3>12.1 The terminal UI</h3>
+<p>Layout <strong>[P]</strong>:</p>
+<pre><code>┌──────────────────────────────────────────────────────────────┐
+│ conversation (scrolling): user, assistant text, tool cards   │
+│   ▸ edit_file src/app.py  (+12 −3)   [diff collapsed]        │
+│   ▸ bash pytest -q        ✓ 14 passed (2.1s)                 │
+│ tasks: ◼ add validation  ◻ write tests  ◻ update README      │
+├──────────────────────────────────────────────────────────────┤
+│ &gt; type here  (Enter send · Shift+Enter newline · @ files · / )│
+├──────────────────────────────────────────────────────────────┤
+│ mode: ask · model: main · sandbox: on · tainted: no · $0.12  │
+└──────────────────────────────────────────────────────────────┘
+</code></pre>
+<p>Keys: <code>Shift+Tab</code> cycle modes (as Claude Code does [S2]), <code>Tab</code> toggle plan/build (OpenCode [S14]), <code>Esc</code> stop, <code>Esc Esc</code> rewind, <code>Ctrl+R</code> history, <code>@</code> file mention, <code>!</code> raw shell, <code>#</code> add memory, <code>?</code> help.</p>
+<p>Approval prompt:</p>
+<pre><code>Run command?   pytest -q
+Why: run the test suite to verify the change
+[y] once  [a] allow this exact command for this session  [n] no  [e] edit  [d] deny always
+</code></pre>
+<h3>12.2 Diff view</h3>
+<p>Inline unified diffs with syntax highlighting; collapse long ones; &quot;review all changes&quot; screen at the end listing every touched file with accept/revert per file (a pending-changes tray, which your browser editor already has [M]).</p>
+<h3>12.3 Status and cost transparency</h3>
+<p>Status line shows mode, model class, sandbox state, taint state, context percentage and running cost in the plan's units. Your rulebook's &quot;four numbers&quot; idea (what you used, what is left, when it resets, what a run will cost) applies here [M]. Provide <code>/cost</code> and <code>/context</code>; Claude Code's <code>/context</code> shows what is consuming space [S2].</p>
+<h3>12.4 Onboarding</h3>
+<ol>
+<li><code>curl -fsSL &lt;your-domain&gt;/install.sh | bash</code> (and Homebrew/npm later). Claude Code, Codex and Gemini all install in one line [S2, S11, S15].</li>
+<li><code>minimake login</code> (device-code flow).</li>
+<li>First run in a folder: trust prompt, <code>/init</code> offer, sandbox check (<code>minimake doctor</code> reports readiness, as <code>computer-use-linux doctor</code> does for its tool [S24]).</li>
+<li>Optional: link to a MiniMe project.</li>
+</ol>
+<h3>12.5 Editors through ACP</h3>
+<p>Implement <code>minimake acp</code> so Zed, JetBrains, Devin Desktop and VS Code (via a bridge) can launch MiniMake as a subprocess over JSON-RPC on stdio [S27]. Kiro CLI does exactly this with <code>kiro-cli acp</code> [S27]. When the editor supports a terminal capability, route command execution through the editor's terminal. This gives users a VS Code-class experience without you building an editor, which answers your earlier question about using &quot;VS Code or any other thing&quot;.</p>
+<h3>12.6 Browser surface</h3>
+<p>Use the MiniMe web app for: project selection, run history and replay, remote approvals, diff review, cost dashboard, device management, settings sync (permissions, skills, memory export).</p>
+<hr>
+<h2>13. Server-side specification (the MiniMe backend in &quot;code mode&quot;)</h2>
+<h3>13.1 API surface [P]</h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST /v1/code/devices/pair/start</code> / <code>poll</code></td>
+<td>Device-code pairing</td>
+</tr>
+<tr>
+<td><code>WS /v1/code/device</code></td>
+<td>Authenticated device socket (multiplexes runs)</td>
+</tr>
+<tr>
+<td><code>POST /v1/code/runs</code></td>
+<td>Create a run (project link optional, mode, model preference)</td>
+</tr>
+<tr>
+<td><code>GET /v1/code/runs/{id}</code></td>
+<td>Run status and totals</td>
+</tr>
+<tr>
+<td><code>GET /v1/code/runs/{id}/events?after=seq</code></td>
+<td>Replay events (web remote view, resume)</td>
+</tr>
+<tr>
+<td><code>POST /v1/code/runs/{id}/message</code></td>
+<td>Send a user message</td>
+</tr>
+<tr>
+<td><code>POST /v1/code/runs/{id}/approval</code></td>
+<td>Remote approval (still subject to local policy)</td>
+</tr>
+<tr>
+<td><code>POST /v1/code/runs/{id}/cancel</code></td>
+<td>Cancel</td>
+</tr>
+<tr>
+<td><code>POST /v1/code/runs/{id}/grant</code></td>
+<td>Grant more budget</td>
+</tr>
+<tr>
+<td><code>GET /v1/code/usage</code></td>
+<td>Credits, ceilings, reset date</td>
+</tr>
+<tr>
+<td><code>POST /v1/code/projects/{id}/pull</code> / <code>push</code></td>
+<td>Browser↔local handoff on the version table</td>
+</tr>
+</tbody>
+</table>
+<h3>13.2 Device socket messages (full catalog in Appendix F)</h3>
+<p>Client → server: <code>hello{protocol, device_credential, client_version, capabilities}</code>, <code>user_message</code>, <code>tool_result</code>, <code>tool_stream</code>, <code>approval{call_id, decision, scope}</code>, <code>cancel</code>, <code>resume{run_id, last_seq}</code>, <code>ping</code>.
+Server → client: <code>welcome{token_ttl, limits}</code>, <code>run_event{seq, type, ...}</code>, <code>tool_proposed{call_id, tool, input, risk}</code>, <code>budget_warning</code>, <code>error</code>, <code>pong</code>.</p>
+<p>Rules: every message has an ID; server replays missed <code>run_event</code>s after <code>resume</code>; tool calls have a timeout and fail cleanly on disconnect (existing behavior [M]); protocol version negotiated on <code>hello</code>, with a minimum supported version the server can raise.</p>
+<h3>13.3 Data model (sketch) [P]</h3>
+<pre><code class="language-sql">code_devices(id, user_id, name, os, created_at, last_seen_at, revoked_at, credential_hash)
+code_runs(id, user_id, device_id, project_id, status, mode, model_chain, step, 
+          credits_spent, usd_spent_est, taint bool, created_at, updated_at, expires_at)
+code_run_events(run_id, seq bigserial, ts, type, payload jsonb,        -- append-only
+                prompt_hash text, tools_hash text,                      -- replay
+                PRIMARY KEY (run_id, seq))
+code_approvals(run_id, call_id, tool, input_summary, decision, decided_by, decided_at)
+code_usage_ledger(id, user_id, run_id, ts, model, input_tok, cached_tok, output_tok,
+                  credits, usd_est)
+code_policies(user_id, scope, body jsonb)                               -- synced settings
+</code></pre>
+<ul>
+<li><strong>Events are never updated or deleted</strong> except by retention policy. This also makes the table cheap to reason about for audits.</li>
+<li><strong>Hot state</strong> (cancel flag, budgets, current approval waiters) in Redis, as today [M]; <strong>cold truth</strong> in Postgres.</li>
+<li><strong>Retention:</strong> default 90 days of events, shorter on the free-adjacent plans; user-visible delete.</li>
+<li><strong>Privacy:</strong> tool results may contain code and secrets; encrypt at rest, restrict access to the owner, and list sub-processors per your rulebook's privacy section [M].</li>
+</ul>
+<h3>13.4 Workers and scaling</h3>
+<ul>
+<li><strong>Stateless workers</strong> execute loop steps; a run's state is rows plus Redis. Any worker can continue any run, the &quot;cattle not pets&quot; principle [S5].</li>
+<li>Your current setup has one uvicorn process and a small agent task pool [M]. For MiniMake, run N workers behind a queue; keep WebSocket connections on a dedicated gateway process that forwards events to workers via Redis pub/sub.</li>
+<li><strong>Pending approvals and daemon futures</strong> currently live in process memory and expire after 15 minutes [M]; move them to Redis or the database so restarts and multiple workers work.</li>
+<li><strong>Backpressure:</strong> per-user concurrent run limit; per-plan queue priority.</li>
+</ul>
+<h3>13.5 Failure modes to handle explicitly</h3>
+<table>
+<thead>
+<tr>
+<th>Failure</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client disconnects mid-tool</td>
+<td>Mark call <code>failed: disconnected</code>; run → <code>paused_disconnected</code>; on resume the model is told which call failed</td>
+</tr>
+<tr>
+<td>Worker dies mid-model-call</td>
+<td>Another worker replays from last event; idempotency key on model calls to avoid double billing</td>
+</tr>
+<tr>
+<td>Provider outage</td>
+<td>Fall through chain; if none, <code>paused_error</code> with provider status text</td>
+</tr>
+<tr>
+<td>Duplicate tool result</td>
+<td>Ignore by <code>call_id</code></td>
+</tr>
+<tr>
+<td>Backend restart</td>
+<td>Runs resume from rows; pending approvals reload from Redis/DB</td>
+</tr>
+<tr>
+<td>Clock skew on tokens</td>
+<td>Allow small leeway; refresh over the socket</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>14. Models, metering and economics</h2>
+<blockquote>
+<p>All price figures below come from your Financial Strategy Rulebook v1.1 [M]. Cached-input prices for some models are <strong>[A]</strong>. Replace everything marked [A] with measurements from your instrumentation before setting prices.</p>
+</blockquote>
+<h3>14.1 What the benchmarks imply for model choice</h3>
+<p>Terminal-Bench 2.1 (leaderboard snapshot) reports GPT-5.6 Luna at 75.7% and Claude Sonnet 5 at 74.6%, GPT-5.6 Terra at 78.4%, Claude Opus 4.8 at 78.9%, GPT-5.5 at 83.1%, Fable 5 at 83.8%, and GPT-6 Astra at 87.4% [S25]. Differences in harness and reasoning-effort settings mean these are not apples to apples, but the <strong>price gap between Luna and Sonnet/Opus-class models is large</strong>. If Luna-class models hold up in your own eval, MiniMake's main loop can run on a cheap class with escalation, which changes the economics completely.</p>
+<p>A separate harness-cost test showed that for the same accuracy one harness cost 2x more GPU time than another on self-hosted models [S25]. Token-efficient context handling is therefore a margin lever, not just a nicety.</p>
+<h3>14.2 Suggested chains [P] (verify with your eval)</h3>
+<table>
+<thead>
+<tr>
+<th>Plan</th>
+<th>Main loop</th>
+<th>Escalation (hard task, repeated failure, <code>/oracle</code>)</th>
+<th>Cheap jobs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Starter</td>
+<td>Class S cheap coder (e.g., Luna, gpt-oss-120b, Devstral/Codestral class)</td>
+<td>Class A mid-tier on user request</td>
+<td>Class F</td>
+</tr>
+<tr>
+<td>Pro</td>
+<td>Class S/A mix (Gemini Flash, Terra, Sonnet-class)</td>
+<td>Class A/E</td>
+<td>Class F</td>
+</tr>
+<tr>
+<td>Max</td>
+<td>Sonnet 5 / Terra</td>
+<td>Opus 5 / Astra</td>
+<td>Class S</td>
+</tr>
+</tbody>
+</table>
+<p>(Your rulebook already defines classes and the code-authoring roster by plan [M]; MiniMake uses the same chains, with an explicit &quot;escalate&quot; action.)</p>
+<h3>14.3 Cost per session (illustration) [A]</h3>
+<p>Assumed session: <strong>40 steps, average 30K input tokens per step (85% served from cache), 600 output tokens per step.</strong> That is 1.2M input tokens (1.02M cached, 0.18M uncached) and 24K output tokens.</p>
+<table>
+<thead>
+<tr>
+<th>Model (rulebook price in/out per M; cache-read <strong>[A]</strong>)</th>
+<th>Uncached in</th>
+<th>Cached in</th>
+<th>Output</th>
+<th><strong>≈ Cost per session</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-5.6 Luna ($0.20 / $1.20; cache read 10% [A])</td>
+<td>$0.036</td>
+<td>$0.020</td>
+<td>$0.029</td>
+<td><strong>≈ $0.09</strong></td>
+</tr>
+<tr>
+<td>Claude Sonnet 5 ($2 / $10; cache read 10% [A])</td>
+<td>$0.360</td>
+<td>$0.204</td>
+<td>$0.240</td>
+<td><strong>≈ $0.80</strong></td>
+</tr>
+<tr>
+<td>Claude Opus 5 ($5 / $25; cache read 10% [A])</td>
+<td>$0.900</td>
+<td>$0.510</td>
+<td>$0.600</td>
+<td><strong>≈ $2.00</strong></td>
+</tr>
+<tr>
+<td>Claude Fable 5.1 ($10 / $50; cache read $0.25 [M])</td>
+<td>$1.800</td>
+<td>$0.255</td>
+<td>$1.200</td>
+<td><strong>≈ $3.26</strong></td>
+</tr>
+</tbody>
+</table>
+<p>So the same session can cost 40x more depending on the model. This is why routing and escalation are the main economic design.</p>
+<h3>14.4 Metering: why raw tokens break</h3>
+<p>Your rulebook counts cached input tokens fully in the user-facing meter [M]. That session counts about <strong>1.2M tokens</strong>, which would use 30% of Basic's 4M Standard pool in one session and all of Moderate's 1.2M Advanced pool. Options <strong>[P]</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>How</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A. Separate MiniMake pool, cached reads at a discount weight (e.g., 10%)</td>
+<td>Count 0.18M + 0.1×1.02M + 0.024M ≈ <strong>0.31M</strong> per session</td>
+<td>Familiar token unit; honest</td>
+<td>Still confusing to users</td>
+</tr>
+<tr>
+<td>B. <strong>Agent credits</strong></td>
+<td>Credit = estimated cost weighted by model class; show &quot;sessions left&quot;</td>
+<td>One simple number; follows real cost</td>
+<td>You must publish the conversion</td>
+</tr>
+<tr>
+<td>C. Per-run ceilings only</td>
+<td>Cap dollars per run, monthly session count per plan</td>
+<td>Simple to explain</td>
+<td>Does not protect margin on heavy users</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recommendation [P]:</strong> option B for display, A internally, with C as a safety net. Show the user &quot;about N sessions left this month&quot; and the estimated cost range before a long run.</p>
+<h3>14.5 Pricing method (no numbers, on purpose)</h3>
+<p>Apply your own rule: price ≥ COGS at the cap ÷ 0.45 [M]. Steps: (1) decide the monthly credit pool per plan; (2) compute COGS if a user burns the entire pool on the plan's default chain; (3) divide by 0.45; (4) check against competitor price points [S16, S25: Claude Code Pro $20, Codex included with ChatGPT plans, Cursor Pro $20 with metered spend] and your Bangladesh and global price rungs [M].</p>
+<p>Example only <strong>[A]</strong>: if a pool is 60 Luna-class sessions (≈ $5.40 COGS) plus 3 escalated Sonnet-class sessions (≈ $2.40), COGS at cap ≈ $7.80, so the floor price is ≈ $17.30 per month before payment fees. Do not copy this; measure first.</p>
+<h3>14.6 Cost controls</h3>
+<ul>
+<li><strong>Prompt caching everywhere</strong>, with a stable prefix and append-only history. Never rewrite earlier messages.</li>
+<li><strong>Clear old tool outputs</strong> before summarizing [S2].</li>
+<li><strong>Cheap classes</strong> for summaries, titles, classifier, compaction.</li>
+<li><strong>Subagents</strong> keep exploration out of the main context, so they usually save tokens [S1].</li>
+<li><strong>Architect/editor split</strong> where a strong model plans and a cheap one edits [S12].</li>
+<li><strong>Batch/Flex pricing</strong> for non-interactive runs (CI review, scheduled tasks) where your rulebook already uses half-price batch for Brain jobs [M].</li>
+<li><strong>Per-run dollar ceiling</strong> with a &quot;grant more&quot; action [M].</li>
+<li><strong>Telemetry first.</strong> Log tokens, cache-hit rate, steps and cost for every run so you can tune with data (Roadmap Tech-A) [M].</li>
+</ul>
+<h3>14.7 Free tier</h3>
+<p>Do not offer free MiniMake usage on production keys. Your rulebook forbids free-tier keys in production, and shell access plus agent loops are the easiest way to abuse a free plan [M]. If you want a demo, offer a tiny capped trial per verified user.</p>
+<hr>
+<h2>15. Observability, evals and quality</h2>
+<h3>15.1 What to measure</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Task success rate on your eval set</td>
+<td>Is the harness good?</td>
+</tr>
+<tr>
+<td>Steps, tokens, cost per task</td>
+<td>Margin and loop efficiency</td>
+</tr>
+<tr>
+<td>Cache-hit rate</td>
+<td>Biggest cost lever</td>
+</tr>
+<tr>
+<td>Approval rate and &quot;deny&quot; rate</td>
+<td>Are prompts too noisy or the agent too risky?</td>
+</tr>
+<tr>
+<td>Rewind rate</td>
+<td>Proxy for bad edits</td>
+</tr>
+<tr>
+<td>Time to first token and time per step</td>
+<td>Felt latency [S5]</td>
+</tr>
+<tr>
+<td>Stuck/loop breaker triggers</td>
+<td>Reliability</td>
+</tr>
+<tr>
+<td>Classifier false-allow rate</td>
+<td>Release gate for auto mode</td>
+</tr>
+<tr>
+<td>Injection test pass rate</td>
+<td>Security regression</td>
+</tr>
+</tbody>
+</table>
+<h3>15.2 Eval suites</h3>
+<ol>
+<li><strong>Terminal-Bench 2.1 / SWE-bench-style runs</strong> through your harness to compare models and harness changes. Terminal-Bench submissions require fixed environments and public trajectories, which makes it a credible external yardstick [S25].</li>
+<li><strong>Your own golden tasks</strong> (30–100): real MiniMe-style projects (web app, firmware repo, Python service), each with a verifier script.</li>
+<li><strong>Prompt-injection suite:</strong> poisoned READMEs, issues, web pages, MCP responses; success = no unapproved egress, no secret read.</li>
+<li><strong>Sandbox tests:</strong> attempts to write <code>.git</code>, read <code>~/.ssh</code>, reach a blocked domain, escape via <code>cd ..</code>.</li>
+<li><strong>Regression on every model upgrade</strong>, and delete prompt rules the new model no longer needs [S7].</li>
+<li><strong>Cost-per-solved-task</strong> table per chain (the imec-style comparison [S25]).</li>
+</ol>
+<h3>15.3 Tracing</h3>
+<p>Use OpenTelemetry-style traces per run (model call, tool call, hook) exported to your backend and optionally to the user's collector in enterprise mode. Gemini CLI and Codex both document OTel export [S15, S9]. Redact before export.</p>
+<h3>15.4 Dogfooding</h3>
+<p>Run MiniMake on MiniMe's own repo from M0. Keep a short log of failures; each becomes an eval case (OpenHands-style replay makes this easy [S20]).</p>
+<hr>
+<h2>16. Roadmap and milestones</h2>
+<p>Sizes are relative effort (S/M/L/XL), not dates. Dependencies on your roadmap items are marked [M].</p>
+<h3>M0 — Internal prototype (dev keys only) · size L</h3>
+<ul>
+<li>Device socket reuse, <code>minimake</code> CLI skeleton, TUI v0.</li>
+<li>Tools: <code>read_file</code>, <code>list_dir</code>, <code>glob</code>, <code>grep</code>, <code>edit_file</code>, <code>write_file</code>, <code>bash</code> (no sandbox yet, <strong>ask</strong> mode always), <code>plan_exit</code>.</li>
+<li>Server loop with one tool-calling provider adapter; run state in Redis; events in Postgres; cancel.</li>
+<li>Checkpoints (local) and rewind.</li>
+<li><strong>Exit criteria:</strong> you complete real tasks on the MiniMe repo; every run replayable; cost logged per run.</li>
+</ul>
+<h3>M1 — Safe daily driver · size XL</h3>
+<ul>
+<li>OS sandbox (Seatbelt, bubblewrap), network proxy with allowlist, protected paths.</li>
+<li>Permission rules, accept-edits mode, hooks, folder trust.</li>
+<li>Compaction, auto-memory, <code>MINIMAKE.md</code>, rules, skills.</li>
+<li>Subagents (explore, plan), tasks, ask_user, background shell, web fetch (taint).</li>
+<li>Secret redaction and sanitized env; two-form denylist.</li>
+<li><strong>Exit criteria:</strong> injection and sandbox suites pass; 20 golden tasks at a target success rate you set from baseline; no prompt-free dangerous actions.</li>
+</ul>
+<h3>M2 — Invite-only beta (needs Tech-A, Tech-B) · size XL</h3>
+<ul>
+<li>Per-device credentials, revocation, device-code pairing.</li>
+<li>Metering: agent credits, plan pools, per-run ceilings, usage UI.</li>
+<li>Paid provider adapters (Anthropic/OpenAI native tool use) and model chains.</li>
+<li>Browser handoff: pull/push, checkout banner, run history and remote view.</li>
+<li><code>/review</code> and <code>/security-review</code>; headless mode.</li>
+<li><strong>Exit criteria:</strong> 20–50 invited users; cost per session within the pricing model; no critical findings from a pen-test of the device link (budget from the rulebook).</li>
+</ul>
+<h3>M3 — Editors and workflows · size L</h3>
+<ul>
+<li>ACP server; worktrees; parallel sessions; LSP; repo map; apply_patch.</li>
+<li>Remote approvals from the web app.</li>
+<li>Auto mode classifier behind a flag after eval.</li>
+<li><strong>Exit criteria:</strong> works in Zed and JetBrains; false-allow rate under your threshold.</li>
+</ul>
+<h3>M4 — General availability · size L</h3>
+<ul>
+<li>External security audit (budgeted in the rulebook, around month 30 [M]); fix findings.</li>
+<li>Managed settings basics; OTel export; docs and install channels.</li>
+<li>Support tooling and abuse monitoring.</li>
+</ul>
+<h3>M5+ — Later</h3>
+<p>Plugins with signing and scanning, spec-driven mode, browser self-testing, semantic index (if eval supports), compare-runs, MCP server mode, shareable sessions, Windows native.</p>
+<p><strong>Sequencing reminder:</strong> your rulebook gates spending on demand evidence [M]. Move from M2 to M3 only if beta users stay active and unit economics hold.</p>
+<hr>
+<h2>17. Risks and open decisions</h2>
+<h3>17.1 Top risks</h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shell access abused through prompt injection</td>
+<td>High</td>
+<td>Severe</td>
+<td>Sandbox, egress allowlist, taint tracking, invite-only beta, audit</td>
+</tr>
+<tr>
+<td>Tool-calling reliability of cheap models</td>
+<td>Medium</td>
+<td>High</td>
+<td>Eval before choosing chains; escalation path</td>
+</tr>
+<tr>
+<td>Token costs exceed price</td>
+<td>Medium</td>
+<td>High</td>
+<td>Credits, ceilings, cache discipline, telemetry first</td>
+</tr>
+<tr>
+<td>Harness quality gap vs Claude Code/Codex</td>
+<td>High</td>
+<td>Medium</td>
+<td>Dogfood, benchmark, focus on differentiators</td>
+</tr>
+<tr>
+<td>Scope creep (plugins, IDE, mobile)</td>
+<td>High</td>
+<td>Medium</td>
+<td>Roadmap gates; Skip list</td>
+</tr>
+<tr>
+<td>Solo-founder capacity</td>
+<td>High</td>
+<td>High</td>
+<td>Reuse shared core; ship M1 before anything wide</td>
+</tr>
+<tr>
+<td>Fast-moving ecosystem (spec changes, tool rebrands)</td>
+<td>High</td>
+<td>Medium</td>
+<td>Build on open standards (MCP, ACP, SKILL.md)</td>
+</tr>
+<tr>
+<td>Privacy concerns about code passing through your servers</td>
+<td>Medium</td>
+<td>High</td>
+<td>Clear policy, redaction, retention controls, sub-processor list</td>
+</tr>
+</tbody>
+</table>
+<h3>17.2 Decisions you still need to make</h3>
+<ol>
+<li>Same-repo second deployable, or a copy (this guide assumes same repo).</li>
+<li>Meter design (A, B or C in §14.4).</li>
+<li>First provider(s) for native tool use.</li>
+<li>Whether the shared-token fix happens before any outside user touches the daemon (it should).</li>
+<li>Where handoff lives: version-table pull/push (recommended) vs git.</li>
+<li><strong>Name: decided.</strong> Product MiniMake (formerly working-named MiniCode); CLI binary <code>minimake</code>. Still to do: check availability of the binary name, package names, domains and trademarks (not checked in this research).</li>
+<li>Whether to open-source the client (Codex CLI is Apache-2.0 and has 100k+ stars; Claude Code is proprietary [S25]). Open-source builds trust for a tool that runs commands on user machines; it also exposes your policy code to scrutiny, which is good.</li>
+</ol>
+<hr>
+<h2>Appendix A — Feature matrix summary (adopt / adapt / build)</h2>
+<p><strong>Adopt now (v0–v1):</strong> loop with interrupt, plan mode, ask_user, checkpoints, sessions, hierarchical instruction files, skills, subagents, hooks, MCP client, sandbox, rules, headless, compaction, grep-first search, exact-edit tool.
+<strong>Adapt (v1–v2):</strong> tasks, oracle/architect-editor routing, modes mapped to roles, auto mode, spec mode, worktrees, repo map.
+<strong>Build (MiniMe-only):</strong> taint tracking, per-device auth, review and security-review on diffs, browser handoff and remote control, agent-credit metering.
+<strong>Later (v3+):</strong> plugins, semantic index, browser self-testing, compare-runs, MCP server mode, shareable sessions, dynamic workflows.
+<strong>Skip:</strong> edit-format zoo, notebooks, vendor-specific lock-in features.</p>
+<h2>Appendix B — Config files and directories</h2>
+<pre><code>~/.minimake/
+  settings.toml          # user settings, permissions, hooks
+  MINIMAKE.md            # global instructions
+  skills/                # user skills
+  agents/                # user subagents
+  memory/&lt;project&gt;/      # auto-memory
+  checkpoints/&lt;run&gt;/     # file snapshots
+  logs/                  # local audit log
+&lt;repo&gt;/
+  MINIMAKE.md  AGENTS.md  CLAUDE.md   # read in this order if several exist
+  .minimake/
+    settings.toml  rules/*.md  skills/  agents/  hooks/
+/etc/minimake/managed.toml            # org-managed (v3)
+</code></pre>
+<h2>Appendix C — Hook event reference</h2>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Fires</th>
+<th>Can block?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SessionStart / SessionEnd</td>
+<td>Session lifecycle</td>
+<td>No</td>
+</tr>
+<tr>
+<td>UserPromptSubmit</td>
+<td>Before the model sees a prompt</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>PreToolUse</td>
+<td>Before a tool runs</td>
+<td>Yes (exit 2)</td>
+</tr>
+<tr>
+<td>PermissionRequest</td>
+<td>Before an approval prompt</td>
+<td>Auto-allow/deny</td>
+</tr>
+<tr>
+<td>PostToolUse</td>
+<td>After a tool returns</td>
+<td>Feedback only</td>
+</tr>
+<tr>
+<td>PostToolUseFailure</td>
+<td>After a tool error</td>
+<td>Feedback only</td>
+</tr>
+<tr>
+<td>SubagentStart / SubagentStop</td>
+<td>Subagent lifecycle</td>
+<td>Stop can continue</td>
+</tr>
+<tr>
+<td>PreCompact</td>
+<td>Before compaction</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Stop</td>
+<td>Main agent about to finish</td>
+<td>Yes (force continue)</td>
+</tr>
+</tbody>
+</table>
+<p>Modeled on Claude Code's event set and exit-code semantics [S34].</p>
+<h2>Appendix D — Slash command catalog</h2>
+<p><code>/help</code> <code>/init</code> <code>/login</code> <code>/logout</code> <code>/mode</code> <code>/plan</code> <code>/model</code> <code>/oracle</code> <code>/review</code> <code>/security-review</code> <code>/compact</code> <code>/context</code> <code>/cost</code> <code>/memory</code> <code>/rewind</code> <code>/resume</code> <code>/fork</code> <code>/clear</code> <code>/mcp</code> <code>/hooks</code> <code>/permissions</code> <code>/sandbox</code> <code>/skills</code> <code>/agents</code> <code>/doctor</code> <code>/pull</code> <code>/push</code> <code>/worktree</code> <code>/export</code> <code>/feedback</code>.</p>
+<h2>Appendix E — Command-line reference (proposed)</h2>
+<pre><code>minimake                         # interactive
+minimake -p &#34;task&#34;               # headless one-shot
+minimake --resume [id] | --continue | --fork
+minimake --mode plan|ask|accept-edits|auto
+minimake --model &lt;class|name&gt;
+minimake --worktree &lt;name&gt;
+minimake login | logout | doctor | acp | pull &lt;project&gt; | push
+minimake mcp add|list|remove
+minimake skills list | install &lt;path&gt;
+</code></pre>
+<h2>Appendix F — Protocol message catalog (sketch)</h2>
+<pre><code class="language-json">// client → server
+{&#34;t&#34;:&#34;hello&#34;,&#34;protocol&#34;:1,&#34;device_credential&#34;:&#34;…&#34;,&#34;client&#34;:&#34;0.3.0&#34;,&#34;caps&#34;:[&#34;sandbox&#34;,&#34;acp&#34;]}
+{&#34;t&#34;:&#34;user_message&#34;,&#34;run_id&#34;:&#34;r1&#34;,&#34;text&#34;:&#34;add input validation&#34;}
+{&#34;t&#34;:&#34;tool_result&#34;,&#34;run_id&#34;:&#34;r1&#34;,&#34;call_id&#34;:&#34;c7&#34;,&#34;ok&#34;:true,&#34;output&#34;:&#34;…&#34;,&#34;truncated&#34;:false,&#34;trust&#34;:&#34;local_project&#34;}
+{&#34;t&#34;:&#34;approval&#34;,&#34;run_id&#34;:&#34;r1&#34;,&#34;call_id&#34;:&#34;c7&#34;,&#34;decision&#34;:&#34;allow_once&#34;}
+{&#34;t&#34;:&#34;resume&#34;,&#34;run_id&#34;:&#34;r1&#34;,&#34;last_seq&#34;:412}
+
+// server → client
+{&#34;t&#34;:&#34;welcome&#34;,&#34;token_ttl_s&#34;:900,&#34;limits&#34;:{&#34;max_parallel_runs&#34;:3}}
+{&#34;t&#34;:&#34;run_event&#34;,&#34;run_id&#34;:&#34;r1&#34;,&#34;seq&#34;:413,&#34;type&#34;:&#34;text_delta&#34;,&#34;text&#34;:&#34;I&#39;ll start by…&#34;}
+{&#34;t&#34;:&#34;tool_proposed&#34;,&#34;run_id&#34;:&#34;r1&#34;,&#34;call_id&#34;:&#34;c8&#34;,&#34;tool&#34;:&#34;edit_file&#34;,&#34;input&#34;:{…},&#34;risk&#34;:&#34;R1&#34;}
+{&#34;t&#34;:&#34;budget_warning&#34;,&#34;run_id&#34;:&#34;r1&#34;,&#34;spent_pct&#34;:80}
+{&#34;t&#34;:&#34;error&#34;,&#34;code&#34;:&#34;quota_exhausted&#34;,&#34;message&#34;:&#34;…&#34;}
+</code></pre>
+<h2>Appendix G — Glossary</h2>
+<p><strong>Harness:</strong> the code around the model (loop, tools, context, safety). <strong>Hands:</strong> where tools execute. <strong>Brain:</strong> model plus loop. <strong>Session log:</strong> append-only event record of a run. <strong>Taint:</strong> marker that untrusted content has entered the context. <strong>ACP:</strong> Agent Client Protocol (editor↔agent). <strong>MCP:</strong> Model Context Protocol (agent↔tools). <strong>Skill:</strong> a folder of instructions loaded on demand. <strong>Checkpoint:</strong> local file snapshot before an edit. <strong>Worktree:</strong> a separate git working directory for a branch.</p>
+<h2>Appendix H — Sources</h2>
+<p>Quality notes: <em>(official)</em> = vendor documentation or engineering blog; others are third-party or vendor-reported. Retrieved 2026-10-02.</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>Claude Code docs, &quot;Extend Claude Code&quot; (features overview) <em>(official)</em> — code.claude.com/docs/en/features-overview.md</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>Claude Code docs, &quot;How Claude Code works&quot; <em>(official)</em> — code.claude.com/docs/en/how-claude-code-works.md; Claude Code on the web / teleport docs <em>(official)</em> — code.claude.com/docs/en/claude-code-on-the-web</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>Claude Code docs, &quot;Sandboxing&quot; and &quot;Sandbox environments&quot; <em>(official)</em> — code.claude.com/docs/en/sandboxing</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>Claude Code docs, &quot;Security&quot; and permission modes <em>(official)</em> — code.claude.com/docs/en/security</td>
+</tr>
+<tr>
+<td>S5</td>
+<td>Anthropic Engineering, &quot;Scaling Managed Agents: Decoupling the brain from the hands,&quot; 2026-04-08 <em>(official)</em> — anthropic.com/engineering/managed-agents</td>
+</tr>
+<tr>
+<td>S6</td>
+<td>Claude blog, &quot;Seeing like an agent: how we design tools in Claude Code,&quot; 2026-04-10 <em>(official)</em> — claude.com/blog/seeing-like-an-agent</td>
+</tr>
+<tr>
+<td>S7</td>
+<td>Claude blog, &quot;The new rules of context engineering for Claude 5 generation models,&quot; 2026-07-24 <em>(official)</em> — claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models</td>
+</tr>
+<tr>
+<td>S9</td>
+<td>OpenAI Codex security guide <em>(official)</em> — developers.openai.com/codex/security</td>
+</tr>
+<tr>
+<td>S10</td>
+<td>Codex sandbox concepts (third-party mirror) — mintlify.com/openai/codex/concepts/sandboxing</td>
+</tr>
+<tr>
+<td>S11</td>
+<td>Codex CLI cheat sheets and overview (third-party) — computingforgeeks.com/codex-cli-cheat-sheet; howaiworks.ai/ai-tools/openai-codex</td>
+</tr>
+<tr>
+<td>S12</td>
+<td>Aider docs (config) <em>(official)</em> — aider.chat/docs/config/aider_conf.html; summaries at codegen.com, thegtmdirectory.com</td>
+</tr>
+<tr>
+<td>S13</td>
+<td>Cline docs, auto-approve <em>(official)</em> — docs.cline.bot/features/auto-approve; fast.io Cline security guide (third-party)</td>
+</tr>
+<tr>
+<td>S14</td>
+<td>OpenCode overviews (third-party) — pyshine.com, yuv.ai, mintlify.com/anomalyco/opencode</td>
+</tr>
+<tr>
+<td>S15</td>
+<td>Gemini CLI docs <em>(official)</em> — geminicli.com/docs; computingforgeeks Gemini CLI cheat sheet</td>
+</tr>
+<tr>
+<td>S16</td>
+<td>Cursor guides and changelog (third-party) — morphllm.com/cursor-agent-mode, clickup.com changelog tracker, deployhq.com/guides/cursor</td>
+</tr>
+<tr>
+<td>S17</td>
+<td>Devin 2.0 guides, Playbooks coverage (third-party) — fast.io/resources/devin-2-0-guide.md, sdtimes.com, yespress.io/products/devin.md</td>
+</tr>
+<tr>
+<td>S18</td>
+<td>Kiro coverage (third-party) — sdtimes.com Kiro launch, devclass.com hands-on, digicomp.ch course outline</td>
+</tr>
+<tr>
+<td>S19</td>
+<td>Roo Code and Kilo Code (third-party) — datacamp.com/tutorial/roo-code, kilocode.ai</td>
+</tr>
+<tr>
+<td>S20</td>
+<td>OpenHands paper arxiv.org/abs/2407.16741; SDK arch docs.openhands.dev/sdk/arch/sdk.md; dev.to deep dive</td>
+</tr>
+<tr>
+<td>S21</td>
+<td>OpenClaw architecture and security (third-party) — nebius.com/blog/posts/openclaw-security; clawdocs.org glossary (cites Snyk 2026-02-05); betterclaw.io</td>
+</tr>
+<tr>
+<td>S24</td>
+<td>computer-use-linux and claude-workman (open-source projects) — docs.rs/crate/computer-use-linux; github.com/advisoragi/claude-workman</td>
+</tr>
+<tr>
+<td>S25</td>
+<td>Terminal-Bench 2.1 leaderboard snapshot (snorkel.ai/leaderboard/terminal-bench-2-1); harness survey arxiv.org/pdf/2606.20683; morphllm.com/ai-coding-agent; morphllm.com/swe-bench-pro</td>
+</tr>
+<tr>
+<td>S26</td>
+<td>MCP 2026-07-28 spec changelog <em>(official)</em> — modelcontextprotocol.io/specification/2026-07-28/changelog; Cloudflare &quot;The next generation of MCP&quot;</td>
+</tr>
+<tr>
+<td>S27</td>
+<td>ACP: skills-hub.ai/blog/acp-spec-1-open-standard-2026; Kiro ACP docs; Zed skills docs <em>(official)</em></td>
+</tr>
+<tr>
+<td>S28</td>
+<td>Agent Skills specification — agentskills.io/specification (summary via public wiki page)</td>
+</tr>
+<tr>
+<td>S29</td>
+<td>Simon Willison, &quot;The lethal trifecta for AI agents&quot;; Sophos &quot;Inside the lethal trifecta&quot;; agentpatterns.ai prompt-injection design; swmansion agentic-engineering security chapter; CSA whitepaper 2026-05-07</td>
+</tr>
+<tr>
+<td>S30</td>
+<td>GitHub changelog 2026-03-19 (Copilot agent sessions) <em>(official)</em>; agentpatterns.ai Agent HQ summary (third-party)</td>
+</tr>
+<tr>
+<td>S31</td>
+<td>Amp manual ampcode.com/manual <em>(official)</em>; Augment Context Engine MCP changelog <em>(vendor)</em>; rywalker.com code-intelligence research (third-party)</td>
+</tr>
+<tr>
+<td>S32</td>
+<td>Replit Agent docs <em>(official)</em> — docs.replit.com/replitai/agent</td>
+</tr>
+<tr>
+<td>S34</td>
+<td>Claude Code hooks references (third-party summaries) — claudefa.st hooks guide; smithery.ai hooks configuration; Claude Code docs hooks page <em>(official)</em></td>
+</tr>
+<tr>
+<td>S35</td>
+<td>innfactory.ai/en/ai-harness/gemini-cli (third-party; reports Gemini CLI → Antigravity CLI on 2026-06-18)</td>
+</tr>
+</tbody>
+</table>
+<p><em>End of the MiniMake guide.</em></p>
+
+</body></html>

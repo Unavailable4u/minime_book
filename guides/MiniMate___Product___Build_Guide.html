@@ -1,0 +1,2114 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}</style><style>:root{color-scheme:light dark;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}}:root[data-theme="dark"]{color-scheme:dark;--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}:root[data-theme="light"]{color-scheme:light}@media print{:root,:root[data-theme="dark"]{color-scheme:light;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}}body{background:var(--md-bg);color:var(--md-text);max-width:720px;margin:0 auto;padding:32px;display:flex;flex-direction:column;gap:10px;font:14px/1.55 -apple-system,BlinkMacSystemFont,'SF Pro','Segoe UI',sans-serif;overflow-wrap:break-word}body>:first-child{margin-top:0}h1,h2,h3,h4,h5,h6{margin:6px 0 0;line-height:1.25;font-weight:600;text-wrap:balance}h1{font-size:1.35em}h2{font-size:1.15em;color:var(--md-muted)}h3,h4,h5,h6{font-size:1em}p,ul,ol,blockquote,table,pre,hr{margin:0}strong{font-weight:600}a{color:var(--md-link);text-decoration:none}a:hover{text-decoration:underline}ul,ol{display:flex;flex-direction:column;gap:6px;padding-left:22px}ul{list-style:disc}ol{list-style:decimal}:is(li,td,th)>*+:is(p,ul,ol,blockquote){margin-top:6px}blockquote{display:flex;flex-direction:column;gap:10px;border-left:2px solid var(--md-rule);padding-left:10px;color:var(--md-muted)}:not(pre)>code{background:var(--md-fill);padding:1px 3px;border-radius:4px;font:.92em 'SF Mono',ui-monospace,Menlo,Consolas,monospace}a>code{background:none;color:inherit}pre{background:var(--md-fill);padding:10px 12px;border-radius:6px;overflow-x:auto;font:12px/1.5 'SF Mono',ui-monospace,Menlo,Consolas,monospace;margin-block:4px}pre code{background:none;padding:0;font:inherit}table{width:100%;border-collapse:separate;border-spacing:2px;font:inherit}th,td{padding:6px 8px;border-radius:3px;text-align:left;vertical-align:top}th{background:var(--md-fill-strong);font-weight:600}td{background:var(--md-fill)}:is(th,td) :not(pre)>code{background:transparent}hr{border:0;border-top:1px solid var(--md-rule-strong);margin-block:10px}img{max-width:100%;height:auto;border-radius:4px}</style>
+</head><body>
+<h1>MiniMate — Product &amp; Build Guide</h1>
+<h3>From coding agent to personal automation system on Linux</h3>
+<p><em>Version 1.0 · written 2026-10-02 · companion to <code>minimake_guide.md</code> (read that first; MiniMate reuses most of it)</em></p>
+<p><em>Names: <strong>MiniMate</strong> (this product, formerly &quot;miniU&quot;) and <strong>MiniMake</strong> (the coding agent, formerly &quot;MiniCode&quot;). Paths and commands use the new names (<code>minimate</code>, <code>~/.minimate/</code>).</em></p>
+<hr>
+<h2>0. How to read this guide</h2>
+<p><strong>What this is.</strong> A full specification of MiniMate: an always-available, automation-focused agent that acts for the user across their files, apps and accounts, on Linux first, powered by MiniMe's orchestration and premium models. It is built from the same research as the MiniMake guide plus a second pass on personal and &quot;computer-use&quot; agents: OpenClaw, Hermes Agent, Claude Cowork, ChatGPT Agent, Manus, Devin, Linux desktop-control tools, the 2026 MCP spec, ACP, Agent Skills, and the prompt-injection literature.</p>
+<p><strong>What this is not.</strong> It is not a plan to build an operating system. Section 10 explains what &quot;agentic OS&quot; can honestly mean and recommends a path that does not involve building a distribution until demand proves it.</p>
+<p><strong>Tags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Tag</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[R:Sx]</strong></td>
+<td>Researched; Sx is a source in Appendix I. <em>(official)</em> marks vendor docs; the rest is third-party or vendor-reported.</td>
+</tr>
+<tr>
+<td><strong>[M]</strong></td>
+<td>Specific to your rulebook, roadmap, repo, or design note.</td>
+</tr>
+<tr>
+<td><strong>[P]</strong></td>
+<td>My proposal.</td>
+</tr>
+<tr>
+<td><strong>[A]</strong></td>
+<td>An assumption used for arithmetic; replace with measurements.</td>
+</tr>
+<tr>
+<td><strong>[MK]</strong></td>
+<td>Cross-reference to the MiniMake guide (<code>minimake_guide.md</code>).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Honest limits.</strong></p>
+<ul>
+<li>This product category is the youngest and fastest-moving one I researched. Several sources are blog posts, vendor claims, or open-source READMEs, and some facts (for example Manus's ownership, Google's browser-agent retirement, ChatGPT Agent's tiers) come from a single third-party page.</li>
+<li>I did not test any of these products.</li>
+<li>The security section is the most important part of this guide. If you cut scope, cut features, not safeguards.</li>
+</ul>
+<hr>
+<h2>1. Executive summary</h2>
+<p><strong>MiniMate in one paragraph.</strong> A personal automation agent that lives where the user already is (terminal, messaging apps, the MiniMe web app, later voice), runs tasks on demand, on a schedule, and on triggers, uses the user's files and accounts through scoped connectors, remembers what matters, learns reusable skills, and asks for approval at the right moments through one inbox. The &quot;brain&quot; is MiniMe's backend with premium and cheap models routed by task; the &quot;hands&quot; are a local Linux agent, cloud sandboxes for untrusted or unattended work, and MCP connectors. It is MiniMake's engine with a different profile: broader tools, a scheduler, memory, channels, and a stricter security model because it acts without a developer watching.</p>
+<p><strong>The ten decisions this guide makes</strong></p>
+<ol>
+<li><strong>MiniMate is a profile on the MiniMake engine, not a second codebase</strong> [P]. Same loop, tool broker, permission engine, session log and metering, with different tools, prompts and surfaces (§4.4, §5.6).</li>
+<li><strong>&quot;A personal agent is a gateway problem, not a model problem.&quot;</strong> The OpenClaw lesson: queuing, channel normalization, memory, extensibility and security are where the work is [R:S21]. Build the gateway and runtime well; models are swappable.</li>
+<li><strong>Automations are first-class objects</strong> with a trigger, a scope, a policy, a budget and an audit trail, not chat messages with a timer [P].</li>
+<li><strong>Heartbeats must be cheap by design.</strong> A periodic wake-up is the biggest hidden cost; skip empty ticks without calling a model, pre-filter with scripts, and use the cheapest class (§6.4, §13.3).</li>
+<li><strong>Security tiers and unattended policies come before features.</strong> Each capability gets a tier (T0–T5); unattended runs may only use pre-approved, narrowly scoped tiers; everything else queues for human approval [P].</li>
+<li><strong>Break the lethal trifecta by construction</strong> where possible: automations that read untrusted content do not get write or egress tools, and automations with write tools do not read untrusted content, using split agents and sealed tool endpoints [R:S29].</li>
+<li><strong>Credentials never reach the model or the sandbox.</strong> Vault plus proxy plus sealed endpoints, the pattern Anthropic documented for Managed Agents [R:S5].</li>
+<li><strong>MCP first, native connectors second.</strong> Use the 2026-07-28 MCP spec's OAuth and tasks extension; wrap with your own permission stances per tool [R:S26, S23].</li>
+<li><strong>Linux desktop control is a tiered ladder:</strong> APIs and CLI first, accessibility tree second, screenshots third, raw input last, and run risky or unattended desktop work in a headless virtual desktop, not on the user's real session [R:S24, S23].</li>
+<li><strong>Do not build a distro.</strong> Ship a user-level service, a desktop integration, and optional images; consider an appliance later if users ask [P].</li>
+</ol>
+<hr>
+<h2>2. Research base</h2>
+<h3>2.1 Products and projects examined</h3>
+<table>
+<thead>
+<tr>
+<th>Product</th>
+<th>What it is</th>
+<th>What stood out</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenClaw</strong> (open source, self-hosted)</td>
+<td>A single long-running <strong>Gateway</strong> process that connects 50+ messaging channels, agents, tools and memory [S21]</td>
+<td>Heartbeat every 30 minutes reading a plain-text checklist (empty file skips the model call); cron and webhooks and Gmail pub/sub; memory as plain Markdown files with search; skills as Markdown; multi-agent routing; pairing and approvals; a community marketplace (5,700+ skills) with serious security problems [S21]</td>
+</tr>
+<tr>
+<td><strong>Hermes Agent</strong> (Nous Research, MIT)</td>
+<td>Self-improving agent with a messaging gateway [S22]</td>
+<td>&quot;Closed learning loop&quot;: agent-curated memory with periodic nudges, <strong>autonomous skill creation after complex tasks</strong>, skills that improve during use, full-text recall across sessions with LLM summarization, user modeling, <code>execute_code</code> to collapse multi-step pipelines into one call, imports from OpenClaw, compatible with the open skills standard [S22]</td>
+</tr>
+<tr>
+<td><strong>Claude Cowork</strong> <em>(official support docs + third-party analyses)</em></td>
+<td>Desktop agent for knowledge work, research preview from January 2026 [S23]</td>
+<td>Folder-scoped access; a <strong>split design</strong> (agent loop, file access, web fetch and local MCP run natively; shell commands and code run in an isolated VM); scheduled tasks that only run while the computer is awake and the app is open; mobile &quot;Dispatch&quot;; per-tool permission stances; plugins that bundle skills, connectors, slash commands and subagents; vertical bundles; enterprise mount-path allowlists [S23]</td>
+</tr>
+<tr>
+<td><strong>ChatGPT Agent</strong> (OpenAI)</td>
+<td>Agent mode inside ChatGPT with its own virtual computer for browsing, forms and actions [S33]</td>
+<td>Zero-config convenience; scheduled execution; consolidated Operator, Deep Research and code execution under one toggle [S33]</td>
+</tr>
+<tr>
+<td><strong>Manus</strong> (now part of Meta per its own blog [S33])</td>
+<td>General agent with a full virtual computer (browser, terminal, files)</td>
+<td>&quot;Wide Research&quot;: deploy many agents in parallel; hands-off, asynchronous style [S33]</td>
+</tr>
+<tr>
+<td><strong>Browser Use</strong> (open source)</td>
+<td>Browser automation framework</td>
+<td>Reports 89.1% on WebVoyager; browser-only [S33]</td>
+</tr>
+<tr>
+<td><strong>Devin</strong></td>
+<td>Cloud software engineer</td>
+<td>Playbooks (versioned procedures), Knowledge (retrieved org context), <strong>Machine Snapshots</strong> (resume or pre-install state), secrets manager, Linux desktop testing and screen-recorded verification [S17]</td>
+</tr>
+<tr>
+<td><strong>computer-use-linux / claude-workman</strong> (open source MCP servers)</td>
+<td>Linux desktop control through MCP</td>
+<td><strong>AT-SPI accessibility tree</strong> plus screenshots plus input synthesis; Wayland-first via screencast portal and <code>ydotool</code>; window targeting for GNOME, KDE, Hyprland, i3, COSMIC; <code>doctor</code> readiness check; accessibility targeting is more robust than pixel clicking [S24]</td>
+</tr>
+<tr>
+<td><strong>Anthropic Managed Agents</strong> <em>(official engineering post)</em></td>
+<td>Hosted long-horizon agents</td>
+<td>Many brains, many hands; session log outside the context; credentials in a vault behind a proxy [S5]</td>
+</tr>
+<tr>
+<td><strong>GitHub Copilot coding agent / Agent HQ</strong></td>
+<td>Cloud agent in GitHub</td>
+<td>Agent firewall, setup-steps file, session logs, multi-vendor runs [S30]</td>
+</tr>
+<tr>
+<td><strong>MCP 2026-07-28</strong> <em>(official)</em></td>
+<td>Tool protocol update</td>
+<td>Stateless transport, tasks extension for long-running work, stricter OAuth, Client ID Metadata Documents, formal deprecation lifecycle [S26]</td>
+</tr>
+<tr>
+<td><strong>Agent Skills / ACP</strong></td>
+<td>Open standards</td>
+<td><code>SKILL.md</code> portable procedures; ACP for editors [S28, S27]</td>
+</tr>
+</tbody>
+</table>
+<h3>2.2 The market in 2026, briefly</h3>
+<ul>
+<li><strong>Consumer and prosumer agents</strong> (ChatGPT Agent, Manus, Cowork) compete on convenience; they run in the vendor's cloud or a vendor-controlled VM [S33, S23].</li>
+<li><strong>Self-hosted always-on agents</strong> (OpenClaw, Hermes) compete on openness and channels; their weakness is security and operations [S21, S22].</li>
+<li><strong>Linux desktop control</strong> exists as open-source MCP servers but is rough and compositor-dependent [S24].</li>
+<li><strong>Gap for MiniMate:</strong> a managed product that is as capable as the self-hosted agents, as easy as the consumer ones, and <strong>safer than both</strong>, using premium models and orchestration you already operate. Linux users are underserved by vendor desktop agents (Cowork is macOS and Windows only [S23]).</li>
+</ul>
+<h3>2.3 Twelve lessons</h3>
+<ol>
+<li><strong>It is a gateway problem.</strong> OpenClaw's authors and analysts describe the hard part as connecting, queuing, remembering and extending, not the agent loop [S21].</li>
+<li><strong>Proactivity is a cron job plus a checklist.</strong> The heartbeat pattern is simple and powerful, but the default of 30 minutes means 1,440 model calls a month per user if it is not gated [S21].</li>
+<li><strong>Memory as files wins on trust.</strong> Plain Markdown (<code>MEMORY.md</code>, <code>USER.md</code>, dated notes) that the user can read and edit, indexed for search [S21, S22].</li>
+<li><strong>Skills are the unit of reuse, and also the unit of attack.</strong> One analysis found 36% of marketplace skills had flaws and 283 leaked credentials; a security team built a malicious skill to prove the trust model could be abused [S21].</li>
+<li><strong>Agents that learn their own skills are the next step</strong> (Hermes), but self-written procedures need review, versioning and tests, or they entrench mistakes [S22, S17].</li>
+<li><strong>A split design limits blast radius.</strong> Cowork runs the loop and file access natively but puts code execution in a VM; Anthropic notes the VM caps what generated code can do, while folder permissions are what constrain file access [S23].</li>
+<li><strong>Scheduled tasks need an honest &quot;when does this run&quot; story.</strong> Cowork's run only while the computer is awake and the app is open [S23]; unattended cloud runs need a different trust model.</li>
+<li><strong>Computer use should prefer semantic handles to pixels.</strong> Accessibility-tree targeting hits real UI elements instead of guessed coordinates [S24].</li>
+<li><strong>Credentials and untrusted content must never meet the model carelessly.</strong> Sealed endpoints: a broker holds the credential, enforces a fixed schema and per-tool egress allowlist, and returns only the parsed response [S29].</li>
+<li><strong>Prompt injection is permanent.</strong> Design so a successful injection cannot cause harm; no single defense works; patterns include plan-then-execute, dual LLM (privileged plus quarantined), and context minimization [S29].</li>
+<li><strong>Approvals scale badly unless designed.</strong> A &quot;Runs inbox&quot; with human-in-the-loop approvals is how OpenClaw-based managers surface decisions [S21]; Cowork adds per-tool permission stances [S23].</li>
+<li><strong>Standards reduce lock-in and effort:</strong> MCP for tools, <code>SKILL.md</code> for procedures, ACP for editors [S26, S28, S27].</li>
+</ol>
+<hr>
+<h2>3. Feature harvest for MiniMate</h2>
+<p>Version labels: <strong>U0</strong> (cloud-only personal automations, built on MiniMake engine), <strong>U1</strong> (gateway, memory, scheduler), <strong>U2</strong> (connectors and approvals inbox), <strong>U3</strong> (Linux hands), <strong>U4</strong> (desktop control, voice), <strong>U5</strong> (marketplace, images/appliance).</p>
+<h3>3.1 Runtime and automation</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Seen in</th>
+<th>Verdict</th>
+<th>Ver.</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Durable run with resumable state</td>
+<td>Managed Agents, OpenHands [S5, S20]</td>
+<td>Adopt</td>
+<td>U0</td>
+<td>Shared with MiniMake [MK §6].</td>
+</tr>
+<tr>
+<td>Scheduled tasks (cron-style, saved prompts)</td>
+<td>Cowork, OpenClaw, ChatGPT Agent [S23, S21, S33]</td>
+<td>Adopt</td>
+<td>U1</td>
+<td>Run in cloud sandbox or on the user's node, explicit about which.</td>
+</tr>
+<tr>
+<td>Heartbeat with checklist file; skip if empty</td>
+<td>OpenClaw [S21]</td>
+<td>Adapt</td>
+<td>U1</td>
+<td>Add script pre-checks, quiet hours, cost caps (§6.4).</td>
+</tr>
+<tr>
+<td>Event triggers: webhooks, email push, file watch, polls</td>
+<td>OpenClaw automation docs [S21]</td>
+<td>Adopt</td>
+<td>U2</td>
+<td>Add inotify and systemd/D-Bus events on Linux.</td>
+</tr>
+<tr>
+<td>Mobile-to-desktop task handoff</td>
+<td>Cowork Dispatch [S23]</td>
+<td>Adapt</td>
+<td>U2</td>
+<td>You already have a web app; add push approvals and &quot;run this on my node&quot;.</td>
+</tr>
+<tr>
+<td>Parallel agents for wide tasks</td>
+<td>Manus Wide Research, Claude dynamic workflows [S33, S1]</td>
+<td>Later</td>
+<td>U4</td>
+<td>Cost multiplies; cap hard.</td>
+</tr>
+<tr>
+<td>Playbooks with version history</td>
+<td>Devin [S17]</td>
+<td>Adopt</td>
+<td>U1</td>
+<td>Same as versioned skills.</td>
+</tr>
+<tr>
+<td>Machine snapshots / environment images</td>
+<td>Devin [S17]</td>
+<td>Adapt</td>
+<td>U3</td>
+<td>For cloud sandboxes: pre-installed toolchains, fast start.</td>
+</tr>
+<tr>
+<td>Runs inbox (all runs, statuses, approvals in one place)</td>
+<td>OpenClaw managers [S21]</td>
+<td>Build</td>
+<td>U2</td>
+<td>Central to the UX (§12).</td>
+</tr>
+</tbody>
+</table>
+<h3>3.2 Memory and learning</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Seen in</th>
+<th>Verdict</th>
+<th>Ver.</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Markdown memory files (facts, user profile, daily notes)</td>
+<td>OpenClaw, Hermes [S21, S22]</td>
+<td>Adopt</td>
+<td>U1</td>
+<td>User-readable, exportable.</td>
+</tr>
+<tr>
+<td>Search over memory (full-text plus embeddings)</td>
+<td>OpenClaw, Hermes FTS5 [S21, S22]</td>
+<td>Adopt</td>
+<td>U1</td>
+<td>Start with full-text; embeddings optional.</td>
+</tr>
+<tr>
+<td>Agent-curated memory with periodic nudges</td>
+<td>Hermes [S22]</td>
+<td>Adapt</td>
+<td>U2</td>
+<td>Show each write; allow undo.</td>
+</tr>
+<tr>
+<td>Autonomous skill creation after complex tasks</td>
+<td>Hermes [S22]</td>
+<td>Adapt</td>
+<td>U3</td>
+<td>Draft into a review queue, never auto-enable.</td>
+</tr>
+<tr>
+<td>Skills that self-improve</td>
+<td>Hermes [S22]</td>
+<td>Later</td>
+<td>U4</td>
+<td>Needs tests and version rollback.</td>
+</tr>
+<tr>
+<td>User modeling across sessions</td>
+<td>Hermes (Honcho) [S22]</td>
+<td>Later</td>
+<td>U4</td>
+<td>Privacy-sensitive; opt-in.</td>
+</tr>
+<tr>
+<td>Knowledge base (docs, org context) retrieved on match</td>
+<td>Devin Knowledge [S17]</td>
+<td>Adopt</td>
+<td>U2</td>
+<td>Same as memory layer with sources.</td>
+</tr>
+</tbody>
+</table>
+<h3>3.3 Connectors and integrations</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Seen in</th>
+<th>Verdict</th>
+<th>Ver.</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MCP client with OAuth</td>
+<td>All [S26]</td>
+<td>Adopt</td>
+<td>U2</td>
+<td>Build to the 2026-07-28 spec.</td>
+</tr>
+<tr>
+<td>Per-tool permission stances (allow / ask / block, read vs write)</td>
+<td>Cowork [S23]</td>
+<td>Adopt</td>
+<td>U2</td>
+<td>Core to safety (§11).</td>
+</tr>
+<tr>
+<td>Vault plus proxy so tokens never reach the model</td>
+<td>Managed Agents [S5]</td>
+<td>Adopt</td>
+<td>U2</td>
+<td>Mandatory.</td>
+</tr>
+<tr>
+<td>Sealed tool endpoints with fixed schemas and egress allowlists</td>
+<td>Security patterns [S29]</td>
+<td>Build</td>
+<td>U2</td>
+<td>Your differentiator.</td>
+</tr>
+<tr>
+<td>Vertical bundles (plugins + skills + connectors per function)</td>
+<td>Cowork [S23]</td>
+<td>Later</td>
+<td>U5</td>
+<td>Think &quot;Finance&quot;, &quot;Sales&quot;, &quot;Maker&quot;.</td>
+</tr>
+<tr>
+<td>Messaging channels (Telegram, WhatsApp, Slack, Signal, Discord, email)</td>
+<td>OpenClaw, Hermes [S21, S22]</td>
+<td>Adopt</td>
+<td>U1</td>
+<td>Start with 2–3 channels.</td>
+</tr>
+<tr>
+<td>Home automation (Home Assistant)</td>
+<td>Hermes [S22]</td>
+<td>Later</td>
+<td>U4</td>
+<td>Good Linux/maker fit.</td>
+</tr>
+<tr>
+<td>Marketplace for community connectors/skills</td>
+<td>OpenClaw ClawHub [S21]</td>
+<td>Later</td>
+<td>U5</td>
+<td>Only with scanning and signing.</td>
+</tr>
+</tbody>
+</table>
+<h3>3.4 Computer and desktop control</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Seen in</th>
+<th>Verdict</th>
+<th>Ver.</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Accessibility-tree-first control (AT-SPI)</td>
+<td>computer-use-linux, claude-workman [S24]</td>
+<td>Adopt</td>
+<td>U4</td>
+<td>Prefer semantic targets.</td>
+</tr>
+<tr>
+<td>Screenshot via screencast portal; input via ydotool</td>
+<td>computer-use-linux [S24]</td>
+<td>Adopt</td>
+<td>U4</td>
+<td>Wayland-first.</td>
+</tr>
+<tr>
+<td><code>doctor</code> readiness report</td>
+<td>computer-use-linux [S24]</td>
+<td>Adopt</td>
+<td>U3</td>
+<td>Detect compositor, portal, AT-SPI.</td>
+</tr>
+<tr>
+<td>Dedicated browser profile automation</td>
+<td>Cowork/Chrome, Browser Use [S23, S33]</td>
+<td>Adopt</td>
+<td>U3</td>
+<td>Separate from the user's daily profile.</td>
+</tr>
+<tr>
+<td>Headless virtual desktop for unattended GUI tasks</td>
+<td>Manus, ChatGPT Agent virtual computer [S33]</td>
+<td>Adapt</td>
+<td>U4</td>
+<td>Xvfb/Wayland-headless in a container.</td>
+</tr>
+<tr>
+<td>Computer use outside any sandbox on the real desktop</td>
+<td>Cowork (outside VM, Pro/Max) [S23]</td>
+<td>Adapt</td>
+<td>U4</td>
+<td>Attended only; every action visible; kill switch.</td>
+</tr>
+<tr>
+<td>Screen-recorded verification</td>
+<td>Devin 2.2 [S17]</td>
+<td>Later</td>
+<td>U5</td>
+<td>Audit value for GUI tasks.</td>
+</tr>
+</tbody>
+</table>
+<h3>3.5 Safety and governance</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Seen in</th>
+<th>Verdict</th>
+<th>Ver.</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Folder-scoped grants, revocable</td>
+<td>Cowork [S23]</td>
+<td>Adopt</td>
+<td>U3</td>
+<td>Plus mount-path allowlists for teams.</td>
+</tr>
+<tr>
+<td>Sandboxed execution (VM/bubblewrap/Landlock)</td>
+<td>Cowork, Codex, Claude Code [S23, S9, S3]</td>
+<td>Adopt</td>
+<td>U3</td>
+<td>Reuse MiniMake sandbox [MK §8.4].</td>
+</tr>
+<tr>
+<td>Loopback-only gateway, token auth, never run as root, audit command</td>
+<td>OpenClaw hardening [S21]</td>
+<td>Adopt</td>
+<td>U1</td>
+<td>Defaults, not options.</td>
+</tr>
+<tr>
+<td>Admin controls: RBAC, private marketplace, read-only scheduled tasks list</td>
+<td>Cowork enterprise [S23]</td>
+<td>Later</td>
+<td>U5</td>
+<td>For team plans.</td>
+</tr>
+<tr>
+<td>Security audit command (<code>doctor --security</code>)</td>
+<td>OpenClaw [S21]</td>
+<td>Adopt</td>
+<td>U1</td>
+<td>Inspect config for dangerous settings.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>4. Product definition</h2>
+<h3>4.1 What &quot;agentic OS&quot; can honestly mean</h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Description</th>
+<th>Examples</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>L0</strong></td>
+<td>Chat assistant</td>
+<td>Chatbots</td>
+<td>Already exists in MiniMe</td>
+</tr>
+<tr>
+<td><strong>L1</strong></td>
+<td>Task agent with tools, user present</td>
+<td>MiniMake, Claude Code, Cowork</td>
+<td>MiniMake covers coding; MiniMate adds non-code tasks</td>
+</tr>
+<tr>
+<td><strong>L2</strong></td>
+<td>Background automations: scheduled and event-triggered, approvals via inbox</td>
+<td>Cowork scheduled tasks, ChatGPT scheduled execution [S23, S33]</td>
+<td><strong>Target for U1–U2</strong></td>
+</tr>
+<tr>
+<td><strong>L3</strong></td>
+<td>Always-on personal agent across channels with memory and learning</td>
+<td>OpenClaw, Hermes [S21, S22]</td>
+<td><strong>Target for U2–U3</strong></td>
+</tr>
+<tr>
+<td><strong>L4</strong></td>
+<td>Desktop-level agent that operates GUI apps and the system</td>
+<td>Cowork computer use, Linux desktop MCP servers [S23, S24]</td>
+<td>U4, attended first</td>
+</tr>
+<tr>
+<td><strong>L5</strong></td>
+<td>An operating system or appliance where the agent is the primary shell</td>
+<td>A MiniMate distro or device</td>
+<td>Only if demand is proven; not planned</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recommendation [P]:</strong> build L2, then L3 on Linux, then L4 under strict attendance rules. Treat L5 as a packaging decision (an image or a mini-PC &quot;MiniMate box&quot;) made after real usage.</p>
+<h3>4.2 Who it is for and what they do with it [P]</h3>
+<p>Primary: <strong>Linux-using technical users, makers and small-team founders</strong> who want routine digital chores automated without trusting a black box, plus MiniMe/MiniMake users who already have projects and want ongoing maintenance.</p>
+<p>Representative jobs (full list with costs in Appendix B):</p>
+<ul>
+<li>Morning brief from calendar, mail and tasks; meeting prep.</li>
+<li>Inbox triage with drafted replies that are never sent without approval.</li>
+<li>File and download organization; receipt-to-spreadsheet reports.</li>
+<li>Watch logs, backups and servers; alert only when something is wrong.</li>
+<li>React to CI failures or dependency alerts by opening a MiniMake session.</li>
+<li>Research digests on topics the user follows.</li>
+<li>Home and workshop automation events.</li>
+</ul>
+<h3>4.3 Positioning</h3>
+<p><strong>Promise:</strong> &quot;An assistant that does your routine work in the background, shows you everything it did, and cannot do anything you did not allow.&quot;</p>
+<table>
+<thead>
+<tr>
+<th>vs.</th>
+<th>MiniMate's angle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ChatGPT Agent, Manus</td>
+<td>Runs on <strong>your</strong> machine and accounts with scoped access, not only in a vendor's virtual computer [S33]</td>
+</tr>
+<tr>
+<td>Claude Cowork</td>
+<td><strong>Linux</strong> support, multiple models, open skills and MCP, transparent costs [S23]</td>
+</tr>
+<tr>
+<td>OpenClaw, Hermes</td>
+<td>Managed, hardened, supported, with premium models and orchestration included; no marketplace roulette [S21, S22]</td>
+</tr>
+<tr>
+<td>Zapier-style automation</td>
+<td>Natural-language creation and judgment steps, with deterministic guardrails</td>
+</tr>
+</tbody>
+</table>
+<h3>4.4 Relationship to MiniMake [P]</h3>
+<ul>
+<li><strong>One engine, two profiles.</strong> The server loop, tool broker, permission engine, session log, metering and device link are shared [MK §5, §6, §8, §13]. A profile selects: system prompt, tool set, default modes, available surfaces, and budgets.</li>
+<li><strong>MiniMake</strong> = coding profile: project folder, code tools, review roles.</li>
+<li><strong>MiniMate</strong> = automation profile: connectors, scheduler, memory, channels, desktop tools.</li>
+<li>A MiniMate automation can <strong>start a MiniMake run</strong> (for example &quot;when CI fails, open a session on repo X in plan mode and message me a summary&quot;), and a MiniMake user can promote a repeated task to a MiniMate automation.</li>
+<li><strong>Branding choice [open]:</strong> MiniMate as the umbrella app with MiniMake as one skill pack, or MiniMake and MiniMate as sibling products sharing an account. The architecture supports both.</li>
+</ul>
+<h3>4.5 Principles</h3>
+<ol>
+<li><strong>Human in control by default; autonomy is earned per automation.</strong> Each automation starts attended and graduates to unattended after a trial run and an explicit policy.</li>
+<li><strong>Least privilege, everywhere.</strong> Scoped folders, scoped connectors, scoped tools, scoped time.</li>
+<li><strong>Reads are cheap, writes are gated, irreversible actions need a human.</strong></li>
+<li><strong>Everything is logged and replayable.</strong></li>
+<li><strong>Explain cost before and after.</strong> Your rulebook's &quot;four numbers&quot; rule [M].</li>
+<li><strong>Open formats:</strong> <code>SKILL.md</code>, MCP, plain-text memory, exportable data.</li>
+<li><strong>Fail closed.</strong> If policy, connector or model is unavailable, the automation pauses and tells the user; it never improvises.</li>
+</ol>
+<h3>4.6 Non-goals (v1)</h3>
+<p>Building a Linux distribution; a public marketplace; autonomous financial transactions; acting on behalf of the user in a way a third party cannot distinguish from the user (for example sending messages as the user) without explicit per-automation consent; Windows and macOS desktop control; training your own models.</p>
+<hr>
+<h2>5. Architecture</h2>
+<h3>5.1 Layers</h3>
+<pre><code> SURFACES            Terminal/TUI · MiniMe web app · Telegram / WhatsApp / Slack / Signal · email · voice · mobile push
+      │
+ GATEWAY             Channel adapters (normalize, authenticate senders, rate-limit) · session routing · push/notify
+      │
+ ORCHESTRATOR        Run manager · scheduler &amp; triggers · planner (Brain) · agent loop executors · model router
+ (MiniMe backend)    Reviewer / security-reviewer roles · classifier · metering &amp; ledger · policy store
+      │
+ SESSION LOG         Append-only events (Postgres) + hot state (Redis) — shared with MiniMake
+      │
+ HANDS (many)        ┌ Local node (Linux user service): files, shell (sandboxed), desktop, notifications
+                     ├ Cloud sandbox (ephemeral microVM/container): unattended or untrusted tasks, headless browser
+                     ├ Connector proxy: MCP servers + OAuth vault + sealed endpoints (email, calendar, drive, chat, …)
+                     └ Channel senders: messages out
+      │
+ MEMORY &amp; KNOWLEDGE  Files (MEMORY.md, USER.md, daily notes) + index (full-text, optional embeddings) + skills library
+</code></pre>
+<h3>5.2 Many brains, many hands</h3>
+<p>Anthropic's design lets any stateless harness connect to any number of &quot;hands&quot; exposed as <code>execute(name, input) → string</code>, and notes the harness need not know whether a hand is a container, a phone or an emulator; brains can pass hands to one another [S5]. For MiniMate this is the central idea: a user may have a laptop node, a home-server node, a cloud sandbox and connectors, all as hands; the orchestrator decides where each step runs and the policy engine on each hand enforces local rules.</p>
+<h3>5.3 Components</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Responsibility</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Gateway</strong></td>
+<td>Receives and sends messages on channels; authenticates senders; maps to users and sessions; rate limits</td>
+<td>OpenClaw runs this as one long-lived process with 50+ channels [S21]. Start with 2–3 channels.</td>
+</tr>
+<tr>
+<td><strong>Scheduler/trigger service</strong></td>
+<td>Cron, heartbeat, webhook, email push, file-watch events from nodes; deduplicates and enqueues runs</td>
+<td>Must be durable and idempotent; missed-run policy per automation.</td>
+</tr>
+<tr>
+<td><strong>Run manager and loop executors</strong></td>
+<td>Same as MiniMake [MK §6]</td>
+<td>Profile = <code>automation</code>.</td>
+</tr>
+<tr>
+<td><strong>Planner (Brain)</strong></td>
+<td>Turns a natural-language automation request into an automation spec and capability request</td>
+<td>Reuses your Brain role [M].</td>
+</tr>
+<tr>
+<td><strong>Policy engine (server) + policy engine (node)</strong></td>
+<td>Server computes proposed tier and budget; node enforces hard limits</td>
+<td>Node never trusts the server to loosen policy [MK §5.3].</td>
+</tr>
+<tr>
+<td><strong>Connector proxy</strong></td>
+<td>Runs MCP clients, holds OAuth tokens in a vault, enforces per-tool stances, sealed endpoints</td>
+<td>Tokens never leave it [S5, S29].</td>
+</tr>
+<tr>
+<td><strong>Cloud sandbox pool</strong></td>
+<td>Ephemeral microVMs/containers for unattended or untrusted work; headless browser; Xvfb desktop</td>
+<td>Your rulebook budgets E2B-style sandboxes per run [M]; for MiniMate, charge by minutes.</td>
+</tr>
+<tr>
+<td><strong>Local node</strong></td>
+<td>Linux user service (systemd): file grants, sandboxed shell, desktop tools, notifications, file-watch triggers</td>
+<td>Evolves from the MiniMake client.</td>
+</tr>
+<tr>
+<td><strong>Memory service</strong></td>
+<td>Stores and searches memory; consolidates; exports</td>
+<td>§7.</td>
+</tr>
+<tr>
+<td><strong>Notification/approval service</strong></td>
+<td>Delivers approvals to inbox and channels; collects decisions with expiry</td>
+<td>§12.</td>
+</tr>
+<tr>
+<td><strong>Audit and replay</strong></td>
+<td>Immutable events, filtered export for the user</td>
+<td>Shared with MiniMake.</td>
+</tr>
+</tbody>
+</table>
+<h3>5.4 Deployment modes</h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Brain</th>
+<th>Hands</th>
+<th>For whom</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Managed cloud + local node</strong> (default)</td>
+<td>MiniMe</td>
+<td>User's Linux machine + MiniMe cloud sandbox</td>
+<td>Most users</td>
+</tr>
+<tr>
+<td><strong>Cloud-only</strong></td>
+<td>MiniMe</td>
+<td>Cloud sandbox + connectors</td>
+<td>Users without an always-on machine; cannot touch local files</td>
+</tr>
+<tr>
+<td><strong>Self-hosted node</strong></td>
+<td>MiniMe</td>
+<td>A user-owned home server/Pi running the node</td>
+<td>Always-on users who want local files</td>
+</tr>
+<tr>
+<td><strong>Bring-your-own-keys</strong> (later)</td>
+<td>MiniMe</td>
+<td>Same</td>
+<td>Power users; keep out of v1</td>
+</tr>
+<tr>
+<td><strong>Fully self-hosted</strong></td>
+<td>Not offered</td>
+<td></td>
+<td>OpenClaw/Hermes cover this [S21, S22]</td>
+</tr>
+</tbody>
+</table>
+<h3>5.5 Data flows</h3>
+<ul>
+<li><strong>Scheduled run:</strong> scheduler fires → orchestrator creates run with the automation's policy and budget → loop executes; tool calls routed to hands; results logged → output delivered to the channel/inbox; any gated action becomes an approval card.</li>
+<li><strong>Message from a channel:</strong> gateway authenticates sender (paired allowlist), creates or resumes a session, loop runs, reply is sent back. Messages from unknown senders are <strong>not</strong> treated as user instructions (§11.7).</li>
+<li><strong>Approval:</strong> card appears in inbox and optionally on the channel; decision returns to the run; the node re-checks hard policy before executing.</li>
+</ul>
+<h3>5.6 What to reuse from your repo [M] and from MiniMake [MK]</h3>
+<table>
+<thead>
+<tr>
+<th>Existing/MiniMake piece</th>
+<th>MiniMate use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Device link, run state, session log, metering, permission engine [MK §5–§8, §13]</td>
+<td>Same, with profile switch</td>
+</tr>
+<tr>
+<td><code>relay</code>/event emitter (Pusher)</td>
+<td>Push to web and mobile</td>
+</tr>
+<tr>
+<td>MCP client, audit log, quota sentinel [M]</td>
+<td>Connector proxy base</td>
+</tr>
+<tr>
+<td>Tier router and chains [M]</td>
+<td>Per-automation model class</td>
+</tr>
+<tr>
+<td>Reviewer/security-reviewer roles [M]</td>
+<td>Pre-approval review of generated skills and risky actions</td>
+</tr>
+<tr>
+<td><code>skill_library</code> utilities [M]</td>
+<td>Skill store (check how it differs from <code>SKILL.md</code>; align to the open format)</td>
+</tr>
+<tr>
+<td>Brain/Planner role [M]</td>
+<td>Automation authoring</td>
+</tr>
+<tr>
+<td>Per-run dollar ceilings and pause/grant [M]</td>
+<td>Per-automation budgets</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>6. Runtime and automation engine</h2>
+<h3>6.1 Run types</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Trigger</th>
+<th>User present?</th>
+<th>Default policy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Interactive</strong></td>
+<td>User message</td>
+<td>Yes</td>
+<td>Same as MiniMake ask mode</td>
+</tr>
+<tr>
+<td><strong>Background</strong></td>
+<td>User starts, walks away</td>
+<td>No</td>
+<td>Read-only plus drafts; gated actions queue</td>
+</tr>
+<tr>
+<td><strong>Scheduled</strong></td>
+<td>Cron expression</td>
+<td>No</td>
+<td>Automation's saved policy</td>
+</tr>
+<tr>
+<td><strong>Triggered</strong></td>
+<td>Webhook, email push, file event, poll change</td>
+<td>No</td>
+<td>Automation's saved policy</td>
+</tr>
+<tr>
+<td><strong>Heartbeat</strong></td>
+<td>Interval tick</td>
+<td>No</td>
+<td>Checklist only; cheapest class (§6.4)</td>
+</tr>
+<tr>
+<td><strong>Delegated</strong></td>
+<td>Spawned by another run or by MiniMake</td>
+<td>Depends</td>
+<td>Inherits the parent's policy, never wider</td>
+</tr>
+</tbody>
+</table>
+<h3>6.2 The automation spec [P]</h3>
+<p>An automation is a file (YAML or TOML) stored in the user's account and optionally mirrored in <code>~/.minimate/automations/</code>. It is created by talking to the Planner, then shown back to the user for approval.</p>
+<pre><code class="language-yaml">id: morning-brief
+description: Summarize my day and send it to Telegram at 07:30
+trigger:
+  type: cron
+  schedule: &#34;30 7 * * 1-5&#34;
+  timezone: Asia/Dhaka
+  missed_run: skip_if_older_than_2h
+agent:
+  profile: automation
+  model_class: S            # cheap by default; escalate rules below
+  instructions: |
+    Use today&#39;s calendar, unread priority mail and my task list. Keep it under 150 words.
+capabilities:
+  - connector: calendar      # read-only stance
+    tools: [list_events]
+  - connector: email
+    tools: [search, read]    # no send
+  - connector: tasks
+    tools: [list]
+  - channel: telegram
+    tools: [send_to_me]
+policy:
+  tier_max: T2               # drafts and messages to the owner only
+  unattended: true
+  approvals: none_required   # all capabilities are read or owner-only output
+  egress: [telegram.org]
+budget:
+  per_run_usd: 0.05
+  per_month_usd: 2.00
+quiet_hours: &#34;22:00-06:30&#34;
+notify_on_failure: true
+audit: full
+</code></pre>
+<p>Rules <strong>[P]</strong>: a spec cannot grant more than the user's account policy allows; <code>capabilities</code> lists exact tools; anything not listed is unavailable; the Planner proposes, a human approves; changes create a new version; dry-run mode runs the automation with all writes simulated and shows what it <em>would</em> do.</p>
+<h3>6.3 Run lifecycle and reliability</h3>
+<p>States as in MiniMake plus <code>queued</code>, <code>skipped</code>, <code>awaiting_approval_unattended</code>. Requirements:</p>
+<ul>
+<li><strong>Idempotency:</strong> each trigger event has an ID; duplicate events do not start duplicate runs (webhooks retry).</li>
+<li><strong>Concurrency:</strong> one active run per automation by default; queue or drop per spec.</li>
+<li><strong>Retries:</strong> transient failures retry with backoff up to N; permanent failures notify once, not repeatedly.</li>
+<li><strong>Missed runs:</strong> policy per automation (<code>run_now</code>, <code>skip</code>, <code>run_if_recent</code>). Cowork's scheduled tasks only run while the computer is awake [S23]; MiniMate must tell users plainly when a run depends on their node being online and offer the cloud-sandbox alternative.</li>
+<li><strong>Time zones and DST:</strong> store the zone with the schedule.</li>
+<li><strong>Observability:</strong> every run has a timeline (trigger, steps, tool calls, outputs, cost).</li>
+</ul>
+<h3>6.4 Heartbeat design (and its cost)</h3>
+<p>OpenClaw's heartbeat wakes the agent every 30 minutes (hourly on some auth modes), reads a checklist file, and acts or stays silent; an empty file skips the model call entirely [S21]. Costs add up:</p>
+<p><strong>[A]</strong> 4,000 input + 300 output tokens per beat (system, memory excerpt, checklist):</p>
+<table>
+<thead>
+<tr>
+<th>Interval</th>
+<th>Beats/month</th>
+<th>Input tokens</th>
+<th>Output tokens</th>
+<th>Luna-class ($0.20/$1.20)</th>
+<th>Sonnet-class ($2/$10)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>30 min</td>
+<td>1,440</td>
+<td>5.76M</td>
+<td>0.43M</td>
+<td><strong>≈ $1.67</strong></td>
+<td><strong>≈ $15.84</strong></td>
+</tr>
+<tr>
+<td>60 min</td>
+<td>720</td>
+<td>2.88M</td>
+<td>0.22M</td>
+<td><strong>≈ $0.84</strong></td>
+<td><strong>≈ $7.92</strong></td>
+</tr>
+</tbody>
+</table>
+<p>(Prices from your rulebook [M]; no caching assumed, which makes these upper bounds for the Luna row.)</p>
+<p>Design rules <strong>[P]</strong>:</p>
+<ol>
+<li><strong>Gate before the model.</strong> The node or connector proxy runs cheap scripts first (&quot;any new priority mail? calendar change? disk over 90%?&quot;) and only wakes the model if something changed.</li>
+<li><strong>Empty checklist = no call.</strong></li>
+<li><strong>Cheapest class</strong> (F or S) for heartbeats; escalate only when action is required.</li>
+<li><strong>Quiet hours</strong> and per-day beat caps.</li>
+<li><strong>Per-automation monthly budget</strong> with a visible meter; pause and notify when exhausted rather than silently degrading [M rule 7].</li>
+<li><strong>Default interval 60 minutes</strong>; 15-minute intervals only on higher plans.</li>
+</ol>
+<h3>6.5 Triggers catalog</h3>
+<table>
+<thead>
+<tr>
+<th>Trigger</th>
+<th>Source</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cron/interval</td>
+<td>Scheduler</td>
+<td>With time zone and missed-run policy</td>
+</tr>
+<tr>
+<td>Heartbeat</td>
+<td>Scheduler + checklist</td>
+<td>§6.4</td>
+</tr>
+<tr>
+<td>Webhook</td>
+<td>Gateway endpoint with signed secret</td>
+<td>Replay protection; rate limits</td>
+</tr>
+<tr>
+<td>Email push (Gmail Pub/Sub or IMAP IDLE)</td>
+<td>Connector</td>
+<td>OpenClaw supports Gmail pub/sub and polls [S21]</td>
+</tr>
+<tr>
+<td>Poll (RSS, API, page change)</td>
+<td>Scheduler</td>
+<td>Diff-based; only wake model on change</td>
+</tr>
+<tr>
+<td>File event</td>
+<td>Node (inotify)</td>
+<td>Folder must be granted; debounce</td>
+</tr>
+<tr>
+<td>System event</td>
+<td>Node (systemd, D-Bus, udev)</td>
+<td>Disk full, USB device, network change</td>
+</tr>
+<tr>
+<td>Calendar event</td>
+<td>Connector</td>
+<td>&quot;15 minutes before meetings&quot;</td>
+</tr>
+<tr>
+<td>Message</td>
+<td>Gateway</td>
+<td>From paired senders only</td>
+</tr>
+<tr>
+<td>Other automation or MiniMake</td>
+<td>Internal</td>
+<td>Inherits policy, never widens</td>
+</tr>
+</tbody>
+</table>
+<h3>6.6 Outputs</h3>
+<p>Every automation chooses where results go: the inbox, a channel message, a file, a draft in an app, or nothing (side effects only). <strong>Digests</strong> group routine outputs into one daily message to avoid notification spam. Failures and approvals are always delivered.</p>
+<h3>6.7 Unattended policy</h3>
+<p>Unattended runs are the main risk surface: no human is watching, and the content they read may be hostile. <strong>[P]</strong> Rules:</p>
+<ol>
+<li>Only capabilities listed in the spec; tier ceiling enforced by the node and connector proxy.</li>
+<li><strong>Default unattended ceiling is T2</strong> (reads, drafts, notifications to the owner, writes inside a designated workspace).</li>
+<li>T3 and above (messages to other people, changes to external systems, installs) require <strong>per-action approval</strong> even if the automation is &quot;unattended&quot;: the action waits in the inbox with an expiry.</li>
+<li><strong>Taint rule:</strong> if an unattended run reads untrusted content (web pages, inbound email bodies, shared documents) it loses all egress and external-write tools for the rest of the run (§11.4).</li>
+<li><strong>Budget and step caps</strong> per run, per day.</li>
+<li><strong>Anomaly stop:</strong> repeated denies, unexpected tool requests, or cost spikes pause the automation and notify.</li>
+</ol>
+<hr>
+<h2>7. Memory and knowledge</h2>
+<h3>7.1 Layers</h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What</th>
+<th>Format</th>
+<th>Loaded</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Working</strong></td>
+<td>Scratchpad for the current run</td>
+<td>Run-scoped file</td>
+<td>On demand</td>
+</tr>
+<tr>
+<td><strong>Episodic</strong></td>
+<td>What happened each day (runs, decisions, outcomes)</td>
+<td><code>memory/YYYY-MM-DD.md</code>, append-only</td>
+<td>Searched, not loaded wholesale</td>
+</tr>
+<tr>
+<td><strong>Semantic</strong></td>
+<td>Durable facts and preferences about the user</td>
+<td><code>MEMORY.md</code>, <code>USER.md</code></td>
+<td>Index at start</td>
+</tr>
+<tr>
+<td><strong>Procedural</strong></td>
+<td>How to do things</td>
+<td>Skills (<code>SKILL.md</code>)</td>
+<td>Description at start; body on use</td>
+</tr>
+<tr>
+<td><strong>Knowledge</strong></td>
+<td>User-supplied documents, org context</td>
+<td>Indexed folders/files with sources</td>
+<td>Retrieved on match</td>
+</tr>
+<tr>
+<td><strong>Session log</strong></td>
+<td>Every event</td>
+<td>Backend DB</td>
+<td>Queried, never pasted whole</td>
+</tr>
+</tbody>
+</table>
+<p>OpenClaw stores memory as Markdown in the agent workspace: <code>MEMORY.md</code> for long-term facts, <code>USER.md</code> for preferences, and dated daily notes, retrieved with search tools only when relevant [S21]. Hermes adds full-text search with LLM summarization for cross-session recall and a user-modeling layer [S22].</p>
+<h3>7.2 Rules [P]</h3>
+<ol>
+<li><strong>Plain files the user can open, edit, export and delete.</strong> No hidden vector-only memory.</li>
+<li><strong>Show every automatic write</strong> (&quot;I saved: you prefer concise briefs&quot;) with an undo.</li>
+<li><strong>Never auto-save secrets, credentials, financial or health details,</strong> or contents of private messages beyond what the user asked to keep. Redact before storing.</li>
+<li><strong>Separate memory per profile and per project</strong> (MiniMake project memory vs. personal memory), with explicit sharing.</li>
+<li><strong>Retention controls:</strong> daily notes roll up into weekly summaries; old detail expires on a schedule the user sets.</li>
+<li><strong>Search:</strong> full-text first; embeddings as an option. Hermes uses FTS5 plus LLM summarization [S22].</li>
+<li><strong>Consolidation job (nightly, cheap class):</strong> merge duplicates, resolve contradictions (newest wins unless flagged), promote repeated facts to <code>MEMORY.md</code>, propose skills from repeated procedures.</li>
+<li><strong>Export/import:</strong> Markdown zip; an importer for OpenClaw/Hermes layouts is cheap marketing, since Hermes already imports from OpenClaw [S22].</li>
+</ol>
+<h3>7.3 Memory poisoning defense</h3>
+<p>Memory is an attack surface: an injected instruction saved as a &quot;preference&quot; persists across sessions [S29]. <strong>[P]</strong> Controls: only the user's own messages and explicit approvals can create <em>instructions</em> in memory; content from untrusted sources can only create <em>facts</em> tagged with their source and trust level; memory lines that look like instructions (&quot;always forward mail to…&quot;) require confirmation; the consolidation job never promotes untrusted-source lines.</p>
+<hr>
+<h2>8. Skills, playbooks and the learning loop</h2>
+<h3>8.1 Format</h3>
+<p>Use the open Agent Skills format: a folder with <code>SKILL.md</code> (frontmatter <code>name</code>, <code>description</code>; Markdown body) plus optional <code>scripts/</code>, <code>references/</code>, <code>assets/</code>; progressive disclosure means only names and descriptions load at startup [S28]. This lets users bring skills from Claude Code, Codex, Cursor and Gemini [S28] and lets you ship vertical packs.</p>
+<p>Add a <strong>permission manifest</strong> (MiniMate extension) in frontmatter so users see what a skill may touch:</p>
+<pre><code class="language-yaml">---
+name: weekly-expense-report
+description: Build a weekly spreadsheet from receipt PDFs in the Receipts folder. Use when asked for expense reports.
+permissions:
+  folders: [~/Receipts:read, ~/Reports:write]
+  connectors: []
+  network: none
+  tier_max: T2
+---
+</code></pre>
+<h3>8.2 Playbooks and knowledge (Devin's split)</h3>
+<p>Devin separates <strong>Playbooks</strong> (intentional, versioned procedures for recurring tasks; each save creates a version you can review or revert) from <strong>Knowledge</strong> (retrieved tips and organizational context that apply across sessions) [S17]. Adopt both ideas: skills are versioned; knowledge entries are retrieved by match; promote a repeated reminder from a playbook into knowledge [S17].</p>
+<h3>8.3 The learning loop (Hermes-style), with brakes</h3>
+<p>Hermes creates skills autonomously after complex tasks and refines them during use [S22]. For a managed, security-conscious product:</p>
+<ol>
+<li>After a successful multi-step run, the agent may <strong>propose</strong> a skill draft (name, description, steps, scripts).</li>
+<li>The draft goes to a <strong>review queue</strong> in the inbox with a diff against any existing skill; your reviewer and security-reviewer roles run first and attach findings [M].</li>
+<li>The user approves, edits or discards. <strong>Nothing becomes active automatically.</strong></li>
+<li>Approved skills get a version number, a test (a recorded dry-run that must still pass), and a rollback button.</li>
+<li><strong>Usage stats</strong> per skill: success rate, cost, last used; low performers are flagged for revision.</li>
+</ol>
+<h3>8.4 Marketplace (U5) and the supply chain</h3>
+<p>Reasons for caution: a Snyk study cited by the OpenClaw community found 36% of ClawHub skills with flaws, 13.4% critical, and 283 leaking credentials; a separate demonstration by a security team built a malicious skill that exfiltrated data and injected prompts unnoticed [S21].</p>
+<p><strong>[P]</strong> Pipeline before any third-party skill is listed: static scan of scripts and instructions; permission manifest required and enforced at runtime; sandboxed trial run with canary secrets; publisher identity verification; signing; versioning with the ability to yank; rating only after verified installs; <strong>default off</strong> for community content; first-party and verified-publisher tiers first.</p>
+<hr>
+<h2>9. Connectors and integrations</h2>
+<h3>9.1 Principles</h3>
+<ol>
+<li><strong>MCP-first.</strong> Connectors are MCP servers (local or remote) behind your connector proxy.</li>
+<li><strong>Tokens live in the vault; the model sees results.</strong> Anthropic's Managed Agents design stores OAuth tokens in a secure vault and routes MCP calls through a proxy that fetches credentials per session, so the harness never sees them [S5].</li>
+<li><strong>Read and write are separate capabilities</strong> with separate stances: allow, ask, block, per tool, as Cowork offers [S23].</li>
+<li><strong>Sealed endpoints for sensitive actions.</strong> A broker process holds the credential, executes a fixed-schema call, enforces a per-tool egress allowlist, and returns only the parsed response [S29].</li>
+<li><strong>Least scope on OAuth.</strong> Request read-only scopes by default; escalate per automation.</li>
+</ol>
+<h3>9.2 What MCP 2026-07-28 changes for you [R:S26]</h3>
+<ul>
+<li>No protocol-level sessions or session-ID header on Streamable HTTP; each request carries version, client identity and capabilities; easier to scale statelessly.</li>
+<li><strong>Tasks extension</strong> for long-running work: the server returns a task handle; you poll <code>tasks/get</code> and can send input with <code>tasks/update</code>. Good fit for connector operations that take minutes.</li>
+<li><strong>Elicitation without an open stream:</strong> servers can ask for user input as part of the request flow, which maps onto your approval inbox.</li>
+<li><strong>Authorization tightening:</strong> OAuth 2.1/OIDC, issuer binding for stored credentials, Client ID Metadata Documents instead of dynamic client registration (deprecated, still available).</li>
+<li><strong>Feature lifecycle:</strong> deprecations get at least twelve months; plan for upgrades rather than surprises.</li>
+</ul>
+<h3>9.3 Connector catalog by priority [P]</h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Connectors</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1 (U2)</strong></td>
+<td>Email (Gmail/IMAP), calendar, tasks, Telegram, a files provider (local node + Drive)</td>
+<td>Daily-brief, triage and organization use cases</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>Slack, WhatsApp (via business API or bridge), GitHub, Notion, Discord, Signal</td>
+<td>Team and developer workflows</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>Home Assistant, RSS/pollers, Spreadsheets (Sheets/Excel via skills), browser automation</td>
+<td>Maker and research use cases</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>CRM, accounting, banking-read-only</td>
+<td>Only with strong governance; banking write is a non-goal</td>
+</tr>
+</tbody>
+</table>
+<p>Cowork's vertical bundles show how connectors, skills and plugins can be packaged per function (for example, a legal bundle with 12 plugins and 20+ connectors) [S23]; copy that packaging for &quot;Maker&quot;, &quot;Founder&quot; and &quot;Developer&quot; bundles later.</p>
+<h3>9.4 Connector SDK (for you and later partners)</h3>
+<p>A connector declares: name, auth method, tools with JSON schemas, <strong>per-tool risk tier</strong>, read/write class, egress domains, rate limits, and test fixtures. Your proxy validates arguments against the schema, applies the stance, injects credentials, calls out through the egress allowlist, and returns a size-capped parsed result. Tool descriptions from third-party servers are <strong>untrusted</strong> and shown to the user before first use.</p>
+<hr>
+<h2>10. The Linux layer: what &quot;agentic OS&quot; means in practice</h2>
+<h3>10.1 Components of the local node (U3)</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What it is</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>User service</strong></td>
+<td><code>minimate-node</code> as a <strong>systemd user unit</strong>, started at login, restarts on failure</td>
+<td>Runs as the user, never root; OpenClaw's guidance is loopback binding, token auth and never root [S21]</td>
+</tr>
+<tr>
+<td><strong>Device link</strong></td>
+<td>Outbound WebSocket to MiniMe (reused from MiniMake)</td>
+<td>[MK §8.9]</td>
+</tr>
+<tr>
+<td><strong>File grants</strong></td>
+<td>Folder-scoped, revocable, with read/write separated</td>
+<td>Cowork's model: Claude can only reach folders the user authorizes [S23]</td>
+</tr>
+<tr>
+<td><strong>Sandboxed shell</strong></td>
+<td>bubblewrap/Landlock + seccomp, network via proxy</td>
+<td>[MK §8.4]</td>
+</tr>
+<tr>
+<td><strong>Notifier</strong></td>
+<td>Desktop notifications via D-Bus (freedesktop notifications)</td>
+<td>Approvals can also appear here</td>
+</tr>
+<tr>
+<td><strong>Event sources</strong></td>
+<td>inotify (files), systemd/D-Bus signals, udev</td>
+<td>Triggers for automations</td>
+</tr>
+<tr>
+<td><strong>Clipboard and launcher hooks</strong> (optional)</td>
+<td>Quick-ask hotkey, &quot;send selection to MiniMate&quot;</td>
+<td>Convenience, not core</td>
+</tr>
+<tr>
+<td><strong><code>minimate doctor</code></strong></td>
+<td>Reports compositor, portals, AT-SPI state, sandbox support, service status</td>
+<td>Like <code>computer-use-linux doctor</code> reporting readiness as JSON [S24]</td>
+</tr>
+</tbody>
+</table>
+<h3>10.2 Desktop control ladder</h3>
+<p>Prefer the highest rung that works; each lower rung is slower, less reliable and riskier.</p>
+<ol>
+<li><strong>APIs and CLIs</strong> (<code>gh</code>, <code>xdg-open</code>, <code>libreoffice --headless</code>, <code>ffmpeg</code>, <code>pandoc</code>, database CLIs): deterministic, auditable.</li>
+<li><strong>App-specific connectors/MCP servers.</strong></li>
+<li><strong>Accessibility tree (AT-SPI):</strong> read widget roles and names, invoke semantic actions; &quot;role plus name → element&quot; is the robust default, and fusing a screenshot with the tree lets actions be addressed semantically instead of by guessed coordinates [S24]. Requires enabling accessibility and may need to silence the screen reader [S24].</li>
+<li><strong>Screenshots plus vision</strong> via the screencast portal (this may trigger a user permission prompt each time [S24]).</li>
+<li><strong>Raw input synthesis</strong> (<code>ydotool</code> on Wayland, xdotool on X11): last resort. computer-use-linux supports Wayland-first with X11 best-effort across GNOME, KDE/KWin, Hyprland, i3 and COSMIC [S24].</li>
+</ol>
+<p><strong>Wayland caveats [R:S24]:</strong> compositors restrict screenshots, input injection and window control; support differs per desktop; portals ask for consent; some features need compositor-specific helpers (COSMIC has its own). Treat desktop control as best-effort per compositor and say so in <code>doctor</code>.</p>
+<h3>10.3 Where desktop work runs</h3>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Where</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User present, supervising</td>
+<td><strong>User's real desktop</strong>, attended</td>
+<td>Needed for their apps; every action visible; kill switch (Cowork's computer use runs outside the VM on the actual desktop and is limited to higher plans, which signals the risk [S23])</td>
+</tr>
+<tr>
+<td>Unattended GUI work</td>
+<td><strong>Headless virtual desktop in a sandbox</strong> (Xvfb or headless Wayland in a container/microVM)</td>
+<td>No access to the real session; disposable</td>
+</tr>
+<tr>
+<td>Web tasks</td>
+<td><strong>Dedicated browser profile</strong> in a container or on the node</td>
+<td>Not the user's logged-in daily profile</td>
+</tr>
+<tr>
+<td>Untrusted files or sites</td>
+<td>Cloud sandbox</td>
+<td>Blast radius is the sandbox</td>
+</tr>
+</tbody>
+</table>
+<h3>10.4 Privilege and system management</h3>
+<ul>
+<li><strong>No root by default.</strong> System changes (install packages, edit <code>/etc</code>, manage services) are a separate capability tier (T4).</li>
+<li>Use <strong>polkit</strong> prompts or a dedicated, narrowly scoped sudoers rule per command <strong>with an approval card</strong> that shows the exact command; never a blanket sudo.</li>
+<li>Package changes go through the distro package manager inside a snapshot-aware flow when possible (btrfs/snapper, or <code>apt</code>/<code>dnf</code> with a recorded undo plan).</li>
+</ul>
+<h3>10.5 Isolation technologies (choose by tier)</h3>
+<table>
+<thead>
+<tr>
+<th>Tier of work</th>
+<th>Isolation</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local read-only helpers</td>
+<td>Process-level</td>
+<td>Landlock, seccomp</td>
+</tr>
+<tr>
+<td>Local shell and file work</td>
+<td>bubblewrap namespaces, Landlock + seccomp, network proxy</td>
+<td>Same as MiniMake [S3, S9]</td>
+</tr>
+<tr>
+<td>Untrusted web/documents</td>
+<td>Container (Podman) with default-deny egress</td>
+<td></td>
+</tr>
+<tr>
+<td>Hostile or high-risk</td>
+<td>MicroVM (Firecracker-style) or gVisor-class sandbox</td>
+<td>Gemini CLI lists Seatbelt, Docker/Podman, gVisor and a Windows sandbox among its sandbox options [S15]</td>
+</tr>
+</tbody>
+</table>
+<h3>10.6 Distribution forms</h3>
+<ol>
+<li><strong>Package + installer script</strong> (<code>curl | bash</code>, <code>.deb</code>, <code>.rpm</code>, AUR, Flatpak for the UI): U3.</li>
+<li><strong>Preconfigured VM or container image</strong> for people who want isolation from their main machine: U4.</li>
+<li><strong>&quot;MiniMate box&quot;</strong> (mini-PC or Raspberry Pi image) for an always-on hub: U5 only if demand appears.</li>
+<li><strong>A bootable distro:</strong> not recommended. It multiplies maintenance (kernel, drivers, updates, security patches) for little gain over a service plus an image.</li>
+</ol>
+<h3>10.7 Other operating systems</h3>
+<p>macOS and Windows are strategically important (Cowork supports them [S23]) but sandboxing and desktop control differ. Plan <strong>later</strong> support: macOS via Seatbelt and Accessibility APIs; Windows via WSL2 for sandboxed shell and UI Automation for desktop. Do not promise them for v1.</p>
+<hr>
+<h2>11. Security and trust model</h2>
+<blockquote>
+<p>This is the most important section. If you must cut something, cut features before this.</p>
+</blockquote>
+<h3>11.1 Threats specific to MiniMate</h3>
+<table>
+<thead>
+<tr>
+<th>Threat</th>
+<th>Why it is worse than in a coding agent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Indirect prompt injection via email, web, documents, chat messages</td>
+<td>The agent reads untrusted inbound content continuously and often unattended [S29]</td>
+</tr>
+<tr>
+<td>Messages from strangers treated as commands</td>
+<td>Channels expose the agent to anyone who can message it</td>
+</tr>
+<tr>
+<td>Credential theft and misuse</td>
+<td>Connectors hold the keys to the user's mail, files and chat</td>
+</tr>
+<tr>
+<td>Skill/plugin supply chain</td>
+<td>Marketplace skills ran with real credentials in the OpenClaw ecosystem [S21]</td>
+</tr>
+<tr>
+<td>Memory poisoning</td>
+<td>Persists across sessions [S29]</td>
+</tr>
+<tr>
+<td>Over-broad scheduled access</td>
+<td>A bad automation runs every day</td>
+</tr>
+<tr>
+<td>Desktop control mistakes</td>
+<td>GUI actions are hard to undo</td>
+</tr>
+<tr>
+<td>Cost abuse</td>
+<td>Triggers and heartbeats multiply runs</td>
+</tr>
+<tr>
+<td>Account/channel takeover</td>
+<td>Someone gains the ability to talk to the agent</td>
+</tr>
+</tbody>
+</table>
+<h3>11.2 Capability tiers</h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Examples</th>
+<th>Approval (attended)</th>
+<th>Approval (unattended)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>T0 Observe</strong></td>
+<td>Read files in a granted folder, list calendar, search mail metadata</td>
+<td>None</td>
+<td>Allowed</td>
+</tr>
+<tr>
+<td><strong>T1 Derive</strong></td>
+<td>Create summaries, drafts, reports in a designated workspace</td>
+<td>None</td>
+<td>Allowed</td>
+</tr>
+<tr>
+<td><strong>T2 Notify owner</strong></td>
+<td>Message the owner, create a draft in the user's own mailbox, write to the workspace</td>
+<td>None</td>
+<td>Allowed</td>
+</tr>
+<tr>
+<td><strong>T3 Act externally (reversible)</strong></td>
+<td>Send an email/message to others, create calendar events with invitees, post to a channel, open a PR</td>
+<td>Ask (show exact content)</td>
+<td><strong>Per-action approval in the inbox</strong></td>
+</tr>
+<tr>
+<td><strong>T4 Change system or data</strong></td>
+<td>Install packages, edit system config, delete/move many files, modify external records</td>
+<td>Ask with diff/undo plan</td>
+<td><strong>Not allowed unattended</strong></td>
+</tr>
+<tr>
+<td><strong>T5 Irreversible or financial</strong></td>
+<td>Payments, account changes, destructive deletes, publishing</td>
+<td>Ask with confirmation phrase</td>
+<td><strong>Never unattended</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Each connector tool and each local capability is assigned a tier by its author and <strong>re-rated by you</strong>; users can only lower, never raise, the ceiling beyond what the account policy allows.</p>
+<h3>11.3 Breaking the lethal trifecta by construction</h3>
+<p>The trifecta is private data + untrusted content + external communication [S29]. Patterns <strong>[P]</strong>, drawn from the design-pattern literature and practitioner guidance [S29]:</p>
+<ol>
+<li><strong>Split agents.</strong> A <strong>reader</strong> agent processes untrusted content (inbound mail, web) with <em>no</em> egress and <em>no</em> external-write tools, returns a short structured result; an <strong>actor</strong> agent with write tools sees only that structured result and the owner's instructions. This is the dual-LLM idea: a privileged model decides, a quarantined one reads untrusted input [S29].</li>
+<li><strong>Plan, then execute.</strong> Generate the plan before untrusted content is read; execution follows the fixed plan and cannot add tools based on what it reads [S29].</li>
+<li><strong>Context minimization:</strong> pass the smallest necessary slice of untrusted content (for example, the sender, subject and a sanitized snippet, not the full body) [S29].</li>
+<li><strong>Egress allowlists per automation</strong> (domains and recipients); default deny.</li>
+<li><strong>Taint tracking:</strong> once a run ingests untrusted content, it loses tools that can leave the boundary (§6.7, [MK §8.6]).</li>
+<li><strong>Sealed tool endpoints</strong> that accept fixed schemas only (for example, <code>send_to_owner(text)</code> with no free-form recipient) [S29].</li>
+</ol>
+<h3>11.4 Unattended policy summary</h3>
+<p>See §6.7. Put the rule in one line for users: <strong>&quot;Unattended automations can read and draft, and can message only you; anything that touches other people or systems waits for your approval.&quot;</strong></p>
+<h3>11.5 Credentials and secrets</h3>
+<ul>
+<li>Vault with envelope encryption; per-user keys; hardware-backed key storage for the node where available.</li>
+<li>Tokens are scoped, short-lived where the provider allows, and bound to the issuer that granted them (MCP spec requires clients to key credentials by issuer and not reuse them with a different authorization server [S26]).</li>
+<li>The model never sees tokens; the sandbox never holds them [S5].</li>
+<li>Secrets scanning on inbound and outbound content; canary tokens in sandboxes to detect exfiltration attempts.</li>
+<li>A <strong>panic button</strong>: revoke all tokens, stop all runs, disable all automations, in one action.</li>
+</ul>
+<h3>11.6 Gateway hardening (from OpenClaw's practice) [R:S21]</h3>
+<p>Bind the local gateway to <strong>loopback</strong>; require token authentication; run tools in a sandbox; scope file access; review skills before installing; provide a <strong>security audit command</strong>; never run as root. These are defaults in MiniMate, not options.</p>
+<h3>11.7 Channel security</h3>
+<ul>
+<li><strong>Pairing:</strong> a channel account becomes &quot;the user&quot; only after an out-of-band pairing (code shown in the web app); everyone else is a stranger.</li>
+<li><strong>Strangers' messages are data, not instructions.</strong> They can be summarized for the owner but never trigger tools.</li>
+<li><strong>Sender allowlists, rate limits, and spoofing checks</strong> (for example, verified WhatsApp/Telegram IDs, signed webhooks).</li>
+<li><strong>Group chats:</strong> the agent responds only when addressed by a paired user; group content is untrusted.</li>
+</ul>
+<h3>11.8 Audit, replay and privacy</h3>
+<ul>
+<li>Every run has an immutable timeline; users can export it and delete it on a schedule.</li>
+<li><strong>Privacy:</strong> list sub-processors (model providers, search, sandbox vendor) as your rulebook requires [M]; redact before external model calls; offer a &quot;local-only memory&quot; toggle.</li>
+<li><strong>Data residency:</strong> note which region stores logs; offer deletion on request.</li>
+<li><strong>Children and sensitive categories:</strong> do not store sensitive personal data in memory by default.</li>
+</ul>
+<h3>11.9 Abuse prevention for a managed service</h3>
+<ul>
+<li>Per-user rate limits, concurrent run limits, and budget caps on all triggers.</li>
+<li>Outbound message limits per channel to prevent spam use.</li>
+<li>Sandbox egress allowlists and quotas to block scanning, mining and abuse of your infrastructure.</li>
+<li>Terms that prohibit misuse; automated detection of suspicious patterns; a fast kill path for a user or automation.</li>
+</ul>
+<h3>11.10 Incident response</h3>
+<p>Runbook for: leaked token, malicious skill discovered, injection that caused an action, compromised device. Include revoke-all, notify-users, forensic export, and a public postmortem habit. The OpenClaw ecosystem's experience (public security studies and demonstrations [S21]) shows that agent incidents become public quickly.</p>
+<h3>11.11 Testing the safety claims</h3>
+<p>Build the red-team suite before U2 ships: injection through mail, web, calendar invites, filenames, document metadata, MCP descriptions; stranger messages; skill exfiltration attempts with canary secrets; sandbox escapes; heartbeat abuse; memory poisoning. A release is blocked if any &quot;no unapproved egress or external write&quot; test fails.</p>
+<hr>
+<h2>12. Surfaces and UX</h2>
+<h3>12.1 The Runs inbox (the heart of the product)</h3>
+<p>One screen (web, mobile web, and a TUI view) shows every automation and run:</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Needs you</strong></td>
+<td>Approval cards, review-queue items (skill drafts), failures needing a decision</td>
+</tr>
+<tr>
+<td><strong>Running now</strong></td>
+<td>Live runs with a step timeline and a Stop button</td>
+</tr>
+<tr>
+<td><strong>Recent</strong></td>
+<td>Completed runs, outputs, cost, &quot;what changed&quot; summaries</td>
+</tr>
+<tr>
+<td><strong>Automations</strong></td>
+<td>List with status, next run, monthly cost meter, pause/edit/dry-run</td>
+</tr>
+<tr>
+<td><strong>Memory &amp; skills</strong></td>
+<td>Browse and edit memory files and skills; review proposed ones</td>
+</tr>
+</tbody>
+</table>
+<p>OpenClaw-style managers surface human-in-the-loop approvals in a Runs inbox for the same reason: unattended agents need one place where decisions accumulate [S21].</p>
+<p><strong>Approval card [P]:</strong> what the agent wants to do in plain words; the exact content (email text, command, file diff); which automation and why; tier; <strong>what happens if you do nothing</strong> (expires, skipped); buttons Approve once / Approve and remember for this exact action / Edit / Deny / Deny and pause automation. Approvals expire (default 24 h) and never auto-approve.</p>
+<h3>12.2 Creating an automation</h3>
+<ol>
+<li>User describes it in plain language (&quot;every weekday at 7:30 send me a brief on Telegram&quot;).</li>
+<li>The <strong>Planner</strong> proposes an automation spec (§6.2) and lists capabilities and tiers in plain words.</li>
+<li><strong>Dry run</strong> immediately, with all writes simulated, showing what it would have done.</li>
+<li>User approves; it starts <strong>attended</strong> (outputs go to the inbox for N runs).</li>
+<li>After N clean runs the UI offers to <strong>graduate</strong> it to unattended with its policy shown.</li>
+<li>Any later change to capabilities re-triggers review.</li>
+</ol>
+<h3>12.3 Reversibility and undo</h3>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Examples</th>
+<th>Undo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Reversible by snapshot</strong></td>
+<td>File edits in granted folders</td>
+<td>Checkpoints per run [MK §11.1]</td>
+</tr>
+<tr>
+<td><strong>Reversible by action</strong></td>
+<td>Drafts, calendar events you created, labels</td>
+<td>&quot;Undo&quot; button performing the inverse</td>
+</tr>
+<tr>
+<td><strong>Delayed</strong></td>
+<td>Sending email with a configurable delay window</td>
+<td>Cancel before send</td>
+</tr>
+<tr>
+<td><strong>Irreversible</strong></td>
+<td>Sent messages, payments, deletions beyond trash</td>
+<td>Approval with confirmation; never unattended</td>
+</tr>
+</tbody>
+</table>
+<p>Be explicit in the UI about which class an action is in, as Claude Code is about checkpoints not covering remote effects [S2].</p>
+<h3>12.4 Channels</h3>
+<p>Start with <strong>web inbox + Telegram + email-to-owner</strong>, then Slack and WhatsApp. For each channel: pairing flow, message formatting (short, scannable), approval buttons where supported, rate limits. Messages from strangers are data (§11.7). <strong>Digest mode</strong> groups routine output into one message a day.</p>
+<h3>12.5 Voice (U4)</h3>
+<p>Push-to-talk and voice notes through channels first; always-listening is a non-goal. Reuse the speech-to-text and text-to-speech providers already in your stack [M]; treat transcribed audio like any user message (it is only trusted after device/channel pairing).</p>
+<h3>12.6 Terminal and desktop</h3>
+<ul>
+<li><code>minimate</code> TUI shares the MiniMake TUI components [MK §12]: chat, tasks, approval prompts, status line with tier, taint and cost.</li>
+<li>Desktop notifications for approvals; a tray icon (optional) with Pause All.</li>
+<li><strong>Quick-ask hotkey</strong> that sends the current selection or a screenshot to MiniMate (U4).</li>
+</ul>
+<h3>12.7 Onboarding</h3>
+<p><code>minimate login</code> (device code) → <code>minimate doctor</code> (sandbox, accessibility, portals, service) → choose folders to grant → connect one channel and one connector → pick a starter automation (morning brief) → dry run → approve. Target: first useful automation in under ten minutes.</p>
+<h3>12.8 Cost transparency</h3>
+<p>Per automation: cost last run, this month, budget remaining. Account-level: your rulebook's four numbers (used, left, resets, what a run will cost) [M]. Estimated cost range <strong>before</strong> enabling an automation, based on its spec.</p>
+<hr>
+<h2>13. Models, metering and economics</h2>
+<blockquote>
+<p>Prices come from your rulebook [M]; token counts are <strong>[A]</strong>. Replace with measurements from instrumentation (Roadmap Tech-A) before you set plans.</p>
+</blockquote>
+<h3>13.1 Model strategy by run type</h3>
+<table>
+<thead>
+<tr>
+<th>Run type</th>
+<th>Default class</th>
+<th>Escalate when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Heartbeat tick</td>
+<td>F or cheapest S</td>
+<td>Checklist item needs action</td>
+</tr>
+<tr>
+<td>Routine scheduled (brief, digest)</td>
+<td>S (e.g., Luna-class, gpt-oss-class)</td>
+<td>Quality failures on eval; user toggles &quot;better quality&quot;</td>
+</tr>
+<tr>
+<td>Triage, drafting</td>
+<td>S, then A for final drafts</td>
+<td>Sensitive or long content</td>
+</tr>
+<tr>
+<td>Planner (automation authoring)</td>
+<td>A or E (rare, high value)</td>
+<td>Never downgraded silently</td>
+</tr>
+<tr>
+<td>Reviewer / security reviewer of skill drafts and risky actions</td>
+<td>A/E</td>
+<td>Always strong; low volume</td>
+</tr>
+<tr>
+<td>Classifier / unattended policy checks</td>
+<td>F or S</td>
+<td></td>
+</tr>
+<tr>
+<td>Desktop control (vision, GUI)</td>
+<td>A/E</td>
+<td>Needs strong vision and reliability</td>
+</tr>
+</tbody>
+</table>
+<p>Terminal-Bench leaderboard data suggest cheap-class models can be competitive on tool-heavy tasks (GPT-5.6 Luna 75.7% vs. Claude Sonnet 5 74.6% on one 2.1 snapshot [S25]); personal-automation tasks are different, so run your own eval before trusting it.</p>
+<h3>13.2 Batch pricing for non-urgent runs</h3>
+<p>Scheduled runs that are not time-critical (nightly organizers, weekly reports, memory consolidation) can use batch or flex pricing; your rulebook already plans half-price batch for Brain jobs [M]. Offer a per-automation &quot;can wait up to N hours&quot; flag.</p>
+<h3>13.3 Cost of ten typical automations <strong>[A]</strong></h3>
+<p>Token counts per run are guesses; no prompt caching is assumed.</p>
+<table>
+<thead>
+<tr>
+<th>Automation</th>
+<th>Runs/mo</th>
+<th>Tokens in/out per run</th>
+<th>Luna-class</th>
+<th>Sonnet-class</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Morning brief</td>
+<td>30</td>
+<td>25K / 1.5K</td>
+<td>$0.20</td>
+<td>$1.95</td>
+</tr>
+<tr>
+<td>Inbox triage + drafts</td>
+<td>60</td>
+<td>40K / 3K</td>
+<td>$0.70</td>
+<td>$6.60</td>
+</tr>
+<tr>
+<td>Folder organizer (nightly)</td>
+<td>30</td>
+<td>15K / 1K</td>
+<td>$0.13</td>
+<td>$1.20</td>
+</tr>
+<tr>
+<td>Weekly expense report</td>
+<td>4</td>
+<td>80K / 6K</td>
+<td>$0.09</td>
+<td>$0.88</td>
+</tr>
+<tr>
+<td>Log watcher (script pre-filter; LLM on flags only)</td>
+<td>200</td>
+<td>10K / 0.5K</td>
+<td>$0.52</td>
+<td>$5.00</td>
+</tr>
+<tr>
+<td>Backup and disk health check</td>
+<td>30</td>
+<td>8K / 0.6K</td>
+<td>$0.07</td>
+<td>$0.66</td>
+</tr>
+<tr>
+<td>CI-failure responder (opens a MiniMake session)</td>
+<td>20</td>
+<td>150K / 8K</td>
+<td>$0.79</td>
+<td>$7.60</td>
+</tr>
+<tr>
+<td>Research digest</td>
+<td>8</td>
+<td>120K / 5K</td>
+<td>$0.24</td>
+<td>$2.32</td>
+</tr>
+<tr>
+<td>Meeting prep</td>
+<td>40</td>
+<td>30K / 2K</td>
+<td>$0.34</td>
+<td>$3.20</td>
+</tr>
+<tr>
+<td>Home-automation reactions</td>
+<td>300</td>
+<td>5K / 0.3K</td>
+<td>$0.41</td>
+<td>$3.90</td>
+</tr>
+<tr>
+<td><strong>Total (model cost)</strong></td>
+<td></td>
+<td></td>
+<td><strong>≈ $3.48</strong></td>
+<td><strong>≈ $33.31</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Add the hourly heartbeat (≈ $0.84 on Luna-class, ≈ $7.92 on Sonnet-class, §6.4). <strong>The same bundle costs about ten times more on a mid-tier model</strong>, so class selection decides whether a plan is viable. Add sandbox time and connector costs from your rulebook's sandbox and tools lines [M].</p>
+<h3>13.4 Metering</h3>
+<ul>
+<li>Use the <strong>agent credits</strong> approach from MiniMake [MK §14.4]: a credit approximates cost; show &quot;about N automation-runs left&quot;.</li>
+<li>Count <strong>per-automation budgets</strong> against the account pool; pause the automation when its monthly budget is hit.</li>
+<li><strong>Separate meters</strong> for interactive use, automations and sandbox minutes so one cannot silently drain another.</li>
+<li><strong>Triggers are metered:</strong> an inbound-webhook flood must not become unlimited runs; apply per-automation rate limits before spending any tokens.</li>
+</ul>
+<h3>13.5 Pricing method</h3>
+<p>Same rule as MiniMake: price ≥ COGS at the cap ÷ 0.45 [M, MC §14.5]. Compute COGS for a user who exhausts every meter on the default chain, including sandbox minutes and connector proxy costs. Compare against consumer agent plans (ChatGPT Agent is bundled into paid ChatGPT tiers; Cowork requires paid Claude plans; Manus and others price by credits [S33, S23]) and your regional price rungs [M]. Do not set prices until you have two weeks of real telemetry from U0.</p>
+<h3>13.6 What to protect</h3>
+<ul>
+<li><strong>No free production usage</strong> with agent actions; at most a tiny capped trial per verified identity [M rule 1].</li>
+<li><strong>Outbound message and sandbox quotas</strong> to prevent spam and abuse (§11.9).</li>
+<li><strong>Degrade gracefully, never silently:</strong> when a budget ends, pause and say so [M rule 7].</li>
+<li><strong>Bound the long tail:</strong> a single noisy automation must not exceed a daily dollar cap.</li>
+</ul>
+<hr>
+<h2>14. Observability, evals and quality</h2>
+<h3>14.1 Metrics</h3>
+<p>Run success and abandonment; approval rate and time-to-approve; denied/expired approvals; false-positive alerts per automation (notification fatigue); cost per run and per automation; heartbeat skip rate (how often the pre-check avoided a model call); injection-suite pass rate; connector error rate; time-to-first-useful-automation; weekly active automations per user.</p>
+<h3>14.2 Eval suites</h3>
+<ol>
+<li><strong>Task evals</strong> per automation type (brief, triage, organize, report) with graders.</li>
+<li><strong>Computer-use evals</strong> for the ladder: success by rung, actions per task, recovery from UI changes.</li>
+<li><strong>Red team</strong> (§11.11): injection via mail, web, calendar, filenames, MCP descriptions; stranger messages; skill exfiltration with canary secrets; memory poisoning; sandbox escape.</li>
+<li><strong>Long-horizon reliability:</strong> 30-day soak of a few automations on test accounts; check for drift, duplicate runs, missed runs, cost creep.</li>
+<li><strong>Model regression</strong> on each upgrade, with the option to delete harness workarounds that newer models no longer need [S7].</li>
+</ol>
+<h3>14.3 Tracing and audit</h3>
+<p>Same event log as MiniMake [MK §15.3]: timeline per run, model calls, tool calls, approvals, costs. Provide the user a filtered export; keep the internal log immutable.</p>
+<hr>
+<h2>15. Roadmap</h2>
+<p>Sizes: S/M/L/XL. Each stage ends with exit criteria. Dependencies reference your Technical Roadmap (Tech-A instrumentation, Tech-B hardening/multi-tenancy/billing) and the rulebook's gating rule [M].</p>
+<h3>U0 — Personal automations on the MiniMake engine (cloud-only, internal) · size L</h3>
+<ul>
+<li>Automation spec, scheduler (cron only), run types, dry-run.</li>
+<li>Connectors: email (read, draft), calendar (read), one channel (Telegram, owner-only).</li>
+<li>Memory v0 (Markdown files), inbox v0 (web).</li>
+<li>Cloud sandbox for any code execution.</li>
+<li><strong>Exit:</strong> you run five real automations for two weeks; cost per run logged; no policy violations.</li>
+</ul>
+<h3>U1 — Gateway, memory and heartbeat · size XL</h3>
+<ul>
+<li>Gateway with pairing and sender allowlists; 2–3 channels.</li>
+<li>Heartbeat with pre-check gating, quiet hours, budgets.</li>
+<li>Memory search (full-text), nightly consolidation, user-editable files.</li>
+<li>Skills (<code>SKILL.md</code>) with permission manifest; skill drafts into a review queue.</li>
+<li><code>minimate doctor --security</code>, loopback and token defaults.</li>
+<li><strong>Exit:</strong> red-team suite for channels and memory passes; heartbeat cost within model; sustained use by invited testers.</li>
+</ul>
+<h3>U2 — Connectors, tiers and approvals (needs Tech-A, Tech-B) · size XL</h3>
+<ul>
+<li>MCP client on the 2026-07-28 spec; vault and proxy; sealed endpoints; per-tool stances.</li>
+<li>Tier enforcement, unattended policy, taint rules, split reader/actor agents for inbound content.</li>
+<li>Approvals inbox on web and push; digest mode; undo classes.</li>
+<li>Metering with credits and per-automation budgets; paid providers.</li>
+<li><strong>Exit:</strong> independent review of the connector proxy and unattended policy; red-team pass; invite-only beta.</li>
+</ul>
+<h3>U3 — Linux hands · size XL</h3>
+<ul>
+<li><code>minimate-node</code> systemd user service, folder grants, sandboxed shell, notifier, file-watch and system-event triggers, <code>doctor</code>.</li>
+<li>Dedicated-browser automation profile.</li>
+<li>Skill-draft learning loop with versioning and tests.</li>
+<li><strong>Exit:</strong> works on Ubuntu/Fedora/Arch with at least GNOME and KDE; sandbox escape tests pass.</li>
+</ul>
+<h3>U4 — Desktop control and voice · size XL</h3>
+<ul>
+<li>AT-SPI-first control, portal screenshots, ydotool fallback, headless virtual desktop for unattended GUI tasks.</li>
+<li>Attended-only desktop control on the real session with visible actions and a kill switch.</li>
+<li>Voice notes and push-to-talk; quick-ask hotkey.</li>
+<li>Home Assistant connector.</li>
+<li><strong>Exit:</strong> reliability numbers per compositor published in <code>doctor</code>; no unattended control of the real session.</li>
+</ul>
+<h3>U5 — Ecosystem and packaging · size XL</h3>
+<ul>
+<li>Marketplace with scanning, signing, permission manifests, canary-secret sandbox trials; vertical bundles.</li>
+<li>Team features: shared automations, managed policies, RBAC, audit export.</li>
+<li>Optional images or an appliance <strong>only if</strong> demand evidence supports it.</li>
+<li>External security audit before opening community publishing.</li>
+</ul>
+<p><strong>Gate rule:</strong> advance a stage only if the previous stage's users stay active and the unit economics hold, as your rulebook requires for every build [M].</p>
+<h3>Dependencies on MiniMake</h3>
+<table>
+<thead>
+<tr>
+<th>MiniMate stage</th>
+<th>Needs from MiniMake</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>U0</td>
+<td>M0 loop and session log</td>
+</tr>
+<tr>
+<td>U1</td>
+<td>M1 permission engine, sandbox, skills, memory</td>
+</tr>
+<tr>
+<td>U2</td>
+<td>M2 device auth, metering, paid adapters</td>
+</tr>
+<tr>
+<td>U3</td>
+<td>M1 sandbox, M3 worktrees optional</td>
+</tr>
+<tr>
+<td>U4</td>
+<td>Policy engine hardening from M3–M4</td>
+</tr>
+<tr>
+<td>U5</td>
+<td>M4 external audit completed</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>16. Risks and open decisions</h2>
+<h3>16.1 Top risks</h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A successful prompt injection causes an external action or data leak</td>
+<td>High</td>
+<td>Severe</td>
+<td>Tiers, split agents, sealed endpoints, taint, egress allowlists, approvals for T3+</td>
+</tr>
+<tr>
+<td>Credential compromise</td>
+<td>Medium</td>
+<td>Severe</td>
+<td>Vault + proxy, scoped OAuth, panic button, canary tokens</td>
+</tr>
+<tr>
+<td>Heartbeat/trigger cost explosion</td>
+<td>High</td>
+<td>High</td>
+<td>Pre-checks, budgets, quiet hours, per-automation caps</td>
+</tr>
+<tr>
+<td>Marketplace supply-chain incident</td>
+<td>Medium (if opened early)</td>
+<td>Severe</td>
+<td>No marketplace until scanning and signing; first-party skills only</td>
+</tr>
+<tr>
+<td>Memory poisoning</td>
+<td>Medium</td>
+<td>High</td>
+<td>Source-tagged memory; instructions only from owner</td>
+</tr>
+<tr>
+<td>Wayland/desktop-control fragility</td>
+<td>High</td>
+<td>Medium</td>
+<td>Ladder, attended-first, per-compositor claims in <code>doctor</code></td>
+</tr>
+<tr>
+<td>Notification fatigue and over-automation</td>
+<td>High</td>
+<td>Medium</td>
+<td>Digests, graduation flow, noisy-automation detector</td>
+</tr>
+<tr>
+<td>Scope explosion (&quot;agentic OS&quot;)</td>
+<td>High</td>
+<td>High</td>
+<td>Stage gates; no distro; L2/L3 first</td>
+</tr>
+<tr>
+<td>Regulatory/privacy exposure (mail and files pass through your servers)</td>
+<td>Medium</td>
+<td>High</td>
+<td>Redaction, retention controls, sub-processor disclosure, local-only memory option</td>
+</tr>
+<tr>
+<td>Solo-founder capacity</td>
+<td>High</td>
+<td>High</td>
+<td>Shared engine with MiniMake; ship U0–U2 before anything else</td>
+</tr>
+<tr>
+<td>Fast-moving ecosystem and rebrands</td>
+<td>High</td>
+<td>Medium</td>
+<td>Build on MCP, <code>SKILL.md</code>, ACP</td>
+</tr>
+</tbody>
+</table>
+<h3>16.2 Open decisions</h3>
+<ol>
+<li>Umbrella vs sibling branding for MiniMake and MiniMate (§4.4).</li>
+<li>Which two or three channels first (Telegram and email are the cheapest).</li>
+<li>Cloud sandbox vendor and per-minute pricing.</li>
+<li>Whether unattended T3 approvals use push notifications on mobile (requires a mobile surface) or channel buttons.</li>
+<li>Whether to offer a self-hosted node image early.</li>
+<li>Memory export formats and importers (OpenClaw/Hermes layouts).</li>
+<li>How aggressive the learning loop should be by default (recommended: propose only, never auto-enable).</li>
+<li>Regional rollout: payment methods and languages (your rulebook already covers regional price rungs [M]); decide whether Bangla language support and voice are early features for your home market.</li>
+</ol>
+<hr>
+<h2>Appendix A — Feature summary (adopt / adapt / build)</h2>
+<p><strong>Adopt:</strong> durable runs, scheduler, heartbeat with checklist (gated), Markdown memory, FTS search, <code>SKILL.md</code>, MCP, per-tool stances, vault + proxy, loopback/token defaults, folder grants, sandboxed shell, AT-SPI-first desktop control, <code>doctor</code>, Runs inbox.
+<strong>Adapt:</strong> heartbeat cost controls, agent-curated memory (with undo), autonomous skill drafting (review queue), mobile handoff, headless virtual desktops, computer use outside sandbox (attended only), machine snapshots, vertical bundles.
+<strong>Build (MiniMe-only):</strong> automation spec with tiers and policy, unattended policy engine, split reader/actor agents, sealed endpoints, taint tracking across automations, approval inbox with expiry, per-automation budgets, graduation flow, reviewer/security-reviewer gate on skill drafts and risky actions.
+<strong>Later:</strong> user modeling, self-improving skills, wide parallel agents, screen-recorded verification, marketplace, Windows/macOS, appliance.
+<strong>Skip:</strong> building a distro, autonomous financial actions, always-on microphone.</p>
+<h2>Appendix B — Sample automations with tiers</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Automation</th>
+<th>Trigger</th>
+<th>Capabilities</th>
+<th>Max tier</th>
+<th>Unattended OK?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Morning brief</td>
+<td>Cron 07:30 weekdays</td>
+<td>Calendar read, mail read, tasks read, Telegram to owner</td>
+<td>T2</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Inbox triage with drafts</td>
+<td>Email push</td>
+<td>Mail read, draft in own mailbox</td>
+<td>T2</td>
+<td>Yes, if reader/actor split and no send</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Download organizer</td>
+<td>File event</td>
+<td>Folder read/write (granted)</td>
+<td>T1 with checkpoint</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Receipt-to-spreadsheet</td>
+<td>Weekly</td>
+<td>Receipts folder read, Reports write</td>
+<td>T1</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Log/uptime watcher</td>
+<td>Poll + heartbeat</td>
+<td>Server read-only connector, Telegram to owner</td>
+<td>T2</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Backup verifier</td>
+<td>Cron</td>
+<td>Local read, report</td>
+<td>T1</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>7</td>
+<td>CI-failure responder</td>
+<td>Webhook</td>
+<td>GitHub read, open MiniMake session in plan mode, message owner</td>
+<td>T2</td>
+<td>Yes; any push needs approval (T3)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Research digest</td>
+<td>Weekly</td>
+<td>Web fetch (taints), summary to owner</td>
+<td>T2</td>
+<td>Yes, no egress except owner</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Meeting prep</td>
+<td>Calendar event −15 min</td>
+<td>Calendar, mail read, docs read</td>
+<td>T2</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Reply to a customer</td>
+<td>Message</td>
+<td>Drafts only; sending is T3</td>
+<td>T3</td>
+<td><strong>Approval per message</strong></td>
+</tr>
+<tr>
+<td>11</td>
+<td>Weekly dependency update</td>
+<td>Cron</td>
+<td>Repo, MiniMake, PR</td>
+<td>T3</td>
+<td>PR open needs approval</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Install a tool the user asked for</td>
+<td>On demand</td>
+<td>Package manager</td>
+<td>T4</td>
+<td><strong>Attended only</strong></td>
+</tr>
+</tbody>
+</table>
+<h2>Appendix C — Config examples</h2>
+<pre><code class="language-toml"># ~/.minimate/settings.toml
+[node]
+service = &#34;systemd-user&#34;
+bind = &#34;127.0.0.1&#34;           # never 0.0.0.0 by default
+[grants]
+folders = [&#34;~/Documents/Receipts:r&#34;, &#34;~/Reports:rw&#34;, &#34;~/Downloads:rw&#34;]
+[policy]
+unattended_tier_max = &#34;T2&#34;
+approval_expiry_hours = 24
+quiet_hours = &#34;22:00-06:30&#34;
+[budget]
+daily_usd_cap = 1.00
+[desktop]
+control = &#34;attended-only&#34;
+[channels.telegram]
+paired_user_ids = [&#34;&lt;owner&gt;&#34;]
+strangers = &#34;data-only&#34;
+</code></pre>
+<pre><code>~/.minimate/
+  settings.toml  automations/*.yaml  skills/  memory/MEMORY.md  memory/USER.md  memory/daily/YYYY-MM-DD.md
+  checkpoints/   logs/   node/ (service state)
+</code></pre>
+<h2>Appendix D — Linux hardening checklist</h2>
+<ul>
+<li>Node runs as the user, never root; systemd unit with <code>NoNewPrivileges</code>, <code>ProtectSystem</code>, <code>PrivateTmp</code> where compatible.</li>
+<li>Loopback binding; token auth; TLS to the backend.</li>
+<li>bubblewrap/Landlock profile; network via local proxy with allowlist.</li>
+<li>Folder grants only; <code>.git</code>, config and secrets read-only/denied.</li>
+<li>Sanitized environment; secrets scanning on outputs.</li>
+<li>Desktop control disabled unless the user enabled it and <code>doctor</code> passes.</li>
+<li>Package changes only through approval cards with exact commands.</li>
+<li>Panic button reachable from tray, CLI and web.</li>
+</ul>
+<h2>Appendix E — What to cut first if time is short</h2>
+<ol>
+<li>Voice. 2. Desktop control. 3. Marketplace. 4. Learning loop (keep manual skill creation). 5. Extra channels. 6. Compare-runs and parallel fan-out. <strong>Never cut:</strong> tiers, unattended policy, vault/proxy, audit log, red-team suite, kill switch.</li>
+</ol>
+<h2>Appendix F — Glossary</h2>
+<p><strong>Automation:</strong> a saved task with trigger, capabilities, policy and budget. <strong>Heartbeat:</strong> periodic low-cost wake-up reading a checklist. <strong>Tier (T0–T5):</strong> capability risk class. <strong>Reader/actor split:</strong> separating agents that read untrusted content from agents that can act. <strong>Sealed endpoint:</strong> a broker that holds credentials and accepts only a fixed schema. <strong>Taint:</strong> marker that untrusted content has entered the run. <strong>Node:</strong> the local Linux service. <strong>Gateway:</strong> the channel and session front door. <strong>Runs inbox:</strong> the place for approvals and results. <strong>Graduation:</strong> moving an automation from attended to unattended.</p>
+<h2>Appendix G — Sources</h2>
+<p>Quality notes: <em>(official)</em> = vendor documentation or engineering blog; the rest are third-party, open-source READMEs or vendor-reported claims. Retrieved 2026-10-02. IDs match <code>minimake_guide.md</code> Appendix H.</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S2, S3</td>
+<td>Claude Code docs: how it works; sandboxing <em>(official)</em> — code.claude.com/docs</td>
+</tr>
+<tr>
+<td>S5</td>
+<td>Anthropic Engineering, &quot;Scaling Managed Agents: Decoupling the brain from the hands&quot; <em>(official)</em> — anthropic.com/engineering/managed-agents</td>
+</tr>
+<tr>
+<td>S7</td>
+<td>Claude blog, new rules of context engineering for Claude 5 <em>(official)</em></td>
+</tr>
+<tr>
+<td>S9</td>
+<td>OpenAI Codex security guide <em>(official)</em> — developers.openai.com/codex/security</td>
+</tr>
+<tr>
+<td>S15</td>
+<td>Gemini CLI docs <em>(official)</em> — geminicli.com/docs</td>
+</tr>
+<tr>
+<td>S17</td>
+<td>Devin guides and Playbooks coverage (third-party)</td>
+</tr>
+<tr>
+<td>S21</td>
+<td>OpenClaw architecture and security (third-party): nebius.com/blog/posts/openclaw-security; agentailor OpenClaw; clawdocs.org glossary (cites Snyk, 2026-02-05); betterclaw.io</td>
+</tr>
+<tr>
+<td>S22</td>
+<td>Hermes Agent docs — hermes-agent.nousresearch.com/docs</td>
+</tr>
+<tr>
+<td>S23</td>
+<td>Claude Cowork: Anthropic support docs (support.claude.com article 13345190, <em>official</em>); third-party analyses (harmonic.security, aurascape)</td>
+</tr>
+<tr>
+<td>S24</td>
+<td>computer-use-linux (docs.rs/crate/computer-use-linux) and claude-workman (github.com/advisoragi/claude-workman), open-source projects</td>
+</tr>
+<tr>
+<td>S25</td>
+<td>Terminal-Bench 2.1 leaderboard snapshot (snorkel.ai); harness survey arxiv.org/pdf/2606.20683</td>
+</tr>
+<tr>
+<td>S26</td>
+<td>MCP 2026-07-28 spec changelog <em>(official)</em> — modelcontextprotocol.io/specification/2026-07-28/changelog</td>
+</tr>
+<tr>
+<td>S27, S28</td>
+<td>ACP and Agent Skills (agentskills.io/specification)</td>
+</tr>
+<tr>
+<td>S29</td>
+<td>Simon Willison, &quot;The lethal trifecta for AI agents&quot;; Sophos; agentpatterns.ai; swmansion agentic-engineering security chapter; CSA whitepaper 2026-05-07</td>
+</tr>
+<tr>
+<td>S30</td>
+<td>GitHub changelog 2026-03-19; agentpatterns.ai Agent HQ</td>
+</tr>
+<tr>
+<td>S33</td>
+<td>General-agent comparisons (third-party): manus.im blog; fast.io computer-use overview; web3aiblog Browser Use/Manus comparison</td>
+</tr>
+</tbody>
+</table>
+<p><em>End of the MiniMate guide.</em></p>
+
+</body></html>

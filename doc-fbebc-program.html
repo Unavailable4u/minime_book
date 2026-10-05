@@ -1,0 +1,194 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>FBEBC Research Program Guide - MiniMe Atlas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap"><style>:root{--bg:#0a0a0c;--p:#121216;--p2:#17171d;--ln:#26262e;--tx:#f2f1ed;--dim:#a8a6a0;--r:#ff2052;--v:#a78bfa;--a:#f59e0b;--g:#34d399;--m:#f06cb4}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 Sora,Inter,system-ui,sans-serif;display:flex;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background-image:linear-gradient(rgba(255,32,82,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,32,82,.12) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent);mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent)}
+nav{position:sticky;top:0;height:100vh;width:210px;flex:none;padding:22px 14px;border-right:1px solid var(--ln);background:rgba(10,10,12,.9);z-index:2}
+nav .logo{font-weight:700;font-size:18px;margin:0 8px 18px}nav .logo b{color:var(--r)}nav a{display:block;padding:8px 12px;border-radius:9px;color:var(--dim);text-decoration:none;margin:2px 0}
+nav a:hover{background:var(--p2);color:var(--tx)}nav a.on{background:rgba(255,32,82,.14);color:#fff;box-shadow:inset 2px 0 var(--r)}nav small{display:block;margin:18px 8px 0;color:#6d6b66;font-size:12px}
+main{flex:1;min-width:0;padding:34px 40px 80px;position:relative;z-index:1;max-width:1500px}
+h1{font-size:30px;margin:0 0 4px;letter-spacing:-.02em}h2{font-size:20px;margin:34px 0 12px}h3{font-size:16px;margin:22px 0 8px}.sub{color:var(--dim);margin:0 0 24px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.card{background:var(--p);border:1px solid var(--ln);border-radius:14px;padding:16px 18px}.card.h:hover{border-color:var(--r);transform:translateY(-2px);transition:.15s}
+.k{font-size:30px;font-weight:700;letter-spacing:-.02em;color:#fff}.k small{font-size:13px;color:var(--dim);font-weight:400}.l{color:var(--dim);font-size:13px}
+.bar{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:13px}.bar span:first-child{width:170px;flex:none;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar i{display:block;height:9px;border-radius:5px;background:linear-gradient(90deg,var(--r),var(--m))}.bar em{font-style:normal;color:var(--tx);min-width:60px}
+a{color:#ff7a96}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:7px 10px;border-bottom:1px solid var(--ln);text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:var(--p2);cursor:pointer;color:var(--dim);font-weight:600;white-space:nowrap}td.n{text-align:right;font-variant-numeric:tabular-nums}tr:hover td{background:rgba(255,255,255,.03)}
+.tw{overflow-x:auto;border:1px solid var(--ln);border-radius:12px;margin:12px 0}input[type=search],input[type=text]{background:var(--p);border:1px solid var(--ln);color:var(--tx);border-radius:10px;padding:9px 13px;width:320px;max-width:100%;font:inherit}
+button{background:var(--p2);color:var(--tx);border:1px solid var(--ln);border-radius:9px;padding:7px 14px;cursor:pointer;font:inherit}button:hover{border-color:var(--r)}
+.chip{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;border:1px solid var(--ln);color:var(--dim);cursor:pointer;user-select:none}
+.chip.done{color:#0a0a0c;background:var(--g);border-color:var(--g)}.chip.prog{color:#0a0a0c;background:var(--a);border-color:var(--a)}.chip.plan{color:var(--v);border-color:var(--v)}
+.lane{margin:26px 0}.lane h2{display:flex;gap:12px;align-items:center}.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}.cards .card{font-size:13px}.cards .card b{display:block;margin-bottom:6px;font-size:14px}
+.doc{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:40px}.doc article{min-width:0;max-width:880px}.toc{position:sticky;top:20px;align-self:start;max-height:90vh;overflow:auto;font-size:13px;border-left:1px solid var(--ln);padding-left:14px}
+.toc a{display:block;color:var(--dim);text-decoration:none;padding:2px 0}.toc a:hover{color:#fff}.toc .t3{padding-left:12px;font-size:12px}
+article h1,article h2{border-bottom:1px solid var(--ln);padding-bottom:6px}pre{background:var(--p);border:1px solid var(--ln);border-radius:10px;padding:12px;overflow:auto;font-size:12.5px}
+code{background:var(--p2);padding:1px 6px;border-radius:5px;font-size:.9em;color:#ffb3c2}pre code{background:none;padding:0;color:inherit}blockquote{margin:12px 0;padding:6px 16px;border-left:3px solid var(--r);color:var(--dim);background:var(--p)}
+iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}.pie{width:150px;height:150px;border-radius:50%}.row{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.lg div{font-size:13px;color:var(--dim)}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px}.pill{font-size:11px;color:var(--dim);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;display:inline-block}
+.thumb{height:210px;overflow:hidden;border-radius:10px;border:1px solid var(--ln);position:relative;background:#fff}.thumb iframe{width:1280px;height:840px;transform:scale(.3);transform-origin:0 0;border:0;pointer-events:none}
+@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><a href="journey.html" class="">Journey</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="architecture.html" class="">Architecture</a><a href="data.html" class="">Data model</a><a href="docs.html" class="">Docs</a><small>Private. Built 2026-10-05 from commit febb685.</small></nav><main><h1>FBEBC Research Program Guide</h1><p class="sub">FBEBC research. 3,969 words. <a href="data/docs/fbebc-research-program-guide.md" download>Download .md</a></p><div class="doc"><article><h1 id="fbebc-research-program-from-zero-cost-preprint-t">FBEBC Research Program — From Zero-Cost Preprint to MiniMe-Integrated Production Research</h1>
+<p><b>A standalone, two-stage execution guide</b></p>
+<p>This guide covers the full arc we settled on: a small, time-boxed, zero-cost proof-of-concept now, feeding an arXiv preprint; then a separately funded, MiniMe-integrated production research stage later, gated on Basic tier revenue. It assumes you've read (or will keep alongside this) the earlier <b>Phase 1 Implementation Guide</b> (<code>fbebc-phase1-implementation-guide.md</code>) — that document is the deep reference for every mechanism named here. This guide tells you what to keep from it, what to cut, what to defer, and in what order, for <i>this specific two-stage plan</i>.</p>
+<p>The companion document, <b><code>fbebc-preprint-workshop-paper-guide.md</code></b>, covers writing and submitting the paper itself. This guide covers building the thing the paper is about.</p>
+<hr>
+<h2 id="0-the-shape-of-the-whole-program">0. The shape of the whole program</h2>
+<pre>┌─────────────────────────────────────────────────────────────────┐
+│ STAGE 1 — Preprint (now, 4 weeks, $0)                            │
+│ Toy tasks · correctness-only · free-tier LLM · your laptop       │
+│ Output: arXiv preprint + open-source repo + (maybe) workshop sub │
+└─────────────────────────────────────────────────┬─────────────────┘
+                                                    │
+                                          ▼ GATE (§3)
+                                          Basic tier launched,
+                                          ops manageable,
+                                          research budget line defined
+                                                    │
+┌─────────────────────────────────────────────────▼─────────────────┐
+│ STAGE 2 — MiniMe-Integrated (post-launch, funded by revenue)      │
+│ Real agents · real evals · real cost data · isolated research fork│
+│ Output: production case study + internal PRs + (maybe) 2nd paper │
+└─────────────────────────────────────────────────────────────────┘</pre>
+<p>Two rules govern the whole program, and everything below is downstream of them:</p>
+<ol><li><b>Stage 1 is time-boxed, not scope-boxed.</b> You cap it at 4 weeks and ship whatever you have, rather than expanding scope to hit a quality bar. A capped preprint beats an uncapped project that eats Phase 0's runway.</li><li><b>Stage 2 never touches live MiniMe directly.</b> It runs in an isolated fork against a staging copy of your data stores. Every promotion into the real system goes through a human-reviewed PR — no exceptions, regardless of how well Stage 2 is going.</li></ol>
+<hr>
+<h2 id="stage-1-preprint-research-plan">STAGE 1 — Preprint Research Plan</h2>
+<h3 id="1-1-what-s-cut-from-the-original-design-and-why">1.1 What's cut from the original design, and why</h3>
+<p>The Phase 1 guide was written for a publication-grade, adversarially-hardened, timing-fair system. That's the wrong bar for a 4-week solo preprint. Here's the explicit scope cut:</p>
+<div class="tw"><table><tr><th>Component</th><th>Full design (Phase 1 guide)</th><th>Stage 1 scope</th><th>Why</th></tr><tr><td>Sandbox runtime</td><td>gVisor, seccomp, cpuset pinning</td><td><b>Docker with basic hardening</b> (<code>--network=none</code>, <code>--read-only</code>, <code>--cap-drop=ALL</code>, <code>--pids-limit</code>)</td><td>gVisor setup/tuning costs days you don't have. Docker's isolation is weaker but sufficient for a research prototype whose adversary is an undirected optimizer, not a targeted attacker — and you'll say so plainly in Limitations.</td></tr><tr><td>Fitness signal</td><td>Correctness + latency, timing cross-checked</td><td><b>Correctness only</b></td><td>This is the change that makes the whole project free — see the earlier conversation on why latency-based fitness is what forces bare metal. Dropping it doesn't remove the novel parts (barrier architecture, score non-authorship, frozen edit metric).</td></tr><tr><td>Adversarial suite</td><td>24 cases, 5 tiers, live red-team (K≥500)</td><td><b>8–10 cases covering Tiers A (boundary) and C (reward-hacking)</b>, no live red-team</td><td>You're one person with 4 weeks. A focused subset that hits the two tiers that actually matter for a correctness-only system (boundary integrity, score non-authorship) is honest and sufficient for a preprint. State the reduced scope explicitly in the paper.</td></tr><tr><td>Noise/determinism controls</td><td>Full environment fingerprinting, seed injection, CPU pinning</td><td><b>Seed injection only</b></td><td>You need reproducibility (same seed → same result), not noise-floor characterization — that's a Stage 2/latency-only concern that doesn't apply here.</td></tr><tr><td>Ledger</td><td>Hash-chained, SQL schema, full fingerprint</td><td><b>Simplified hash chain, fewer columns</b></td><td>Keep the hash chain (it's ~30 minutes of work and gives you a real provenance claim for the paper) but drop the environment-fingerprint columns that only matter for timing claims.</td></tr><tr><td>Task suite</td><td>Full ADRS/ARC-AGI-2/Frontier-CS benchmarks</td><td><b>1 warm-up toy task + 1 real benchmark task (circle packing)</b></td><td>See §1.2.</td></tr></table></div>
+<p>Everything else — the Σ-Δ structural separation, the six-gate admission pipeline, the EVOLVE-BLOCK parser and bounded applicator, the frozen AST edit-distance metric, elite-band selection, the manifest-verified barrier — <b>carries over unchanged</b>. These are the actual intellectual contributions, and they cost nothing extra to keep.</p>
+<h3 id="1-2-task-selection">1.2 Task selection</h3>
+<p>You need tasks that are (a) cheap to score, (b) scored by a deterministic function of the output, not by wall-clock time, and (c) recognizable to reviewers so your results are interpretable against the literature you're already citing.</p>
+<p><b>Warm-up task (week 1–2, pipeline debugging only, not reported in the paper): improve a bin-packing heuristic.</b></p>
+<p>Given a list of item sizes and a bin capacity, evolve a function that assigns items to bins. Score = number of bins used (lower is better) on a small fixed instance set. Trivial to implement, trivial to verify, and it exists purely so you find your pipeline's bugs on a cheap task before spending your real experiment's API budget.</p>
+<p><b>Primary task (week 3, the one you report): circle packing.</b></p>
+<p>Maximize the sum of radii of <code>n</code> non-overlapping circles packed inside a unit square. This is deliberately the same task AlphaEvolve showcased publicly, which buys you three things:</p>
+<ul><li>A known, cited reference point to sanity-check your results against (you're not claiming to beat it — you're demonstrating the governance mechanism works on a task the field already recognizes).</li><li>Purely geometric, programmatic scoring: sum of radii, with a fast overlap check (<code>O(n²)</code> pairwise distance check) as the correctness gate. No timing dimension anywhere in the definition.</li><li>A clean EVOLVE-BLOCK target: a single <code>candidate_packing(n) -&gt; list[(x, y, r)]</code> function, easy to contract-pin (fixed signature, fixed return shape).</li></ul>
+<p>Use <code>n = 26</code> (a size AlphaEvolve reported on) so your numbers are directly comparable in the related-work discussion, but be honest that your run count and compute budget are orders of magnitude smaller — that comparison is about validating the mechanism works, not about matching their result.</p>
+<pre># EVOLVE-BLOCK-START: circle_packing
+def candidate_packing(n: int) -&gt; list[tuple[float, float, float]]:
+    """Return n (x, y, r) tuples: circle centers and radii, all inside
+    the unit square [0,1]x[0,1], pairwise non-overlapping.
+    CONTRACT: signature fixed. Return exactly n tuples.
+    """
+    # Generation-0 seed: naive grid placement, small fixed radius.
+    import math
+    side = math.ceil(math.sqrt(n))
+    r = 1.0 / (2 * side)
+    out = []
+    for i in range(n):
+        x = (i % side + 0.5) * (1.0 / side)
+        y = (i // side + 0.5) * (1.0 / side)
+        out.append((x, y, r))
+    return out
+# EVOLVE-BLOCK-END: circle_packing</pre>
+<p>Host-side scorer (correctness gate + fitness, no oracle needed here since the objective <i>is</i> the fitness — this is one of the nice properties of optimization tasks vs. classification tasks):</p>
+<pre>def score_packing(circles: list[tuple[float, float, float]], n: int) -&gt; dict:
+    if len(circles) != n:
+        return {"fitness": 0.0, "valid": False, "reason": "wrong_count"}
+    for x, y, r in circles:
+        if r &lt;= 0 or x - r &lt; -1e-9 or x + r &gt; 1 + 1e-9 or y - r &lt; -1e-9 or y + r &gt; 1 + 1e-9:
+            return {"fitness": 0.0, "valid": False, "reason": "out_of_bounds"}
+    for i in range(len(circles)):
+        for j in range(i + 1, len(circles)):
+            x1, y1, r1 = circles[i]; x2, y2, r2 = circles[j]
+            if (x1 - x2) ** 2 + (y1 - y2) ** 2 &lt; (r1 + r2) ** 2 - 1e-9:
+                return {"fitness": 0.0, "valid": False, "reason": "overlap"}
+    return {"fitness": sum(r for _, _, r in circles), "valid": True}</pre>
+<h3 id="1-3-zero-cost-resource-stack-concrete">1.3 Zero-cost resource stack (concrete)</h3>
+<div class="tw"><table><tr><th>Need</th><th>Resource</th><th>Limit to respect</th></tr><tr><td>Σ-LLM</td><td>Gemini 2.5 Flash-Lite, free tier via AI Studio</td><td>~1,000 requests/day, no card required (verify current limits at ai.google.dev/gemini-api/docs/rate-limits before you start — these move)</td></tr><tr><td>Dev environment</td><td>Your laptop</td><td>Linux or WSL2, not macOS/Windows Docker Desktop (VM layer breaks the isolation semantics you're testing)</td></tr><tr><td>Sandbox execution</td><td>Same laptop, Docker</td><td>No timing claims, so no noisy-neighbor concern</td></tr><tr><td>Version control / CI</td><td>GitHub (free), your Student Pack's Copilot for coding assistance while you build</td><td>—</td></tr></table></div>
+<p>Total infrastructure cost: <b>$0.</b> The only scarce resource is your daily LLM request quota and your own time.</p>
+<h3 id="1-4-week-by-week-plan-hard-cap-4-weeks">1.4 Week-by-week plan (hard cap: 4 weeks)</h3>
+<p><b>Week 1 — Core mechanism, no LLM calls yet.</b></p>
+<ul><li>Day 1–2: Repo scaffold, <code>P_0</code> seed for both tasks, manifest builder (<code>delta/integrity/manifest.py</code> from the Phase 1 guide, unchanged).</li><li>Day 3–5: EVOLVE-BLOCK parser + bounded applicator (<code>blocks.py</code>, <code>applicator.py</code>, unchanged from the Phase 1 guide) + contract verification (<code>contracts.py</code>). Unit-test all of this against hand-written diffs — no LLM needed to validate the applicator's post-conditions.</li><li>Day 6–7: Frozen AST edit-distance metric (<code>metrics.py</code>, unchanged — freeze it now, before you've seen any real mutation data).</li></ul>
+<p><b>Week 2 — Sandbox, ledger, and the mutation loop.</b></p>
+<ul><li>Day 8–9: Docker sandbox (simplified flags per §1.1), supervisor/child process split for the bin-packing warm-up task.</li><li>Day 10–11: Simplified ledger (hash chain, correctness-only columns). Wire admission gates G0–G3 (skip G4's fairness <i>threshold</i> — you still record the edit-distance metric, you just don't reject on it yet) and G5 (integrity re-check).</li><li>Day 12–14: Σ client against Gemini free tier, rejection-feedback loop, end-to-end run on the <b>warm-up task</b>. Debug until a full generation cycle runs clean.</li></ul>
+<p><b>Week 3 — The real experiment.</b></p>
+<ul><li>Day 15: Switch to the circle-packing task. Sanity-check <code>P_0</code> scores correctly.</li><li>Day 16–20: Run the actual experiment. See §1.5 for the exact call budget and how many days this realistically needs given free-tier limits — plan to let it run in the background across most of this week while you do other things.</li><li>Day 19–21 (overlapping): Run the scoped 8–10 case adversarial suite (Tiers A and C from the Phase 1 guide's Appendix B) against your own pipeline. Fix anything that fails.</li></ul>
+<p><b>Week 4 — Analysis, ablation, writing.</b></p>
+<ul><li>Day 22–23: Run the one required ablation: <b>elite-band selection vs. single-winner selection</b> (AlphaGo-Zero-style, &gt;55% win margin) on the same task and budget. This is your one comparative result — don't skip it, it's what turns "we built a thing" into "we tested a claim."</li><li>Day 24–26: Produce the figures/tables (see the paper guide for exactly what's needed), write the draft.</li><li>Day 27–28: Buffer for revisions, code cleanup for the public repo release, arXiv submission.</li></ul>
+<p>If you overrun, <b>cut scope, not the cap</b> — ship with fewer generations or a smaller ablation before you extend past 4 weeks.</p>
+<h3 id="1-5-call-budget-math-so-you-know-if-a-week-is-re">1.5 Call-budget math (so you know if a week is realistic)</h3>
+<p>Assume population 40, generations 25 per run, 3 seeds for the primary task plus 1 elite-band-vs-single-winner ablation run pair (2 more runs):</p>
+<pre>40 candidates × 25 generations = 1,000 mutation calls per run
+5 runs total (3 seeds + 2 ablation conditions) = 5,000 calls
+At ~1,000 free-tier requests/day → 5 days of continuous quota use</pre>
+<p>That comfortably fits inside Week 3's 7 days, including buffer for failed/rejected calls that don't count against your "useful" total but still consume quota. If you find the daily cap binding, drop to population 25–30 or 2 seeds rather than extending the timeline — a smaller, honestly-reported experiment beats a rushed larger one.</p>
+<h3 id="1-6-exit-checklist-stage-1-is-done-when">1.6 Exit checklist — Stage 1 is done when:</h3>
+<ul><li>[ ] <code>P_0</code> improves measurably over generations on circle packing (even a modest gain is a valid, reportable result)</li><li>[ ] Manifest integrity holds across every evaluation in every run (this is your barrier-integrity claim, scaled down but real)</li><li>[ ] The 8–10 case adversarial suite passes</li><li>[ ] The elite-band vs. single-winner ablation ran and produced a comparable result</li><li>[ ] Ledger chain verifies end-to-end</li><li>[ ] Repo is clean enough to open-source (README, seeds, exact model version/date used — Gemini models get updated silently, so log the exact model ID and the date you ran)</li><li>[ ] Draft written per the paper guide</li><li>[ ] arXiv account created, category chosen (see paper guide §4)</li></ul>
+<h3 id="1-7-explicit-do-not-do-this-in-stage-1-list">1.7 Explicit "do not do this in Stage 1" list</h3>
+<p>Scope creep is the main risk to the 4-week cap. Do not, during Stage 1:</p>
+<ul><li>Add latency/timing measurement "just to have the data" — it doesn't fit the story you're telling and it's expensive to make trustworthy.</li><li>Expand the adversarial suite toward the full 24 cases — 8–10 well-chosen cases is defensible for a preprint's scope.</li><li>Add a second benchmark task beyond circle packing "for robustness" — one well-executed task beats two rushed ones.</li><li>Start integrating with MiniMe in any way. That's Stage 2, gated (see §3), and pulling it forward defeats the entire point of time-boxing Stage 1.</li><li>Chase gVisor or bare-metal rental "to be safe" — you already decided the timing dimension is out of scope, so the isolation bar that motivated bare metal doesn't apply here.</li></ul>
+<hr>
+<h2 id="2-between-stage-1-and-stage-2-indefinite-gap-thi">2. Between Stage 1 and Stage 2 (indefinite gap — this is fine)</h2>
+<p>There's no fixed timeline here. Stage 1 produces a preprint and, ideally, a workshop submission. Then you go back to MiniMe's Phase 0/1 roadmap and focus there. <b>Do not try to run Stage 2 in parallel with launching Basic.</b> The gate below exists precisely to prevent that.</p>
+<hr>
+<h2 id="3-the-gate-between-stage-1-and-stage-2">3. The gate between Stage 1 and Stage 2</h2>
+<p>Stage 2 starts only when <b>all</b> of these are true — the same discipline your MiniMe roadmap already applies to starting the Moderate tier:</p>
+<ol><li><b>Basic tier is launched and generating revenue.</b> Not "about to launch" — actually live and billing.</li><li><b>Basic's day-to-day operational load is manageable</b> without consuming most of your attention (your roadmap's own §3.5 gate, applied here too).</li><li><b>A separate research budget line is defined in writing</b>, capped, and explicitly ring-fenced from Basic's operating burn (e.g., "up to $50/month of Basic's margin, revisited quarterly"). If a bad month in the research fork would threaten Basic staying break-even, the budget is too large or Basic isn't ready yet.</li><li><b>You've written down, in advance, what "attested" and "promotable" mean</b> for a candidate agent/prompt config in this context — your own version of the Phase 1 guide's exit criteria, scaled to this use (see §4.7 below for a starting template).</li></ol>
+<p>Don't start Stage 2 on momentum from a good Stage 1 result. Start it when these four conditions are independently true.</p>
+<hr>
+<h2 id="stage-2-minime-integrated-research-plan">STAGE 2 — MiniMe-Integrated Research Plan</h2>
+<h3 id="4-1-what-changes-from-stage-1-and-why-it-s-now-w">4.1 What changes from Stage 1, and why it's now worth the cost</h3>
+<p>Two things flip in Stage 2, and both are justified by the fact that you're now optimizing something with real financial consequences rather than a toy benchmark:</p>
+<ul><li><b>Latency/cost re-enters the fitness function.</b> In Stage 1 it was pure overhead with no payoff. In Stage 2, a candidate agent config that's 20% cheaper per task at equal quality is a real margin improvement for Basic — this is precisely the kind of comparison your roadmap's Part 3.3 already asks you to make by hand ("run the same task both ways... compare real output quality"). FBEBC automates that, and now it's worth the infrastructure to measure it honestly.</li><li><b>The task suite becomes real MiniMe evals</b>, not toy tasks. Your <code>backend/evals/promptfoo</code> suite already exists — you're not building a benchmark from scratch.</li></ul>
+<h3 id="4-2-choosing-the-mutation-target-prompt-text-not">4.2 Choosing the mutation target: prompt text, not Python source</h3>
+<p>This is the single most important safety decision for Stage 2, and your own repo hands you the right answer.</p>
+<p>Your role prompts (<code>eo/registry.py::ROLE_PROMPTS_SEED</code>) live in <b>Upstash Redis</b>, are fetched live by <code>providers/role_provider.py</code>, and are already mutable at runtime through the existing Panel brief-writer / <code>PUT /api/roles/{role_name}</code> path. This means <b>prompt text is already treated as data, not code</b>, in your architecture — it's fetched, not imported or executed as source.</p>
+<p>That makes prompt-text evolution a dramatically lower-risk EVOLVE-BLOCK target than mutating <code>.py</code> files in <code>backend/agents/</code> or <code>backend/eo/</code>:</p>
+<div class="tw"><table><tr><th></th><th>Mutating <code>.py</code> source (backend/agents, backend/eo)</th><th>Mutating prompt text (Redis-backed)</th></tr><tr><td>Blast radius if wrong</td><td>Can change control flow, imports, capability surface</td><td>Changes what an LLM is told; the calling code path is unchanged</td></tr><tr><td>Relationship to <code>DEFERRED.md</code></td><td><b>This is exactly the deferred "write/execute capability on the backend's own code" item</b> — the atomicity problem is explicitly unsolved</td><td>Not what that item is about at all — prompts aren't executed, they're passed as input to <code>generate_text()</code></td></tr><tr><td>Rollback</td><td>Needs the verify-then-promote/atomic-swap design that's explicitly not designed yet</td><td>Trivial — write the old string back to Redis</td></tr><tr><td>Existing tooling</td><td>None yet</td><td><code>role_provider.py</code>, the whole promptfoo suite, and the <code>provider_override</code> / <code>compare/providers.promptfooconfig.yaml</code> pattern already exist</td></tr></table></div>
+<p><b>Decision: Stage 2 evolves role prompt text only.</b> Treat Python source-code self-modification as a <i>separate, later</i> project — one that genuinely does need the atomic-write/verify-then-promote design <code>DEFERRED.md</code> flags as undesigned, and shouldn't be attempted until that design work happens on its own, deliberately, the same way the daemon is being deliberately deferred. Don't let Stage 2's success tempt you into quietly expanding scope into source mutation — that's a materially different risk category and deserves its own gate, not an upgrade path from this one.</p>
+<h3 id="4-3-isolation-architecture">4.3 Isolation architecture</h3>
+<pre>┌───────────────────────────────────────────────────────────┐
+│  LIVE MiniMe (untouched by any of this)                    │
+│  Production Redis · Production Postgres · Real user traffic│
+└───────────────────────────────────────────────────────────┘
+                         ▲
+                         │  (one-way: promoted PRs merge in,
+                         │   reviewed by you, nothing writes
+                         │   back automatically)
+┌────────────────────────┴──────────────────────────────────┐
+│  RESEARCH FORK (isolated)                                   │
+│  - git clone of the repo, separate directory/VM             │
+│  - staging Redis instance (NOT the production Upstash URL)  │
+│  - `ROLE_PROMPTS_SEED` copied in as P_0 for each role tested │
+│  - promptfoo's role_provider.py + your test YAMLs, reused    │
+│    unmodified as the Δ scorer                                │
+│  - Σ-LLM proposes replacement prompt strings                 │
+│  - Δ evaluates via promptfoo against the SAME rubric/asserts │
+│    used in CI today                                          │
+└───────────────────────────────────────────────────────────┘</pre>
+<p>Hard rule: <b>the research fork's <code>.env</code> points at a staging Redis and staging provider keys, never the production <code>UPSTASH_REDIS_REST_URL</code>/<code>UPSTASH_REDIS_REST_TOKEN</code> or production LLM keys.</b> Check this before every run, not just once — a copy-pasted <code>.env</code> is the most likely real failure mode here, not an adversarial escape.</p>
+<h3 id="4-4-building-the-scorer-on-top-of-what-already-e">4.4 Building the Δ-scorer on top of what already exists</h3>
+<p>Your promptfoo suite already grades most roles with <code>llm-rubric</code> (an LLM judges the output against a stated rubric) and a few with <code>type: python</code> deterministic asserts (like <code>output_organizer</code>). This is your oracle — but it needs one adjustment for FBEBC's score-non-authorship principle to hold meaningfully:</p>
+<ul><li><b>Pin the judge model version explicitly</b>, separate from whatever model Σ uses to propose prompt mutations. If Σ and the judge are the same model, a mutation that happens to match that model's own stylistic preferences could look better than it actually is — a soft version of reward hacking. Use a different model family for the judge where practical (e.g., Σ on Gemini, judge on a different provider you already have a key for from your existing <code>role_provider.py</code> provider list — Groq, Mistral, etc.).</li><li><b>Log every judge verdict into the ledger</b>, not just the pass/fail. This gives you judge-drift as a monitored metric over time (if the judge model gets silently updated by its provider, your grading criteria shift under you — worth knowing, not worth panicking over).</li><li><b>Prefer deterministic asserts over rubric grading wherever a role allows it.</b> For roles like <code>output_organizer</code> that already have <code>type: python</code> structural checks, use those as the primary gate and treat rubric grading as secondary — deterministic checks aren't gameable the way an LLM judge softly can be.</li><li>Reuse the exact <code>provider_override</code> mechanism already in your test files to keep judge calls deterministic and reproducible, the same way it's used today to pin CI to a specific Groq key.</li></ul>
+<h3 id="4-5-promotion-pipeline">4.5 Promotion pipeline</h3>
+<pre>Σ proposes prompt variant
+   ↓
+Δ runs it through role_provider.py against existing promptfoo cases
+   (staging Redis, staging keys)
+   ↓
+Passes all assertions + judge score above threshold?
+   ↓ yes
+Candidate logged as "attested" in the ledger, with full diff + score history
+   ↓
+Opens as a PR: old prompt vs. new prompt, side by side, with the eval
+   run's full output attached
+   ↓
+YOU review it — same as any other config change
+   ↓
+Merge → new string written to ROLE_PROMPTS_SEED (or, once you're
+   confident, directly to production Redis via the existing Panel
+   brief-writer path — never automatically)</pre>
+<p>No step in this pipeline writes to anything live without your explicit merge action. This is the same posture your roadmap already holds toward every other production change.</p>
+<h3 id="4-6-budget-and-compute">4.6 Budget and compute</h3>
+<ul><li><b>Compute:</b> No latency claims means Docker-on-a-small-rented-VM is fine here too — you don't need bare metal even in Stage 2, <i>unless</i> you specifically want to validate that a prompt change also improves real task latency (a legitimate thing to want, since latency affects your cost-per-task). If you do want that, that's the one place a short, cheap rental (a few days on a small Hetzner/Azure-credit box, per the earlier cost guide) earns its keep — rent it for the validation run only, not as standing infrastructure.</li><li><b>LLM cost:</b> Real API calls now, on your actual production provider keys' <i>staging</i> equivalents (or the free tiers of the same providers if their limits suffice for this smaller-scale task). Budget: start at the $10–30/month range and adjust based on how many roles you're actively evolving.</li><li><b>Ledger:</b> keep this on a genuinely separate budget line from Basic's operating burn, per the gate in §3.</li></ul>
+<h3 id="4-7-a-starting-template-for-attested-and-promota">4.7 A starting template for "attested and promotable"</h3>
+<p>Write your own version of this before Stage 2's first run, per the gate condition in §3.4:</p>
+<ul><li>[ ] Candidate passes 100% of the role's existing promptfoo assertions (no regressions)</li><li>[ ] Judge score (where rubric-graded) is at or above the current production prompt's score on the same held-out cases</li><li>[ ] Manifest integrity held throughout the evaluation (no sandbox/scorer tampering — carried over unchanged from Phase 1)</li><li>[ ] AST/text edit distance from the seed prompt is recorded (even without a hard cap, tracking drift matters — this is your Gap-3-equivalent for this stage)</li><li>[ ] A human has read the full diff and the full eval transcript before merging — not just the score</li></ul>
+<h3 id="4-8-what-this-produces">4.8 What this produces</h3>
+<p>Beyond the direct product value (better or cheaper prompts, a real answer to Part 3.3's manual A/B-testing question, now automated), this stage gives you:</p>
+<ul><li>A genuine production case study — "we applied a safety-governed evolutionary search mechanism to a live SaaS's agent configuration and it produced measurably better prompts, validated against our existing eval suite, with zero unreviewed production writes." That's a materially stronger paper than the Stage 1 toy-task preprint, and a natural candidate for the GECCO or stronger-workshop target discussed earlier.</li><li>Real cost-per-task data feeding back into Part 6/7 of your roadmap's earnings model — this stage isn't purely a research side-project, it's also doing work your roadmap already says needs doing.</li></ul>
+<hr>
+<h2 id="5-master-timeline">5. Master timeline</h2>
+<div class="tw"><table><tr><th>Period</th><th>What's happening</th><th>Funded by</th></tr><tr><td>Now, 4 weeks</td><td>Stage 1: preprint build + write-up</td><td>$0 (free tiers only)</td></tr><tr><td>After Stage 1</td><td>Return full attention to MiniMe Phase 0</td><td>—</td></tr><tr><td>Indefinite gap</td><td>MiniMe Phase 0 → Phase 1 (pilot) → Phase 2 (Basic launch)</td><td>Per the MiniMe roadmap, unchanged</td></tr><tr><td>Gate clears (§3)</td><td>Decide to start Stage 2</td><td>—</td></tr><tr><td>Post-launch</td><td>Stage 2: MiniMe-integrated research, capped monthly budget</td><td>Basic's revenue, ring-fenced</td></tr></table></div>
+<p>Nothing in this guide changes your MiniMe roadmap's own timeline. Stage 1 fits before or alongside early Phase 0 work precisely because it's capped and free; Stage 2 is, by design, just another item in your existing self-funding cascade.</p></article><div class="toc"><a class="t2" href="#0-the-shape-of-the-whole-program">0. The shape of the whole program</a><a class="t2" href="#stage-1-preprint-research-plan">STAGE 1 — Preprint Research Plan</a><a class="t3" href="#1-1-what-s-cut-from-the-original-design-and-why">1.1 What's cut from the original design, and why</a><a class="t3" href="#1-2-task-selection">1.2 Task selection</a><a class="t3" href="#1-3-zero-cost-resource-stack-concrete">1.3 Zero-cost resource stack (concrete)</a><a class="t3" href="#1-4-week-by-week-plan-hard-cap-4-weeks">1.4 Week-by-week plan (hard cap: 4 weeks)</a><a class="t3" href="#1-5-call-budget-math-so-you-know-if-a-week-is-re">1.5 Call-budget math (so you know if a week is realistic)</a><a class="t3" href="#1-6-exit-checklist-stage-1-is-done-when">1.6 Exit checklist — Stage 1 is done when:</a><a class="t3" href="#1-7-explicit-do-not-do-this-in-stage-1-list">1.7 Explicit "do not do this in Stage 1" list</a><a class="t2" href="#2-between-stage-1-and-stage-2-indefinite-gap-thi">2. Between Stage 1 and Stage 2 (indefinite gap — this is fin</a><a class="t2" href="#3-the-gate-between-stage-1-and-stage-2">3. The gate between Stage 1 and Stage 2</a><a class="t2" href="#stage-2-minime-integrated-research-plan">STAGE 2 — MiniMe-Integrated Research Plan</a><a class="t3" href="#4-1-what-changes-from-stage-1-and-why-it-s-now-w">4.1 What changes from Stage 1, and why it's now worth the co</a><a class="t3" href="#4-2-choosing-the-mutation-target-prompt-text-not">4.2 Choosing the mutation target: prompt text, not Python so</a><a class="t3" href="#4-3-isolation-architecture">4.3 Isolation architecture</a><a class="t3" href="#4-4-building-the-scorer-on-top-of-what-already-e">4.4 Building the Δ-scorer on top of what already exists</a><a class="t3" href="#4-5-promotion-pipeline">4.5 Promotion pipeline</a><a class="t3" href="#4-6-budget-and-compute">4.6 Budget and compute</a><a class="t3" href="#4-7-a-starting-template-for-attested-and-promota">4.7 A starting template for "attested and promotable"</a><a class="t3" href="#4-8-what-this-produces">4.8 What this produces</a><a class="t2" href="#5-master-timeline">5. Master timeline</a></div></div></main><script></script></body></html>
