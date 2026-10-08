@@ -1,0 +1,362 @@
+{
+ "people": [
+  {
+   "id": "shaikh",
+   "name": "Shaikh",
+   "color": "#ff2052",
+   "cap": 15,
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "sayad",
+   "name": "Sayad",
+   "color": "#a78bfa",
+   "cap": 15,
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "labib",
+   "name": "Labib",
+   "color": "#34d399",
+   "cap": 15,
+   "updatedAt": "2026-10-08T00:00:00Z"
+  }
+ ],
+ "projects": [
+  {
+   "id": "nasa",
+   "name": "NASA Space Apps",
+   "scope": "team",
+   "owner": "",
+   "start": "2026-10-08",
+   "deadline": "2026-11-01",
+   "color": "#ff2052",
+   "description": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "minilocker",
+   "name": "MiniLocker hackathon",
+   "scope": "team",
+   "owner": "",
+   "start": "2026-10-08",
+   "deadline": "2026-11-03",
+   "color": "#f59e0b",
+   "description": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "logistic",
+   "name": "Logistic animated",
+   "scope": "team",
+   "owner": "",
+   "start": "2026-10-08",
+   "deadline": "2026-10-24",
+   "color": "#34d399",
+   "description": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "minime",
+   "name": "Minime",
+   "scope": "team",
+   "owner": "",
+   "start": "2026-10-08",
+   "deadline": "2026-11-14",
+   "color": "#a78bfa",
+   "description": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "p-shaikh",
+   "name": "Shaikh personal",
+   "scope": "personal",
+   "owner": "shaikh",
+   "start": "2026-10-08",
+   "deadline": "2026-10-24",
+   "color": "#ff2052",
+   "description": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "p-labib",
+   "name": "Labib personal",
+   "scope": "personal",
+   "owner": "labib",
+   "start": "2026-10-08",
+   "deadline": "2026-10-24",
+   "color": "#34d399",
+   "description": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "p-sayad",
+   "name": "Sayad personal",
+   "scope": "personal",
+   "owner": "sayad",
+   "start": "2026-10-08",
+   "deadline": "2026-11-21",
+   "color": "#a78bfa",
+   "description": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  }
+ ],
+ "tasks": [
+  {
+   "id": "t1",
+   "project": "nasa",
+   "title": "Space Apps main work",
+   "description": "",
+   "assignees": [
+    "shaikh"
+   ],
+   "status": "todo",
+   "priority": "normal",
+   "start": "2026-10-08",
+   "target": "2026-10-16",
+   "deadline": "2026-11-01",
+   "effort": "",
+   "tags": [],
+   "link": "",
+   "subtasks": [],
+   "log": [],
+   "moves": [],
+   "createdAt": "2026-10-08T00:00:00Z",
+   "doneAt": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "t2",
+   "project": "minilocker",
+   "title": "MiniLocker hackathon build",
+   "description": "",
+   "assignees": [
+    "sayad"
+   ],
+   "status": "todo",
+   "priority": "normal",
+   "start": "2026-10-08",
+   "target": "2026-10-24",
+   "deadline": "2026-11-03",
+   "effort": "",
+   "tags": [],
+   "link": "",
+   "subtasks": [],
+   "log": [],
+   "moves": [],
+   "createdAt": "2026-10-08T00:00:00Z",
+   "doneAt": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "t3",
+   "project": "logistic",
+   "title": "Write the guide and start the work",
+   "description": "",
+   "assignees": [
+    "labib"
+   ],
+   "status": "todo",
+   "priority": "normal",
+   "start": "2026-10-08",
+   "target": "2026-10-16",
+   "deadline": "",
+   "effort": "",
+   "tags": [],
+   "link": "",
+   "subtasks": [],
+   "log": [],
+   "moves": [],
+   "createdAt": "2026-10-08T00:00:00Z",
+   "doneAt": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "t4",
+   "project": "logistic",
+   "title": "Finish the animation",
+   "description": "",
+   "assignees": [
+    "sayad"
+   ],
+   "status": "todo",
+   "priority": "normal",
+   "start": "2026-10-16",
+   "target": "2026-10-24",
+   "deadline": "",
+   "effort": "",
+   "tags": [],
+   "link": "",
+   "subtasks": [],
+   "log": [],
+   "moves": [],
+   "createdAt": "2026-10-08T00:00:00Z",
+   "doneAt": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "t5",
+   "project": "minime",
+   "title": "Make the slides",
+   "description": "",
+   "assignees": [
+    "labib"
+   ],
+   "status": "todo",
+   "priority": "normal",
+   "start": "2026-10-08",
+   "target": "2026-10-16",
+   "deadline": "",
+   "effort": "",
+   "tags": [],
+   "link": "",
+   "subtasks": [],
+   "log": [],
+   "moves": [],
+   "createdAt": "2026-10-08T00:00:00Z",
+   "doneAt": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "t6",
+   "project": "minime",
+   "title": "Fixes",
+   "description": "",
+   "assignees": [
+    "sayad"
+   ],
+   "status": "todo",
+   "priority": "normal",
+   "start": "2026-10-24",
+   "target": "2026-11-14",
+   "deadline": "",
+   "effort": "",
+   "tags": [],
+   "link": "",
+   "subtasks": [],
+   "log": [],
+   "moves": [],
+   "createdAt": "2026-10-08T00:00:00Z",
+   "doneAt": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "t7",
+   "project": "p-shaikh",
+   "title": "Research",
+   "description": "",
+   "assignees": [
+    "shaikh"
+   ],
+   "status": "todo",
+   "priority": "normal",
+   "start": "2026-10-17",
+   "target": "2026-10-24",
+   "deadline": "",
+   "effort": "",
+   "tags": [],
+   "link": "",
+   "subtasks": [],
+   "log": [],
+   "moves": [],
+   "createdAt": "2026-10-08T00:00:00Z",
+   "doneAt": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "t8",
+   "project": "p-shaikh",
+   "title": "DSA",
+   "description": "",
+   "assignees": [
+    "shaikh"
+   ],
+   "status": "todo",
+   "priority": "normal",
+   "start": "2026-10-17",
+   "target": "2026-10-24",
+   "deadline": "",
+   "effort": "",
+   "tags": [],
+   "link": "",
+   "subtasks": [],
+   "log": [],
+   "moves": [],
+   "createdAt": "2026-10-08T00:00:00Z",
+   "doneAt": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "t9",
+   "project": "p-labib",
+   "title": "Research",
+   "description": "",
+   "assignees": [
+    "labib"
+   ],
+   "status": "todo",
+   "priority": "normal",
+   "start": "2026-10-17",
+   "target": "2026-10-24",
+   "deadline": "",
+   "effort": "",
+   "tags": [],
+   "link": "",
+   "subtasks": [],
+   "log": [],
+   "moves": [],
+   "createdAt": "2026-10-08T00:00:00Z",
+   "doneAt": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "t10",
+   "project": "p-sayad",
+   "title": "Research",
+   "description": "",
+   "assignees": [
+    "sayad"
+   ],
+   "status": "todo",
+   "priority": "normal",
+   "start": "2026-11-14",
+   "target": "2026-11-21",
+   "deadline": "",
+   "effort": "",
+   "tags": [],
+   "link": "",
+   "subtasks": [],
+   "log": [],
+   "moves": [],
+   "createdAt": "2026-10-08T00:00:00Z",
+   "doneAt": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  },
+  {
+   "id": "t11",
+   "project": "p-sayad",
+   "title": "Portfolio",
+   "description": "",
+   "assignees": [
+    "sayad"
+   ],
+   "status": "todo",
+   "priority": "normal",
+   "start": "2026-10-08",
+   "target": "2026-10-14",
+   "deadline": "",
+   "effort": "",
+   "tags": [],
+   "link": "",
+   "subtasks": [],
+   "log": [],
+   "moves": [],
+   "createdAt": "2026-10-08T00:00:00Z",
+   "doneAt": "",
+   "updatedAt": "2026-10-08T00:00:00Z"
+  }
+ ],
+ "settings": {
+  "defaultHours": 4
+ }
+}

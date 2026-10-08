@@ -1,0 +1,327 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Team to-do - MiniMe Atlas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap"><style>
+:root{--bg:#0a0a0c;--p:#121216;--p2:#17171d;--ln:#26262e;--tx:#f2f1ed;--dim:#a8a6a0;--r:#ff2052;--v:#a78bfa;--a:#f59e0b;--g:#34d399;--m:#f06cb4;--late:#f59e0b;--fail:#ff2052}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.55 Sora,Inter,system-ui,sans-serif;display:flex;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background-image:linear-gradient(rgba(255,32,82,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,32,82,.12) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent);mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent)}
+nav{overflow-y:auto;position:sticky;top:0;height:100vh;width:210px;flex:none;padding:22px 14px;border-right:1px solid var(--ln);background:rgba(10,10,12,.9);z-index:2}
+nav .logo{font-weight:700;font-size:18px;margin:0 8px 18px}nav .logo b{color:var(--r)}nav a{display:block;padding:8px 12px;border-radius:9px;color:var(--dim);text-decoration:none;margin:2px 0;font-size:15px}
+nav a:hover{background:var(--p2);color:var(--tx)}nav a.on{background:rgba(255,32,82,.14);color:#fff;box-shadow:inset 2px 0 var(--r)}.nv{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:#6d6b66;margin:16px 10px 4px}nav small{display:block;margin:18px 8px 0;color:#6d6b66;font-size:12px}
+main{flex:1;min-width:0;padding:30px 36px 90px;position:relative;z-index:1;max-width:1500px;overflow-x:clip}
+a{color:#ff7a96}h1{font-size:28px;margin:0;letter-spacing:-.02em}h1 b{color:var(--r)}h2{font-size:17px;margin:0 0 10px}h3{font-size:14px;margin:18px 0 6px}.sub{color:var(--dim);margin:2px 0 0;font-size:13px}
+input,select,textarea,button{font:inherit;color:var(--tx);background:var(--p);border:1px solid var(--ln);border-radius:9px;padding:7px 11px;max-width:100%}
+button{background:var(--p2);cursor:pointer;transition:border-color .12s,background .12s}button:hover{border-color:var(--r)}button.pri{background:var(--r);border-color:var(--r);color:#fff;font-weight:600}button.sm{padding:3px 10px;font-size:12px}
+:is(button,input,select,textarea,.row,.ai,.bc,.sy):focus-visible{outline:2px solid var(--r);outline-offset:1px}input[type=checkbox]{accent-color:var(--r);width:17px;height:17px;padding:0}input[type=color]{padding:2px;width:40px;height:34px}input[type=date],input[type=month]{color-scheme:dark}
+.bar1{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}.sp{flex:1}.dim{color:var(--dim)}.sm{font-size:12px}.late{color:var(--late)}.fail{color:var(--fail)}
+.card{background:var(--p);border:1px solid var(--ln);border-radius:14px;padding:14px 16px}
+.top{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.mback{display:none}
+.sy{display:inline-flex;gap:7px;align-items:center;border:1px solid var(--ln);border-radius:99px;padding:3px 12px;font-size:12px;color:var(--dim);cursor:pointer;background:var(--p)}.sy i{width:8px;height:8px;border-radius:50%;background:var(--dim)}.sy.g i{background:var(--g);box-shadow:0 0 8px var(--g)}.sy.a i{background:var(--a)}.sy.r i{background:var(--r)}.sy.g{color:var(--tx)}.sy small{color:var(--dim)}
+.rg{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin:14px 0 4px}.rg label{font-size:12px;color:var(--dim)}.rg label input{display:block;margin-top:3px}.chips{display:flex;gap:6px;flex-wrap:wrap}.chips button{border-radius:99px;padding:4px 12px;font-size:12px}.chips button.on{background:rgba(255,32,82,.14);border-color:var(--r)}
+#wl{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin:12px 0}
+.nm{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.nm i{width:11px;height:11px;border-radius:50%}.nm .dim{margin-left:auto;font-size:12px}
+.bar{height:9px;background:var(--p2);border-radius:5px;margin:10px 0;overflow:hidden}.bar span{display:block;height:100%;border-radius:5px;transition:width .3s}.bar.over span{background:var(--r)!important}
+.stats{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--dim)}.stats b{color:var(--tx)}
+.att{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));margin:12px 0}.att .card{border-left:3px solid var(--ln)}.att .card.f{border-left-color:var(--fail)}.att .card.l{border-left-color:var(--late)}
+.att h2{display:flex;gap:8px;align-items:center}.cnt{font-size:12px;border-radius:99px;padding:0 9px;background:var(--p2);color:var(--dim)}.f .cnt{background:var(--fail);color:#fff}.l .cnt{background:var(--late);color:#0a0a0c}
+.ai{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 4px;border-top:1px solid var(--ln);cursor:pointer}.ai:hover{background:rgba(255,255,255,.03)}.ai .tt{flex:1 1 180px}.ai .tt b{display:block;font-weight:600}.ai .tt small{color:var(--dim)}
+.tabs button.on{background:rgba(255,32,82,.14);border-color:var(--r)}
+.grp{margin:22px 0}.gh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;padding-bottom:6px;border-bottom:1px solid var(--ln)}.gh h2{margin:0}.gh i{width:10px;height:10px;border-radius:3px;align-self:center}.pg{width:90px;height:6px;border-radius:4px;background:var(--p2);align-self:center;overflow:hidden}.pg b{display:block;height:100%;background:var(--g)}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 6px;border-bottom:1px solid var(--ln);cursor:pointer}.row:hover{background:rgba(255,255,255,.03)}.row.dn .tt b{text-decoration:line-through;color:var(--dim)}.row.fl{box-shadow:inset 3px 0 var(--fail)}.row.lt{box-shadow:inset 3px 0 var(--late)}
+.tt{flex:1 1 220px;min-width:0}.tt b{display:block;font-weight:600}.tt small{display:block;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who{display:inline-block;font-size:12px;padding:1px 9px;border-radius:99px;border:1px solid var(--c);margin-right:4px}
+.dt{font-size:13px;min-width:190px}.dt small{display:block;color:var(--dim)}.dt.late small,.dt.late{color:var(--late)}.dt.fail small,.dt.fail{color:var(--fail)}
+.mini{display:flex;height:5px;margin-top:3px;width:100%;max-width:140px;gap:0}.mini i{display:block;height:100%;border-radius:3px 0 0 3px}.mini i:last-child{border-radius:0 3px 3px 0}
+.mini i.late{background:repeating-linear-gradient(45deg,var(--late) 0 3px,#92400e 3px 6px);border-radius:0}.mini i.fail{background:repeating-linear-gradient(45deg,var(--fail) 0 3px,#7f1d1d 3px 6px);border-radius:0 3px 3px 0}
+.bd{font-size:11px;font-weight:700;letter-spacing:.04em;border-radius:6px;padding:1px 7px;text-transform:uppercase}.bd.fail{background:var(--fail);color:#fff}.bd.late{background:var(--late);color:#0a0a0c}
+.st{font-size:12px;padding:1px 10px;border-radius:99px;border:1px solid var(--ln);color:var(--dim)}.st.doing{border-color:var(--a);color:var(--a)}.st.done{background:var(--g);border-color:var(--g);color:#0a0a0c}.st.blocked{border-color:var(--r);color:var(--r)}
+.pr.high{color:var(--r)}.pr.low{color:var(--dim)}
+.kb{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));align-items:start}.kc{background:var(--p);border:1px solid var(--ln);border-radius:14px;padding:10px;min-height:120px}.kc.ov{border-color:var(--r);background:rgba(255,32,82,.05)}.kc h3{margin:2px 4px 10px;display:flex;justify-content:space-between}
+.bc{background:var(--p2);border:1px solid var(--ln);border-left:3px solid var(--c,var(--ln));border-radius:10px;padding:9px 11px;margin:0 0 8px;cursor:grab}.bc:hover{border-color:var(--r)}.bc b{display:block;font-weight:600;font-size:13px}.bc small{color:var(--dim);display:block}.bc.dn b{text-decoration:line-through;color:var(--dim)}
+.feed{max-width:760px}.fi{display:flex;gap:12px;padding:9px 4px;border-bottom:1px solid var(--ln)}.fi time{color:var(--dim);font-size:12px;min-width:74px}
+/* timeline */
+.tlw{overflow-x:auto;border:1px solid var(--ln);border-radius:14px;background:var(--p)}
+.tl{--lw:240px;position:relative;display:grid;grid-template-columns:var(--lw) 1fr;min-width:760px}
+.tl .hd{height:30px;border-bottom:1px solid var(--ln);position:relative;font-size:11px;color:var(--dim);overflow:hidden}.tl .hd span{position:absolute;top:3px;line-height:1.15;white-space:nowrap}.tl .hd span.c{text-align:center}.tl .hd em{display:block;font-style:normal;font-size:9.5px;opacity:.7}
+.tl .lb{padding:0 10px;height:30px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #1c1c23;font-size:12.5px;overflow:hidden;white-space:nowrap;cursor:pointer;background:var(--p);position:sticky;left:0;z-index:2}.tl .lb:hover,.tl .lb:hover+.tr{background:var(--p2)}.tl .lb span{overflow:hidden;text-overflow:ellipsis}.tl .lb small{color:var(--dim);flex:none}
+.tl .tr{position:relative;height:30px;border-bottom:1px solid #1c1c23}
+.tl .lh,.tl .sc{grid-column:1/-1;padding:5px 12px;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#ff7a96;background:var(--p2);cursor:pointer;border-bottom:1px solid var(--ln)}.tl .sc{font-size:12px;color:var(--tx);background:#1d1d25;cursor:default}
+.tl .ovl{position:absolute;top:30px;bottom:0;left:var(--lw);right:0;pointer-events:none;z-index:1}.tl .ovl i{position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.06)}.tl .ovl i.mj{background:rgba(255,255,255,.12)}.tl .ovl b{position:absolute;top:0;bottom:0;background:rgba(255,32,82,.09);border-left:1px solid var(--r);min-width:2px}.tl .ovl b.line{background:var(--r);width:2px}
+.sg{position:absolute;top:8px;height:14px;border-radius:6px;background:var(--c,#888)}.sg.cl{border-top-left-radius:0;border-bottom-left-radius:0}.sg.cr{border-top-right-radius:0;border-bottom-right-radius:0}
+.sg.plan{opacity:.92}.sg.plan.dash{opacity:.3;outline:1px dashed var(--c);outline-offset:-1px}.sg.plan.done{opacity:.32}.sg.pj{top:12px;height:6px;opacity:.45}.sg.ts{top:23px;height:4px;background:#60a5fa;opacity:.8;border-radius:2px}
+.sg.late{background:repeating-linear-gradient(45deg,var(--late) 0 4px,#92400e 4px 8px);border-radius:0 6px 6px 0}.sg.fail{background:repeating-linear-gradient(45deg,var(--fail) 0 4px,#7f1d1d 4px 8px);border-radius:0 6px 6px 0}
+.sg.act{top:20px;height:6px;border-radius:3px}.sg.act.pend{opacity:.6;outline:1px dashed var(--c);outline-offset:-1px}
+.dm{position:absolute;top:7px;width:14px;height:14px;background:var(--c);transform:translateX(-7px) rotate(45deg);border-radius:2px}.dm.act{background:none;border:2px solid var(--c);top:11px;width:11px;height:11px;transform:translateX(-5px) rotate(45deg)}
+.dl{position:absolute;top:2px;bottom:2px;width:2px;background:var(--tx);border-radius:1px;opacity:.85}
+.lg{display:flex;gap:16px;flex-wrap:wrap;margin:10px 2px;color:var(--dim);font-size:12px;align-items:center}.lg i{display:inline-block;width:22px;height:9px;border-radius:3px;margin-right:6px;vertical-align:middle}
+dialog{background:var(--p);color:var(--tx);border:1px solid var(--ln);border-radius:16px;padding:20px;width:min(760px,94vw);max-height:92vh}dialog::backdrop{background:rgba(0,0,0,.7)}
+.fg{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}label{display:block;font-size:12px;color:var(--dim)}label>input,label>select,label>textarea{display:block;width:100%;margin-top:3px;color:var(--tx);font-size:14px}
+.fr{display:flex;gap:8px;align-items:center;margin:6px 0}.fr input:not([type=checkbox],[type=color]){flex:1}.dact{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}.dact .l{margin-right:auto}
+.ck{display:inline-flex;gap:6px;align-items:center;margin:4px 12px 4px 0;color:var(--tx);font-size:14px}.lgn{font-size:12px;color:var(--dim);margin:3px 0}
+.warn{font-size:12px;color:var(--late);margin:6px 0 0;min-height:18px}hr{border:0;border-top:1px solid var(--ln);margin:16px 0}
+@media(max-width:900px){nav{display:none}main{padding:18px 14px 80px}.mback{display:inline-block}}
+</style></head><body>
+<nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="on">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="">Docs</a><a href="tables.html" class="">Tables</a><small>Private. Team to-do is shared live.</small></nav><main>
+<div class="top"><a class="mback" href="index.html">&larr; Atlas</a><div><h1>Team <b>to-do</b></h1><p class="sub">One shared list, live for everyone. No saving, no downloading.</p></div><span class="sp"></span>
+<span class="sy" id="sy" role="button" tabindex="0" title="Click to sync now" onclick="Sync.refresh()" onkeydown="if(event.key==='Enter')Sync.refresh()"></span>
+<label>I am <select id="me" onchange="Sync.setMe(this.value);render()"></select></label>
+<button onclick="openSettings()">People &amp; settings</button><button onclick="editProject()">+ Project</button><button class="pri" onclick="editTask()" title="Shortcut: N">+ Task</button></div>
+
+<div class="card rg" id="rg"></div>
+<div id="wl"></div><div id="att"></div>
+
+<div class="bar1"><div class="tabs"><button id="tb-tasks" onclick="setTab('tasks')">Tasks</button> <button id="tb-board" onclick="setTab('board')">Board</button> <button id="tb-tl" onclick="setTab('tl')">Timeline</button> <button id="tb-act" onclick="setTab('act')">Activity</button></div>
+<select id="fw" onchange="ui.who=this.value;render()" aria-label="Person"></select><select id="fp" onchange="ui.proj=this.value;render()" aria-label="Project"></select>
+<select id="fs" onchange="ui.st=this.value;render()" aria-label="Status"><option value="open">Open</option><option value="done">Done</option><option value="all">All</option><option value="late">Running late</option><option value="failed">Failed</option></select>
+<label class="ck dim"><input type="checkbox" id="fr" onchange="ui.inr=this.checked;render()">Only tasks in the range</label>
+<input id="fq" type="search" placeholder="Search tasks (press /)" oninput="ui.q=this.value;render()"></div>
+<div id="view"></div><dialog id="dlg"></dialog><input type="file" id="imp" accept=".json" hidden>
+</main>
+<script src="data/master-timeline.js"></script><script src="sync.js"></script>
+<script>
+const $=s=>document.querySelector(s),dlg=$('#dlg'),MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],MR=(window.MASTER_R||[]).filter(r=>!r.derived);
+const pad=n=>String(n).padStart(2,'0'),iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),today=()=>iso(new Date()),valid=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'')&&!isNaN(Date.parse(s)),sane=s=>valid(s)&&s>='2000-01-01'&&s<='2099-12-31';
+const D=s=>new Date(s+'T00:00:00'),dd=(a,b)=>Math.round((D(b)-D(a))/864e5),add=(s,n)=>{const d=D(s);d.setDate(d.getDate()+n);return iso(d)},dayOf=ts=>ts?iso(new Date(ts)):'';
+const maxS=(a,b)=>a>b?a:b,minS=(a,b)=>a<b?a:b,mEnd=ym=>{const[y,m]=ym.split('-').map(Number);return iso(new Date(y,m,0))},mStart=ym=>ym+'-01',mMid=ym=>ym+'-15',mi=s=>{const[y,m]=s.split('-').map(Number);return y*12+m};
+const fmt=s=>valid(s)?D(s).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'-',fmtY=s=>valid(s)?D(s).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'-',lab=ym=>ym?MN[+ym.slice(5,7)-1]+' '+ym.slice(0,4):'';
+const pl=(n,w)=>n+' '+w+(n===1?'':'s'),now=()=>new Date().toISOString(),uid=()=>Math.random().toString(36).slice(2,9),v=i=>$('#'+i).value;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ago=ts=>{const m=Math.round((Date.now()-Date.parse(ts))/6e4);return m<1?'just now':m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':m<10080?Math.round(m/1440)+' d ago':fmt(dayOf(ts))};
+let draft=null,ui={tab:'tasks',who:'',proj:'',st:'open',q:'',inr:false,r0:today(),r1:add(today(),7),touched:false,lanes:{},showM:true,showT:true,allM:false,drag:false};
+
+/* ---------- data access (everything lives in Sync, which talks to the shared database) ---------- */
+const byOrd=(a,b)=>(a.ord??999)-(b.ord??999)||String(a.name).localeCompare(b.name);
+const NOP={deleted:1,name:'(removed project)',color:'#888',deadline:'',scope:'team'};
+const ppl=()=>Sync.list('person').filter(p=>!p.deleted).sort(byOrd),projs=()=>Sync.list('project').filter(p=>!p.deleted);
+const projOf=t=>Sync.get('project',t.project)||NOP,per=id=>Sync.get('person',id)||{name:'?',color:'#888'};
+const norm=t=>{for(const k of['assignees','tags','subtasks','log','moves'])if(!Array.isArray(t[k]))t[k]=[];return t};
+const live=()=>Sync.list('task').filter(t=>!t.deleted&&!projOf(t).deleted).map(norm);
+const defH=()=>(Sync.get('settings','main')||{}).defaultHours||4,hrs=t=>t.effort===''||t.effort==null?defH():+t.effort;
+const who=id=>`<span class="who" style="--c:${per(id).color}">${esc(per(id).name)}</span>`,pcol=t=>t.assignees.length?per(t.assignees[0]).color:projOf(t).color;
+const tcol=t=>t.assignees.length>1?`linear-gradient(90deg,${t.assignees.map(a=>per(a).color).join(',')})`:pcol(t);
+const pname=id=>id&&Sync.get('person',id)?per(id).name:'';
+
+/* ---------- the core rules: late (past target) and failed (past the hard deadline) ---------- */
+// Hard deadline = the task's own deadline, or its project's deadline when blank. Never earlier than the target.
+const effDeadline=t=>{const d=t.deadline||projOf(t).deadline||'';return d&&d<t.target?t.target:d};
+function stateOf(t,t0=today()){const done=t.status==='done',fin=done?(dayOf(t.doneAt)||t.target):'',ref=done?fin:t0,dl=effDeadline(t);
+ const lateDays=Math.max(0,dd(t.target,ref)),pastDl=dl?Math.max(0,dd(dl,ref)):0;
+ return{done,fin,ref,dl,lateDays,pastDl,late:lateDays>0,failed:pastDl>0,graceDays:lateDays-pastDl}}
+// The coloured overrun parts: amber = past target but before the deadline, red = past the deadline.
+function overruns(t,s){const o=[];if(!s.late)return o;const cut=s.dl&&s.dl<s.ref?s.dl:s.ref;
+ if(cut>t.target)o.push({from:add(t.target,1),to:cut,cls:'late'});if(s.failed)o.push({from:add(s.dl,1),to:s.ref,cls:'fail'});return o}
+const taskEnd=(t,s)=>maxS(t.target,s.late?s.ref:t.target),taskHits=(t,s)=>!(taskEnd(t,s)<ui.r0||t.start>ui.r1);
+
+/* ---------- workload over any date range ---------- */
+function load(pid,r0,r1){const t0=today(),r={hrs:0,open:0,done:0,late:0,failed:0,team:0,pers:0,dh:0,tot:0};
+ for(const t of live()){if(!t.assignees.includes(pid))continue;const h=hrs(t)/t.assignees.length,s=stateOf(t,t0);r.tot+=h;
+  if(s.done){r.done++;r.dh+=h;continue}
+  r.open++;projOf(t).scope==='personal'?r.pers++:r.team++;if(s.late)r.late++;if(s.failed)r.failed++;
+  const a=maxS(t.start,t0),e=maxS(t.target,a),n=dd(a,e)+1,o0=maxS(a,r0),o1=minS(e,r1);if(o1>=o0)r.hrs+=h*(dd(o0,o1)+1)/n}
+ return r}
+function workCard(p){const days=dd(ui.r0,ui.r1)+1,w=load(p.id,ui.r0,ui.r1),cap=(p.cap??15)/7*days,pc=cap?Math.round(w.hrs/cap*100):0;
+ return`<div class="card"><div class="nm"><i style="background:${p.color}"></i><b>${esc(p.name)}</b><span class="dim">${w.hrs.toFixed(1)} of ${cap.toFixed(0)} h in range</span></div><div class="bar ${pc>100?'over':''}"><span style="width:${Math.min(pc,100)}%;background:${p.color}"></span></div><div class="stats"><span><b>${w.open}</b> open</span><span><b>${w.done}</b> done</span><span class="${w.late?'late':''}"><b>${w.late}</b> late</span><span class="${w.failed?'fail':''}"><b>${w.failed}</b> failed</span><span>team <b>${w.team}</b>, personal <b>${w.pers}</b></span></div><div class="dim sm" style="margin-top:6px">${w.tot?Math.round(w.dh/w.tot*100):0}% of ${w.tot.toFixed(0)} planned hours done${pc>100?' &middot; <span class="fail">over capacity in this range</span>':''}</div></div>`}
+
+/* ---------- date range (default: today to 7 days later, every time the page opens) ---------- */
+const fit=()=>{const t0=today(),ts=live();let lo=t0,hi=add(t0,7);for(const t of ts){lo=minS(lo,t.start);hi=maxS(hi,taskEnd(t,stateOf(t,t0)))}return[lo,hi]};
+const planRange=()=>{let lo='9999',hi='0';for(const r of MR){const o=Sync.get('master',r.id)||{};lo=minS(lo,mStart(o.ps||r.ps));hi=maxS(hi,mEnd(o.pe||r.pe||o.ps||r.ps))}return lo>hi?[today(),add(today(),7)]:[lo,hi]};
+const monthR=()=>{const n=new Date();return[iso(new Date(n.getFullYear(),n.getMonth(),1)),iso(new Date(n.getFullYear(),n.getMonth()+1,0))]};
+const PRE=[['Next 7 days',()=>[today(),add(today(),7)]],['14 days',()=>[today(),add(today(),14)]],['30 days',()=>[today(),add(today(),30)]],['90 days',()=>[today(),add(today(),90)]],['This month',monthR],['All tasks',fit],['Whole plan',planRange]];
+function setRange(a,b,touched=true){ui.r0=a;ui.r1=b;ui.touched=touched;render()}
+// built once, so typing in a date box is never interrupted; rangeSync only updates values and text
+function rangeInit(){$('#rg').innerHTML=`<label>From<input type="date" id="r0" min="2000-01-01" max="2099-12-31" onchange="rFrom(this.value)"></label><label>To<input type="date" id="r1" min="2000-01-01" max="2099-12-31" onchange="rTo(this.value)"></label><div><div class="lgn" id="rinfo" style="margin:0 0 4px"></div><div class="chips">${PRE.map(([l],i)=>`<button onclick="preset(${i})">${l}</button>`).join('')}<button onclick="setRange(today(),add(today(),7),false)" title="Today, plus 7 days">Reset</button></div></div>`}
+function rangeSync(){const n=dd(ui.r0,ui.r1)+1;if(document.activeElement!==$('#r0'))$('#r0').value=ui.r0;if(document.activeElement!==$('#r1'))$('#r1').value=ui.r1;
+ $('#rinfo').innerHTML=`Range for workload and timeline: <b style="color:var(--tx)">${fmt(ui.r0)} to ${fmt(ui.r1)}</b>, ${pl(n,'day')}`}
+const preset=i=>{const[a,b]=PRE[i][1]();setRange(a,b)},rFrom=s=>{if(!sane(s))return render();setRange(s,s>ui.r1?add(s,7):ui.r1)},rTo=s=>{if(!sane(s))return render();setRange(ui.r0,s<ui.r0?ui.r0:s)};
+
+/* ---------- needs attention: running late (amber) and failed (red) ---------- */
+function attention(){const t0=today(),L=[],F=[];
+ for(const t of live()){if(ui.who&&!t.assignees.includes(ui.who))continue;const s=stateOf(t,t0);if(s.failed){if(!t.ack)F.push([t,s])}else if(s.late&&!s.done)L.push([t,s])}
+ F.sort((a,b)=>b[1].pastDl-a[1].pastDl);L.sort((a,b)=>b[1].lateDays-a[1].lateDays);
+ const item=([t,s],failed)=>`<div class="ai" tabindex="0" onclick="editTask('${t.id}')" onkeydown="if(event.key==='Enter')editTask('${t.id}')"><div class="tt"><b>${esc(t.title)}</b><small>${esc(projOf(t).name)} &middot; ${failed?(s.done?'finished '+fmt(s.fin)+', '+pl(s.pastDl,'day')+' after the deadline ('+fmt(s.dl)+')':pl(s.pastDl,'day')+' past the deadline ('+fmt(s.dl)+'), target was '+fmt(t.target)):pl(s.lateDays,'day')+' past target ('+fmt(t.target)+')'+(s.dl&&s.dl!==t.target?', deadline '+fmt(s.dl)+' ('+pl(dd(t0,s.dl),'day')+' left)':'')}</small></div><div>${t.assignees.map(who).join('')}</div>${s.done?'':`<button class="sm" onclick="event.stopPropagation();tog('${t.id}')">Done</button>`}${failed?`<button class="sm" onclick="event.stopPropagation();ackTask('${t.id}')" title="Hide it from this box once the team has talked about it">Reviewed</button>`:''}</div>`;
+ return`<div class="att"><div class="card f"><h2>Failed tasks <span class="cnt">${F.length}</span></h2><p class="lgn" style="margin:-4px 0 6px">Not finished by the hard deadline (or finished after it).</p>${F.map(x=>item(x,true)).join('')||'<p class="dim sm" style="margin:6px 0 0">None. Nothing has missed its deadline.</p>'}</div><div class="card l"><h2>Running late <span class="cnt">${L.length}</span></h2><p class="lgn" style="margin:-4px 0 6px">Past the target day but still inside the deadline. Shown in amber everywhere.</p>${L.map(x=>item(x,false)).join('')||'<p class="dim sm" style="margin:6px 0 0">None. Everything open is on time.</p>'}</div></div>`}
+function ackTask(id){const t=Sync.get('task',id);t.ack=true;Sync.put('task',t,'reviewed the failed task "'+t.title+'"')}
+
+/* ---------- task list ---------- */
+function visible(keepDone){const q=ui.q.toLowerCase(),t0=today(),recent=add(t0,-14);return live().filter(t=>{const s=stateOf(t,t0);
+ if(ui.who&&!t.assignees.includes(ui.who)||ui.proj&&t.project!==ui.proj)return false;
+ const showDone=keepDone&&ui.st==='open'&&s.done&&s.fin>=recent; // the board keeps recently finished tasks in its Done column
+ if(!showDone&&(ui.st==='open'&&s.done||ui.st==='done'&&!s.done||ui.st==='late'&&!(s.late&&!s.done&&!s.failed)||ui.st==='failed'&&!s.failed))return false;
+ if(ui.inr&&!taskHits(t,s))return false;return!q||(t.title+' '+t.description+' '+t.tags.join(' ')).toLowerCase().includes(q)})}
+function whenText(t,s){if(s.done)return'finished '+fmt(s.fin)+(s.failed?', '+pl(s.pastDl,'day')+' after the deadline':s.late?', '+pl(s.lateDays,'day')+' late':'');
+ if(s.failed)return pl(s.pastDl,'day')+' past the deadline';if(s.late)return pl(s.lateDays,'day')+' past target'+(s.dl?', deadline '+fmt(s.dl):'');
+ const left=dd(today(),t.target);return(left===0?'due today':left<0?'':pl(left,'day')+' left')+(s.dl&&s.dl!==t.target?(left>=0?', ':'')+'hard deadline '+fmt(s.dl):'')}
+function mini(t,s){const n=dd(t.start,t.target)+1,sc=130/Math.max(1,n+s.lateDays);return`<span class="mini"><i style="width:${n*sc}px;background:${tcol(t)}"></i>${s.graceDays>0?`<i class="late" style="width:${s.graceDays*sc}px"></i>`:''}${s.pastDl>0?`<i class="fail" style="width:${s.pastDl*sc}px"></i>`:''}</span>`}
+function row(t){const s=stateOf(t),sb=t.subtasks.length,n=dd(t.start,t.target)+1,cls=s.failed?'fail':s.late&&!s.done?'late':'';
+ return`<div class="row ${s.done?'dn':''} ${s.failed?'fl':s.late&&!s.done?'lt':''}" tabindex="0" onclick="editTask('${t.id}')" onkeydown="if(event.key==='Enter')editTask('${t.id}')"><input type="checkbox" aria-label="Done" ${s.done?'checked':''} onclick="event.stopPropagation();tog('${t.id}')"><div class="tt"><b>${esc(t.title)}</b>${t.description?`<small>${esc(t.description)}</small>`:''}</div><div>${t.assignees.map(who).join('')}</div><div class="dt ${cls}">${fmt(t.start)} to ${fmt(t.target)} <span class="dim sm">(${pl(n,'day')})</span>${mini(t,s)}<small>${whenText(t,s)}${t.moves.length?', moved '+t.moves.length+'x':''}</small></div>${s.failed?'<span class="bd fail">Failed</span>':s.late&&!s.done?'<span class="bd late">Late</span>':''}<span class="pr ${t.priority}">${t.priority==='normal'?'':t.priority}</span><span class="dim sm">${sb?t.subtasks.filter(x=>x.done).length+'/'+sb:''}</span><span class="st ${t.status}">${t.status}</span></div>`}
+const projSort=(a,b)=>String(a.scope).localeCompare(b.scope)||(a.deadline||'').localeCompare(b.deadline||'');
+function list(){const ts=visible(),filtered=ui.who||ui.q||ui.inr||ui.st!=='open';let h='';
+ for(const p of projs().filter(p=>!ui.proj||p.id===ui.proj).sort(projSort)){
+  const mine=ts.filter(t=>t.project===p.id).sort((a,b)=>a.target.localeCompare(b.target)),all=live().filter(t=>t.project===p.id),dn=all.filter(t=>t.status==='done').length;if(!mine.length&&filtered)continue;
+  h+=`<div class="grp"><div class="gh"><i style="background:${p.color}"></i><h2>${esc(p.name)}</h2><span class="dim sm">${p.scope==='personal'?'personal, '+esc(per(p.owner).name):'team'}, deadline ${fmt(p.deadline)}, ${dn}/${all.length} done</span><span class="pg"><b style="width:${all.length?dn/all.length*100:0}%"></b></span><span class="sp"></span><button class="sm" onclick="editProject('${p.id}')">Edit</button><button class="sm" onclick="editTask(null,'${p.id}')">+ Task</button></div>${mine.map(row).join('')||'<p class="dim">Nothing here. Add a task to get started.</p>'}</div>`}
+ return h||'<p class="dim">No tasks match. Add a project or change the filters.</p>'}
+
+/* ---------- board (drag a card to change its status) ---------- */
+const COLS=[['todo','To do'],['doing','Doing'],['blocked','Blocked'],['done','Done']];
+function board(){const ts=visible(true);return`<div class="kb">${COLS.map(([k,l])=>{const c=ts.filter(t=>t.status===k).sort((a,b)=>a.target.localeCompare(b.target));
+ return`<div class="kc" ondragover="event.preventDefault();this.classList.add('ov')" ondragleave="this.classList.remove('ov')" ondrop="drop(event,'${k}')"><h3>${l}<span class="cnt">${c.length}</span></h3>${c.map(t=>{const s=stateOf(t);return`<div class="bc ${s.done?'dn':''}" style="--c:${pcol(t)}" draggable="true" tabindex="0" ondragstart="ui.drag=true;event.dataTransfer.setData('text/plain','${t.id}')" ondragend="ui.drag=false" onclick="editTask('${t.id}')" onkeydown="if(event.key==='Enter')editTask('${t.id}')"><b>${esc(t.title)}</b><small>${esc(projOf(t).name)}</small><div style="margin:4px 0">${t.assignees.map(who).join('')}</div><small class="${s.failed?'fail':s.late&&!s.done?'late':''}">${fmt(t.start)} to ${fmt(t.target)} &middot; ${whenText(t,s)}</small>${mini(t,s)}</div>`}).join('')||'<p class="dim sm" style="margin:4px">Drop a task here</p>'}</div>`}).join('')}</div>`}
+function drop(e,st){e.preventDefault();ui.drag=false;const t=Sync.get('task',e.dataTransfer.getData('text/plain'));if(!t||t.status===st)return render();setStatus(t,st)}
+function setStatus(t,st){const was=t.status;t.status=st;t.doneAt=st==='done'?now():'';if(st!=='done')t.ack=false;t.log.push({at:now(),by:Sync.me,text:st==='done'?'Marked done':was==='done'?'Reopened ('+st+')':'Status: '+st});Sync.put('task',t,(st==='done'?'marked "'+t.title+'" done':was==='done'?'reopened "'+t.title+'"':'moved "'+t.title+'" to '+st))}
+const tog=id=>{const t=Sync.get('task',id);if(t)setStatus(norm(t),t.status==='done'?'todo':'done')};
+
+/* ---------- activity feed ---------- */
+function activity(){const f=Sync.feed();return`<div class="feed card"><h2>Latest changes by the team</h2>${f.map(x=>`<div class="fi"><time title="${esc(x.at)}">${ago(x.at)}</time><div><b>${esc(pname(x.by)||'Someone')}</b> ${esc(x.text)}</div></div>`).join('')||'<p class="dim">Nothing yet. Changes show up here for everyone as they happen.</p>'}</div>`}
+
+/* ---------- merged timeline: master plan + team projects and tasks, day by day ---------- */
+function ticks(r0,N){const T=[];
+ if(N<=21)for(let i=0;i<N;i++){const s=add(r0,i),d=D(s);T.push({s,c:1,l:d.getDate(),sub:d.toLocaleDateString('en-GB',{weekday:'short'}).slice(0,2),mj:d.getDay()===1})}
+ else if(N<=120)for(let i=0;i<N;i+=7){const s=add(r0,i);T.push({s,l:fmt(s),mj:1})}
+ else{const k=Math.max(1,Math.ceil(Math.ceil(N/30)/14));let d=D(r0);d=new Date(d.getFullYear(),d.getMonth()+(d.getDate()>1?1:0),1);let i=0;
+  while(iso(d)<=add(r0,N-1)){if(i%k===0)T.push({s:iso(d),l:MN[d.getMonth()]+(d.getMonth()===0||!T.length?' '+d.getFullYear():''),mj:d.getMonth()===0});d=new Date(d.getFullYear(),d.getMonth()+1,1);i++}}
+ return T}
+function mrow(r){const o=Sync.get('master',r.id)||{},bar=r.kind==='bar';return{...r,Ps:o.ps||r.ps,Pe:bar?(o.pe||r.pe):'',As:o.as||'',Ae:bar?(o.ae||''):''}}
+function mStatus(r){if(!r.As&&!r.Ae)return'no actual yet';if(r.kind!=='bar'){const d=mi(r.As)-mi(r.Ps);return d===0?'on time':d>0?d+' mo late':-d+' mo early'}
+ if(!r.Ae)return'in progress since '+lab(r.As);const d=mi(r.Ae)-mi(r.Pe);return d===0?'finished on time':d>0?'finished '+d+' mo late':'finished '+-d+' mo early'}
+function mExtent(r){const t0=today(),a=[mStart(r.Ps),mEnd(r.Pe||r.Ps)];if(r.As){a.push(mStart(r.As));a.push(r.Ae?mEnd(r.Ae):maxS(mStart(r.As),t0))}return[a.reduce(minS),a.reduce(maxS)]}
+const linkedTasks=rid=>{const ids=new Set(projs().filter(p=>p.master===rid).map(p=>p.id));return live().filter(t=>ids.has(t.project))};
+function timeline(){const r0=ui.r0,r1=ui.r1,N=dd(r0,r1)+1,t0=today(),pos=s=>dd(r0,s)/N*100;
+ const clip=(a,b)=>{if(b<r0||a>r1)return null;const x=maxS(a,r0),y=minS(b,r1);return{l:pos(x),w:(dd(x,y)+1)/N*100,cl:a<r0,cr:b>r1}};
+ const seg=(a,b,cls,st,tip)=>{const c=clip(a,b);return c?`<div class="sg ${cls}${c.cl?' cl':''}${c.cr?' cr':''}" style="left:${c.l}%;width:${c.w}%;${st||''}" title="${esc(tip||'')}"></div>`:''};
+ const dm=(s,cls,col,tip)=>s>=r0&&s<=r1?`<div class="dm ${cls}" style="left:${pos(s)+50/N}%;--c:${col}" title="${esc(tip)}"></div>`:'';
+ const flag=(s,tip)=>s>=r0&&s<=r1?`<div class="dl" style="left:${pos(s)+100/N-.12}%" title="${esc(tip)}"></div>`:'';
+ const T=ticks(r0,N);let h=`<div class="tlw"><div class="tl"><div class="hd"></div><div class="hd">${T.map(k=>k.c?`<span class="c" style="left:${pos(k.s)}%;width:${100/N}%">${k.l}<em>${k.sub}</em></span>`:`<span style="left:${pos(k.s)}%;padding-left:4px">${k.l}</span>`).join('')}</div>`;
+ const row2=(label,track,click)=>`<div class="lb" onclick="${click}">${label}</div><div class="tr">${track}</div>`;
+ if(ui.showM){h+=`<div class="sc">Master plan <span class="dim" style="text-transform:none;letter-spacing:0;font-weight:400">&middot; months, shared with the Roadmap page. Click a row to edit planned and actual dates.</span></div>`;
+  const rows=MR.map(mrow),vis=rows.filter(r=>ui.allM||(([a,b])=>!(b<r0||a>r1))(mExtent(r))),lanes=[...new Set(rows.map(r=>r.lane))];const hidden=rows.length-vis.length;
+  for(const ln of lanes){const all=rows.filter(r=>r.lane===ln),vs=vis.filter(r=>r.lane===ln);if(!vs.length)continue;const open=ui.lanes[ln]!==false;
+   h+=`<div class="lh" onclick="toggleLane(${esc(JSON.stringify(ln))})">${open?'&#9662;':'&#9656;'} ${esc(ln)} <span class="dim" style="text-transform:none;letter-spacing:0;font-weight:400">${vs.length}${vs.length<all.length?' of '+all.length:''}</span></div>`;
+   if(!open)continue;
+   for(const r of vs){const ps=mStart(r.Ps),pe=mEnd(r.Pe||r.Ps),bar=r.kind==='bar',lk=linkedTasks(r.id),done=lk.filter(t=>t.status==='done').length;let tr='';
+    if(bar)tr+=seg(ps,pe,'plan'+(r.dash?' dash':''),'--c:'+r.col,r.label.trim()+': '+lab(r.Ps)+' to '+lab(r.Pe)+' (planned)');else tr+=dm(mMid(r.Ps),'',r.kind==='gate'?'#f59e0b':r.col,r.label.trim()+': '+lab(r.Ps)+' (planned)');
+    if(r.As){if(bar){const a=mStart(r.As),b=r.Ae?mEnd(r.Ae):maxS(a,t0),c=r.Ae?(mi(r.Ae)>mi(r.Pe)?'#ff6b86':'#34d399'):'#f59e0b';tr+=seg(a,b,'act'+(r.Ae?'':' pend'),'--c:'+c,'Actual: '+lab(r.As)+' to '+(r.Ae?lab(r.Ae):'in progress'));
+      if(b>pe)tr+=seg(add(pe,1),b,r.Ae?'fail':'late','','Past the planned end: '+mStatus(r))}
+     else tr+=dm(mMid(r.As),'act',mi(r.As)>mi(r.Ps)?'#ff6b86':'#34d399','Actual: '+lab(r.As))}
+    if(lk.length)tr+=seg(lk.map(t=>t.start).reduce(minS),lk.map(t=>t.target).reduce(maxS),'ts','','Linked team tasks: '+done+'/'+lk.length+' done');
+    h+=row2(`<span>${esc(r.label)}</span>${lk.length?`<small>${done}/${lk.length} tasks</small>`:''}`,tr,`editMaster('${r.id}')`)}}
+  if(hidden)h+=`<div class="lgn" style="grid-column:1/-1;padding:6px 12px">${pl(hidden,'master item')} outside this range ${ui.allM?'':'are hidden'}. <a href="#" onclick="ui.allM=${!ui.allM};render();return false">${ui.allM?'Only show items in range':'Show them'}</a></div>`;
+  else if(ui.allM)h+=`<div class="lgn" style="grid-column:1/-1;padding:6px 12px"><a href="#" onclick="ui.allM=false;render();return false">Only show items in range</a></div>`}
+ if(ui.showT){h+=`<div class="sc">Team projects and tasks <span class="dim" style="text-transform:none;letter-spacing:0;font-weight:400">&middot; days. Click a row to edit.</span></div>`;let any=false;const ts=visible().filter(t=>taskHits(t,stateOf(t,t0)));
+  for(const p of projs().filter(p=>!ui.proj||p.id===ui.proj).sort(projSort)){
+   const m=ts.filter(t=>t.project===p.id).sort((a,b)=>a.start.localeCompare(b.start)||a.target.localeCompare(b.target));if(!m.length)continue;any=true;
+   h+=row2(`<b style="color:${p.color}">&#9632;</b><span><b>${esc(p.name)}</b></span><small>${p.scope==='personal'?esc(per(p.owner).name):'team'}</small>`,seg(p.start,p.deadline||p.start,'pj','--c:'+p.color,p.name+': '+fmt(p.start)+' to '+fmt(p.deadline))+flag(p.deadline||p.start,'Project deadline '+fmt(p.deadline)),`editProject('${p.id}')`);
+   for(const t of m){const s=stateOf(t,t0),tip=t.title+': '+fmt(t.start)+' to '+fmt(t.target)+(s.dl?', deadline '+fmt(s.dl):'')+' ('+whenText(t,s)+')';
+    let tr=seg(t.start,t.target,'plan'+(s.done?' done':''),'background:'+tcol(t),tip);for(const o of overruns(t,s))tr+=seg(o.from,o.to,o.cls,'',(o.cls==='fail'?'Past the deadline: ':'Past the target: ')+whenText(t,s));
+    if(s.dl&&s.dl!==t.target)tr+=flag(s.dl,'Hard deadline '+fmt(s.dl));
+    h+=row2(`<span class="${s.failed?'fail':s.late&&!s.done?'late':''}">${s.failed?'&#10005; ':s.late&&!s.done?'! ':''}${esc(t.title)}</span><small>${t.assignees.map(a=>esc(per(a).name)).join(', ')}</small>`,tr,`editTask('${t.id}')`)}}
+  if(!any)h+=`<div class="lgn" style="grid-column:1/-1;padding:10px 12px">No tasks in this range with the current filters.</div>`}
+ h+=`<div class="ovl">${T.filter(k=>k.s>=r0).map(k=>`<i class="${k.mj?'mj':''}" style="left:${pos(k.s)}%"></i>`).join('')}${t0>=r0&&t0<=r1?(N<=60?`<b style="left:${pos(t0)}%;width:${100/N}%"></b>`:`<b class="line" style="left:${pos(t0)}%"></b>`):''}</div></div></div>`;
+ return`<div class="bar1"><label class="ck"><input type="checkbox" ${ui.showM?'checked':''} onchange="ui.showM=this.checked;render()">Master plan</label><label class="ck"><input type="checkbox" ${ui.showT?'checked':''} onchange="ui.showT=this.checked;render()">Team projects and tasks</label><span class="dim sm">Change the range at the top to zoom in or out.</span></div>${h}
+ <div class="lg"><span><i style="background:var(--g)"></i>planned bar (person colour)</span><span><i style="background:repeating-linear-gradient(45deg,var(--late) 0 4px,#92400e 4px 8px)"></i>past the target day (late)</span><span><i style="background:repeating-linear-gradient(45deg,var(--fail) 0 4px,#7f1d1d 4px 8px)"></i>past the hard deadline (failed)</span><span><i style="background:var(--tx);width:3px"></i>hard deadline</span><span><i style="background:rgba(255,32,82,.3);border-left:2px solid var(--r)"></i>today</span><span><i style="background:#60a5fa;height:4px"></i>span of linked tasks (master)</span></div>`}
+function toggleLane(ln){ui.lanes[ln]=ui.lanes[ln]===false;render()}
+
+/* ---------- screen ---------- */
+let sig='',rq=0;
+function opts(list,sel,first){return(first?`<option value="">${first}</option>`:'')+list.map(x=>`<option value="${x.id}" ${x.id===sel?'selected':''}>${esc(x.name)}</option>`).join('')}
+function controls(){const s=ppl().map(p=>p.id+p.name).join()+'|'+projs().map(p=>p.id+p.name).join()+'|'+Sync.me+ui.who+ui.proj;
+ if(s!==sig){sig=s;$('#me').innerHTML=opts(ppl(),Sync.me,'Pick yourself');$('#fw').innerHTML=opts(ppl(),ui.who,'Everyone');$('#fp').innerHTML=opts(projs(),ui.proj,'All projects')}
+ $('#fs').value=ui.st;$('#fr').checked=ui.inr}
+function pill(){const s=Sync.status,n=Sync.pending(),el=$('#sy'),m={connecting:['Connecting...',''],live:['Live','g'],saving:['Saving...','a'],offline:[n?'Offline, '+pl(n,'change')+' kept on this device and will sync':'Offline, retrying','a'],nobackend:['Backend not connected. Changes stay on this device only','r']}[s];
+ el.className='sy '+m[1];el.innerHTML='<i></i>'+m[0]+(s==='live'&&Sync.lastOk?` <small>${new Date(Sync.lastOk).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>`:'')}
+function render(){if(!ui.touched){ui.r0=today();ui.r1=add(ui.r0,7)}
+ controls();pill();rangeSync();$('#wl').innerHTML=ppl().map(workCard).join('');$('#att').innerHTML=attention();
+ for(const k of['tasks','board','tl','act'])$('#tb-'+k).className=ui.tab===k?'on':'';
+ $('#view').innerHTML=ui.tab==='tl'?timeline():ui.tab==='board'?board():ui.tab==='act'?activity():list()}
+const setTab=t=>{ui.tab=t;render()},queue=()=>{if(ui.drag||rq)return;rq=setTimeout(()=>{rq=0;render()},40)};
+
+/* ---------- task dialog ---------- */
+function editTask(id,pid){if(!projs().length)return alert('Create a project first (the + Project button), then add tasks to it.');const t=id?Sync.get('task',id):null;
+ draft=JSON.parse(JSON.stringify(t?norm(t):{id:null,project:pid||(projs()[0]||{}).id,title:'',description:'',assignees:Sync.me?[Sync.me]:[],status:'todo',priority:'normal',start:today(),target:add(today(),7),deadline:'',effort:'',tags:[],link:'',subtasks:[],log:[],moves:[],doneAt:''}));
+ draft._base=t?t.updatedAt:'';draft._endTouched=!!t;showTask()}
+function showTask(){const d=draft,sel=(a,x)=>a.map(o=>`<option ${o===x?'selected':''}>${o}</option>`).join(''),pd=projs().find(p=>p.id===d.project);
+ dlg.innerHTML=`<h2>${d.id?'Edit task':'New task'}</h2><label>Title<input id="f_title" value="${esc(d.title)}"></label><div class="fg" style="margin-top:10px"><label>Project<select id="f_proj" onchange="readForm();showTask()">${opts(projs(),d.project)}</select></label><label>Status<select id="f_st" onchange="readForm();if(draft.status==='done'&&!draft.doneAt)draft.doneAt=now();showTask()">${sel(['todo','doing','blocked','done'],d.status)}</select></label><label>Priority<select id="f_pr">${sel(['low','normal','high'],d.priority)}</select></label><label>Effort in hours<input id="f_e" type="number" min="0" step="0.5" value="${d.effort}" placeholder="${defH()} (default)"></label></div>
+ <div class="fg" style="margin-top:10px"><label>Start<input id="f_s" type="date" value="${d.start}" onchange="dateChanged('s')"></label><label>Target finish<input id="f_t" type="date" value="${d.target}" onchange="dateChanged('t')"></label><label>Hard deadline <span class="dim">(blank = ${pd&&pd.deadline?'project deadline, '+fmt(pd.deadline):'none'})</span><input id="f_d" type="date" value="${d.deadline}" onchange="dateChanged('d')"></label>${d.status==='done'?`<label>Finished on<input id="f_done" type="date" value="${dayOf(d.doneAt)||today()}"></label>`:''}${d.id?`<label>Why did a date move?<input id="f_why" placeholder="Only used if you change a date"></label>`:''}</div>
+ <div class="chips" style="margin-top:8px"><span class="lgn" style="margin:0 4px 0 0;align-self:center">Finish in</span>${[[0,'same day'],[3,'3 days'],[7,'1 week'],[14,'2 weeks'],[30,'1 month']].map(([n,l])=>`<button type="button" class="sm" onclick="quick(${n})">${l}</button>`).join('')}<button type="button" class="sm" onclick="document.getElementById('f_s').value=today();dateChanged('s')">Start today</button></div><div class="warn" id="dinfo"></div>
+ <p class="lgn" style="margin-top:6px">Who works on it (the effort is split between them)</p><div>${ppl().map(p=>`<label class="ck"><input type="checkbox" class="f_a" value="${p.id}" ${d.assignees.includes(p.id)?'checked':''}>${esc(p.name)}</label>`).join('')}</div>
+ <label style="margin-top:8px">Description and what we did<textarea id="f_desc" rows="3">${esc(d.description)}</textarea></label><div class="fg" style="margin-top:10px"><label>Tags, comma separated<input id="f_tags" value="${esc(d.tags.join(', '))}"></label><label>Link<input id="f_l" value="${esc(d.link)}" placeholder="https://"></label></div>
+ <p class="lgn" style="margin-top:12px">Checklist</p>${d.subtasks.map((s,i)=>`<div class="fr"><input type="checkbox" id="sc${i}" ${s.done?'checked':''}><input id="sb${i}" value="${esc(s.text)}"><button onclick="subRm(${i})" aria-label="Remove">x</button></div>`).join('')}<button onclick="subAdd()">+ Checklist item</button>
+ <p class="lgn" style="margin-top:12px">Progress notes</p><div class="fr"><input id="f_note" placeholder="What did you do today?"><button onclick="noteAdd()">Add note</button></div>${d.log.slice().reverse().map(l=>`<div class="lgn"><b>${esc(pname(l.by))}</b> ${esc((l.at||'').slice(0,10))}: ${esc(l.text)}</div>`).join('')}
+ ${d.moves.length?`<p class="lgn" style="margin-top:12px">Date changes</p>${d.moves.map(m=>`<div class="lgn">${esc((m.at||'').slice(0,10))}: ${m.field==='deadline'?'deadline':'target'} ${fmt(m.from)} to ${fmt(m.to)}${m.why?', '+esc(m.why):''}</div>`).join('')}`:''}
+ <div class="dact">${d.id?'<button class="l" onclick="delTask()">Delete</button><button onclick="dupTask()">Duplicate</button>':''}<button onclick="dlg.close()">Cancel</button><button class="pri" onclick="saveTask()">Save task</button></div>`;
+ dateInfo();if(!dlg.open)dlg.showModal()}
+function readForm(){const d=draft;d.title=v('f_title');d.project=v('f_proj');d.status=v('f_st');d.priority=v('f_pr');d.start=v('f_s');d.target=v('f_t');d.deadline=v('f_d');d.effort=v('f_e')===''?'':+v('f_e');
+ d.assignees=[...dlg.querySelectorAll('.f_a:checked')].map(x=>x.value);d.tags=v('f_tags').split(',').map(s=>s.trim()).filter(Boolean);d.link=v('f_l');d.description=v('f_desc');d.subtasks.forEach((s,i)=>{s.text=v('sb'+i);s.done=$('#sc'+i).checked});
+ if($('#f_done')&&valid(v('f_done')))d.doneAt=new Date(v('f_done')+'T12:00:00').toISOString()}
+function dateInfo(){const s=v('f_s'),t=v('f_t'),dl=v('f_d'),el=$('#dinfo');let m='';
+ if(!valid(s)||!valid(t))m='Pick a start and a target date.';else if(t<s)m='The target is before the start.';else{m=pl(dd(s,t)+1,'day')+' from start to target ('+fmtY(s)+' to '+fmtY(t)+').';if(dl&&valid(dl)&&dl<t)m+=' The hard deadline is before the target, so the target counts as the deadline.'}
+ el.style.color=valid(s)&&valid(t)&&t>=s?'var(--dim)':'var(--late)';el.textContent=m}
+function dateChanged(w){const d=draft;if(w==='s'&&!d._endTouched&&valid(v('f_s')))$('#f_t').value=add(v('f_s'),7);if(w==='t')d._endTouched=true;
+ if(w==='s'&&valid(v('f_s'))&&valid(v('f_t'))&&v('f_t')<v('f_s'))$('#f_t').value=v('f_s');dateInfo()}
+function quick(n){const s=valid(v('f_s'))?v('f_s'):today();$('#f_s').value=s;$('#f_t').value=add(s,n);draft._endTouched=true;dateInfo()}
+const subAdd=()=>{readForm();draft.subtasks.push({text:'',done:false});showTask();$('#sb'+(draft.subtasks.length-1)).focus()},subRm=i=>{readForm();draft.subtasks.splice(i,1);showTask()};
+function noteAdd(){const t=v('f_note').trim();readForm();if(t)draft.log.push({at:now(),by:Sync.me,text:t});showTask()}
+function saveTask(){const why=draft.id?v('f_why'):'';readForm();const d=draft;
+ if(!d.title.trim()||!d.assignees.length)return alert('Add a title and pick at least one person.');
+ if(!sane(d.start)||!sane(d.target)||d.target<d.start)return alert('Check the dates: both must be real dates and the target cannot be before the start.');if(d.deadline&&!sane(d.deadline))d.deadline='';
+ const old=d.id?Sync.get('task',d.id):null;
+ if(old&&old.updatedAt!==d._base&&!confirm((pname(old.updatedBy)||'Someone')+' changed this task while you had it open. Save anyway and overwrite their change?'))return;
+ d.doneAt=d.status==='done'?(d.doneAt||now()):'';if(d.status!=='done')d.ack=false;
+ let text;if(old){if(old.target!==d.target)d.moves.push({at:now(),field:'target',from:old.target,to:d.target,why});if((old.deadline||'')!==(d.deadline||''))d.moves.push({at:now(),field:'deadline',from:old.deadline||'',to:d.deadline||'',why});
+  text=old.status!=='done'&&d.status==='done'?'marked "'+d.title+'" done':old.target!==d.target?'moved the target of "'+d.title+'" to '+fmt(d.target):'edited "'+d.title+'"';if(old.status!=='done'&&d.status==='done')d.log.push({at:now(),by:Sync.me,text:'Marked done'})}
+ else{d.id='t'+uid();d.createdAt=now();text='added the task "'+d.title+'"'}
+ delete d._base;delete d._endTouched;Sync.put('task',d,text);dlg.close()}
+function delTask(){if(!confirm('Delete this task? It goes to the trash and can be restored.'))return;const t=Sync.get('task',draft.id);t.deleted=true;Sync.put('task',t,'deleted the task "'+t.title+'"');dlg.close()}
+function dupTask(){readForm();const d=draft;draft={...JSON.parse(JSON.stringify(d)),id:null,title:d.title+' (copy)',status:'todo',doneAt:'',ack:false,log:[],moves:[],_base:'',_endTouched:true};showTask()}
+
+/* ---------- project dialog ---------- */
+function editProject(id){const p=id?Sync.get('project',id):{id:null,name:'',scope:'team',owner:Sync.me,start:today(),deadline:add(today(),7),color:'#ff2052',description:'',master:''};draft=JSON.parse(JSON.stringify(p));
+ const lanes=[...new Set(MR.map(r=>r.lane))],mo=MR.length?`<label>Feeds this master timeline item<select id="p_m"><option value="">Not linked</option>${lanes.map(l=>`<optgroup label="${esc(l)}">${MR.filter(r=>r.lane===l).map(r=>`<option value="${r.id}" ${r.id===p.master?'selected':''}>${esc(r.label.trim())}</option>`).join('')}</optgroup>`).join('')}</select></label>`:'';
+ dlg.innerHTML=`<h2>${id?'Edit project':'New project'}</h2><label>Name<input id="p_n" value="${esc(p.name)}"></label><div class="fg" style="margin-top:10px"><label>Kind<select id="p_k"><option value="team" ${p.scope==='team'?'selected':''}>Team</option><option value="personal" ${p.scope==='personal'?'selected':''}>Personal</option></select></label><label>Owner (personal only)<select id="p_o">${opts(ppl(),p.owner)}</select></label><label>Start<input id="p_s" type="date" value="${p.start}"></label><label>Deadline<input id="p_d" type="date" value="${p.deadline}"></label><label>Colour<input id="p_c" type="color" value="${p.color}"></label>${mo}</div><label style="margin-top:10px">Description<textarea id="p_x" rows="3">${esc(p.description)}</textarea></label>
+ <p class="lgn">The project deadline is the hard deadline for every task in it that has no deadline of its own.</p><div class="dact">${id?'<button class="l" onclick="delProject()">Delete</button>':''}<button onclick="dlg.close()">Cancel</button><button class="pri" onclick="saveProject()">Save project</button></div>`;dlg.showModal()}
+function saveProject(){if(!v('p_n').trim())return alert('Give the project a name.');if(!sane(v('p_s'))||!sane(v('p_d'))||v('p_d')<v('p_s'))return alert('Check the dates: the deadline cannot be before the start.');
+ const d=draft,o=d.id?Sync.get('project',d.id):d;Object.assign(o,{name:v('p_n'),scope:v('p_k'),owner:v('p_o'),start:v('p_s'),deadline:v('p_d'),color:v('p_c'),description:v('p_x'),master:$('#p_m')?v('p_m'):''});
+ const text=d.id?'edited the project "'+o.name+'"':'added the project "'+o.name+'"';if(!d.id)o.id='pr'+uid();Sync.put('project',o,text);dlg.close()}
+function delProject(){if(!confirm('Delete this project and all its tasks? They go to the trash and can be restored.'))return;const p=Sync.get('project',draft.id);p.deleted=true;
+ Sync.list('task').filter(t=>t.project===p.id&&!t.deleted).forEach(t=>{t.deleted=true;t.cascade=p.id;Sync.put('task',t)});Sync.put('project',p,'deleted the project "'+p.name+'"');dlg.close()}
+
+/* ---------- master timeline item dialog (shared with roadmap.html) ---------- */
+function editMaster(id){const r=mrow(MR.find(x=>x.id===id)),bar=r.kind==='bar',lk=linkedTasks(id),mo=(k,l,val,dis)=>dis?'':`<label>${l}<input type="month" id="m_${k}" value="${val||''}" min="2026-01" max="2031-12"></label>`;
+ dlg.innerHTML=`<h2>${esc(r.label.trim())}</h2><p class="lgn">${esc(r.lane)} &middot; ${mStatus(r)}. These are months, the same dates the Roadmap page shows. Everyone sees changes live.</p><div class="fg">${mo('ps','Planned start',r.Ps)}${mo('pe','Planned end',r.Pe,!bar)}${mo('as','Actual start',r.As)}${mo('ae','Actual end (leave empty while in progress)',r.Ae,!bar)}</div>
+ ${lk.length?`<p class="lgn" style="margin-top:12px">Linked team tasks: ${lk.filter(t=>t.status==='done').length} of ${lk.length} done (${esc(projs().filter(p=>p.master===id).map(p=>p.name).join(', '))})</p>`:'<p class="lgn" style="margin-top:12px">No project feeds this item yet. Link one from the project\'s Edit dialog.</p>'}
+ <div class="dact"><button class="l" onclick="saveMaster('${id}',true)">Reset to plan</button><button onclick="dlg.close()">Cancel</button><button class="pri" onclick="saveMaster('${id}')">Save dates</button></div>`;dlg.showModal()}
+function saveMaster(id,reset){const g=k=>reset||!$('#m_'+k)?'':v('m_'+k),r=MR.find(x=>x.id===id),o={...(Sync.get('master',id)||{}),id,ps:g('ps'),pe:g('pe'),as:g('as'),ae:g('ae')};
+ if(o.ps&&o.pe&&o.pe<o.ps||o.as&&o.ae&&o.ae<o.as)return alert('An end month cannot be before its start month.');Sync.put('master',o,(reset?'reset the dates of ':'updated the dates of ')+'"'+r.label.trim()+'" on the master timeline');dlg.close()}
+
+/* ---------- people, settings, trash, backups ---------- */
+function openSettings(){const gone=[...Sync.list('project').filter(p=>p.deleted).map(p=>['project',p]),...Sync.list('task').filter(t=>t.deleted&&!t.cascade).map(t=>['task',t])];
+ dlg.innerHTML=`<h2>People and settings</h2><p class="lgn">Colour, name, hours per week each person can give</p>${ppl().map(p=>`<div class="fr pp" data-id="${p.id}"><input type="color" value="${p.color}"><input value="${esc(p.name)}"><input type="number" min="1" style="max-width:80px" value="${p.cap??15}" aria-label="Hours per week"><button onclick="rmPerson('${p.id}')">Remove</button></div>`).join('')}<button onclick="addPerson()">+ Add person</button><label style="margin-top:14px">Hours assumed for a task with no effort estimate<input id="dh" type="number" min="1" value="${defH()}"></label>
+ <hr><h3>Safety net</h3><p class="lgn">Deleting only moves things to the trash. The server also keeps a copy of the whole list for every day, for 35 days.</p><div class="chips"><button onclick="exportAll()">Download a backup file</button><button onclick="$('#imp').click()">Restore from a backup file</button></div>
+ <h3>Trash</h3>${gone.map(([k,x])=>`<div class="fr"><span class="dim sm" style="min-width:60px">${k}</span><span style="flex:1">${esc(x.title||x.name)}</span><button class="sm" onclick="restore('${k}','${x.id}')">Restore</button></div>`).join('')||'<p class="dim sm">Empty.</p>'}
+ <h3>Daily server backups</h3><div class="fr" id="snaps"><button onclick="loadSnaps()">Show available days</button></div>
+ <div class="dact"><button onclick="dlg.close()">Cancel</button><button class="pri" onclick="readPeople();dlg.close()">Save</button></div>`;if(!dlg.open)dlg.showModal()}
+function readPeople(){dlg.querySelectorAll('.pp').forEach(r=>{const p=Sync.get('person',r.dataset.id),i=r.querySelectorAll('input');if(!p)return;const n={color:i[0].value,name:i[1].value||p.name,cap:+i[2].value||15};
+  if(n.color!==p.color||n.name!==p.name||n.cap!==(p.cap??15)){Object.assign(p,n);Sync.put('person',p)}});
+ if($('#dh')){const s=Sync.get('settings','main')||{id:'main'},h=+v('dh')||4;if(s.defaultHours!==h){s.defaultHours=h;Sync.put('settings',s)}}}
+const addPerson=()=>{readPeople();Sync.put('person',{id:'p'+uid(),name:'New person',color:'#f59e0b',cap:15,ord:Math.max(0,...ppl().map(p=>p.ord??0))+1},'added a person');openSettings()},rmPerson=id=>{readPeople();const p=Sync.get('person',id);p.deleted=true;Sync.put('person',p,'removed '+p.name);openSettings()};
+function restore(k,id){const x=Sync.get(k,id);if(k==='task'&&projOf(x).deleted)return alert('Restore its project first, then the task.');x.deleted=false;delete x.cascade;Sync.put(k,x,'restored the '+k+' "'+(x.title||x.name)+'"');
+ if(k==='project')Sync.list('task').filter(t=>t.cascade===id).forEach(t=>{t.deleted=false;delete t.cascade;Sync.put('task',t)});openSettings()}
+async function loadSnaps(){const el=$('#snaps');try{const s=await Sync.snapshots();el.innerHTML=s.length?`<select id="snapd">${s.map(d=>`<option>${d}</option>`).join('')}</select><button onclick="restoreSnap()">Restore that day</button><span class="dim sm">(the list as it was before that day's first change)</span>`:'<span class="dim sm">No backups yet. The first one is made the first time anyone changes something each day.</span>'}catch(e){el.innerHTML='<span class="late sm">Backups need the backend to be connected.</span>'}}
+async function restoreSnap(){const d=v('snapd');if(!confirm('Restore everything to how it was on '+d+'? Records from that day overwrite the current ones with the same id. Records created later stay.'))return;
+ try{const ents=await Sync.snapshot(d);for(const{key,v}of ents)Sync.put(key.slice(0,key.indexOf(':')),v);Sync.put('settings',Sync.get('settings','main')||{id:'main',defaultHours:4},'restored the backup from '+d);dlg.close()}catch(e){alert('Could not read that backup.')}}
+function exportAll(){const o={exportedAt:now()};for(const[k,n]of Object.entries({person:'people',project:'projects',task:'tasks',master:'master'}))o[n]=Sync.list(k);o.settings=(Sync.get('settings','main')||{defaultHours:4});
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o,null,1)+'\n'],{type:'application/json'}));a.download='todo-backup-'+today()+'.json';a.click()}
+$('#imp').onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text()),n=['people','projects','tasks','master'].reduce((a,k)=>a+(j[k]||[]).length,0);
+ if(!n||!confirm('Restore '+n+' records from this file? They overwrite matching records for everyone.')){e.target.value='';return}
+ const S={people:'person',projects:'project',tasks:'task',master:'master'};for(const k in S)(j[k]||[]).forEach(x=>Sync.put(S[k],x));if(j.settings)Sync.put('settings',{...j.settings,id:'main'},'restored a backup file');
+ dlg.open&&dlg.close()}catch(x){alert('That file is not a valid backup.')}e.target.value=''};
+
+/* ---------- keyboard: N = new task, / = search, Esc closes dialogs (native) ---------- */
+document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey||dlg.open||/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement||{}).tagName))return;
+ if(e.key==='n'||e.key==='N'){e.preventDefault();editTask()}else if(e.key==='/'){e.preventDefault();$('#fq').focus()}});
+
+/* ---------- start ---------- */
+const stamp=x=>({...x,updatedAt:new Date(Date.parse(x.updatedAt)||Date.now()).toISOString()});
+const toEnts=j=>[...(j.people||[]).map((p,i)=>({k:'person',v:stamp({...p,ord:i})})),...(j.projects||[]).map(p=>({k:'project',v:stamp(p)})),...(j.tasks||[]).map(t=>({k:'task',v:stamp(t)})),{k:'settings',v:stamp({id:'main',defaultHours:(j.settings||{}).defaultHours||4})}];
+let seedTried=false;
+async function maybeSeed(){if(seedTried||Sync.list('person').length||Sync.list('project').length||Sync.list('task').length)return;
+ if(Sync.remoteEmpty!==true&&Sync.status!=='nobackend')return;
+ seedTried=true;try{const j=await(await fetch('data/todo.json',{cache:'no-store'})).json();Sync.seed(toEnts(j))}catch(e){}}
+rangeInit();Sync.on('change',()=>{queue();maybeSeed()});Sync.on('status',()=>{pill();maybeSeed()});render();Sync.start().then(maybeSeed);setInterval(()=>{if(!document.hidden&&!ui.touched)render()},60000);
+</script></body></html>
