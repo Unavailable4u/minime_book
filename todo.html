@@ -60,7 +60,6 @@ dialog{background:var(--p);color:var(--tx);border:1px solid var(--ln);border-rad
 /* insights, master plan */
 .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}.k{font-size:26px;font-weight:700;line-height:1.1}.k.dim{color:var(--dim)}
 .tw{overflow-x:auto}.tw table{border-collapse:collapse;width:100%;font-size:13px}.tw th,.tw td{padding:6px 8px;border-bottom:1px solid var(--ln);text-align:left;vertical-align:middle}.tw th{color:var(--dim);font-weight:600;font-size:12px}
-.mtab input[type=month]{background:var(--p);color:var(--tx);border:1px solid var(--ln);border-radius:8px;padding:5px 7px;font-size:12.5px;width:138px;color-scheme:dark}
 .hm th{text-align:center;font-size:11px;white-space:nowrap;line-height:1.2}.hm td{text-align:center;min-width:34px;font-size:12px;border:1px solid var(--bg);cursor:default}.hm th.who-h{text-align:left;font-size:13px;color:var(--tx)}.who-h i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px}.hm td.tot{white-space:nowrap;min-width:96px}
 .vz{margin:24px 0}.vz2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start;margin:10px 0}@media(max-width:1100px){.vz2{grid-template-columns:1fr}}
 .pb{display:grid;grid-template-columns:130px 1fr 150px;gap:10px;align-items:center;margin:8px 0}.pbn{display:flex;gap:7px;align-items:center;font-weight:600}.pbn i{width:9px;height:9px;border-radius:50%;flex:none}.pbt{position:relative;height:24px;background:var(--p2);border-radius:7px;display:flex;overflow:hidden}.seg{display:block;height:100%;overflow:hidden;white-space:nowrap;border-right:1px solid var(--bg)}.seg em{font-style:normal;font-size:11px;color:#0a0a0c;font-weight:600;padding:0 6px;line-height:24px}.capm{position:absolute;top:0;bottom:0;width:2px;background:var(--tx)}.pbv{font-size:13px;text-align:right}
@@ -79,14 +78,14 @@ dialog{background:var(--p);color:var(--tx);border:1px solid var(--ln);border-rad
 <div class="card rg" id="rg"></div>
 <div id="wl"></div><div id="att"></div>
 
-<div class="bar1"><div class="tabs"><button id="tb-tasks" onclick="setTab('tasks')">Tasks</button> <button id="tb-up" onclick="setTab('up')">Upcoming</button> <button id="tb-wl" onclick="setTab('wl')">Workload</button> <button id="tb-board" onclick="setTab('board')">Board</button> <button id="tb-tl" onclick="setTab('tl')">Timeline</button> <button id="tb-mp" onclick="setTab('mp')">Master plan</button> <button id="tb-act" onclick="setTab('act')">Activity</button></div>
+<div class="bar1"><div class="tabs"><button id="tb-tasks" onclick="setTab('tasks')">Tasks</button> <button id="tb-up" onclick="setTab('up')">Upcoming</button> <button id="tb-wl" onclick="setTab('wl')">Workload</button> <button id="tb-board" onclick="setTab('board')">Board</button> <button id="tb-tl" onclick="setTab('tl')">Timeline</button> <button id="tb-act" onclick="setTab('act')">Activity</button></div>
 <select id="fw" onchange="ui.who=this.value;render()" aria-label="Person"></select><select id="fp" onchange="ui.proj=this.value;render()" aria-label="Project"></select>
 <select id="fs" onchange="ui.st=this.value;render()" aria-label="Status"><option value="open">Open</option><option value="done">Done</option><option value="all">All</option><option value="late">Running late</option><option value="failed">Failed</option></select>
 <label class="ck dim"><input type="checkbox" id="fr" onchange="ui.inr=this.checked;render()">Only tasks in the range</label>
 <input id="fq" type="search" placeholder="Search tasks (press /)" oninput="ui.q=this.value;render()"></div>
 <div id="view"></div><dialog id="dlg"></dialog><input type="file" id="imp" accept=".json" hidden>
 </main>
-<script src="data/master-timeline.js"></script><script src="sync.js"></script><script src="master.js"></script><script src="insights.js"></script>
+<script src="data/master-timeline.js"></script><script src="sync.js"></script><script src="insights.js"></script>
 <script>
 const $=s=>document.querySelector(s),dlg=$('#dlg'),MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],MR=(window.MASTER_R||[]).filter(r=>!r.derived);
 const pad=n=>String(n).padStart(2,'0'),iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),today=()=>iso(new Date()),valid=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'')&&!isNaN(Date.parse(s)),sane=s=>valid(s)&&s>='2000-01-01'&&s<='2099-12-31';
@@ -96,9 +95,9 @@ const fmt=s=>valid(s)?D(s).toLocaleDateString('en-GB',{day:'numeric',month:'shor
 const pl=(n,w)=>n+' '+w+(n===1?'':'s'),now=()=>new Date().toISOString(),uid=()=>Math.random().toString(36).slice(2,9),v=i=>$('#'+i).value;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ago=ts=>{const m=Math.round((Date.now()-Date.parse(ts))/6e4);return m<1?'just now':m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':m<10080?Math.round(m/1440)+' d ago':fmt(dayOf(ts))};
-let draft=null,ui={tab:'tasks',who:'',proj:'',st:'open',q:'',inr:false,r0:today(),r1:add(today(),7),touched:false,lanes:{},showM:true,showT:true,allM:false,drag:false,up:14,own:false};
-try{const sv=localStorage.getItem('minime_todo_tab');if(['tasks','up','wl','board','tl','mp','act'].includes(sv))ui.tab=sv}catch(e){}
-if(['tasks','up','wl','board','tl','mp','act'].includes(location.hash.slice(1)))ui.tab=location.hash.slice(1); // todo.html#mp opens the Master plan
+let draft=null,ui={tab:'tasks',who:'',proj:'',st:'open',q:'',inr:false,r0:today(),r1:add(today(),7),touched:false,lanes:{},showM:true,showT:true,allM:false,drag:false,up:14};
+try{const sv=localStorage.getItem('minime_todo_tab');if(['tasks','up','wl','board','tl','act'].includes(sv))ui.tab=sv}catch(e){}
+if(['tasks','up','wl','board','tl','act'].includes(location.hash.slice(1)))ui.tab=location.hash.slice(1); // todo.html#wl opens the Workload tab
 
 /* ---------- data access (everything lives in Sync, which talks to the shared database) ---------- */
 const byOrd=(a,b)=>(a.ord??999)-(b.ord??999)||String(a.name).localeCompare(b.name);
@@ -240,16 +239,11 @@ function pill(){const s=Sync.status,n=Sync.pending(),el=$('#sy'),m={connecting:[
  el.className='sy '+m[1];el.innerHTML='<i></i>'+m[0]+(s==='live'&&Sync.lastOk?` <small>${new Date(Sync.lastOk).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>`:'')}
 function render(){if(!ui.touched){ui.r0=today();ui.r1=add(ui.r0,7)}
  controls();pill();rangeSync();$('#wl').innerHTML=ppl().map(workCard).join('');$('#att').innerHTML=attention();
- for(const k of['tasks','up','wl','board','tl','mp','act'])$('#tb-'+k).className=ui.tab===k?'on':'';
- try{$('#view').innerHTML=ui.tab==='tl'?timeline():ui.tab==='board'?board():ui.tab==='act'?activity():ui.tab==='wl'?Insights.workload():ui.tab==='up'?Insights.upcoming():ui.tab==='mp'?Master.html():list();if(ui.tab==='mp')Master.after()}
+ for(const k of['tasks','up','wl','board','tl','act'])$('#tb-'+k).className=ui.tab===k?'on':'';
+ try{$('#view').innerHTML=ui.tab==='tl'?timeline():ui.tab==='board'?board():ui.tab==='act'?activity():ui.tab==='wl'?Insights.workload():ui.tab==='up'?Insights.upcoming():list()}
  catch(e){console.error(e);$('#view').innerHTML='<p class="fail">Could not draw this view: '+esc(e.message)+'</p>'}}
 const setTab=t=>{ui.tab=t;try{localStorage.setItem('minime_todo_tab',t)}catch(e){}render()};
-// While someone types in the master date table, a teammate's change waits until they leave the field.
-let hold=false;const typing=()=>{const a=document.activeElement;return!!(a&&a.closest&&a.closest('.mtab'))};
-const queue=()=>{if(ui.drag)return;if(typing()&&!ui.own){hold=true;return}if(rq)return;rq=setTimeout(()=>{rq=0;ui.own=false;render()},40)};
-document.addEventListener('focusout',()=>{if(hold)setTimeout(()=>{if(!typing()){hold=false;queue()}},150)});
-document.addEventListener('change',e=>{const d=e.target.dataset;if(d&&d.mid)Master.save(d.mid,d.f,e.target.value)});
-document.addEventListener('click',e=>{const r=e.target.dataset&&e.target.dataset.mreset;if(r)Master.reset(r)});
+const queue=()=>{if(ui.drag||rq)return;rq=setTimeout(()=>{rq=0;render()},40)};
 
 /* ---------- task dialog ---------- */
 function editTask(id,pid){if(!projs().length)return alert('Create a project first (the + Project button), then add tasks to it.');const t=id?Sync.get('task',id):null;
