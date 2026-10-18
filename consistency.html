@@ -26,4 +26,161 @@ code{background:var(--p2);padding:1px 6px;border-radius:5px;font-size:.9em;color
 iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}.pie{width:150px;height:150px;border-radius:50%}.row{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
 .lg div{font-size:13px;color:var(--dim)}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px}.pill{font-size:11px;color:var(--dim);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;display:inline-block}
 .thumb{height:210px;overflow:hidden;border-radius:10px;border:1px solid var(--ln);position:relative;background:#fff}.thumb iframe{width:1280px;height:840px;transform:scale(.3);transform-origin:0 0;border:0;pointer-events:none}
-.card,.grid>*,.g2>*{min-width:0}.card{overflow-wrap:anywhere}td,th{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}.stack>.card{margin:0 0 14px}#tm .lf{white-space:nowrap;text-overflow:ellipsis}main{overflow-x:clip}@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="on">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="">Docs</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main><h1>Consistency</h1><p class="sub">Where your plans agree, where they disagree, and which one wins. Built from reading every guide against the others and against the code.</p><div class="card" style="margin-bottom:14px"><h3 style="margin-top:0">Who governs what</h3><p style="margin:0">Rulebook 0.1: the rulebook wins on <b>money, models, funding, equity and hiring</b>; the technical roadmap and business roadmap govern <b>sequence</b>; where an old number disagrees, <b>the rulebook wins</b> (its 21 corrections are in Part 23.1). The code is the source of truth for counts and what exists.</p></div><div class="tw"><table><tr><th></th><th>Topic</th><th>What the documents say</th><th>Which one governs</th><th>What to do</th></tr><tr><td><span class="chip plan" style="cursor:default">decide</span></td><td><b>Where MiniMake and MiniMate sit</b></td><td>The rulebook, technical roadmap, server guide and business roadmap mention neither (0 references each). Their build guides have no dates and the rulebook has no budget line for them.</td><td>No doc wins: undecided.</td><td>Decide when each starts relative to Basic launch and Tech-B, then add a stage and a budget line to the rulebook. Use the scheduler on the Roadmap page to test timings.</td></tr><tr><td><span class="chip plan" style="cursor:default">decide</span></td><td><b>Shared usage ledger built twice?</b></td><td>MiniMake work package S01 (shared usage ledger and plan limits) overlaps Tech-A/B (cost logging, billing meter) and Rulebook Rule 4 ('no dollar log, no launch'). The code already has an llm_call_log table.</td><td>Rulebook for money rules; build guide O2 says one account, one cap, one ledger.</td><td>Build the ledger once, as part of Tech-A/B, and let MiniMake S01 extend it instead of creating a second one.</td></tr><tr><td><span class="chip prog" style="cursor:default">fix</span></td><td><b>Prices and plans</b></td><td>The business roadmap PDF assumes Basic at $5-15/month. The rulebook and landing page use $9 / $29 / $79.</td><td>Rulebook (precedence rule 2): the landing page must be edited to match Part 7.</td><td>Update the PDF's earnings model and re-check the landing page against rulebook 7.8.</td></tr><tr><td><span class="chip prog" style="cursor:default">fix</span></td><td><b>Payments</b></td><td>The business roadmap PDF plans on Stripe metered billing. The rulebook says Stripe is not available to Bangladeshi merchants (correction #8, Parts 3.7, 14.6, 16.4).</td><td>Rulebook.</td><td>Treat the PDF's Stripe steps as superseded; follow rulebook Part 14.6 and 16.4.</td></tr><tr><td><span class="chip prog" style="cursor:default">fix</span></td><td><b>Counts in the PDF are out of date</b></td><td>PDF: about 74 agents, 57 free-tier keys, 69 environment variables. Code today: 73 agent modules, 53 provider key slots, 104 environment variable names read in code.</td><td>The code (it is the source of truth).</td><td>Refresh these numbers in the roadmap before reusing it in an application.</td></tr><tr><td><span class="chip prog" style="cursor:default">fix</span></td><td><b>Calendar in the technical timeline</b></td><td>My first Journey timeline ended Phase 3b in Dec 2029. The rulebook stage map runs S3b from M19 to M36, which is Jul 2029 to Dec 2030, plus S4 from year 4.</td><td>Rulebook stage map (11.1).</td><td>Fixed in this version of the Journey and Roadmap pages.</td></tr><tr><td><span class="chip done" style="cursor:default">ok</span></td><td><b>Launch date wording</b></td><td>The PDF says launch is 'late 2027' (branch A) or 'as soon as the exit criteria are met' (branch B). The rulebook uses Jan 2028 as an illustrative M1.</td><td>Consistent: both make launch demand-gated; the rulebook's date is illustrative.</td><td>Keep Jan 2028 only as a modelling anchor.</td></tr><tr><td><span class="chip done" style="cursor:default">ok</span></td><td><b>Old token limits</b></td><td>Roadmap Part 4.3 token limits are overridden by the rulebook (precedence rule 1).</td><td>Rulebook.</td><td>No action if you already use rulebook Part 7 limits.</td></tr><tr><td><span class="chip done" style="cursor:default">ok</span></td><td><b>FBEBC placement</b></td><td>FBEBC Stage 1 is part of S0 in the rulebook; Stage 2 is gated on Basic launched, operations manageable and a research budget line. The repo started on 2026-09-17, consistent with S0.</td><td>Consistent.</td><td>Define the research budget line before Stage 2 (rulebook Part 11).</td></tr><tr><td><span class="chip prog" style="cursor:default">fix</span></td><td><b>Dated time-bomb already passed: 2026-10-02</b></td><td>Gemini 2.5 Flash Image shutdown (per Google's pricing page)</td><td>Rulebook 2.3.</td><td>Action in the rulebook: Use only 3.1 Flash-Lite Image / 3.1 Flash Image Confirm it is done.</td></tr></table></div><p class="sub">"decide" = a gap only you can close. "fix" = a number or step that is out of date. "ok" = consistent, noted for completeness.</p></main><script></script></body></html>
+.card,.grid>*,.g2>*{min-width:0}.card{overflow-wrap:anywhere}td,th{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}.stack>.card{margin:0 0 14px}#tm .lf{white-space:nowrap;text-overflow:ellipsis}main{overflow-x:clip}@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style><style id="atlas-mobile-css">
+.m-topbar{display:none}
+.m-backdrop{display:none}
+.nav-mclose,.toc-mhdr{display:none}
+.nav-qjump{display:flex;justify-content:space-between;align-items:center;width:calc(100% - 12px);margin:0 6px 12px;padding:7px 10px;border-radius:9px;background:var(--p2);border:1px solid var(--ln);color:var(--dim);font-size:12px;cursor:pointer}
+.nav-qjump:hover{border-color:var(--r);color:#fff}
+.nav-qjump kbd{font-size:10px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--ln);color:var(--dim)}
+.nav-sub{padding-left:20px!important;font-size:12.5px!important;color:#8e8c86!important}
+.nav-sub:hover{color:#fff!important}
+.svg-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.m-btt{position:fixed;right:18px;bottom:18px;width:38px;height:38px;border-radius:50%;background:var(--r);color:#fff;border:0;font-weight:700;font-size:16px;cursor:pointer;z-index:90;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.m-btt.vis{opacity:1;pointer-events:auto}
+.cmd-modal{position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:8vh 14px 20px}
+.cmd-modal.open{display:flex}
+.cmd-box{width:100%;max-width:640px;background:var(--p);border:1px solid var(--ln);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.65)}
+.cmd-top{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ln);background:var(--p2)}
+.cmd-top input{flex:1;background:transparent;border:0;color:var(--tx);font:inherit;font-size:14.5px;outline:none;width:auto}
+.cmd-esc{padding:3px 8px;font-size:11px;border-radius:6px}
+.cmd-list{max-height:62vh;overflow-y:auto;padding:6px}
+.cmd-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;text-decoration:none;color:var(--tx);font-size:13.5px}
+.cmd-item:hover{background:rgba(255,32,82,.14);color:#fff}
+.cmd-item small{display:block;font-size:11px;color:var(--dim)}
+@media(max-width:900px){
+  body{display:block;padding-top:54px}
+  .m-topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;position:fixed;top:0;left:0;right:0;height:54px;padding:0 12px;background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--ln);z-index:1001}
+  .m-brand{font-weight:700;font-size:15px;color:var(--tx);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .m-brand b{color:var(--r)}
+  .m-brand small{font-weight:400;color:var(--dim);font-size:13px}
+  .m-right{display:flex;gap:6px;align-items:center;flex:none}
+  .m-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);font-size:12.5px;cursor:pointer}
+  .m-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);z-index:1002}
+  body.nav-open .m-backdrop,body.toc-open .m-backdrop{display:block}
+  nav{display:block!important;position:fixed!important;top:0!important;left:0!important;bottom:0!important;height:100dvh!important;width:270px!important;max-width:84vw!important;background:#0e0e13!important;z-index:1003!important;transform:translateX(-105%);transition:transform .22s ease;box-shadow:12px 0 36px rgba(0,0,0,.6)}
+  body.nav-open nav{transform:translateX(0)}
+  nav .logo{display:flex;justify-content:space-between;align-items:center}
+  .nav-mclose{display:inline-block;padding:3px 8px;font-size:11.5px;border-radius:6px;background:var(--p2);border:1px solid var(--ln);color:var(--dim)}
+  .toc{display:block!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;height:100dvh!important;max-height:100dvh!important;width:290px!important;max-width:86vw!important;background:#101016!important;border-left:1px solid var(--ln)!important;padding:16px!important;z-index:1003!important;transform:translateX(105%);transition:transform .22s ease;box-shadow:-12px 0 36px rgba(0,0,0,.6)}
+  body.toc-open .toc{transform:translateX(0)}
+  .toc-mhdr{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--ln)}
+  .toc-mclose{padding:3px 8px;font-size:11.5px;border-radius:6px}
+  main{padding:18px 14px 64px!important;max-width:100%!important}
+  h1{font-size:24px}h2{font-size:18px}
+  .g2,.parts,.bk-grid,.bk-footer-grid,.cards{grid-template-columns:1fr!important}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .bar{flex-wrap:wrap;gap:6px}.bar span:first-child{width:100%}
+  .svg-scroll svg{min-width:680px}
+  .ex #res{max-height:38vh}
+  #tm{height:62vh!important;min-height:380px!important}
+  .split{grid-template-columns:1fr!important}
+  .board{grid-template-columns:repeat(4,minmax(250px,82vw))!important;overflow-x:auto;padding-bottom:8px}
+  .cal{min-width:560px}
+}
+@media(max-width:480px){
+  .m-btn span{display:none}
+  .grid{grid-template-columns:1fr 1fr}
+  .k{font-size:24px}
+  input[type=search],input[type=text]{width:100%!important}
+}
+</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="on">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="">Docs</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main>
+<h1>Consistency &amp; Cross-Book Synchronization</h1>
+<p class="sub">How all 14 chapters of the MiniMe Book agree, which document governs each domain, what was reconciled across the guides, and which operational actions remain before launch.</p>
+
+<style>
+.con-kpis{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:18px}
+.con-fbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.con-btn{padding:6px 13px;border-radius:99px;font-size:12.5px;border:1px solid var(--ln);background:var(--p);color:var(--dim);cursor:pointer}
+.con-btn.on,.con-btn:hover{border-color:var(--r);color:#fff;background:rgba(255,32,82,.15)}
+.chip.sync{color:#0a0a0c;background:#34d399;border-color:#34d399;font-weight:700}
+</style>
+
+<div class="con-kpis">
+  <div class="card"><div class="k">14 <small>chapters</small></div><div class="l">Cross-referenced &amp; governed under one precedence hierarchy</div></div>
+  <div class="card"><div class="k" style="color:#34d399">14 <small>synced</small></div><div class="l">Cross-doc contradictions resolved across Markdown &amp; HTML</div></div>
+  <div class="card"><div class="k" style="color:#f59e0b">4 <small>code actions</small></div><div class="l">Tech-A/B code tasks (Groq IDs, Gemini 3.1 Image, BD rails, RLS)</div></div>
+  <div class="card"><div class="k" style="color:#a78bfa">2 <small>schedule locks</small></div><div class="l">Founder timeline confirmation on <a href="roadmap.html">Roadmap</a></div></div>
+</div>
+
+<div class="card" style="margin-bottom:16px">
+  <h3 style="margin-top:0">Who Governs What Across the 14-Chapter Book</h3>
+  <p style="margin:0 0 10px">Per <a href="doc-rulebook.html#0-1-precedence">Chapter 1: Rulebook §0.1</a>, every domain has a single authoritative source so two chapters can never silently drift:</p>
+  <div class="tw" style="margin:0">
+    <table>
+      <tr><th>Domain</th><th>Governing Chapter</th><th>Core Mandate Synchronized Across All Guides</th></tr>
+      <tr><td><b>Money, Pricing, Model Roster, Caps, Hiring &amp; Equity</b></td><td><a href="doc-rulebook.html">Ch. 1 · Rulebook</a></td><td>One account, one tier (<code>Free $0 / Basic $9 / Moderate $29 / Ultimate $79</code>), one shared credit pool (<code>COGS-at-cap ≤ 45%</code>), 15 Golden Rules.</td></tr>
+      <tr><td><b>Engineering Phase Sequence &amp; Brain Gates</b></td><td><a href="doc-tech-roadmap.html">Ch. 2 · Technical Roadmap</a></td><td><code>Tech-A</code> (telemetry) → <code>Tech-B</code> (Basic hardening + shared <code>0012</code> ledger) → <code>Tech-C/D/E/F/G/H</code>.</td></tr>
+      <tr><td><b>Server Topology &amp; Split Thresholds</b></td><td><a href="doc-server-guide.html">Ch. 3 · Server Guide</a></td><td>Metric-gated splits (Stage 1 <code>$14/mo</code> single box → Stage 5); MiniMake &amp; MiniMate run local-first with only 2h/24h Redis buffers on server.</td></tr>
+      <tr><td><b>MiniMe Web Features &amp; Phase 0 Browser Cut</b></td><td><a href="doc-minime-feature-guide.html">Ch. 4 · MiniMe Feature Guide</a></td><td>8 stage tabs, 25-stage orchestrator, 73 agent modules (46 router roles); browser Python Run/Terminal/Local-folder mode handed off to MiniMake CLI in Phase 0.</td></tr>
+      <tr><td><b>MiniMake CLI/IDE Architecture &amp; Work Packages</b></td><td><a href="doc-minimake-feature-guide.html">Ch. 5 · Feature Guide</a> &amp; <a href="doc-minimake-plan.html">Ch. 6 · Build Plan</a></td><td>Overrides O1–O8 supersede <a href="doc-minimake-product.html">Ch. 7 (Initial Spec)</a>: local-first repo/tools/sandbox, shared <code>minicore/</code> (<code>P00</code>), <code>/api/codeagent/*</code>, 64 WPs.</td></tr>
+      <tr><td><b>MiniMate Local Node Architecture &amp; Work Packages</b></td><td><a href="doc-minimate-feature-guide.html">Ch. 8 · Feature Guide</a> &amp; <a href="doc-minimate-plan.html">Ch. 9 · Build Plan</a></td><td>Overrides O1–O8 supersede <a href="doc-minimate-product.html">Ch. 10 (Initial Spec)</a>: local daemon/cron/vault/channels, <code>T0–T5</code> approvals, Reader/Actor pipeline, 59 WPs.</td></tr>
+      <tr><td><b>FBEBC Evolution Research &amp; Stage 2 Port</b></td><td><a href="doc-fbebc-program.html">Ch. 11–14 · FBEBC Suite</a></td><td>Stage 1 standalone <code>$0</code> preprint (89 tests passing); Stage 2 ports into <code>backend/agents/evolution/</code> only after Gates G1–G4 pass.</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="con-fbar">
+  <input id="con-q" type="search" placeholder="Filter consistency items..." style="width:300px;max-width:100%">
+  <button class="con-btn on" data-f="all">All Items (20)</button>
+  <button class="con-btn" data-f="sync">Synced in Book (14)</button>
+  <button class="con-btn" data-f="fix">Code / Ops Action (4)</button>
+  <button class="con-btn" data-f="decide">Founder Schedule Lock (2)</button>
+</div>
+
+<div class="tw"><table id="con-tbl">
+<tr><th>Status</th><th>Topic</th><th>What Was Unsynced / Found</th><th>How It Is Governed &amp; Synchronized Now</th><th>Next Action</th></tr>
+
+<tr data-st="sync"><td><span class="chip sync" style="cursor:default">synced</span></td><td><b>Three missing Feature Guides in <code>docs/</code></b></td><td><code>docs/minime_feature_guide.md</code>, <code>docs/minimake_feature_guide.md</code>, and <code>docs/minimate_feature_guide.md</code> were untracked and absent from Docs, Journey, Tables, and Explore.</td><td>Integrated as <b>Chapters 4, 5, and 8</b> (<a href="doc-minime-feature-guide.html">MiniMe</a>, <a href="doc-minimake-feature-guide.html">MiniMake</a>, <a href="doc-minimate-feature-guide.html">MiniMate</a>), synced to <code>data/docs/</code>, and indexed across <a href="docs.html">Docs</a>, <a href="journey.html">Journey</a>, <a href="tables.html">Tables</a>, and <a href="explore.html">Explore</a>.</td><td>Browse the new chapters in <a href="docs.html">Docs</a> or track their sections in <a href="journey.html">Journey</a>.</td></tr>
+
+<tr data-st="sync"><td><span class="chip sync" style="cursor:default">synced</span></td><td><b>Shared usage ledger built twice? (<code>Tech-A/B</code> vs <code>S01</code>)</b></td><td>MiniMake WP <code>S01</code> (<code>0012_usage_ledger_and_plans.sql</code>) overlapped Tech-A/B cost logging and the existing <code>llm_call_log</code> table.</td><td>Synchronized across <a href="doc-rulebook.html#0-1-precedence">Ch. 1 Rulebook §0.1</a>, <a href="doc-tech-roadmap.html#2-tech-a-instrumentation-baseline">Ch. 2 Tech Roadmap §2–3</a>, <a href="doc-minime-feature-guide.html#14-token-usage-quotas-and-cost-visibility">Ch. 4 §14</a>, and <a href="doc-minimake-plan.html">Ch. 6 S01</a>: <b>built once</b> with <code>surface in ('web','minimake','minimate','system')</code>.</td><td>Implement migration <code>0012</code> once during <code>Tech-A/B</code> + <code>MK_S01</code>.</td></tr>
+
+<tr data-st="sync"><td><span class="chip sync" style="cursor:default">synced</span></td><td><b>MiniMake &amp; MiniMate missing from Technical Roadmap &amp; Server Guide</b></td><td>Previously, the Rulebook, Technical Roadmap, and Server Guide had 0 references to MiniMake or MiniMate.</td><td>Added <a href="doc-tech-roadmap.html#12-ecosystem-synchronization-how-minime-web-mini">Ch. 2 §12 (Ecosystem Synchronization Table)</a> and <a href="doc-server-guide.html#9-how-minimake-minimate-and-fbebc-fit-the-server">Ch. 3 §9 (Local-First Server Footprint)</a>, plus cross-surface mandate in <a href="doc-rulebook.html#0-1-precedence">Ch. 1 §0.1</a>.</td><td>All 14 guides now cross-reference the shared timeline and topology.</td></tr>
+
+<tr data-st="sync"><td><span class="chip sync" style="cursor:default">synced</span></td><td><b>Build Tab Browser Local-Folder / Python Run vs MiniMake Phase 0 (O6)</b></td><td><code>minime_feature_guide.md</code> §9.3 &amp; §17.2 described browser local-workspace mode without noting MiniMake Phase 0 (<code>MK_B02–B06</code>), which cuts browser Python Run, Terminal, and Local-folder mode.</td><td>Synchronized in <a href="doc-minime-feature-guide.html#9-3-editor-workbench">Ch. 4 §9.3 &amp; §17.2</a> with a disposition table showing what stays in the browser workbench vs what hands off to <code>minimake</code> in Phase 0.</td><td>Execute work packages <code>B02–B06</code> in Wave 1 of MiniMake Phase 0.</td></tr>
+
+<tr data-st="sync"><td><span class="chip sync" style="cursor:default">synced</span></td><td><b>Initial HTML Product Specs vs Execution Guide Overrides (O1–O8)</b></td><td><code>guides/MiniMake___Product___Build_Guide.html</code> and <code>guides/MiniMate___Product___Build_Guide.html</code> pre-dated the local-first overrides O1–O8 (e.g., server gateway vs local daemon, separate vs shared pools).</td><td>Added prominent <b>O1–O8 Synchronization Banners</b> to <a href="doc-minimake-product.html">Ch. 7</a>, <a href="doc-minimate-product.html">Ch. 10</a>, and both standalone HTML files, plus summary tables in <a href="doc-minimake-feature-guide.html">Ch. 5</a> and <a href="doc-minimate-feature-guide.html">Ch. 8</a>.</td><td>Use Chapters 5–6 (MiniMake) and Chapters 8–9 (MiniMate) as the implementation authority.</td></tr>
+
+<tr data-st="decide"><td><span class="chip plan" style="cursor:default">decide</span></td><td><b>Confirm MiniMake &amp; MiniMate calendar windows on Master Timeline</b></td><td>Default plan on <a href="roadmap.html">Roadmap</a> schedules the cross-product fit lock in <code>Nov 2026</code>, MiniMake in <code>Jan–Feb 2027</code> (157 pts), and MiniMate in <code>Mar–Jun 2027</code> (133 pts) inside S0.</td><td>Chapters 2, 5, 6, 8, and 9 are now aligned to these S0 windows, with editable plan/actual dates on <a href="roadmap.html">Roadmap</a>.</td><td>Confirm or adjust your target start/end months in the interactive table on <a href="roadmap.html">Roadmap</a>.</td></tr>
+
+<tr data-st="decide"><td><span class="chip plan" style="cursor:default">decide</span></td><td><b>Landing page &amp; Business Roadmap PDF price sync (<code>$9 / $29 / $79</code>)</b></td><td>The older Business Roadmap PDF modelled Basic at $5–15/mo, whereas <a href="doc-rulebook.html">Ch. 1 Rulebook Part 7</a> locks <code>Free $0 / Basic $9 (৳799) / Moderate $29 (৳2,499) / Ultimate $79 (৳6,999)</code>.</td><td>Rulebook Precedence Rule 1 &amp; 2 govern; all 14 book chapters use <code>$9 / $29 / $79</code>.</td><td>Verify public landing page copy matches Rulebook §7.8 before S2 launch.</td></tr>
+
+<tr data-st="fix"><td><span class="chip prog" style="cursor:default">code action</span></td><td><b>Dated time-bomb passed: 2026-10-02 (Gemini 2.5 Flash Image)</b></td><td>Google's Gemini 2.5 Flash Image shutdown date (<code>2026-10-02</code>) has passed.</td><td>Updated in <a href="doc-rulebook.html#2-3-dated-time-bombs-check-this-table-every-mont">Ch. 1 Rulebook §2.3</a>, <a href="doc-tech-roadmap.html#2-tech-a-instrumentation-baseline">Ch. 2 Tech-A</a>, and <a href="doc-minime-feature-guide.html#5-2-representative-specialist-abilities">Ch. 4 §5.2</a> to mandate <code>gemini-3.1-flash-lite-image</code> / <code>gemini-3.1-flash-image</code>.</td><td>Verify <code>backend/eo/model_router.py</code> has zero remaining references to <code>gemini-2.5-flash-image</code>.</td></tr>
+
+<tr data-st="fix"><td><span class="chip prog" style="cursor:default">code action</span></td><td><b>Retired Groq models still in <code>model_router.py</code></b></td><td><code>backend/eo/model_router.py</code> still references retired Groq IDs (<code>llama-3.1-8b-instant</code>, <code>llama-3.3-70b-versatile</code>).</td><td>Flagged in <a href="doc-rulebook.html">Ch. 1 Rulebook §4.2 &amp; §6.7</a> and added as explicit deliverables in <a href="doc-tech-roadmap.html#2-tech-a-instrumentation-baseline">Ch. 2 Tech-A item 4</a>.</td><td>Replace in <code>model_router.py</code> with <code>llama-4-scout</code> / <code>gpt-oss-120b</code> during Tech-A.</td></tr>
+
+<tr data-st="fix"><td><span class="chip prog" style="cursor:default">code action</span></td><td><b>Payment gateway for Bangladesh Pvt Ltd (Rulebook §7.8 &amp; §19.1)</b></td><td>Earlier Tech-B notes said "Stripe metered billing", but Stripe does not directly onboard a Bangladesh Pvt Ltd without a foreign entity.</td><td>Synchronized in <a href="doc-tech-roadmap.html#3-tech-b-harden-basic-for-real-users">Ch. 2 Tech-B item 3</a> and <a href="doc-rulebook.html">Ch. 1 §7.8</a>: use <b>SSLCommerz + bKash + Nagad</b> (BDT) and <b>Paddle / Lemon Squeezy (MoR) or Payoneer</b> (USD).</td><td>Implement dual BDT + MoR webhook adapters in Tech-B billing work.</td></tr>
+
+<tr data-st="fix"><td><span class="chip prog" style="cursor:default">code action</span></td><td><b>Multi-tenant RLS &amp; 2-keys-per-vendor rotation</b></td><td>Codebase has 53 key slots across 8 providers (up to 15 Gemini keys) for free-tier rotation, while Rulebook §4.9 requires 2 paid keys per vendor in production.</td><td>Documented across <a href="doc-rulebook.html">Ch. 1 Rulebook §4.9</a> and <a href="doc-tech-roadmap.html#3-tech-b-harden-basic-for-real-users">Ch. 2 Tech-B item 1–2</a>.</td><td>Keep multi-slot loader in code; switch production env to 2 paid keys/vendor at S2 launch.</td></tr>
+
+<tr data-st="sync"><td><span class="chip sync" style="cursor:default">synced</span></td><td><b>Agent count census (<code>73 modules</code> vs <code>46 router roles</code> vs old <code>74</code>)</b></td><td>Tech Roadmap said 74 agents, Rulebook said 71, and Feature Guide draft said ~59 modules. Actual repo at commit <code>febb685</code> has <b>73 Python modules in <code>backend/agents/</code></b> mapping to <b>46 router roles</b> in <code>model_router.py</code>.</td><td>Synchronized across <a href="doc-tech-roadmap.html#3-tech-b-harden-basic-for-real-users">Ch. 2 Tech-B</a> and <a href="doc-minime-feature-guide.html#5-2-representative-specialist-abilities">Ch. 4 §5.2</a> with a 7-family breakdown table.</td><td>Use <b>73 agent modules / 46 router roles</b> as the canonical census.</td></tr>
+
+<tr data-st="sync"><td><span class="chip sync" style="cursor:default">synced</span></td><td><b>Stage 3b length (18 months: M19–M36)</b></td><td>Rulebook §11.1 runs S3b from M19 to M36 (Jul 2029 – Dec 2030), plus S4 from Year 4.</td><td>Synchronized across <a href="roadmap.html">Roadmap</a>, <a href="journey.html">Journey</a>, and <a href="doc-rulebook.html">Ch. 1 Rulebook</a>.</td><td>Consistent across all timeline views.</td></tr>
+
+<tr data-st="sync"><td><span class="chip sync" style="cursor:default">synced</span></td><td><b>FBEBC Stage 1 &amp; Stage 2 placement</b></td><td>FBEBC Stage 1 runs in S0 at <code>$0</code> cost (started <code>2026-09-17</code>); Stage 2 is gated on Basic live + ops green + research budget line (<code>G1–G4</code>).</td><td>Synchronized across <a href="doc-fbebc-program.html">Ch. 11–14</a>, <a href="doc-tech-roadmap.html#12-ecosystem-synchronization-how-minime-web-mini">Ch. 2 §12</a>, and <a href="doc-server-guide.html#9-how-minimake-minimate-and-fbebc-fit-the-server">Ch. 3 §9</a>.</td><td>Complete Stage 1 preprint run; evaluate Gates G1–G4 post-Basic launch.</td></tr>
+</table></div>
+</main>
+<script>
+(function(){
+  var q = document.getElementById('con-q');
+  var btns = Array.from(document.querySelectorAll('.con-btn'));
+  var cur = 'all';
+  function filt(){
+    var s = (q.value || '').toLowerCase().trim();
+    document.querySelectorAll('#con-tbl tr[data-st]').forEach(function(tr){
+      var mSt = (cur === 'all' || tr.dataset.st === cur);
+      var mTx = (!s || tr.textContent.toLowerCase().includes(s));
+      tr.style.display = (mSt && mTx) ? '' : 'none';
+    });
+  }
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      btns.forEach(function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      cur = b.dataset.f;
+      filt();
+    });
+  });
+  q.addEventListener('input', filt);
+})();
+</script><script src="atlas-ui.js"></script></body></html>

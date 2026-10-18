@@ -26,73 +26,569 @@ code{background:var(--p2);padding:1px 6px;border-radius:5px;font-size:.9em;color
 iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}.pie{width:150px;height:150px;border-radius:50%}.row{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
 .lg div{font-size:13px;color:var(--dim)}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px}.pill{font-size:11px;color:var(--dim);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;display:inline-block}
 .thumb{height:210px;overflow:hidden;border-radius:10px;border:1px solid var(--ln);position:relative;background:#fff}.thumb iframe{width:1280px;height:840px;transform:scale(.3);transform-origin:0 0;border:0;pointer-events:none}
-.card,.grid>*,.g2>*{min-width:0}.card{overflow-wrap:anywhere}td,th{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}.stack>.card{margin:0 0 14px}#tm .lf{white-space:nowrap;text-overflow:ellipsis}main{overflow-x:clip}@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="">Docs</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main><h1>FBEBC Preprint / Workshop Paper Guide</h1><p class="sub">FBEBC research. 2,694 words. <a href="data/docs/fbebc-preprint-workshop-paper-guide.md" download>Download .md</a></p><div class="doc"><article><h1 id="fbebc-preprint-workshop-paper-guide">FBEBC Preprint / Workshop Paper Guide</h1>
-<p><b>A standalone writing and submission guide for Stage 1's output</b></p>
+.card,.grid>*,.g2>*{min-width:0}.card{overflow-wrap:anywhere}td,th{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}.stack>.card{margin:0 0 14px}#tm .lf{white-space:nowrap;text-overflow:ellipsis}main{overflow-x:clip}@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="atlas-mobile-css">
+.m-topbar{display:none}
+.m-backdrop{display:none}
+.nav-mclose,.toc-mhdr{display:none}
+.nav-qjump{display:flex;justify-content:space-between;align-items:center;width:calc(100% - 12px);margin:0 6px 12px;padding:7px 10px;border-radius:9px;background:var(--p2);border:1px solid var(--ln);color:var(--dim);font-size:12px;cursor:pointer}
+.nav-qjump:hover{border-color:var(--r);color:#fff}
+.nav-qjump kbd{font-size:10px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--ln);color:var(--dim)}
+.nav-sub{padding-left:20px!important;font-size:12.5px!important;color:#8e8c86!important}
+.nav-sub:hover{color:#fff!important}
+.svg-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.m-btt{position:fixed;right:18px;bottom:18px;width:38px;height:38px;border-radius:50%;background:var(--r);color:#fff;border:0;font-weight:700;font-size:16px;cursor:pointer;z-index:90;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.m-btt.vis{opacity:1;pointer-events:auto}
+.cmd-modal{position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:8vh 14px 20px}
+.cmd-modal.open{display:flex}
+.cmd-box{width:100%;max-width:640px;background:var(--p);border:1px solid var(--ln);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.65)}
+.cmd-top{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ln);background:var(--p2)}
+.cmd-top input{flex:1;background:transparent;border:0;color:var(--tx);font:inherit;font-size:14.5px;outline:none;width:auto}
+.cmd-esc{padding:3px 8px;font-size:11px;border-radius:6px}
+.cmd-list{max-height:62vh;overflow-y:auto;padding:6px}
+.cmd-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;text-decoration:none;color:var(--tx);font-size:13.5px}
+.cmd-item:hover{background:rgba(255,32,82,.14);color:#fff}
+.cmd-item small{display:block;font-size:11px;color:var(--dim)}
+@media(max-width:900px){
+  body{display:block;padding-top:54px}
+  .m-topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;position:fixed;top:0;left:0;right:0;height:54px;padding:0 12px;background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--ln);z-index:1001}
+  .m-brand{font-weight:700;font-size:15px;color:var(--tx);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .m-brand b{color:var(--r)}
+  .m-brand small{font-weight:400;color:var(--dim);font-size:13px}
+  .m-right{display:flex;gap:6px;align-items:center;flex:none}
+  .m-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);font-size:12.5px;cursor:pointer}
+  .m-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);z-index:1002}
+  body.nav-open .m-backdrop,body.toc-open .m-backdrop{display:block}
+  nav{display:block!important;position:fixed!important;top:0!important;left:0!important;bottom:0!important;height:100dvh!important;width:270px!important;max-width:84vw!important;background:#0e0e13!important;z-index:1003!important;transform:translateX(-105%);transition:transform .22s ease;box-shadow:12px 0 36px rgba(0,0,0,.6)}
+  body.nav-open nav{transform:translateX(0)}
+  nav .logo{display:flex;justify-content:space-between;align-items:center}
+  .nav-mclose{display:inline-block;padding:3px 8px;font-size:11.5px;border-radius:6px;background:var(--p2);border:1px solid var(--ln);color:var(--dim)}
+  .toc{display:block!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;height:100dvh!important;max-height:100dvh!important;width:290px!important;max-width:86vw!important;background:#101016!important;border-left:1px solid var(--ln)!important;padding:16px!important;z-index:1003!important;transform:translateX(105%);transition:transform .22s ease;box-shadow:-12px 0 36px rgba(0,0,0,.6)}
+  body.toc-open .toc{transform:translateX(0)}
+  .toc-mhdr{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--ln)}
+  .toc-mclose{padding:3px 8px;font-size:11.5px;border-radius:6px}
+  main{padding:18px 14px 64px!important;max-width:100%!important}
+  h1{font-size:24px}h2{font-size:18px}
+  .g2,.parts,.bk-grid,.bk-footer-grid,.cards{grid-template-columns:1fr!important}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .bar{flex-wrap:wrap;gap:6px}.bar span:first-child{width:100%}
+  .svg-scroll svg{min-width:680px}
+  .ex #res{max-height:38vh}
+  #tm{height:62vh!important;min-height:380px!important}
+  .split{grid-template-columns:1fr!important}
+  .board{grid-template-columns:repeat(4,minmax(250px,82vw))!important;overflow-x:auto;padding-bottom:8px}
+  .cal{min-width:560px}
+}
+@media(max-width:480px){
+  .m-btn span{display:none}
+  .grid{grid-template-columns:1fr 1fr}
+  .k{font-size:24px}
+  input[type=search],input[type=text]{width:100%!important}
+}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="on">Docs</a><a href="doc-minime-feature-guide.html" class="nav-sub">· Ch.4 MiniMe Guide</a><a href="doc-minimake-feature-guide.html" class="nav-sub">· Ch.5 MiniMake Guide</a><a href="doc-minimate-feature-guide.html" class="nav-sub">· Ch.8 MiniMate Guide</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main><h1>FBEBC Preprint / Workshop Paper Guide</h1><p class="sub">FBEBC research. 2,694 words. <a href="data/docs/fbebc-preprint-workshop-paper-guide.md" download>Download .md</a></p><div class="bk-banner">
+  <div class="bk-top">
+    <div>
+      <span class="bk-part">Part V · FBEBC Research Program (Fitness-Band Elitist Bacterial Colony)</span>
+      <span class="bk-ch">Chapter 13 of 14</span>
+      <span class="bk-sync">SYNCED</span>
+    </div>
+    <div class="bk-actions">
+      <a href="docs.html" class="bk-pill-link">📚 All 14 Chapters</a>
+      <a href="journey.html#doc-fbebc-paper" class="bk-pill-link">🧭 Journey Map</a>
+      <a href="data/docs/fbebc-preprint-workshop-paper-guide.md" download class="bk-pill-link">⬇ Download .md</a>
+    </div>
+  </div>
+  <p class="bk-desc">Claim ladder (C0–C3), paper template, statistical recipes, and submission checklist for Stage 1 output.</p>
+  <div class="bk-meta">
+    <span><b>2,694</b> words (~12 min read)</span><span>·</span><span><b>21</b> sections</span><span>·</span><span><b>2</b> tables</span>
+  </div>
+  <div class="bk-prevnext"><a href="doc-fbebc-phase1.html" class="bk-nav-btn">← Ch. 12: FBEBC Phase 1 Implementation Guide</a><a href="doc-fbebc-status.html" class="bk-nav-btn bk-next">Ch. 14: FBEBC Build Status (from the repo) →</a></div>
+</div><div class="doc"><article><h1 id="fbebc-preprint-workshop-paper-guide">FBEBC Preprint / Workshop Paper Guide</h1>
+<p><strong>A standalone writing and submission guide for Stage 1's output</strong></p>
 <p>This covers turning Stage 1's build (from <code>fbebc-research-program-guide.md</code>) into an arXiv preprint and, if timing and results allow, a workshop submission. It assumes Stage 1's experiment is done or nearly done — this is about writing it up correctly and honestly, not about building anything further.</p>
-<hr>
+<hr/>
 <h2 id="1-target-venues-and-how-to-hold-them">1. Target venues, and how to hold them</h2>
-<div class="tw"><table><tr><th>Venue</th><th>Role</th><th>Bar</th><th>Notes</th></tr><tr><td><b>arXiv</b></td><td>Primary, non-negotiable target</td><td>No peer review</td><td>Establishes priority, gets you a citable link, zero timeline risk. Do this regardless of everything else.</td></tr><tr><td><b>ICLR 2026 Workshop on AI with Recursive Self-Improvement</b></td><td>Stretch submission</td><td>Workshop-level</td><td>Direct topical fit — self-modifying agents, governance, evaluation is exactly their scope. <b>Verify the current CFP and deadline before planning around it</b> — workshop dates and even existence for a given year can shift; check openreview.net or the ICLR site directly.</td></tr><tr><td><b>GI@ICSE (Genetic Improvement workshop)</b></td><td>Stretch submission</td><td>Workshop-level</td><td>LLM-driven evolutionary code optimization is their whole focus — a strong topical match. Same caveat: verify the current year's CFP and deadline.</td></tr><tr><td>GECCO / PPSN</td><td>Later target, not now</td><td>Full conference</td><td>Save for the Stage 2 (MiniMe-integrated) paper, which will have a stronger empirical story.</td></tr><tr><td>Main-track NeurIPS/ICML/ICLR, Q1 journals (JAIR, AIJ)</td><td>Later, second paper</td><td>High</td><td>Realistic once you have Stage 2's production results behind you, not for this first pass.</td></tr></table></div>
-<p><b>Hold these loosely.</b> A workshop's CFP deadline might not align with your 4-week Stage 1 timeline — that's fine. The arXiv preprint is the deliverable that matters regardless of any workshop deadline; treat a workshop submission as a bonus if the timing lines up, not a requirement that should stretch Stage 1's cap.</p>
-<hr>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Venue</th>
+<th>Role</th>
+<th>Bar</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>arXiv</strong></td>
+<td>Primary, non-negotiable target</td>
+<td>No peer review</td>
+<td>Establishes priority, gets you a citable link, zero timeline risk. Do this regardless of everything else.</td>
+</tr>
+<tr>
+<td><strong>ICLR 2026 Workshop on AI with Recursive Self-Improvement</strong></td>
+<td>Stretch submission</td>
+<td>Workshop-level</td>
+<td>Direct topical fit — self-modifying agents, governance, evaluation is exactly their scope. <strong>Verify the current CFP and deadline before planning around it</strong> — workshop dates and even existence for a given year can shift; check openreview.net or the ICLR site directly.</td>
+</tr>
+<tr>
+<td><strong>GI@ICSE (Genetic Improvement workshop)</strong></td>
+<td>Stretch submission</td>
+<td>Workshop-level</td>
+<td>LLM-driven evolutionary code optimization is their whole focus — a strong topical match. Same caveat: verify the current year's CFP and deadline.</td>
+</tr>
+<tr>
+<td>GECCO / PPSN</td>
+<td>Later target, not now</td>
+<td>Full conference</td>
+<td>Save for the Stage 2 (MiniMe-integrated) paper, which will have a stronger empirical story.</td>
+</tr>
+<tr>
+<td>Main-track NeurIPS/ICML/ICLR, Q1 journals (JAIR, AIJ)</td>
+<td>Later, second paper</td>
+<td>High</td>
+<td>Realistic once you have Stage 2's production results behind you, not for this first pass.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Hold these loosely.</strong> A workshop's CFP deadline might not align with your 4-week Stage 1 timeline — that's fine. The arXiv preprint is the deliverable that matters regardless of any workshop deadline; treat a workshop submission as a bonus if the timing lines up, not a requirement that should stretch Stage 1's cap.</p>
+<hr/>
 <h2 id="2-paper-skeleton-and-page-budget">2. Paper skeleton and page budget</h2>
 <p>Most ML/AI workshops use an 4–8 page limit excluding references, in a NeurIPS- or ICLR-style two-column format (verify against the actual CFP once you pick a target — page limits and templates vary and change year to year). Structure for that budget:</p>
-<div class="tw"><table><tr><th>Section</th><th>Approx. length</th><th>Purpose</th></tr><tr><td>Title + Abstract</td><td>—</td><td>One-sentence hook + what you built + what you found</td></tr><tr><td>1. Introduction</td><td>0.75–1 page</td><td>Motivate the problem, state contributions as a list</td></tr><tr><td>2. Related Work</td><td>1–1.5 pages</td><td>Position against the literature you already have citations for</td></tr><tr><td>3. Method (FBEBC)</td><td>1.5–2 pages</td><td>The architecture, condensed</td></tr><tr><td>4. Safety Analysis</td><td>0.5–1 page</td><td>The invariants, the barrier, what you tested</td></tr><tr><td>5. Experimental Setup</td><td>0.5 page</td><td>Task, model, budget — full honesty here</td></tr><tr><td>6. Results</td><td>1–1.5 pages</td><td>Figures/tables, the ablation</td></tr><tr><td>7. Limitations</td><td>0.5 page</td><td>Explicit, not buried</td></tr><tr><td>8. Conclusion &amp; Future Work</td><td>0.25 page</td><td>Point at Stage 2 as concrete future work</td></tr><tr><td>Appendix (uncounted)</td><td>as needed</td><td>Full ADV case table, hyperparameters, prompts</td></tr></table></div>
-<hr>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Approx. length</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Title + Abstract</td>
+<td>—</td>
+<td>One-sentence hook + what you built + what you found</td>
+</tr>
+<tr>
+<td>1. Introduction</td>
+<td>0.75–1 page</td>
+<td>Motivate the problem, state contributions as a list</td>
+</tr>
+<tr>
+<td>2. Related Work</td>
+<td>1–1.5 pages</td>
+<td>Position against the literature you already have citations for</td>
+</tr>
+<tr>
+<td>3. Method (FBEBC)</td>
+<td>1.5–2 pages</td>
+<td>The architecture, condensed</td>
+</tr>
+<tr>
+<td>4. Safety Analysis</td>
+<td>0.5–1 page</td>
+<td>The invariants, the barrier, what you tested</td>
+</tr>
+<tr>
+<td>5. Experimental Setup</td>
+<td>0.5 page</td>
+<td>Task, model, budget — full honesty here</td>
+</tr>
+<tr>
+<td>6. Results</td>
+<td>1–1.5 pages</td>
+<td>Figures/tables, the ablation</td>
+</tr>
+<tr>
+<td>7. Limitations</td>
+<td>0.5 page</td>
+<td>Explicit, not buried</td>
+</tr>
+<tr>
+<td>8. Conclusion &amp; Future Work</td>
+<td>0.25 page</td>
+<td>Point at Stage 2 as concrete future work</td>
+</tr>
+<tr>
+<td>Appendix (uncounted)</td>
+<td>as needed</td>
+<td>Full ADV case table, hyperparameters, prompts</td>
+</tr>
+</tbody>
+</table></div>
+<hr/>
 <h2 id="3-section-by-section-writing-guide">3. Section-by-section writing guide</h2>
 <h3 id="3-1-title">3.1 Title</h3>
 <p>Aim for a title that names the mechanism, not just the domain. Candidates:</p>
-<ul><li><i>"Fairness-Bounded Elite-Band Cloning: A Structurally Immutable Governance Layer for LLM-Driven Program Synthesis"</i></li><li><i>"Score Non-Authorship as a Design Principle for Self-Modifying Code Agents"</i> (if you want to foreground the reward-hacking angle specifically)</li></ul>
+<ul>
+<li><em>"Fairness-Bounded Elite-Band Cloning: A Structurally Immutable Governance Layer for LLM-Driven Program Synthesis"</em></li>
+<li><em>"Score Non-Authorship as a Design Principle for Self-Modifying Code Agents"</em> (if you want to foreground the reward-hacking angle specifically)</li>
+</ul>
 <p>Pick the one that matches your strongest result — if the ablation (elite-band vs. single-winner) is your best evidence, lead with that; if the barrier-integrity result is strongest, lead with the governance framing.</p>
 <h3 id="3-2-abstract">3.2 Abstract</h3>
 <p>A tight template (150–200 words):</p>
-<ol><li>One sentence: the problem (LLM-driven evolutionary code search lacks a structurally enforced trust boundary between the untrusted generator and the evaluation harness).</li><li>One sentence: what you built (FBEBC — name the 2–3 core mechanisms: Σ-Δ separation, score non-authorship, elite-band selection).</li><li>One sentence: what you tested it on and how (circle packing, N generations, M seeds — be specific with numbers).</li><li>One or two sentences: what you found (barrier held across N evaluations; elite-band selection outperformed single-winner selection by X; be honest if a result is modest).</li><li>One sentence: what's explicitly out of scope (no latency/timing claims — say this plainly, don't let a reader discover it only in Limitations).</li></ol>
+<ol>
+<li>One sentence: the problem (LLM-driven evolutionary code search lacks a structurally enforced trust boundary between the untrusted generator and the evaluation harness).</li>
+<li>One sentence: what you built (FBEBC — name the 2–3 core mechanisms: Σ-Δ separation, score non-authorship, elite-band selection).</li>
+<li>One sentence: what you tested it on and how (circle packing, N generations, M seeds — be specific with numbers).</li>
+<li>One or two sentences: what you found (barrier held across N evaluations; elite-band selection outperformed single-winner selection by X; be honest if a result is modest).</li>
+<li>One sentence: what's explicitly out of scope (no latency/timing claims — say this plainly, don't let a reader discover it only in Limitations).</li>
+</ol>
 <h3 id="3-3-introduction">3.3 Introduction</h3>
 <p>Standard shape: problem → gap in existing work → your contribution → roadmap of the paper. Concretely:</p>
-<ul><li><b>Open with the non-stationary search problem</b>: LLM-driven code evolution (FunSearch, AlphaEvolve, DGM) has produced real results, but the governance question — what stops the untrusted proposer from corrupting its own evaluation — is either unaddressed or explicitly flagged as future work (cite DGM's own admission here, since it's a strong, honest data point in your favor).</li><li><b>State your contribution as a numbered list.</b> Reviewers scan for this. Something like:</li><li>A six-gate admission pipeline with byte-identity post-conditions on immutable code regions.</li><li>A score-non-authorship scoring architecture where the candidate never has write access to its own fitness value.</li><li>A frozen, pre-registered edit-distance metric, decoupling the fairness measure from the threshold decision.</li><li>An empirical comparison of elite-band vs. single-winner selection under evaluation noise on a controlled benchmark task.</li><li><b>Say explicitly what this paper does not claim</b>: no latency-fairness result, no large-scale adversarial red-team, single benchmark task, small compute budget. Do this in the introduction, not just in limitations — reviewers respect papers that scope themselves honestly up front.</li></ul>
+<ul>
+<li><strong>Open with the non-stationary search problem</strong>: LLM-driven code evolution (FunSearch, AlphaEvolve, DGM) has produced real results, but the governance question — what stops the untrusted proposer from corrupting its own evaluation — is either unaddressed or explicitly flagged as future work (cite DGM's own admission here, since it's a strong, honest data point in your favor).</li>
+<li><strong>State your contribution as a numbered list.</strong> Reviewers scan for this. Something like:</li>
+<li>A six-gate admission pipeline with byte-identity post-conditions on immutable code regions.</li>
+<li>A score-non-authorship scoring architecture where the candidate never has write access to its own fitness value.</li>
+<li>A frozen, pre-registered edit-distance metric, decoupling the fairness measure from the threshold decision.</li>
+<li>An empirical comparison of elite-band vs. single-winner selection under evaluation noise on a controlled benchmark task.</li>
+<li><strong>Say explicitly what this paper does not claim</strong>: no latency-fairness result, no large-scale adversarial red-team, single benchmark task, small compute budget. Do this in the introduction, not just in limitations — reviewers respect papers that scope themselves honestly up front.</li>
+</ul>
 <h3 id="3-4-related-work">3.4 Related Work</h3>
 <p>You already have the citation master list from earlier — use it directly, organized into the same four clusters:</p>
-<ol><li><b>Optimization/step-bounding</b> (TRPO, PPO, CMA-ES) — contrast: their bounds are for policy stability, yours are for comparison fairness.</li><li><b>Population-based selection</b> (PBT, MAP-Elites, AlphaGo Zero) — contrast: elite-band selection vs. truncation/niche-archival/single-winner.</li><li><b>Theoretical self-modification &amp; governance</b> (Gödel Machines, Tiling Agents, Corrigibility, Concrete Problems in AI Safety) — this is your strongest differentiation section; ground the Σ-Δ barrier and score non-authorship explicitly in these.</li><li><b>SOTA LLM code-agent taxonomy</b> (FunSearch, AlphaEvolve, DGM, OpenEvolve, CodeEvolve, ShinkaEvolve, AdaEvolve) — position FBEBC as addressing a governance gap this taxonomy leaves open, using DGM's own admitted unmodifiable-governance future-work flag as your strongest single piece of evidence that the gap is real and acknowledged by the field itself.</li></ol>
-<p><b>Copyright discipline while writing this section:</b> paraphrase every described mechanism in your own words. Don't quote paper abstracts or lift phrasing — describe what each system does structurally, in your own sentences. A comparison table (mechanism vs. mechanism) is fine and expected; verbatim text from the papers is not.</p>
-<p><b>Verify your citation details before submission</b> — check the exact publication venue, year, and any headline figures you cite (e.g., DGM's reported failure rate) against the primary source. A wrong figure in a related-work table is the kind of small error that undermines otherwise solid work.</p>
+<ol>
+<li><strong>Optimization/step-bounding</strong> (TRPO, PPO, CMA-ES) — contrast: their bounds are for policy stability, yours are for comparison fairness.</li>
+<li><strong>Population-based selection</strong> (PBT, MAP-Elites, AlphaGo Zero) — contrast: elite-band selection vs. truncation/niche-archival/single-winner.</li>
+<li><strong>Theoretical self-modification &amp; governance</strong> (Gödel Machines, Tiling Agents, Corrigibility, Concrete Problems in AI Safety) — this is your strongest differentiation section; ground the Σ-Δ barrier and score non-authorship explicitly in these.</li>
+<li><strong>SOTA LLM code-agent taxonomy</strong> (FunSearch, AlphaEvolve, DGM, OpenEvolve, CodeEvolve, ShinkaEvolve, AdaEvolve) — position FBEBC as addressing a governance gap this taxonomy leaves open, using DGM's own admitted unmodifiable-governance future-work flag as your strongest single piece of evidence that the gap is real and acknowledged by the field itself.</li>
+</ol>
+<p><strong>Copyright discipline while writing this section:</strong> paraphrase every described mechanism in your own words. Don't quote paper abstracts or lift phrasing — describe what each system does structurally, in your own sentences. A comparison table (mechanism vs. mechanism) is fine and expected; verbatim text from the papers is not.</p>
+<p><strong>Verify your citation details before submission</strong> — check the exact publication venue, year, and any headline figures you cite (e.g., DGM's reported failure rate) against the primary source. A wrong figure in a related-work table is the kind of small error that undermines otherwise solid work.</p>
 <h3 id="3-5-method">3.5 Method</h3>
 <p>Condense the Phase 1 guide's architecture into the space you have. Prioritize, in order:</p>
-<ol><li>The Σ-Δ separation and why it's structurally, not conventionally, enforced (one paragraph + a simplified version of the trust-zone diagram from the Phase 1 guide).</li><li>The six-gate admission pipeline (a table: gate name, what it checks, cost — this compresses well).</li><li>The frozen edit-distance metric and why it's defined before any threshold is set (this is a specific, citable methodological choice worth a full paragraph — it's the kind of thing a careful reviewer notices and rewards).</li><li>Elite-band selection, contrasted directly with AlphaGo Zero's single-winner rule.</li></ol>
+<ol>
+<li>The Σ-Δ separation and why it's structurally, not conventionally, enforced (one paragraph + a simplified version of the trust-zone diagram from the Phase 1 guide).</li>
+<li>The six-gate admission pipeline (a table: gate name, what it checks, cost — this compresses well).</li>
+<li>The frozen edit-distance metric and why it's defined before any threshold is set (this is a specific, citable methodological choice worth a full paragraph — it's the kind of thing a careful reviewer notices and rewards).</li>
+<li>Elite-band selection, contrasted directly with AlphaGo Zero's single-winner rule.</li>
+</ol>
 <p>Push implementation-level detail (exact regex patterns, full code listings) to the appendix. The body should read as "here is the architecture and why each piece is there," not "here is the codebase."</p>
 <h3 id="3-6-safety-analysis">3.6 Safety Analysis</h3>
-<p>This is where you state, precisely, what "0% barrier violation" means for <i>your</i> scaled-down suite — don't inherit the full Phase 1 guide's language wholesale, since you ran 8–10 cases, not 24, and no live red-team. Be exact:</p>
-<blockquote>"We evaluate against an 8-case adversarial suite covering boundary-integrity attacks (Tier A: marker forgery, contract violation) and score-non-authorship attacks (Tier C: direct score injection, timer manipulation). All 8 cases were blocked as expected across N evaluation runs. We did not conduct a live adversarial red-team campaign or evaluate sandbox-escape resistance at the scale a production deployment would require; see Limitations."</blockquote>
+<p>This is where you state, precisely, what "0% barrier violation" means for <em>your</em> scaled-down suite — don't inherit the full Phase 1 guide's language wholesale, since you ran 8–10 cases, not 24, and no live red-team. Be exact:</p>
+<blockquote>
+<p>"We evaluate against an 8-case adversarial suite covering boundary-integrity attacks (Tier A: marker forgery, contract violation) and score-non-authorship attacks (Tier C: direct score injection, timer manipulation). All 8 cases were blocked as expected across N evaluation runs. We did not conduct a live adversarial red-team campaign or evaluate sandbox-escape resistance at the scale a production deployment would require; see Limitations."</p>
+</blockquote>
 <p>State your five invariants (I1–I5 from the Phase 1 guide) briefly, and note which ones you actually tested (I1 fixity, I2 dualism, I3 score non-authorship are directly testable at this scale; I5 interruptibility is easy to include cheaply — do it if you have a spare afternoon, it's a strong, cheap addition).</p>
 <h3 id="3-7-experimental-setup">3.7 Experimental Setup</h3>
 <p>Full honesty here is what makes the paper credible rather than embarrassing under scrutiny:</p>
-<ul><li><b>Exact model identifier and date used</b> for Σ (e.g., "gemini-2.5-flash-lite, accessed via the Google AI Studio free tier, September–October 2026" — API models get silently updated, so pinning the date is a real reproducibility signal).</li><li><b>Population size, generation count, seed count</b> — the exact numbers from your run, not rounded.</li><li><b>Compute environment</b>: Docker on a personal machine, explicitly not gVisor/bare-metal, explicitly no timing measurement.</li><li><b>Task definition</b>: circle packing, n=26, referencing AlphaEvolve as the source of this benchmark choice.</li><li><b>Total API calls and approximate cost</b> ($0, free tier — say so plainly; it's a legitimate and interesting fact about accessibility of this kind of research, not something to hide).</li></ul>
+<ul>
+<li><strong>Exact model identifier and date used</strong> for Σ (e.g., "gemini-2.5-flash-lite, accessed via the Google AI Studio free tier, September–October 2026" — API models get silently updated, so pinning the date is a real reproducibility signal).</li>
+<li><strong>Population size, generation count, seed count</strong> — the exact numbers from your run, not rounded.</li>
+<li><strong>Compute environment</strong>: Docker on a personal machine, explicitly not gVisor/bare-metal, explicitly no timing measurement.</li>
+<li><strong>Task definition</strong>: circle packing, n=26, referencing AlphaEvolve as the source of this benchmark choice.</li>
+<li><strong>Total API calls and approximate cost</strong> ($0, free tier — say so plainly; it's a legitimate and interesting fact about accessibility of this kind of research, not something to hide).</li>
+</ul>
 <h3 id="3-8-results">3.8 Results</h3>
 <p>What to actually produce:</p>
-<ol><li><b>Fitness-over-generations curve</b> — best-in-population fitness per generation, for each seed (small multiples or overlaid lines with a mean). This is your core "the mechanism works" evidence.</li><li><b>Rejection taxonomy breakdown</b> — a bar chart or table of how many candidates were rejected at each gate (<code>E_BOUNDARY_VIOLATION</code>, <code>E_CONTRACT_VIOLATION</code>, etc.). This is free, interesting data you already logged, and it's the kind of result nobody else in this exact form has published, since most systems in your related work don't report a typed rejection taxonomy at all.</li><li><b>Elite-band vs. single-winner ablation</b> — final fitness distribution under each selection rule, same budget, same seeds. Report this with appropriate humility if the effect is small or noisy given your sample size (see §6 on statistical honesty).</li><li><b>Barrier integrity table</b> — the 8/8 (or however many) adversarial cases, pass/fail, one row each.</li></ol>
+<ol>
+<li><strong>Fitness-over-generations curve</strong> — best-in-population fitness per generation, for each seed (small multiples or overlaid lines with a mean). This is your core "the mechanism works" evidence.</li>
+<li><strong>Rejection taxonomy breakdown</strong> — a bar chart or table of how many candidates were rejected at each gate (<code>E_BOUNDARY_VIOLATION</code>, <code>E_CONTRACT_VIOLATION</code>, etc.). This is free, interesting data you already logged, and it's the kind of result nobody else in this exact form has published, since most systems in your related work don't report a typed rejection taxonomy at all.</li>
+<li><strong>Elite-band vs. single-winner ablation</strong> — final fitness distribution under each selection rule, same budget, same seeds. Report this with appropriate humility if the effect is small or noisy given your sample size (see §6 on statistical honesty).</li>
+<li><strong>Barrier integrity table</strong> — the 8/8 (or however many) adversarial cases, pass/fail, one row each.</li>
+</ol>
 <h3 id="3-9-limitations">3.9 Limitations</h3>
 <p>Write this as a real, itemized list, not a hedge paragraph:</p>
-<ul><li>No latency or timing-fairness evaluation; all fitness is correctness-only.</li><li>Single benchmark task; generalization to other domains untested.</li><li>Small compute budget (state the exact call count) limits statistical power, especially for the ablation.</li><li>Reduced adversarial suite (8–10 cases, one tier of severity); no live red-team campaign.</li><li>Docker-based isolation, not gVisor/hardware-virtualized; the security boundary is weaker than a production deployment would require.</li><li>Single free-tier model as Σ; results may not generalize to stronger or differently-trained models.</li></ul>
+<ul>
+<li>No latency or timing-fairness evaluation; all fitness is correctness-only.</li>
+<li>Single benchmark task; generalization to other domains untested.</li>
+<li>Small compute budget (state the exact call count) limits statistical power, especially for the ablation.</li>
+<li>Reduced adversarial suite (8–10 cases, one tier of severity); no live red-team campaign.</li>
+<li>Docker-based isolation, not gVisor/hardware-virtualized; the security boundary is weaker than a production deployment would require.</li>
+<li>Single free-tier model as Σ; results may not generalize to stronger or differently-trained models.</li>
+</ul>
 <p>This list is a feature, not a weakness, when it's this explicit — it tells reviewers you understand exactly what you have and haven't shown.</p>
 <h3 id="3-10-future-work">3.10 Future Work</h3>
 <p>Point directly at Stage 2 as concrete, already-planned future work: applying the mechanism to a real production multi-agent system's configuration, using real deployment evals as the fitness oracle, and reintroducing cost/latency as a fitness dimension where it has real operational meaning. This is a genuinely strong forward pointer because it's not speculative — you have an actual real system and plan lined up, which is unusual and a plus.</p>
 <h3 id="3-11-reproducibility-statement">3.11 Reproducibility statement</h3>
 <p>Most workshops now expect one. State: full code released at [your repo URL], exact seeds logged, exact model version/date logged, free-tier nature of the LLM access noted (meaning exact reproduction depends on the provider not having changed the model behind that identifier — flag this honestly as a limitation of reproducibility in this specific line of research, not just your paper).</p>
-<hr>
+<hr/>
 <h2 id="4-formatting-and-submission-logistics">4. Formatting and submission logistics</h2>
 <h3 id="4-1-template">4.1 Template</h3>
 <p>Use the standard NeurIPS or ICLR LaTeX style — most ML workshops accept or require one of these regardless of the specific venue, and Overleaf has both pre-loaded as templates. Check the actual target workshop's CFP for which one it wants.</p>
 <h3 id="4-2-arxiv-category">4.2 arXiv category</h3>
-<p>Primary category: <b>cs.NE</b> (Neural and Evolutionary Computing) — this is the most accurate fit for an evolutionary-search-plus-governance paper. Cross-list:</p>
-<ul><li><b>cs.AI</b> (general AI) — broadens discoverability</li><li><b>cs.SE</b> (Software Engineering) — relevant given the code-synthesis framing</li><li><b>cs.CR</b> (Cryptography and Security) — relevant given the barrier/adversarial-robustness content</li></ul>
+<p>Primary category: <strong>cs.NE</strong> (Neural and Evolutionary Computing) — this is the most accurate fit for an evolutionary-search-plus-governance paper. Cross-list:
+- <strong>cs.AI</strong> (general AI) — broadens discoverability
+- <strong>cs.SE</strong> (Software Engineering) — relevant given the code-synthesis framing
+- <strong>cs.CR</strong> (Cryptography and Security) — relevant given the barrier/adversarial-robustness content</p>
 <h3 id="4-3-the-endorsement-issue">4.3 The endorsement issue</h3>
-<p>arXiv requires an <b>endorsement</b> for first-time submitters in most categories, including cs.NE. This trips people up if they don't plan for it. Your options, in order of ease:</p>
-<ol><li><b>Ask your advisor</b> (the one you're already planning to talk to about MiniMe) if they have an arXiv author history in a relevant category — if so, they can endorse you directly.</li><li><b>Ask any professor or published researcher</b> you know in CS/AI — endorsement just requires the endorser to have their own qualifying submission history in that category.</li><li>Check arXiv's current endorsement process at arxiv.org/help/endorsement — requirements and the exact mechanism can change, so verify before you're blocked by it at submission time, not after.</li></ol>
+<p>arXiv requires an <strong>endorsement</strong> for first-time submitters in most categories, including cs.NE. This trips people up if they don't plan for it. Your options, in order of ease:</p>
+<ol>
+<li><strong>Ask your advisor</strong> (the one you're already planning to talk to about MiniMe) if they have an arXiv author history in a relevant category — if so, they can endorse you directly.</li>
+<li><strong>Ask any professor or published researcher</strong> you know in CS/AI — endorsement just requires the endorser to have their own qualifying submission history in that category.</li>
+<li>Check arXiv's current endorsement process at arxiv.org/help/endorsement — requirements and the exact mechanism can change, so verify before you're blocked by it at submission time, not after.</li>
+</ol>
 <p>Start this conversation early — during Week 3 or 4 of Stage 1, not the day you try to submit.</p>
 <h3 id="4-4-timeline-fit">4.4 Timeline fit</h3>
 <p>Writing fits inside Stage 1's existing Week 4 (see the research program guide's §1.4). If a workshop deadline doesn't align with that timeline, submit to arXiv on schedule and treat the workshop as an optional later submission of the same or a lightly revised paper — don't let an external deadline pull you into extending Stage 1's cap.</p>
-<hr>
+<hr/>
 <h2 id="5-statistical-honesty-read-this-before-writing-r">5. Statistical honesty (read this before writing Results)</h2>
 <p>With 3 seeds and a single task, you cannot make strong statistical claims, and trying to will hurt the paper's credibility more than a modest, honest claim would. Concretely:</p>
-<ul><li><b>Report ranges or individual seed results, not just a mean</b>, when N is this small. "Final fitness across 3 seeds: 2.14, 2.09, 2.21" is more honest and more useful to a reader than "mean fitness 2.15 ± 0.05" dressed up to look like it has more statistical weight than 3 points support.</li><li><b>Don't compute a p-value on 3 seeds and present it as significance.</b> If you want a formal comparison for the ablation, a simple non-parametric approach (e.g., stating "elite-band selection produced a higher final fitness in 3 of 3 seeds") is more honest than a t-test that assumes more than your sample supports.</li><li><b>Frame the ablation as suggestive, not conclusive</b>, if that's what your sample size actually supports: "these results are directionally consistent with elite-band selection reducing sensitivity to evaluation noise, though the sample size (3 seeds) does not support a strong statistical claim" is a sentence reviewers respect.</li><li><b>Never round toward a nicer-looking number.</b> If your improvement over generations is modest, report the modest number. A modest, well-governed result is a legitimate contribution; an inflated one invites the exact scrutiny that sinks papers at review.</li></ul>
-<hr>
+<ul>
+<li><strong>Report ranges or individual seed results, not just a mean</strong>, when N is this small. "Final fitness across 3 seeds: 2.14, 2.09, 2.21" is more honest and more useful to a reader than "mean fitness 2.15 ± 0.05" dressed up to look like it has more statistical weight than 3 points support.</li>
+<li><strong>Don't compute a p-value on 3 seeds and present it as significance.</strong> If you want a formal comparison for the ablation, a simple non-parametric approach (e.g., stating "elite-band selection produced a higher final fitness in 3 of 3 seeds") is more honest than a t-test that assumes more than your sample supports.</li>
+<li><strong>Frame the ablation as suggestive, not conclusive</strong>, if that's what your sample size actually supports: "these results are directionally consistent with elite-band selection reducing sensitivity to evaluation noise, though the sample size (3 seeds) does not support a strong statistical claim" is a sentence reviewers respect.</li>
+<li><strong>Never round toward a nicer-looking number.</strong> If your improvement over generations is modest, report the modest number. A modest, well-governed result is a legitimate contribution; an inflated one invites the exact scrutiny that sinks papers at review.</li>
+</ul>
+<hr/>
 <h2 id="6-pre-submission-checklist">6. Pre-submission checklist</h2>
-<ul><li>[ ] Every claim in the abstract is backed by a specific number or figure in the body</li><li>[ ] Limitations section is explicit and itemized, not a single hedging sentence</li><li>[ ] Every citation's venue/year/headline figure has been checked against the primary source</li><li>[ ] No quoted text longer than a short phrase from any cited paper; everything is paraphrased</li><li>[ ] Exact model identifiers and access dates are stated for every LLM used (Σ and judge, if applicable)</li><li>[ ] Code repository is public, cleaned, and linked, with seeds and exact run configs included</li><li>[ ] arXiv category chosen, endorsement secured or in progress</li><li>[ ] Figures are legible at print size, with axis labels and units</li><li>[ ] The one required ablation (elite-band vs. single-winner) is reported, even if the result is modest</li><li>[ ] A reader who only reads the abstract and limitations would come away with an accurate picture of what was and wasn't shown</li></ul></article><div class="toc"><a class="t2" href="#1-target-venues-and-how-to-hold-them">1. Target venues, and how to hold them</a><a class="t2" href="#2-paper-skeleton-and-page-budget">2. Paper skeleton and page budget</a><a class="t2" href="#3-section-by-section-writing-guide">3. Section-by-section writing guide</a><a class="t3" href="#3-1-title">3.1 Title</a><a class="t3" href="#3-2-abstract">3.2 Abstract</a><a class="t3" href="#3-3-introduction">3.3 Introduction</a><a class="t3" href="#3-4-related-work">3.4 Related Work</a><a class="t3" href="#3-5-method">3.5 Method</a><a class="t3" href="#3-6-safety-analysis">3.6 Safety Analysis</a><a class="t3" href="#3-7-experimental-setup">3.7 Experimental Setup</a><a class="t3" href="#3-8-results">3.8 Results</a><a class="t3" href="#3-9-limitations">3.9 Limitations</a><a class="t3" href="#3-10-future-work">3.10 Future Work</a><a class="t3" href="#3-11-reproducibility-statement">3.11 Reproducibility statement</a><a class="t2" href="#4-formatting-and-submission-logistics">4. Formatting and submission logistics</a><a class="t3" href="#4-1-template">4.1 Template</a><a class="t3" href="#4-2-arxiv-category">4.2 arXiv category</a><a class="t3" href="#4-3-the-endorsement-issue">4.3 The endorsement issue</a><a class="t3" href="#4-4-timeline-fit">4.4 Timeline fit</a><a class="t2" href="#5-statistical-honesty-read-this-before-writing-r">5. Statistical honesty (read this before writing Results)</a><a class="t2" href="#6-pre-submission-checklist">6. Pre-submission checklist</a></div></div></main><script></script></body></html>
+<ul>
+<li>[ ] Every claim in the abstract is backed by a specific number or figure in the body</li>
+<li>[ ] Limitations section is explicit and itemized, not a single hedging sentence</li>
+<li>[ ] Every citation's venue/year/headline figure has been checked against the primary source</li>
+<li>[ ] No quoted text longer than a short phrase from any cited paper; everything is paraphrased</li>
+<li>[ ] Exact model identifiers and access dates are stated for every LLM used (Σ and judge, if applicable)</li>
+<li>[ ] Code repository is public, cleaned, and linked, with seeds and exact run configs included</li>
+<li>[ ] arXiv category chosen, endorsement secured or in progress</li>
+<li>[ ] Figures are legible at print size, with axis labels and units</li>
+<li>[ ] The one required ablation (elite-band vs. single-winner) is reported, even if the result is modest</li>
+<li>[ ] A reader who only reads the abstract and limitations would come away with an accurate picture of what was and wasn't shown</li>
+</ul><div class="bk-footer">
+  <div class="bk-footer-hdr">
+    <span>End of <b>Chapter 13: FBEBC Preprint / Workshop Paper Guide</b></span>
+    <a href="docs.html">View all 14 chapters in Docs →</a>
+  </div>
+  <div class="bk-footer-grid"><a href="doc-fbebc-phase1.html" class="bk-fcard">
+      <small>← Previous · Chapter 12</small>
+      <b>FBEBC Phase 1 Implementation Guide</b>
+      <span>Part V · FBEBC Research</span>
+    </a><a href="doc-fbebc-status.html" class="bk-fcard bk-fnext">
+      <small>Next · Chapter 14 →</small>
+      <b>FBEBC Build Status (from the repo)</b>
+      <span>Part V · FBEBC Research</span>
+    </a></div>
+</div></article><div class="toc"><b>On this page</b><a class="t2" href="#1-target-venues-and-how-to-hold-them">1. Target venues, and how to hold them</a><a class="t2" href="#2-paper-skeleton-and-page-budget">2. Paper skeleton and page budget</a><a class="t2" href="#3-section-by-section-writing-guide">3. Section-by-section writing guide</a><a class="t3" href="#3-1-title">3.1 Title</a><a class="t3" href="#3-2-abstract">3.2 Abstract</a><a class="t3" href="#3-3-introduction">3.3 Introduction</a><a class="t3" href="#3-4-related-work">3.4 Related Work</a><a class="t3" href="#3-5-method">3.5 Method</a><a class="t3" href="#3-6-safety-analysis">3.6 Safety Analysis</a><a class="t3" href="#3-7-experimental-setup">3.7 Experimental Setup</a><a class="t3" href="#3-8-results">3.8 Results</a><a class="t3" href="#3-9-limitations">3.9 Limitations</a><a class="t3" href="#3-10-future-work">3.10 Future Work</a><a class="t3" href="#3-11-reproducibility-statement">3.11 Reproducibility statement</a><a class="t2" href="#4-formatting-and-submission-logistics">4. Formatting and submission logistics</a><a class="t3" href="#4-1-template">4.1 Template</a><a class="t3" href="#4-2-arxiv-category">4.2 arXiv category</a><a class="t3" href="#4-3-the-endorsement-issue">4.3 The endorsement issue</a><a class="t3" href="#4-4-timeline-fit">4.4 Timeline fit</a><a class="t2" href="#5-statistical-honesty-read-this-before-writing-r">5. Statistical honesty (read this before writing Results)</a><a class="t2" href="#6-pre-submission-checklist">6. Pre-submission checklist</a></div></div></main><script id="bk-chapter-script">
+(function(){
+  // Reading progress bar
+  var bar = document.querySelector('.bk-progress');
+  if(!bar){
+    bar = document.createElement('div');
+    bar.className = 'bk-progress';
+    document.body.appendChild(bar);
+  }
+  window.addEventListener('scroll', function(){
+    var h = document.documentElement;
+    var sc = h.scrollTop || document.body.scrollTop;
+    var max = (h.scrollHeight - h.clientHeight) || 1;
+    bar.style.width = Math.min(100, Math.max(0, (sc / max) * 100)) + '%';
+  }, {passive:true});
+
+  // Scroll-spy for TOC
+  var tocLinks = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+  if(tocLinks.length){
+    var heads = tocLinks.map(function(a){
+      var id = a.getAttribute('href').slice(1);
+      return {a: a, el: document.getElementById(id)};
+    }).filter(function(x){ return !!x.el; });
+    window.addEventListener('scroll', function(){
+      var y = window.scrollY + 120;
+      var cur = heads[0];
+      for(var i=0;i<heads.length;i++){
+        if(heads[i].el.offsetTop <= y) cur = heads[i];
+      }
+      tocLinks.forEach(function(a){ a.classList.remove('active-sec'); });
+      if(cur) cur.a.classList.add('active-sec');
+    }, {passive:true});
+  }
+
+  // Highlight inline status badges in article
+  var art = document.querySelector('article');
+  if(art){
+    art.querySelectorAll('strong, b, code').forEach(function(el){
+      var t = el.textContent.trim();
+      if(/^\[(LIVE|DONE|VERIFIED|V)\]$/.test(t)){
+        el.className = (el.className + ' st-badge st-live').trim();
+      } else if(/^\[(PARTIAL|IN PROGRESS|FIX|A)\]$/.test(t) || /^\[PHASE 0/.test(t)){
+        el.className = (el.className + ' st-badge st-part').trim();
+      } else if(/^\[(PLANNED|STAGE|PHASE|WAVE|DECIDE|U)/.test(t)){
+        el.className = (el.className + ' st-badge st-plan').trim();
+      } else if(/^\[(REMOVED|DEFERRED)/.test(t)){
+        el.className = (el.className + ' st-badge st-rem').trim();
+      }
+    });
+  }
+})();
+</script></body></html>

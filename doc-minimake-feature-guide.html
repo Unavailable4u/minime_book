@@ -1,0 +1,1273 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>MiniMake — Complete Feature & Product Guide - MiniMe Atlas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap"><style>:root{--bg:#0a0a0c;--p:#121216;--p2:#17171d;--ln:#26262e;--tx:#f2f1ed;--dim:#a8a6a0;--r:#ff2052;--v:#a78bfa;--a:#f59e0b;--g:#34d399;--m:#f06cb4}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 Sora,Inter,system-ui,sans-serif;display:flex;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background-image:linear-gradient(rgba(255,32,82,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,32,82,.12) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent);mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent)}
+nav{overflow-y:auto;position:sticky;top:0;height:100vh;width:210px;flex:none;padding:22px 14px;border-right:1px solid var(--ln);background:rgba(10,10,12,.9);z-index:2}
+nav .logo{font-weight:700;font-size:18px;margin:0 8px 18px}nav .logo b{color:var(--r)}nav a{display:block;padding:8px 12px;border-radius:9px;color:var(--dim);text-decoration:none;margin:2px 0}
+nav a:hover{background:var(--p2);color:var(--tx)}nav a.on{background:rgba(255,32,82,.14);color:#fff;box-shadow:inset 2px 0 var(--r)}.nv{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:#6d6b66;margin:16px 10px 4px}nav small{display:block;margin:18px 8px 0;color:#6d6b66;font-size:12px}
+main{flex:1;min-width:0;padding:34px 40px 80px;position:relative;z-index:1;max-width:1500px}
+h1{font-size:30px;margin:0 0 4px;letter-spacing:-.02em}h2{font-size:20px;margin:34px 0 12px}h3{font-size:16px;margin:22px 0 8px}.sub{color:var(--dim);margin:0 0 24px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.card{background:var(--p);border:1px solid var(--ln);border-radius:14px;padding:16px 18px}.card.h:hover{border-color:var(--r);transform:translateY(-2px);transition:.15s}
+.k{font-size:30px;font-weight:700;letter-spacing:-.02em;color:#fff}.k small{font-size:13px;color:var(--dim);font-weight:400}.l{color:var(--dim);font-size:13px}
+.bar{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:13px}.bar span:first-child{width:170px;flex:none;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar i{display:block;height:9px;border-radius:5px;background:linear-gradient(90deg,var(--r),var(--m))}.bar em{font-style:normal;color:var(--tx);min-width:60px}
+a{color:#ff7a96}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:7px 10px;border-bottom:1px solid var(--ln);text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:var(--p2);cursor:pointer;color:var(--dim);font-weight:600}td.n{text-align:right;font-variant-numeric:tabular-nums}tr:hover td{background:rgba(255,255,255,.03)}
+.tw{overflow-x:auto;border:1px solid var(--ln);border-radius:12px;margin:12px 0}input[type=search],input[type=text]{background:var(--p);border:1px solid var(--ln);color:var(--tx);border-radius:10px;padding:9px 13px;width:320px;max-width:100%;font:inherit}
+button{background:var(--p2);color:var(--tx);border:1px solid var(--ln);border-radius:9px;padding:7px 14px;cursor:pointer;font:inherit}button:hover{border-color:var(--r)}
+.chip{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;border:1px solid var(--ln);color:var(--dim);cursor:pointer;user-select:none}
+.chip.done{color:#0a0a0c;background:var(--g);border-color:var(--g)}.chip.prog{color:#0a0a0c;background:var(--a);border-color:var(--a)}.chip.plan{color:var(--v);border-color:var(--v)}
+.lane{margin:26px 0}.lane h2{display:flex;gap:12px;align-items:center}.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}.cards .card{font-size:13px}.cards .card b{display:block;margin-bottom:6px;font-size:14px}
+.doc{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:40px}.doc article{min-width:0;max-width:880px}.toc{position:sticky;top:20px;align-self:start;max-height:90vh;overflow:auto;font-size:13px;border-left:1px solid var(--ln);padding-left:14px}
+.toc a{display:block;color:var(--dim);text-decoration:none;padding:2px 0}.toc a:hover{color:#fff}.toc .t3{padding-left:12px;font-size:12px}
+article h1,article h2{border-bottom:1px solid var(--ln);padding-bottom:6px}pre{background:var(--p);border:1px solid var(--ln);border-radius:10px;padding:12px;overflow:auto;font-size:12.5px}
+code{background:var(--p2);padding:1px 6px;border-radius:5px;font-size:.9em;color:#ffb3c2}pre code{background:none;padding:0;color:inherit}blockquote{margin:12px 0;padding:6px 16px;border-left:3px solid var(--r);color:var(--dim);background:var(--p)}
+iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}.pie{width:150px;height:150px;border-radius:50%}.row{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.lg div{font-size:13px;color:var(--dim)}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px}.pill{font-size:11px;color:var(--dim);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;display:inline-block}
+.thumb{height:210px;overflow:hidden;border-radius:10px;border:1px solid var(--ln);position:relative;background:#fff}.thumb iframe{width:1280px;height:840px;transform:scale(.3);transform-origin:0 0;border:0;pointer-events:none}
+.card,.grid>*,.g2>*{min-width:0}.card{overflow-wrap:anywhere}td,th{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}.stack>.card{margin:0 0 14px}#tm .lf{white-space:nowrap;text-overflow:ellipsis}main{overflow-x:clip}@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="atlas-mobile-css">
+.m-topbar{display:none}
+.m-backdrop{display:none}
+.nav-mclose,.toc-mhdr{display:none}
+.nav-qjump{display:flex;justify-content:space-between;align-items:center;width:calc(100% - 12px);margin:0 6px 12px;padding:7px 10px;border-radius:9px;background:var(--p2);border:1px solid var(--ln);color:var(--dim);font-size:12px;cursor:pointer}
+.nav-qjump:hover{border-color:var(--r);color:#fff}
+.nav-qjump kbd{font-size:10px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--ln);color:var(--dim)}
+.nav-sub{padding-left:20px!important;font-size:12.5px!important;color:#8e8c86!important}
+.nav-sub:hover{color:#fff!important}
+.svg-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.m-btt{position:fixed;right:18px;bottom:18px;width:38px;height:38px;border-radius:50%;background:var(--r);color:#fff;border:0;font-weight:700;font-size:16px;cursor:pointer;z-index:90;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.m-btt.vis{opacity:1;pointer-events:auto}
+.cmd-modal{position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:8vh 14px 20px}
+.cmd-modal.open{display:flex}
+.cmd-box{width:100%;max-width:640px;background:var(--p);border:1px solid var(--ln);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.65)}
+.cmd-top{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ln);background:var(--p2)}
+.cmd-top input{flex:1;background:transparent;border:0;color:var(--tx);font:inherit;font-size:14.5px;outline:none;width:auto}
+.cmd-esc{padding:3px 8px;font-size:11px;border-radius:6px}
+.cmd-list{max-height:62vh;overflow-y:auto;padding:6px}
+.cmd-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;text-decoration:none;color:var(--tx);font-size:13.5px}
+.cmd-item:hover{background:rgba(255,32,82,.14);color:#fff}
+.cmd-item small{display:block;font-size:11px;color:var(--dim)}
+@media(max-width:900px){
+  body{display:block;padding-top:54px}
+  .m-topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;position:fixed;top:0;left:0;right:0;height:54px;padding:0 12px;background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--ln);z-index:1001}
+  .m-brand{font-weight:700;font-size:15px;color:var(--tx);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .m-brand b{color:var(--r)}
+  .m-brand small{font-weight:400;color:var(--dim);font-size:13px}
+  .m-right{display:flex;gap:6px;align-items:center;flex:none}
+  .m-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);font-size:12.5px;cursor:pointer}
+  .m-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);z-index:1002}
+  body.nav-open .m-backdrop,body.toc-open .m-backdrop{display:block}
+  nav{display:block!important;position:fixed!important;top:0!important;left:0!important;bottom:0!important;height:100dvh!important;width:270px!important;max-width:84vw!important;background:#0e0e13!important;z-index:1003!important;transform:translateX(-105%);transition:transform .22s ease;box-shadow:12px 0 36px rgba(0,0,0,.6)}
+  body.nav-open nav{transform:translateX(0)}
+  nav .logo{display:flex;justify-content:space-between;align-items:center}
+  .nav-mclose{display:inline-block;padding:3px 8px;font-size:11.5px;border-radius:6px;background:var(--p2);border:1px solid var(--ln);color:var(--dim)}
+  .toc{display:block!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;height:100dvh!important;max-height:100dvh!important;width:290px!important;max-width:86vw!important;background:#101016!important;border-left:1px solid var(--ln)!important;padding:16px!important;z-index:1003!important;transform:translateX(105%);transition:transform .22s ease;box-shadow:-12px 0 36px rgba(0,0,0,.6)}
+  body.toc-open .toc{transform:translateX(0)}
+  .toc-mhdr{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--ln)}
+  .toc-mclose{padding:3px 8px;font-size:11.5px;border-radius:6px}
+  main{padding:18px 14px 64px!important;max-width:100%!important}
+  h1{font-size:24px}h2{font-size:18px}
+  .g2,.parts,.bk-grid,.bk-footer-grid,.cards{grid-template-columns:1fr!important}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .bar{flex-wrap:wrap;gap:6px}.bar span:first-child{width:100%}
+  .svg-scroll svg{min-width:680px}
+  .ex #res{max-height:38vh}
+  #tm{height:62vh!important;min-height:380px!important}
+  .split{grid-template-columns:1fr!important}
+  .board{grid-template-columns:repeat(4,minmax(250px,82vw))!important;overflow-x:auto;padding-bottom:8px}
+  .cal{min-width:560px}
+}
+@media(max-width:480px){
+  .m-btn span{display:none}
+  .grid{grid-template-columns:1fr 1fr}
+  .k{font-size:24px}
+  input[type=search],input[type=text]{width:100%!important}
+}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="atlas-mobile-css">
+.m-topbar{display:none}
+.m-backdrop{display:none}
+.nav-mclose,.toc-mhdr{display:none}
+.nav-qjump{display:flex;justify-content:space-between;align-items:center;width:calc(100% - 12px);margin:0 6px 12px;padding:7px 10px;border-radius:9px;background:var(--p2);border:1px solid var(--ln);color:var(--dim);font-size:12px;cursor:pointer}
+.nav-qjump:hover{border-color:var(--r);color:#fff}
+.nav-qjump kbd{font-size:10px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--ln);color:var(--dim)}
+.nav-sub{padding-left:20px!important;font-size:12.5px!important;color:#8e8c86!important}
+.nav-sub:hover{color:#fff!important}
+.svg-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.m-btt{position:fixed;right:18px;bottom:18px;width:38px;height:38px;border-radius:50%;background:var(--r);color:#fff;border:0;font-weight:700;font-size:16px;cursor:pointer;z-index:90;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.m-btt.vis{opacity:1;pointer-events:auto}
+.cmd-modal{position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:8vh 14px 20px}
+.cmd-modal.open{display:flex}
+.cmd-box{width:100%;max-width:640px;background:var(--p);border:1px solid var(--ln);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.65)}
+.cmd-top{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ln);background:var(--p2)}
+.cmd-top input{flex:1;background:transparent;border:0;color:var(--tx);font:inherit;font-size:14.5px;outline:none;width:auto}
+.cmd-esc{padding:3px 8px;font-size:11px;border-radius:6px}
+.cmd-list{max-height:62vh;overflow-y:auto;padding:6px}
+.cmd-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;text-decoration:none;color:var(--tx);font-size:13.5px}
+.cmd-item:hover{background:rgba(255,32,82,.14);color:#fff}
+.cmd-item small{display:block;font-size:11px;color:var(--dim)}
+@media(max-width:900px){
+  body{display:block;padding-top:54px}
+  .m-topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;position:fixed;top:0;left:0;right:0;height:54px;padding:0 12px;background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--ln);z-index:1001}
+  .m-brand{font-weight:700;font-size:15px;color:var(--tx);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .m-brand b{color:var(--r)}
+  .m-brand small{font-weight:400;color:var(--dim);font-size:13px}
+  .m-right{display:flex;gap:6px;align-items:center;flex:none}
+  .m-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);font-size:12.5px;cursor:pointer}
+  .m-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);z-index:1002}
+  body.nav-open .m-backdrop,body.toc-open .m-backdrop{display:block}
+  nav{display:block!important;position:fixed!important;top:0!important;left:0!important;bottom:0!important;height:100dvh!important;width:270px!important;max-width:84vw!important;background:#0e0e13!important;z-index:1003!important;transform:translateX(-105%);transition:transform .22s ease;box-shadow:12px 0 36px rgba(0,0,0,.6)}
+  body.nav-open nav{transform:translateX(0)}
+  nav .logo{display:flex;justify-content:space-between;align-items:center}
+  .nav-mclose{display:inline-block;padding:3px 8px;font-size:11.5px;border-radius:6px;background:var(--p2);border:1px solid var(--ln);color:var(--dim)}
+  .toc{display:block!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;height:100dvh!important;max-height:100dvh!important;width:290px!important;max-width:86vw!important;background:#101016!important;border-left:1px solid var(--ln)!important;padding:16px!important;z-index:1003!important;transform:translateX(105%);transition:transform .22s ease;box-shadow:-12px 0 36px rgba(0,0,0,.6)}
+  body.toc-open .toc{transform:translateX(0)}
+  .toc-mhdr{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--ln)}
+  .toc-mclose{padding:3px 8px;font-size:11.5px;border-radius:6px}
+  main{padding:18px 14px 64px!important;max-width:100%!important}
+  h1{font-size:24px}h2{font-size:18px}
+  .g2,.parts,.bk-grid,.bk-footer-grid,.cards{grid-template-columns:1fr!important}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .bar{flex-wrap:wrap;gap:6px}.bar span:first-child{width:100%}
+  .svg-scroll svg{min-width:680px}
+  .ex #res{max-height:38vh}
+  #tm{height:62vh!important;min-height:380px!important}
+  .split{grid-template-columns:1fr!important}
+  .board{grid-template-columns:repeat(4,minmax(250px,82vw))!important;overflow-x:auto;padding-bottom:8px}
+  .cal{min-width:560px}
+}
+@media(max-width:480px){
+  .m-btn span{display:none}
+  .grid{grid-template-columns:1fr 1fr}
+  .k{font-size:24px}
+  input[type=search],input[type=text]{width:100%!important}
+}
+</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="on">Docs</a><a href="doc-minime-feature-guide.html" class="nav-sub">· Ch.4 MiniMe Guide</a><a href="doc-minimake-feature-guide.html" class="nav-sub">· Ch.5 MiniMake Guide</a><a href="doc-minimate-feature-guide.html" class="nav-sub">· Ch.8 MiniMate Guide</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main><h1>MiniMake — Complete Feature & Product Guide</h1><p class="sub">MiniMake. 4,960 words. <a href="data/docs/minimake_feature_guide.md" download>Download .md</a></p><div class="bk-banner">
+  <div class="bk-top">
+    <div>
+      <span class="bk-part">Part III · MiniMake (Local-First Terminal & Editor Coding Agent)</span>
+      <span class="bk-ch">Chapter 5 of 14</span>
+      <span class="bk-new">NEW IN BOOK</span>
+    </div>
+    <div class="bk-actions">
+      <a href="docs.html" class="bk-pill-link">📚 All 14 Chapters</a>
+      <a href="journey.html#doc-minimake-feature-guide" class="bk-pill-link">🧭 Journey Map</a>
+      <a href="data/docs/minimake_feature_guide.md" download class="bk-pill-link">⬇ Download .md</a>
+    </div>
+  </div>
+  <p class="bk-desc">Canonical specification for the local-first terminal & editor coding agent (`minimake`), `minicore/`, 14 tools, OS sandbox, and 6 sub-agents.</p>
+  <div class="bk-meta">
+    <span><b>4,960</b> words (~23 min read)</span><span>·</span><span><b>60</b> sections</span><span>·</span><span><b>4</b> tables</span>
+  </div>
+  <div class="bk-prevnext"><a href="doc-minime-feature-guide.html" class="bk-nav-btn">← Ch. 4: MiniMe — Complete Feature & Product Guide</a><a href="doc-minimake-plan.html" class="bk-nav-btn bk-next">Ch. 6: MiniMake Build Execution Guide →</a></div>
+</div><div class="doc"><article><h1 id="minimake-feature-guide">MiniMake Feature Guide</h1>
+<p><strong>Purpose:</strong> the user manual and feature register for MiniMake, the local-first coding agent built on the MiniMe platform.</p>
+<p><strong>Status:</strong> MiniMake is specified and being built in phases. This guide records the intended product behavior from the current build plan. It labels planned behavior explicitly because the plan contains work packages, not proof that every package has shipped.</p>
+<ul>
+<li><strong>Available or inherited:</strong> behavior already present in the MiniMe web application or explicitly carried forward into MiniMake.</li>
+<li><strong>Planned:</strong> behavior described by the MiniMake build plan but not yet verified as released.</li>
+<li><strong>Gated:</strong> behavior that requires a milestone, safety review, legal decision, or external service configuration first.</li>
+</ul>
+<h3 id="architectural-synchronization-overrides-o1-o8-fr">Architectural Synchronization (Overrides O1–O8 from <code>minimake_build_plan.md</code>)</h3>
+<p>Where the earlier standalone design note (<code>doc-minimake-product.html</code>) and this guide or <code>minimake_build_plan.md</code> differ, <strong>these 8 synchronized rules govern</strong>:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Override ID</th>
+<th style="text-align: left;">Architectural Rule</th>
+<th style="text-align: left;">How It Connects Across the Book</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>O1 · Local-First Data Placement</strong></td>
+<td style="text-align: left;">Repo files, SQLite <code>index.db</code>, git checkpoints, and shell/test runs stay on the user's device; server keeps only <code>usage_ledger</code> + 2h Redis buffer</td>
+<td style="text-align: left;">Keeps server RAM/CPU near zero (<code>minime_server_management_guide.md</code> §9)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>O2 · One Account, One Cap, One Ledger</strong></td>
+<td style="text-align: left;">Shares the user's MiniMe tier (<code>Free / Basic $9 / Moderate $29 / Ultimate $79</code>) via <code>usage_ledger</code> (<code>surface='minimake'</code>, WP <code>S01</code>)</td>
+<td style="text-align: left;">Built once with MiniMe <code>Tech-A/B</code> (<code>MiniMe_Financial_Strategy_Rulebook.md</code> Rule 4)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>O3 · Linux &amp; WSL2 First</strong></td>
+<td style="text-align: left;">v1 targets native Linux and Windows via WSL2 (<code>bubblewrap</code>); native Windows &amp; macOS deferred to post-GA</td>
+<td style="text-align: left;">Enforced by <code>minimake doctor</code> (<code>C04</code>, <code>C21</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>O4 · Python CLI + <code>minicore/</code></strong></td>
+<td style="text-align: left;">Distributed via <code>uv tool install minimake</code> / <code>pipx</code>; shares <code>minicore/</code> package with <code>backend/</code> and <code>minimate/</code></td>
+<td style="text-align: left;">Extracted in WP <code>P00</code> (<code>Wave 1</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>O5 · Backend Route Namespace</strong></td>
+<td style="text-align: left;">Server package lives at <code>backend/codeagent/</code> mounted under <code>/api/codeagent/*</code></td>
+<td style="text-align: left;">Avoids collision with existing <code>backend/agents/coder.py</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>O6 · Phase 0 Browser Slimming</strong></td>
+<td style="text-align: left;">Removes browser Python <code>Run</code>, <code>Terminal</code>, and <code>Local-folder mode</code> (<code>MK_B02–B06</code>); replaces with CLI handoff</td>
+<td style="text-align: left;">Synchronized with <code>minime_feature_guide.md</code> §9.3 &amp; §17.2</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>O7 · Account Required (No Offline v1)</strong></td>
+<td style="text-align: left;">Reasoning loop runs on MiniMe server using the 8-provider router; requires sign-in (<code>minimake login</code>)</td>
+<td style="text-align: left;">Preserves Rulebook model routing &amp; prompt caching</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>O8 · Profile Field (<code>profile="code"</code>)</strong></td>
+<td style="text-align: left;">Every run carries <code>profile: "code"</code> so <code>minimate</code> can reuse the same protocol with <code>profile: "mate"</code></td>
+<td style="text-align: left;">Shared contract in <code>minicore/protocol.py</code> (<code>P00</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<hr/>
+<h2 id="1-what-minimake-is">1. What MiniMake Is</h2>
+<p>MiniMake is a coding-focused agent that works with a user's project on the user's device while using the MiniMe server and model providers for reasoning. It is intended to combine:</p>
+<ul>
+<li>a terminal-first coding workflow;</li>
+<li>a browser editor and project explorer;</li>
+<li>AI chat with Ask and Edit modes;</li>
+<li>proposed changes instead of silent file mutation;</li>
+<li>checkpoints, rewind, history, and conflict review;</li>
+<li>a local policy engine and sandbox;</li>
+<li>skills, hooks, memory, secrets handling, and MCP tools;</li>
+<li>headless use for automation and MiniMate delegation;</li>
+<li>one shared account and usage pool across MiniMe, MiniMake, and MiniMate.</li>
+</ul>
+<p>The product's trust model is local-first, not local-only. Project files, history, settings, approvals, checkpoints, and local logs are intended to remain on the device. Relevant code and prompt context are sent to the MiniMe server and model providers during a run. The service keeps usage numbers and only the short-lived in-flight content needed to complete an active run; it does not promise that code never leaves the device.</p>
+<p>MiniMake is designed for Linux and WSL2 in version 1. Native Windows, WSL1, and macOS are not part of the initial supported platform promise.</p>
+<hr/>
+<h2 id="2-installation-and-environment">2. Installation and Environment</h2>
+<h3 id="2-1-supported-environment">2.1 Supported environment</h3>
+<p>The initial supported environments are:</p>
+<ul>
+<li>Ubuntu 22.04 or newer;</li>
+<li>Debian 12;</li>
+<li>current Fedora;</li>
+<li>Arch Linux on a best-effort basis;</li>
+<li>Ubuntu running inside WSL2 as the primary Windows path.</li>
+</ul>
+<p>Projects should live in the Linux filesystem, such as <code>~/code/project</code>. Projects under <code>/mnt/c</code> are discouraged because of filesystem performance and permission differences. <code>doctor</code> warns about unsuitable project locations and may refuse to sandbox them.</p>
+<p>Native Windows is not supported by the first version. WSL1 is not supported. macOS is deferred until a later sandbox backend is available.</p>
+<h3 id="2-2-installation">2.2 Installation</h3>
+<p>The intended distribution is a Python package installed with <code>uv tool install minimake</code> or <code>pipx</code>, plus an installer script that:</p>
+<ul>
+<li>installs or checks <code>uv</code>;</li>
+<li>checks for <code>ripgrep</code>;</li>
+<li>checks for <code>git</code>;</li>
+<li>checks for <code>bubblewrap</code>;</li>
+<li>installs the command-line client;</li>
+<li>runs <code>minimake doctor</code>;</li>
+<li>explains missing dependencies and supported alternatives.</li>
+</ul>
+<p>A bundled native binary may be added later. It is not required for the first release.</p>
+<h3 id="2-3-account-and-connectivity">2.3 Account and connectivity</h3>
+<p>MiniMake requires a signed-in MiniMe account and a network connection because the reasoning engine is server-side. Offline mode is not part of v1.</p>
+<p>The device is paired with the account through a device credential flow. The server stores the device registry and credential hash, not the user's project content. Devices can be revoked.</p>
+<h3 id="2-4-initial-commands">2.4 Initial commands</h3>
+<p>The intended command family includes:</p>
+<ul>
+<li><code>minimake login</code>;</li>
+<li><code>minimake logout</code>;</li>
+<li><code>minimake init</code>;</li>
+<li><code>minimake doctor</code>;</li>
+<li><code>minimake status</code>;</li>
+<li><code>minimake run</code>;</li>
+<li><code>minimake resume</code>;</li>
+<li><code>minimake stop</code>;</li>
+<li><code>minimake service install</code>;</li>
+<li><code>minimake service uninstall</code>;</li>
+<li><code>minimake vault add|list|remove</code>;</li>
+<li>headless execution for MiniMate and scripts.</li>
+</ul>
+<p>Exact command names are subject to the release package and may change while the protocol stabilizes.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Command / Surface</th>
+<th style="text-align: left;">Arguments &amp; Flags</th>
+<th style="text-align: left;">Primary Purpose</th>
+<th style="text-align: left;">Work Package</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>minimake login</code> / <code>logout</code></td>
+<td style="text-align: left;"><code>--device-name</code>, <code>--all</code></td>
+<td style="text-align: left;">OAuth 2.0 RFC 8628 device-code pairing with MiniMe web account; stores token in OS keychain</td>
+<td style="text-align: left;"><code>S02</code>, <code>C02</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>minimake init</code></td>
+<td style="text-align: left;"><code>[path]</code></td>
+<td style="text-align: left;">Initializes <code>.minimake/</code> config, <code>.minimakeignore</code>, and <code>MINIMAKE.md</code> project instructions</td>
+<td style="text-align: left;"><code>C01</code>, <code>L03</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>minimake doctor</code></td>
+<td style="text-align: left;"><code>--json</code>, <code>--fix</code></td>
+<td style="text-align: left;">14-point preflight check: OS/WSL2, <code>/mnt/c</code> path warning, <code>git</code>, <code>rg</code>, <code>bwrap</code>, auth, and sandbox smoke test</td>
+<td style="text-align: left;"><code>C04</code>, <code>C21</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>minimake</code> (Interactive TUI)</td>
+<td style="text-align: left;"><code>[-m ask\|edit\|auto]</code>, <code>[--resume &lt;id&gt;]</code></td>
+<td style="text-align: left;">Full-screen Textual/Rich terminal UI with streaming diff viewer, approval prompt bar, and slash commands</td>
+<td style="text-align: left;"><code>C01</code>, <code>C12</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>minimake run</code> (Headless)</td>
+<td style="text-align: left;"><code>"&lt;prompt&gt;" --json --max-usd &lt;n&gt;</code></td>
+<td style="text-align: left;">Non-interactive coding run for CI pipelines and <strong>MiniMate IPC delegation (<code>MT-M07</code>)</strong></td>
+<td style="text-align: left;"><code>C03</code>, <code>C17</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>minimake review</code></td>
+<td style="text-align: left;"><code>[--staged \| --branch &lt;ref&gt;]</code></td>
+<td style="text-align: left;">Local pre-commit/PR diff review powered by <code>reviewer</code> &amp; <code>security_scanner</code> sub-agents</td>
+<td style="text-align: left;"><code>C20</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>minimake handoff</code></td>
+<td style="text-align: left;"><code>&lt;workspace_id&gt;</code></td>
+<td style="text-align: left;">Pushes/pulls a compact summary bundle between local CLI and MiniMe Web Build tab</td>
+<td style="text-align: left;"><code>S11</code>, <code>C16</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Slash <code>/mode</code>, <code>/diff</code>, <code>/rewind</code>, <code>/compact</code>, <code>/usage</code></td>
+<td style="text-align: left;">In-session TUI commands</td>
+<td style="text-align: left;">Switch <code>ask\|edit\|auto</code>, inspect diffs, roll back git checkpoints (<code>C10</code>), compact context (<code>L02</code>), or check shared pool</td>
+<td style="text-align: left;"><code>C10</code>, <code>C12</code>, <code>L02</code></td>
+</tr>
+</tbody>
+</table></div>
+<hr/>
+<h2 id="3-core-coding-workflow">3. Core Coding Workflow</h2>
+<h3 id="3-1-start-a-coding-run">3.1 Start a coding run</h3>
+<p>A user can describe a coding task in natural language. MiniMake sends the task, relevant project context, policy state, and selected profile to the server-side run loop.</p>
+<p>Each run carries <code>profile: "code"</code>. This keeps coding assumptions explicit and lets MiniMate use the same engine with a different automation profile later.</p>
+<p>A run can be:</p>
+<ul>
+<li>interactive from the terminal;</li>
+<li>started from the browser Build tab;</li>
+<li>started headlessly by another local process;</li>
+<li>resumed after a disconnect;</li>
+<li>cancelled by the user;</li>
+<li>stopped by a policy, budget, or sandbox limit.</li>
+</ul>
+<h3 id="3-2-ask-mode">3.2 Ask mode</h3>
+<p>Ask mode is for analysis without applying project edits. Typical requests include:</p>
+<ul>
+<li>explain a function or architecture;</li>
+<li>find where a behavior is implemented;</li>
+<li>identify likely bugs;</li>
+<li>propose an implementation plan;</li>
+<li>inspect tests and dependencies;</li>
+<li>summarize a repository area;</li>
+<li>compare approaches;</li>
+<li>review a diff;</li>
+<li>explain an error or failing test.</li>
+</ul>
+<p>Ask mode can use read-only tools, repository search, code context, and generated artifacts. It should not silently write project files.</p>
+<h3 id="3-3-edit-mode">3.3 Edit mode</h3>
+<p>Edit mode is for proposing code changes. The expected flow is:</p>
+<ol>
+<li>describe the requested change;</li>
+<li>provide or select relevant files, symbols, or context chips;</li>
+<li>let MiniMake inspect the repository;</li>
+<li>generate a proposal;</li>
+<li>review affected files and hunks;</li>
+<li>keep all, keep selected changes, or reject;</li>
+<li>write accepted changes;</li>
+<li>run checks and inspect problems.</li>
+</ol>
+<p>The approval boundary is a product feature. An AI response is not the same thing as an accepted file change.</p>
+<h3 id="3-4-context-selection">3.4 Context selection</h3>
+<p>The user can give the agent context through:</p>
+<ul>
+<li>the current file;</li>
+<li>selected text;</li>
+<li>a symbol or component;</li>
+<li>a path from the explorer;</li>
+<li>project search results;</li>
+<li>code context chips;</li>
+<li>a task or instruction step from Build;</li>
+<li>a previous proposal or error output;</li>
+<li>repository-wide architecture context when needed.</li>
+</ul>
+<p>The context assembler is responsible for trimming and organizing this information. It should preserve the most relevant content first and report when a size cap means only part of a file was kept.</p>
+<h3 id="3-5-streaming-and-progress">3.5 Streaming and progress</h3>
+<p>The client receives a live run stream rather than waiting for one opaque final response. The stream can contain:</p>
+<ul>
+<li>run started;</li>
+<li>planning or classification;</li>
+<li>tool proposed;</li>
+<li>approval requested;</li>
+<li>tool result;</li>
+<li>model token chunks;</li>
+<li>file proposal updates;</li>
+<li>reviewer output;</li>
+<li>warnings;</li>
+<li>run completion;</li>
+<li>run failure;</li>
+<li>cancellation;</li>
+<li>quota or budget events.</li>
+</ul>
+<p>The browser shows live progress through the chat dock and working panel. The terminal client shows a scrollback-friendly stream intended for long tasks.</p>
+<hr/>
+<h2 id="4-files-and-project-workspace">4. Files and Project Workspace</h2>
+<h3 id="4-1-project-explorer">4.1 Project explorer</h3>
+<p>The browser editor and local client are intended to provide:</p>
+<ul>
+<li>file and folder listing;</li>
+<li>folder expansion and collapse;</li>
+<li>new file creation;</li>
+<li>new folder creation;</li>
+<li>file rename;</li>
+<li>file move;</li>
+<li>file delete;</li>
+<li>delete-and-recreate support;</li>
+<li>path validation;</li>
+<li>project search;</li>
+<li>quick open;</li>
+<li>recent files;</li>
+<li>multiple editor tabs;</li>
+<li>dirty-state indicators;</li>
+<li>save behavior;</li>
+<li>ZIP download.</li>
+</ul>
+<p>The browser's v1 editor is cloud-project focused. The older local-folder mode and terminal panel are intentionally removed from the browser plan as MiniMake takes over local execution. The backend local workspace routes may remain during migration.</p>
+<h3 id="4-2-code-editor">4.2 Code editor</h3>
+<p>The editor workbench includes or inherits:</p>
+<ul>
+<li>CodeMirror editing;</li>
+<li>language-aware code editing;</li>
+<li>editor tabs;</li>
+<li>formatting on save where supported;</li>
+<li>selection and context actions;</li>
+<li>problems panel;</li>
+<li>console panel for preview output;</li>
+<li>history panel;</li>
+<li>version comparison;</li>
+<li>conflict comparison;</li>
+<li>preview column;</li>
+<li>device and viewport toolbar;</li>
+<li>HTML and React preview;</li>
+<li>dev-server URL preview;</li>
+<li>wireframe preview;</li>
+<li>resizable bottom panels.</li>
+</ul>
+<p>Python files are not intended to run directly inside the browser preview. Python execution belongs in the controlled MiniMake environment. Pyodide remains for chat artifacts where a small browser-side Python result is explicitly supported.</p>
+<h3 id="4-3-local-project-access">4.3 Local project access</h3>
+<p>MiniMake's local client can access the project through a guarded local tool layer. The path guard prevents access outside approved roots or protected paths. A local operation can be:</p>
+<ul>
+<li>read-only;</li>
+<li>a proposed write;</li>
+<li>an approved write;</li>
+<li>denied by policy;</li>
+<li>blocked because the path is protected.</li>
+</ul>
+<p>The product should not treat a natural-language request as permission to read every file on the machine.</p>
+<h3 id="4-4-history-and-recovery">4.4 History and recovery</h3>
+<p>MiniMake stores local history and checkpoints so a user can recover from an unwanted change. Intended operations include:</p>
+<ul>
+<li>create a checkpoint before a risky run;</li>
+<li>inspect file versions;</li>
+<li>compare current and previous versions;</li>
+<li>restore an earlier version;</li>
+<li>rewind a run;</li>
+<li>resume from a checkpoint;</li>
+<li>resolve a conflict between local and server versions;</li>
+<li>retain a tombstone when a file is moved or deleted.</li>
+</ul>
+<p>The device log is the source of truth. A server-side in-flight buffer expiring should not destroy the local run record; the client can resend the necessary state during <code>run.resume</code>.</p>
+<hr/>
+<h2 id="5-agent-loop-and-tools">5. Agent Loop and Tools</h2>
+<h3 id="5-1-server-side-reasoning-loop">5.1 Server-side reasoning loop</h3>
+<p>The server runs the coding profile through a shared agent loop. The loop can:</p>
+<ul>
+<li>assemble the request context;</li>
+<li>choose a model adapter;</li>
+<li>ask the model for a tool call or response;</li>
+<li>validate a tool request;</li>
+<li>request user approval where required;</li>
+<li>dispatch the tool;</li>
+<li>return the tool result to the model;</li>
+<li>enforce budgets;</li>
+<li>retry transient provider failures;</li>
+<li>compact context when it becomes too large;</li>
+<li>call reviewers or security roles;</li>
+<li>stop on policy violations;</li>
+<li>produce a final answer and event record.</li>
+</ul>
+<p>The coding profile is deliberately separate from MiniMate's automation profile even though both use the same engine.</p>
+<h3 id="5-2-built-in-coding-tools">5.2 Built-in coding tools</h3>
+<p>The intended coding tool catalog includes:</p>
+<ul>
+<li>list files and directories;</li>
+<li>read files;</li>
+<li>search with <code>ripgrep</code>;</li>
+<li>inspect symbols and code elements;</li>
+<li>compare versions;</li>
+<li>propose edits;</li>
+<li>apply approved edits;</li>
+<li>create, move, rename, and delete files;</li>
+<li>run approved checks;</li>
+<li>inspect test and lint output;</li>
+<li>read preview or console output;</li>
+<li>create checkpoints;</li>
+<li>restore or rewind;</li>
+<li>ask the user a clarification question;</li>
+<li>delegate a bounded subtask;</li>
+<li>use configured MCP tools.</li>
+</ul>
+<p>Tool schemas are explicit. Unknown tools and malformed arguments fail closed.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Tool Name</th>
+<th style="text-align: left;">Category</th>
+<th style="text-align: left;">Default Approval (<code>Ask</code> / <code>Edit</code> / <code>Auto</code>)</th>
+<th style="text-align: left;">Sandbox &amp; Guardrails</th>
+<th style="text-align: left;">Work Package</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>read_file</code>, <code>list_dir</code>, <code>glob_search</code>, <code>grep_search</code></td>
+<td style="text-align: left;">Read &amp; Search</td>
+<td style="text-align: left;">Allowed / Allowed / Allowed</td>
+<td style="text-align: left;">Path-jailed to repo root; blocks <code>.env*</code>, <code>~/.ssh</code>, and <code>.minimakeignore</code></td>
+<td style="text-align: left;"><code>C05</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>symbol_search</code>, <code>repo_map</code></td>
+<td style="text-align: left;">Code Index</td>
+<td style="text-align: left;">Allowed / Allowed / Allowed</td>
+<td style="text-align: left;">Queries local SQLite <code>index.db</code> (<code>FTS5</code> + tree-sitter symbol table)</td>
+<td style="text-align: left;"><code>C06</code>, <code>C09</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>git_status_diff</code>, <code>diagnostics</code></td>
+<td style="text-align: left;">Inspection</td>
+<td style="text-align: left;">Allowed / Allowed / Allowed</td>
+<td style="text-align: left;">Read-only <code>git status</code>/<code>diff</code> and linter/LSP problem collection</td>
+<td style="text-align: left;"><code>C05</code>, <code>C08</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>edit_file</code>, <code>write_file</code>, <code>apply_patch</code></td>
+<td style="text-align: left;">File Mutation</td>
+<td style="text-align: left;">Denied / <strong>Prompt Diff</strong> / Auto in repo</td>
+<td style="text-align: left;">Atomic temp-write + rename; creates git shadow checkpoint (<code>C10</code>) before mutation</td>
+<td style="text-align: left;"><code>C07</code>, <code>C10</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>delete_file</code></td>
+<td style="text-align: left;">File Deletion</td>
+<td style="text-align: left;">Denied / <strong>Prompt Always</strong> / <strong>Prompt Always</strong></td>
+<td style="text-align: left;">Never auto-approved; recoverable via git checkpoint rewind</td>
+<td style="text-align: left;"><code>C07</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>run_command</code>, <code>run_tests</code></td>
+<td style="text-align: left;">Shell Execution</td>
+<td style="text-align: left;">Denied / <strong>Prompt Command</strong> / Allowlisted tests</td>
+<td style="text-align: left;">Executed inside <code>bubblewrap</code> (<code>X01</code>); strips secrets (<code>X02</code>); blocks dangerous commands</td>
+<td style="text-align: left;"><code>C08</code>, <code>X01</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ask_user</code>, <code>todo_write</code>, <code>web_fetch_docs</code></td>
+<td style="text-align: left;">Control &amp; Docs</td>
+<td style="text-align: left;">Allowed / Allowed / Allowed</td>
+<td style="text-align: left;">Structured clarification prompt (<code>L01</code>), task list tracker, and domain-gated doc fetch</td>
+<td style="text-align: left;"><code>L01</code>, <code>C15</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="5-3-subagents-and-delegation">5.3 Subagents and delegation</h3>
+<p>The agent can use specialized roles for:</p>
+<ul>
+<li>repository exploration;</li>
+<li>implementation planning;</li>
+<li>code writing;</li>
+<li>code review;</li>
+<li>test writing;</li>
+<li>security review;</li>
+<li>performance review;</li>
+<li>documentation;</li>
+<li>dependency mapping;</li>
+<li>architecture and schema analysis;</li>
+<li>output organization.</li>
+</ul>
+<p>Subagents have their own budgets and context boundaries. The main run remains responsible for combining their outputs and presenting a coherent result.</p>
+<h3 id="5-4-compaction-and-long-runs">5.4 Compaction and long runs</h3>
+<p>Long coding tasks need more context than one model request can hold. MiniMake is intended to support:</p>
+<ul>
+<li>rolling summaries;</li>
+<li>preservation of task constraints;</li>
+<li>checkpointed run state;</li>
+<li>selective replay of relevant tool outputs;</li>
+<li>compaction before the context limit;</li>
+<li>resumable runs after a connection interruption.</li>
+</ul>
+<p>Compaction must not silently discard a safety instruction, approval decision, protected-path rule, or user constraint.</p>
+<hr/>
+<h2 id="6-safety-and-trust">6. Safety and Trust</h2>
+<h3 id="6-1-policy-engine">6.1 Policy engine</h3>
+<p>Every tool has a risk level and policy requirements. The policy engine can consider:</p>
+<ul>
+<li>read versus write;</li>
+<li>inside-project versus outside-project path;</li>
+<li>shell or process execution;</li>
+<li>network access;</li>
+<li>irreversible effects;</li>
+<li>requested user mode;</li>
+<li>protected paths;</li>
+<li>unattended versus interactive execution;</li>
+<li>connector or MCP trust level;</li>
+<li>per-run and account budgets.</li>
+</ul>
+<p>Security decisions fail closed. Metering and telemetry helpers fail open where the plan explicitly allows it, so an analytics outage does not break an otherwise safe request.</p>
+<h3 id="6-2-modes-and-approvals">6.2 Modes and approvals</h3>
+<p>The product is designed around modes that control how much autonomy is allowed. A mode can require:</p>
+<ul>
+<li>no approval for read-only project inspection;</li>
+<li>confirmation before file writes;</li>
+<li>confirmation before shell or network activity;</li>
+<li>confirmation before touching paths outside the project;</li>
+<li>confirmation before irreversible operations;</li>
+<li>a complete deny for a capability.</li>
+</ul>
+<p>Approval records are stored locally and included in the audit trail. A later step cannot pretend that an approval happened if it did not.</p>
+<h3 id="6-3-sandbox">6.3 Sandbox</h3>
+<p>Untrusted or high-risk work runs in a sandbox. The first Linux implementation uses <code>bubblewrap</code> and a controlled network path. The sandbox is intended to provide:</p>
+<ul>
+<li>restricted filesystem visibility;</li>
+<li>read-only roots where possible;</li>
+<li>approved writable project paths;</li>
+<li>sanitized environment variables;</li>
+<li>no accidental secret inheritance;</li>
+<li>process and resource limits;</li>
+<li>network allowlists or no network;</li>
+<li>explicit command policy;</li>
+<li>a clear timeout and cancellation path.</li>
+</ul>
+<p>Sandbox configuration is part of the trust boundary, not merely an optimization.</p>
+<h3 id="6-4-secrets">6.4 Secrets</h3>
+<p>Secrets are stored in a local vault and should never be placed in:</p>
+<ul>
+<li>model prompts unless a connector explicitly requires a safe token reference;</li>
+<li>tool results;</li>
+<li>logs;</li>
+<li>generated diffs;</li>
+<li>the browser event stream;</li>
+<li>the sandbox environment without sanitization.</li>
+</ul>
+<p>The planned vault supports an OS keyring where available, a passphrase-derived key, or a protected key file as a less secure fallback. <code>doctor</code> reports the fallback level without printing the secret.</p>
+<h3 id="6-5-injection-and-output-protection">6.5 Injection and output protection</h3>
+<p>MiniMake includes or inherits:</p>
+<ul>
+<li>prompt and instruction injection defenses;</li>
+<li>secret and PII redaction;</li>
+<li>taint tracking for web or untrusted content;</li>
+<li>output guards;</li>
+<li>static scanning;</li>
+<li>Gitleaks and Semgrep in CI;</li>
+<li>security review roles;</li>
+<li>code proposal review;</li>
+<li>no-content canary tests proving prompts and source code are not written to persistent server storage.</li>
+</ul>
+<p>Content from a web page, issue, file, or external connector is data by default. It does not become an instruction merely because it contains imperative language.</p>
+<h3 id="6-6-red-team-and-evaluation-coverage">6.6 Red-team and evaluation coverage</h3>
+<p>The quality plan includes evaluations for:</p>
+<ul>
+<li>path traversal;</li>
+<li>protected-path writes;</li>
+<li>shell escape;</li>
+<li>secret enumeration;</li>
+<li>prompt injection;</li>
+<li>unsafe network access;</li>
+<li>tool budget exhaustion;</li>
+<li>malformed tool arguments;</li>
+<li>score or result smuggling in experimental flows;</li>
+<li>cancellation and resume correctness;</li>
+<li>content leakage to Postgres or logs.</li>
+</ul>
+<p>These are release gates, not optional documentation exercises.</p>
+<hr/>
+<h2 id="7-hooks-skills-instructions-and-memory">7. Hooks, Skills, Instructions, and Memory</h2>
+<h3 id="7-1-hooks">7.1 Hooks</h3>
+<p>Hooks let a project or user run controlled actions around a coding event, such as before a run, after a proposal, after an accepted change, or after a test. Hooks are subject to the same policy and sandbox rules as other tools.</p>
+<p>A hook should declare what it does, what paths it needs, and whether it can make an external request. Hidden side effects are not an intended feature.</p>
+<h3 id="7-2-skills">7.2 Skills</h3>
+<p>Skills are reusable packages of instructions, tools, files, and policy metadata. A skill can teach MiniMake a project-specific workflow such as:</p>
+<ul>
+<li>how to run the test suite;</li>
+<li>how to follow a repository's code style;</li>
+<li>how to deploy a service;</li>
+<li>how to review a database migration;</li>
+<li>how to generate a particular artifact.</li>
+</ul>
+<p>Skill loading is manifest-driven. Skills can be reviewed and scanned before use. Future skill drafts are intended to enter a review queue rather than becoming active immediately.</p>
+<h3 id="7-3-instructions">7.3 Instructions</h3>
+<p>Project instructions define durable local conventions, such as:</p>
+<ul>
+<li>required test commands;</li>
+<li>files that must not be edited;</li>
+<li>formatting rules;</li>
+<li>architectural boundaries;</li>
+<li>commit or release rules;</li>
+<li>preferred libraries;</li>
+<li>security restrictions.</li>
+</ul>
+<p>The run manager must preserve these instructions through context assembly and compaction.</p>
+<h3 id="7-4-memory">7.4 Memory</h3>
+<p>MiniMake can retain local memory about a project, including:</p>
+<ul>
+<li>useful commands;</li>
+<li>architecture facts;</li>
+<li>recurring failure modes;</li>
+<li>accepted conventions;</li>
+<li>previous decisions;</li>
+<li>user preferences;</li>
+<li>task summaries.</li>
+</ul>
+<p>Memory is stored on the device and can be searched locally. A memory item should be inspectable and removable. Untrusted content should not be allowed to poison durable instructions without review.</p>
+<hr/>
+<h2 id="8-browser-integration">8. Browser Integration</h2>
+<h3 id="8-1-build-tab">8.1 Build tab</h3>
+<p>The MiniMe Build tab is the browser companion for MiniMake. It provides:</p>
+<ul>
+<li>task and feature board;</li>
+<li>instruction checklist;</li>
+<li>code editor workbench;</li>
+<li>wireframe preview;</li>
+<li>chat dock;</li>
+<li>code proposals;</li>
+<li>review and keep/reject actions;</li>
+<li>Problems and Console panels;</li>
+<li>history and conflict comparisons;</li>
+<li>preview and dev-server URL support;</li>
+<li>deployment proposal cards.</li>
+</ul>
+<p>The browser is a control and review surface. The local MiniMake client becomes the trusted place for local files, local policy, sandboxing, and terminal-oriented workflows.</p>
+<h3 id="8-2-device-page-and-pairing">8.2 Device page and pairing</h3>
+<p>The web application is intended to show:</p>
+<ul>
+<li>paired devices;</li>
+<li>online or offline status;</li>
+<li>last-seen time;</li>
+<li>revoke-device actions;</li>
+<li>the current MiniMake client version;</li>
+<li>pairing instructions;</li>
+<li>local node health where available.</li>
+</ul>
+<h3 id="8-3-remote-live-view">8.3 Remote live view</h3>
+<p>The browser can receive a live relay of an active local run. The relay is not a historical content store by default. The browser can inspect current progress while the device remains the source of truth for the run record.</p>
+<h3 id="8-4-shared-usage">8.4 Shared usage</h3>
+<p>The web app, MiniMake, and later MiniMate use one account, one plan, and one credit pool. Usage is shown by surface for transparency, but enforcement is server-side at every model call.</p>
+<hr/>
+<h2 id="9-mcp-and-external-tools">9. MCP and External Tools</h2>
+<h3 id="9-1-local-mcp-client">9.1 Local MCP client</h3>
+<p>MiniMake can host local MCP connections. The client is intended to:</p>
+<ul>
+<li>configure a server command;</li>
+<li>start and stop the server;</li>
+<li>discover tools;</li>
+<li>search the tool catalog;</li>
+<li>assign trust levels;</li>
+<li>validate schemas;</li>
+<li>enforce network and path policy;</li>
+<li>require confirmation for risky calls;</li>
+<li>redact secrets from results;</li>
+<li>record tool events locally.</li>
+</ul>
+<p>MCP is an extension point, not an automatic trust upgrade. A connected server can be blocked, read-only, or approval-required.</p>
+<h3 id="9-2-external-network-access">9.2 External network access</h3>
+<p>Network access is controlled by policy and sandbox. A tool or skill should declare allowed domains. Web content is tainted and must not silently become a trusted instruction or be allowed to write project files without the appropriate gate.</p>
+<hr/>
+<h2 id="10-usage-budgets-and-economics">10. Usage, Budgets, and Economics</h2>
+<h3 id="10-1-one-shared-pool">10.1 One shared pool</h3>
+<p>MiniMake does not have a separate hidden allowance from the web application. The account ledger covers:</p>
+<ul>
+<li>web application work;</li>
+<li>MiniMake runs;</li>
+<li>MiniMate runs;</li>
+<li>system operations where applicable.</li>
+</ul>
+<p>Usage is measured in cost-weighted credits. The user can see usage by surface and an approximate remaining-session view.</p>
+<h3 id="10-2-per-run-limits">10.2 Per-run limits</h3>
+<p>Every run can have:</p>
+<ul>
+<li>a maximum credit budget;</li>
+<li>a maximum token budget;</li>
+<li>a maximum tool-call count;</li>
+<li>a maximum wall-clock duration;</li>
+<li>a maximum retry count;</li>
+<li>a maximum child-agent budget;</li>
+<li>a sandbox resource limit.</li>
+</ul>
+<p>The server performs a pre-flight availability check and commits usage after the model call. The client cannot be trusted to enforce the account cap by itself.</p>
+<h3 id="10-3-failure-and-interruption">10.3 Failure and interruption</h3>
+<p>When a provider, connection, or worker fails:</p>
+<ul>
+<li>the local event log remains available;</li>
+<li>the active run can be resumed when enough state is present;</li>
+<li>transient provider failures may retry with backoff;</li>
+<li>an exhausted account pool stops the run cleanly;</li>
+<li>a stopped or cancelled run does not continue invisibly;</li>
+<li>the user receives a clear reason and next action.</li>
+</ul>
+<hr/>
+<h2 id="11-headless-and-minimate-delegation">11. Headless and MiniMate Delegation</h2>
+<p>MiniMake is intended to work without the interactive terminal UI. Headless mode lets MiniMate or another local orchestrator:</p>
+<ul>
+<li>submit a coding task;</li>
+<li>pass a project and profile;</li>
+<li>receive streamed events;</li>
+<li>answer approval requests through the local policy path;</li>
+<li>resume or cancel a run;</li>
+<li>collect a structured result;</li>
+<li>retain the event log on the device.</li>
+</ul>
+<p>MiniMate should hand coding work to the installed MiniMake CLI through local IPC. This preserves MiniMake's sandbox, policy, and file safety instead of duplicating a second code execution engine.</p>
+<hr/>
+<h2 id="12-operations-and-diagnostics">12. Operations and Diagnostics</h2>
+<p><code>minimake doctor</code> is intended to diagnose:</p>
+<ul>
+<li>supported operating system;</li>
+<li>WSL2 state;</li>
+<li>project filesystem location;</li>
+<li>Python version;</li>
+<li>package installation;</li>
+<li><code>uv</code>, <code>pipx</code>, <code>git</code>, and <code>ripgrep</code>;</li>
+<li><code>bubblewrap</code> availability;</li>
+<li>account and device pairing;</li>
+<li>credential health;</li>
+<li>network reachability;</li>
+<li>local database permissions;</li>
+<li>sandbox smoke test;</li>
+<li>provider configuration;</li>
+<li>stale or incompatible state migrations.</li>
+</ul>
+<p>The backend and web application expose operator diagnostics for:</p>
+<ul>
+<li>database latency;</li>
+<li>database pool state;</li>
+<li>agent pool state;</li>
+<li>tool budgets;</li>
+<li>usage and quota;</li>
+<li>cache behavior;</li>
+<li>conversation threads;</li>
+<li>audit and ledger events.</li>
+</ul>
+<p>Sentry can provide error and performance tracing when configured.</p>
+<hr/>
+<h2 id="13-release-milestones">13. Release Milestones</h2>
+<h3 id="phase-0-browser-and-foundation-cleanup">Phase 0: browser and foundation cleanup</h3>
+<p>The browser editor is made coherent and safe: remove browser Run, Terminal, and Local folder mode; retain editor, explorer, AI proposals, review, history, Problems, Console, previews, planning, and ZIP download; harden database tests, Pyodide chat artifacts, CORS, validation errors, and unsaved-edit protection.</p>
+<h3 id="phase-1-walking-skeleton">Phase 1: walking skeleton</h3>
+<p>The first complete path is:</p>
+<p><code>minimake login</code> -&gt; connect device -&gt; send hello -&gt; receive streamed model reply -&gt; write a content-free usage ledger row -&gt; show device and usage in the web app.</p>
+<h3 id="phase-2-internal-coding-agent">Phase 2: internal coding agent</h3>
+<p>The agent edits real files with approvals, checkpoints, rewind, TUI, headless operation, and the first real coding task milestone.</p>
+<h3 id="phase-3-safe-daily-driver">Phase 3: safe daily driver</h3>
+<p>Add sandboxing, hooks, skills, secrets, taint tracking, context compaction, subagents, ask-user and tasks tools, evaluations, red-team tests, and content-leakage canaries.</p>
+<h3 id="phase-4-invite-only-beta">Phase 4: invite-only beta</h3>
+<p>Add handoff, remote live view, review commands, plan chains, invite controls, usage and device surfaces, and production hardening.</p>
+<h3 id="phase-5-platform-expansion">Phase 5: platform expansion</h3>
+<p>Potential additions include ACP, worktrees, request classification, LSP and repository maps, local MCP, process separation, and an external security audit.</p>
+<h3 id="phase-6-release">Phase 6: release</h3>
+<p>Packaging, documentation, support, legal review, and release gates lead to general availability.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Phase &amp; Milestone</th>
+<th style="text-align: left;">Waves</th>
+<th style="text-align: left;">Work Packages</th>
+<th style="text-align: left;">Effort Points</th>
+<th style="text-align: left;">Key Deliverable &amp; Exit Gate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Phase 0 · Browser Cleanup (<code>M0</code>)</strong></td>
+<td style="text-align: left;">Waves 0–2</td>
+<td style="text-align: left;"><code>B00–B12</code> (13 WPs)</td>
+<td style="text-align: left;">20 pts</td>
+<td style="text-align: left;">Self-host Pyodide (<code>B02</code>), remove browser Python Run/Terminal/Local-folder (<code>B03–B06</code>), fix save/move &amp; CORS (<code>B07–B12</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Phase 1 · Walking Skeleton (<code>M0</code>)</strong></td>
+<td style="text-align: left;">Waves 1–3</td>
+<td style="text-align: left;"><code>P00</code>, <code>S01–S06</code>, <code>C01–C04</code>, <code>X01–X02</code>, <code>I01</code> (14 WPs)</td>
+<td style="text-align: left;">34 pts</td>
+<td style="text-align: left;">Extract <code>minicore/</code>, shared <code>usage_ledger</code> (<code>S01</code>), device login, hello turn over SSE, <code>bwrap</code> wrapper (<code>I01</code> pass)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Phase 2 · Internal Coding Agent (<code>M1</code>)</strong></td>
+<td style="text-align: left;">Waves 4–6</td>
+<td style="text-align: left;"><code>C05–C10</code>, <code>C12</code>, <code>S07–S10</code>, <code>I02</code> (12 WPs)</td>
+<td style="text-align: left;">30 pts</td>
+<td style="text-align: left;">Local read/write/shell tools, SQLite FTS5 index, git checkpoints &amp; rewind, TUI diff approval (<code>I02</code> self-hosting dogfood pass)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Phase 3 · Safe Daily Driver</strong></td>
+<td style="text-align: left;">Waves 7–9</td>
+<td style="text-align: left;"><code>C11</code>, <code>C13–C15</code>, <code>L01–L04</code>, <code>Q01–Q03</code>, <code>Q06</code>, <code>I03</code> (13 WPs)</td>
+<td style="text-align: left;">36 pts</td>
+<td style="text-align: left;">Hooks, skills, <code>MINIMAKE.md</code>, context compaction (<code>L02</code>), sub-agents (<code>L04</code>), red-team &amp; canary suites (<code>I03</code> pass)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Phase 4 · Invite-Only Beta (<code>M2</code>)</strong></td>
+<td style="text-align: left;">Waves 10–12</td>
+<td style="text-align: left;"><code>S11–S12</code>, <code>C16–C17</code>, <code>C20–C21</code>, <code>X03–X04</code>, <code>L05–L06</code>, <code>Q04</code>, <code>I04</code> (12 WPs)</td>
+<td style="text-align: left;">37 pts</td>
+<td style="text-align: left;">Web Build-tab handoff (<code>S11</code>/<code>C16</code>), headless mode for MiniMate (<code>C17</code>), taint tracking (<code>X03</code>), plan chains (<code>L06</code>), beta launch (<code>I04</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Phases 5–6 · Scale &amp; Release (<code>M3 / GA</code>)</strong></td>
+<td style="text-align: left;">Post-M2</td>
+<td style="text-align: left;">Editor extensions, ACP, worktrees, GA packaging</td>
+<td style="text-align: left;">Gated on M2</td>
+<td style="text-align: left;">VS Code / JetBrains / Neovim adapters, macOS Seatbelt, external security audit, public GA</td>
+</tr>
+</tbody>
+</table></div>
+<hr/>
+<h2 id="14-what-minimake-does-not-promise">14. What MiniMake Does Not Promise</h2>
+<p>MiniMake does not promise:</p>
+<ul>
+<li>that source code never leaves the device;</li>
+<li>unrestricted shell or filesystem access;</li>
+<li>automatic application of every AI suggestion;</li>
+<li>safe execution of arbitrary code without sandbox and policy checks;</li>
+<li>native Windows support in v1;</li>
+<li>offline reasoning;</li>
+<li>browser-based execution of every language;</li>
+<li>that a connected MCP server is trusted by default;</li>
+<li>that a roadmap item is already released;</li>
+<li>that a failed telemetry service will explain every event without gaps.</li>
+</ul>
+<p>The honest product promise is local-first storage, controlled remote reasoning, explicit approvals, bounded execution, and recoverable work.</p>
+<hr/>
+<h2 id="15-maintenance-checklist">15. Maintenance Checklist</h2>
+<p>For every MiniMake release, verify:</p>
+<ul>
+<li>[ ] Login, device pairing, revocation, and reconnect work.</li>
+<li>[ ] <code>doctor</code> detects unsupported platforms and missing sandbox dependencies.</li>
+<li>[ ] Ask mode cannot silently write files.</li>
+<li>[ ] Edit proposals show affected files and require the expected approval.</li>
+<li>[ ] Checkpoints, history, rewind, restore, and conflict comparison work.</li>
+<li>[ ] Protected paths and traversal attempts fail closed.</li>
+<li>[ ] Secrets do not reach prompts, logs, tool results, or sandbox environments.</li>
+<li>[ ] Sandbox network and filesystem boundaries are tested on real supported hosts.</li>
+<li>[ ] Cancelled and timed-out runs stop their child work.</li>
+<li>[ ] Disconnect and resume preserve the local event log.</li>
+<li>[ ] Context compaction preserves instructions and approvals.</li>
+<li>[ ] MCP tools declare trust, schema, domains, and approval behavior.</li>
+<li>[ ] Usage charges the shared account pool and does not rely on client-side counting.</li>
+<li>[ ] Browser live view does not become an unintended history store.</li>
+<li>[ ] MiniMate can invoke headless MiniMake without bypassing policy.</li>
+<li>[ ] Content-free server persistence canary tests pass.</li>
+<li>[ ] Backend, frontend, CLI, sandbox, and red-team suites are green.</li>
+<li>[ ] Planned or gated features remain labeled accurately.</li>
+</ul>
+<hr/>
+<h2 id="16-source-map">16. Source Map</h2>
+<p>The main planning sources for this manual are:</p>
+<ul>
+<li><code>data/docs/minimake_build_plan.md</code>;</li>
+<li>MiniMe Build tab and workbench implementation;</li>
+<li>backend local workspace, code proposal, task, and deployment routes;</li>
+<li>the protocol, server, client, loop, policy, sandbox, and quality work packages described by the build plan.</li>
+</ul>
+<p>This document is the user-facing layer. The build plan remains authoritative for patch order, exact module ownership, test commands, milestone gates, and implementation status.</p><div class="bk-footer">
+  <div class="bk-footer-hdr">
+    <span>End of <b>Chapter 5: MiniMake — Complete Feature & Product Guide</b></span>
+    <a href="docs.html">View all 14 chapters in Docs →</a>
+  </div>
+  <div class="bk-footer-grid"><a href="doc-minime-feature-guide.html" class="bk-fcard">
+      <small>← Previous · Chapter 4</small>
+      <b>MiniMe — Complete Feature & Product Guide</b>
+      <span>Part II · MiniMe Web</span>
+    </a><a href="doc-minimake-plan.html" class="bk-fcard bk-fnext">
+      <small>Next · Chapter 6 →</small>
+      <b>MiniMake Build Execution Guide</b>
+      <span>Part III · MiniMake</span>
+    </a></div>
+</div></article><div class="toc"><b>On this page</b><a class="t3" href="#architectural-synchronization-overrides-o1-o8-fr">Architectural Synchronization (Overrides O1–O8 from minimake_b</a><a class="t2" href="#1-what-minimake-is">1. What MiniMake Is</a><a class="t2" href="#2-installation-and-environment">2. Installation and Environment</a><a class="t3" href="#2-1-supported-environment">2.1 Supported environment</a><a class="t3" href="#2-2-installation">2.2 Installation</a><a class="t3" href="#2-3-account-and-connectivity">2.3 Account and connectivity</a><a class="t3" href="#2-4-initial-commands">2.4 Initial commands</a><a class="t2" href="#3-core-coding-workflow">3. Core Coding Workflow</a><a class="t3" href="#3-1-start-a-coding-run">3.1 Start a coding run</a><a class="t3" href="#3-2-ask-mode">3.2 Ask mode</a><a class="t3" href="#3-3-edit-mode">3.3 Edit mode</a><a class="t3" href="#3-4-context-selection">3.4 Context selection</a><a class="t3" href="#3-5-streaming-and-progress">3.5 Streaming and progress</a><a class="t2" href="#4-files-and-project-workspace">4. Files and Project Workspace</a><a class="t3" href="#4-1-project-explorer">4.1 Project explorer</a><a class="t3" href="#4-2-code-editor">4.2 Code editor</a><a class="t3" href="#4-3-local-project-access">4.3 Local project access</a><a class="t3" href="#4-4-history-and-recovery">4.4 History and recovery</a><a class="t2" href="#5-agent-loop-and-tools">5. Agent Loop and Tools</a><a class="t3" href="#5-1-server-side-reasoning-loop">5.1 Server-side reasoning loop</a><a class="t3" href="#5-2-built-in-coding-tools">5.2 Built-in coding tools</a><a class="t3" href="#5-3-subagents-and-delegation">5.3 Subagents and delegation</a><a class="t3" href="#5-4-compaction-and-long-runs">5.4 Compaction and long runs</a><a class="t2" href="#6-safety-and-trust">6. Safety and Trust</a><a class="t3" href="#6-1-policy-engine">6.1 Policy engine</a><a class="t3" href="#6-2-modes-and-approvals">6.2 Modes and approvals</a><a class="t3" href="#6-3-sandbox">6.3 Sandbox</a><a class="t3" href="#6-4-secrets">6.4 Secrets</a><a class="t3" href="#6-5-injection-and-output-protection">6.5 Injection and output protection</a><a class="t3" href="#6-6-red-team-and-evaluation-coverage">6.6 Red-team and evaluation coverage</a><a class="t2" href="#7-hooks-skills-instructions-and-memory">7. Hooks, Skills, Instructions, and Memory</a><a class="t3" href="#7-1-hooks">7.1 Hooks</a><a class="t3" href="#7-2-skills">7.2 Skills</a><a class="t3" href="#7-3-instructions">7.3 Instructions</a><a class="t3" href="#7-4-memory">7.4 Memory</a><a class="t2" href="#8-browser-integration">8. Browser Integration</a><a class="t3" href="#8-1-build-tab">8.1 Build tab</a><a class="t3" href="#8-2-device-page-and-pairing">8.2 Device page and pairing</a><a class="t3" href="#8-3-remote-live-view">8.3 Remote live view</a><a class="t3" href="#8-4-shared-usage">8.4 Shared usage</a><a class="t2" href="#9-mcp-and-external-tools">9. MCP and External Tools</a><a class="t3" href="#9-1-local-mcp-client">9.1 Local MCP client</a><a class="t3" href="#9-2-external-network-access">9.2 External network access</a><a class="t2" href="#10-usage-budgets-and-economics">10. Usage, Budgets, and Economics</a><a class="t3" href="#10-1-one-shared-pool">10.1 One shared pool</a><a class="t3" href="#10-2-per-run-limits">10.2 Per-run limits</a><a class="t3" href="#10-3-failure-and-interruption">10.3 Failure and interruption</a><a class="t2" href="#11-headless-and-minimate-delegation">11. Headless and MiniMate Delegation</a><a class="t2" href="#12-operations-and-diagnostics">12. Operations and Diagnostics</a><a class="t2" href="#13-release-milestones">13. Release Milestones</a><a class="t3" href="#phase-0-browser-and-foundation-cleanup">Phase 0: browser and foundation cleanup</a><a class="t3" href="#phase-1-walking-skeleton">Phase 1: walking skeleton</a><a class="t3" href="#phase-2-internal-coding-agent">Phase 2: internal coding agent</a><a class="t3" href="#phase-3-safe-daily-driver">Phase 3: safe daily driver</a><a class="t3" href="#phase-4-invite-only-beta">Phase 4: invite-only beta</a><a class="t3" href="#phase-5-platform-expansion">Phase 5: platform expansion</a><a class="t3" href="#phase-6-release">Phase 6: release</a><a class="t2" href="#14-what-minimake-does-not-promise">14. What MiniMake Does Not Promise</a><a class="t2" href="#15-maintenance-checklist">15. Maintenance Checklist</a><a class="t2" href="#16-source-map">16. Source Map</a></div></div></main><script id="bk-chapter-script">
+(function(){
+  // Reading progress bar
+  var bar = document.querySelector('.bk-progress');
+  if(!bar){
+    bar = document.createElement('div');
+    bar.className = 'bk-progress';
+    document.body.appendChild(bar);
+  }
+  window.addEventListener('scroll', function(){
+    var h = document.documentElement;
+    var sc = h.scrollTop || document.body.scrollTop;
+    var max = (h.scrollHeight - h.clientHeight) || 1;
+    bar.style.width = Math.min(100, Math.max(0, (sc / max) * 100)) + '%';
+  }, {passive:true});
+
+  // Scroll-spy for TOC
+  var tocLinks = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+  if(tocLinks.length){
+    var heads = tocLinks.map(function(a){
+      var id = a.getAttribute('href').slice(1);
+      return {a: a, el: document.getElementById(id)};
+    }).filter(function(x){ return !!x.el; });
+    window.addEventListener('scroll', function(){
+      var y = window.scrollY + 120;
+      var cur = heads[0];
+      for(var i=0;i<heads.length;i++){
+        if(heads[i].el.offsetTop <= y) cur = heads[i];
+      }
+      tocLinks.forEach(function(a){ a.classList.remove('active-sec'); });
+      if(cur) cur.a.classList.add('active-sec');
+    }, {passive:true});
+  }
+
+  // Highlight inline status badges in article
+  var art = document.querySelector('article');
+  if(art){
+    art.querySelectorAll('strong, b, code').forEach(function(el){
+      var t = el.textContent.trim();
+      if(/^\[(LIVE|DONE|VERIFIED|V)\]$/.test(t)){
+        el.className = (el.className + ' st-badge st-live').trim();
+      } else if(/^\[(PARTIAL|IN PROGRESS|FIX|A)\]$/.test(t) || /^\[PHASE 0/.test(t)){
+        el.className = (el.className + ' st-badge st-part').trim();
+      } else if(/^\[(PLANNED|STAGE|PHASE|WAVE|DECIDE|U)/.test(t)){
+        el.className = (el.className + ' st-badge st-plan').trim();
+      } else if(/^\[(REMOVED|DEFERRED)/.test(t)){
+        el.className = (el.className + ' st-badge st-rem').trim();
+      }
+    });
+  }
+})();
+</script><script src="atlas-ui.js"></script></body></html>

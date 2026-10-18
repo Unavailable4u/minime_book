@@ -1,6 +1,6 @@
 # MiniMe — Technical Implementation Roadmap
 
-**Companion to:** `MiniMe — Complete Production & Market Roadmap` (business plan, unchanged)
+**Companion to:** `MiniMe — Complete Production & Market Roadmap` (business plan), `MiniMe_Financial_Strategy_Rulebook.md` (money, model, pricing & cap constitution), `minime_feature_guide.md` (MiniMe Web 25-subsystem catalog), `minimake_feature_guide.md` & `minimake_build_plan.md` (MiniMake local-first terminal coding agent), `minimate_feature_guide.md` & `MiniMate___Build_Execution_Guide.md` (MiniMate local-first automation agent), `minime_server_management_guide.md` (gated server topology), and `fbebc-research-program-guide.md` (FBEBC research track).
 **Scope of this document:** engineering only — what gets built, in what order, gated by what evidence, mapped against (but tracked separately from) the business roadmap's Phase 0 → 3b.
 
 **How to read this doc:** every technical phase below (Tech-A, Tech-B, ...) names which Business Phase it runs alongside, and what business-side gate (if any) has to clear before it can start. Nothing here changes the business roadmap's timeline, funding logic, or phase names — this is the "what do I actually build, this week, in what order" layer underneath it.
@@ -56,7 +56,8 @@ The gap between Tech-B and Tech-C is deliberate — you chose to defer scaffoldi
 ### What gets built
 
 1. **Per-call logging**, on every agent invocation regardless of role: provider, model, tokens in/out, wall-clock time, agent_key, role, tier/path, cost (computed from provider's real per-token pricing, not estimated). This hooks into wherever agent calls already funnel through today (the relay/emitter event stream) — you're not building a new call path, just attaching a logger to the existing one.
-2. **A queryable store for it** — doesn't need to be fancy; a table keyed by task_id/agent_key/timestamp is enough at this stage. This becomes the dataset Tech-D's Brain prototype trains its judgment against later, and the dataset Business Phase 1's real cost-per-task validation (the whole point of the pilot, per your business roadmap) depends on.
+2. **A queryable store for it (`llm_call_log` + unified `usage_ledger` in migration `0012`)** — the codebase already has `llm_call_log`; in Tech-A/B and MiniMake `S01`, extend/pair it with the single shared `usage_ledger` and `user_plans` schema (`surface in ('web', 'minimake', 'minimate', 'system')`) so the ledger is **built once** and shared across MiniMe Web, MiniMake CLI, and MiniMate Node (`minimake_build_plan.md` O2, `MiniMate___Build_Execution_Guide.md` O2, Rulebook Rule 4). This becomes the dataset Tech-D's Brain prototype trains its judgment against later, and the dataset Business Phase 1's real cost-per-task validation depends on.
+4. **Model roster hygiene (Rulebook §2.3 & §6.7)** — replace retired Groq model IDs (`llama-3.1-8b-instant`, `llama-3.3-70b-versatile`) in `backend/eo/model_router.py` with active pinned IDs (`llama-4-scout`, `gpt-oss-120b`), and ensure all image generation routes to `gemini-3.1-flash-lite-image` / `gemini-3.1-flash-image` (following the 2026-10-02 Gemini 2.5 Flash Image shutdown).
 3. **A basic query/report layer** — even a script that dumps "cost per task, p50/p95 latency per agent, per tier" is enough. This is the thing that replaces every placeholder dollar figure in the business roadmap's Part 7 earnings model with real numbers.
 
 ### Explicitly not in scope here
@@ -76,13 +77,13 @@ Every other technical decision downstream — which models actually belong in Ba
 **Gate to start:** Tech-A exit criteria met
 **Gate to exit:** Business Phase 2's own exit criteria (Basic break-even on hosting+API from real revenue, demand-signal gate for Moderate being watched)
 
-This phase is **deliberately not** about the Brain/EO-authoring ideas from our discussion — none of that belongs here. This is: take the system exactly as it exists today (SGA → Inspector → Panel → staff_task → executor, 74 agents, existing registry) and make it safe and correct to run against real paying users and real money. Scope matches what you said explicitly: security/multi-tenancy details are "later," so this list is deliberately narrow.
+This phase is **deliberately not** about the Brain/EO-authoring ideas from our discussion — none of that belongs here. This is: take the system exactly as it exists today (SGA → Inspector → Panel → staff_task → executor, 73 agent modules in `backend/agents/` mapping to 46 router roles in `model_router.py`, existing registry) and make it safe and correct to run against real paying users and real money. Scope matches what you said explicitly: security/multi-tenancy details are "later," so this list is deliberately narrow.
 
 ### What gets built
 
 1. **Real multi-tenancy** — per-user isolation in the relational DB and vector memory store, identity + active tier carried through the full call chain (agents → memory bus → relay → billing meter). This was already correctly scoped as non-negotiable in your business roadmap's Part 4.1 — it belongs here, not later.
 2. **Provider migration**: move the free-tier keys for Basic's five providers to paid accounts, at the counts your own roadmap flags as a working estimate to replace with real numbers — don't over-build the reserve/rotation logic for throughput reasons paid keys may no longer have; keep 2 keys per provider for failover, and only add more once Tech-A's real concurrency data says you need to.
-3. **Billing plumbing** — Stripe metered billing, tier as a first-class field in the billing model from day one (per your business roadmap's Part 4.4), even though only one tier (Basic) is live. Building this multi-tier-aware from the start is cheap now and expensive to retrofit later — this is the one piece of "build for the future" that belongs in Tech-B rather than the deferred window, because billing schema changes touch real customer records once they exist, and that's much more painful to migrate later than a config file is.
+3. **Billing plumbing & cross-surface cap enforcement (Rulebook §7.8 & §19.1)** — tier (`free`, `basic`, `moderate`, `ultimate`) and `surface` (`web`, `minimake`, `minimate`, `system`) as first-class fields in `user_plans` and `usage_ledger` from day one. Because a Bangladesh Pvt Ltd cannot open a direct Stripe account without a foreign entity, wire **SSLCommerz + bKash + Nagad** for local BDT plans (`৳799` / `৳2,499` / `৳6,999`) and **Paddle / Lemon Squeezy (Merchant of Record) or Payoneer** for international USD plans (`$9` / `$29` / `$79`). Also execute the **Phase 0 Browser Cut (`MK_B00–B12`)** to remove Browser Python Run, Browser Terminal, and Browser Local-Folder mode in favor of the local-first MiniMake CLI and shared `minicore/` package.
 4. **Usage/cost dashboard, admin panel, audit logging** — matches your business roadmap's Phase 2 technical work exactly; no changes needed to that plan.
 5. **Decomposition-vs-consolidation empirical testing (business roadmap 3.3)**, run for the first time here against Basic's actual paid models, using Tech-A's cost/latency data as the scoring signal — this is where "test it, don't assume it" gets its first real evidence.
 
@@ -227,3 +228,21 @@ Matching your business roadmap's own discipline of naming what's out of scope, n
 - The daemon (already separately deferred in the business roadmap, Part 4.5 — unaffected by anything here).
 - Any executable-code authoring before Tech-H's gate clears — including "just a small one" as a shortcut during Tech-D or Tech-E. If this temptation shows up mid-build, it's a sign the gate is being second-guessed under pressure, not a sign the gate was wrong.
 - Any scaffolding work during Tech-B (the deferred window you chose) — restated here as a hard boundary, not just a scheduling note.
+
+---
+
+## 12. Ecosystem Synchronization: How MiniMe Web, MiniMake, MiniMate & FBEBC Connect
+
+To ensure every guide in the MiniMe Book stays in lockstep, this roadmap governs the shared technical sequence across all four product and research tracks:
+
+| Track / Product | Window in Master Timeline | Shared Technical Dependency | Governing Guides |
+|---|---|---|---|
+| **FBEBC Stage 1 (Preprint)** | Sep – Oct 2026 (`S0`, `$0` cost) | Standalone `fbebc-research` repo; zero changes to `minime` backend | `fbebc-research-program-guide.md`, `fbebc-phase1-implementation-guide.md`, `STATUS.md` |
+| **Tech-A (Instrumentation & Baseline)** | Oct 2026 – Apr 2027 (`S0`) | Builds unified cost/token telemetry (`llm_call_log` + `usage_ledger` `0012`) & model hygiene | `minime_technical_roadmap.md` §2, `MiniMe_Financial_Strategy_Rulebook.md` Rule 4 |
+| **Cross-Product Architecture & Ledger Lock** | Nov 2026 (`S0` Gate) | Locks single account, single `usage_ledger` (`surface in ('web','minimake','minimate','system')`), and `minicore/` extraction | `minimake_build_plan.md` O1–O8, `MiniMate___Build_Execution_Guide.md` O1–O8 |
+| **MiniMake (Local-First Coding Agent)** | Jan – Feb 2027 (`S0`, 64 WPs, 12 waves) | Phase 0 cuts browser bloat (`B00–B12`), extracts `minicore/` (`P00`), mounts `/api/codeagent/*` on existing backend | `minimake_feature_guide.md`, `minimake_build_plan.md` |
+| **MiniMate (Local-First Automation Agent)** | Mar – Jun 2027 (`S0`, 59 WPs, 16 waves) | Reuses `minicore/`, device-code auth, and `usage_ledger`; mounts `/api/minimate/*` on existing backend | `minimate_feature_guide.md`, `MiniMate___Build_Execution_Guide.md` |
+| **Tech-B & S1 Pilot → S2 Public Launch** | Mar 2027 – Jan 2028 (`S1` → `S2`) | Hardens auth, RLS, BD+USD billing rails, and shared plan caps for public Basic + Free launch | `minime_feature_guide.md`, `MiniMe_Financial_Strategy_Rulebook.md` §11.1 |
+| **FBEBC Stage 2 (MiniMe-Integrated)** | Mar 2028+ (Gated on `G1–G4`) | Ports `EvolutionEngine` into `backend/agents/evolution/` once Basic is live and ops are green | `fbebc-research-program-guide.md` §2 |
+| **Tech-C/D/E/F/G (Moderate, Brain & Ultimate)** | Jul 2028 – Dec 2030 (`S2` → `S3a` → `S3b`) | Unlocks Moderate (`$29`), Brain batch/real-time tiers, Monitor v2, and Ultimate (`$79`) across Web, MiniMake, and MiniMate | `minime_technical_roadmap.md` §4–§8, `minime_feature_guide.md` §20 |
+
