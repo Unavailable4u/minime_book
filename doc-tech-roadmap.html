@@ -26,20 +26,285 @@ code{background:var(--p2);padding:1px 6px;border-radius:5px;font-size:.9em;color
 iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}.pie{width:150px;height:150px;border-radius:50%}.row{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
 .lg div{font-size:13px;color:var(--dim)}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px}.pill{font-size:11px;color:var(--dim);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;display:inline-block}
 .thumb{height:210px;overflow:hidden;border-radius:10px;border:1px solid var(--ln);position:relative;background:#fff}.thumb iframe{width:1280px;height:840px;transform:scale(.3);transform-origin:0 0;border:0;pointer-events:none}
-.card,.grid>*,.g2>*{min-width:0}.card{overflow-wrap:anywhere}td,th{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}.stack>.card{margin:0 0 14px}#tm .lf{white-space:nowrap;text-overflow:ellipsis}main{overflow-x:clip}@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="">Docs</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main><h1>Technical Implementation Roadmap</h1><p class="sub">MiniMe core. 3,731 words. <a href="data/docs/minime_technical_roadmap.md" download>Download .md</a></p><div class="doc"><article><h1 id="minime-technical-implementation-roadmap">MiniMe — Technical Implementation Roadmap</h1>
-<p><b>Companion to:</b> <code>MiniMe — Complete Production &amp; Market Roadmap</code> (business plan, unchanged)</p>
-<p><b>Scope of this document:</b> engineering only — what gets built, in what order, gated by what evidence, mapped against (but tracked separately from) the business roadmap's Phase 0 → 3b.</p>
-<p><b>How to read this doc:</b> every technical phase below (Tech-A, Tech-B, ...) names which Business Phase it runs alongside, and what business-side gate (if any) has to clear before it can start. Nothing here changes the business roadmap's timeline, funding logic, or phase names — this is the "what do I actually build, this week, in what order" layer underneath it.</p>
-<hr>
+.card,.grid>*,.g2>*{min-width:0}.card{overflow-wrap:anywhere}td,th{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}.stack>.card{margin:0 0 14px}#tm .lf{white-space:nowrap;text-overflow:ellipsis}main{overflow-x:clip}@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="atlas-mobile-css">
+.m-topbar{display:none}
+.m-backdrop{display:none}
+.nav-mclose,.toc-mhdr{display:none}
+.nav-qjump{display:flex;justify-content:space-between;align-items:center;width:calc(100% - 12px);margin:0 6px 12px;padding:7px 10px;border-radius:9px;background:var(--p2);border:1px solid var(--ln);color:var(--dim);font-size:12px;cursor:pointer}
+.nav-qjump:hover{border-color:var(--r);color:#fff}
+.nav-qjump kbd{font-size:10px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--ln);color:var(--dim)}
+.nav-sub{padding-left:20px!important;font-size:12.5px!important;color:#8e8c86!important}
+.nav-sub:hover{color:#fff!important}
+.svg-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.m-btt{position:fixed;right:18px;bottom:18px;width:38px;height:38px;border-radius:50%;background:var(--r);color:#fff;border:0;font-weight:700;font-size:16px;cursor:pointer;z-index:90;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.m-btt.vis{opacity:1;pointer-events:auto}
+.cmd-modal{position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:8vh 14px 20px}
+.cmd-modal.open{display:flex}
+.cmd-box{width:100%;max-width:640px;background:var(--p);border:1px solid var(--ln);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.65)}
+.cmd-top{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ln);background:var(--p2)}
+.cmd-top input{flex:1;background:transparent;border:0;color:var(--tx);font:inherit;font-size:14.5px;outline:none;width:auto}
+.cmd-esc{padding:3px 8px;font-size:11px;border-radius:6px}
+.cmd-list{max-height:62vh;overflow-y:auto;padding:6px}
+.cmd-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;text-decoration:none;color:var(--tx);font-size:13.5px}
+.cmd-item:hover{background:rgba(255,32,82,.14);color:#fff}
+.cmd-item small{display:block;font-size:11px;color:var(--dim)}
+@media(max-width:900px){
+  body{display:block;padding-top:54px}
+  .m-topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;position:fixed;top:0;left:0;right:0;height:54px;padding:0 12px;background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--ln);z-index:1001}
+  .m-brand{font-weight:700;font-size:15px;color:var(--tx);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .m-brand b{color:var(--r)}
+  .m-brand small{font-weight:400;color:var(--dim);font-size:13px}
+  .m-right{display:flex;gap:6px;align-items:center;flex:none}
+  .m-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);font-size:12.5px;cursor:pointer}
+  .m-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);z-index:1002}
+  body.nav-open .m-backdrop,body.toc-open .m-backdrop{display:block}
+  nav{display:block!important;position:fixed!important;top:0!important;left:0!important;bottom:0!important;height:100dvh!important;width:270px!important;max-width:84vw!important;background:#0e0e13!important;z-index:1003!important;transform:translateX(-105%);transition:transform .22s ease;box-shadow:12px 0 36px rgba(0,0,0,.6)}
+  body.nav-open nav{transform:translateX(0)}
+  nav .logo{display:flex;justify-content:space-between;align-items:center}
+  .nav-mclose{display:inline-block;padding:3px 8px;font-size:11.5px;border-radius:6px;background:var(--p2);border:1px solid var(--ln);color:var(--dim)}
+  .toc{display:block!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;height:100dvh!important;max-height:100dvh!important;width:290px!important;max-width:86vw!important;background:#101016!important;border-left:1px solid var(--ln)!important;padding:16px!important;z-index:1003!important;transform:translateX(105%);transition:transform .22s ease;box-shadow:-12px 0 36px rgba(0,0,0,.6)}
+  body.toc-open .toc{transform:translateX(0)}
+  .toc-mhdr{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--ln)}
+  .toc-mclose{padding:3px 8px;font-size:11.5px;border-radius:6px}
+  main{padding:18px 14px 64px!important;max-width:100%!important}
+  h1{font-size:24px}h2{font-size:18px}
+  .g2,.parts,.bk-grid,.bk-footer-grid,.cards{grid-template-columns:1fr!important}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .bar{flex-wrap:wrap;gap:6px}.bar span:first-child{width:100%}
+  .svg-scroll svg{min-width:680px}
+  .ex #res{max-height:38vh}
+  #tm{height:62vh!important;min-height:380px!important}
+  .split{grid-template-columns:1fr!important}
+  .board{grid-template-columns:repeat(4,minmax(250px,82vw))!important;overflow-x:auto;padding-bottom:8px}
+  .cal{min-width:560px}
+}
+@media(max-width:480px){
+  .m-btn span{display:none}
+  .grid{grid-template-columns:1fr 1fr}
+  .k{font-size:24px}
+  input[type=search],input[type=text]{width:100%!important}
+}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="on">Docs</a><a href="doc-minime-feature-guide.html" class="nav-sub">· Ch.4 MiniMe Guide</a><a href="doc-minimake-feature-guide.html" class="nav-sub">· Ch.5 MiniMake Guide</a><a href="doc-minimate-feature-guide.html" class="nav-sub">· Ch.8 MiniMate Guide</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main><h1>Technical Implementation Roadmap</h1><p class="sub">MiniMe core. 4,186 words. <a href="data/docs/minime_technical_roadmap.md" download>Download .md</a></p><div class="bk-banner">
+  <div class="bk-top">
+    <div>
+      <span class="bk-part">Part I · Strategy, Governance & Master Sequence</span>
+      <span class="bk-ch">Chapter 2 of 14</span>
+      <span class="bk-sync">SYNCED</span>
+    </div>
+    <div class="bk-actions">
+      <a href="docs.html" class="bk-pill-link">📚 All 14 Chapters</a>
+      <a href="journey.html#doc-tech-roadmap" class="bk-pill-link">🧭 Journey Map</a>
+      <a href="data/docs/minime_technical_roadmap.md" download class="bk-pill-link">⬇ Download .md</a>
+    </div>
+  </div>
+  <p class="bk-desc">Tech-A to Tech-H: what gets built, in what order, gated by what evidence, synced across all tracks.</p>
+  <div class="bk-meta">
+    <span><b>4,186</b> words (~19 min read)</span><span>·</span><span><b>27</b> sections</span><span>·</span><span><b>2</b> tables</span>
+  </div>
+  <div class="bk-prevnext"><a href="doc-rulebook.html" class="bk-nav-btn">← Ch. 1: Financial & Model Strategy Rulebook</a><a href="doc-server-guide.html" class="bk-nav-btn bk-next">Ch. 3: Server Management & Splitting Guide →</a></div>
+</div><div class="doc"><article><h1 id="minime-technical-implementation-roadmap">MiniMe — Technical Implementation Roadmap</h1>
+<p><strong>Companion to:</strong> <code>MiniMe — Complete Production &amp; Market Roadmap</code> (business plan), <code>MiniMe_Financial_Strategy_Rulebook.md</code> (money, model, pricing &amp; cap constitution), <code>minime_feature_guide.md</code> (MiniMe Web 25-subsystem catalog), <code>minimake_feature_guide.md</code> &amp; <code>minimake_build_plan.md</code> (MiniMake local-first terminal coding agent), <code>minimate_feature_guide.md</code> &amp; <code>MiniMate___Build_Execution_Guide.md</code> (MiniMate local-first automation agent), <code>minime_server_management_guide.md</code> (gated server topology), and <code>fbebc-research-program-guide.md</code> (FBEBC research track).
+<strong>Scope of this document:</strong> engineering only — what gets built, in what order, gated by what evidence, mapped against (but tracked separately from) the business roadmap's Phase 0 → 3b.</p>
+<p><strong>How to read this doc:</strong> every technical phase below (Tech-A, Tech-B, ...) names which Business Phase it runs alongside, and what business-side gate (if any) has to clear before it can start. Nothing here changes the business roadmap's timeline, funding logic, or phase names — this is the "what do I actually build, this week, in what order" layer underneath it.</p>
+<hr/>
 <h2 id="0-recommendation-where-brain-design-starts">0. Recommendation: where Brain design starts</h2>
 <p>You asked for my call on this, so here it is, with the reasoning:</p>
-<p><b>Brain gets an internal-only prototype during late Business Phase 2 (Basic live, generating real revenue and real usage data) — not Phase 0/1, and not held back entirely until Phase 3a.</b></p>
+<p><strong>Brain gets an internal-only prototype during late Business Phase 2 (Basic live, generating real revenue and real usage data) — not Phase 0/1, and not held back entirely until Phase 3a.</strong></p>
 <p>Reasoning:</p>
-<ul><li><b>Not Phase 0/1</b> — there's no real task-shape data yet to design a meta-planner against. Brain's whole value is choosing structure based on what tasks actually look like; before Basic has live traffic, you'd be designing it against guesses, the same mistake the business roadmap explicitly avoids elsewhere ("gate every tier's build on real demand signal, not speculation" — Part 3.6). Phase 0/1 is also solo-only per your own hiring table; Brain is the single highest-complexity piece of this whole system, and building it alongside first-launch pressure is the "two tiers' operational load at once" failure mode your own roadmap flags as the riskiest moment in the whole plan.</li><li><b>Not purely "starts in Phase 3a"</b> — if Brain's core mechanism (structure-as-declarative-plan, primitive composition, template promotion) is invented for the first time under the pressure of an actual committed Moderate build, you're testing your riskiest new mechanism and shipping a paying-tier product on the same clock. That inverts your own "prove before build" discipline.</li><li><b>The middle path</b>: once Basic is live and stable (Business Phase 2, after its own exit criteria are trending but before Moderate's gates are declared met), spend a bounded slice of time on an <b>internal-only, non-shipping prototype</b> — feed it real historical task data from <code>routing_memory.py</code>'s logs, let it propose structures for tasks you already know the right answer to, and score it against what Panel/staff_task actually did. No real users ever touch it. By the time Business Phase 3a's gates (3.5 operational capacity, 3.6 demand signal) actually clear, you're not inventing Brain from zero — you're integrating something already de-risked against real data.</li></ul>
+<ul>
+<li><strong>Not Phase 0/1</strong> — there's no real task-shape data yet to design a meta-planner against. Brain's whole value is choosing structure based on what tasks actually look like; before Basic has live traffic, you'd be designing it against guesses, the same mistake the business roadmap explicitly avoids elsewhere ("gate every tier's build on real demand signal, not speculation" — Part 3.6). Phase 0/1 is also solo-only per your own hiring table; Brain is the single highest-complexity piece of this whole system, and building it alongside first-launch pressure is the "two tiers' operational load at once" failure mode your own roadmap flags as the riskiest moment in the whole plan.</li>
+<li><strong>Not purely "starts in Phase 3a"</strong> — if Brain's core mechanism (structure-as-declarative-plan, primitive composition, template promotion) is invented for the first time under the pressure of an actual committed Moderate build, you're testing your riskiest new mechanism and shipping a paying-tier product on the same clock. That inverts your own "prove before build" discipline.</li>
+<li><strong>The middle path</strong>: once Basic is live and stable (Business Phase 2, after its own exit criteria are trending but before Moderate's gates are declared met), spend a bounded slice of time on an <strong>internal-only, non-shipping prototype</strong> — feed it real historical task data from <code>routing_memory.py</code>'s logs, let it propose structures for tasks you already know the right answer to, and score it against what Panel/staff_task actually did. No real users ever touch it. By the time Business Phase 3a's gates (3.5 operational capacity, 3.6 demand signal) actually clear, you're not inventing Brain from zero — you're integrating something already de-risked against real data.</li>
+</ul>
 <p>This is also the cleanest way to avoid the two axes (mode-gating vs. package-gating) fighting each other later: you get to observe, before committing, whether Brain's judgment is actually good enough to be worth the latency/cost it adds under expert/beast — instead of finding that out in production, on a paying Moderate customer's task.</p>
-<hr>
+<hr/>
 <h2 id="1-the-two-track-view">1. The two-track view</h2>
-<pre>BUSINESS TRACK (unchanged):
+<pre><code>BUSINESS TRACK (unchanged):
 Phase 0 ──────────────► Phase 1 ──► Phase 2 (Basic live) ──► Phase 3a (Moderate) ──► Phase 3b (Ultimate)
   Foundation              Pilot        Real launch              Demand-gated            Demand-gated
 
@@ -52,84 +317,332 @@ Instrument Basic-harden   [gap: live &amp;      Brain proto      Moderate       
                             the deferred-                                                              §8)
                             scaffolding
                             window you
-                            chose]</pre>
+                            chose]
+</code></pre>
 <p>The gap between Tech-B and Tech-C is deliberate — you chose to defer scaffolding rather than build it into Basic, so that window is "Basic runs in production, gets real data, nothing new gets engineered" until Business Phase 2's exit criteria are trending toward met and it's time to start prepping for Moderate.</p>
-<hr>
+<hr/>
 <h2 id="2-tech-a-instrumentation-baseline">2. Tech-A — Instrumentation &amp; Baseline</h2>
-<p><b>Runs alongside:</b> Business Phase 0 (Foundation)</p>
-<p><b>Starts:</b> now</p>
-<p><b>Gate to start:</b> none — this is explicitly the first thing to build, per your own roadmap's checklist item #1.</p>
-<p><b>Gate to exit:</b> cost-per-task and latency data flowing for every agent call, queryable, before Phase 1's pilot begins.</p>
+<p><strong>Runs alongside:</strong> Business Phase 0 (Foundation)
+<strong>Starts:</strong> now
+<strong>Gate to start:</strong> none — this is explicitly the first thing to build, per your own roadmap's checklist item #1.
+<strong>Gate to exit:</strong> cost-per-task and latency data flowing for every agent call, queryable, before Phase 1's pilot begins.</p>
 <h3 id="what-gets-built">What gets built</h3>
-<ol><li><b>Per-call logging</b>, on every agent invocation regardless of role: provider, model, tokens in/out, wall-clock time, agent_key, role, tier/path, cost (computed from provider's real per-token pricing, not estimated). This hooks into wherever agent calls already funnel through today (the relay/emitter event stream) — you're not building a new call path, just attaching a logger to the existing one.</li><li><b>A queryable store for it</b> — doesn't need to be fancy; a table keyed by task_id/agent_key/timestamp is enough at this stage. This becomes the dataset Tech-D's Brain prototype trains its judgment against later, and the dataset Business Phase 1's real cost-per-task validation (the whole point of the pilot, per your business roadmap) depends on.</li><li><b>A basic query/report layer</b> — even a script that dumps "cost per task, p50/p95 latency per agent, per tier" is enough. This is the thing that replaces every placeholder dollar figure in the business roadmap's Part 7 earnings model with real numbers.</li></ol>
+<ol>
+<li><strong>Per-call logging</strong>, on every agent invocation regardless of role: provider, model, tokens in/out, wall-clock time, agent_key, role, tier/path, cost (computed from provider's real per-token pricing, not estimated). This hooks into wherever agent calls already funnel through today (the relay/emitter event stream) — you're not building a new call path, just attaching a logger to the existing one.</li>
+<li><strong>A queryable store for it (<code>llm_call_log</code> + unified <code>usage_ledger</code> in migration <code>0012</code>)</strong> — the codebase already has <code>llm_call_log</code>; in Tech-A/B and MiniMake <code>S01</code>, extend/pair it with the single shared <code>usage_ledger</code> and <code>user_plans</code> schema (<code>surface in ('web', 'minimake', 'minimate', 'system')</code>) so the ledger is <strong>built once</strong> and shared across MiniMe Web, MiniMake CLI, and MiniMate Node (<code>minimake_build_plan.md</code> O2, <code>MiniMate___Build_Execution_Guide.md</code> O2, Rulebook Rule 4). This becomes the dataset Tech-D's Brain prototype trains its judgment against later, and the dataset Business Phase 1's real cost-per-task validation depends on.</li>
+<li><strong>Model roster hygiene (Rulebook §2.3 &amp; §6.7)</strong> — replace retired Groq model IDs (<code>llama-3.1-8b-instant</code>, <code>llama-3.3-70b-versatile</code>) in <code>backend/eo/model_router.py</code> with active pinned IDs (<code>llama-4-scout</code>, <code>gpt-oss-120b</code>), and ensure all image generation routes to <code>gemini-3.1-flash-lite-image</code> / <code>gemini-3.1-flash-image</code> (following the 2026-10-02 Gemini 2.5 Flash Image shutdown).</li>
+<li><strong>A basic query/report layer</strong> — even a script that dumps "cost per task, p50/p95 latency per agent, per tier" is enough. This is the thing that replaces every placeholder dollar figure in the business roadmap's Part 7 earnings model with real numbers.</li>
+</ol>
 <h3 id="explicitly-not-in-scope-here">Explicitly not in scope here</h3>
-<ul><li>Dashboards, admin panels, polish — those are Business Phase 2 deliverables once real billing exists. Tech-A is instrumentation for <i>your</i> decisions, not a user-facing feature.</li></ul>
+<ul>
+<li>Dashboards, admin panels, polish — those are Business Phase 2 deliverables once real billing exists. Tech-A is instrumentation for <em>your</em> decisions, not a user-facing feature.</li>
+</ul>
 <h3 id="why-this-is-first-unconditionally">Why this is first, unconditionally</h3>
 <p>Every other technical decision downstream — which models actually belong in Basic's registry, whether decomposition-vs-consolidation testing (roadmap 3.3) shows what you expect, whether Brain's later judgment is actually better than Panel's — depends on this data existing. Building anything else first means building on guesses you'll have to redo.</p>
-<hr>
+<hr/>
 <h2 id="3-tech-b-harden-basic-for-real-users">3. Tech-B — Harden Basic for Real Users</h2>
-<p><b>Runs alongside:</b> Business Phase 0 (late) through Phase 1 (Pilot) → Phase 2 (Launch)</p>
-<p><b>Starts:</b> once Tech-A is logging real data</p>
-<p><b>Gate to start:</b> Tech-A exit criteria met</p>
-<p><b>Gate to exit:</b> Business Phase 2's own exit criteria (Basic break-even on hosting+API from real revenue, demand-signal gate for Moderate being watched)</p>
-<p>This phase is <b>deliberately not</b> about the Brain/EO-authoring ideas from our discussion — none of that belongs here. This is: take the system exactly as it exists today (SGA → Inspector → Panel → staff_task → executor, 74 agents, existing registry) and make it safe and correct to run against real paying users and real money. Scope matches what you said explicitly: security/multi-tenancy details are "later," so this list is deliberately narrow.</p>
+<p><strong>Runs alongside:</strong> Business Phase 0 (late) through Phase 1 (Pilot) → Phase 2 (Launch)
+<strong>Starts:</strong> once Tech-A is logging real data
+<strong>Gate to start:</strong> Tech-A exit criteria met
+<strong>Gate to exit:</strong> Business Phase 2's own exit criteria (Basic break-even on hosting+API from real revenue, demand-signal gate for Moderate being watched)</p>
+<p>This phase is <strong>deliberately not</strong> about the Brain/EO-authoring ideas from our discussion — none of that belongs here. This is: take the system exactly as it exists today (SGA → Inspector → Panel → staff_task → executor, 73 agent modules in <code>backend/agents/</code> mapping to 46 router roles in <code>model_router.py</code>, existing registry) and make it safe and correct to run against real paying users and real money. Scope matches what you said explicitly: security/multi-tenancy details are "later," so this list is deliberately narrow.</p>
 <h3 id="what-gets-built-2">What gets built</h3>
-<ol><li><b>Real multi-tenancy</b> — per-user isolation in the relational DB and vector memory store, identity + active tier carried through the full call chain (agents → memory bus → relay → billing meter). This was already correctly scoped as non-negotiable in your business roadmap's Part 4.1 — it belongs here, not later.</li><li><b>Provider migration</b>: move the free-tier keys for Basic's five providers to paid accounts, at the counts your own roadmap flags as a working estimate to replace with real numbers — don't over-build the reserve/rotation logic for throughput reasons paid keys may no longer have; keep 2 keys per provider for failover, and only add more once Tech-A's real concurrency data says you need to.</li><li><b>Billing plumbing</b> — Stripe metered billing, tier as a first-class field in the billing model from day one (per your business roadmap's Part 4.4), even though only one tier (Basic) is live. Building this multi-tier-aware from the start is cheap now and expensive to retrofit later — this is the one piece of "build for the future" that belongs in Tech-B rather than the deferred window, because billing schema changes touch real customer records once they exist, and that's much more painful to migrate later than a config file is.</li><li><b>Usage/cost dashboard, admin panel, audit logging</b> — matches your business roadmap's Phase 2 technical work exactly; no changes needed to that plan.</li><li><b>Decomposition-vs-consolidation empirical testing (business roadmap 3.3)</b>, run for the first time here against Basic's actual paid models, using Tech-A's cost/latency data as the scoring signal — this is where "test it, don't assume it" gets its first real evidence.</li></ol>
+<ol>
+<li><strong>Real multi-tenancy</strong> — per-user isolation in the relational DB and vector memory store, identity + active tier carried through the full call chain (agents → memory bus → relay → billing meter). This was already correctly scoped as non-negotiable in your business roadmap's Part 4.1 — it belongs here, not later.</li>
+<li><strong>Provider migration</strong>: move the free-tier keys for Basic's five providers to paid accounts, at the counts your own roadmap flags as a working estimate to replace with real numbers — don't over-build the reserve/rotation logic for throughput reasons paid keys may no longer have; keep 2 keys per provider for failover, and only add more once Tech-A's real concurrency data says you need to.</li>
+<li><strong>Billing plumbing &amp; cross-surface cap enforcement (Rulebook §7.8 &amp; §19.1)</strong> — tier (<code>free</code>, <code>basic</code>, <code>moderate</code>, <code>ultimate</code>) and <code>surface</code> (<code>web</code>, <code>minimake</code>, <code>minimate</code>, <code>system</code>) as first-class fields in <code>user_plans</code> and <code>usage_ledger</code> from day one. Because a Bangladesh Pvt Ltd cannot open a direct Stripe account without a foreign entity, wire <strong>SSLCommerz + bKash + Nagad</strong> for local BDT plans (<code>৳799</code> / <code>৳2,499</code> / <code>৳6,999</code>) and <strong>Paddle / Lemon Squeezy (Merchant of Record) or Payoneer</strong> for international USD plans (<code>$9</code> / <code>$29</code> / <code>$79</code>). Also execute the <strong>Phase 0 Browser Cut (<code>MK_B00–B12</code>)</strong> to remove Browser Python Run, Browser Terminal, and Browser Local-Folder mode in favor of the local-first MiniMake CLI and shared <code>minicore/</code> package.</li>
+<li><strong>Usage/cost dashboard, admin panel, audit logging</strong> — matches your business roadmap's Phase 2 technical work exactly; no changes needed to that plan.</li>
+<li><strong>Decomposition-vs-consolidation empirical testing (business roadmap 3.3)</strong>, run for the first time here against Basic's actual paid models, using Tech-A's cost/latency data as the scoring signal — this is where "test it, don't assume it" gets its first real evidence.</li>
+</ol>
 <h3 id="what-explicitly-does-not-happen-in-tech-b">What explicitly does NOT happen in Tech-B</h3>
-<ul><li>No parameterizing Panel's chains by tier.</li><li>No extending the <code>hires</code> schema with <code>freedom_envelope</code>/<code>decisions_locked</code>.</li><li>No Monitor v1.</li><li>No tier filter added to <code>dynamic_chain.py</code>'s fallback candidate pool.</li></ul>
+<ul>
+<li>No parameterizing Panel's chains by tier.</li>
+<li>No extending the <code>hires</code> schema with <code>freedom_envelope</code>/<code>decisions_locked</code>.</li>
+<li>No Monitor v1.</li>
+<li>No tier filter added to <code>dynamic_chain.py</code>'s fallback candidate pool.</li>
+</ul>
 <p>You chose to defer all of this to Tech-C, right before Moderate — worth restating explicitly here so it doesn't creep back in under "might as well, while I'm in this file anyway" pressure during Tech-B. Every hour spent generalizing code for a tier that doesn't exist yet is an hour not spent hardening the tier that's about to take real money.</p>
-<hr>
+<hr/>
 <h2 id="4-tech-c-moderate-scaffolding-the-deferred-work-">4. Tech-C — Moderate Scaffolding (the deferred work, now due)</h2>
-<p><b>Runs alongside:</b> end of Business Phase 2 (Basic live and stable) → start of Phase 3a</p>
-<p><b>Starts:</b> once Basic's operational load is manageable per Business Phase 3's own gate 1 (3.5) — this is the same gate, reused; scaffolding shouldn't start earlier than the business roadmap already says Moderate's <i>build</i> shouldn't start.</p>
-<p><b>Gate to exit:</b> the scaffolding is in place and tested against Basic's existing traffic with zero behavior change, before any Moderate-specific logic is turned on.</p>
-<p>This is the work you explicitly chose to defer — now it's due, and it's due <i>before</i> Tech-D's Brain integration and Tech-E's Moderate build, because both of those depend on it existing.</p>
+<p><strong>Runs alongside:</strong> end of Business Phase 2 (Basic live and stable) → start of Phase 3a
+<strong>Starts:</strong> once Basic's operational load is manageable per Business Phase 3's own gate 1 (3.5) — this is the same gate, reused; scaffolding shouldn't start earlier than the business roadmap already says Moderate's <em>build</em> shouldn't start.
+<strong>Gate to exit:</strong> the scaffolding is in place and tested against Basic's existing traffic with zero behavior change, before any Moderate-specific logic is turned on.</p>
+<p>This is the work you explicitly chose to defer — now it's due, and it's due <em>before</em> Tech-D's Brain integration and Tech-E's Moderate build, because both of those depend on it existing.</p>
 <h3 id="what-gets-built-3">What gets built</h3>
-<ol><li><b>Parameterize <code>panel.py</code>'s member chains by tier.</b> Replace the hardcoded <code>MEMBER_B_CHAIN</code>/<code>MEMBER_C_CHAIN</code> constants with a <code>PANEL_CHAINS[tier]</code> lookup. Basic's tier continues resolving to exactly what it uses today — this must be a no-op for Basic traffic, verified by re-running Tech-A's cost/latency baselines against it before moving on.</li><li><b>Extend the <code>hires</code> schema.</b> Add <code>decisions_locked</code> and <code>freedom_envelope</code> fields to the <code>{role, agent_key, brief}</code> shape <code>staff_task()</code> produces. Basic continues populating these as empty/full-freedom by default — again, no behavior change for existing traffic, just headroom for Moderate to populate them meaningfully.</li><li><b>Add a tier filter to <code>dynamic_chain.py</code>'s candidate pool.</b> Fallback/shuffle logic stays same-tier only, per your own instinct that cross-tier shuffling doesn't make sense. This is a small, contained change to <code>_candidate_pool()</code>/<code>_rank_accounts()</code>.</li><li><b>Monitor v1</b> — the narrow-scope version: a subscriber to the existing <code>relay/emitter.py</code> event stream that can flag (not yet repair) inter-layer contradictions, generalizing the pattern already present in <code>reviewer.py</code>/<code>security_aggregator</code>/<code>output_guard.py</code>. This ships as a passive observer first; its repair authority and its Brain-facing escalation path (Tech-F) come later, once you've seen what it actually flags in practice.</li><li><b>Provider/model shortlist for Moderate's mid-tier candidates</b> — informed by real Basic-tier data from Tech-A/Tech-B, not guessed at in the business roadmap's Part 4.2 tables (which are explicitly marked as working estimates for this exact reason).</li></ol>
+<ol>
+<li><strong>Parameterize <code>panel.py</code>'s member chains by tier.</strong> Replace the hardcoded <code>MEMBER_B_CHAIN</code>/<code>MEMBER_C_CHAIN</code> constants with a <code>PANEL_CHAINS[tier]</code> lookup. Basic's tier continues resolving to exactly what it uses today — this must be a no-op for Basic traffic, verified by re-running Tech-A's cost/latency baselines against it before moving on.</li>
+<li><strong>Extend the <code>hires</code> schema.</strong> Add <code>decisions_locked</code> and <code>freedom_envelope</code> fields to the <code>{role, agent_key, brief}</code> shape <code>staff_task()</code> produces. Basic continues populating these as empty/full-freedom by default — again, no behavior change for existing traffic, just headroom for Moderate to populate them meaningfully.</li>
+<li><strong>Add a tier filter to <code>dynamic_chain.py</code>'s candidate pool.</strong> Fallback/shuffle logic stays same-tier only, per your own instinct that cross-tier shuffling doesn't make sense. This is a small, contained change to <code>_candidate_pool()</code>/<code>_rank_accounts()</code>.</li>
+<li><strong>Monitor v1</strong> — the narrow-scope version: a subscriber to the existing <code>relay/emitter.py</code> event stream that can flag (not yet repair) inter-layer contradictions, generalizing the pattern already present in <code>reviewer.py</code>/<code>security_aggregator</code>/<code>output_guard.py</code>. This ships as a passive observer first; its repair authority and its Brain-facing escalation path (Tech-F) come later, once you've seen what it actually flags in practice.</li>
+<li><strong>Provider/model shortlist for Moderate's mid-tier candidates</strong> — informed by real Basic-tier data from Tech-A/Tech-B, not guessed at in the business roadmap's Part 4.2 tables (which are explicitly marked as working estimates for this exact reason).</li>
+</ol>
 <h3 id="why-this-order-specifically">Why this order, specifically</h3>
 <p>Every item above is a generalization of something that already exists in the current codebase — none of it is new invention, all of it is "take the hardcoded version and make it read from a tier parameter instead." That's exactly why deferring it cost you nothing: there was no design risk sitting in the deferred window, only sequencing risk, and doing it right before Moderate means you're generalizing against a system you now have months of real production behavior on, not a system you're still guessing about.</p>
-<hr>
+<hr/>
 <h2 id="5-tech-d-brain-prototype-internal-only">5. Tech-D — Brain Prototype (internal only)</h2>
-<p><b>Runs alongside:</b> overlaps the tail of Business Phase 2, informed by my recommendation in §0</p>
-<p><b>Starts:</b> once Tech-A/Tech-B have produced a meaningful volume of real routing_memory outcomes to prototype against — not on a fixed calendar date, on data volume.</p>
-<p><b>Gate to exit:</b> Brain's proposed structures, scored against real historical tasks, match or beat what Panel/staff_task actually did on a meaningful sample — before any real user (even a Moderate beta user) ever sees Brain-authored output.</p>
+<p><strong>Runs alongside:</strong> overlaps the tail of Business Phase 2, informed by my recommendation in §0
+<strong>Starts:</strong> once Tech-A/Tech-B have produced a meaningful volume of real routing_memory outcomes to prototype against — not on a fixed calendar date, on data volume.
+<strong>Gate to exit:</strong> Brain's proposed structures, scored against real historical tasks, match or beat what Panel/staff_task actually did on a meaningful sample — before any real user (even a Moderate beta user) ever sees Brain-authored output.</p>
 <p>This is where the actual research work from our discussion happens — safely, because nothing here ships.</p>
 <h3 id="what-gets-built-4">What gets built</h3>
-<ol><li><b>The primitive set, formalized.</b> Not new code — a declarative catalog of the composable shapes that already exist: <i>classify</i> (Inspector's shape), <i>committee-vote</i> (Panel's shape, parameters: member count, lineage, synthesis rule), <i>staff-and-execute</i> (staff_task/executor, parameter: hire list source), <i>loop-gate</i> (loop_controller's shape, parameters: iteration count, redo scope), <i>validate/repair</i> (Monitor v1's shape). Writing this catalog down explicitly is itself real engineering work — it's the contract Brain's output has to conform to.</li><li><b>The Brain's input menu</b>, wired but not yet live-called: <code>capabilities.list_capabilities()</code>, <code>structure.py</code>'s saved templates, <code>routing_memory.py</code>'s similar-outcome retrieval — same sources discussed earlier, assembled into whatever context format the Brain model will actually consume.</li><li><b>The offline eval harness.</b> Take real (anonymized) historical tasks from routing_memory's logs. For each, have Brain propose a structure (which primitives, what parameters, what roles — including net-new role prompts via the existing <code>add_role_prompt</code> mechanism). Compare the outcome quality and cost/latency against what actually happened. This is a batch/offline process — no live traffic touches it.</li><li><b>Template promotion logic, tested but not live</b>: the "provisional until proven" mechanism discussed earlier — a new structure only gets promoted into the shared template library after Monitor confirms a genuinely good outcome, not just "didn't crash." Build and test this logic against the offline harness now, so it's proven before Tech-E turns it on for real.</li></ol>
+<ol>
+<li><strong>The primitive set, formalized.</strong> Not new code — a declarative catalog of the composable shapes that already exist: <em>classify</em> (Inspector's shape), <em>committee-vote</em> (Panel's shape, parameters: member count, lineage, synthesis rule), <em>staff-and-execute</em> (staff_task/executor, parameter: hire list source), <em>loop-gate</em> (loop_controller's shape, parameters: iteration count, redo scope), <em>validate/repair</em> (Monitor v1's shape). Writing this catalog down explicitly is itself real engineering work — it's the contract Brain's output has to conform to.</li>
+<li><strong>The Brain's input menu</strong>, wired but not yet live-called: <code>capabilities.list_capabilities()</code>, <code>structure.py</code>'s saved templates, <code>routing_memory.py</code>'s similar-outcome retrieval — same sources discussed earlier, assembled into whatever context format the Brain model will actually consume.</li>
+<li><strong>The offline eval harness.</strong> Take real (anonymized) historical tasks from routing_memory's logs. For each, have Brain propose a structure (which primitives, what parameters, what roles — including net-new role prompts via the existing <code>add_role_prompt</code> mechanism). Compare the outcome quality and cost/latency against what actually happened. This is a batch/offline process — no live traffic touches it.</li>
+<li><strong>Template promotion logic, tested but not live</strong>: the "provisional until proven" mechanism discussed earlier — a new structure only gets promoted into the shared template library after Monitor confirms a genuinely good outcome, not just "didn't crash." Build and test this logic against the offline harness now, so it's proven before Tech-E turns it on for real.</li>
+</ol>
 <h3 id="explicitly-out-of-scope-for-tech-d">Explicitly out of scope for Tech-D</h3>
-<ul><li>No executable-code authoring (that's Tech-H, and it's gated separately — see §8).</li><li>No live user traffic, not even a small beta.</li><li>No changes to Basic or Moderate's actual production behavior.</li></ul>
+<ul>
+<li>No executable-code authoring (that's Tech-H, and it's gated separately — see §8).</li>
+<li>No live user traffic, not even a small beta.</li>
+<li>No changes to Basic or Moderate's actual production behavior.</li>
+</ul>
 <h3 id="exit-criteria-concretely">Exit criteria, concretely</h3>
 <p>Define this in writing before starting, matching your own roadmap's discipline of defining "converting" for the end-2026 checkpoint before you're in the middle of deciding it: pick a real threshold (e.g., "Brain's proposed structure matches or beats Panel's actual historical choice on cost-adjusted outcome quality for ≥ X% of a representative sample, across at least N task types") before you start scoring, so you're not tempted to declare victory on a good-looking run.</p>
-<hr>
+<hr/>
 <h2 id="6-tech-e-brain-integration-into-moderate">6. Tech-E — Brain Integration into Moderate</h2>
-<p><b>Runs alongside:</b> Business Phase 3a (Moderate build)</p>
-<p><b>Starts:</b> both Business Phase 3a's own gates clear (3.5 operational capacity, 3.6 demand signal) <b>and</b> Tech-D's exit criteria are met — this phase does not start on either condition alone.</p>
-<p><b>Gate to exit:</b> matches Business Phase 3a's own exit criteria (Moderate live, priced, self-sustaining or accretive).</p>
+<p><strong>Runs alongside:</strong> Business Phase 3a (Moderate build)
+<strong>Starts:</strong> both Business Phase 3a's own gates clear (3.5 operational capacity, 3.6 demand signal) <strong>and</strong> Tech-D's exit criteria are met — this phase does not start on either condition alone.
+<strong>Gate to exit:</strong> matches Business Phase 3a's own exit criteria (Moderate live, priced, self-sustaining or accretive).</p>
 <h3 id="what-gets-built-5">What gets built</h3>
-<ol><li><b>Brain goes live, gated by mode + package</b> — only for expert/beast modes, only for Moderate/Ultimate package tiers, exactly as discussed: mode controls whether Brain engages at all, package controls how good the model behind it is. Fast/auto traffic never touches any of this, on either tier — zero latency risk to the paths that need to stay fast.</li><li><b>Ordering</b>: Inspector always runs first, honestly, uncorrupted — its output feeds Brain, Brain never feeds back into it. Brain runs between Inspector and Panel, consuming Inspector's classification plus the Tech-D input menu, producing a process plan instead of Panel automatically running its default committee vote.</li><li><b>Standing defaults, persisted</b>: Brain's own "which primitives always run for this task shape" decisions get written to the same store as structure templates, so repeat-shape tasks reuse a proven default instead of re-reasoning every time — the cascade-caching discipline extended one layer up.</li><li><b>The privilege boundary, enforced in code, not policy</b>: Brain can invent new roles and new prompts via the existing <code>add_role_prompt</code> mechanism; it cannot grant any agent access beyond what <code>quota_sentinel.py</code>/<code>injection_guard.py</code>/<code>redaction_guard.py</code>/<code>output_guard.py</code> already allow, regardless of what it decides. This needs to be structurally impossible for Brain to route around, not just a convention Brain is instructed to follow.</li><li><b>Frontend/architecture privacy, audited explicitly</b>: confirm <code>relay/emitter.py</code>'s event stream — now carrying Brain's structural reasoning and Panel votes, not just task progress — never leaks into whatever channel the frontend actually consumes. This is a deliberate audit pass here, not an assumption carried over from Tech-B.</li></ol>
-<hr>
+<ol>
+<li><strong>Brain goes live, gated by mode + package</strong> — only for expert/beast modes, only for Moderate/Ultimate package tiers, exactly as discussed: mode controls whether Brain engages at all, package controls how good the model behind it is. Fast/auto traffic never touches any of this, on either tier — zero latency risk to the paths that need to stay fast.</li>
+<li><strong>Ordering</strong>: Inspector always runs first, honestly, uncorrupted — its output feeds Brain, Brain never feeds back into it. Brain runs between Inspector and Panel, consuming Inspector's classification plus the Tech-D input menu, producing a process plan instead of Panel automatically running its default committee vote.</li>
+<li><strong>Standing defaults, persisted</strong>: Brain's own "which primitives always run for this task shape" decisions get written to the same store as structure templates, so repeat-shape tasks reuse a proven default instead of re-reasoning every time — the cascade-caching discipline extended one layer up.</li>
+<li><strong>The privilege boundary, enforced in code, not policy</strong>: Brain can invent new roles and new prompts via the existing <code>add_role_prompt</code> mechanism; it cannot grant any agent access beyond what <code>quota_sentinel.py</code>/<code>injection_guard.py</code>/<code>redaction_guard.py</code>/<code>output_guard.py</code> already allow, regardless of what it decides. This needs to be structurally impossible for Brain to route around, not just a convention Brain is instructed to follow.</li>
+<li><strong>Frontend/architecture privacy, audited explicitly</strong>: confirm <code>relay/emitter.py</code>'s event stream — now carrying Brain's structural reasoning and Panel votes, not just task progress — never leaks into whatever channel the frontend actually consumes. This is a deliberate audit pass here, not an assumption carried over from Tech-B.</li>
+</ol>
+<hr/>
 <h2 id="7-tech-f-monitor-v2-closed-loop-stream-based">7. Tech-F — Monitor v2 (closed-loop, stream-based)</h2>
-<p><b>Runs alongside:</b> Business Phase 3a, shortly after Tech-E goes live — once there's real Brain-authored traffic for Monitor to actually watch.</p>
-<p><b>Gate to start:</b> Tech-E live with real (even if low-volume) Moderate traffic.</p>
-<p><b>Gate to exit:</b> Monitor demonstrably catches at least one class of real inter-layer problem in production that Monitor v1 (passive, Tech-C) would only have flagged after the fact.</p>
+<p><strong>Runs alongside:</strong> Business Phase 3a, shortly after Tech-E goes live — once there's real Brain-authored traffic for Monitor to actually watch.
+<strong>Gate to start:</strong> Tech-E live with real (even if low-volume) Moderate traffic.
+<strong>Gate to exit:</strong> Monitor demonstrably catches at least one class of real inter-layer problem in production that Monitor v1 (passive, Tech-C) would only have flagged after the fact.</p>
 <h3 id="what-gets-built-6">What gets built</h3>
-<ol><li><b>Per-step subscription</b>, not per-pass: Monitor becomes a live subscriber to <code>relay/emitter.py</code>'s stage-completion events (not just <code>loop_controller</code>'s end-of-pass gatekeeper check), so it can act while a task is still running, not only after it finishes.</li><li><b>Three-way authority, exactly as scoped in our discussion</b>: ignore / self-repair (small stuff — a bad brief, a missing parameter) / interrupt-and-hand-to-Brain (anything structural). The self-repair boundary should start narrow — parameter-level fixes only — and only widen (e.g., to "skip a primitive Brain specified") once you've watched it operate for a while and trust its judgment on that specific call. Don't grant the wider authority on day one.</li><li><b><code>loop_controller</code>'s gatekeeper extended</b>: its existing stop/redo-all/redo-specific decision gets a fourth option — hand back to Brain for a genuine replan, not just a mechanical redo of the same plan.</li></ol>
-<hr>
+<ol>
+<li><strong>Per-step subscription</strong>, not per-pass: Monitor becomes a live subscriber to <code>relay/emitter.py</code>'s stage-completion events (not just <code>loop_controller</code>'s end-of-pass gatekeeper check), so it can act while a task is still running, not only after it finishes.</li>
+<li><strong>Three-way authority, exactly as scoped in our discussion</strong>: ignore / self-repair (small stuff — a bad brief, a missing parameter) / interrupt-and-hand-to-Brain (anything structural). The self-repair boundary should start narrow — parameter-level fixes only — and only widen (e.g., to "skip a primitive Brain specified") once you've watched it operate for a while and trust its judgment on that specific call. Don't grant the wider authority on day one.</li>
+<li><strong><code>loop_controller</code>'s gatekeeper extended</strong>: its existing stop/redo-all/redo-specific decision gets a fourth option — hand back to Brain for a genuine replan, not just a mechanical redo of the same plan.</li>
+</ol>
+<hr/>
 <h2 id="8-tech-g-ultimate-s-brain-tier">8. Tech-G — Ultimate's Brain Tier</h2>
-<p><b>Runs alongside:</b> Business Phase 3b (Ultimate)</p>
-<p><b>Gate to start:</b> matches Business Phase 3b's own gates (same 3.5/3.6 discipline, one tier up) — no separate technical gate needed, since Tech-E/F will already have proven the mechanism at Moderate's scale.</p>
+<p><strong>Runs alongside:</strong> Business Phase 3b (Ultimate)
+<strong>Gate to start:</strong> matches Business Phase 3b's own gates (same 3.5/3.6 discipline, one tier up) — no separate technical gate needed, since Tech-E/F will already have proven the mechanism at Moderate's scale.</p>
 <h3 id="what-gets-built-7">What gets built</h3>
 <p>Structurally, nothing new — this is Tech-E/F's mechanism, with Ultimate's package tier resolving to a frontier-model Brain instead of a mid-tier one, per the <code>PANEL_CHAINS</code>/tier-parameterization work done back in Tech-C. The engineering lift here should be genuinely small if Tech-C through Tech-F were built correctly — that's the entire point of parameterizing by tier instead of forking. If Ultimate's build turns out to require real new engineering beyond a config/model swap, that's a signal something in Tech-C's generalization wasn't actually general — worth treating as a finding, not just pushing through.</p>
-<hr>
+<hr/>
 <h2 id="9-tech-h-executable-code-authoring-gated-no-fixe">9. Tech-H — Executable Code-Authoring (gated, no fixed date)</h2>
-<p><b>Runs alongside:</b> nothing in particular — this is explicitly not calendar-anchored, matching how your business roadmap treats the daemon (Part 4.5): a later, deliberately deferred, separately-audited project, mentioned here so it's not forgotten, not scheduled.</p>
-<p><b>Gate to start:</b> Tech-E/F have been running in production long enough that Brain's <i>declarative</i> composition (structure, roles, prompts — no new code) is demonstrably trustworthy at Moderate and/or Ultimate scale. Starting Tech-H before that evidence exists means testing your riskiest mechanism before your second-riskiest one is even proven.</p>
+<p><strong>Runs alongside:</strong> nothing in particular — this is explicitly not calendar-anchored, matching how your business roadmap treats the daemon (Part 4.5): a later, deliberately deferred, separately-audited project, mentioned here so it's not forgotten, not scheduled.</p>
+<p><strong>Gate to start:</strong> Tech-E/F have been running in production long enough that Brain's <em>declarative</em> composition (structure, roles, prompts — no new code) is demonstrably trustworthy at Moderate and/or Ultimate scale. Starting Tech-H before that evidence exists means testing your riskiest mechanism before your second-riskiest one is even proven.</p>
 <h3 id="what-gets-built-when-this-phase-actually-starts">What gets built, when this phase actually starts</h3>
-<ol><li><b>Sandbox execution environment</b>: brain-generated code runs against fully mocked externals — not just a fake message bus, but no real credentials reachable from that execution context at all, so even a malicious or badly-misaligned generation cannot reach a real system regardless of intent.</li><li><b>Automated first-pass filtering</b>: route every generation through the CI security scan you already have (Gitleaks + Semgrep) before any human ever looks at it.</li><li><b>Hard usage ceilings, scoped per generation attempt</b>: a max-token cap and a max-attempt cap on the same generation, not just a running aggregate budget — so one runaway loop can't quietly spend the whole ceiling before it trips.</li><li><b>Mandatory human review, permanently — not a phase you graduate out of.</b> Every new executable integration that requests real external access gets manual sign-off before it's ever wired to real credentials, indefinitely. This is the one place in the whole system where "the model is good enough now" is never sufficient on its own — the risk being guarded against is intent/design failure, which sandbox testing catches for bugs but not reliably for subtler misalignment.</li><li><b>Permanent-primitive promotion, decided explicitly</b>: once a piece of brain-generated code passes sandbox + CI scan + human review, decide in writing whether it becomes a permanently trusted primitive (reusable autonomously afterward, like <code>calendar_agent.py</code> is today) or requires review on every individual use. Recommendation stands from our discussion: review the code once, trust the primitive after — but write this decision down before Tech-H starts, not while under pressure to ship a specific integration.</li></ol>
-<hr>
+<ol>
+<li><strong>Sandbox execution environment</strong>: brain-generated code runs against fully mocked externals — not just a fake message bus, but no real credentials reachable from that execution context at all, so even a malicious or badly-misaligned generation cannot reach a real system regardless of intent.</li>
+<li><strong>Automated first-pass filtering</strong>: route every generation through the CI security scan you already have (Gitleaks + Semgrep) before any human ever looks at it.</li>
+<li><strong>Hard usage ceilings, scoped per generation attempt</strong>: a max-token cap and a max-attempt cap on the same generation, not just a running aggregate budget — so one runaway loop can't quietly spend the whole ceiling before it trips.</li>
+<li><strong>Mandatory human review, permanently — not a phase you graduate out of.</strong> Every new executable integration that requests real external access gets manual sign-off before it's ever wired to real credentials, indefinitely. This is the one place in the whole system where "the model is good enough now" is never sufficient on its own — the risk being guarded against is intent/design failure, which sandbox testing catches for bugs but not reliably for subtler misalignment.</li>
+<li><strong>Permanent-primitive promotion, decided explicitly</strong>: once a piece of brain-generated code passes sandbox + CI scan + human review, decide in writing whether it becomes a permanently trusted primitive (reusable autonomously afterward, like <code>calendar_agent.py</code> is today) or requires review on every individual use. Recommendation stands from our discussion: review the code once, trust the primitive after — but write this decision down before Tech-H starts, not while under pressure to ship a specific integration.</li>
+</ol>
+<hr/>
 <h2 id="10-master-technical-timeline">10. Master Technical Timeline</h2>
-<div class="tw"><table><tr><th>Tech Phase</th><th>Business Phase alongside</th><th>Starts when</th><th>Exit gate</th></tr><tr><td>A — Instrumentation &amp; baseline</td><td>Phase 0</td><td>Now</td><td>Cost/latency data flowing for every agent call</td></tr><tr><td>B — Harden Basic for real users</td><td>Phase 0 (late) → 1 → 2</td><td>Tech-A exit</td><td>Business Phase 2's own exit criteria</td></tr><tr><td><i>(deferred window — no new tech work)</i></td><td>Phase 2, live</td><td>—</td><td>—</td></tr><tr><td>C — Moderate scaffolding</td><td>End of Phase 2 → start of 3a</td><td>Business gate 3.5 clears</td><td>Scaffolding live, zero behavior change to Basic</td></tr><tr><td>D — Brain prototype (internal only)</td><td>Tail of Phase 2</td><td>Meaningful routing_memory data volume exists</td><td>Brain beats/matches Panel on offline historical eval</td></tr><tr><td>E — Brain integration into Moderate</td><td>Phase 3a</td><td>Business gates 3.5 &amp; 3.6 clear AND Tech-D exit met</td><td>Business Phase 3a's own exit criteria</td></tr><tr><td>F — Monitor v2 (closed-loop)</td><td>Phase 3a, shortly after E</td><td>Tech-E live with real traffic</td><td>Monitor catches a real problem live that v1 would've missed</td></tr><tr><td>G — Ultimate's Brain tier</td><td>Phase 3b</td><td>Business Phase 3b gates clear</td><td>Config/model-swap only, if C-F were built correctly</td></tr><tr><td>H — Code-authoring</td><td>Unscheduled</td><td>Tech-E/F proven trustworthy in production</td><td>Never fully autonomous — permanent human gate on new external access</td></tr></table></div>
-<hr>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Tech Phase</th>
+<th>Business Phase alongside</th>
+<th>Starts when</th>
+<th>Exit gate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A — Instrumentation &amp; baseline</td>
+<td>Phase 0</td>
+<td>Now</td>
+<td>Cost/latency data flowing for every agent call</td>
+</tr>
+<tr>
+<td>B — Harden Basic for real users</td>
+<td>Phase 0 (late) → 1 → 2</td>
+<td>Tech-A exit</td>
+<td>Business Phase 2's own exit criteria</td>
+</tr>
+<tr>
+<td><em>(deferred window — no new tech work)</em></td>
+<td>Phase 2, live</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>C — Moderate scaffolding</td>
+<td>End of Phase 2 → start of 3a</td>
+<td>Business gate 3.5 clears</td>
+<td>Scaffolding live, zero behavior change to Basic</td>
+</tr>
+<tr>
+<td>D — Brain prototype (internal only)</td>
+<td>Tail of Phase 2</td>
+<td>Meaningful routing_memory data volume exists</td>
+<td>Brain beats/matches Panel on offline historical eval</td>
+</tr>
+<tr>
+<td>E — Brain integration into Moderate</td>
+<td>Phase 3a</td>
+<td>Business gates 3.5 &amp; 3.6 clear AND Tech-D exit met</td>
+<td>Business Phase 3a's own exit criteria</td>
+</tr>
+<tr>
+<td>F — Monitor v2 (closed-loop)</td>
+<td>Phase 3a, shortly after E</td>
+<td>Tech-E live with real traffic</td>
+<td>Monitor catches a real problem live that v1 would've missed</td>
+</tr>
+<tr>
+<td>G — Ultimate's Brain tier</td>
+<td>Phase 3b</td>
+<td>Business Phase 3b gates clear</td>
+<td>Config/model-swap only, if C-F were built correctly</td>
+</tr>
+<tr>
+<td>H — Code-authoring</td>
+<td>Unscheduled</td>
+<td>Tech-E/F proven trustworthy in production</td>
+<td>Never fully autonomous — permanent human gate on new external access</td>
+</tr>
+</tbody>
+</table></div>
+<hr/>
 <h2 id="11-what-this-roadmap-deliberately-does-not-inclu">11. What this roadmap deliberately does not include</h2>
 <p>Matching your business roadmap's own discipline of naming what's out of scope, not just what's in:</p>
-<ul><li>Security/compliance hardening beyond what's needed for Tech-B's real-user launch (explicitly deferred, per your own instruction at the start of this discussion).</li><li>The daemon (already separately deferred in the business roadmap, Part 4.5 — unaffected by anything here).</li><li>Any executable-code authoring before Tech-H's gate clears — including "just a small one" as a shortcut during Tech-D or Tech-E. If this temptation shows up mid-build, it's a sign the gate is being second-guessed under pressure, not a sign the gate was wrong.</li><li>Any scaffolding work during Tech-B (the deferred window you chose) — restated here as a hard boundary, not just a scheduling note.</li></ul></article><div class="toc"><a class="t2" href="#0-recommendation-where-brain-design-starts">0. Recommendation: where Brain design starts</a><a class="t2" href="#1-the-two-track-view">1. The two-track view</a><a class="t2" href="#2-tech-a-instrumentation-baseline">2. Tech-A — Instrumentation &amp; Baseline</a><a class="t3" href="#what-gets-built">What gets built</a><a class="t3" href="#explicitly-not-in-scope-here">Explicitly not in scope here</a><a class="t3" href="#why-this-is-first-unconditionally">Why this is first, unconditionally</a><a class="t2" href="#3-tech-b-harden-basic-for-real-users">3. Tech-B — Harden Basic for Real Users</a><a class="t3" href="#what-gets-built-2">What gets built</a><a class="t3" href="#what-explicitly-does-not-happen-in-tech-b">What explicitly does NOT happen in Tech-B</a><a class="t2" href="#4-tech-c-moderate-scaffolding-the-deferred-work-">4. Tech-C — Moderate Scaffolding (the deferred work, now due</a><a class="t3" href="#what-gets-built-3">What gets built</a><a class="t3" href="#why-this-order-specifically">Why this order, specifically</a><a class="t2" href="#5-tech-d-brain-prototype-internal-only">5. Tech-D — Brain Prototype (internal only)</a><a class="t3" href="#what-gets-built-4">What gets built</a><a class="t3" href="#explicitly-out-of-scope-for-tech-d">Explicitly out of scope for Tech-D</a><a class="t3" href="#exit-criteria-concretely">Exit criteria, concretely</a><a class="t2" href="#6-tech-e-brain-integration-into-moderate">6. Tech-E — Brain Integration into Moderate</a><a class="t3" href="#what-gets-built-5">What gets built</a><a class="t2" href="#7-tech-f-monitor-v2-closed-loop-stream-based">7. Tech-F — Monitor v2 (closed-loop, stream-based)</a><a class="t3" href="#what-gets-built-6">What gets built</a><a class="t2" href="#8-tech-g-ultimate-s-brain-tier">8. Tech-G — Ultimate's Brain Tier</a><a class="t3" href="#what-gets-built-7">What gets built</a><a class="t2" href="#9-tech-h-executable-code-authoring-gated-no-fixe">9. Tech-H — Executable Code-Authoring (gated, no fixed date)</a><a class="t3" href="#what-gets-built-when-this-phase-actually-starts">What gets built, when this phase actually starts</a><a class="t2" href="#10-master-technical-timeline">10. Master Technical Timeline</a><a class="t2" href="#11-what-this-roadmap-deliberately-does-not-inclu">11. What this roadmap deliberately does not include</a></div></div></main><script></script></body></html>
+<ul>
+<li>Security/compliance hardening beyond what's needed for Tech-B's real-user launch (explicitly deferred, per your own instruction at the start of this discussion).</li>
+<li>The daemon (already separately deferred in the business roadmap, Part 4.5 — unaffected by anything here).</li>
+<li>Any executable-code authoring before Tech-H's gate clears — including "just a small one" as a shortcut during Tech-D or Tech-E. If this temptation shows up mid-build, it's a sign the gate is being second-guessed under pressure, not a sign the gate was wrong.</li>
+<li>Any scaffolding work during Tech-B (the deferred window you chose) — restated here as a hard boundary, not just a scheduling note.</li>
+</ul>
+<hr/>
+<h2 id="12-ecosystem-synchronization-how-minime-web-mini">12. Ecosystem Synchronization: How MiniMe Web, MiniMake, MiniMate &amp; FBEBC Connect</h2>
+<p>To ensure every guide in the MiniMe Book stays in lockstep, this roadmap governs the shared technical sequence across all four product and research tracks:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Track / Product</th>
+<th>Window in Master Timeline</th>
+<th>Shared Technical Dependency</th>
+<th>Governing Guides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FBEBC Stage 1 (Preprint)</strong></td>
+<td>Sep – Oct 2026 (<code>S0</code>, <code>$0</code> cost)</td>
+<td>Standalone <code>fbebc-research</code> repo; zero changes to <code>minime</code> backend</td>
+<td><code>fbebc-research-program-guide.md</code>, <code>fbebc-phase1-implementation-guide.md</code>, <code>STATUS.md</code></td>
+</tr>
+<tr>
+<td><strong>Tech-A (Instrumentation &amp; Baseline)</strong></td>
+<td>Oct 2026 – Apr 2027 (<code>S0</code>)</td>
+<td>Builds unified cost/token telemetry (<code>llm_call_log</code> + <code>usage_ledger</code> <code>0012</code>) &amp; model hygiene</td>
+<td><code>minime_technical_roadmap.md</code> §2, <code>MiniMe_Financial_Strategy_Rulebook.md</code> Rule 4</td>
+</tr>
+<tr>
+<td><strong>Cross-Product Architecture &amp; Ledger Lock</strong></td>
+<td>Nov 2026 (<code>S0</code> Gate)</td>
+<td>Locks single account, single <code>usage_ledger</code> (<code>surface in ('web','minimake','minimate','system')</code>), and <code>minicore/</code> extraction</td>
+<td><code>minimake_build_plan.md</code> O1–O8, <code>MiniMate___Build_Execution_Guide.md</code> O1–O8</td>
+</tr>
+<tr>
+<td><strong>MiniMake (Local-First Coding Agent)</strong></td>
+<td>Jan – Feb 2027 (<code>S0</code>, 64 WPs, 12 waves)</td>
+<td>Phase 0 cuts browser bloat (<code>B00–B12</code>), extracts <code>minicore/</code> (<code>P00</code>), mounts <code>/api/codeagent/*</code> on existing backend</td>
+<td><code>minimake_feature_guide.md</code>, <code>minimake_build_plan.md</code></td>
+</tr>
+<tr>
+<td><strong>MiniMate (Local-First Automation Agent)</strong></td>
+<td>Mar – Jun 2027 (<code>S0</code>, 59 WPs, 16 waves)</td>
+<td>Reuses <code>minicore/</code>, device-code auth, and <code>usage_ledger</code>; mounts <code>/api/minimate/*</code> on existing backend</td>
+<td><code>minimate_feature_guide.md</code>, <code>MiniMate___Build_Execution_Guide.md</code></td>
+</tr>
+<tr>
+<td><strong>Tech-B &amp; S1 Pilot → S2 Public Launch</strong></td>
+<td>Mar 2027 – Jan 2028 (<code>S1</code> → <code>S2</code>)</td>
+<td>Hardens auth, RLS, BD+USD billing rails, and shared plan caps for public Basic + Free launch</td>
+<td><code>minime_feature_guide.md</code>, <code>MiniMe_Financial_Strategy_Rulebook.md</code> §11.1</td>
+</tr>
+<tr>
+<td><strong>FBEBC Stage 2 (MiniMe-Integrated)</strong></td>
+<td>Mar 2028+ (Gated on <code>G1–G4</code>)</td>
+<td>Ports <code>EvolutionEngine</code> into <code>backend/agents/evolution/</code> once Basic is live and ops are green</td>
+<td><code>fbebc-research-program-guide.md</code> §2</td>
+</tr>
+<tr>
+<td><strong>Tech-C/D/E/F/G (Moderate, Brain &amp; Ultimate)</strong></td>
+<td>Jul 2028 – Dec 2030 (<code>S2</code> → <code>S3a</code> → <code>S3b</code>)</td>
+<td>Unlocks Moderate (<code>$29</code>), Brain batch/real-time tiers, Monitor v2, and Ultimate (<code>$79</code>) across Web, MiniMake, and MiniMate</td>
+<td><code>minime_technical_roadmap.md</code> §4–§8, <code>minime_feature_guide.md</code> §20</td>
+</tr>
+</tbody>
+</table></div><div class="bk-footer">
+  <div class="bk-footer-hdr">
+    <span>End of <b>Chapter 2: Technical Implementation Roadmap</b></span>
+    <a href="docs.html">View all 14 chapters in Docs →</a>
+  </div>
+  <div class="bk-footer-grid"><a href="doc-rulebook.html" class="bk-fcard">
+      <small>← Previous · Chapter 1</small>
+      <b>Financial & Model Strategy Rulebook</b>
+      <span>Part I · Strategy</span>
+    </a><a href="doc-server-guide.html" class="bk-fcard bk-fnext">
+      <small>Next · Chapter 3 →</small>
+      <b>Server Management & Splitting Guide</b>
+      <span>Part I · Strategy</span>
+    </a></div>
+</div></article><div class="toc"><b>On this page</b><a class="t2" href="#0-recommendation-where-brain-design-starts">0. Recommendation: where Brain design starts</a><a class="t2" href="#1-the-two-track-view">1. The two-track view</a><a class="t2" href="#2-tech-a-instrumentation-baseline">2. Tech-A — Instrumentation &amp; Baseline</a><a class="t3" href="#what-gets-built">What gets built</a><a class="t3" href="#explicitly-not-in-scope-here">Explicitly not in scope here</a><a class="t3" href="#why-this-is-first-unconditionally">Why this is first, unconditionally</a><a class="t2" href="#3-tech-b-harden-basic-for-real-users">3. Tech-B — Harden Basic for Real Users</a><a class="t3" href="#what-gets-built-2">What gets built</a><a class="t3" href="#what-explicitly-does-not-happen-in-tech-b">What explicitly does NOT happen in Tech-B</a><a class="t2" href="#4-tech-c-moderate-scaffolding-the-deferred-work-">4. Tech-C — Moderate Scaffolding (the deferred work, now due)</a><a class="t3" href="#what-gets-built-3">What gets built</a><a class="t3" href="#why-this-order-specifically">Why this order, specifically</a><a class="t2" href="#5-tech-d-brain-prototype-internal-only">5. Tech-D — Brain Prototype (internal only)</a><a class="t3" href="#what-gets-built-4">What gets built</a><a class="t3" href="#explicitly-out-of-scope-for-tech-d">Explicitly out of scope for Tech-D</a><a class="t3" href="#exit-criteria-concretely">Exit criteria, concretely</a><a class="t2" href="#6-tech-e-brain-integration-into-moderate">6. Tech-E — Brain Integration into Moderate</a><a class="t3" href="#what-gets-built-5">What gets built</a><a class="t2" href="#7-tech-f-monitor-v2-closed-loop-stream-based">7. Tech-F — Monitor v2 (closed-loop, stream-based)</a><a class="t3" href="#what-gets-built-6">What gets built</a><a class="t2" href="#8-tech-g-ultimate-s-brain-tier">8. Tech-G — Ultimate's Brain Tier</a><a class="t3" href="#what-gets-built-7">What gets built</a><a class="t2" href="#9-tech-h-executable-code-authoring-gated-no-fixe">9. Tech-H — Executable Code-Authoring (gated, no fixed date)</a><a class="t3" href="#what-gets-built-when-this-phase-actually-starts">What gets built, when this phase actually starts</a><a class="t2" href="#10-master-technical-timeline">10. Master Technical Timeline</a><a class="t2" href="#11-what-this-roadmap-deliberately-does-not-inclu">11. What this roadmap deliberately does not include</a><a class="t2" href="#12-ecosystem-synchronization-how-minime-web-mini">12. Ecosystem Synchronization: How MiniMe Web, MiniMake, MiniM</a></div></div></main><script id="bk-chapter-script">
+(function(){
+  // Reading progress bar
+  var bar = document.querySelector('.bk-progress');
+  if(!bar){
+    bar = document.createElement('div');
+    bar.className = 'bk-progress';
+    document.body.appendChild(bar);
+  }
+  window.addEventListener('scroll', function(){
+    var h = document.documentElement;
+    var sc = h.scrollTop || document.body.scrollTop;
+    var max = (h.scrollHeight - h.clientHeight) || 1;
+    bar.style.width = Math.min(100, Math.max(0, (sc / max) * 100)) + '%';
+  }, {passive:true});
+
+  // Scroll-spy for TOC
+  var tocLinks = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+  if(tocLinks.length){
+    var heads = tocLinks.map(function(a){
+      var id = a.getAttribute('href').slice(1);
+      return {a: a, el: document.getElementById(id)};
+    }).filter(function(x){ return !!x.el; });
+    window.addEventListener('scroll', function(){
+      var y = window.scrollY + 120;
+      var cur = heads[0];
+      for(var i=0;i<heads.length;i++){
+        if(heads[i].el.offsetTop <= y) cur = heads[i];
+      }
+      tocLinks.forEach(function(a){ a.classList.remove('active-sec'); });
+      if(cur) cur.a.classList.add('active-sec');
+    }, {passive:true});
+  }
+
+  // Highlight inline status badges in article
+  var art = document.querySelector('article');
+  if(art){
+    art.querySelectorAll('strong, b, code').forEach(function(el){
+      var t = el.textContent.trim();
+      if(/^\[(LIVE|DONE|VERIFIED|V)\]$/.test(t)){
+        el.className = (el.className + ' st-badge st-live').trim();
+      } else if(/^\[(PARTIAL|IN PROGRESS|FIX|A)\]$/.test(t) || /^\[PHASE 0/.test(t)){
+        el.className = (el.className + ' st-badge st-part').trim();
+      } else if(/^\[(PLANNED|STAGE|PHASE|WAVE|DECIDE|U)/.test(t)){
+        el.className = (el.className + ' st-badge st-plan').trim();
+      } else if(/^\[(REMOVED|DEFERRED)/.test(t)){
+        el.className = (el.className + ' st-badge st-rem').trim();
+      }
+    });
+  }
+})();
+</script></body></html>

@@ -1,18 +1,46 @@
-# MiniMe Atlas - machine-readable summary
+# MiniMe Atlas — The Connected Ecosystem Book (14 Guides + Full Codebase Index)
 
-Snapshot 2026-10-05, commit febb685.
+Static, offline-capable engineering atlas and 14-chapter connected book for the MiniMe AI ecosystem (MiniMe Web, MiniMake Terminal/Editor Agent, MiniMate Personal Automation Agent, and FBEBC Research).
 
-- 801 files, 275,973 lines of code, 9,010 functions, 174 API routes, 549 commits.
-- Graph: 13,004 nodes, 29,813 links.
+## Start here
+- Human overview & ecosystem sync map: index.html
+- Complete 14-chapter connected book library: docs.html
+- Cross-book consistency & reconciliation matrix: consistency.html
+- Master timeline & critical path (plan vs actual): roadmap.html
+- Machine-readable executive summary: data/summary.md
 
-## Data files
-- data/census.json: per-file and per-function metrics, routes, git history, dependencies.
-- data/docs/MiniMate___Build_Execution_Guide.md
-- data/docs/MiniMe_Financial_Strategy_Rulebook.md
-- data/docs/STATUS.md
-- data/docs/fbebc-phase1-implementation-guide.md
-- data/docs/fbebc-preprint-workshop-paper-guide.md
-- data/docs/fbebc-research-program-guide.md
-- data/docs/minimake_build_plan.md
-- data/docs/minime_server_management_guide.md
-- data/docs/minime_technical_roadmap.md
+## The 14 Connected Book Chapters (Markdown Sources in `data/docs/` & `docs/`, HTML Readers at `doc-*.html`)
+
+### Part I — Strategy, Governance & Master Sequence
+1. Financial & Model Strategy Rulebook (`data/docs/MiniMe_Financial_Strategy_Rulebook.md` -> `doc-rulebook.html`) — The constitution: 15 golden rules, 4 tiers (Free $0, Basic $9, Moderate $29, Ultimate $79), COGS-at-cap <= 45%, 8 LLM providers, hiring & funding gates.
+2. Technical Implementation Roadmap (`data/docs/minime_technical_roadmap.md` -> `doc-tech-roadmap.html`) — Tech-A to Tech-H sequence, shared `usage_ledger` (`0012`), model hygiene, and ecosystem timeline integration.
+3. Server Management & Splitting Guide (`data/docs/minime_server_management_guide.md` -> `doc-server-guide.html`) — Metric-gated infrastructure evolution from Stage 1 single VPS ($14/mo) to Stage 5 full split, plus local-first footprint of MiniMake & MiniMate.
+
+### Part II — MiniMe Core Flagship (Web Workspace)
+4. MiniMe — Complete Feature & Product Guide (`data/docs/minime_feature_guide.md` -> `doc-minime-feature-guide.html`) — All 25 subsystems, 25-stage orchestrator, 73 agent modules (46 router roles), 6-tier memory, knowledge graph, mechanical CAD engine, and S0->S3b evolution.
+
+### Part III — MiniMake (Local-First Terminal & Editor Coding Agent)
+5. MiniMake — Complete Feature & Product Guide (`data/docs/minimake_feature_guide.md` -> `doc-minimake-feature-guide.html`) — Local CLI (`minimake`), TUI, `minicore/` shared package, 14 local tools, OS sandbox, 6 sub-agents, git checkpoints, and editor extensions.
+6. MiniMake — Build Execution Guide (`data/docs/minimake_build_plan.md` -> `doc-minimake-plan.html`) — 64 patch-sized work packages across 12 waves (157 effort points), Phase 0 browser cut (`B00-B12`), and Overrides O1-O8.
+7. MiniMake — Original Product & Design Spec (`guides/MiniMake___Product___Build_Guide.html` -> `doc-minimake-product.html`) — Initial product spec (superseded on topology/billing by Overrides O1-O8).
+
+### Part IV — MiniMate (Local-First Personal Automation Agent)
+8. MiniMate — Complete Feature & Product Guide (`data/docs/minimate_feature_guide.md` -> `doc-minimate-feature-guide.html`) — Local-first personal automation daemon (`minimate`), Run Engine, 4-tier Approval Manager, 6 messaging channels, 9 connectors, Playwright browser automation, and Argon2id + AES-256-GCM vault.
+9. MiniMate — Build Execution Guide (`data/docs/MiniMate___Build_Execution_Guide.md` -> `doc-minimate-plan.html`) — 59 patch-sized work packages across 16 waves (133 effort points), local-first Overrides O1-O8.
+10. MiniMate — Original Product & Design Spec (`guides/MiniMate___Product___Build_Guide.html` -> `doc-minimate-product.html`) — Initial product spec (superseded on topology/billing by Overrides O1-O8).
+
+### Part V — FBEBC Research Program (Fitness-Band Elitist Bacterial Colony)
+11. FBEBC — Research Program Guide (`data/docs/fbebc-research-program-guide.md` -> `doc-fbebc-program.html`) — Stage 1 zero-cost preprint to Stage 2 MiniMe-integrated evolution engine (`backend/agents/evolution/`).
+12. FBEBC — Phase 1 Implementation Guide (`data/docs/fbebc-phase1-implementation-guide.md` -> `doc-fbebc-phase1.html`) — Immutable barrier (`fbebc/barrier.py`) and 5-component package spec.
+13. FBEBC — Preprint / Workshop Paper Guide (`data/docs/fbebc-preprint-workshop-paper-guide.md` -> `doc-fbebc-paper.html`) — Claim ladder (C0-C3), figures, stats recipes, and submission checklist.
+14. FBEBC — Live Build & Run Status (`data/docs/STATUS.md` -> `doc-fbebc-status.html`) — 89 passing tests, 4 bug fixes (D1-D4), and live FunSearch run log.
+
+## Interactive Atlas Pages
+- `roadmap.html` — Master timeline (plan vs actual) + 5-swimlane dependency & gate map
+- `todo.html` — Shared team Kanban, List, Calendar, Timeline & Activity log
+- `journey.html` — Interactive section-by-section reading & build tracker across all 14 guides
+- `progress.html` — Tech-A through Tech-H matched against real codebase files
+- `build.html` — Interactive work-package tracker for MiniMake (64 WPs), MiniMate (59 WPs), and FBEBC
+- `decisions.html` — 86 golden rules, roadmap gates, and pre-patch architectural decisions
+- `consistency.html` — Cross-book governance & reconciliation matrix
+- `explore.html`, `map.html`, `code.html`, `functions.html`, `graph.html`, `api.html`, `agents.html`, `data.html`, `infra.html`, `history.html`, `architecture.html`, `tests.html`, `health.html`, `finance.html`, `rulebook.html`, `tables.html`

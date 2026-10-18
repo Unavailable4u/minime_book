@@ -1,7 +1,7 @@
 # MiniMake — Build Execution Guide
 ### From the first patch to release: ordered, parallelizable, patch-sized work packages
 
-*Version 1.0 · 2026-10-02 · companion to `minimake_guide.md` (what to build) and `minimake_design_note.md`. This document says **in what order and in what pieces** to build it. Where this guide and the product guide disagree, **this guide wins** (see §1).*
+*Version 1.1 (Synchronized Edition) · Companion to `minimake_feature_guide.md` (canonical 16-section feature & product specification), `guides/MiniMake___Product___Build_Guide.html` (initial design note), `minime_technical_roadmap.md` (Tech-A/B shared ledger sequence), and `MiniMe_Financial_Strategy_Rulebook.md` (shared plan caps). Planned execution window on the Master Timeline: **Jan – Feb 2027** (64 work packages, 12 waves, 157 effort points). Where this guide and the initial HTML product guide disagree, **this guide and `minimake_feature_guide.md` win** (see §1 Overrides O1–O8).*
 
 ---
 

@@ -1,0 +1,1686 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>MiniMe — Complete Feature & Product Guide - MiniMe Atlas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap"><style>:root{--bg:#0a0a0c;--p:#121216;--p2:#17171d;--ln:#26262e;--tx:#f2f1ed;--dim:#a8a6a0;--r:#ff2052;--v:#a78bfa;--a:#f59e0b;--g:#34d399;--m:#f06cb4}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 Sora,Inter,system-ui,sans-serif;display:flex;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background-image:linear-gradient(rgba(255,32,82,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,32,82,.12) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent);mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent)}
+nav{overflow-y:auto;position:sticky;top:0;height:100vh;width:210px;flex:none;padding:22px 14px;border-right:1px solid var(--ln);background:rgba(10,10,12,.9);z-index:2}
+nav .logo{font-weight:700;font-size:18px;margin:0 8px 18px}nav .logo b{color:var(--r)}nav a{display:block;padding:8px 12px;border-radius:9px;color:var(--dim);text-decoration:none;margin:2px 0}
+nav a:hover{background:var(--p2);color:var(--tx)}nav a.on{background:rgba(255,32,82,.14);color:#fff;box-shadow:inset 2px 0 var(--r)}.nv{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:#6d6b66;margin:16px 10px 4px}nav small{display:block;margin:18px 8px 0;color:#6d6b66;font-size:12px}
+main{flex:1;min-width:0;padding:34px 40px 80px;position:relative;z-index:1;max-width:1500px}
+h1{font-size:30px;margin:0 0 4px;letter-spacing:-.02em}h2{font-size:20px;margin:34px 0 12px}h3{font-size:16px;margin:22px 0 8px}.sub{color:var(--dim);margin:0 0 24px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.card{background:var(--p);border:1px solid var(--ln);border-radius:14px;padding:16px 18px}.card.h:hover{border-color:var(--r);transform:translateY(-2px);transition:.15s}
+.k{font-size:30px;font-weight:700;letter-spacing:-.02em;color:#fff}.k small{font-size:13px;color:var(--dim);font-weight:400}.l{color:var(--dim);font-size:13px}
+.bar{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:13px}.bar span:first-child{width:170px;flex:none;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar i{display:block;height:9px;border-radius:5px;background:linear-gradient(90deg,var(--r),var(--m))}.bar em{font-style:normal;color:var(--tx);min-width:60px}
+a{color:#ff7a96}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:7px 10px;border-bottom:1px solid var(--ln);text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:var(--p2);cursor:pointer;color:var(--dim);font-weight:600}td.n{text-align:right;font-variant-numeric:tabular-nums}tr:hover td{background:rgba(255,255,255,.03)}
+.tw{overflow-x:auto;border:1px solid var(--ln);border-radius:12px;margin:12px 0}input[type=search],input[type=text]{background:var(--p);border:1px solid var(--ln);color:var(--tx);border-radius:10px;padding:9px 13px;width:320px;max-width:100%;font:inherit}
+button{background:var(--p2);color:var(--tx);border:1px solid var(--ln);border-radius:9px;padding:7px 14px;cursor:pointer;font:inherit}button:hover{border-color:var(--r)}
+.chip{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;border:1px solid var(--ln);color:var(--dim);cursor:pointer;user-select:none}
+.chip.done{color:#0a0a0c;background:var(--g);border-color:var(--g)}.chip.prog{color:#0a0a0c;background:var(--a);border-color:var(--a)}.chip.plan{color:var(--v);border-color:var(--v)}
+.lane{margin:26px 0}.lane h2{display:flex;gap:12px;align-items:center}.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}.cards .card{font-size:13px}.cards .card b{display:block;margin-bottom:6px;font-size:14px}
+.doc{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:40px}.doc article{min-width:0;max-width:880px}.toc{position:sticky;top:20px;align-self:start;max-height:90vh;overflow:auto;font-size:13px;border-left:1px solid var(--ln);padding-left:14px}
+.toc a{display:block;color:var(--dim);text-decoration:none;padding:2px 0}.toc a:hover{color:#fff}.toc .t3{padding-left:12px;font-size:12px}
+article h1,article h2{border-bottom:1px solid var(--ln);padding-bottom:6px}pre{background:var(--p);border:1px solid var(--ln);border-radius:10px;padding:12px;overflow:auto;font-size:12.5px}
+code{background:var(--p2);padding:1px 6px;border-radius:5px;font-size:.9em;color:#ffb3c2}pre code{background:none;padding:0;color:inherit}blockquote{margin:12px 0;padding:6px 16px;border-left:3px solid var(--r);color:var(--dim);background:var(--p)}
+iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}.pie{width:150px;height:150px;border-radius:50%}.row{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.lg div{font-size:13px;color:var(--dim)}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px}.pill{font-size:11px;color:var(--dim);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;display:inline-block}
+.thumb{height:210px;overflow:hidden;border-radius:10px;border:1px solid var(--ln);position:relative;background:#fff}.thumb iframe{width:1280px;height:840px;transform:scale(.3);transform-origin:0 0;border:0;pointer-events:none}
+.card,.grid>*,.g2>*{min-width:0}.card{overflow-wrap:anywhere}td,th{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}.stack>.card{margin:0 0 14px}#tm .lf{white-space:nowrap;text-overflow:ellipsis}main{overflow-x:clip}@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="atlas-mobile-css">
+.m-topbar{display:none}
+.m-backdrop{display:none}
+.nav-mclose,.toc-mhdr{display:none}
+.nav-qjump{display:flex;justify-content:space-between;align-items:center;width:calc(100% - 12px);margin:0 6px 12px;padding:7px 10px;border-radius:9px;background:var(--p2);border:1px solid var(--ln);color:var(--dim);font-size:12px;cursor:pointer}
+.nav-qjump:hover{border-color:var(--r);color:#fff}
+.nav-qjump kbd{font-size:10px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--ln);color:var(--dim)}
+.nav-sub{padding-left:20px!important;font-size:12.5px!important;color:#8e8c86!important}
+.nav-sub:hover{color:#fff!important}
+.svg-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.m-btt{position:fixed;right:18px;bottom:18px;width:38px;height:38px;border-radius:50%;background:var(--r);color:#fff;border:0;font-weight:700;font-size:16px;cursor:pointer;z-index:90;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.m-btt.vis{opacity:1;pointer-events:auto}
+.cmd-modal{position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:8vh 14px 20px}
+.cmd-modal.open{display:flex}
+.cmd-box{width:100%;max-width:640px;background:var(--p);border:1px solid var(--ln);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.65)}
+.cmd-top{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ln);background:var(--p2)}
+.cmd-top input{flex:1;background:transparent;border:0;color:var(--tx);font:inherit;font-size:14.5px;outline:none;width:auto}
+.cmd-esc{padding:3px 8px;font-size:11px;border-radius:6px}
+.cmd-list{max-height:62vh;overflow-y:auto;padding:6px}
+.cmd-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;text-decoration:none;color:var(--tx);font-size:13.5px}
+.cmd-item:hover{background:rgba(255,32,82,.14);color:#fff}
+.cmd-item small{display:block;font-size:11px;color:var(--dim)}
+@media(max-width:900px){
+  body{display:block;padding-top:54px}
+  .m-topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;position:fixed;top:0;left:0;right:0;height:54px;padding:0 12px;background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--ln);z-index:1001}
+  .m-brand{font-weight:700;font-size:15px;color:var(--tx);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .m-brand b{color:var(--r)}
+  .m-brand small{font-weight:400;color:var(--dim);font-size:13px}
+  .m-right{display:flex;gap:6px;align-items:center;flex:none}
+  .m-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);font-size:12.5px;cursor:pointer}
+  .m-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);z-index:1002}
+  body.nav-open .m-backdrop,body.toc-open .m-backdrop{display:block}
+  nav{display:block!important;position:fixed!important;top:0!important;left:0!important;bottom:0!important;height:100dvh!important;width:270px!important;max-width:84vw!important;background:#0e0e13!important;z-index:1003!important;transform:translateX(-105%);transition:transform .22s ease;box-shadow:12px 0 36px rgba(0,0,0,.6)}
+  body.nav-open nav{transform:translateX(0)}
+  nav .logo{display:flex;justify-content:space-between;align-items:center}
+  .nav-mclose{display:inline-block;padding:3px 8px;font-size:11.5px;border-radius:6px;background:var(--p2);border:1px solid var(--ln);color:var(--dim)}
+  .toc{display:block!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;height:100dvh!important;max-height:100dvh!important;width:290px!important;max-width:86vw!important;background:#101016!important;border-left:1px solid var(--ln)!important;padding:16px!important;z-index:1003!important;transform:translateX(105%);transition:transform .22s ease;box-shadow:-12px 0 36px rgba(0,0,0,.6)}
+  body.toc-open .toc{transform:translateX(0)}
+  .toc-mhdr{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--ln)}
+  .toc-mclose{padding:3px 8px;font-size:11.5px;border-radius:6px}
+  main{padding:18px 14px 64px!important;max-width:100%!important}
+  h1{font-size:24px}h2{font-size:18px}
+  .g2,.parts,.bk-grid,.bk-footer-grid,.cards{grid-template-columns:1fr!important}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .bar{flex-wrap:wrap;gap:6px}.bar span:first-child{width:100%}
+  .svg-scroll svg{min-width:680px}
+  .ex #res{max-height:38vh}
+  #tm{height:62vh!important;min-height:380px!important}
+  .split{grid-template-columns:1fr!important}
+  .board{grid-template-columns:repeat(4,minmax(250px,82vw))!important;overflow-x:auto;padding-bottom:8px}
+  .cal{min-width:560px}
+}
+@media(max-width:480px){
+  .m-btn span{display:none}
+  .grid{grid-template-columns:1fr 1fr}
+  .k{font-size:24px}
+  input[type=search],input[type=text]{width:100%!important}
+}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="atlas-mobile-css">
+.m-topbar{display:none}
+.m-backdrop{display:none}
+.nav-mclose,.toc-mhdr{display:none}
+.nav-qjump{display:flex;justify-content:space-between;align-items:center;width:calc(100% - 12px);margin:0 6px 12px;padding:7px 10px;border-radius:9px;background:var(--p2);border:1px solid var(--ln);color:var(--dim);font-size:12px;cursor:pointer}
+.nav-qjump:hover{border-color:var(--r);color:#fff}
+.nav-qjump kbd{font-size:10px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--ln);color:var(--dim)}
+.nav-sub{padding-left:20px!important;font-size:12.5px!important;color:#8e8c86!important}
+.nav-sub:hover{color:#fff!important}
+.svg-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.m-btt{position:fixed;right:18px;bottom:18px;width:38px;height:38px;border-radius:50%;background:var(--r);color:#fff;border:0;font-weight:700;font-size:16px;cursor:pointer;z-index:90;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.m-btt.vis{opacity:1;pointer-events:auto}
+.cmd-modal{position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:8vh 14px 20px}
+.cmd-modal.open{display:flex}
+.cmd-box{width:100%;max-width:640px;background:var(--p);border:1px solid var(--ln);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.65)}
+.cmd-top{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ln);background:var(--p2)}
+.cmd-top input{flex:1;background:transparent;border:0;color:var(--tx);font:inherit;font-size:14.5px;outline:none;width:auto}
+.cmd-esc{padding:3px 8px;font-size:11px;border-radius:6px}
+.cmd-list{max-height:62vh;overflow-y:auto;padding:6px}
+.cmd-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;text-decoration:none;color:var(--tx);font-size:13.5px}
+.cmd-item:hover{background:rgba(255,32,82,.14);color:#fff}
+.cmd-item small{display:block;font-size:11px;color:var(--dim)}
+@media(max-width:900px){
+  body{display:block;padding-top:54px}
+  .m-topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;position:fixed;top:0;left:0;right:0;height:54px;padding:0 12px;background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--ln);z-index:1001}
+  .m-brand{font-weight:700;font-size:15px;color:var(--tx);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .m-brand b{color:var(--r)}
+  .m-brand small{font-weight:400;color:var(--dim);font-size:13px}
+  .m-right{display:flex;gap:6px;align-items:center;flex:none}
+  .m-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);font-size:12.5px;cursor:pointer}
+  .m-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);z-index:1002}
+  body.nav-open .m-backdrop,body.toc-open .m-backdrop{display:block}
+  nav{display:block!important;position:fixed!important;top:0!important;left:0!important;bottom:0!important;height:100dvh!important;width:270px!important;max-width:84vw!important;background:#0e0e13!important;z-index:1003!important;transform:translateX(-105%);transition:transform .22s ease;box-shadow:12px 0 36px rgba(0,0,0,.6)}
+  body.nav-open nav{transform:translateX(0)}
+  nav .logo{display:flex;justify-content:space-between;align-items:center}
+  .nav-mclose{display:inline-block;padding:3px 8px;font-size:11.5px;border-radius:6px;background:var(--p2);border:1px solid var(--ln);color:var(--dim)}
+  .toc{display:block!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;height:100dvh!important;max-height:100dvh!important;width:290px!important;max-width:86vw!important;background:#101016!important;border-left:1px solid var(--ln)!important;padding:16px!important;z-index:1003!important;transform:translateX(105%);transition:transform .22s ease;box-shadow:-12px 0 36px rgba(0,0,0,.6)}
+  body.toc-open .toc{transform:translateX(0)}
+  .toc-mhdr{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--ln)}
+  .toc-mclose{padding:3px 8px;font-size:11.5px;border-radius:6px}
+  main{padding:18px 14px 64px!important;max-width:100%!important}
+  h1{font-size:24px}h2{font-size:18px}
+  .g2,.parts,.bk-grid,.bk-footer-grid,.cards{grid-template-columns:1fr!important}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .bar{flex-wrap:wrap;gap:6px}.bar span:first-child{width:100%}
+  .svg-scroll svg{min-width:680px}
+  .ex #res{max-height:38vh}
+  #tm{height:62vh!important;min-height:380px!important}
+  .split{grid-template-columns:1fr!important}
+  .board{grid-template-columns:repeat(4,minmax(250px,82vw))!important;overflow-x:auto;padding-bottom:8px}
+  .cal{min-width:560px}
+}
+@media(max-width:480px){
+  .m-btn span{display:none}
+  .grid{grid-template-columns:1fr 1fr}
+  .k{font-size:24px}
+  input[type=search],input[type=text]{width:100%!important}
+}
+</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="on">Docs</a><a href="doc-minime-feature-guide.html" class="nav-sub">· Ch.4 MiniMe Guide</a><a href="doc-minimake-feature-guide.html" class="nav-sub">· Ch.5 MiniMake Guide</a><a href="doc-minimate-feature-guide.html" class="nav-sub">· Ch.8 MiniMate Guide</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main><h1>MiniMe — Complete Feature & Product Guide</h1><p class="sub">MiniMe core. 8,064 words. <a href="data/docs/minime_feature_guide.md" download>Download .md</a></p><div class="bk-banner">
+  <div class="bk-top">
+    <div>
+      <span class="bk-part">Part II · MiniMe Core Flagship (Web Workspace)</span>
+      <span class="bk-ch">Chapter 4 of 14</span>
+      <span class="bk-new">NEW IN BOOK</span>
+    </div>
+    <div class="bk-actions">
+      <a href="docs.html" class="bk-pill-link">📚 All 14 Chapters</a>
+      <a href="journey.html#doc-minime-feature-guide" class="bk-pill-link">🧭 Journey Map</a>
+      <a href="data/docs/minime_feature_guide.md" download class="bk-pill-link">⬇ Download .md</a>
+    </div>
+  </div>
+  <p class="bk-desc">Every subsystem of the flagship web workspace: 25-stage orchestrator, 73 agent modules, 46 roles, 6-tier memory, CAD, and S0→S3b.</p>
+  <div class="bk-meta">
+    <span><b>8,064</b> words (~37 min read)</span><span>·</span><span><b>88</b> sections</span><span>·</span><span><b>5</b> tables</span>
+  </div>
+  <div class="bk-prevnext"><a href="doc-server-guide.html" class="bk-nav-btn">← Ch. 3: Server Management & Splitting Guide</a><a href="doc-minimake-feature-guide.html" class="bk-nav-btn bk-next">Ch. 5: MiniMake — Complete Feature & Product Guide →</a></div>
+</div><div class="doc"><article><h1 id="minime-feature-guide">MiniMe Feature Guide</h1>
+<p><strong>Purpose:</strong> the user manual and feature register for MiniMe.</p>
+<p><strong>Status basis:</strong> this guide describes the implementation and planning material available in the MiniMe repository at the time it was written. It is intentionally more product-oriented than the Atlas pages, API inventory, architecture notes, or build plans. Those documents explain how the system is built; this document explains what a person can do with it.</p>
+<p>The words <strong>Available</strong>, <strong>Partially wired</strong>, and <strong>Planned</strong> are important:</p>
+<ul>
+<li><strong>Available</strong> means the repository contains a reachable implementation or a complete user workflow.</li>
+<li><strong>Partially wired</strong> means the UI, backend, or generation path exists but some part of the end-to-end experience is incomplete, optional, or still being hardened.</li>
+<li><strong>Planned</strong> means the capability is described in the roadmap or design documents but should not be treated as shipped.</li>
+</ul>
+<h3 id="ecosystem-synchronization-companion-chapters">Ecosystem Synchronization &amp; Companion Chapters</h3>
+<p>MiniMe Web (<code>surface='web'</code>) is the flagship workspace surface of a three-product ecosystem sharing <strong>one account, one subscription tier, one <code>minicore/</code> runtime library, and one <code>usage_ledger</code> (<code>0012</code>)</strong>:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Book Chapter</th>
+<th style="text-align: left;">Guide File</th>
+<th style="text-align: left;">Role in the Connected MiniMe Book</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Ch. 1 · Rulebook</strong></td>
+<td style="text-align: left;"><code>MiniMe_Financial_Strategy_Rulebook.md</code></td>
+<td style="text-align: left;">Governing constitution for pricing (<code>$0 / $9 / $29 / $79</code>), token caps, 8 LLM providers, COGS ≤ 45%, hiring, and funding</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Ch. 2 · Technical Roadmap</strong></td>
+<td style="text-align: left;"><code>minime_technical_roadmap.md</code></td>
+<td style="text-align: left;">Engineering sequence <code>Tech-A</code> → <code>Tech-H</code>, model hygiene, and cross-track timeline</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Ch. 3 · Server Guide</strong></td>
+<td style="text-align: left;"><code>minime_server_management_guide.md</code></td>
+<td style="text-align: left;">Metric-gated server split stages (<code>Stage 1</code> single box → <code>Stage 5</code> fleet)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Ch. 4 · MiniMe Feature Guide</strong></td>
+<td style="text-align: left;"><code>minime_feature_guide.md</code> <em>(this guide)</em></td>
+<td style="text-align: left;">Complete feature manual for the MiniMe Web application across all 8 workspace tabs and 25 areas</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Ch. 5 &amp; 6 · MiniMake Guides</strong></td>
+<td style="text-align: left;"><code>minimake_feature_guide.md</code> &amp; <code>minimake_build_plan.md</code></td>
+<td style="text-align: left;">Local-first terminal &amp; editor coding agent (<code>minimake</code>, <code>surface='minimake'</code>, 64 WPs)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Ch. 8 &amp; 9 · MiniMate Guides</strong></td>
+<td style="text-align: left;"><code>minimate_feature_guide.md</code> &amp; <code>MiniMate___Build_Execution_Guide.md</code></td>
+<td style="text-align: left;">Local-first personal automation node (<code>minimate</code>, <code>surface='minimate'</code>, 59 WPs)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Ch. 11–14 · FBEBC Guides</strong></td>
+<td style="text-align: left;"><code>fbebc-research-program-guide.md</code> + companions</td>
+<td style="text-align: left;">Fitness-Band Elitist Bacterial Colony research track (<code>Stage 1</code> preprint → <code>Stage 2</code> <code>backend/agents/evolution/</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<hr/>
+<h2 id="1-what-minime-is">1. What MiniMe Is</h2>
+<p>MiniMe is a personal, workspace-centered AI operating environment. It is not only a chat box and not only a project manager. It combines:</p>
+<ul>
+<li>conversational work with persistent chats;</li>
+<li>workspaces that hold the context, sources, notes, plans, generated artifacts, and progress for a project;</li>
+<li>a roster of specialized AI agents that can research, reason, write, review, test, design, and organize work;</li>
+<li>structured notebooks for turning source material into knowledge and study material;</li>
+<li>staged project execution from research through planning, building, testing, and growth;</li>
+<li>a code workbench for inspecting and changing project files with review gates;</li>
+<li>knowledge graphs, backlinks, clusters, facts, corrections, and generated diagrams;</li>
+<li>hardware and mechanical design assistance;</li>
+<li>external integrations such as Google Calendar, MCP servers, PageSpeed, UptimeRobot, web search, prices, audio, and video;</li>
+<li>live progress, notifications, usage accounting, quota visibility, and traceable agent execution.</li>
+</ul>
+<p>The central idea is that a task should not disappear when a chat response finishes. Work is promoted into a durable workspace, organized into stages, and made available to later chats and tools.</p>
+<hr/>
+<h2 id="2-the-main-user-experience">2. The Main User Experience</h2>
+<h3 id="2-1-sign-in-and-enter-the-application">2.1 Sign in and enter the application</h3>
+<p>MiniMe uses Supabase-backed authentication. The shell provides:</p>
+<ul>
+<li>a login screen;</li>
+<li>a signed-in account menu showing the current account;</li>
+<li>sign-out;</li>
+<li>protected application views;</li>
+<li>an initial loading screen while session, chats, workspaces, and usage data are bootstrapped;</li>
+<li>persisted navigation state so a refresh can restore the last active tab and active chat.</li>
+</ul>
+<p>The frontend is a Next.js application. The backend is a FastAPI service. In local development they normally run as separate frontend and backend containers.</p>
+<h3 id="2-2-navigate-by-stage">2.2 Navigate by stage</h3>
+<p>The primary application tabs are:</p>
+<ol>
+<li><strong>Chat</strong></li>
+<li><strong>Notebooks</strong></li>
+<li><strong>Research</strong></li>
+<li><strong>Plan</strong></li>
+<li><strong>Build</strong></li>
+<li><strong>Test</strong></li>
+<li><strong>Growth</strong></li>
+<li><strong>Role Library</strong></li>
+<li><strong>Workflow Templates</strong></li>
+<li><strong>Token Usage</strong></li>
+<li><strong>Settings</strong></li>
+</ol>
+<p>Tabs are loaded lazily where practical. Once opened, a tab stays mounted during navigation so a user does not lose local UI state merely by switching tabs. The active tab is stored locally and restored after a refresh.</p>
+<p>Workspace-aware tabs expose a workspace data bubble in the shell. The bubble is a compact, collapsible facts surface for the active workspace. Its collapsed state is remembered separately per tab; it does not change the chat working-panel collapse state.</p>
+<h3 id="2-3-responsive-and-mobile-use">2.3 Responsive and mobile use</h3>
+<p>MiniMe has a structural mobile navigation path rather than only shrinking the desktop layout. Mobile support includes:</p>
+<ul>
+<li>a mobile header;</li>
+<li>a mobile chat drawer;</li>
+<li>per-tab project or workspace picker drawers;</li>
+<li>responsive sheets for modal content;</li>
+<li>mobile-specific notebook, research, plan, build, test, and growth views;</li>
+<li>touch-friendly graph and diagram interaction;</li>
+<li>a mobile working-panel drawer;</li>
+<li>preserved active chat and workspace state.</li>
+</ul>
+<p>Some complex surfaces use a different mobile composition because a desktop file explorer, graph, or multi-panel workbench cannot be made usable by CSS resizing alone.</p>
+<hr/>
+<h2 id="3-chat">3. Chat</h2>
+<h3 id="3-1-persistent-chats">3.1 Persistent chats</h3>
+<p>A user can:</p>
+<ul>
+<li>create a chat;</li>
+<li>open an existing chat;</li>
+<li>rename a chat;</li>
+<li>delete a chat after confirmation;</li>
+<li>switch between chats from the sidebar;</li>
+<li>attach a chat to one or more workspaces where the workflow allows it;</li>
+<li>open a chat from a notification, workflow template, or workspace surface;</li>
+<li>inspect prior messages and generated outputs;</li>
+<li>continue a task later instead of restarting from an empty conversation.</li>
+</ul>
+<p>Chat titles and workspace relationships are persisted by the backend. The frontend remembers the active chat locally for fast restoration.</p>
+<h3 id="3-2-workspace-chat-docks">3.2 Workspace chat docks</h3>
+<p>Workspace tabs include an embedded chat dock. This allows a person to work on a notebook, plan, build, test, or growth surface while asking questions about the selected workspace without leaving the stage.</p>
+<p>The dock supports:</p>
+<ul>
+<li>switching the active chat associated with the selected workspace;</li>
+<li>creating a new chat in the current workspace;</li>
+<li>collapsing the entire dock;</li>
+<li>resizing the dock where the desktop layout allows it;</li>
+<li>opening and collapsing the separate working panel;</li>
+<li>keeping the chat and working panel together when the full dock is collapsed;</li>
+<li>sending context from the current tab into the chat;</li>
+<li>opening generated results back in the owning stage;</li>
+<li>jumping from a notification to the relevant chat or generated content.</li>
+</ul>
+<h3 id="3-3-ask-and-edit-modes">3.3 Ask and Edit modes</h3>
+<p>The chat composer can operate in at least two important modes:</p>
+<ul>
+<li><strong>Ask:</strong> ask questions, request analysis, or have MiniMe generate an answer without proposing file changes.</li>
+<li><strong>Edit:</strong> ask MiniMe to plan or propose changes to project files. Changes enter the code proposal and review flow rather than silently modifying files.</li>
+</ul>
+<p>Build context chips can be attached to the chat. A chip identifies a file, component, symbol, or other relevant code context. Chips can be cleared, opened, or used to tell the editor which context the request concerns.</p>
+<h3 id="3-4-agent-execution-and-live-progress">3.4 Agent execution and live progress</h3>
+<p>A submitted task can be:</p>
+<ul>
+<li>previewed before execution;</li>
+<li>confirmed before execution when the workflow requires an explicit approval step;</li>
+<li>routed through a generalist or specialized agent chain;</li>
+<li>decomposed into parallel branches where safe;</li>
+<li>paused;</li>
+<li>resumed;</li>
+<li>streamed as it runs;</li>
+<li>inspected through a step-by-step trace;</li>
+<li>reviewed through a working panel;</li>
+<li>recorded with usage and outcome metadata.</li>
+</ul>
+<p>The user can see requested roles, selected agents, agent starts, token chunks, completion events, errors, handoffs, branch activity, and final rendering. A trace can show more detail than the final answer, while the final answer remains organized for normal reading.</p>
+<p>Long-running agent work uses a dedicated task pool so it does not consume the ordinary HTTP thread budget. Saturation and timeout conditions are surfaced as controlled failures rather than leaving requests hanging indefinitely.</p>
+<h3 id="3-5-chat-input-intelligence">3.5 Chat input intelligence</h3>
+<p>MiniMe can classify a message against registered internal tools, study actions, and connected MCP tools. This classification is intended to recognize requests such as:</p>
+<ul>
+<li>generate flashcards or a quiz;</li>
+<li>build a study guide;</li>
+<li>create a mind map or workflow;</li>
+<li>generate a podcast, presentation, or video overview;</li>
+<li>update study progress;</li>
+<li>use a connected external tool.</li>
+</ul>
+<p>The classification pass is designed to be non-destructive. A classification failure should fall back to normal chat rather than blocking the message. The system can also attach workspace and topic context to a chat turn so answers are grounded in the selected project material.</p>
+<h3 id="3-6-notifications-and-live-events">3.6 Notifications and live events</h3>
+<p>MiniMe uses live event channels for events such as:</p>
+<ul>
+<li>agent started;</li>
+<li>agent token chunk;</li>
+<li>agent completed;</li>
+<li>agent error;</li>
+<li>requested role;</li>
+<li>usage update;</li>
+<li>quota alert;</li>
+<li>task or workspace progress;</li>
+<li>generation started;</li>
+<li>generation completed;</li>
+<li>generation failed;</li>
+<li>note or artifact proposed;</li>
+<li>workspace promoted;</li>
+<li>panel content written;</li>
+<li>code files updated.</li>
+</ul>
+<p>The notification bell provides a cross-chat inbox. Opening a notification can navigate to the relevant chat or workspace.</p>
+<hr/>
+<h2 id="4-workspaces-and-projects">4. Workspaces and Projects</h2>
+<h3 id="4-1-workspace-lifecycle">4.1 Workspace lifecycle</h3>
+<p>A workspace is MiniMe's durable project container. A user can:</p>
+<ul>
+<li>create a workspace;</li>
+<li>name and rename it;</li>
+<li>open it from the stage where it belongs;</li>
+<li>promote it to another stage;</li>
+<li>attach existing chats;</li>
+<li>create a new chat inside it;</li>
+<li>detach or delete chats from it;</li>
+<li>manage members;</li>
+<li>change member roles or permissions where supported;</li>
+<li>leave a workspace;</li>
+<li>remove the owner or manage ownership operations where authorized;</li>
+<li>delete the workspace;</li>
+<li>export its chats and stored artifacts;</li>
+<li>import a previously exported workspace manifest;</li>
+<li>inspect workspace audit activity;</li>
+<li>view workspace facts in the shell data bubble.</li>
+</ul>
+<p>Workspace stages include note/notebook, research, plan, build, test, and growth. Promotion moves the project through the intended product lifecycle and takes the user to the corresponding tab.</p>
+<h3 id="4-2-workspace-collaboration">4.2 Workspace collaboration</h3>
+<p>Workspaces support multi-person collaboration concepts, including:</p>
+<ul>
+<li>membership lists;</li>
+<li>owner and member administration;</li>
+<li>member attribution grants;</li>
+<li>workspace votes;</li>
+<li>attribution settings;</li>
+<li>audit records.</li>
+</ul>
+<p>The exact permission available to a person depends on authentication and workspace ownership checks. Workspace-scoped routes consistently verify that the requesting user may access the workspace.</p>
+<h3 id="4-3-workspace-facts-and-durable-context">4.3 Workspace facts and durable context</h3>
+<p>Workspace facts are project-wide truths that should be reused across chats and agents. The built-in categories include:</p>
+<ul>
+<li>brand voice;</li>
+<li>target user;</li>
+<li>technology stack;</li>
+<li>custom facts.</li>
+</ul>
+<p>Facts are read into conversation memory automatically. A user does not need to paste the same project assumptions into every new chat. The custom area also stores structured project data such as mechanical specifications, parts, wiring, instructions, and integration settings.</p>
+<p>Facts may be edited directly. Agent-proposed facts can enter a candidate queue where the user accepts or rejects them instead of allowing an uncertain extraction to become permanent automatically.</p>
+<h3 id="4-4-workspace-data-overlays">4.4 Workspace data overlays</h3>
+<p>Workspace-aware tabs can show a compact facts panel without leaving the current view. This panel is intentionally separate from the chat working panel. It can be collapsed, reopened, and remembered independently for Chat, Notebooks, Research, Plan, Build, Test, and Growth.</p>
+<h3 id="4-5-export-and-import">4.5 Export and import</h3>
+<p>Workspace export can package the chats attached to a workspace into supported artifact formats. A single chat can return one artifact; multiple chats can be bundled into a ZIP. Workspace import accepts the exported manifest and restores supported data.</p>
+<p>Export is intended for portability, backup, and moving durable work into the MiniMe book or another archive. It is not a substitute for database backups.</p>
+<hr/>
+<h2 id="5-the-agent-system">5. The Agent System</h2>
+<h3 id="5-1-general-routing">5.1 General routing</h3>
+<p>MiniMe has a registry of roles and agent implementations. A request can be routed through a starter general agent filter, an inspector, a panel or committee, staffed specialists, execution agents, reviewers, and a final organizer.</p>
+<p>The system can:</p>
+<ul>
+<li>select suggested agents;</li>
+<li>honor explicitly requested roles;</li>
+<li>map roles to available agent keys;</li>
+<li>run compatible work in parallel;</li>
+<li>preserve dependency order where one result feeds another;</li>
+<li>collect intermediate outputs;</li>
+<li>hand off work between roles;</li>
+<li>loop on review or repair when the workflow permits it;</li>
+<li>stop, redo, or resume work through the task controller;</li>
+<li>render a final answer from the structured result.</li>
+</ul>
+<h3 id="5-2-representative-specialist-abilities">5.2 Representative specialist abilities</h3>
+<p>The current agent roster includes specialized capabilities for:</p>
+<ul>
+<li>academic search and web research;</li>
+<li>source ingestion and source management;</li>
+<li>PDF and video ingestion;</li>
+<li>voice ingestion;</li>
+<li>web clipping;</li>
+<li>fact detection and fact summarization;</li>
+<li>concept linking;</li>
+<li>backlinks and note clusters;</li>
+<li>citation graph construction;</li>
+<li>contradiction prefiltering;</li>
+<li>correction location;</li>
+<li>note taking, note tables, and topic notes;</li>
+<li>extraction tables;</li>
+<li>mind maps and workflow suggestions;</li>
+<li>study content, quizzes, flashcards, and study guides;</li>
+<li>podcast scripts, rehearsal scripts, slide decks, and text-to-speech;</li>
+<li>report writing, documentation, and output organization;</li>
+<li>idea planning and feature planning;</li>
+<li>architecture, dependency, schema, and component diagrams;</li>
+<li>code writing, code editing, code review, and test writing;</li>
+<li>static scanning, security review, performance review, duplication review, and output guarding;</li>
+<li>hardware specification, component specification, prices, dimensions, and mechanical design;</li>
+<li>deployment configuration and deployment actions;</li>
+<li>calendar actions and connected integrations.</li>
+</ul>
+<p>This list describes the role vocabulary in the codebase. Availability of a role in a particular user flow depends on the selected stage, task type, enabled provider, and configured credentials.</p>
+<p>At commit <code>febb685</code>, the repository contains <strong>73 Python modules in <code>backend/agents/</code></strong> (59 specialist agent modules + 14 package/support modules) mapped across <strong>46 distinct router roles</strong> in <code>backend/eo/model_router.py</code>:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Agent Family</th>
+<th style="text-align: left;">Module Count</th>
+<th style="text-align: left;">Representative Modules in <code>backend/agents/</code></th>
+<th style="text-align: left;">Primary Router Roles &amp; Model Tier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Executive Orchestration &amp; Meta</strong></td>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;"><code>panel.py</code>, <code>inspector.py</code>, <code>starter.py</code>, <code>synthesizer.py</code>, <code>reviewer.py</code>, <code>critic.py</code></td>
+<td style="text-align: left;"><code>inspector</code>, <code>panel_member_a/b/c</code>, <code>synthesizer</code>, <code>reviewer</code> (Fast / Standard / Expert)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Code &amp; Software Engineering</strong></td>
+<td style="text-align: left;">11</td>
+<td style="text-align: left;"><code>code_editor.py</code>, <code>coder.py</code>, <code>architect.py</code>, <code>debugger.py</code>, <code>tester.py</code>, <code>security_scanner.py</code>, <code>deployer.py</code></td>
+<td style="text-align: left;"><code>code_editor</code>, <code>coder</code>, <code>architect</code>, <code>debugger</code>, <code>tester</code> (DeepSeek V3.2 / Qwen3-Coder / Claude)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Research &amp; Source Intelligence</strong></td>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;"><code>academic_search.py</code>, <code>researcher.py</code>, <code>source_manager_exec.py</code>, <code>source_quality_flagger.py</code>, <code>contradiction_prefilter.py</code>, <code>fact_checker.py</code></td>
+<td style="text-align: left;"><code>researcher</code>, <code>fact_checker</code>, <code>source_planner</code> (Gemini 2.5 Flash / Sonar / Standard)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Notebooks, Study &amp; Knowledge Graph</strong></td>
+<td style="text-align: left;">11</td>
+<td style="text-align: left;"><code>mindmap_agent.py</code>, <code>flashcard_agent.py</code>, <code>quiz_agent.py</code>, <code>study_guide_agent.py</code>, <code>backlink_detector.py</code>, <code>cluster_agent.py</code></td>
+<td style="text-align: left;"><code>mindmap</code>, <code>study_guide</code>, <code>quiz</code>, <code>backlink_detector</code> (Fast / Standard)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Hardware, CAD &amp; Mechanical (<code>mech/</code>)</strong></td>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;"><code>blueprint_agent.py</code>, <code>cad_coder.py</code>, <code>mech/validator.py</code>, <code>mech/repair.py</code>, <code>mech/manufacturability.py</code>, <code>parts_sourcer.py</code></td>
+<td style="text-align: left;"><code>blueprint</code>, <code>cad_coder</code>, <code>mech_validator</code> (Expert / DeepSeek R1 / CadQuery)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Media, Visuals &amp; Presentations</strong></td>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;"><code>diagram_agent.py</code>, <code>wireframe_agent.py</code>, <code>slide_agent.py</code>, <code>audio_overview.py</code>, <code>video_overview.py</code>, <code>image_agent.py</code></td>
+<td style="text-align: left;"><code>diagram</code>, <code>wireframe</code>, <code>image_gen</code> (<code>gemini-3.1-flash-lite-image</code> / <code>3.1-flash-image</code>), <code>tts</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Growth, Ops &amp; External Tools</strong></td>
+<td style="text-align: left;">10</td>
+<td style="text-align: left;"><code>calendar_agent.py</code>, <code>seo_auditor.py</code>, <code>growth_strategist.py</code>, <code>mcp_bridge.py</code>, <code>price_watcher.py</code></td>
+<td style="text-align: left;"><code>calendar</code>, <code>seo_auditor</code>, <code>growth</code> (Fast / Standard)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="5-3-safety-boundaries-around-agents">5.3 Safety boundaries around agents</h3>
+<p>Agent outputs pass through controls intended to reduce unsafe or invalid behavior:</p>
+<ul>
+<li>prompt and instruction injection guards;</li>
+<li>redaction and personally identifiable information scrubbing;</li>
+<li>quota sentinels;</li>
+<li>output guards;</li>
+<li>static security scanning;</li>
+<li>reviewer and security aggregator stages;</li>
+<li>tool-call budgets;</li>
+<li>dependency-aware execution;</li>
+<li>explicit user confirmation for sensitive actions;</li>
+<li>proposal-before-apply behavior for code and deployment changes;</li>
+<li>audit logging.</li>
+</ul>
+<p>The daemon and local filesystem features have additional approval boundaries. External actions should be treated as privileged operations, not as ordinary text generation.</p>
+<hr/>
+<h2 id="6-notebooks">6. Notebooks</h2>
+<p>Notebooks are the knowledge and study workspace for source material. The current notebook navigation groups functionality into <strong>Library</strong>, <strong>Diagrams</strong>, <strong>Study</strong>, <strong>Insights</strong>, and <strong>Corrections</strong>.</p>
+<h3 id="6-1-library">6.1 Library</h3>
+<p>The Library brings source management and source relationships together.</p>
+<p>Users can:</p>
+<ul>
+<li>ingest source material into a workspace;</li>
+<li>view source nodes;</li>
+<li>see multi-section documents grouped under one source;</li>
+<li>open source sections;</li>
+<li>rename source nodes;</li>
+<li>delete source nodes;</li>
+<li>inspect source metadata and generated content;</li>
+<li>detect backlinks between sources and notes;</li>
+<li>review source relationships;</li>
+<li>use source scope when generating notebook content.</li>
+</ul>
+<p>Supported ingestion paths include the dedicated source/file flows for:</p>
+<ul>
+<li>pasted or clipped web content;</li>
+<li>video;</li>
+<li>generic imports;</li>
+<li>PDFs;</li>
+<li>voice/audio.</li>
+</ul>
+<p>Ingestion may split a source into section nodes and connect them with <code>same_source</code> relationships. This makes long documents navigable without losing their parent-source identity.</p>
+<h3 id="6-2-diagrams">6.2 Diagrams</h3>
+<p>Diagrams combines the mind map and workflow surfaces.</p>
+<p>Users can:</p>
+<ul>
+<li>view a knowledge graph of notebook topics and relationships;</li>
+<li>select a topic node;</li>
+<li>generate a topic-specific study workflow;</li>
+<li>revisit saved workflows after a refresh;</li>
+<li>view suggested routes through the material;</li>
+<li>inspect Mermaid diagrams;</li>
+<li>pan, zoom, and interact with diagrams on desktop and touch devices;</li>
+<li>open related chats from a topic or workflow.</li>
+</ul>
+<p>A topic workflow is generated for the clicked topic and can be persisted in the workspace. It is not merely temporary React state.</p>
+<h3 id="6-3-study">6.3 Study</h3>
+<p>The Study surface turns source material into active learning tools:</p>
+<ul>
+<li>flashcards with a flip interaction;</li>
+<li>quizzes with an answer runner and grading;</li>
+<li>study guides rendered as formatted Markdown;</li>
+<li>quiz attempt history;</li>
+<li>missed-question review;</li>
+<li>per-topic study progress;</li>
+<li>a board of topics in not started, ongoing, or done states;</li>
+<li>reset and manual progress controls;</li>
+<li>actions to ask about a step;</li>
+<li>actions to work through a step.</li>
+</ul>
+<p>Study content can be generated for the entire notebook or for selected source nodes. The UI preserves generated panels and can show unread indicators when new content has appeared since the user last viewed a sub-tab.</p>
+<h3 id="6-4-insights">6.4 Insights</h3>
+<p>Insights collects structured discoveries:</p>
+<ul>
+<li>extracted facts;</li>
+<li>fact candidates awaiting acceptance;</li>
+<li>suggested notes;</li>
+<li>note candidates awaiting acceptance;</li>
+<li>proposed clusters of related concepts;</li>
+<li>accepted or rejected cluster candidates;</li>
+<li>pending-count indicators;</li>
+<li>graph-backed relationships and node summaries.</li>
+</ul>
+<p>The accept/reject pattern is deliberate: the system can suggest durable knowledge, but the user remains the authority over what becomes part of the workspace.</p>
+<h3 id="6-5-corrections-and-patch-review">6.5 Corrections and Patch Review</h3>
+<p>A user can submit a plain-language correction and optionally scope it to a source or node. MiniMe attempts to locate the affected topic and propose a structured correction.</p>
+<p>The correction workflow is:</p>
+<ol>
+<li>enter the correction;</li>
+<li>optionally choose a scope;</li>
+<li>let the correction locator find the matching topic and operation;</li>
+<li>receive either a no-match explanation or a queued candidate;</li>
+<li>review the before/after patch;</li>
+<li>accept or reject it.</li>
+</ol>
+<p>A correction is not silently applied when it requires review.</p>
+<h3 id="6-6-generated-media-and-presentations">6.6 Generated media and presentations</h3>
+<p>Notebook generation can produce:</p>
+<ul>
+<li>a two-host podcast script;</li>
+<li>synthesized podcast audio;</li>
+<li>a slide-style video overview with narration;</li>
+<li>presentation rehearsal audio;</li>
+<li>a slide deck or presentation text;</li>
+<li>Markdown content with tables, headings, and Mermaid diagrams.</li>
+</ul>
+<p>Workspace-scoped audio and video are saved and served through ownership-checked routes. A user must generate an artifact before its media URL exists. Regeneration follows last-write-wins behavior for the workspace panel.</p>
+<h3 id="6-7-notebook-generation-from-chat">6.7 Notebook generation from chat</h3>
+<p>The chat can request notebook capabilities using natural language. The system classifies the request and dispatches one or more generation targets. A mixed request can report each branch separately, so one failed target does not necessarily erase successful results from the same request.</p>
+<p>Generation events appear in the chat notification path, and generated panels can be opened from the notification row.</p>
+<hr/>
+<h2 id="7-research">7. Research</h2>
+<p>The Research stage is for discovery and evidence collection before a project is turned into a plan.</p>
+<p>It supports:</p>
+<ul>
+<li>research workspaces;</li>
+<li>nested chats tied to a research project;</li>
+<li>source ingestion and organization;</li>
+<li>academic and web research;</li>
+<li>citation-oriented outputs;</li>
+<li>source quality flags;</li>
+<li>contradiction detection and review;</li>
+<li>backlink discovery;</li>
+<li>concept linking;</li>
+<li>extraction tables;</li>
+<li>report and documentation generation;</li>
+<li>architecture and dependency diagrams;</li>
+<li>promotion of a research workspace into planning.</li>
+</ul>
+<p>Research outputs can be grounded in the workspace sources rather than relying only on a free-form model response. Source scope can be narrowed to relevant nodes when a task concerns only one part of the research corpus.</p>
+<hr/>
+<h2 id="8-plan">8. Plan</h2>
+<p>The Plan stage converts a project idea or research result into a structured execution plan.</p>
+<h3 id="8-1-planning-workspaces">8.1 Planning workspaces</h3>
+<p>A planning workspace can contain:</p>
+<ul>
+<li>chats and planning decisions;</li>
+<li>the current plan;</li>
+<li>feature cards;</li>
+<li>feature statuses of missing, in progress, and done;</li>
+<li>module specifications;</li>
+<li>architecture diagrams;</li>
+<li>API and schema views;</li>
+<li>wireframes;</li>
+<li>component and dependency information;</li>
+<li>a blueprint-style device or product specification where relevant;</li>
+<li>promotion controls to move the project into Build or another stage.</li>
+</ul>
+<h3 id="8-2-generated-planning-artifacts">8.2 Generated planning artifacts</h3>
+<p>Planning agents can produce:</p>
+<ul>
+<li>product requirements and feature plans;</li>
+<li>architecture diagrams;</li>
+<li>API contracts;</li>
+<li>schema diagrams;</li>
+<li>component dimension tables;</li>
+<li>dependency maps;</li>
+<li>feasibility analysis;</li>
+<li>devil's advocate analysis;</li>
+<li>contradiction reports;</li>
+<li>suggested workflows;</li>
+<li>wireframe specifications;</li>
+<li>structured module specifications containing inputs, outputs, descriptions, and edge cases.</li>
+</ul>
+<p>Generated content can be stored in workspace panels so it survives a refresh and can be reused by Build and chat.</p>
+<h3 id="8-3-wireframes">8.3 Wireframes</h3>
+<p>Wireframes let a user inspect a proposed interface before implementation. The preview can:</p>
+<ul>
+<li>render the proposed screen;</li>
+<li>inspect elements;</li>
+<li>select an element and request a change in chat;</li>
+<li>show warnings or integration concerns;</li>
+<li>turn a wireframe into a code proposal for review.</li>
+</ul>
+<p>Wireframe-to-code is proposal-based. It does not bypass the same review path used for other AI-generated edits.</p>
+<h3 id="8-4-hardware-and-product-blueprint-features">8.4 Hardware and product blueprint features</h3>
+<p>For product or device projects, the planning surface can hold a structured device specification with:</p>
+<ul>
+<li>a product summary;</li>
+<li>tags;</li>
+<li>an optional generated image URL;</li>
+<li>a parts list;</li>
+<li>quantities and categories;</li>
+<li>vendor and price data;</li>
+<li>wiring nodes and edges;</li>
+<li>mechanical enclosure dimensions;</li>
+<li>component placements;</li>
+<li>generated instructions grouped into phases and steps.</li>
+</ul>
+<p>Instruction steps are individually checkable. The parts table supports price refresh. Three-dimensional-print parts can use estimated print cost and material/archetype rules instead of an inappropriate market lookup. Price outliers are flagged rather than silently discarded.</p>
+<hr/>
+<h2 id="9-build">9. Build</h2>
+<p>Build is the execution workbench for a selected build-stage workspace. It has four sub-views:</p>
+<ol>
+<li><strong>Tasks</strong></li>
+<li><strong>Instructions</strong></li>
+<li><strong>Editor</strong></li>
+<li><strong>Wireframes</strong></li>
+</ol>
+<h3 id="9-1-tasks">9.1 Tasks</h3>
+<p>Tasks show the feature or work-item board. The default status columns are:</p>
+<ul>
+<li>Missing;</li>
+<li>In Progress;</li>
+<li>Done.</li>
+</ul>
+<p>The board is based on the workspace plan and feature status. A person can use chat to ask what to build, open task-related context, and promote work onward.</p>
+<h3 id="9-2-instructions">9.2 Instructions</h3>
+<p>Instructions show the device or project execution checklist. A user can:</p>
+<ul>
+<li>view phases;</li>
+<li>expand steps;</li>
+<li>mark an individual step complete or incomplete;</li>
+<li>ask MiniMe about a step;</li>
+<li>choose <strong>Work on this</strong> to open a context-aware build request;</li>
+<li>use the step's related files or draft as the starting context for an edit.</li>
+</ul>
+<p>Checklist completion is intentionally separate from wholesale regeneration of the device specification.</p>
+<h3 id="9-3-editor-workbench">9.3 Editor workbench</h3>
+<p>The Editor is a full code workbench rather than a plain text box. It includes:</p>
+<ul>
+<li>a project file explorer;</li>
+<li>folders and files;</li>
+<li>new-file creation;</li>
+<li>new-folder creation;</li>
+<li>file rename, move, and delete operations;</li>
+<li>editor tabs;</li>
+<li>CodeMirror-based code editing;</li>
+<li>language-aware editing support;</li>
+<li>dirty-state tracking;</li>
+<li>save behavior;</li>
+<li>formatting-on-save where supported;</li>
+<li>project search;</li>
+<li>quick open;</li>
+<li>recent files;</li>
+<li>context menus;</li>
+<li>code context chips;</li>
+<li>problems/findings panel;</li>
+<li>console panel;</li>
+<li>history panel;</li>
+<li>history comparison;</li>
+<li>conflict comparison;</li>
+<li>preview column;</li>
+<li>device and viewport toolbar;</li>
+<li>URL preview;</li>
+<li>wireframe preview;</li>
+<li>reload and open-new-tab actions;</li>
+<li>bottom panels that can be resized or toggled;</li>
+<li>a pending proposal tray;</li>
+<li>review mode;</li>
+<li>server-versus-local version comparison;</li>
+<li>ZIP download of workspace files.</li>
+</ul>
+<p>The editor works against cloud workspace files (<code>workspace_code_files</code> in PostgreSQL) and synchronizes with the <strong>MiniMake local-first architecture (<code>minimake_build_plan.md</code> Override O6, Phase 0 <code>MK_B00–B12</code>)</strong>:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Build Workbench Surface</th>
+<th style="text-align: left;">Browser Disposition (<code>Phase 0</code> Sync)</th>
+<th style="text-align: left;">Governing Work Package / Companion Guide</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Cloud File Explorer, CodeMirror Editor, Multi-Tab &amp; Save</strong></td>
+<td style="text-align: left;"><strong>Retained in Browser (<code>Available</code>)</strong> — full cloud project editing with dirty-state and conflict guards (<code>MK_B08–B11</code>)</td>
+<td style="text-align: left;"><code>minime_feature_guide.md</code> §9.3, <code>minimake_build_plan.md</code> §4</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>AI Edit Proposals, Hunk Review, History, Problems &amp; Console</strong></td>
+<td style="text-align: left;"><strong>Retained in Browser (<code>Available</code>)</strong> — review-gated diffs, version comparison, and HTML/React/URL preview</td>
+<td style="text-align: left;"><code>minime_feature_guide.md</code> §9.4–9.5</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Pyodide Chat Artifacts (<code>ArtifactRenderer.jsx</code>)</strong></td>
+<td style="text-align: left;"><strong>Retained &amp; Self-Hosted (<code>MK_B02</code>)</strong> — runs inline Python charts/calculators inside chat artifacts via Web Worker</td>
+<td style="text-align: left;"><code>minimake_build_plan.md</code> <code>B02</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Browser Python <code>Run</code> in Preview Pane</strong></td>
+<td style="text-align: left;"><strong>Removed in Phase 0 (<code>MK_B03</code>)</strong> — replaced with neutral empty state; real Python execution runs locally in <strong>MiniMake CLI</strong></td>
+<td style="text-align: left;"><code>minimake_build_plan.md</code> O6 &amp; <code>B03</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Browser <code>Terminal</code> Sub-Tab &amp; Browser <code>Local-Folder Mode</code></strong></td>
+<td style="text-align: left;"><strong>Removed in Phase 0 (<code>MK_B04–B06</code>)</strong> — replaced by the <strong>"Work locally with MiniMake"</strong> CLI handoff banner and <code>/api/codeagent/*</code> live view</td>
+<td style="text-align: left;"><code>minimake_feature_guide.md</code> §8.1, <code>minimake_build_plan.md</code> <code>B04–B06</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="9-4-ai-assisted-code-editing">9.4 AI-assisted code editing</h3>
+<p>The code editing flow is:</p>
+<ol>
+<li>provide a request in Ask or Edit mode;</li>
+<li>include relevant file or symbol context;</li>
+<li>let MiniMe generate a proposed change;</li>
+<li>inspect the files and hunks in the review surface;</li>
+<li>keep all, keep selected changes, or reject;</li>
+<li>write accepted changes to the workspace;</li>
+<li>inspect resulting problems and console output;</li>
+<li>use the server comparison or history view when the local and server versions differ.</li>
+</ol>
+<p>AI proposals include summaries and affected paths. A proposal remains pending until the user resolves it. Conflicts receive a dedicated comparison view rather than being silently overwritten.</p>
+<h3 id="9-5-code-findings-and-repair">9.5 Code findings and repair</h3>
+<p>The workbench can display code findings when the backend can provide them. Findings can be opened at their file location. The console can offer <strong>Fix with AI</strong>, which routes the problem back into the chat Edit flow with the relevant context.</p>
+<p>Problems may be unavailable for a workspace or provider; the UI distinguishes unavailable findings from an empty findings list.</p>
+<h3 id="9-6-deployment-from-build">9.6 Deployment from Build</h3>
+<p>Build includes a deploy surface for:</p>
+<ul>
+<li>proposing deployment configuration;</li>
+<li>reviewing generated configuration;</li>
+<li>replacing a pending proposal with a new proposal;</li>
+<li>writing approved configuration;</li>
+<li>moving an application toward go-live;</li>
+<li>configuring UptimeRobot monitoring;</li>
+<li>storing the monitoring integration settings in protected workspace data.</li>
+</ul>
+<p>Deployment actions are deliberately separated into propose, write, and go-live steps. A generated configuration is not automatically made live.</p>
+<hr/>
+<h2 id="10-test">10. Test</h2>
+<p>The Test stage provides a project space for simulation and validation before release.</p>
+<p>It supports:</p>
+<ul>
+<li>test-stage workspaces;</li>
+<li>nested chats;</li>
+<li>simulation requests;</li>
+<li>generated test plans;</li>
+<li>test-oriented agent routing;</li>
+<li>security and static checks;</li>
+<li>review of findings and proposed fixes;</li>
+<li>promotion to Growth when the project is ready.</li>
+</ul>
+<p>The backend exposes simulation and test-oriented task paths. The exact test depth depends on the selected workflow and configured agents. Tests should be treated as evidence attached to a workspace, not merely as a chat answer.</p>
+<p>MiniMe also includes a separate research-oriented evolution/sandbox subsystem in the repository. That subsystem uses bounded candidate changes, validation gates, Docker isolation, ledgers, checkpoints, and score-based adoption. It is an engineering/research capability and should not be confused with automatically executing arbitrary user code in the normal application.</p>
+<hr/>
+<h2 id="11-growth">11. Growth</h2>
+<p>Growth is the post-build stage for launch preparation, marketing, measurement, and ongoing project development.</p>
+<p>It supports:</p>
+<ul>
+<li>growth-stage workspaces;</li>
+<li>chats and project management;</li>
+<li>marketing and launch planning;</li>
+<li>calendar integration;</li>
+<li>content and campaign-oriented agent work;</li>
+<li>PageSpeed content audits;</li>
+<li>monitoring integration;</li>
+<li>promotion and handoff from Test.</li>
+</ul>
+<h3 id="11-1-google-calendar">11.1 Google Calendar</h3>
+<p>When connected, the Calendar panel can:</p>
+<ul>
+<li>list events for a date range;</li>
+<li>create events;</li>
+<li>delete events;</li>
+<li>use OAuth connect and callback flows;</li>
+<li>report that the integration is not connected rather than pretending an event operation succeeded.</li>
+</ul>
+<h3 id="11-2-pagespeed-audit">11.2 PageSpeed audit</h3>
+<p>A workspace can run a PageSpeed Insights audit against a URL and choose a strategy such as mobile. Results are fetched live rather than treated as permanent workspace content. Invalid URLs and provider errors are returned as visible failures.</p>
+<hr/>
+<h2 id="12-role-library">12. Role Library</h2>
+<p>The Role Library is the reusable role and prompt catalog.</p>
+<p>Users can:</p>
+<ul>
+<li>browse role entries;</li>
+<li>inspect role descriptions and metadata;</li>
+<li>save or update role prompts;</li>
+<li>pin roles;</li>
+<li>select roles for a task or workflow;</li>
+<li>maintain a stable vocabulary for recurring work.</li>
+</ul>
+<p>Roles are separate from a single chat message. A role can be reused across workflows and routed to a different provider or agent implementation as the registry changes.</p>
+<hr/>
+<h2 id="13-workflow-templates">13. Workflow Templates</h2>
+<p>Workflow Templates turn a repeatable multi-role process into a reusable template.</p>
+<p>Users can:</p>
+<ul>
+<li>browse templates;</li>
+<li>inspect the roles and structure in a template;</li>
+<li>create a template;</li>
+<li>edit a template;</li>
+<li>delete a template;</li>
+<li>open a template in chat;</li>
+<li>start a task from a template;</li>
+<li>save a successful run or role selection for reuse.</li>
+</ul>
+<p>Templates are useful when the user wants a consistent process rather than asking MiniMe to invent a new chain on every task.</p>
+<hr/>
+<h2 id="14-token-usage-quotas-and-cost-visibility">14. Token Usage, Quotas, and Cost Visibility</h2>
+<p>The Token Usage tab exposes operational usage information instead of hiding it behind the model.</p>
+<p>It can show:</p>
+<ul>
+<li>current quota;</li>
+<li>verified daily usage;</li>
+<li>usage by agent key;</li>
+<li>usage history;</li>
+<li>cross-session usage updates;</li>
+<li>quota alerts;</li>
+<li>provider/model-related usage where available;</li>
+<li>historical records scoped to the user or workspace.</li>
+</ul>
+<p>The backend also maintains usage and cost instrumentation for agent calls, including provider, model, input/output tokens, wall time, agent key, role, tier/path, and computed cost where configured.</p>
+<p>The system has budget controls at multiple levels:</p>
+<ul>
+<li>per-request or per-task tool budgets;</li>
+<li>provider retry and rate-limit handling;</li>
+<li>agent pool capacity;</li>
+<li>daily model request or token caps in the research Sigma subsystem;</li>
+<li>graceful stop and checkpoint behavior when a daily budget is exhausted.</li>
+</ul>
+<p>Usage data is intended to answer practical questions such as which agent is expensive, whether a workflow is slow, and whether a tier can support real users.</p>
+<h3 id="unified-cross-surface-plans-shared-credit-pool-r">Unified Cross-Surface Plans &amp; Shared Credit Pool (<code>Rulebook Part 7</code> + <code>Tech-A/B</code> + <code>S01</code>)</h3>
+<p>Per <code>MiniMe_Financial_Strategy_Rulebook.md</code> (Rules 4–8) and <code>minimake_build_plan.md</code> Override O2, <strong>one MiniMe account and one shared monthly token/dollar pool (<code>usage_ledger</code> + <code>user_plans</code> in migration <code>0012</code>)</strong> govern <strong>MiniMe Web (<code>surface='web'</code>)</strong>, <strong>MiniMake (<code>surface='minimake'</code>)</strong>, and <strong>MiniMate (<code>surface='minimate'</code>)</strong>:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Plan Tier</th>
+<th style="text-align: left;">Monthly Price (USD / BDT)</th>
+<th style="text-align: left;">Standard Pool</th>
+<th style="text-align: left;">Deep / Expert Pool</th>
+<th style="text-align: left;">Brain / Frontier Pool</th>
+<th style="text-align: left;">Active Surfaces &amp; Cap Rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Free</strong></td>
+<td style="text-align: left;"><code>$0</code> / <code>৳0</code></td>
+<td style="text-align: left;">150K tokens/day (hard daily ceiling)</td>
+<td style="text-align: left;">Preview only</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Web + MiniMake + MiniMate preview; Free budget capped at <code>$150/mo</code> total (<code>Rule 8</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Basic</strong></td>
+<td style="text-align: left;"><code>$9/mo</code> (<code>$90/yr</code>) · <code>৳799/mo</code></td>
+<td style="text-align: left;"><strong>12M</strong> tokens/mo</td>
+<td style="text-align: left;"><strong>1.5M</strong> tokens/mo</td>
+<td style="text-align: left;">None (Panel vote)</td>
+<td style="text-align: left;">Shared across Web, MiniMake CLI, and MiniMate Node (<code>COGS-at-cap ≤ $3.49</code>, <code>41%</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Moderate</strong></td>
+<td style="text-align: left;"><code>$29/mo</code> (<code>$290/yr</code>) · <code>৳2,499/mo</code></td>
+<td style="text-align: left;"><strong>40M</strong> tokens/mo</td>
+<td style="text-align: left;"><strong>6.0M</strong> tokens/mo</td>
+<td style="text-align: left;"><strong>1.2M</strong> tokens/mo (Batch Brain)</td>
+<td style="text-align: left;">Unlocks in <code>S3a</code> (<code>Tech-C/E</code>); shared across all 3 surfaces (<code>COGS-at-cap ≤ $11.55</code>, <code>42%</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Ultimate</strong></td>
+<td style="text-align: left;"><code>$79/mo</code> (<code>$790/yr</code>) · <code>৳6,999/mo</code></td>
+<td style="text-align: left;"><strong>120M</strong> tokens/mo</td>
+<td style="text-align: left;"><strong>20.0M</strong> tokens/mo</td>
+<td style="text-align: left;"><strong>4.5M</strong> tokens/mo (Real-Time Brain)</td>
+<td style="text-align: left;">Unlocks in <code>S3b</code> (<code>Tech-G</code>); shared across all 3 surfaces (<code>COGS-at-cap ≤ $31.80</code>, <code>43%</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<hr/>
+<h2 id="15-settings-and-profile">15. Settings and Profile</h2>
+<p>Settings and profile surfaces support personal defaults and reusable preferences.</p>
+<p>A user can manage:</p>
+<ul>
+<li>profile fields;</li>
+<li>corrections and learned preferences;</li>
+<li>preferred output format;</li>
+<li>reusable output-format instructions;</li>
+<li>account access and sign-out;</li>
+<li>integration state;</li>
+<li>workspace-independent application preferences;</li>
+<li>persistent UI selections stored locally, such as active tab, selected notebook, selected sub-tab, sidebar collapse, and dock collapse.</li>
+</ul>
+<p>Profile corrections can be stored and reused by future responses. The system distinguishes personal profile memory from workspace facts so a user's general preference does not accidentally become a project-wide truth.</p>
+<hr/>
+<h2 id="16-knowledge-graph-and-structured-data">16. Knowledge Graph and Structured Data</h2>
+<p>The knowledge graph is a cross-cutting feature used most visibly by Notebooks, Research, and Insights.</p>
+<p>It can represent:</p>
+<ul>
+<li>source sections;</li>
+<li>topics;</li>
+<li>notes;</li>
+<li>facts;</li>
+<li>backlinks;</li>
+<li>citations;</li>
+<li>clusters;</li>
+<li>suggested relationships;</li>
+<li>node summaries;</li>
+<li>graph edges;</li>
+<li>workflow and mind-map relationships.</li>
+</ul>
+<p>Users can:</p>
+<ul>
+<li>view graph nodes and edges;</li>
+<li>select nodes;</li>
+<li>rename nodes;</li>
+<li>delete nodes;</li>
+<li>inspect node summaries;</li>
+<li>view topic graphs;</li>
+<li>create or remove edges where the UI supports it;</li>
+<li>detect backlinks;</li>
+<li>propose clusters;</li>
+<li>accept or reject cluster candidates;</li>
+<li>promote graph discoveries into notes or study material.</li>
+</ul>
+<p>Graph-backed content is workspace-scoped and subject to ownership checks. It is not merely a visualization layer; it is a source of retrieval context for later tasks.</p>
+<hr/>
+<h2 id="17-external-tools-and-integrations">17. External Tools and Integrations</h2>
+<h3 id="17-1-mcp-servers">17.1 MCP servers</h3>
+<p>MiniMe can connect to configured Model Context Protocol servers. It can:</p>
+<ul>
+<li>list configured MCP servers;</li>
+<li>inspect connection status;</li>
+<li>discover server tools;</li>
+<li>include connected tools in chat intent classification;</li>
+<li>propose a workspace-scoped MCP action;</li>
+<li>ask the user to confirm or deny the action;</li>
+<li>execute only after the approval path allows it.</li>
+</ul>
+<p>MCP tools are treated as external capabilities. The system does not assume that a natural-language request should immediately perform an external side effect.</p>
+<h3 id="17-2-local-workspace-bridge">17.2 Local workspace bridge</h3>
+<p>The local workspace bridge can:</p>
+<ul>
+<li>report local connection status;</li>
+<li>list a guarded directory;</li>
+<li>read a guarded file;</li>
+<li>propose a local action;</li>
+<li>confirm or deny a local action.</li>
+</ul>
+<p>The path guard and approval workflow are essential parts of this feature. <strong>Synchronization Note (<code>minimake_build_plan.md</code> Override O6):</strong> While the backend routes (<code>backend/eo/local_workspace.py</code> and <code>local_workspace_tools.py</code>) exist in the repository baseline, the browser UI's direct local-folder picker is retired in <strong>Phase 0 (<code>MK_B05–B06</code>)</strong> in favor of pairing the <strong>MiniMake CLI (<code>minimake</code>)</strong> and <strong>MiniMate Node (<code>minimate</code>)</strong> via device-code authentication (<code>minicore/</code>). This ensures all local file and shell operations run inside the local OS sandbox (<code>bubblewrap</code>) rather than through a browser tab.</p>
+<h3 id="17-3-web-research-and-clipping">17.3 Web research and clipping</h3>
+<p>MiniMe agents can search the web, clip web content, ingest it into a workspace, and use it as research material. Search providers can be configured with fallback behavior and should fail gracefully when a provider is unavailable.</p>
+<h3 id="17-4-component-and-parts-research">17.4 Component and parts research</h3>
+<p>Hardware-oriented flows can look up:</p>
+<ul>
+<li>component specifications;</li>
+<li>dimensions;</li>
+<li>datasheets;</li>
+<li>part prices;</li>
+<li>vendor listings;</li>
+<li>estimated 3D-print costs;</li>
+<li>price anomalies.</li>
+</ul>
+<p>Price refresh is explicit and updates the workspace parts data rather than silently replacing unrelated workspace facts.</p>
+<h3 id="17-5-calendar-monitoring-and-performance-tools">17.5 Calendar, monitoring, and performance tools</h3>
+<p>In addition to Calendar, PageSpeed, and UptimeRobot, the backend has provider-facing support for model APIs, audio synthesis, video construction, and deployment operations. Each integration has its own credentials, error behavior, and approval boundary.</p>
+<hr/>
+<h2 id="18-deployment-and-operations-features">18. Deployment and Operations Features</h2>
+<p>MiniMe's operational features are part of the product because they are required to run it reliably.</p>
+<h3 id="18-1-health-and-diagnostics">18.1 Health and diagnostics</h3>
+<p>The backend exposes:</p>
+<ul>
+<li>a health endpoint;</li>
+<li>database latency probes;</li>
+<li>chat-page cache statistics;</li>
+<li>database pool statistics;</li>
+<li>agent-task pool statistics;</li>
+<li>starter-agent statistics;</li>
+<li>Laya routing statistics;</li>
+<li>tool-budget statistics;</li>
+<li>conversation-thread statistics;</li>
+<li>ledger-event statistics;</li>
+<li>quota and usage history.</li>
+</ul>
+<p>These are primarily operator and admin surfaces, not normal end-user features.</p>
+<h3 id="18-2-error-tracking-and-tracing">18.2 Error tracking and tracing</h3>
+<p>Sentry can capture errors and performance traces when configured. The application remains usable in local development without a Sentry DSN. Agent events and audit records provide additional task-level visibility.</p>
+<h3 id="18-3-persistence-and-resilience">18.3 Persistence and resilience</h3>
+<p>The implementation includes:</p>
+<ul>
+<li>relational persistence for users, chats, workspaces, nodes, edges, candidates, panels, progress, and audit data;</li>
+<li>Redis-backed or cache-backed paths where appropriate;</li>
+<li>vector or semantic retrieval support;</li>
+<li>chat page caching;</li>
+<li>semantic and routing caches;</li>
+<li>database pool warm-up and bounded connection use;</li>
+<li>dedicated agent task pools;</li>
+<li>graceful shutdown behavior;</li>
+<li>resumable long-running tasks;</li>
+<li>research loop checkpoints;</li>
+<li>append-only or chained ledgers for selected research operations.</li>
+</ul>
+<h3 id="18-4-docker-deployment">18.4 Docker deployment</h3>
+<p>The repository separates frontend and backend Docker build contexts. Docker Compose runs the services together for development and early deployment. The server-management plan intentionally gates more complex infrastructure such as load balancers, worker pools, and Kubernetes on real usage and revenue rather than adding it prematurely.</p>
+<hr/>
+<h2 id="19-security-and-trust-features">19. Security and Trust Features</h2>
+<p>Security is distributed across the whole product rather than isolated in one screen.</p>
+<h3 id="19-1-identity-and-ownership">19.1 Identity and ownership</h3>
+<p>Protected routes verify the Supabase JWT and enforce user/workspace ownership. Workspace data, media, files, facts, panels, candidates, and task history are not intended to be readable by an unrelated user.</p>
+<h3 id="19-2-approval-gates">19.2 Approval gates</h3>
+<p>The following actions can require an explicit proposal and confirmation:</p>
+<ul>
+<li>code edits;</li>
+<li>deployment configuration writes;</li>
+<li>go-live actions;</li>
+<li>local filesystem operations;</li>
+<li>MCP external actions;</li>
+<li>candidate acceptance;</li>
+<li>correction application;</li>
+<li>cluster acceptance;</li>
+<li>fact acceptance.</li>
+</ul>
+<h3 id="19-3-content-and-prompt-protections">19.3 Content and prompt protections</h3>
+<p>The agent path includes safeguards for:</p>
+<ul>
+<li>instruction injection;</li>
+<li>secrets and sensitive data redaction;</li>
+<li>personally identifiable information;</li>
+<li>malformed or unsafe output;</li>
+<li>quota abuse;</li>
+<li>tool overuse;</li>
+<li>security scan findings;</li>
+<li>provider failures and retry storms.</li>
+</ul>
+<h3 id="19-4-research-sandbox">19.4 Research sandbox</h3>
+<p>The separate candidate-evolution research pipeline provides stronger experimental controls:</p>
+<ul>
+<li>pinned container images;</li>
+<li>network isolation;</li>
+<li>read-only root filesystem;</li>
+<li>PID and memory limits;</li>
+<li>non-root execution;</li>
+<li>no host secret passthrough;</li>
+<li>score-smuggling defenses;</li>
+<li>admission gates;</li>
+<li>hash-chain ledger records;</li>
+<li>checkpoint/resume;</li>
+<li>controlled candidate adoption.</li>
+</ul>
+<p>This is an experimental evolution environment, not a promise that every normal MiniMe agent can execute arbitrary code safely without review.</p>
+<hr/>
+<h2 id="20-important-user-workflows">20. Important User Workflows</h2>
+<h3 id="20-1-learn-from-a-document">20.1 Learn from a document</h3>
+<ol>
+<li>Create or open a notebook workspace.</li>
+<li>Ingest a PDF, web clip, video, generic import, or voice source.</li>
+<li>Review the source tree and section nodes.</li>
+<li>Generate a mind map, study guide, flashcards, or quiz.</li>
+<li>Use the topic workflow from the mind map.</li>
+<li>Answer quiz questions and inspect missed attempts.</li>
+<li>Mark topics as not started, ongoing, or done.</li>
+<li>Ask chat about a source or topic.</li>
+<li>Accept useful facts, notes, and clusters.</li>
+<li>Export the resulting chats or artifacts.</li>
+</ol>
+<h3 id="20-2-turn-research-into-a-product-plan">20.2 Turn research into a product plan</h3>
+<ol>
+<li>Create a research workspace.</li>
+<li>Search, clip, and ingest sources.</li>
+<li>Link concepts and review contradictions.</li>
+<li>Generate reports, citations, architecture, and dependency views.</li>
+<li>Promote the workspace into Plan.</li>
+<li>Generate features, modules, API/schema artifacts, and wireframes.</li>
+<li>Review the plan and mark feature status.</li>
+<li>Promote the workspace into Build.</li>
+</ol>
+<h3 id="20-3-build-with-ai-assistance">20.3 Build with AI assistance</h3>
+<ol>
+<li>Open the Build tab and select a build workspace.</li>
+<li>Inspect Tasks and Instructions.</li>
+<li>Choose a step or file and send it to chat.</li>
+<li>Switch to Edit mode when a file change is desired.</li>
+<li>Review the proposed files and hunks.</li>
+<li>Keep or reject changes.</li>
+<li>Inspect problems, console output, history, and preview.</li>
+<li>Resolve conflicts explicitly.</li>
+<li>Review deployment configuration.</li>
+<li>Write and go live only after the appropriate approval.</li>
+</ol>
+<h3 id="20-4-correct-a-notebook-without-losing-control">20.4 Correct a notebook without losing control</h3>
+<ol>
+<li>Open Corrections.</li>
+<li>Describe the correction in plain language.</li>
+<li>Choose a source or topic scope if known.</li>
+<li>Review the located before/after candidate.</li>
+<li>Accept it to apply the correction or reject it to discard it.</li>
+<li>Re-run related generated content if the source scope has changed.</li>
+</ol>
+<h3 id="20-5-use-an-external-tool-safely">20.5 Use an external tool safely</h3>
+<ol>
+<li>Configure or connect the MCP server or integration.</li>
+<li>Confirm that the server is connected and its tools are available.</li>
+<li>Ask for the external action in chat.</li>
+<li>Inspect the proposed action.</li>
+<li>Confirm or deny it.</li>
+<li>Review the resulting event, audit record, or generated artifact.</li>
+</ol>
+<hr/>
+<h2 id="21-what-is-not-the-same-thing-as-a-shipped-featu">21. What Is Not the Same Thing as a Shipped Feature</h2>
+<p>The repository contains many plans, prototypes, experimental agents, disabled capability entries, and future product documents. The following distinctions prevent confusion:</p>
+<ul>
+<li>A role file does not necessarily mean the role is reachable from every tab.</li>
+<li>A backend endpoint does not necessarily mean a polished frontend exists for it.</li>
+<li>A UI card does not necessarily mean the provider credentials are configured.</li>
+<li>A capability manifest may list disabled or future capabilities for discovery and debugging.</li>
+<li>A roadmap phase is a future target, not current behavior.</li>
+<li>A research sandbox is not the same as general-purpose production code execution.</li>
+<li>A generated panel may be persisted while its media playback or download route is still under construction.</li>
+<li>A feature may be available only to workspace owners or authenticated users.</li>
+<li>An integration can be implemented but inactive until its environment variables and external account are configured.</li>
+</ul>
+<p>When adding a feature to this guide, record its status and the required configuration instead of calling every code path “live.”</p>
+<hr/>
+<h2 id="22-future-feature-register">22. Future Feature Register</h2>
+<p>This section records the intended future direction so future work does not disappear from memory. These items are <strong>not all current user features</strong>.</p>
+<h3 id="22-1-production-basic-hardening">22.1 Production Basic hardening</h3>
+<p>Planned work includes:</p>
+<ul>
+<li>full multi-tenant isolation across relational and vector stores;</li>
+<li>paid provider migration and controlled failover;</li>
+<li>Stripe metered billing;</li>
+<li>cost and usage dashboards;</li>
+<li>stronger rate limiting;</li>
+<li>production monitoring and audit polish;</li>
+<li>empirical decomposition versus consolidation testing;</li>
+<li>real demand and cost gates before opening higher tiers.</li>
+</ul>
+<h3 id="22-2-moderate-tier-and-brain-scaffolding">22.2 Moderate tier and Brain scaffolding</h3>
+<p>The technical roadmap plans a deferred Moderate stage with:</p>
+<ul>
+<li>tier-parameterized panel chains;</li>
+<li>decisions-locked and freedom-envelope hire metadata;</li>
+<li>same-tier dynamic routing pools;</li>
+<li>a passive Monitor v1;</li>
+<li>a provider/model shortlist based on real Basic usage;</li>
+<li>an internal Brain prototype evaluated against historical routing outcomes;</li>
+<li>declarative primitives such as classify, committee vote, staff-and-execute, loop-gate, and validate/repair;</li>
+<li>template promotion only after proven good outcomes.</li>
+</ul>
+<h3 id="22-3-brain-integration">22.3 Brain integration</h3>
+<p>Later, Brain is intended to choose a process structure for suitable expert or beast modes and higher package tiers. The intended boundary is:</p>
+<ul>
+<li>Inspector classifies first;</li>
+<li>Brain chooses a declarative plan;</li>
+<li>Panel and execution follow that plan;</li>
+<li>Brain can propose roles and prompts;</li>
+<li>Brain cannot bypass quota, injection, redaction, or output controls;</li>
+<li>standing defaults can be cached only after evidence;</li>
+<li>Brain remains out of the fast paths until its latency and quality are justified.</li>
+</ul>
+<h3 id="22-4-monitor-v2">22.4 Monitor v2</h3>
+<p>A later closed-loop Monitor is intended to subscribe to stage-completion events while a task is running and choose among:</p>
+<ul>
+<li>ignore;</li>
+<li>self-repair for narrow parameter-level problems;</li>
+<li>interrupt and return to Brain for structural replanning.</li>
+</ul>
+<p>The repair authority is intentionally meant to start narrow and expand only after real production evidence.</p>
+<h3 id="22-5-ultimate-tier">22.5 Ultimate tier</h3>
+<p>The Ultimate tier is intended to reuse the Brain and Monitor mechanism with a frontier-model Brain configuration. Its gate is operational capacity plus demand, not a calendar date.</p>
+<h3 id="22-6-executable-code-authoring">22.6 Executable code-authoring</h3>
+<p>Executable code-authoring is deliberately deferred and permanently constrained. Before it can be considered, the plan requires:</p>
+<ul>
+<li>fully mocked externals;</li>
+<li>no real credentials in the execution context;</li>
+<li>mandatory Gitleaks and Semgrep filtering;</li>
+<li>per-generation token and attempt ceilings;</li>
+<li>mandatory human review for any new real external access;</li>
+<li>an explicit decision about whether a reviewed primitive can later be trusted autonomously.</li>
+</ul>
+<p>The intended future is not unrestricted autonomous deployment.</p>
+<h3 id="22-7-infrastructure-evolution">22.7 Infrastructure evolution</h3>
+<p>The server-management plan expects infrastructure to evolve only when justified:</p>
+<ul>
+<li>Phase 0: one Docker Compose host with HTTPS, backups, and health checks;</li>
+<li>Phase 1: one hardened host with monitoring and rate limiting;</li>
+<li>Phase 2: load balancer plus replicated frontend/backend nodes;</li>
+<li>Phase 3a: dedicated background workers for long-running jobs;</li>
+<li>Phase 3b: Kubernetes or an equivalent orchestrator when tier count, queue depth, and team size justify it.</li>
+</ul>
+<p>The daemon remains out of internet-facing deployment until it receives its own security audit.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Technical / Business Phase</th>
+<th style="text-align: left;">Target Window</th>
+<th style="text-align: left;">Core Capabilities Unlocked</th>
+<th style="text-align: left;">Governing Gate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Tech-A · Instrumentation &amp; Baseline</strong></td>
+<td style="text-align: left;">Oct 2026 – Apr 2027 (<code>S0</code>)</td>
+<td style="text-align: left;">Per-call dollar/token telemetry (<code>llm_call_log</code> + <code>usage_ledger</code> <code>0012</code>), Groq &amp; Gemini 3.1 Flash Image roster cleanup</td>
+<td style="text-align: left;">Immediate priority (#1 checklist item)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Phase 0–6 · MiniMake &amp; MiniMate</strong></td>
+<td style="text-align: left;">Jan – Jun 2027 (<code>S0</code>)</td>
+<td style="text-align: left;">Local-first <code>minimake</code> coding CLI (<code>Jan–Feb 2027</code>) and <code>minimate</code> automation node (<code>Mar–Jun 2027</code>) sharing <code>minicore/</code></td>
+<td style="text-align: left;">Nov 2026 architecture &amp; shared ledger lock</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tech-B · Harden Basic for Launch</strong></td>
+<td style="text-align: left;">Mar 2027 – Jan 2028 (<code>S1 → S2</code>)</td>
+<td style="text-align: left;">Multi-tenant RLS, paid provider keys (2/vendor), SSLCommerz/bKash/Nagad + MoR billing, quota enforcement</td>
+<td style="text-align: left;">Tech-A exit criteria met</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FBEBC Stage 2 · Evolution Engine</strong></td>
+<td style="text-align: left;">Mar 2028+ (<code>Post-Basic</code>)</td>
+<td style="text-align: left;">Ports <code>EvolutionEngine</code> (<code>elite_band</code> + <code>single_winner</code>) into <code>backend/agents/evolution/</code></td>
+<td style="text-align: left;">Gates <code>G1–G4</code> (Basic live, ops green, research budget line)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tech-C &amp; Tech-D · Moderate Prep &amp; Brain Proto</strong></td>
+<td style="text-align: left;">Jul 2028 – Jan 2029 (<code>Late S2</code>)</td>
+<td style="text-align: left;"><code>PANEL_CHAINS[tier]</code>, passive Monitor v1, and internal-only Brain prototype scored offline against <code>routing_memory</code></td>
+<td style="text-align: left;">Business Gate 3.5 (ops manageable) + routing data volume</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tech-E &amp; Tech-F · Moderate + Brain + Monitor v2</strong></td>
+<td style="text-align: left;">H1 – Q3 2029 (<code>S3a</code>)</td>
+<td style="text-align: left;">Live Brain meta-planner for <code>expert</code>/<code>beast</code> on Moderate (<code>$29</code>), plus closed-loop stream Monitor v2</td>
+<td style="text-align: left;">Gates 3.5 &amp; 3.6 + Tech-D offline benchmark win</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tech-G · Ultimate Frontier Brain</strong></td>
+<td style="text-align: left;">Jul 2029 – Dec 2030 (<code>S3b</code>)</td>
+<td style="text-align: left;">Frontier Brain tier (<code>$79</code>) via config/model resolution over Tech-C–F primitives</td>
+<td style="text-align: left;">S3a self-sustaining + Ultimate demand gate</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tech-H · Executable Code-Authoring</strong></td>
+<td style="text-align: left;">Unscheduled (Permanent Gate)</td>
+<td style="text-align: left;">Sandboxed primitive synthesis with mandatory Gitleaks/Semgrep + permanent human sign-off</td>
+<td style="text-align: left;">Tech-E/F proven trustworthy in production</td>
+</tr>
+</tbody>
+</table></div>
+<hr/>
+<h2 id="23-how-to-maintain-this-manual">23. How to Maintain This Manual</h2>
+<p>Every new MiniMe feature should add or update four things:</p>
+<ol>
+<li><strong>User behavior:</strong> what a person can do and what result they should see.</li>
+<li><strong>State and ownership:</strong> where the result is stored, who can access it, and whether it survives refresh.</li>
+<li><strong>Approval and failure behavior:</strong> what requires confirmation and what happens when a provider, model, or dependency fails.</li>
+<li><strong>Status:</strong> Available, Partially wired, or Planned, with the implementation or plan path recorded.</li>
+</ol>
+<p>When a feature changes, update the relevant tab section and the future register if its roadmap status changes. Keep API details in the existing API documentation; this guide should explain the experience and the decisions that matter to a user.</p>
+<hr/>
+<h2 id="24-feature-coverage-checklist">24. Feature Coverage Checklist</h2>
+<p>Use this checklist when reviewing a new MiniMe release:</p>
+<ul>
+<li>[ ] Authentication and account menu still work.</li>
+<li>[ ] Active tab and active chat restore after refresh.</li>
+<li>[ ] Workspace creation, rename, membership, promotion, and deletion are clear.</li>
+<li>[ ] Chat can create, rename, open, delete, and continue conversations.</li>
+<li>[ ] Workspace chat docks preserve context and collapse state.</li>
+<li>[ ] Task preview, confirmation, pause, stream, resume, and trace behavior are visible.</li>
+<li>[ ] Agent progress and errors reach the user without silent failure.</li>
+<li>[ ] Notebook sources, graphs, generated panels, study tools, and corrections are durable.</li>
+<li>[ ] Generated audio/video can be retrieved after generation.</li>
+<li>[ ] Research outputs can be promoted into planning.</li>
+<li>[ ] Plan artifacts and wireframes are reviewable.</li>
+<li>[ ] Build edits remain proposals until accepted.</li>
+<li>[ ] Local filesystem and MCP actions require the expected approval path.</li>
+<li>[ ] Problems, console output, history, conflicts, and preview are available in Build.</li>
+<li>[ ] Test and Growth workspaces can be created and promoted.</li>
+<li>[ ] Calendar, PageSpeed, monitoring, and price integrations fail visibly when disconnected.</li>
+<li>[ ] Usage, quota, and cost data are understandable.</li>
+<li>[ ] Facts, profile preferences, candidates, corrections, clusters, and audit records have clear ownership.</li>
+<li>[ ] Mobile layouts expose the same essential workflows.</li>
+<li>[ ] Planned features are labeled as planned rather than presented as shipped.</li>
+</ul>
+<hr/>
+<h2 id="25-source-map">25. Source Map</h2>
+<p>The implementation surfaces this guide summarizes are primarily located in:</p>
+<ul>
+<li><code>frontend/app/components/AppShell.jsx</code></li>
+<li><code>frontend/app/components/WorkspaceChatPanel.jsx</code></li>
+<li><code>frontend/app/components/tabs/</code></li>
+<li><code>frontend/app/components/notebooks/</code></li>
+<li><code>frontend/app/components/workbench/</code></li>
+<li><code>backend/api/routes/</code></li>
+<li><code>backend/agents/</code></li>
+<li><code>backend/eo/</code></li>
+<li><code>docs/</code></li>
+<li><code>MOBILE_PLAN.md</code></li>
+<li><code>DEFERRED.md</code></li>
+<li><code>graphify-out/GRAPH_REPORT.md</code></li>
+<li><code>minime_technical_roadmap.md</code></li>
+<li><code>minime_server_management_guide.md</code></li>
+</ul>
+<p>The API, architecture, code, data, tests, and roadmap pages in MiniMe Book remain the authoritative deep technical references. This guide is the user-facing feature layer that connects those references into one manual.</p><div class="bk-footer">
+  <div class="bk-footer-hdr">
+    <span>End of <b>Chapter 4: MiniMe — Complete Feature & Product Guide</b></span>
+    <a href="docs.html">View all 14 chapters in Docs →</a>
+  </div>
+  <div class="bk-footer-grid"><a href="doc-server-guide.html" class="bk-fcard">
+      <small>← Previous · Chapter 3</small>
+      <b>Server Management & Splitting Guide</b>
+      <span>Part I · Strategy</span>
+    </a><a href="doc-minimake-feature-guide.html" class="bk-fcard bk-fnext">
+      <small>Next · Chapter 5 →</small>
+      <b>MiniMake — Complete Feature & Product Guide</b>
+      <span>Part III · MiniMake</span>
+    </a></div>
+</div></article><div class="toc"><b>On this page</b><a class="t3" href="#ecosystem-synchronization-companion-chapters">Ecosystem Synchronization &amp; Companion Chapters</a><a class="t2" href="#1-what-minime-is">1. What MiniMe Is</a><a class="t2" href="#2-the-main-user-experience">2. The Main User Experience</a><a class="t3" href="#2-1-sign-in-and-enter-the-application">2.1 Sign in and enter the application</a><a class="t3" href="#2-2-navigate-by-stage">2.2 Navigate by stage</a><a class="t3" href="#2-3-responsive-and-mobile-use">2.3 Responsive and mobile use</a><a class="t2" href="#3-chat">3. Chat</a><a class="t3" href="#3-1-persistent-chats">3.1 Persistent chats</a><a class="t3" href="#3-2-workspace-chat-docks">3.2 Workspace chat docks</a><a class="t3" href="#3-3-ask-and-edit-modes">3.3 Ask and Edit modes</a><a class="t3" href="#3-4-agent-execution-and-live-progress">3.4 Agent execution and live progress</a><a class="t3" href="#3-5-chat-input-intelligence">3.5 Chat input intelligence</a><a class="t3" href="#3-6-notifications-and-live-events">3.6 Notifications and live events</a><a class="t2" href="#4-workspaces-and-projects">4. Workspaces and Projects</a><a class="t3" href="#4-1-workspace-lifecycle">4.1 Workspace lifecycle</a><a class="t3" href="#4-2-workspace-collaboration">4.2 Workspace collaboration</a><a class="t3" href="#4-3-workspace-facts-and-durable-context">4.3 Workspace facts and durable context</a><a class="t3" href="#4-4-workspace-data-overlays">4.4 Workspace data overlays</a><a class="t3" href="#4-5-export-and-import">4.5 Export and import</a><a class="t2" href="#5-the-agent-system">5. The Agent System</a><a class="t3" href="#5-1-general-routing">5.1 General routing</a><a class="t3" href="#5-2-representative-specialist-abilities">5.2 Representative specialist abilities</a><a class="t3" href="#5-3-safety-boundaries-around-agents">5.3 Safety boundaries around agents</a><a class="t2" href="#6-notebooks">6. Notebooks</a><a class="t3" href="#6-1-library">6.1 Library</a><a class="t3" href="#6-2-diagrams">6.2 Diagrams</a><a class="t3" href="#6-3-study">6.3 Study</a><a class="t3" href="#6-4-insights">6.4 Insights</a><a class="t3" href="#6-5-corrections-and-patch-review">6.5 Corrections and Patch Review</a><a class="t3" href="#6-6-generated-media-and-presentations">6.6 Generated media and presentations</a><a class="t3" href="#6-7-notebook-generation-from-chat">6.7 Notebook generation from chat</a><a class="t2" href="#7-research">7. Research</a><a class="t2" href="#8-plan">8. Plan</a><a class="t3" href="#8-1-planning-workspaces">8.1 Planning workspaces</a><a class="t3" href="#8-2-generated-planning-artifacts">8.2 Generated planning artifacts</a><a class="t3" href="#8-3-wireframes">8.3 Wireframes</a><a class="t3" href="#8-4-hardware-and-product-blueprint-features">8.4 Hardware and product blueprint features</a><a class="t2" href="#9-build">9. Build</a><a class="t3" href="#9-1-tasks">9.1 Tasks</a><a class="t3" href="#9-2-instructions">9.2 Instructions</a><a class="t3" href="#9-3-editor-workbench">9.3 Editor workbench</a><a class="t3" href="#9-4-ai-assisted-code-editing">9.4 AI-assisted code editing</a><a class="t3" href="#9-5-code-findings-and-repair">9.5 Code findings and repair</a><a class="t3" href="#9-6-deployment-from-build">9.6 Deployment from Build</a><a class="t2" href="#10-test">10. Test</a><a class="t2" href="#11-growth">11. Growth</a><a class="t3" href="#11-1-google-calendar">11.1 Google Calendar</a><a class="t3" href="#11-2-pagespeed-audit">11.2 PageSpeed audit</a><a class="t2" href="#12-role-library">12. Role Library</a><a class="t2" href="#13-workflow-templates">13. Workflow Templates</a><a class="t2" href="#14-token-usage-quotas-and-cost-visibility">14. Token Usage, Quotas, and Cost Visibility</a><a class="t3" href="#unified-cross-surface-plans-shared-credit-pool-r">Unified Cross-Surface Plans &amp; Shared Credit Pool (Rulebook Par</a><a class="t2" href="#15-settings-and-profile">15. Settings and Profile</a><a class="t2" href="#16-knowledge-graph-and-structured-data">16. Knowledge Graph and Structured Data</a><a class="t2" href="#17-external-tools-and-integrations">17. External Tools and Integrations</a><a class="t3" href="#17-1-mcp-servers">17.1 MCP servers</a><a class="t3" href="#17-2-local-workspace-bridge">17.2 Local workspace bridge</a><a class="t3" href="#17-3-web-research-and-clipping">17.3 Web research and clipping</a><a class="t3" href="#17-4-component-and-parts-research">17.4 Component and parts research</a><a class="t3" href="#17-5-calendar-monitoring-and-performance-tools">17.5 Calendar, monitoring, and performance tools</a><a class="t2" href="#18-deployment-and-operations-features">18. Deployment and Operations Features</a><a class="t3" href="#18-1-health-and-diagnostics">18.1 Health and diagnostics</a><a class="t3" href="#18-2-error-tracking-and-tracing">18.2 Error tracking and tracing</a><a class="t3" href="#18-3-persistence-and-resilience">18.3 Persistence and resilience</a><a class="t3" href="#18-4-docker-deployment">18.4 Docker deployment</a><a class="t2" href="#19-security-and-trust-features">19. Security and Trust Features</a><a class="t3" href="#19-1-identity-and-ownership">19.1 Identity and ownership</a><a class="t3" href="#19-2-approval-gates">19.2 Approval gates</a><a class="t3" href="#19-3-content-and-prompt-protections">19.3 Content and prompt protections</a><a class="t3" href="#19-4-research-sandbox">19.4 Research sandbox</a><a class="t2" href="#20-important-user-workflows">20. Important User Workflows</a><a class="t3" href="#20-1-learn-from-a-document">20.1 Learn from a document</a><a class="t3" href="#20-2-turn-research-into-a-product-plan">20.2 Turn research into a product plan</a><a class="t3" href="#20-3-build-with-ai-assistance">20.3 Build with AI assistance</a><a class="t3" href="#20-4-correct-a-notebook-without-losing-control">20.4 Correct a notebook without losing control</a><a class="t3" href="#20-5-use-an-external-tool-safely">20.5 Use an external tool safely</a><a class="t2" href="#21-what-is-not-the-same-thing-as-a-shipped-featu">21. What Is Not the Same Thing as a Shipped Feature</a><a class="t2" href="#22-future-feature-register">22. Future Feature Register</a><a class="t3" href="#22-1-production-basic-hardening">22.1 Production Basic hardening</a><a class="t3" href="#22-2-moderate-tier-and-brain-scaffolding">22.2 Moderate tier and Brain scaffolding</a><a class="t3" href="#22-3-brain-integration">22.3 Brain integration</a><a class="t3" href="#22-4-monitor-v2">22.4 Monitor v2</a><a class="t3" href="#22-5-ultimate-tier">22.5 Ultimate tier</a><a class="t3" href="#22-6-executable-code-authoring">22.6 Executable code-authoring</a><a class="t3" href="#22-7-infrastructure-evolution">22.7 Infrastructure evolution</a><a class="t2" href="#23-how-to-maintain-this-manual">23. How to Maintain This Manual</a><a class="t2" href="#24-feature-coverage-checklist">24. Feature Coverage Checklist</a><a class="t2" href="#25-source-map">25. Source Map</a></div></div></main><script id="bk-chapter-script">
+(function(){
+  // Reading progress bar
+  var bar = document.querySelector('.bk-progress');
+  if(!bar){
+    bar = document.createElement('div');
+    bar.className = 'bk-progress';
+    document.body.appendChild(bar);
+  }
+  window.addEventListener('scroll', function(){
+    var h = document.documentElement;
+    var sc = h.scrollTop || document.body.scrollTop;
+    var max = (h.scrollHeight - h.clientHeight) || 1;
+    bar.style.width = Math.min(100, Math.max(0, (sc / max) * 100)) + '%';
+  }, {passive:true});
+
+  // Scroll-spy for TOC
+  var tocLinks = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+  if(tocLinks.length){
+    var heads = tocLinks.map(function(a){
+      var id = a.getAttribute('href').slice(1);
+      return {a: a, el: document.getElementById(id)};
+    }).filter(function(x){ return !!x.el; });
+    window.addEventListener('scroll', function(){
+      var y = window.scrollY + 120;
+      var cur = heads[0];
+      for(var i=0;i<heads.length;i++){
+        if(heads[i].el.offsetTop <= y) cur = heads[i];
+      }
+      tocLinks.forEach(function(a){ a.classList.remove('active-sec'); });
+      if(cur) cur.a.classList.add('active-sec');
+    }, {passive:true});
+  }
+
+  // Highlight inline status badges in article
+  var art = document.querySelector('article');
+  if(art){
+    art.querySelectorAll('strong, b, code').forEach(function(el){
+      var t = el.textContent.trim();
+      if(/^\[(LIVE|DONE|VERIFIED|V)\]$/.test(t)){
+        el.className = (el.className + ' st-badge st-live').trim();
+      } else if(/^\[(PARTIAL|IN PROGRESS|FIX|A)\]$/.test(t) || /^\[PHASE 0/.test(t)){
+        el.className = (el.className + ' st-badge st-part').trim();
+      } else if(/^\[(PLANNED|STAGE|PHASE|WAVE|DECIDE|U)/.test(t)){
+        el.className = (el.className + ' st-badge st-plan').trim();
+      } else if(/^\[(REMOVED|DEFERRED)/.test(t)){
+        el.className = (el.className + ' st-badge st-rem').trim();
+      }
+    });
+  }
+})();
+</script><script src="atlas-ui.js"></script></body></html>

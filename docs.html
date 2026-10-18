@@ -26,4 +26,506 @@ code{background:var(--p2);padding:1px 6px;border-radius:5px;font-size:.9em;color
 iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}.pie{width:150px;height:150px;border-radius:50%}.row{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
 .lg div{font-size:13px;color:var(--dim)}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px}.pill{font-size:11px;color:var(--dim);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;display:inline-block}
 .thumb{height:210px;overflow:hidden;border-radius:10px;border:1px solid var(--ln);position:relative;background:#fff}.thumb iframe{width:1280px;height:840px;transform:scale(.3);transform-origin:0 0;border:0;pointer-events:none}
-.card,.grid>*,.g2>*{min-width:0}.card{overflow-wrap:anywhere}td,th{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}.stack>.card{margin:0 0 14px}#tm .lf{white-space:nowrap;text-overflow:ellipsis}main{overflow-x:clip}@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="on">Docs</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main><h1>Docs</h1><p class="sub">Every guide in full, readable here. Markdown originals are in data/docs for AI tools.</p><h2>MiniMe core</h2><div class='grid g2'><a class="card h" href="doc-rulebook.html" style="text-decoration:none;color:inherit"><b>Financial &amp; Model Strategy Rulebook</b><br><span class="l">The money, model, hiring, funding and equity constitution.</span><br><span class="pill">md</span><span class=pill>27,349 words</span></a><a class="card h" href="doc-tech-roadmap.html" style="text-decoration:none;color:inherit"><b>Technical Implementation Roadmap</b><br><span class="l">Tech-A to Tech-H: what gets built, in what order, gated by what evidence.</span><br><span class="pill">md</span><span class=pill>3,731 words</span></a><a class="card h" href="doc-server-guide.html" style="text-decoration:none;color:inherit"><b>Server Management &amp; Splitting Guide</b><br><span class="l">When and how to split servers. Gated, not scheduled.</span><br><span class="pill">md</span><span class=pill>2,448 words</span></a></div><h2>MiniMake</h2><div class='grid g2'><a class="card h" href="doc-minimake-plan.html" style="text-decoration:none;color:inherit"><b>MiniMake Build Execution Guide</b><br><span class="l">Ordered, patch-sized work packages for the terminal coding agent.</span><br><span class="pill">md</span><span class=pill>11,206 words</span></a><a class="card h" href="doc-minimake-product.html" style="text-decoration:none;color:inherit"><b>MiniMake Product &amp; Build Guide</b><br><span class="l">What MiniMake is and why.</span><br><span class="pill">html</span></a></div><h2>MiniMate</h2><div class='grid g2'><a class="card h" href="doc-minimate-plan.html" style="text-decoration:none;color:inherit"><b>MiniMate Build Execution Guide</b><br><span class="l">Work packages for the personal automation agent.</span><br><span class="pill">md</span><span class=pill>10,705 words</span></a><a class="card h" href="doc-minimate-product.html" style="text-decoration:none;color:inherit"><b>MiniMate Product &amp; Build Guide</b><br><span class="l">What MiniMate is and why.</span><br><span class="pill">html</span></a></div><h2>FBEBC research</h2><div class='grid g2'><a class="card h" href="doc-fbebc-program.html" style="text-decoration:none;color:inherit"><b>FBEBC Research Program Guide</b><br><span class="l">Zero-cost preprint to MiniMe-integrated production research.</span><br><span class="pill">md</span><span class=pill>3,969 words</span></a><a class="card h" href="doc-fbebc-phase1.html" style="text-decoration:none;color:inherit"><b>FBEBC Phase 1 Implementation Guide</b><br><span class="l">Architectural foundation and the immutable barrier.</span><br><span class="pill">md</span><span class=pill>10,103 words</span></a><a class="card h" href="doc-fbebc-paper.html" style="text-decoration:none;color:inherit"><b>FBEBC Preprint / Workshop Paper Guide</b><br><span class="l">Writing and submission guide for Stage 1's output.</span><br><span class="pill">md</span><span class=pill>2,694 words</span></a><a class="card h" href="doc-fbebc-status.html" style="text-decoration:none;color:inherit"><b>FBEBC Build Status (from the repo)</b><br><span class="l">Live status file from the fbebc-research repo.</span><br><span class="pill">md</span><span class=pill>5,678 words</span></a></div></main><script></script></body></html>
+.card,.grid>*,.g2>*{min-width:0}.card{overflow-wrap:anywhere}td,th{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}.stack>.card{margin:0 0 14px}#tm .lf{white-space:nowrap;text-overflow:ellipsis}main{overflow-x:clip}@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style><style id="atlas-mobile-css">
+.m-topbar{display:none}
+.m-backdrop{display:none}
+.nav-mclose,.toc-mhdr{display:none}
+.nav-qjump{display:flex;justify-content:space-between;align-items:center;width:calc(100% - 12px);margin:0 6px 12px;padding:7px 10px;border-radius:9px;background:var(--p2);border:1px solid var(--ln);color:var(--dim);font-size:12px;cursor:pointer}
+.nav-qjump:hover{border-color:var(--r);color:#fff}
+.nav-qjump kbd{font-size:10px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--ln);color:var(--dim)}
+.nav-sub{padding-left:20px!important;font-size:12.5px!important;color:#8e8c86!important}
+.nav-sub:hover{color:#fff!important}
+.svg-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.m-btt{position:fixed;right:18px;bottom:18px;width:38px;height:38px;border-radius:50%;background:var(--r);color:#fff;border:0;font-weight:700;font-size:16px;cursor:pointer;z-index:90;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.m-btt.vis{opacity:1;pointer-events:auto}
+.cmd-modal{position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:8vh 14px 20px}
+.cmd-modal.open{display:flex}
+.cmd-box{width:100%;max-width:640px;background:var(--p);border:1px solid var(--ln);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.65)}
+.cmd-top{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ln);background:var(--p2)}
+.cmd-top input{flex:1;background:transparent;border:0;color:var(--tx);font:inherit;font-size:14.5px;outline:none;width:auto}
+.cmd-esc{padding:3px 8px;font-size:11px;border-radius:6px}
+.cmd-list{max-height:62vh;overflow-y:auto;padding:6px}
+.cmd-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;text-decoration:none;color:var(--tx);font-size:13.5px}
+.cmd-item:hover{background:rgba(255,32,82,.14);color:#fff}
+.cmd-item small{display:block;font-size:11px;color:var(--dim)}
+@media(max-width:900px){
+  body{display:block;padding-top:54px}
+  .m-topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;position:fixed;top:0;left:0;right:0;height:54px;padding:0 12px;background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--ln);z-index:1001}
+  .m-brand{font-weight:700;font-size:15px;color:var(--tx);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .m-brand b{color:var(--r)}
+  .m-brand small{font-weight:400;color:var(--dim);font-size:13px}
+  .m-right{display:flex;gap:6px;align-items:center;flex:none}
+  .m-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);font-size:12.5px;cursor:pointer}
+  .m-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);z-index:1002}
+  body.nav-open .m-backdrop,body.toc-open .m-backdrop{display:block}
+  nav{display:block!important;position:fixed!important;top:0!important;left:0!important;bottom:0!important;height:100dvh!important;width:270px!important;max-width:84vw!important;background:#0e0e13!important;z-index:1003!important;transform:translateX(-105%);transition:transform .22s ease;box-shadow:12px 0 36px rgba(0,0,0,.6)}
+  body.nav-open nav{transform:translateX(0)}
+  nav .logo{display:flex;justify-content:space-between;align-items:center}
+  .nav-mclose{display:inline-block;padding:3px 8px;font-size:11.5px;border-radius:6px;background:var(--p2);border:1px solid var(--ln);color:var(--dim)}
+  .toc{display:block!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;height:100dvh!important;max-height:100dvh!important;width:290px!important;max-width:86vw!important;background:#101016!important;border-left:1px solid var(--ln)!important;padding:16px!important;z-index:1003!important;transform:translateX(105%);transition:transform .22s ease;box-shadow:-12px 0 36px rgba(0,0,0,.6)}
+  body.toc-open .toc{transform:translateX(0)}
+  .toc-mhdr{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--ln)}
+  .toc-mclose{padding:3px 8px;font-size:11.5px;border-radius:6px}
+  main{padding:18px 14px 64px!important;max-width:100%!important}
+  h1{font-size:24px}h2{font-size:18px}
+  .g2,.parts,.bk-grid,.bk-footer-grid,.cards{grid-template-columns:1fr!important}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .bar{flex-wrap:wrap;gap:6px}.bar span:first-child{width:100%}
+  .svg-scroll svg{min-width:680px}
+  .ex #res{max-height:38vh}
+  #tm{height:62vh!important;min-height:380px!important}
+  .split{grid-template-columns:1fr!important}
+  .board{grid-template-columns:repeat(4,minmax(250px,82vw))!important;overflow-x:auto;padding-bottom:8px}
+  .cal{min-width:560px}
+}
+@media(max-width:480px){
+  .m-btn span{display:none}
+  .grid{grid-template-columns:1fr 1fr}
+  .k{font-size:24px}
+  input[type=search],input[type=text]{width:100%!important}
+}
+</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="on">Docs</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main>
+<h1>The MiniMe Book — Complete 14-Chapter Edition</h1>
+<p class="sub">Every strategy constitution, feature manual, build execution plan, server topology guide, and research specification — unified and synchronized into one connected book. Markdown sources live in <code>data/docs/</code> and <code>docs/</code>.</p>
+
+<style>
+.bk-kpis{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));margin-bottom:22px}
+.bk-sync-viz{background:linear-gradient(180deg,var(--p),#0e0e13);border:1px solid var(--ln);border-radius:16px;padding:18px 20px;margin-bottom:26px}
+.bk-filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:18px 0}
+.bk-fbtn{padding:6px 13px;border-radius:99px;font-size:12.5px;border:1px solid var(--ln);background:var(--p);color:var(--dim);cursor:pointer;transition:.15s}
+.bk-fbtn:hover,.bk-fbtn.on{border-color:var(--r);color:#fff;background:rgba(255,32,82,.15)}
+.bk-part-sec{margin:28px 0}
+.bk-part-hdr{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--ln);padding-bottom:8px;margin-bottom:14px}
+.bk-part-hdr h2{margin:0;font-size:20px}
+.bk-part-hdr span{font-size:12.5px;color:var(--dim)}
+.bk-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(330px,1fr))}
+.bk-card{display:flex;flex-direction:column;justify-content:space-between;background:var(--p);border:1px solid var(--ln);border-radius:14px;padding:16px 18px;text-decoration:none;color:inherit;transition:.16s;position:relative}
+.bk-card:hover{border-color:var(--r);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.35)}
+.bk-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.bk-ch-num{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:99px;background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.35)}
+.bk-badge-new{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(52,211,153,.16);color:#34d399;border:1px solid rgba(52,211,153,.4)}
+.bk-badge-sync{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:99px;background:rgba(167,139,250,.14);color:#c4b5fd;border:1px solid rgba(167,139,250,.35)}
+.bk-card b{font-size:16px;color:#fff;display:block;margin-bottom:5px;line-height:1.35}
+.bk-card p{margin:0 0 12px;font-size:13px;color:var(--dim);line-height:1.45}
+.bk-card-foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05);font-size:12px}
+.bk-node-box{cursor:pointer;transition:.15s}
+.bk-node-box:hover rect{stroke:#fff;stroke-width:2px}
+#sync-detail{margin-top:12px;padding:12px 16px;border-radius:12px;background:var(--p2);border:1px solid var(--ln);font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+</style>
+
+<div class="bk-kpis">
+  <div class="card"><div class="k">14 <small>chapters</small></div><div class="l">5 connected book parts (Ch. 1 → Ch. 14)</div></div>
+  <div class="card"><div class="k">94.8k <small>words</small></div><div class="l">12 Markdown guides + 2 HTML design specs</div></div>
+  <div class="card"><div class="k">3 <small>feature guides</small></div><div class="l">MiniMe, MiniMake &amp; MiniMate manuals added</div></div>
+  <div class="card"><div class="k">172 <small>tables</small></div><div class="l">Indexed &amp; searchable on the Tables page</div></div>
+  <div class="card"><div class="k">100% <small>synced</small></div><div class="l">One account, one ledger (<code>0012</code>), local-first O1–O8</div></div>
+</div>
+
+<div class="bk-sync-viz">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px">
+    <div>
+      <h3 style="margin:0;font-size:17px">Interactive Ecosystem Sync Map — How All 14 Chapters Lock Together</h3>
+      <p class="l" style="margin:2px 0 0;font-size:12.5px">Click any node in the architecture map below to inspect its governing book chapters, data boundary, and shared contracts.</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a href="consistency.html" class="pill" style="text-decoration:none;border-color:var(--r);color:#ff7a96">✓ View Consistency Matrix</a>
+      <a href="journey.html" class="pill" style="text-decoration:none;border-color:var(--v);color:#c4b5fd">🧭 Open Interactive Journey</a>
+    </div>
+  </div>
+  <div class="svg-wrap" style="overflow-x:auto">
+    <svg viewBox="0 0 1120 320" width="100%" style="min-width:760px;display:block">
+      <defs>
+        <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7z" fill="#ff7a96"/></marker>
+        <marker id="arr-g" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7z" fill="#34d399"/></marker>
+        <marker id="arr-v" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7z" fill="#a78bfa"/></marker>
+      </defs>
+      <!-- Background Zones -->
+      <rect x="10" y="10" width="335" height="300" rx="12" fill="#14141b" stroke="#2a2a36"/>
+      <text x="24" y="32" fill="#34d399" font-size="11" font-weight="700" letter-spacing=".06em">USER SURFACES &amp; LOCAL DEVICE BOUNDARY</text>
+
+      <rect x="365" y="10" width="380" height="300" rx="12" fill="#14141b" stroke="#2a2a36"/>
+      <text x="380" y="32" fill="#ff7a96" font-size="11" font-weight="700" letter-spacing=".06em">SHARED CORE &amp; SERVER BRAIN FLEET</text>
+
+      <rect x="765" y="10" width="345" height="300" rx="12" fill="#14141b" stroke="#2a2a36"/>
+      <text x="780" y="32" fill="#a78bfa" font-size="11" font-weight="700" letter-spacing=".06em">CONSTITUTION, LEDGER &amp; RESEARCH</text>
+
+      <!-- Left column: 3 Product Surfaces -->
+      <g class="bk-node-box" data-node="web">
+        <rect x="26" y="48" width="303" height="72" rx="10" fill="#191922" stroke="#ff2052" stroke-width="1.5"/>
+        <text x="40" y="70" fill="#fff" font-size="13" font-weight="700">Part II · MiniMe Web (surface='web')</text>
+        <text x="40" y="88" fill="#a8a6a0" font-size="11">8 Tabs · 25-Stage Orchestrator · Notebooks · CAD · Build</text>
+        <text x="40" y="106" fill="#ff7a96" font-size="10.5" font-weight="600">Ch. 4: MiniMe Feature Guide (8,064 words)</text>
+      </g>
+
+      <g class="bk-node-box" data-node="minimake">
+        <rect x="26" y="134" width="303" height="72" rx="10" fill="#191922" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="40" y="156" fill="#fff" font-size="13" font-weight="700">Part III · MiniMake CLI (surface='minimake')</text>
+        <text x="40" y="174" fill="#a8a6a0" font-size="11">Local Repo · 14 Tools · bwrap Sandbox · Git Checkpoints</text>
+        <text x="40" y="192" fill="#c4b5fd" font-size="10.5" font-weight="600">Ch. 5–7: Feature Guide + 64 WPs (Jan–Feb 2027)</text>
+      </g>
+
+      <g class="bk-node-box" data-node="minimate">
+        <rect x="26" y="220" width="303" height="72" rx="10" fill="#191922" stroke="#f06cb4" stroke-width="1.5"/>
+        <text x="40" y="242" fill="#fff" font-size="13" font-weight="700">Part IV · MiniMate Node (surface='minimate')</text>
+        <text x="40" y="260" fill="#a8a6a0" font-size="11">Cron/Triggers · T0–T5 Approvals · 6 Channels · Vault</text>
+        <text x="40" y="278" fill="#f06cb4" font-size="10.5" font-weight="600">Ch. 8–10: Feature Guide + 59 WPs (Mar–Jun 2027)</text>
+      </g>
+
+      <!-- Middle column: minicore + Server Brain + Server Topology -->
+      <g class="bk-node-box" data-node="minicore">
+        <rect x="385" y="48" width="340" height="72" rx="10" fill="#191922" stroke="#34d399" stroke-width="1.5"/>
+        <text x="400" y="70" fill="#fff" font-size="13" font-weight="700">Shared Package: minicore/ (WP P00)</text>
+        <text x="400" y="88" fill="#a8a6a0" font-size="11">Wire Protocol · Redaction · Policy · Model DTOs · Cost Math</text>
+        <text x="400" y="106" fill="#34d399" font-size="10.5" font-weight="600">Imported by backend/, minimake_cli/ &amp; minimate/</text>
+      </g>
+
+      <g class="bk-node-box" data-node="brain">
+        <rect x="385" y="134" width="340" height="72" rx="10" fill="#191922" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="400" y="156" fill="#fff" font-size="13" font-weight="700">Part I · Technical Roadmap (Tech-A → Tech-H)</text>
+        <text x="400" y="174" fill="#a8a6a0" font-size="11">73 Agent Modules · 46 Router Roles · 8 LLM Providers</text>
+        <text x="400" y="192" fill="#fbbf24" font-size="10.5" font-weight="600">Ch. 2: Technical Implementation Roadmap</text>
+      </g>
+
+      <g class="bk-node-box" data-node="server">
+        <rect x="385" y="220" width="340" height="72" rx="10" fill="#191922" stroke="#60a5fa" stroke-width="1.5"/>
+        <text x="400" y="242" fill="#fff" font-size="13" font-weight="700">Part I · Server Topology &amp; Ephemeral Buffer</text>
+        <text x="400" y="260" fill="#a8a6a0" font-size="11">Stage 1 ($14/mo VPS) → Stage 5 · 2h/24h Redis Buffer</text>
+        <text x="400" y="278" fill="#93c5fd" font-size="10.5" font-weight="600">Ch. 3: Server Management &amp; Splitting Guide</text>
+      </g>
+
+      <!-- Right column: Rulebook + Shared Ledger + FBEBC -->
+      <g class="bk-node-box" data-node="rulebook">
+        <rect x="782" y="48" width="312" height="114" rx="10" fill="#191922" stroke="#ff2052" stroke-width="1.5"/>
+        <text x="796" y="70" fill="#fff" font-size="13" font-weight="700">Part I · Financial &amp; Model Rulebook</text>
+        <text x="796" y="88" fill="#a8a6a0" font-size="11">One Account · One Shared Cap (0012 / S01)</text>
+        <text x="796" y="105" fill="#a8a6a0" font-size="11">Free $0 · Basic $9 · Moderate $29 · Ultimate $79</text>
+        <text x="796" y="122" fill="#a8a6a0" font-size="11">COGS-at-cap ≤ 45% · 15 Golden Rules</text>
+        <text x="796" y="144" fill="#ff7a96" font-size="10.5" font-weight="600">Ch. 1: Rulebook Constitution (27,349 words)</text>
+      </g>
+
+      <g class="bk-node-box" data-node="fbebc">
+        <rect x="782" y="178" width="312" height="114" rx="10" fill="#191922" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="796" y="200" fill="#fff" font-size="13" font-weight="700">Part V · FBEBC Research Track</text>
+        <text x="796" y="218" fill="#a8a6a0" font-size="11">Stage 1: $0 Standalone Preprint (89 Tests Green)</text>
+        <text x="796" y="235" fill="#a8a6a0" font-size="11">Stage 2: Ports to backend/agents/evolution/</text>
+        <text x="796" y="252" fill="#a8a6a0" font-size="11">Gated on Basic Live + Ops Green (G1–G4)</text>
+        <text x="796" y="274" fill="#c4b5fd" font-size="10.5" font-weight="600">Ch. 11–14: Program, Phase 1, Paper &amp; Status</text>
+      </g>
+
+      <!-- Connectors -->
+      <path d="M329,84 L383,84" stroke="#34d399" stroke-width="1.6" fill="none" marker-end="url(#arr-g)"/>
+      <path d="M329,170 L383,96" stroke="#34d399" stroke-width="1.6" fill="none" marker-end="url(#arr-g)"/>
+      <path d="M329,256 L383,108" stroke="#34d399" stroke-width="1.6" fill="none" marker-end="url(#arr-g)"/>
+      <path d="M329,170 L383,170" stroke="#ff7a96" stroke-width="1.6" fill="none" marker-end="url(#arr-r)"/>
+      <path d="M329,256 L383,256" stroke="#a78bfa" stroke-width="1.6" stroke-dasharray="4 3" fill="none" marker-end="url(#arr-v)"/>
+      <path d="M725,170 L780,105" stroke="#ff7a96" stroke-width="1.6" fill="none" marker-end="url(#arr-r)"/>
+      <path d="M782,235 L727,182" stroke="#a78bfa" stroke-width="1.6" stroke-dasharray="4 3" fill="none" marker-end="url(#arr-v)"/>
+    </svg>
+  </div>
+  <div id="sync-detail">
+    <span id="sync-txt"><b>Click any block above</b> to see how its chapters, codebase modules, and governance rules connect.</span>
+    <a id="sync-btn" href="doc-rulebook.html" class="bk-pill-link" style="border-color:var(--r);color:#ff7a96">Open Chapter 1: Rulebook →</a>
+  </div>
+</div>
+
+<div class="bk-filter-bar">
+  <input id="bk-q" type="search" placeholder="Search all 14 book chapters (title, topic, work package, rule)..." style="width:340px;max-width:100%">
+  <button class="bk-fbtn on" data-part="all">All 14 Chapters</button>
+  <button class="bk-fbtn" data-part="p1">Part I · Strategy &amp; Sequence (3)</button>
+  <button class="bk-fbtn" data-part="p2">Part II · MiniMe Web (1)</button>
+  <button class="bk-fbtn" data-part="p3">Part III · MiniMake (3)</button>
+  <button class="bk-fbtn" data-part="p4">Part IV · MiniMate (3)</button>
+  <button class="bk-fbtn" data-part="p5">Part V · FBEBC Research (4)</button>
+</div>
+
+<div class="bk-part-sec" data-part-sec="p1">
+  <div class="bk-part-hdr">
+    <h2>Part I · Strategy, Governance &amp; Master Sequence</h2>
+    <span>Chapters 1–3 · The Constitution for Money, Models, Engineering Order &amp; Server Topology</span>
+  </div>
+  <div class="bk-grid">
+    <div class="bk-card" data-part="p1">
+      <div>
+        <div class="bk-card-top"><span class="bk-ch-num">Chapter 1</span><span class="bk-badge-sync">CONSTITUTION · SYNCED</span></div>
+        <a href="doc-rulebook.html" style="text-decoration:none;color:inherit"><b>Financial &amp; Model Strategy Rulebook</b></a>
+        <p>The money, model, pricing (<code>$0 / $9 / $29 / $79</code>), shared credit pool, 8-vendor routing, hiring, funding, and equity constitution. Overrides all other docs on numbers.</p>
+      </div>
+      <div class="bk-card-foot">
+        <div><span class="pill">md</span><span class="pill">27,349 words</span><span class="pill">135 sections</span><span class="pill">90 tables</span></div>
+        <div><a href="doc-rulebook.html">Read Ch. 1 →</a> · <a href="data/docs/MiniMe_Financial_Strategy_Rulebook.md" download>.md</a></div>
+      </div>
+    </div>
+
+    <div class="bk-card" data-part="p1">
+      <div>
+        <div class="bk-card-top"><span class="bk-ch-num">Chapter 2</span><span class="bk-badge-sync">SEQUENCE · SYNCED</span></div>
+        <a href="doc-tech-roadmap.html" style="text-decoration:none;color:inherit"><b>Technical Implementation Roadmap</b></a>
+        <p>Tech-A to Tech-H: per-call cost telemetry, shared <code>usage_ledger</code> (<code>0012</code>), Basic hardening, Moderate scaffolding, internal Brain prototype, and Monitor v2.</p>
+      </div>
+      <div class="bk-card-foot">
+        <div><span class="pill">md</span><span class="pill">4,186 words</span><span class="pill">27 sections</span><span class="pill">2 tables</span></div>
+        <div><a href="doc-tech-roadmap.html">Read Ch. 2 →</a> · <a href="data/docs/minime_technical_roadmap.md" download>.md</a></div>
+      </div>
+    </div>
+
+    <div class="bk-card" data-part="p1">
+      <div>
+        <div class="bk-card-top"><span class="bk-ch-num">Chapter 3</span><span class="bk-badge-sync">INFRA · SYNCED</span></div>
+        <a href="doc-server-guide.html" style="text-decoration:none;color:inherit"><b>Server Management &amp; Splitting Guide</b></a>
+        <p>When and how to split servers from Stage 1 (<code>$14/mo</code> single box) to Stage 5 fleet based on measured CPU/RAM/DB load — plus why MiniMake &amp; MiniMate add near-zero server load.</p>
+      </div>
+      <div class="bk-card-foot">
+        <div><span class="pill">md</span><span class="pill">2,758 words</span><span class="pill">13 sections</span><span class="pill">3 tables</span></div>
+        <div><a href="doc-server-guide.html">Read Ch. 3 →</a> · <a href="data/docs/minime_server_management_guide.md" download>.md</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bk-part-sec" data-part-sec="p2">
+  <div class="bk-part-hdr">
+    <h2>Part II · MiniMe Core Flagship (Web Workspace)</h2>
+    <span>Chapter 4 · Complete Feature Register Across All 8 Stages, 73 Agent Modules &amp; 46 Router Roles</span>
+  </div>
+  <div class="bk-grid">
+    <div class="bk-card" data-part="p2" style="border-color:rgba(52,211,153,.4)">
+      <div>
+        <div class="bk-card-top"><span class="bk-ch-num">Chapter 4</span><span class="bk-badge-new">NEW · FEATURE GUIDE</span></div>
+        <a href="doc-minime-feature-guide.html" style="text-decoration:none;color:inherit"><b>MiniMe — Complete Feature &amp; Product Guide</b></a>
+        <p>The complete user manual &amp; feature register for MiniMe Web: Chat, Notebooks, Research, Plan, Build workbench (synced with Phase 0 browser cut), Test, Growth, Role Library, Knowledge Graph, CAD, and Security.</p>
+      </div>
+      <div class="bk-card-foot">
+        <div><span class="pill">md</span><span class="pill">8,064 words</span><span class="pill">88 sections</span><span class="pill">5 tables</span></div>
+        <div><a href="doc-minime-feature-guide.html">Read Ch. 4 →</a> · <a href="data/docs/minime_feature_guide.md" download>.md</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bk-part-sec" data-part-sec="p3">
+  <div class="bk-part-hdr">
+    <h2>Part III · MiniMake (Local-First Terminal &amp; Editor Coding Agent)</h2>
+    <span>Chapters 5–7 · Feature Manual, 64-Package Build Execution Plan &amp; Initial Design Spec</span>
+  </div>
+  <div class="bk-grid">
+    <div class="bk-card" data-part="p3" style="border-color:rgba(52,211,153,.4)">
+      <div>
+        <div class="bk-card-top"><span class="bk-ch-num">Chapter 5</span><span class="bk-badge-new">NEW · FEATURE GUIDE</span></div>
+        <a href="doc-minimake-feature-guide.html" style="text-decoration:none;color:inherit"><b>MiniMake — Complete Feature &amp; Product Guide</b></a>
+        <p>User manual &amp; feature register for the local-first terminal coding agent: <code>minimake</code> CLI/TUI, Ask/Edit/Auto modes, 14 local tools, <code>bubblewrap</code> sandbox, git checkpoints, hooks, skills, and headless IPC.</p>
+      </div>
+      <div class="bk-card-foot">
+        <div><span class="pill">md</span><span class="pill">4,960 words</span><span class="pill">60 sections</span><span class="pill">4 tables</span></div>
+        <div><a href="doc-minimake-feature-guide.html">Read Ch. 5 →</a> · <a href="data/docs/minimake_feature_guide.md" download>.md</a></div>
+      </div>
+    </div>
+
+    <div class="bk-card" data-part="p3">
+      <div>
+        <div class="bk-card-top"><span class="bk-ch-num">Chapter 6</span><span class="bk-badge-sync">EXECUTION PLAN · SYNCED</span></div>
+        <a href="doc-minimake-plan.html" style="text-decoration:none;color:inherit"><b>MiniMake Build Execution Guide</b></a>
+        <p>64 ordered, parallelizable, patch-sized work packages across 12 waves (157 effort points). Defines Overrides O1–O8, Phase 0 browser cleanup (<code>B00–B12</code>), <code>minicore/</code> (<code>P00</code>), and <code>S01</code> shared ledger.</p>
+      </div>
+      <div class="bk-card-foot">
+        <div><span class="pill">md</span><span class="pill">11,233 words</span><span class="pill">95 sections</span><span class="pill">13 tables</span></div>
+        <div><a href="doc-minimake-plan.html">Read Ch. 6 →</a> · <a href="data/docs/minimake_build_plan.md" download>.md</a></div>
+      </div>
+    </div>
+
+    <div class="bk-card" data-part="p3">
+      <div>
+        <div class="bk-card-top"><span class="bk-ch-num">Chapter 7</span><span class="bk-badge-sync">INITIAL SPEC · O1–O8 BANNER</span></div>
+        <a href="doc-minimake-product.html" style="text-decoration:none;color:inherit"><b>MiniMake Product &amp; Build Guide (Initial Spec)</b></a>
+        <p>Original standalone HTML product specification for MiniMake, now paired with an interactive Override O1–O8 synchronization banner linking to Chapters 5 and 6.</p>
+      </div>
+      <div class="bk-card-foot">
+        <div><span class="pill">html</span><span class="pill">Interactive Spec</span></div>
+        <div><a href="doc-minimake-product.html">Read Ch. 7 →</a> · <a href="guides/MiniMake___Product___Build_Guide.html" target="_blank">Standalone ↗</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bk-part-sec" data-part-sec="p4">
+  <div class="bk-part-hdr">
+    <h2>Part IV · MiniMate (Local-First Personal Automation Agent)</h2>
+    <span>Chapters 8–10 · Feature Manual, 59-Package Build Execution Plan &amp; Initial Design Spec</span>
+  </div>
+  <div class="bk-grid">
+    <div class="bk-card" data-part="p4" style="border-color:rgba(52,211,153,.4)">
+      <div>
+        <div class="bk-card-top"><span class="bk-ch-num">Chapter 8</span><span class="bk-badge-new">NEW · FEATURE GUIDE</span></div>
+        <a href="doc-minimate-feature-guide.html" style="text-decoration:none;color:inherit"><b>MiniMate — Complete Feature &amp; Product Guide</b></a>
+        <p>User manual &amp; feature register for the local-first automation node: declarative YAML specs, <code>T0–T5</code> trust tiers, Reader/Actor pipeline, Telegram approvals, 9 connectors, Playwright browser, and local vault.</p>
+      </div>
+      <div class="bk-card-foot">
+        <div><span class="pill">md</span><span class="pill">6,095 words</span><span class="pill">83 sections</span><span class="pill">4 tables</span></div>
+        <div><a href="doc-minimate-feature-guide.html">Read Ch. 8 →</a> · <a href="data/docs/minimate_feature_guide.md" download>.md</a></div>
+      </div>
+    </div>
+
+    <div class="bk-card" data-part="p4">
+      <div>
+        <div class="bk-card-top"><span class="bk-ch-num">Chapter 9</span><span class="bk-badge-sync">EXECUTION PLAN · SYNCED</span></div>
+        <a href="doc-minimate-plan.html" style="text-decoration:none;color:inherit"><b>MiniMate Build Execution Guide</b></a>
+        <p>59 ordered, patch-sized work packages across 16 waves (133 effort points). Defines local-first Overrides O1–O8, building on MiniMake's <code>minicore/</code> and <code>S01</code> shared usage ledger.</p>
+      </div>
+      <div class="bk-card-foot">
+        <div><span class="pill">md</span><span class="pill">10,705 words</span><span class="pill">92 sections</span><span class="pill">16 tables</span></div>
+        <div><a href="doc-minimate-plan.html">Read Ch. 9 →</a> · <a href="data/docs/MiniMate___Build_Execution_Guide.md" download>.md</a></div>
+      </div>
+    </div>
+
+    <div class="bk-card" data-part="p4">
+      <div>
+        <div class="bk-card-top"><span class="bk-ch-num">Chapter 10</span><span class="bk-badge-sync">INITIAL SPEC · O1–O8 BANNER</span></div>
+        <a href="doc-minimate-product.html" style="text-decoration:none;color:inherit"><b>MiniMate Product &amp; Build Guide (Initial Spec)</b></a>
+        <p>Original standalone HTML product specification for MiniMate, paired with an interactive Override O1–O8 synchronization banner linking to Chapters 8 and 9.</p>
+      </div>
+      <div class="bk-card-foot">
+        <div><span class="pill">html</span><span class="pill">Interactive Spec</span></div>
+        <div><a href="doc-minimate-product.html">Read Ch. 10 →</a> · <a href="guides/MiniMate___Product___Build_Guide.html" target="_blank">Standalone ↗</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bk-part-sec" data-part-sec="p5">
+  <div class="bk-part-hdr">
+    <h2>Part V · FBEBC Research Program (Fitness-Band Elitist Bacterial Colony)</h2>
+    <span>Chapters 11–14 · Stage 1 Zero-Cost Preprint to Stage 2 MiniMe-Integrated Evolution Engine</span>
+  </div>
+  <div class="bk-grid">
+    <div class="bk-card" data-part="p5">
+      <div>
+        <div class="bk-card-top"><span class="bk-ch-num">Chapter 11</span><span class="bk-badge-sync">RESEARCH PROGRAM</span></div>
+        <a href="doc-fbebc-program.html" style="text-decoration:none;color:inherit"><b>FBEBC Research Program Guide</b></a>
+        <p>Two-stage master plan: Stage 1 zero-cost standalone preprint (<code>fbebc-research</code>) and Stage 2 production integration into <code>backend/agents/evolution/</code> gated on G1–G4.</p>
+      </div>
+      <div class="bk-card-foot">
+        <div><span class="pill">md</span><span class="pill">3,969 words</span><span class="pill">21 sections</span><span class="pill">4 tables</span></div>
+        <div><a href="doc-fbebc-program.html">Read Ch. 11 →</a> · <a href="data/docs/fbebc-research-program-guide.md" download>.md</a></div>
+      </div>
+    </div>
+
+    <div class="bk-card" data-part="p5">
+      <div>
+        <div class="bk-card-top"><span class="bk-ch-num">Chapter 12</span><span class="bk-badge-sync">PHASE 1 SPEC</span></div>
+        <a href="doc-fbebc-phase1.html" style="text-decoration:none;color:inherit"><b>FBEBC Phase 1 Implementation Guide</b></a>
+        <p>Architectural foundation, the immutable evaluation barrier (<code>fbebc/barrier.py</code>), and exact specifications for all 5 core components and 6 verification gates.</p>
+      </div>
+      <div class="bk-card-foot">
+        <div><span class="pill">md</span><span class="pill">10,103 words</span><span class="pill">48 sections</span><span class="pill">15 tables</span></div>
+        <div><a href="doc-fbebc-phase1.html">Read Ch. 12 →</a> · <a href="data/docs/fbebc-phase1-implementation-guide.md" download>.md</a></div>
+      </div>
+    </div>
+
+    <div class="bk-card" data-part="p5">
+      <div>
+        <div class="bk-card-top"><span class="bk-ch-num">Chapter 13</span><span class="bk-badge-sync">PAPER &amp; STATS</span></div>
+        <a href="doc-fbebc-paper.html" style="text-decoration:none;color:inherit"><b>FBEBC Preprint / Workshop Paper Guide</b></a>
+        <p>Claim ladder (<code>C0–C3</code>), section-by-section paper template, Wilcoxon &amp; Vargha-Delaney A12 statistical recipes, and arXiv/workshop submission checklist.</p>
+      </div>
+      <div class="bk-card-foot">
+        <div><span class="pill">md</span><span class="pill">2,694 words</span><span class="pill">21 sections</span><span class="pill">2 tables</span></div>
+        <div><a href="doc-fbebc-paper.html">Read Ch. 13 →</a> · <a href="data/docs/fbebc-preprint-workshop-paper-guide.md" download>.md</a></div>
+      </div>
+    </div>
+
+    <div class="bk-card" data-part="p5">
+      <div>
+        <div class="bk-card-top"><span class="bk-ch-num">Chapter 14</span><span class="bk-badge-sync">LIVE RUN LOG</span></div>
+        <a href="doc-fbebc-status.html" style="text-decoration:none;color:inherit"><b>FBEBC Build Status (from the repo)</b></a>
+        <p>Live build &amp; experiment log from <code>fbebc-research</code>: 89 passing tests, 4 real-run bug fixes (D1–D4), and day-by-day cap-set (<code>capset_n8</code>) evolution results.</p>
+      </div>
+      <div class="bk-card-foot">
+        <div><span class="pill">md</span><span class="pill">5,678 words</span><span class="pill">15 sections</span><span class="pill">5 tables</span></div>
+        <div><a href="doc-fbebc-status.html">Read Ch. 14 →</a> · <a href="data/docs/STATUS.md" download>.md</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+</main>
+<script>
+(function(){
+  var info = {
+    web: {
+      txt: "<b>Part II · MiniMe Web (Chapter 4):</b> Flagship browser workspace with 8 stage tabs, 25-stage orchestrator, 73 agent modules (46 router roles), 6-tier memory, and CAD. In Phase 0 (MK_B02–B06), browser Python Run/Terminal/Local-folder mode are replaced by MiniMake CLI handoff.",
+      href: "doc-minime-feature-guide.html",
+      btn: "Open Ch. 4: MiniMe Feature Guide →"
+    },
+    minimake: {
+      txt: "<b>Part III · MiniMake CLI (Chapters 5–7):</b> Local-first terminal & editor coding agent (`minimake`). Runs 14 local tools, SQLite FTS5 code index, git shadow checkpoints, and bubblewrap sandbox on device; calls `/api/codeagent/*` on the server.",
+      href: "doc-minimake-feature-guide.html",
+      btn: "Open Ch. 5: MiniMake Feature Guide →"
+    },
+    minimate: {
+      txt: "<b>Part IV · MiniMate Node (Chapters 8–10):</b> Local-first personal automation daemon (`minimate`). Runs APScheduler triggers, T0–T5 Approval Manager, Reader/Actor untrusted-input pipeline, 6 messaging channels, 9 connectors, and Argon2id vault on device.",
+      href: "doc-minimate-feature-guide.html",
+      btn: "Open Ch. 8: MiniMate Feature Guide →"
+    },
+    minicore: {
+      txt: "<b>Shared `minicore/` Library (Work Package P00):</b> Extracted in MiniMake Wave 1 and imported by `backend/`, `minimake_cli/`, and `minimate/`. Owns wire protocol envelopes, secret/PII redaction, path guards, and cost calculation.",
+      href: "doc-minimake-plan.html#p00-shared-protocol-and-redaction-package-s-wave",
+      btn: "Inspect WP P00 in Ch. 6 →"
+    },
+    brain: {
+      txt: "<b>Part I · Technical Roadmap (Chapter 2):</b> Sequences Tech-A (cost/latency telemetry & model roster cleanup) → Tech-B (Basic hardening & shared ledger) → Tech-C/D/E/F/G (Moderate, Brain meta-planner & Monitor v2).",
+      href: "doc-tech-roadmap.html",
+      btn: "Open Ch. 2: Technical Roadmap →"
+    },
+    server: {
+      txt: "<b>Part I · Server Management Guide (Chapter 3):</b> Metric-gated splits from Stage 1 ($14/mo single VPS) to Stage 5. Because MiniMake and MiniMate execute locally, the server only holds a 2h/24h Redis buffer (<50 MB per 1,000 sessions).",
+      href: "doc-server-guide.html#9-how-minimake-minimate-and-fbebc-fit-the-server",
+      btn: "Open Ch. 3: Server Guide §9 →"
+    },
+    rulebook: {
+      txt: "<b>Part I · Financial & Model Rulebook (Chapter 1):</b> The constitution. Mandates one shared account, one subscription tier ($0 / $9 / $29 / $79), and one `usage_ledger` (`0012` / `S01`) across Web, MiniMake, and MiniMate with COGS-at-cap ≤ 45%.",
+      href: "doc-rulebook.html",
+      btn: "Open Ch. 1: Rulebook →"
+    },
+    fbebc: {
+      txt: "<b>Part V · FBEBC Research Track (Chapters 11–14):</b> Fitness-Band Elitist Bacterial Colony. Stage 1 runs at $0 in standalone `fbebc-research` (89 tests passing); Stage 2 ports `EvolutionEngine` into `backend/agents/evolution/` after Basic launch.",
+      href: "doc-fbebc-program.html",
+      btn: "Open Ch. 11: FBEBC Program →"
+    }
+  };
+  document.querySelectorAll('.bk-node-box').forEach(function(g){
+    g.addEventListener('click', function(){
+      var k = g.dataset.node, d = info[k];
+      if(!d) return;
+      document.getElementById('sync-txt').innerHTML = d.txt;
+      var b = document.getElementById('sync-btn');
+      b.href = d.href;
+      b.textContent = d.btn;
+    });
+  });
+
+  var q = document.getElementById('bk-q');
+  var btns = Array.from(document.querySelectorAll('.bk-fbtn'));
+  var curPart = 'all';
+  function filter(){
+    var s = (q.value || '').toLowerCase().trim();
+    document.querySelectorAll('.bk-part-sec').forEach(function(sec){
+      var p = sec.dataset.partSec;
+      var partMatch = (curPart === 'all' || curPart === p);
+      var anyCard = false;
+      sec.querySelectorAll('.bk-card').forEach(function(c){
+        var m = partMatch && (!s || c.textContent.toLowerCase().includes(s));
+        c.style.display = m ? '' : 'none';
+        if(m) anyCard = true;
+      });
+      sec.style.display = anyCard ? '' : 'none';
+    });
+  }
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      btns.forEach(function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      curPart = b.dataset.part;
+      filter();
+    });
+  });
+  q.addEventListener('input', filter);
+})();
+</script><script src="atlas-ui.js"></script></body></html>
