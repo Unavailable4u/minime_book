@@ -1,22 +1,22 @@
 <!doctype html><html data-theme="dark"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}</style><style>:root{color-scheme:light dark;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}}:root[data-theme="dark"]{color-scheme:dark;--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}:root[data-theme="light"]{color-scheme:light}@media print{:root,:root[data-theme="dark"]{color-scheme:light;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}}body{background:var(--md-bg);color:var(--md-text);max-width:720px;margin:0 auto;padding:32px;display:flex;flex-direction:column;gap:10px;font:14px/1.55 -apple-system,BlinkMacSystemFont,'SF Pro','Segoe UI',sans-serif;overflow-wrap:break-word}body>:first-child{margin-top:0}h1,h2,h3,h4,h5,h6{margin:6px 0 0;line-height:1.25;font-weight:600;text-wrap:balance}h1{font-size:1.35em}h2{font-size:1.15em;color:var(--md-muted)}h3,h4,h5,h6{font-size:1em}p,ul,ol,blockquote,table,pre,hr{margin:0}strong{font-weight:600}a{color:var(--md-link);text-decoration:none}a:hover{text-decoration:underline}ul,ol{display:flex;flex-direction:column;gap:6px;padding-left:22px}ul{list-style:disc}ol{list-style:decimal}:is(li,td,th)>*+:is(p,ul,ol,blockquote){margin-top:6px}blockquote{display:flex;flex-direction:column;gap:10px;border-left:2px solid var(--md-rule);padding-left:10px;color:var(--md-muted)}:not(pre)>code{background:var(--md-fill);padding:1px 3px;border-radius:4px;font:.92em 'SF Mono',ui-monospace,Menlo,Consolas,monospace}a>code{background:none;color:inherit}pre{background:var(--md-fill);padding:10px 12px;border-radius:6px;overflow-x:auto;font:12px/1.5 'SF Mono',ui-monospace,Menlo,Consolas,monospace;margin-block:4px}pre code{background:none;padding:0;font:inherit}table{width:100%;border-collapse:separate;border-spacing:2px;font:inherit}th,td{padding:6px 8px;border-radius:3px;text-align:left;vertical-align:top}th{background:var(--md-fill-strong);font-weight:600}td{background:var(--md-fill)}:is(th,td) :not(pre)>code{background:transparent}hr{border:0;border-top:1px solid var(--md-rule-strong);margin-block:10px}img{max-width:100%;height:auto;border-radius:4px}</style>
 </head><body><div id="atlas-sync-note" style="background:rgba(255,32,82,.1);border:1px solid rgba(255,32,82,.4);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;line-height:1.5">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:4px">
-    <strong style="color:#ff7a96">📚 MiniMe Connected Book · MiniMate Initial Product Spec</strong>
+    <strong style="color:#ff7a96">📚 MiniMe Connected Book · Menux Initial Product Spec</strong>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <a href="../doc-minimate-feature-guide.html" target="_top" style="color:#34d399;font-weight:600;text-decoration:none">→ Ch.8 MiniMate Feature Guide</a>
-      <a href="../doc-minimate-plan.html" target="_top" style="color:#c4b5fd;font-weight:600;text-decoration:none">→ Ch.9 Build Execution Guide</a>
+      <a href="../doc-menux-feature-guide.html" target="_top" style="color:#34d399;font-weight:600;text-decoration:none">→ Ch.8 Menux Feature Guide</a>
+      <a href="../doc-menux-plan.html" target="_top" style="color:#c4b5fd;font-weight:600;text-decoration:none">→ Ch.9 Build Execution Guide</a>
       <button onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='light'?'dark':'light'" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:inherit;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11.5px">Toggle Light/Dark</button>
     </div>
   </div>
-  <span style="opacity:.85">Note: Where this initial design spec differs on data placement or billing, <b>Overrides O1–O8</b> in the Build Execution Guide &amp; Feature Guide govern (100% local-first execution on device; one shared account &amp; <code>usage_ledger</code> across Web, MiniMake, and MiniMate).</span>
+  <span style="opacity:.85">Note: Where this initial design spec differs on data placement or billing, <b>Overrides O1–O8</b> in the Build Execution Guide &amp; Feature Guide govern (100% local-first execution on device; one shared account &amp; <code>usage_ledger</code> across Web, M2C, and Menux).</span>
 </div>
-<h1>MiniMate — Product &amp; Build Guide</h1>
+<h1>Menux — Product &amp; Build Guide</h1>
 <h3>From coding agent to personal automation system on Linux</h3>
-<p><em>Version 1.0 · written 2026-10-02 · companion to <code>minimake_guide.md</code> (read that first; MiniMate reuses most of it)</em></p>
-<p><em>Names: <strong>MiniMate</strong> (this product, formerly &quot;miniU&quot;) and <strong>MiniMake</strong> (the coding agent, formerly &quot;MiniCode&quot;). Paths and commands use the new names (<code>minimate</code>, <code>~/.minimate/</code>).</em></p>
+<p><em>Version 1.0 · written 2026-10-02 · companion to <code>m2c_guide.md</code> (read that first; Menux reuses most of it)</em></p>
+<p><em>Names: <strong>Menux</strong> — Minime agentic automation (this product, formerly &quot;miniU&quot;) and <strong>M2C L26</strong> — Minime to Code (the coding agent, formerly &quot;MiniCode&quot;). Paths and commands use the new names (<code>menux</code>, <code>~/.menux/</code>).</em></p>
 <hr>
 <h2>0. How to read this guide</h2>
-<p><strong>What this is.</strong> A full specification of MiniMate: an always-available, automation-focused agent that acts for the user across their files, apps and accounts, on Linux first, powered by MiniMe's orchestration and premium models. It is built from the same research as the MiniMake guide plus a second pass on personal and &quot;computer-use&quot; agents: OpenClaw, Hermes Agent, Claude Cowork, ChatGPT Agent, Manus, Devin, Linux desktop-control tools, the 2026 MCP spec, ACP, Agent Skills, and the prompt-injection literature.</p>
+<p><strong>What this is.</strong> A full specification of Menux: an always-available, automation-focused agent that acts for the user across their files, apps and accounts, on Linux first, powered by MiniMe's orchestration and premium models. It is built from the same research as the M2C guide plus a second pass on personal and &quot;computer-use&quot; agents: OpenClaw, Hermes Agent, Claude Cowork, ChatGPT Agent, Manus, Devin, Linux desktop-control tools, the 2026 MCP spec, ACP, Agent Skills, and the prompt-injection literature.</p>
 <p><strong>What this is not.</strong> It is not a plan to build an operating system. Section 10 explains what &quot;agentic OS&quot; can honestly mean and recommends a path that does not involve building a distribution until demand proves it.</p>
 <p><strong>Tags</strong></p>
 <table>
@@ -45,7 +45,7 @@
 </tr>
 <tr>
 <td><strong>[MK]</strong></td>
-<td>Cross-reference to the MiniMake guide (<code>minimake_guide.md</code>).</td>
+<td>Cross-reference to the M2C guide (<code>m2c_guide.md</code>).</td>
 </tr>
 </tbody>
 </table>
@@ -57,10 +57,10 @@
 </ul>
 <hr>
 <h2>1. Executive summary</h2>
-<p><strong>MiniMate in one paragraph.</strong> A personal automation agent that lives where the user already is (terminal, messaging apps, the MiniMe web app, later voice), runs tasks on demand, on a schedule, and on triggers, uses the user's files and accounts through scoped connectors, remembers what matters, learns reusable skills, and asks for approval at the right moments through one inbox. The &quot;brain&quot; is MiniMe's backend with premium and cheap models routed by task; the &quot;hands&quot; are a local Linux agent, cloud sandboxes for untrusted or unattended work, and MCP connectors. It is MiniMake's engine with a different profile: broader tools, a scheduler, memory, channels, and a stricter security model because it acts without a developer watching.</p>
+<p><strong>Menux in one paragraph.</strong> A personal automation agent that lives where the user already is (terminal, messaging apps, the MiniMe web app, later voice), runs tasks on demand, on a schedule, and on triggers, uses the user's files and accounts through scoped connectors, remembers what matters, learns reusable skills, and asks for approval at the right moments through one inbox. The &quot;brain&quot; is MiniMe's backend with premium and cheap models routed by task; the &quot;hands&quot; are a local Linux agent, cloud sandboxes for untrusted or unattended work, and MCP connectors. It is M2C's engine with a different profile: broader tools, a scheduler, memory, channels, and a stricter security model because it acts without a developer watching.</p>
 <p><strong>The ten decisions this guide makes</strong></p>
 <ol>
-<li><strong>MiniMate is a profile on the MiniMake engine, not a second codebase</strong> [P]. Same loop, tool broker, permission engine, session log and metering, with different tools, prompts and surfaces (§4.4, §5.6).</li>
+<li><strong>Menux is a profile on the M2C engine, not a second codebase</strong> [P]. Same loop, tool broker, permission engine, session log and metering, with different tools, prompts and surfaces (§4.4, §5.6).</li>
 <li><strong>&quot;A personal agent is a gateway problem, not a model problem.&quot;</strong> The OpenClaw lesson: queuing, channel normalization, memory, extensibility and security are where the work is [R:S21]. Build the gateway and runtime well; models are swappable.</li>
 <li><strong>Automations are first-class objects</strong> with a trigger, a scope, a policy, a budget and an audit trail, not chat messages with a timer [P].</li>
 <li><strong>Heartbeats must be cheap by design.</strong> A periodic wake-up is the biggest hidden cost; skip empty ticks without calling a model, pre-filter with scripts, and use the cheapest class (§6.4, §13.3).</li>
@@ -150,7 +150,7 @@
 <li><strong>Consumer and prosumer agents</strong> (ChatGPT Agent, Manus, Cowork) compete on convenience; they run in the vendor's cloud or a vendor-controlled VM [S33, S23].</li>
 <li><strong>Self-hosted always-on agents</strong> (OpenClaw, Hermes) compete on openness and channels; their weakness is security and operations [S21, S22].</li>
 <li><strong>Linux desktop control</strong> exists as open-source MCP servers but is rough and compositor-dependent [S24].</li>
-<li><strong>Gap for MiniMate:</strong> a managed product that is as capable as the self-hosted agents, as easy as the consumer ones, and <strong>safer than both</strong>, using premium models and orchestration you already operate. Linux users are underserved by vendor desktop agents (Cowork is macOS and Windows only [S23]).</li>
+<li><strong>Gap for Menux:</strong> a managed product that is as capable as the self-hosted agents, as easy as the consumer ones, and <strong>safer than both</strong>, using premium models and orchestration you already operate. Linux users are underserved by vendor desktop agents (Cowork is macOS and Windows only [S23]).</li>
 </ul>
 <h3>2.3 Twelve lessons</h3>
 <ol>
@@ -168,8 +168,8 @@
 <li><strong>Standards reduce lock-in and effort:</strong> MCP for tools, <code>SKILL.md</code> for procedures, ACP for editors [S26, S28, S27].</li>
 </ol>
 <hr>
-<h2>3. Feature harvest for MiniMate</h2>
-<p>Version labels: <strong>U0</strong> (cloud-only personal automations, built on MiniMake engine), <strong>U1</strong> (gateway, memory, scheduler), <strong>U2</strong> (connectors and approvals inbox), <strong>U3</strong> (Linux hands), <strong>U4</strong> (desktop control, voice), <strong>U5</strong> (marketplace, images/appliance).</p>
+<h2>3. Feature harvest for Menux</h2>
+<p>Version labels: <strong>U0</strong> (cloud-only personal automations, built on M2C engine), <strong>U1</strong> (gateway, memory, scheduler), <strong>U2</strong> (connectors and approvals inbox), <strong>U3</strong> (Linux hands), <strong>U4</strong> (desktop control, voice), <strong>U5</strong> (marketplace, images/appliance).</p>
 <h3>3.1 Runtime and automation</h3>
 <table>
 <thead>
@@ -187,7 +187,7 @@
 <td>Managed Agents, OpenHands [S5, S20]</td>
 <td>Adopt</td>
 <td>U0</td>
-<td>Shared with MiniMake [MK §6].</td>
+<td>Shared with M2C [MK §6].</td>
 </tr>
 <tr>
 <td>Scheduled tasks (cron-style, saved prompts)</td>
@@ -467,7 +467,7 @@
 <td>Cowork, Codex, Claude Code [S23, S9, S3]</td>
 <td>Adopt</td>
 <td>U3</td>
-<td>Reuse MiniMake sandbox [MK §8.4].</td>
+<td>Reuse M2C sandbox [MK §8.4].</td>
 </tr>
 <tr>
 <td>Loopback-only gateway, token auth, never run as root, audit command</td>
@@ -514,8 +514,8 @@
 <tr>
 <td><strong>L1</strong></td>
 <td>Task agent with tools, user present</td>
-<td>MiniMake, Claude Code, Cowork</td>
-<td>MiniMake covers coding; MiniMate adds non-code tasks</td>
+<td>M2C, Claude Code, Cowork</td>
+<td>M2C covers coding; Menux adds non-code tasks</td>
 </tr>
 <tr>
 <td><strong>L2</strong></td>
@@ -538,21 +538,21 @@
 <tr>
 <td><strong>L5</strong></td>
 <td>An operating system or appliance where the agent is the primary shell</td>
-<td>A MiniMate distro or device</td>
+<td>A Menux distro or device</td>
 <td>Only if demand is proven; not planned</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Recommendation [P]:</strong> build L2, then L3 on Linux, then L4 under strict attendance rules. Treat L5 as a packaging decision (an image or a mini-PC &quot;MiniMate box&quot;) made after real usage.</p>
+<p><strong>Recommendation [P]:</strong> build L2, then L3 on Linux, then L4 under strict attendance rules. Treat L5 as a packaging decision (an image or a mini-PC &quot;Menux box&quot;) made after real usage.</p>
 <h3>4.2 Who it is for and what they do with it [P]</h3>
-<p>Primary: <strong>Linux-using technical users, makers and small-team founders</strong> who want routine digital chores automated without trusting a black box, plus MiniMe/MiniMake users who already have projects and want ongoing maintenance.</p>
+<p>Primary: <strong>Linux-using technical users, makers and small-team founders</strong> who want routine digital chores automated without trusting a black box, plus MiniMe/M2C users who already have projects and want ongoing maintenance.</p>
 <p>Representative jobs (full list with costs in Appendix B):</p>
 <ul>
 <li>Morning brief from calendar, mail and tasks; meeting prep.</li>
 <li>Inbox triage with drafted replies that are never sent without approval.</li>
 <li>File and download organization; receipt-to-spreadsheet reports.</li>
 <li>Watch logs, backups and servers; alert only when something is wrong.</li>
-<li>React to CI failures or dependency alerts by opening a MiniMake session.</li>
+<li>React to CI failures or dependency alerts by opening an M2C session.</li>
 <li>Research digests on topics the user follows.</li>
 <li>Home and workshop automation events.</li>
 </ul>
@@ -562,7 +562,7 @@
 <thead>
 <tr>
 <th>vs.</th>
-<th>MiniMate's angle</th>
+<th>Menux's angle</th>
 </tr>
 </thead>
 <tbody>
@@ -584,13 +584,13 @@
 </tr>
 </tbody>
 </table>
-<h3>4.4 Relationship to MiniMake [P]</h3>
+<h3>4.4 Relationship to M2C [P]</h3>
 <ul>
 <li><strong>One engine, two profiles.</strong> The server loop, tool broker, permission engine, session log, metering and device link are shared [MK §5, §6, §8, §13]. A profile selects: system prompt, tool set, default modes, available surfaces, and budgets.</li>
-<li><strong>MiniMake</strong> = coding profile: project folder, code tools, review roles.</li>
-<li><strong>MiniMate</strong> = automation profile: connectors, scheduler, memory, channels, desktop tools.</li>
-<li>A MiniMate automation can <strong>start a MiniMake run</strong> (for example &quot;when CI fails, open a session on repo X in plan mode and message me a summary&quot;), and a MiniMake user can promote a repeated task to a MiniMate automation.</li>
-<li><strong>Branding choice [open]:</strong> MiniMate as the umbrella app with MiniMake as one skill pack, or MiniMake and MiniMate as sibling products sharing an account. The architecture supports both.</li>
+<li><strong>M2C</strong> = coding profile: project folder, code tools, review roles.</li>
+<li><strong>Menux</strong> = automation profile: connectors, scheduler, memory, channels, desktop tools.</li>
+<li>A Menux automation can <strong>start an M2C run</strong> (for example &quot;when CI fails, open a session on repo X in plan mode and message me a summary&quot;), and an M2C user can promote a repeated task to a Menux automation.</li>
+<li><strong>Branding choice [open]:</strong> Menux as the umbrella app with M2C as one skill pack, or M2C and Menux as sibling products sharing an account. The architecture supports both.</li>
 </ul>
 <h3>4.5 Principles</h3>
 <ol>
@@ -614,7 +614,7 @@
  ORCHESTRATOR        Run manager · scheduler &amp; triggers · planner (Brain) · agent loop executors · model router
  (MiniMe backend)    Reviewer / security-reviewer roles · classifier · metering &amp; ledger · policy store
       │
- SESSION LOG         Append-only events (Postgres) + hot state (Redis) — shared with MiniMake
+ SESSION LOG         Append-only events (Postgres) + hot state (Redis) — shared with M2C
       │
  HANDS (many)        ┌ Local node (Linux user service): files, shell (sandboxed), desktop, notifications
                      ├ Cloud sandbox (ephemeral microVM/container): unattended or untrusted tasks, headless browser
@@ -624,7 +624,7 @@
  MEMORY &amp; KNOWLEDGE  Files (MEMORY.md, USER.md, daily notes) + index (full-text, optional embeddings) + skills library
 </code></pre>
 <h3>5.2 Many brains, many hands</h3>
-<p>Anthropic's design lets any stateless harness connect to any number of &quot;hands&quot; exposed as <code>execute(name, input) → string</code>, and notes the harness need not know whether a hand is a container, a phone or an emulator; brains can pass hands to one another [S5]. For MiniMate this is the central idea: a user may have a laptop node, a home-server node, a cloud sandbox and connectors, all as hands; the orchestrator decides where each step runs and the policy engine on each hand enforces local rules.</p>
+<p>Anthropic's design lets any stateless harness connect to any number of &quot;hands&quot; exposed as <code>execute(name, input) → string</code>, and notes the harness need not know whether a hand is a container, a phone or an emulator; brains can pass hands to one another [S5]. For Menux this is the central idea: a user may have a laptop node, a home-server node, a cloud sandbox and connectors, all as hands; the orchestrator decides where each step runs and the policy engine on each hand enforces local rules.</p>
 <h3>5.3 Components</h3>
 <table>
 <thead>
@@ -647,7 +647,7 @@
 </tr>
 <tr>
 <td><strong>Run manager and loop executors</strong></td>
-<td>Same as MiniMake [MK §6]</td>
+<td>Same as M2C [MK §6]</td>
 <td>Profile = <code>automation</code>.</td>
 </tr>
 <tr>
@@ -668,12 +668,12 @@
 <tr>
 <td><strong>Cloud sandbox pool</strong></td>
 <td>Ephemeral microVMs/containers for unattended or untrusted work; headless browser; Xvfb desktop</td>
-<td>Your rulebook budgets E2B-style sandboxes per run [M]; for MiniMate, charge by minutes.</td>
+<td>Your rulebook budgets E2B-style sandboxes per run [M]; for Menux, charge by minutes.</td>
 </tr>
 <tr>
 <td><strong>Local node</strong></td>
 <td>Linux user service (systemd): file grants, sandboxed shell, desktop tools, notifications, file-watch triggers</td>
-<td>Evolves from the MiniMake client.</td>
+<td>Evolves from the M2C client.</td>
 </tr>
 <tr>
 <td><strong>Memory service</strong></td>
@@ -688,7 +688,7 @@
 <tr>
 <td><strong>Audit and replay</strong></td>
 <td>Immutable events, filtered export for the user</td>
-<td>Shared with MiniMake.</td>
+<td>Shared with M2C.</td>
 </tr>
 </tbody>
 </table>
@@ -741,12 +741,12 @@
 <li><strong>Message from a channel:</strong> gateway authenticates sender (paired allowlist), creates or resumes a session, loop runs, reply is sent back. Messages from unknown senders are <strong>not</strong> treated as user instructions (§11.7).</li>
 <li><strong>Approval:</strong> card appears in inbox and optionally on the channel; decision returns to the run; the node re-checks hard policy before executing.</li>
 </ul>
-<h3>5.6 What to reuse from your repo [M] and from MiniMake [MK]</h3>
+<h3>5.6 What to reuse from your repo [M] and from M2C [MK]</h3>
 <table>
 <thead>
 <tr>
-<th>Existing/MiniMake piece</th>
-<th>MiniMate use</th>
+<th>Existing/M2C piece</th>
+<th>Menux use</th>
 </tr>
 </thead>
 <tbody>
@@ -801,7 +801,7 @@
 <td><strong>Interactive</strong></td>
 <td>User message</td>
 <td>Yes</td>
-<td>Same as MiniMake ask mode</td>
+<td>Same as M2C ask mode</td>
 </tr>
 <tr>
 <td><strong>Background</strong></td>
@@ -829,14 +829,14 @@
 </tr>
 <tr>
 <td><strong>Delegated</strong></td>
-<td>Spawned by another run or by MiniMake</td>
+<td>Spawned by another run or by M2C</td>
 <td>Depends</td>
 <td>Inherits the parent's policy, never wider</td>
 </tr>
 </tbody>
 </table>
 <h3>6.2 The automation spec [P]</h3>
-<p>An automation is a file (YAML or TOML) stored in the user's account and optionally mirrored in <code>~/.minimate/automations/</code>. It is created by talking to the Planner, then shown back to the user for approval.</p>
+<p>An automation is a file (YAML or TOML) stored in the user's account and optionally mirrored in <code>~/.menux/automations/</code>. It is created by talking to the Planner, then shown back to the user for approval.</p>
 <pre><code class="language-yaml">id: morning-brief
 description: Summarize my day and send it to Telegram at 07:30
 trigger:
@@ -872,12 +872,12 @@ audit: full
 </code></pre>
 <p>Rules <strong>[P]</strong>: a spec cannot grant more than the user's account policy allows; <code>capabilities</code> lists exact tools; anything not listed is unavailable; the Planner proposes, a human approves; changes create a new version; dry-run mode runs the automation with all writes simulated and shows what it <em>would</em> do.</p>
 <h3>6.3 Run lifecycle and reliability</h3>
-<p>States as in MiniMake plus <code>queued</code>, <code>skipped</code>, <code>awaiting_approval_unattended</code>. Requirements:</p>
+<p>States as in M2C plus <code>queued</code>, <code>skipped</code>, <code>awaiting_approval_unattended</code>. Requirements:</p>
 <ul>
 <li><strong>Idempotency:</strong> each trigger event has an ID; duplicate events do not start duplicate runs (webhooks retry).</li>
 <li><strong>Concurrency:</strong> one active run per automation by default; queue or drop per spec.</li>
 <li><strong>Retries:</strong> transient failures retry with backoff up to N; permanent failures notify once, not repeatedly.</li>
-<li><strong>Missed runs:</strong> policy per automation (<code>run_now</code>, <code>skip</code>, <code>run_if_recent</code>). Cowork's scheduled tasks only run while the computer is awake [S23]; MiniMate must tell users plainly when a run depends on their node being online and offer the cloud-sandbox alternative.</li>
+<li><strong>Missed runs:</strong> policy per automation (<code>run_now</code>, <code>skip</code>, <code>run_if_recent</code>). Cowork's scheduled tasks only run while the computer is awake [S23]; Menux must tell users plainly when a run depends on their node being online and offer the cloud-sandbox alternative.</li>
 <li><strong>Time zones and DST:</strong> store the zone with the schedule.</li>
 <li><strong>Observability:</strong> every run has a timeline (trigger, steps, tool calls, outputs, cost).</li>
 </ul>
@@ -980,7 +980,7 @@ audit: full
 <td>From paired senders only</td>
 </tr>
 <tr>
-<td>Other automation or MiniMake</td>
+<td>Other automation or M2C</td>
 <td>Internal</td>
 <td>Inherits policy, never widens</td>
 </tr>
@@ -1055,7 +1055,7 @@ audit: full
 <li><strong>Plain files the user can open, edit, export and delete.</strong> No hidden vector-only memory.</li>
 <li><strong>Show every automatic write</strong> (&quot;I saved: you prefer concise briefs&quot;) with an undo.</li>
 <li><strong>Never auto-save secrets, credentials, financial or health details,</strong> or contents of private messages beyond what the user asked to keep. Redact before storing.</li>
-<li><strong>Separate memory per profile and per project</strong> (MiniMake project memory vs. personal memory), with explicit sharing.</li>
+<li><strong>Separate memory per profile and per project</strong> (M2C project memory vs. personal memory), with explicit sharing.</li>
 <li><strong>Retention controls:</strong> daily notes roll up into weekly summaries; old detail expires on a schedule the user sets.</li>
 <li><strong>Search:</strong> full-text first; embeddings as an option. Hermes uses FTS5 plus LLM summarization [S22].</li>
 <li><strong>Consolidation job (nightly, cheap class):</strong> merge duplicates, resolve contradictions (newest wins unless flagged), promote repeated facts to <code>MEMORY.md</code>, propose skills from repeated procedures.</li>
@@ -1067,7 +1067,7 @@ audit: full
 <h2>8. Skills, playbooks and the learning loop</h2>
 <h3>8.1 Format</h3>
 <p>Use the open Agent Skills format: a folder with <code>SKILL.md</code> (frontmatter <code>name</code>, <code>description</code>; Markdown body) plus optional <code>scripts/</code>, <code>references/</code>, <code>assets/</code>; progressive disclosure means only names and descriptions load at startup [S28]. This lets users bring skills from Claude Code, Codex, Cursor and Gemini [S28] and lets you ship vertical packs.</p>
-<p>Add a <strong>permission manifest</strong> (MiniMate extension) in frontmatter so users see what a skill may touch:</p>
+<p>Add a <strong>permission manifest</strong> (Menux extension) in frontmatter so users see what a skill may touch:</p>
 <pre><code class="language-yaml">---
 name: weekly-expense-report
 description: Build a weekly spreadsheet from receipt PDFs in the Receipts folder. Use when asked for expense reports.
@@ -1159,12 +1159,12 @@ permissions:
 <tbody>
 <tr>
 <td><strong>User service</strong></td>
-<td><code>minimate-node</code> as a <strong>systemd user unit</strong>, started at login, restarts on failure</td>
+<td><code>menux-node</code> as a <strong>systemd user unit</strong>, started at login, restarts on failure</td>
 <td>Runs as the user, never root; OpenClaw's guidance is loopback binding, token auth and never root [S21]</td>
 </tr>
 <tr>
 <td><strong>Device link</strong></td>
-<td>Outbound WebSocket to MiniMe (reused from MiniMake)</td>
+<td>Outbound WebSocket to MiniMe (reused from M2C)</td>
 <td>[MK §8.9]</td>
 </tr>
 <tr>
@@ -1189,11 +1189,11 @@ permissions:
 </tr>
 <tr>
 <td><strong>Clipboard and launcher hooks</strong> (optional)</td>
-<td>Quick-ask hotkey, &quot;send selection to MiniMate&quot;</td>
+<td>Quick-ask hotkey, &quot;send selection to Menux&quot;</td>
 <td>Convenience, not core</td>
 </tr>
 <tr>
-<td><strong><code>minimate doctor</code></strong></td>
+<td><strong><code>menux doctor</code></strong></td>
 <td>Reports compositor, portals, AT-SPI state, sandbox support, service status</td>
 <td>Like <code>computer-use-linux doctor</code> reporting readiness as JSON [S24]</td>
 </tr>
@@ -1265,7 +1265,7 @@ permissions:
 <tr>
 <td>Local shell and file work</td>
 <td>bubblewrap namespaces, Landlock + seccomp, network proxy</td>
-<td>Same as MiniMake [S3, S9]</td>
+<td>Same as M2C [S3, S9]</td>
 </tr>
 <tr>
 <td>Untrusted web/documents</td>
@@ -1283,7 +1283,7 @@ permissions:
 <ol>
 <li><strong>Package + installer script</strong> (<code>curl | bash</code>, <code>.deb</code>, <code>.rpm</code>, AUR, Flatpak for the UI): U3.</li>
 <li><strong>Preconfigured VM or container image</strong> for people who want isolation from their main machine: U4.</li>
-<li><strong>&quot;MiniMate box&quot;</strong> (mini-PC or Raspberry Pi image) for an always-on hub: U5 only if demand appears.</li>
+<li><strong>&quot;Menux box&quot;</strong> (mini-PC or Raspberry Pi image) for an always-on hub: U5 only if demand appears.</li>
 <li><strong>A bootable distro:</strong> not recommended. It multiplies maintenance (kernel, drivers, updates, security patches) for little gain over a service plus an image.</li>
 </ol>
 <h3>10.7 Other operating systems</h3>
@@ -1293,7 +1293,7 @@ permissions:
 <blockquote>
 <p>This is the most important section. If you must cut something, cut features before this.</p>
 </blockquote>
-<h3>11.1 Threats specific to MiniMate</h3>
+<h3>11.1 Threats specific to Menux</h3>
 <table>
 <thead>
 <tr>
@@ -1411,7 +1411,7 @@ permissions:
 <li>A <strong>panic button</strong>: revoke all tokens, stop all runs, disable all automations, in one action.</li>
 </ul>
 <h3>11.6 Gateway hardening (from OpenClaw's practice) [R:S21]</h3>
-<p>Bind the local gateway to <strong>loopback</strong>; require token authentication; run tools in a sandbox; scope file access; review skills before installing; provide a <strong>security audit command</strong>; never run as root. These are defaults in MiniMate, not options.</p>
+<p>Bind the local gateway to <strong>loopback</strong>; require token authentication; run tools in a sandbox; scope file access; review skills before installing; provide a <strong>security audit command</strong>; never run as root. These are defaults in Menux, not options.</p>
 <h3>11.7 Channel security</h3>
 <ul>
 <li><strong>Pairing:</strong> a channel account becomes &quot;the user&quot; only after an out-of-band pairing (code shown in the web app); everyone else is a stranger.</li>
@@ -1521,12 +1521,12 @@ permissions:
 <p>Push-to-talk and voice notes through channels first; always-listening is a non-goal. Reuse the speech-to-text and text-to-speech providers already in your stack [M]; treat transcribed audio like any user message (it is only trusted after device/channel pairing).</p>
 <h3>12.6 Terminal and desktop</h3>
 <ul>
-<li><code>minimate</code> TUI shares the MiniMake TUI components [MK §12]: chat, tasks, approval prompts, status line with tier, taint and cost.</li>
+<li><code>menux</code> TUI shares the M2C TUI components [MK §12]: chat, tasks, approval prompts, status line with tier, taint and cost.</li>
 <li>Desktop notifications for approvals; a tray icon (optional) with Pause All.</li>
-<li><strong>Quick-ask hotkey</strong> that sends the current selection or a screenshot to MiniMate (U4).</li>
+<li><strong>Quick-ask hotkey</strong> that sends the current selection or a screenshot to Menux (U4).</li>
 </ul>
 <h3>12.7 Onboarding</h3>
-<p><code>minimate login</code> (device code) → <code>minimate doctor</code> (sandbox, accessibility, portals, service) → choose folders to grant → connect one channel and one connector → pick a starter automation (morning brief) → dry run → approve. Target: first useful automation in under ten minutes.</p>
+<p><code>menux login</code> (device code) → <code>menux doctor</code> (sandbox, accessibility, portals, service) → choose folders to grant → connect one channel and one connector → pick a starter automation (morning brief) → dry run → approve. Target: first useful automation in under ten minutes.</p>
 <h3>12.8 Cost transparency</h3>
 <p>Per automation: cost last run, this month, budget remaining. Account-level: your rulebook's four numbers (used, left, resets, what a run will cost) [M]. Estimated cost range <strong>before</strong> enabling an automation, based on its spec.</p>
 <hr>
@@ -1640,7 +1640,7 @@ permissions:
 <td>$0.66</td>
 </tr>
 <tr>
-<td>CI-failure responder (opens a MiniMake session)</td>
+<td>CI-failure responder (opens an M2C session)</td>
 <td>20</td>
 <td>150K / 8K</td>
 <td>$0.79</td>
@@ -1679,13 +1679,13 @@ permissions:
 <p>Add the hourly heartbeat (≈ $0.84 on Luna-class, ≈ $7.92 on Sonnet-class, §6.4). <strong>The same bundle costs about ten times more on a mid-tier model</strong>, so class selection decides whether a plan is viable. Add sandbox time and connector costs from your rulebook's sandbox and tools lines [M].</p>
 <h3>13.4 Metering</h3>
 <ul>
-<li>Use the <strong>agent credits</strong> approach from MiniMake [MK §14.4]: a credit approximates cost; show &quot;about N automation-runs left&quot;.</li>
+<li>Use the <strong>agent credits</strong> approach from M2C [MK §14.4]: a credit approximates cost; show &quot;about N automation-runs left&quot;.</li>
 <li>Count <strong>per-automation budgets</strong> against the account pool; pause the automation when its monthly budget is hit.</li>
 <li><strong>Separate meters</strong> for interactive use, automations and sandbox minutes so one cannot silently drain another.</li>
 <li><strong>Triggers are metered:</strong> an inbound-webhook flood must not become unlimited runs; apply per-automation rate limits before spending any tokens.</li>
 </ul>
 <h3>13.5 Pricing method</h3>
-<p>Same rule as MiniMake: price ≥ COGS at the cap ÷ 0.45 [M, MC §14.5]. Compute COGS for a user who exhausts every meter on the default chain, including sandbox minutes and connector proxy costs. Compare against consumer agent plans (ChatGPT Agent is bundled into paid ChatGPT tiers; Cowork requires paid Claude plans; Manus and others price by credits [S33, S23]) and your regional price rungs [M]. Do not set prices until you have two weeks of real telemetry from U0.</p>
+<p>Same rule as M2C: price ≥ COGS at the cap ÷ 0.45 [M, MC §14.5]. Compute COGS for a user who exhausts every meter on the default chain, including sandbox minutes and connector proxy costs. Compare against consumer agent plans (ChatGPT Agent is bundled into paid ChatGPT tiers; Cowork requires paid Claude plans; Manus and others price by credits [S33, S23]) and your regional price rungs [M]. Do not set prices until you have two weeks of real telemetry from U0.</p>
 <h3>13.6 What to protect</h3>
 <ul>
 <li><strong>No free production usage</strong> with agent actions; at most a tiny capped trial per verified identity [M rule 1].</li>
@@ -1706,11 +1706,11 @@ permissions:
 <li><strong>Model regression</strong> on each upgrade, with the option to delete harness workarounds that newer models no longer need [S7].</li>
 </ol>
 <h3>14.3 Tracing and audit</h3>
-<p>Same event log as MiniMake [MK §15.3]: timeline per run, model calls, tool calls, approvals, costs. Provide the user a filtered export; keep the internal log immutable.</p>
+<p>Same event log as M2C [MK §15.3]: timeline per run, model calls, tool calls, approvals, costs. Provide the user a filtered export; keep the internal log immutable.</p>
 <hr>
 <h2>15. Roadmap</h2>
 <p>Sizes: S/M/L/XL. Each stage ends with exit criteria. Dependencies reference your Technical Roadmap (Tech-A instrumentation, Tech-B hardening/multi-tenancy/billing) and the rulebook's gating rule [M].</p>
-<h3>U0 — Personal automations on the MiniMake engine (cloud-only, internal) · size L</h3>
+<h3>U0 — Personal automations on the M2C engine (cloud-only, internal) · size L</h3>
 <ul>
 <li>Automation spec, scheduler (cron only), run types, dry-run.</li>
 <li>Connectors: email (read, draft), calendar (read), one channel (Telegram, owner-only).</li>
@@ -1724,7 +1724,7 @@ permissions:
 <li>Heartbeat with pre-check gating, quiet hours, budgets.</li>
 <li>Memory search (full-text), nightly consolidation, user-editable files.</li>
 <li>Skills (<code>SKILL.md</code>) with permission manifest; skill drafts into a review queue.</li>
-<li><code>minimate doctor --security</code>, loopback and token defaults.</li>
+<li><code>menux doctor --security</code>, loopback and token defaults.</li>
 <li><strong>Exit:</strong> red-team suite for channels and memory passes; heartbeat cost within model; sustained use by invited testers.</li>
 </ul>
 <h3>U2 — Connectors, tiers and approvals (needs Tech-A, Tech-B) · size XL</h3>
@@ -1737,7 +1737,7 @@ permissions:
 </ul>
 <h3>U3 — Linux hands · size XL</h3>
 <ul>
-<li><code>minimate-node</code> systemd user service, folder grants, sandboxed shell, notifier, file-watch and system-event triggers, <code>doctor</code>.</li>
+<li><code>menux-node</code> systemd user service, folder grants, sandboxed shell, notifier, file-watch and system-event triggers, <code>doctor</code>.</li>
 <li>Dedicated-browser automation profile.</li>
 <li>Skill-draft learning loop with versioning and tests.</li>
 <li><strong>Exit:</strong> works on Ubuntu/Fedora/Arch with at least GNOME and KDE; sandbox escape tests pass.</li>
@@ -1758,12 +1758,12 @@ permissions:
 <li>External security audit before opening community publishing.</li>
 </ul>
 <p><strong>Gate rule:</strong> advance a stage only if the previous stage's users stay active and the unit economics hold, as your rulebook requires for every build [M].</p>
-<h3>Dependencies on MiniMake</h3>
+<h3>Dependencies on M2C</h3>
 <table>
 <thead>
 <tr>
-<th>MiniMate stage</th>
-<th>Needs from MiniMake</th>
+<th>Menux stage</th>
+<th>Needs from M2C</th>
 </tr>
 </thead>
 <tbody>
@@ -1864,7 +1864,7 @@ permissions:
 <td>Solo-founder capacity</td>
 <td>High</td>
 <td>High</td>
-<td>Shared engine with MiniMake; ship U0–U2 before anything else</td>
+<td>Shared engine with M2C; ship U0–U2 before anything else</td>
 </tr>
 <tr>
 <td>Fast-moving ecosystem and rebrands</td>
@@ -1876,7 +1876,7 @@ permissions:
 </table>
 <h3>16.2 Open decisions</h3>
 <ol>
-<li>Umbrella vs sibling branding for MiniMake and MiniMate (§4.4).</li>
+<li>Umbrella vs sibling branding for M2C and Menux (§4.4).</li>
 <li>Which two or three channels first (Telegram and email are the cheapest).</li>
 <li>Cloud sandbox vendor and per-minute pricing.</li>
 <li>Whether unattended T3 approvals use push notifications on mobile (requires a mobile surface) or channel buttons.</li>
@@ -1957,7 +1957,7 @@ permissions:
 <td>7</td>
 <td>CI-failure responder</td>
 <td>Webhook</td>
-<td>GitHub read, open MiniMake session in plan mode, message owner</td>
+<td>GitHub read, open M2C session in plan mode, message owner</td>
 <td>T2</td>
 <td>Yes; any push needs approval (T3)</td>
 </tr>
@@ -1989,7 +1989,7 @@ permissions:
 <td>11</td>
 <td>Weekly dependency update</td>
 <td>Cron</td>
-<td>Repo, MiniMake, PR</td>
+<td>Repo, M2C, PR</td>
 <td>T3</td>
 <td>PR open needs approval</td>
 </tr>
@@ -2004,7 +2004,7 @@ permissions:
 </tbody>
 </table>
 <h2>Appendix C — Config examples</h2>
-<pre><code class="language-toml"># ~/.minimate/settings.toml
+<pre><code class="language-toml"># ~/.menux/settings.toml
 [node]
 service = &#34;systemd-user&#34;
 bind = &#34;127.0.0.1&#34;           # never 0.0.0.0 by default
@@ -2022,7 +2022,7 @@ control = &#34;attended-only&#34;
 paired_user_ids = [&#34;&lt;owner&gt;&#34;]
 strangers = &#34;data-only&#34;
 </code></pre>
-<pre><code>~/.minimate/
+<pre><code>~/.menux/
   settings.toml  automations/*.yaml  skills/  memory/MEMORY.md  memory/USER.md  memory/daily/YYYY-MM-DD.md
   checkpoints/   logs/   node/ (service state)
 </code></pre>
@@ -2044,7 +2044,7 @@ strangers = &#34;data-only&#34;
 <h2>Appendix F — Glossary</h2>
 <p><strong>Automation:</strong> a saved task with trigger, capabilities, policy and budget. <strong>Heartbeat:</strong> periodic low-cost wake-up reading a checklist. <strong>Tier (T0–T5):</strong> capability risk class. <strong>Reader/actor split:</strong> separating agents that read untrusted content from agents that can act. <strong>Sealed endpoint:</strong> a broker that holds credentials and accepts only a fixed schema. <strong>Taint:</strong> marker that untrusted content has entered the run. <strong>Node:</strong> the local Linux service. <strong>Gateway:</strong> the channel and session front door. <strong>Runs inbox:</strong> the place for approvals and results. <strong>Graduation:</strong> moving an automation from attended to unattended.</p>
 <h2>Appendix G — Sources</h2>
-<p>Quality notes: <em>(official)</em> = vendor documentation or engineering blog; the rest are third-party, open-source READMEs or vendor-reported claims. Retrieved 2026-10-02. IDs match <code>minimake_guide.md</code> Appendix H.</p>
+<p>Quality notes: <em>(official)</em> = vendor documentation or engineering blog; the rest are third-party, open-source READMEs or vendor-reported claims. Retrieved 2026-10-02. IDs match <code>m2c_guide.md</code> Appendix H.</p>
 <table>
 <thead>
 <tr>
@@ -2119,6 +2119,6 @@ strangers = &#34;data-only&#34;
 </tr>
 </tbody>
 </table>
-<p><em>End of the MiniMate guide.</em></p>
+<p><em>End of the Menux guide.</em></p>
 
 </body></html>

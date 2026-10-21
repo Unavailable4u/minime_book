@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>MiniMake Build Execution Guide - MiniMe Atlas</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>M2C L26 Build Execution Guide - MiniMe Atlas</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap"><style>:root{--bg:#0a0a0c;--p:#121216;--p2:#17171d;--ln:#26262e;--tx:#f2f1ed;--dim:#a8a6a0;--r:#ff2052;--v:#a78bfa;--a:#f59e0b;--g:#34d399;--m:#f06cb4}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 Sora,Inter,system-ui,sans-serif;display:flex;min-height:100vh}
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background-image:linear-gradient(rgba(255,32,82,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,32,82,.12) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent);mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent)}
@@ -269,34 +269,35 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 .st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
 .st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
 .st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
-</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="on">Docs</a><a href="doc-minime-feature-guide.html" class="nav-sub">· Ch.4 MiniMe Guide</a><a href="doc-minimake-feature-guide.html" class="nav-sub">· Ch.5 MiniMake Guide</a><a href="doc-minimate-feature-guide.html" class="nav-sub">· Ch.8 MiniMate Guide</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main><h1>MiniMake Build Execution Guide</h1><p class="sub">MiniMake. 11,233 words. <a href="data/docs/minimake_build_plan.md" download>Download .md</a></p><div class="bk-banner">
+</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="on">Docs</a><a href="doc-minime-feature-guide.html" class="nav-sub">· Ch.4 MiniMe Guide</a><a href="doc-m2c-feature-guide.html" class="nav-sub">· Ch.5 M2C Guide</a><a href="doc-menux-feature-guide.html" class="nav-sub">· Ch.8 Menux Guide</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main><h1>M2C L26 Build Execution Guide</h1><p class="sub">M2C. 11,233 words. <a href="data/docs/m2c_build_plan.md" download>Download .md</a></p><div class="bk-banner">
   <div class="bk-top">
     <div>
-      <span class="bk-part">Part III · MiniMake (Local-First Terminal & Editor Coding Agent)</span>
+      <span class="bk-part">Part III · M2C L26 (Local-First Terminal & Editor Coding Agent)</span>
       <span class="bk-ch">Chapter 6 of 14</span>
       <span class="bk-sync">SYNCED</span>
     </div>
     <div class="bk-actions">
       <a href="docs.html" class="bk-pill-link">📚 All 14 Chapters</a>
-      <a href="journey.html#doc-minimake-plan" class="bk-pill-link">🧭 Journey Map</a>
-      <a href="data/docs/minimake_build_plan.md" download class="bk-pill-link">⬇ Download .md</a>
+      <a href="journey.html#doc-m2c-plan" class="bk-pill-link">🧭 Journey Map</a>
+      <a href="data/docs/m2c_build_plan.md" download class="bk-pill-link">⬇ Download .md</a>
     </div>
   </div>
   <p class="bk-desc">64 ordered, patch-sized work packages across 12 waves (157 effort points) from Phase 0 browser cut to GA.</p>
   <div class="bk-meta">
     <span><b>11,233</b> words (~51 min read)</span><span>·</span><span><b>95</b> sections</span><span>·</span><span><b>13</b> tables</span>
   </div>
-  <div class="bk-prevnext"><a href="doc-minimake-feature-guide.html" class="bk-nav-btn">← Ch. 5: MiniMake — Complete Feature & Product Guide</a><a href="doc-minimake-product.html" class="bk-nav-btn bk-next">Ch. 7: MiniMake Product & Build Guide (Initial Spec) →</a></div>
-</div><div class="doc"><article><h1 id="minimake-build-execution-guide">MiniMake — Build Execution Guide</h1>
+  <div class="bk-prevnext"><a href="doc-m2c-feature-guide.html" class="bk-nav-btn">← Ch. 5: M2C L26 — Complete Feature & Product Guide</a><a href="doc-m2c-product.html" class="bk-nav-btn bk-next">Ch. 7: M2C L26 Product & Build Guide (Initial Spec) →</a></div>
+</div><div class="doc"><article><h1 id="m2c-build-execution-guide">M2C L26 — Build Execution Guide</h1>
+<p><em>Minime to Code · Level 26 (L26). Levels work like release versions: the next release will be L27.</em></p>
 <h3 id="from-the-first-patch-to-release-ordered-parallel">From the first patch to release: ordered, parallelizable, patch-sized work packages</h3>
-<p><em>Version 1.1 (Synchronized Edition) · Companion to <code>minimake_feature_guide.md</code> (canonical 16-section feature &amp; product specification), <code>guides/MiniMake___Product___Build_Guide.html</code> (initial design note), <code>minime_technical_roadmap.md</code> (Tech-A/B shared ledger sequence), and <code>MiniMe_Financial_Strategy_Rulebook.md</code> (shared plan caps). Planned execution window on the Master Timeline: </em><em>Jan – Feb 2027</em><em> (64 work packages, 12 waves, 157 effort points). Where this guide and the initial HTML product guide disagree, </em><em>this guide and <code>minimake_feature_guide.md</code> win</em><em> (see §1 Overrides O1–O8).</em></p>
+<p><em>Version 1.1 (Synchronized Edition) · Companion to <code>m2c_feature_guide.md</code> (canonical 16-section feature &amp; product specification), <code>guides/M2C___Product___Build_Guide.html</code> (initial design note), <code>minime_technical_roadmap.md</code> (Tech-A/B shared ledger sequence), and <code>MiniMe_Financial_Strategy_Rulebook.md</code> (shared plan caps). Planned execution window on the Master Timeline: </em><em>Jan – Feb 2027</em><em> (64 work packages, 12 waves, 157 effort points). Where this guide and the initial HTML product guide disagree, </em><em>this guide and <code>m2c_feature_guide.md</code> win</em><em> (see §1 Overrides O1–O8).</em></p>
 <hr/>
 <h2 id="0-how-to-use-this-guide-with-your-patch-workflow">0. How to use this guide with your patch workflow</h2>
 <h3 id="0-1-inputs-for-every-patch-you-generate">0.1 Inputs for every patch you generate</h3>
 <p>Give the patch-writing model, every time:</p>
 <ol>
 <li><strong>This guide</strong>, pointing at one work package (WP) by ID, for example "implement WP S03".</li>
-<li><strong><code>minimake_guide.md</code></strong> (the product spec). Each WP lists the sections it implements.</li>
+<li><strong><code>m2c_guide.md</code></strong> (the product spec). Each WP lists the sections it implements.</li>
 <li><strong>The repo</strong> at the commit you want to patch against.</li>
 <li><strong>Your patch conventions.</strong> Your repo keeps patches as files at the repo root (<code>W6_2_console_bridge.patch</code> and so on), and your code uses long explanatory docstrings, "Patch B5"-style notes and fail-open helpers. New patches should follow that style. <strong>[P]</strong> Name them <code>MK_&lt;id&gt;_&lt;slug&gt;.patch</code>, for example <code>MK_B03_remove_python_run.patch</code>, and keep new ones in a <code>patches/</code> folder so the root stops growing.</li>
 </ol>
@@ -312,9 +313,9 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </ul>
 <h3 id="0-3-prompt-template-copy-fill-the-brackets">0.3 Prompt template (copy, fill the brackets)</h3>
 <pre><code>You are generating ONE patch for the MiniMe repo at commit [SHA].
-Work package: [ID — title] from minimake_build_plan.md.
-Read: that WP, §1 (Overrides) and §[cross-cutting section] of minimake_build_plan.md,
-and sections [..] of minimake_guide.md.
+Work package: [ID — title] from m2c_build_plan.md.
+Read: that WP, §1 (Overrides) and §[cross-cutting section] of m2c_build_plan.md,
+and sections [..] of m2c_guide.md.
 Constraints: touch only [files]; follow existing code style and docstring conventions;
 no new dependencies unless the WP lists them; security checks fail closed.
 Process: (1) read the files and list what you found, (2) write the tests first,
@@ -350,7 +351,7 @@ is wrong or impossible against the real code, STOP and report instead of improvi
 <tr>
 <td><strong>User's device (source of truth)</strong></td>
 <td>Project files; session transcripts and event log; approvals; checkpoints; memory; skills; hooks; settings; tool outputs; audit log; device credential</td>
-<td>SQLite <code>~/.minimake/state.db</code> plus plain files under <code>~/.minimake/</code></td>
+<td>SQLite <code>~/.m2c/state.db</code> plus plain files under <code>~/.m2c/</code></td>
 </tr>
 <tr>
 <td><strong>Server, persistent, content-free</strong></td>
@@ -371,15 +372,15 @@ is wrong or impossible against the real code, STOP and report instead of improvi
 </table></div>
 <p>Consequences:
 - The <strong>device log is the truth.</strong> If the server buffer expires or a worker dies, the client re-sends the needed history (<code>run.resume</code> with state) and the run continues.
-- <strong>No web replay of past MiniMake runs</strong> by default. The browser can show a <strong>live</strong> run through a non-stored relay. A later opt-in "sync my history to my account" may be added; it is <strong>off</strong> by default.
-- <strong>Honest trust claim (use this wording, not "your data never leaves your device"):</strong> <em>"Your files, history and settings are stored on your device. When you ask MiniMake to work, the relevant code is sent to our servers and our model providers to generate the answer; we don't keep it after the run ends."</em> A claim of "never leaves" would be false because the model runs remotely.
+- <strong>No web replay of past M2C runs</strong> by default. The browser can show a <strong>live</strong> run through a non-stored relay. A later opt-in "sync my history to my account" may be added; it is <strong>off</strong> by default.
+- <strong>Honest trust claim (use this wording, not "your data never leaves your device"):</strong> <em>"Your files, history and settings are stored on your device. When you ask M2C to work, the relevant code is sent to our servers and our model providers to generate the answer; we don't keep it after the run ends."</em> A claim of "never leaves" would be false because the model runs remotely.
 - Add a <strong>canary test</strong> in CI that proves no content reaches Postgres or logs (WP Q06).</p>
 <h3 id="o2-one-account-one-cap-one-ledger">O2. One account, one cap, one ledger</h3>
-<p><em>Supersedes product guide §14.4 recommendation of a separate MiniMake pool.</em></p>
+<p><em>Supersedes product guide §14.4 recommendation of a separate M2C pool.</em></p>
 <ul>
-<li>The same <strong>account and plan</strong> covers the web app, MiniMake, and later MiniMate. Usage from all surfaces burns <strong>one pool</strong>; the user pays once.</li>
+<li>The same <strong>account and plan</strong> covers the web app, M2C, and later Menux. Usage from all surfaces burns <strong>one pool</strong>; the user pays once.</li>
 <li>Enforcement is <strong>server-side</strong> at every model call (pre-flight check, post-call commit). The device cannot be trusted to count.</li>
-<li><strong>Your repo has no plan or per-user usage tables today</strong> (existing counters are Upstash daily counters keyed by provider key, and <code>llm_call_log</code> has no user column). WP S01 builds the shared ledger and also meters the <strong>existing web app</strong>, not only MiniMake.</li>
+<li><strong>Your repo has no plan or per-user usage tables today</strong> (existing counters are Upstash daily counters keyed by provider key, and <code>llm_call_log</code> has no user column). WP S01 builds the shared ledger and also meters the <strong>existing web app</strong>, not only M2C.</li>
 <li><strong>Unit:</strong> one pool measured in <strong>credits</strong> (cost-weighted), shown to the user as "about N sessions left". Keep it one pool; make it cost-weighted so that agent loops (which re-read cached context every step) do not drain the pool unrealistically. Show usage per surface in the UI for transparency.</li>
 <li>A per-run ceiling still applies on each surface.</li>
 </ul>
@@ -387,18 +388,18 @@ is wrong or impossible against the real code, STOP and report instead of improvi
 <p>Linux and <strong>WSL2</strong> only for v1. Native Windows: not supported. WSL1: not supported. macOS: deferred (the Seatbelt backend moves to a later phase). Projects must live in the Linux filesystem (for example <code>~/code/...</code>), not under <code>/mnt/c</code> (slow, permission quirks; <code>doctor</code> warns and the sandbox may refuse).</p>
 <h3 id="o4-client-implementation-and-packaging">O4. Client implementation and packaging</h3>
 <ul>
-<li><strong>Python client</strong>, a new top-level package <code>minimake/</code> (reuses your daemon's <code>path_guard</code>, tool and connection code). Not Rust or TypeScript for v1.</li>
-<li>Distribution: published package installed with <code>uv tool install minimake</code> (or <code>pipx</code>), plus an <code>install.sh</code> that installs <code>uv</code>, checks <code>ripgrep</code>, <code>git</code> and <code>bubblewrap</code>, and runs <code>minimake doctor</code>. A bundled binary can come later.</li>
-<li>The existing <code>daemon/</code> stays untouched until MiniMake has parity; its preview proxy migrates in Phase 5.</li>
+<li><strong>Python client</strong>, a new top-level package <code>m2c/</code> (reuses your daemon's <code>path_guard</code>, tool and connection code). Not Rust or TypeScript for v1.</li>
+<li>Distribution: published package installed with <code>uv tool install m2c</code> (or <code>pipx</code>), plus an <code>install.sh</code> that installs <code>uv</code>, checks <code>ripgrep</code>, <code>git</code> and <code>bubblewrap</code>, and runs <code>m2c doctor</code>. A bundled binary can come later.</li>
+<li>The existing <code>daemon/</code> stays untouched until M2C has parity; its preview proxy migrates in Phase 5.</li>
 </ul>
 <h3 id="o5-backend-package-name">O5. Backend package name</h3>
-<p>The product guide proposed <code>backend/minimake/</code>. <strong>Use <code>backend/codeagent/</code> instead</strong> to avoid an import-name clash with the top-level <code>minimake/</code> client package when both are in one dev environment.</p>
+<p>The product guide proposed <code>backend/m2c/</code>. <strong>Use <code>backend/codeagent/</code> instead</strong> to avoid an import-name clash with the top-level <code>m2c/</code> client package when both are in one dev environment.</p>
 <h3 id="o6-browser-slimming-decided">O6. Browser slimming (decided)</h3>
 <p>Browser keeps: editor, explorer, AI proposals and review, history, Problems, Console (preview), HTML/React preview, Dev server URL preview, ZIP download, planning tabs. Browser <strong>removes</strong>: the Run option for files in the preview panel, the Terminal panel, and Local folder mode. <strong>Pyodide stays</strong> only for chat artifacts. Backend <code>local_workspace</code> routes and <code>daemon/</code> stay until Phase 5.</p>
 <h3 id="o7-account-required-no-offline-mode">O7. Account required, no offline mode</h3>
-<p>The brain is server-side, so MiniMake needs a signed-in account and a connection. Say so in the install docs.</p>
+<p>The brain is server-side, so M2C needs a signed-in account and a connection. Say so in the install docs.</p>
 <h3 id="o8-profile-field">O8. Profile field</h3>
-<p>Every run carries <code>profile: "code"</code>. MiniMate will add other profiles on the same engine; do not hard-code "coding" assumptions into the run manager.</p>
+<p>Every run carries <code>profile: "code"</code>. Menux will add other profiles on the same engine; do not hard-code "coding" assumptions into the run manager.</p>
 <hr/>
 <h2 id="2-decisions-to-lock-before-the-first-patch">2. Decisions to lock before the first patch</h2>
 <p>Recommended defaults are in bold. Change them before generating patches, not after.</p>
@@ -451,7 +452,7 @@ is wrong or impossible against the real code, STOP and report instead of improvi
 <tr>
 <td>D7</td>
 <td>Package and command name</td>
-<td><strong><code>minimake</code></strong></td>
+<td><strong><code>m2c</code></strong></td>
 <td>Check availability on PyPI and your domain first (not checked)</td>
 </tr>
 <tr>
@@ -502,7 +503,7 @@ is wrong or impossible against the real code, STOP and report instead of improvi
 <tr>
 <td><strong>1</strong></td>
 <td>Contract and walking skeleton</td>
-<td><code>minimake login</code> → connect → send "hello" → streamed model reply → ledger row, shown in the web app</td>
+<td><code>m2c login</code> → connect → send "hello" → streamed model reply → ledger row, shown in the web app</td>
 <td>–</td>
 </tr>
 <tr>
@@ -570,7 +571,7 @@ is wrong or impossible against the real code, STOP and report instead of improvi
 <tr>
 <td><strong>C</strong></td>
 <td>Client application</td>
-<td><code>minimake/</code> (new)</td>
+<td><code>m2c/</code> (new)</td>
 </tr>
 <tr>
 <td><strong>L</strong></td>
@@ -579,13 +580,13 @@ is wrong or impossible against the real code, STOP and report instead of improvi
 </tr>
 <tr>
 <td><strong>X</strong></td>
-<td>Web app features for MiniMake (devices, usage, banner, remote view)</td>
+<td>Web app features for M2C (devices, usage, banner, remote view)</td>
 <td><code>frontend/</code></td>
 </tr>
 <tr>
 <td><strong>Q</strong></td>
 <td>Quality: CI, evals, red team, canary tests</td>
-<td><code>backend/evals/</code>, <code>minimake/tests/</code>, <code>.github/</code></td>
+<td><code>backend/evals/</code>, <code>m2c/tests/</code>, <code>.github/</code></td>
 </tr>
 <tr>
 <td><strong>I</strong></td>
@@ -700,7 +701,7 @@ PHASE 6   C22 (packaging), X05 (docs), X06 (legal) ──► GA
 <td><strong>0013</strong> (S03)</td>
 </tr>
 <tr>
-<td>Migration: MiniMake run metadata (content-free)</td>
+<td>Migration: M2C run metadata (content-free)</td>
 <td><strong>0014</strong> (S06)</td>
 </tr>
 <tr>
@@ -903,11 +904,11 @@ Run <code>pytest tests/unit tests/integration</code> in <code>backend/</code>, t
 <em>Done when:</em> <code>while True: pass</code> can be stopped and the next run works; a traceback shows in the error style; tests cover timeout and restart.</p>
 <p><strong>B09 · Remove the browser Terminal panel</strong> · S · Wave 1
 <em>Files:</em> <code>frontend/app/components/workbench/BottomPanel.jsx</code>, <code>frontend/app/components/TerminalPanel.jsx</code> (delete), <code>EditorWorkbench.jsx</code> wiring, tests.
-<em>What:</em> Remove the Terminal tab and component. Keep Problems, Console and History. Leave the backend command routes in place (MiniMake replaces them later).
+<em>What:</em> Remove the Terminal tab and component. Keep Problems, Console and History. Leave the backend command routes in place (M2C replaces them later).
 <em>Done when:</em> no reference to <code>TerminalPanel</code> remains; the other bottom tabs behave as before; lint and build pass.</p>
 <p><strong>B10 · Remove Local folder mode from the browser editor</strong> · M · Wave 2 (after B06, B09)
 <em>Files:</em> <code>fileProviders.js</code> (<code>createLocalFileProvider</code>), <code>EditorWorkbench.jsx</code> (the source toggle and local-only branches around lines 331, 500, 1005, 1690, 1729, 1757), the explorer's source switch, <code>HistoryPanel.jsx</code>, <code>PreviewPane.jsx</code> (only if it references local-source state), tests.
-<em>What:</em> The editor works on cloud project files only. <strong>Keep</strong> <code>useDaemonStatus</code> and the Dev-server URL preview proxy path (MiniMake replaces them in Phase 5). Leave backend <code>local_workspace</code> routes untouched.
+<em>What:</em> The editor works on cloud project files only. <strong>Keep</strong> <code>useDaemonStatus</code> and the Dev-server URL preview proxy path (M2C replaces them in Phase 5). Leave backend <code>local_workspace</code> routes untouched.
 <em>Done when:</em> no local-provider code path remains in the editor; Dev-server URL preview still works with a running daemon; all node tests, lint and build pass.</p>
 <p><strong>B11 · Frontend test runner and CI</strong> · S · Wave 2 (after B02)
 <em>Files:</em> <code>frontend/package.json</code>, a small <code>frontend/scripts/run-node-tests.mjs</code>, <code>.github/workflows/ci.yml</code>.
@@ -948,10 +949,10 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 <p><em>Implements:</em> §O2; product guide §14.4.
 <em>Files:</em> <code>backend/migrations/0012_user_plans_and_usage_ledger.sql</code>; new <code>backend/eo/usage_ledger.py</code>, <code>backend/eo/plans.py</code>, <code>backend/eo/usage_context.py</code>, <code>backend/config/plans.json</code>, <code>backend/api/routes/usage.py</code>; <strong>small hooks</strong> in <code>backend/utils/llm_client.py</code> (beside <code>_record_call_log</code>) and <code>backend/api/task_runner.py</code>; tests. <em>This WP is the only one allowed to edit <code>llm_client.py</code> and <code>task_runner.py</code>.</em></p>
 <p><em>What:</em>
-1. Tables: <code>user_plans(user_id, plan_key, credit_pool, period_start, period_end, status)</code> and <code>usage_ledger(id, user_id, surface, session_id, run_id, provider, model, input_tokens, cached_input_tokens, output_tokens, credits, cost_usd, created_at)</code> with <code>surface in ('web','minimake','minimate','system')</code>. Ledger rows hold <strong>numbers and IDs only</strong>, never content.
+1. Tables: <code>user_plans(user_id, plan_key, credit_pool, period_start, period_end, status)</code> and <code>usage_ledger(id, user_id, surface, session_id, run_id, provider, model, input_tokens, cached_input_tokens, output_tokens, credits, cost_usd, created_at)</code> with <code>surface in ('web','m2c','menux','system')</code>. Ledger rows hold <strong>numbers and IDs only</strong>, never content.
 2. <code>usage_context</code>: a <code>contextvars</code> holder for <code>(user_id, surface, session_id)</code>. <code>task_runner</code> sets it where <code>owner_id</code> is available; any other LLM entry point that has an owner sets it too. <strong>First do an inventory</strong> of every caller of <code>generate_text</code> / <code>stream_completion</code> and list in the patch description which ones carry an owner and which are attributed to <code>system</code>.
 3. The hook in <code>llm_client</code> writes one ledger row per real call, <strong>fail-open</strong> (a ledger error never fails the user's call), next to the existing <code>_record_call_log()</code>.
-4. <code>usage_ledger.check(user_id, estimate)</code> (pre-flight) and <code>commit(...)</code>; when the pool is exhausted it returns a structured <code>quota_exhausted</code> result (the web app and MiniMake each decide how to present it). Free and unconfigured accounts follow <code>plans.json</code> defaults.
+4. <code>usage_ledger.check(user_id, estimate)</code> (pre-flight) and <code>commit(...)</code>; when the pool is exhausted it returns a structured <code>quota_exhausted</code> result (the web app and M2C each decide how to present it). Free and unconfigured accounts follow <code>plans.json</code> defaults.
 5. <code>GET /api/usage</code>: pool, used, remaining, reset date, by-surface breakdown.
 6. RLS: users can read only their own rows; writes come from the app role.</p>
 <p><em>Done when:</em> a web chat task creates ledger rows with the right user and <code>surface='web'</code>; the pool decreases; <code>/api/usage</code> matches the sum of rows; a forced ledger failure does not break a chat; tests cover the call-site inventory.</p>
@@ -961,7 +962,7 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 <em>Done when:</em> unit tests with at least four models; unknown models fall back to a conservative default and log once.</p>
 <h3 id="s03-device-pairing-and-credentials-l-wave-1">S03 · Device pairing and credentials · L · Wave 1</h3>
 <p><em>Implements:</em> product guide §8.9; this guide §O1.
-<em>Files:</em> <code>backend/migrations/0013_minimake_devices.sql</code>; new <code>backend/eo/devices.py</code>, <code>backend/api/routes/devices.py</code>, tests.
+<em>Files:</em> <code>backend/migrations/0013_m2c_devices.sql</code>; new <code>backend/eo/devices.py</code>, <code>backend/api/routes/devices.py</code>, tests.
 <em>What (device-code flow):</em>
 - <code>POST /v1/code/devices/pair/start</code> {device_name, os, client_version} → {device_code (secret), user_code (short, human-friendly), verification_url, interval, expires_in}.
 - <code>POST /v1/code/devices/pair/poll</code> {device_code} → <code>pending | approved{device_credential, device_id} | denied | expired</code>. The credential (256-bit random) is returned <strong>once</strong>; the server stores only its SHA-256.
@@ -979,39 +980,39 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 <em>Done when:</em> unit tests with a fake streaming server cover text-only, one tool call, parallel tool calls, malformed JSON arguments, and provider errors; the smoke script produces a report you can read to pick the dev model.</p>
 <h3 id="s06-run-manager-ephemeral-buffer-run-metadata-l-">S06 · Run manager, ephemeral buffer, run metadata · L · Wave 3</h3>
 <p><em>Implements:</em> §O1; product guide §6.2.
-<em>Files:</em> <code>backend/migrations/0014_minimake_runs.sql</code>; new <code>backend/codeagent/runs.py</code>, <code>buffer.py</code>, tests.
+<em>Files:</em> <code>backend/migrations/0014_m2c_runs.sql</code>; new <code>backend/codeagent/runs.py</code>, <code>buffer.py</code>, tests.
 <em>What:</em> Create a run (<code>profile</code>, <code>mode</code>), run state machine (<code>created → running ⇄ awaiting_approval → completed</code>, plus <code>paused_budget</code>, <code>paused_disconnected</code>, <code>paused_error</code>, <code>cancelled</code>, <code>failed</code>, <code>expired</code>), content-free metadata row, and the <strong>ephemeral buffer</strong>: the conversation for an active run in Redis (via the existing bus), <strong>encrypted</strong> (AES-GCM, key derived from a server secret and the run ID), TTL per D6, deleted on completion. Cancel uses <code>eo/run_guard</code>'s flag. <code>run.resume</code> rebuilds the buffer from the device's <code>history</code> if it expired.
 <em>Done when:</em> state transitions are tested; buffer content is unreadable without the key; after completion nothing remains in Redis; <strong>no content column exists</strong> in the metadata table.</p>
 <h3 id="c01-client-skeleton-and-minimal-doctor-m-wave-1">C01 · Client skeleton and minimal <code>doctor</code> · M · Wave 1</h3>
 <p><em>Implements:</em> §O3, §O4; product guide §12.4, Appendix E.
-<em>Files (new):</em> <code>minimake/pyproject.toml</code>, <code>minimake/src/minimake/{__init__,cli,config,paths,logging_setup}.py</code>, <code>minimake/src/minimake/doctor.py</code>, <code>minimake/tests/</code>, CI step for <code>minimake/tests</code>.
-<em>What:</em> Entry point <code>minimake</code> with <code>--version</code>, <code>login</code>, <code>logout</code>, <code>doctor</code> (stubs for the first two). Creates <code>~/.minimake/</code> with <code>0700</code> permissions. <code>doctor</code> checks: Linux or WSL2 (reject WSL1 and native Windows with a clear message), Python version, <code>rg</code>, <code>git</code>, <code>bwrap</code> present, project path not under <code>/mnt/c</code>, writable config dir. Logging never records message content.
-<em>Done when:</em> installs in a clean venv; <code>minimake doctor</code> prints a readable report and a non-zero exit when a hard requirement is missing; unit tests mock each check.</p>
+<em>Files (new):</em> <code>m2c/pyproject.toml</code>, <code>m2c/src/m2c/{__init__,cli,config,paths,logging_setup}.py</code>, <code>m2c/src/m2c/doctor.py</code>, <code>m2c/tests/</code>, CI step for <code>m2c/tests</code>.
+<em>What:</em> Entry point <code>m2c</code> with <code>--version</code>, <code>login</code>, <code>logout</code>, <code>doctor</code> (stubs for the first two). Creates <code>~/.m2c/</code> with <code>0700</code> permissions. <code>doctor</code> checks: Linux or WSL2 (reject WSL1 and native Windows with a clear message), Python version, <code>rg</code>, <code>git</code>, <code>bwrap</code> present, project path not under <code>/mnt/c</code>, writable config dir. Logging never records message content.
+<em>Done when:</em> installs in a clean venv; <code>m2c doctor</code> prints a readable report and a non-zero exit when a hard requirement is missing; unit tests mock each check.</p>
 <h3 id="c02-local-store-m-wave-2">C02 · Local store · M · Wave 2</h3>
 <p><em>Implements:</em> §O1; product guide §9.3, §11.2.
-<em>Files:</em> <code>minimake/src/minimake/store/{db.py,migrations.py,sessions.py,events.py}</code>, tests.
-<em>What:</em> SQLite at <code>~/.minimake/state.db</code> with tables <code>sessions(id, project_path, created_at, mode, model_pref)</code>, <code>events(session_id, seq, ts, type, json)</code> (append-only), <code>approvals(...)</code>, <code>checkpoints(session_id, step, path, blob_hash, ts)</code>, plus a schema version table and forward-only migrations. Export to JSONL. File mode <code>0600</code>.
+<em>Files:</em> <code>m2c/src/m2c/store/{db.py,migrations.py,sessions.py,events.py}</code>, tests.
+<em>What:</em> SQLite at <code>~/.m2c/state.db</code> with tables <code>sessions(id, project_path, created_at, mode, model_pref)</code>, <code>events(session_id, seq, ts, type, json)</code> (append-only), <code>approvals(...)</code>, <code>checkpoints(session_id, step, path, blob_hash, ts)</code>, plus a schema version table and forward-only migrations. Export to JSONL. File mode <code>0600</code>.
 <em>Done when:</em> create, append, read-back and export work; an interrupted write leaves a valid database; migrations are tested from version 0.</p>
 <h3 id="c03-login-device-code-client-m-wave-2">C03 · Login (device-code client) · M · Wave 2</h3>
-<p><em>Files:</em> <code>minimake/src/minimake/auth/{login.py,credentials.py}</code>, tests with a mock server.
-<em>What:</em> <code>minimake login</code> calls <code>pair/start</code>, prints the code and URL (do <strong>not</strong> depend on a browser opening, which often fails in WSL2), polls, then stores the credential. Storage: OS keyring when available, else a <code>0600</code> file under <code>~/.minimake/</code>. <code>logout</code> deletes it and calls revoke. Token fetching and refresh helper for the link.
+<p><em>Files:</em> <code>m2c/src/m2c/auth/{login.py,credentials.py}</code>, tests with a mock server.
+<em>What:</em> <code>m2c login</code> calls <code>pair/start</code>, prints the code and URL (do <strong>not</strong> depend on a browser opening, which often fails in WSL2), polls, then stores the credential. Storage: OS keyring when available, else a <code>0600</code> file under <code>~/.m2c/</code>. <code>logout</code> deletes it and calls revoke. Token fetching and refresh helper for the link.
 <em>Done when:</em> tests cover pending, approved, denied, expired and network errors; the credential never appears in logs or tracebacks.</p>
 <h3 id="c04-device-link-client-m-wave-3">C04 · Device link client · M · Wave 3</h3>
 <p><em>Implements:</em> product guide §13.2; reuses ideas from <code>daemon/connection.py</code>.
-<em>Files:</em> <code>minimake/src/minimake/link/{client.py,reconnect.py}</code>, tests.
+<em>Files:</em> <code>m2c/src/m2c/link/{client.py,reconnect.py}</code>, tests.
 <em>What:</em> WebSocket client (<code>websockets</code>), handshake per P00, reconnect with backoff and jitter, <code>run.resume</code> using the last seen <code>seq</code>, request/response correlation by <code>id</code>, graceful shutdown. Event callbacks into the store (C02).
 <em>Done when:</em> tests replay the golden fixtures against a fake server; killing the connection mid-stream resumes without duplicate or missing events.</p>
 <h3 id="x01-devices-page-in-the-web-app-m-wave-2">X01 · Devices page in the web app · M · Wave 2</h3>
 <p><em>Files:</em> a Settings section (new component under <code>frontend/app/components/</code> and a route or tab entry), tests.
-<em>What:</em> Enter the code from the terminal to approve a device; list devices (name, OS, last seen); revoke. Show a short explanation of what MiniMake can and cannot do on that device and the trust statement from §O1.
+<em>What:</em> Enter the code from the terminal to approve a device; list devices (name, OS, last seen); revoke. Show a short explanation of what M2C can and cannot do on that device and the trust statement from §O1.
 <em>Done when:</em> the full pairing loop works with S03; revoked devices disappear from the active list; node tests and build pass.</p>
 <h3 id="x02-usage-panel-s-wave-3">X02 · Usage panel · S · Wave 3</h3>
 <p><em>Files:</em> a small component using <code>GET /api/usage</code>.
-<em>What:</em> Shows pool, used, remaining, reset date, and a by-surface breakdown (web, MiniMake). Uses your four-numbers wording (what you used, what is left, when it resets, what a run costs roughly).</p>
+<em>What:</em> Shows pool, used, remaining, reset date, and a by-surface breakdown (web, M2C). Uses your four-numbers wording (what you used, what is left, when it resets, what a run costs roughly).</p>
 <h3 id="i01-walking-skeleton-hello-run-m-wave-4">I01 · Walking skeleton ("hello run") · M · Wave 4</h3>
 <p><em>Joins:</em> S01, S04, S05, S06, C03, C04, X01.
-<em>Files:</em> <code>backend/codeagent/hello.py</code> (a minimal text-only loop), <code>minimake/src/minimake/repl.py</code> (a minimal prompt loop), end-to-end test.
-<em>What:</em> <code>minimake</code> after login opens a prompt; a typed message becomes <code>run.start</code> + <code>user_message</code>; the server calls the adapter; text streams back; a ledger row is written with <code>surface='minimake'</code> and the right user; the web Usage panel changes.
+<em>Files:</em> <code>backend/codeagent/hello.py</code> (a minimal text-only loop), <code>m2c/src/m2c/repl.py</code> (a minimal prompt loop), end-to-end test.
+<em>What:</em> <code>m2c</code> after login opens a prompt; a typed message becomes <code>run.start</code> + <code>user_message</code>; the server calls the adapter; text streams back; a ledger row is written with <code>surface='m2c'</code> and the right user; the web Usage panel changes.
 <em>Done when:</em>
 - [ ] Login approved in the web app; device appears there.
 - [ ] A message gets a streamed reply.
@@ -1027,21 +1028,21 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 <em>Done when:</em> tests cover timeout, duplicate results, disconnect during a call, and oversize output.</p>
 <h3 id="c05-local-tool-executors-v0-l-wave-5">C05 · Local tool executors v0 · L · Wave 5</h3>
 <p><em>Implements:</em> product guide §7; §8.5.
-<em>Files:</em> <code>minimake/src/minimake/tools/{files.py,search.py,paths.py}</code>, tests. Port and extend <code>daemon/path_guard.py</code> and the relevant parts of <code>daemon/tools.py</code>.
+<em>Files:</em> <code>m2c/src/m2c/tools/{files.py,search.py,paths.py}</code>, tests. Port and extend <code>daemon/path_guard.py</code> and the relevant parts of <code>daemon/tools.py</code>.
 <em>What:</em> <code>read_file</code> (line ranges; records "seen" state), <code>list_dir</code>, <code>glob</code>, <code>grep</code> (ripgrep wrapper, capped output), <code>edit_file</code> (exact string, fail if not unique), <code>write_file</code> (atomic: temp file, validate, rename; requires prior read for existing files), <code>delete_path</code>. Path guard pins everything under the session root and resolves symlinks. <strong>Two-form denylist:</strong> a hard-coded list the model and project files cannot change (private keys, <code>.env*</code>, credential stores) plus a user list in settings.
 <em>Done when:</em> tests include path traversal, symlink escape, read-before-write, non-unique edit, denylist, and a simulated interrupted write.</p>
 <h3 id="c06-policy-engine-v0-l-wave-5">C06 · Policy engine v0 · L · Wave 5</h3>
 <p><em>Implements:</em> product guide §8.2–8.3.
-<em>Files:</em> <code>minimake/src/minimake/policy/{modes.py,rules.py,decide.py,shellparse.py}</code>, tests.
-<em>What:</em> Modes <code>plan</code>, <code>ask</code>, <code>accept-edits</code>. Rules <code>allow</code>, <code>ask</code>, <code>deny</code> with exact strings first and simple patterns; evaluation order deny → ask → allow; settings layering (managed &gt; user &gt; project) with project settings requiring the trust prompt. <strong>Compound commands</strong> are split (<code>&amp;&amp;</code>, <code>||</code>, <code>;</code>, pipes, subshells, redirections) and each part is checked; unknown syntax means "ask". Protected paths (<code>.git/</code>, <code>.minimake/</code>, shell rc files) are read-only for edits. The decision function is pure and returns <code>allow | ask | deny</code> with a reason. <strong>Fails closed.</strong>
+<em>Files:</em> <code>m2c/src/m2c/policy/{modes.py,rules.py,decide.py,shellparse.py}</code>, tests.
+<em>What:</em> Modes <code>plan</code>, <code>ask</code>, <code>accept-edits</code>. Rules <code>allow</code>, <code>ask</code>, <code>deny</code> with exact strings first and simple patterns; evaluation order deny → ask → allow; settings layering (managed &gt; user &gt; project) with project settings requiring the trust prompt. <strong>Compound commands</strong> are split (<code>&amp;&amp;</code>, <code>||</code>, <code>;</code>, pipes, subshells, redirections) and each part is checked; unknown syntax means "ask". Protected paths (<code>.git/</code>, <code>.m2c/</code>, shell rc files) are read-only for edits. The decision function is pure and returns <code>allow | ask | deny</code> with a reason. <strong>Fails closed.</strong>
 <em>Done when:</em> a large table-driven test, including bypass attempts (<code>ls &amp;&amp; curl …</code>, <code>$(…)</code>, backticks, env-var tricks), passes; no code path allows without an explicit rule or mode.</p>
 <h3 id="c12-instructions-rules-and-memory-loader-m-wave-">C12 · Instructions, rules and memory loader · M · Wave 5</h3>
-<p><em>Files:</em> <code>minimake/src/minimake/context/{instructions.py,rules.py,memory.py}</code>, tests.
-<em>What:</em> Load <code>MINIMAKE.md</code>, then <code>AGENTS.md</code> and <code>CLAUDE.md</code> if present, hierarchically (global, repo, subdirectory) with <code>@path</code> imports (size and depth limits); path-scoped rules; auto-memory index (first ~200 lines or 25 KB). Produces the <code>instructions</code>, <code>rules</code> and <code>memory_index</code> fields for <code>run.start</code>. Memory writes are shown to the user and never include secrets.
+<p><em>Files:</em> <code>m2c/src/m2c/context/{instructions.py,rules.py,memory.py}</code>, tests.
+<em>What:</em> Load <code>M2C.md</code>, then <code>AGENTS.md</code> and <code>CLAUDE.md</code> if present, hierarchically (global, repo, subdirectory) with <code>@path</code> imports (size and depth limits); path-scoped rules; auto-memory index (first ~200 lines or 25 KB). Produces the <code>instructions</code>, <code>rules</code> and <code>memory_index</code> fields for <code>run.start</code>. Memory writes are shown to the user and never include secrets.
 <em>Done when:</em> tests for precedence, imports, oversize files and missing files.</p>
 <h3 id="c10-headless-mode-s-wave-5">C10 · Headless mode · S · Wave 5</h3>
-<p><em>Files:</em> <code>minimake/src/minimake/headless.py</code>, tests.
-<em>What:</em> <code>minimake -p "task"</code> with <code>--output-format text|json</code>, <code>--mode</code>, non-interactive policy (only explicit allow rules; anything that would ask fails the run with a clear error).
+<p><em>Files:</em> <code>m2c/src/m2c/headless.py</code>, tests.
+<em>What:</em> <code>m2c -p "task"</code> with <code>--output-format text|json</code>, <code>--mode</code>, non-interactive policy (only explicit allow rules; anything that would ask fails the run with a clear error).
 <em>Done when:</em> exit codes distinguish success, policy denial, quota, and failure; tests with the fake server.</p>
 <h3 id="s07-agent-loop-executor-v0-xl-wave-6">S07 · Agent loop executor v0 · XL · Wave 6</h3>
 <p><em>Implements:</em> product guide §6.1–6.3, 6.8–6.10.
@@ -1049,12 +1050,12 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 <em>What:</em> The loop from product guide §6.1: assemble context, call the adapter with visible tools (plan mode restricts to read-only plus <code>plan_exit</code>), stream events, send tool calls through the broker (S09), append results, repeat. Stops: model finishes, step limit, dollar ceiling, cancel, three identical failing calls, three consecutive failures (reusing <code>run_guard</code>'s breaker and <code>tool_budget</code>). Provider errors fall through the chain and emit a <code>notice</code> when quality class changes. Never silently downgrade.
 <em>Done when:</em> tests with a scripted fake model cover multi-step runs, parallel tool calls, malformed calls, cancel, step limit, and disconnect-pause-resume.</p>
 <h3 id="c07-shell-tool-v0-m-wave-6">C07 · Shell tool v0 · M · Wave 6</h3>
-<p><em>Files:</em> <code>minimake/src/minimake/tools/shell.py</code>, tests.
+<p><em>Files:</em> <code>m2c/src/m2c/tools/shell.py</code>, tests.
 <em>What:</em> Run a command under the policy engine: timeout, streamed output, process-group kill on cancel, sanitized environment (strip <code>*KEY*</code>, <code>*TOKEN*</code>, <code>*SECRET*</code>, <code>*PASSWORD*</code>, cloud credentials), working directory pinned to the session root, output cap. <strong>No sandbox yet</strong> (C11): default mode <code>ask</code>, and print a visible warning that commands run with the user's full privileges.
 <em>Done when:</em> tests cover timeout, kill, env stripping, and truncation.</p>
 <h3 id="c08-checkpoints-and-rewind-m-wave-6">C08 · Checkpoints and rewind · M · Wave 6</h3>
-<p><em>Files:</em> <code>minimake/src/minimake/checkpoints.py</code>, tests.
-<em>What:</em> Before each edit, snapshot affected files (content-addressed blobs under <code>~/.minimake/checkpoints/&lt;session&gt;/</code>), index in the store (C02). <code>rewind(step)</code> restores files and optionally truncates the conversation. Skips symlinks. UI states plainly that remote effects are not covered.
+<p><em>Files:</em> <code>m2c/src/m2c/checkpoints.py</code>, tests.
+<em>What:</em> Before each edit, snapshot affected files (content-addressed blobs under <code>~/.m2c/checkpoints/&lt;session&gt;/</code>), index in the store (C02). <code>rewind(step)</code> restores files and optionally truncates the conversation. Skips symlinks. UI states plainly that remote effects are not covered.
 <em>Done when:</em> edit, edit, rewind restores exact bytes; interrupted snapshot leaves no half state.</p>
 <h3 id="s08-context-assembler-v0-m-wave-7">S08 · Context assembler v0 · M · Wave 7</h3>
 <p><em>Files:</em> <code>backend/codeagent/context.py</code>, tests.
@@ -1065,12 +1066,12 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 <em>Done when:</em> tests prove charges are exact for a multi-step run; a run pauses at the ceiling and resumes after a grant.</p>
 <h3 id="c09-terminal-ui-v0-l-wave-7">C09 · Terminal UI v0 · L · Wave 7</h3>
 <p><em>Implements:</em> product guide §12.1–12.3 (using D2).
-<em>Files:</em> <code>minimake/src/minimake/tui/{app.py,render.py,approval.py,diff.py,status.py}</code>, tests for the pure render and approval logic.
+<em>Files:</em> <code>m2c/src/m2c/tui/{app.py,render.py,approval.py,diff.py,status.py}</code>, tests for the pure render and approval logic.
 <em>What:</em> Streaming chat, tool cards with collapsed diffs, an approval prompt (<code>y</code> once, <code>a</code> allow this exact command for the session, <code>n</code>, <code>e</code> edit, <code>d</code> deny), a status line (mode, model class, tainted flag, context percentage, running credits), <code>Esc</code> interrupt (queue messages while a tool runs), <code>Esc Esc</code> rewind, <code>Shift+Tab</code> mode cycle, <code>@</code> file mention. Everything behind a small <code>UI</code> interface so the library can be swapped.
 <em>Done when:</em> an interactive session works end to end against the fake server and the real server; tests cover approval keys, rendering of large diffs, and interrupt handling.</p>
 <h3 id="i02-first-real-task-m0-m-wave-8">I02 · First real task (M0) · M · Wave 8</h3>
 <p><em>Joins:</em> all Phase 2 WPs.
-<em>What:</em> Use MiniMake on the MiniMe repo to make a small real change (for example a docstring fix and a test). Capture the run as a golden transcript.
+<em>What:</em> Use M2C on the MiniMe repo to make a small real change (for example a docstring fix and a test). Capture the run as a golden transcript.
 <em>Done when:</em>
 - [ ] Read, grep, edit, run tests, with approvals at the right moments.
 - [ ] Checkpoint and rewind restore exact bytes.
@@ -1082,24 +1083,24 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 <p><strong>Goal:</strong> an agent you would let run on your own machine every day. Shell commands run in a sandbox, secrets are protected, untrusted content tightens approvals, and quality and security are measured.</p>
 <h3 id="c11-sandbox-bubblewrap-and-network-proxy-xl-wave">C11 · Sandbox (bubblewrap) and network proxy · XL · Wave 9</h3>
 <p><em>Implements:</em> product guide §8.4; §O3.
-<em>Files:</em> <code>minimake/src/minimake/sandbox/{bwrap.py,profile.py,netproxy.py,probe.py}</code>, tests (skipped when <code>bwrap</code> or user namespaces are unavailable, with a loud "SKIPPED" report).
+<em>Files:</em> <code>m2c/src/m2c/sandbox/{bwrap.py,profile.py,netproxy.py,probe.py}</code>, tests (skipped when <code>bwrap</code> or user namespaces are unavailable, with a loud "SKIPPED" report).
 <em>What:</em>
-- Run <code>bash</code> through bubblewrap: project directory writable; <code>.git/</code>, <code>.minimake/</code> and shell rc files read-only inside it; system toolchain paths read-only; home secrets (<code>~/.ssh</code>, <code>~/.aws</code>, browser profiles) not mounted; private <code>/tmp</code>; new PID namespace.
+- Run <code>bash</code> through bubblewrap: project directory writable; <code>.git/</code>, <code>.m2c/</code> and shell rc files read-only inside it; system toolchain paths read-only; home secrets (<code>~/.ssh</code>, <code>~/.aws</code>, browser profiles) not mounted; private <code>/tmp</code>; new PID namespace.
 - Network <strong>off by default</strong> inside the sandbox; a local <strong>HTTP CONNECT proxy</strong> with a domain allowlist is the only way out, prompting on a new domain.
 - <code>probe.py</code> tests at startup that the sandbox really works (can it write outside the project? read <code>~/.ssh</code>? reach a blocked host?) and <code>doctor</code> reports it. If the sandbox cannot be built (WSL2 without user namespaces, container without privileges), <strong>say so and refuse <code>auto-allow</code></strong>; never pretend.
 - Landlock + seccomp as an alternative backend is optional and can wait.
 <em>Done when:</em> escape tests fail as intended (write <code>.git</code>, read <code>~/.ssh</code>, reach a blocked domain, <code>cd ..</code> then write); commands that need a new domain trigger the prompt; works on Ubuntu native and WSL2 Ubuntu.</p>
 <h3 id="c13-hooks-m-wave-9">C13 · Hooks · M · Wave 9</h3>
 <p><em>Implements:</em> product guide §8.8, Appendix C.
-<em>Files:</em> <code>minimake/src/minimake/hooks/*</code>, tests.
+<em>Files:</em> <code>m2c/src/m2c/hooks/*</code>, tests.
 <em>What:</em> Events <code>SessionStart</code>, <code>UserPromptSubmit</code>, <code>PreToolUse</code>, <code>PermissionRequest</code>, <code>PostToolUse</code>, <code>PostToolUseFailure</code>, <code>SubagentStart/Stop</code>, <code>PreCompact</code>, <code>Stop</code>, <code>SessionEnd</code>. Command handlers first (exit 0 allow, 2 block with message to the model; other codes warn). Project hooks require the folder-trust prompt. Hooks cannot be edited by the model (the settings paths are protected).
 <em>Done when:</em> a <code>PreToolUse</code> hook blocks a command; a <code>Stop</code> hook forces a continuation; a hook timeout does not hang the session.</p>
 <h3 id="c14-skills-m-wave-9">C14 · Skills · M · Wave 9</h3>
-<p><em>Files:</em> <code>minimake/src/minimake/skills/*</code>, tests.
-<em>What:</em> Load <code>SKILL.md</code> folders from <code>~/.minimake/skills</code>, <code>&lt;repo&gt;/.minimake/skills</code>, and (after a trust prompt) <code>&lt;repo&gt;/.agents/skills</code> and <code>.claude/skills</code>. Only name and description go into context; the <code>skill</code> tool loads the body. Support <code>disable-model-invocation</code>. Ship built-ins: <code>init</code>, <code>verify</code>, <code>review</code>, <code>create-skill</code>.</p>
+<p><em>Files:</em> <code>m2c/src/m2c/skills/*</code>, tests.
+<em>What:</em> Load <code>SKILL.md</code> folders from <code>~/.m2c/skills</code>, <code>&lt;repo&gt;/.m2c/skills</code>, and (after a trust prompt) <code>&lt;repo&gt;/.agents/skills</code> and <code>.claude/skills</code>. Only name and description go into context; the <code>skill</code> tool loads the body. Support <code>disable-model-invocation</code>. Ship built-ins: <code>init</code>, <code>verify</code>, <code>review</code>, <code>create-skill</code>.</p>
 <h3 id="c15-secrets-redaction-and-environment-m-wave-9">C15 · Secrets, redaction and environment · M · Wave 9</h3>
 <p><em>Implements:</em> product guide §8.5.
-<em>Files:</em> <code>minimake/src/minimake/secrets/{redact.py,env.py}</code>, tests.
+<em>Files:</em> <code>m2c/src/m2c/secrets/{redact.py,env.py}</code>, tests.
 <em>What:</em> A redaction filter applied to <strong>every</strong> tool result before it leaves the machine (cloud keys, tokens, private-key blocks, JWTs, high-entropy strings near words like "key" or "secret"), with a test corpus and a false-positive budget. Stronger environment sanitization with named per-project exceptions.
 <em>Done when:</em> canary secrets planted in files and env never appear in outgoing messages (asserted against the fake server).</p>
 <h3 id="l01-ask-user-tasks-plan-exit-m-wave-9">L01 · <code>ask_user</code>, <code>tasks</code>, <code>plan_exit</code> · M · Wave 9</h3>
@@ -1112,7 +1113,7 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 <p><code>lint</code>, <code>test</code>, <code>build</code> commands from settings; run after edits; the <code>Stop</code> hook can block finishing until tests pass; at most N fix attempts, then report what could not be fixed. <em>Done when:</em> a failing test sends the model back to fix it, and a stuck loop ends with an honest report.</p>
 <h3 id="s11-server-hardening-and-process-split-l-wave-9">S11 · Server hardening and process split · L · Wave 9</h3>
 <p><em>Files:</em> <code>backend/codeagent/</code> modules, <code>backend.Dockerfile</code> or a second service entry in <code>docker-compose.yml</code>, a new ASGI entry (for example <code>backend/codeagent/app.py</code>), tests.
-<em>What:</em> Move pending-approval and connection-routing state from process memory to Redis so multiple workers work; a dedicated gateway for WebSockets; per-user concurrent-run and rate limits; health checks; graceful drain on deploy. Run MiniMake traffic as its own process so long sessions do not compete with chat (your current setup runs one uvicorn process with a small agent task pool).
+<em>What:</em> Move pending-approval and connection-routing state from process memory to Redis so multiple workers work; a dedicated gateway for WebSockets; per-user concurrent-run and rate limits; health checks; graceful drain on deploy. Run M2C traffic as its own process so long sessions do not compete with chat (your current setup runs one uvicorn process with a small agent task pool).
 <em>Done when:</em> two server processes serve one run correctly (events routed, approvals found); killing one mid-run resumes on the other.</p>
 <h3 id="c16-background-shell-m-wave-10">C16 · Background shell · M · Wave 10</h3>
 <p>Long-running commands with ids, output polling, kill; dev servers and watchers. Same sandbox and policy.</p>
@@ -1121,10 +1122,10 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 <code>web_fetch</code> runs <strong>locally</strong> through the sandbox proxy (so the user's IP and data stay local); <code>web_search</code> goes through the server (the search key stays server-side; queries are content that leaves the device, so say so in the trust copy). Any untrusted result sets the session <code>tainted</code>. While tainted: network-capable tools, <code>git push</code> and other outbound actions <strong>always ask</strong>, even in <code>accept-edits</code>; writes outside the project are denied. The UI shows the flag and the reason.
 <em>Done when:</em> a poisoned fetched page cannot cause an unapproved outbound action in the red-team suite.</p>
 <h3 id="q01-ci-for-the-new-packages-s-wave-9">Q01 · CI for the new packages · S · Wave 9</h3>
-<p>Run <code>minimake/tests</code>, <code>backend</code> tests (including <code>codeagent</code>), and the protocol checks on every push.</p>
+<p>Run <code>m2c/tests</code>, <code>backend</code> tests (including <code>codeagent</code>), and the protocol checks on every push.</p>
 <h3 id="q02-eval-harness-l-wave-9">Q02 · Eval harness · L · Wave 9</h3>
-<p><em>Files:</em> <code>backend/evals/minimake/</code> (your repo already has <code>backend/evals/</code>).
-<em>What:</em> A runner that drives <code>minimake -p</code> against a fresh copy of a task repo, then runs a verifier script. Start with 20–30 golden tasks (a web app, a firmware-style repo, a Python service). Records success, steps, tokens, credits, cache-hit rate. Used for every model and prompt change.</p>
+<p><em>Files:</em> <code>backend/evals/m2c/</code> (your repo already has <code>backend/evals/</code>).
+<em>What:</em> A runner that drives <code>m2c -p</code> against a fresh copy of a task repo, then runs a verifier script. Start with 20–30 golden tasks (a web app, a firmware-style repo, a Python service). Records success, steps, tokens, credits, cache-hit rate. Used for every model and prompt change.</p>
 <h3 id="q03-red-team-suite-l-wave-9">Q03 · Red-team suite · L · Wave 9</h3>
 <p>Fixtures for indirect injection (README, issue text, fetched page, MCP-style tool description), secret-read attempts, sandbox escapes, denylist bypass, and hook tampering. <strong>A release is blocked if any "no unapproved egress, no secret read, no write outside the project" test fails.</strong></p>
 <h3 id="q06-no-content-at-rest-canary-test-m-wave-9">Q06 · "No content at rest" canary test · M · Wave 9</h3>
@@ -1134,19 +1135,19 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 <li>[ ] Sandbox probes pass on Ubuntu and WSL2 Ubuntu; <code>doctor</code> is honest when they cannot.</li>
 <li>[ ] Red-team and canary suites pass.</li>
 <li>[ ] 20 golden tasks at the success rate you set from your baseline.</li>
-<li>[ ] You use MiniMake for your own work for two weeks; failures are logged as backlog items.</li>
+<li>[ ] You use M2C for your own work for two weeks; failures are logged as backlog items.</li>
 </ul>
 <hr/>
 <h2 id="8-phase-4-platform-integration-and-beta-mileston">8. Phase 4 — Platform integration and beta (milestone M2, invite-only)</h2>
 <h3 id="c20-pull-and-push-client-m-wave-11">C20 · Pull and push client · M · Wave 11</h3>
-<p><em>Files:</em> <code>minimake/src/minimake/projects/{pull.py,push.py}</code>, tests.
-<em>What:</em> <code>minimake pull &lt;project&gt;</code> writes a cloud project into a local folder (skipping <code>node_modules</code>, <code>.git</code>, build output) and records the base version per file; <code>minimake push</code> sends only changed files with their base versions. <strong>Explicit, user-triggered, with a confirmation that shows what will be uploaded</strong> (this is the one place project content goes to your servers on purpose).</p>
+<p><em>Files:</em> <code>m2c/src/m2c/projects/{pull.py,push.py}</code>, tests.
+<em>What:</em> <code>m2c pull &lt;project&gt;</code> writes a cloud project into a local folder (skipping <code>node_modules</code>, <code>.git</code>, build output) and records the base version per file; <code>m2c push</code> sends only changed files with their base versions. <strong>Explicit, user-triggered, with a confirmation that shows what will be uploaded</strong> (this is the one place project content goes to your servers on purpose).</p>
 <h3 id="x03-handoff-on-the-server-and-the-checked-out-ba">X03 · Handoff on the server and the "checked out" banner · L · Wave 11</h3>
 <p><em>Files:</em> <code>backend/migrations/0015_project_checkouts.sql</code>; routes under <code>/v1/code/projects/{id}/pull|push|release</code>; frontend: banner and read-only state in the editor; tests.
 <em>What:</em> Pull marks the project "checked out" by a device; the browser shows a banner and makes code files read-only with a "release checkout" button; push writes each changed file as a normal new version in history and <strong>rejects</strong> when the cloud version moved past the base version (user chooses to pull again or overwrite). Only code files sync; instructions, tasks and wireframes stay in the cloud.
 <em>Done when:</em> two conflicting edits are detected; release works; history shows pushed versions.</p>
 <h3 id="x04-live-remote-view-and-remote-approvals-l-wave">X04 · Live remote view and remote approvals · L · Wave 11</h3>
-<p><em>What:</em> The web app shows a running MiniMake run <strong>live</strong> through a non-stored relay (nothing is kept after the stream), and can approve or cancel; remote approvals still pass the device's local hard rules. No history replay in the browser (see §O1).</p>
+<p><em>What:</em> The web app shows a running M2C run <strong>live</strong> through a non-stored relay (nothing is kept after the stream), and can approve or cancel; remote approvals still pass the device's local hard rules. No history replay in the browser (see §O1).</p>
 <h3 id="l05-review-and-security-review-m-wave-11">L05 · <code>/review</code> and <code>/security-review</code> · M · Wave 11</h3>
 <p>Wire the <code>review</code> and <code>security-review</code> subagents to your existing reviewer and security-reviewer roles. Output: findings with file and line that the user can send back as tasks. Content sent for review is treated like any other model call (transient).</p>
 <h3 id="l06-plan-chains-and-escalation-m-wave-11">L06 · Plan chains and escalation · M · Wave 11</h3>
@@ -1155,13 +1156,13 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 <p>Adds sandbox probes, proxy check, clock skew, keyring availability, version and update status, and a content-free diagnostics bundle the user can read before sharing.</p>
 <h3 id="s12-beta-allowlist-and-billing-hooks-m-wave-11">S12 · Beta allowlist and billing hooks · M · Wave 11</h3>
 <p><em>Files:</em> <code>backend/migrations/0016_beta_allowlist.sql</code>, small routes, tests.
-<em>What:</em> Invite-only gate for MiniMake; assignment of <code>plan_key</code> from your billing events (the billing integration itself is outside this guide); admin script to grant, revoke and top up credits.</p>
+<em>What:</em> Invite-only gate for M2C; assignment of <code>plan_key</code> from your billing events (the billing integration itself is outside this guide); admin script to grant, revoke and top up credits.</p>
 <h3 id="q04-device-link-security-review-m-wave-11">Q04 · Device-link security review · M · Wave 11</h3>
 <p>Penetration-style tests on pairing, token handling, revocation timing, and socket abuse (budgeted in your rulebook's pen-test line).</p>
 <h3 id="i04-m2-beta-acceptance-m-wave-12">I04 · M2 beta acceptance · M · Wave 12</h3>
 <ul>
 <li>[ ] 20–50 invited users; per-run and per-user cost within your pricing model.</li>
-<li>[ ] Shared cap works across web and MiniMake (a user burns one pool).</li>
+<li>[ ] Shared cap works across web and M2C (a user burns one pool).</li>
 <li>[ ] Handoff and remote view work without storing content.</li>
 <li>[ ] No critical findings from Q04; canary and red-team suites still green.</li>
 <li>[ ] Support runbook exists (revoke device, reset credits, read diagnostics).</li>
@@ -1179,8 +1180,8 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 <tbody>
 <tr>
 <td><strong>C18</strong></td>
-<td>ACP server (<code>minimake acp</code>)</td>
-<td>JSON-RPC over stdio so Zed, JetBrains and similar editors can launch MiniMake; route commands through the editor terminal when offered.</td>
+<td>ACP server (<code>m2c acp</code>)</td>
+<td>JSON-RPC over stdio so Zed, JetBrains and similar editors can launch M2C; route commands through the editor terminal when offered.</td>
 </tr>
 <tr>
 <td><strong>C19</strong></td>
@@ -1209,7 +1210,7 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 </tr>
 <tr>
 <td><strong>S13</strong></td>
-<td>Migrate the preview proxy from <code>daemon/</code> into <code>minimake/</code></td>
+<td>Migrate the preview proxy from <code>daemon/</code> into <code>m2c/</code></td>
 <td>Then retire <code>daemon/</code>, the backend <code>local_workspace</code> routes and <code>useDaemonStatus</code>.</td>
 </tr>
 <tr>
@@ -1234,7 +1235,7 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 <tr>
 <td><strong>C22</strong></td>
 <td>Packaging and release</td>
-<td>Publish to PyPI; <code>install.sh</code> (installs <code>uv</code>, checks <code>rg</code>, <code>git</code>, <code>bwrap</code>, runs <code>doctor</code>); <code>minimake update</code>; stable and beta channels; signed releases; changelog.</td>
+<td>Publish to PyPI; <code>install.sh</code> (installs <code>uv</code>, checks <code>rg</code>, <code>git</code>, <code>bwrap</code>, runs <code>doctor</code>); <code>m2c update</code>; stable and beta channels; signed releases; changelog.</td>
 </tr>
 <tr>
 <td><strong>X05</strong></td>
@@ -1272,14 +1273,14 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 <li><strong>Time:</strong> large clock skew breaks JWTs; <code>doctor</code> checks it.</li>
 </ul>
 <h3 id="11-2-install-and-update">11.2 Install and update</h3>
-<p><code>curl -fsSL https://&lt;your-domain&gt;/install.sh | sh</code> → ensure <code>uv</code> → <code>uv tool install minimake</code> → <code>minimake doctor</code>. The script must be readable, print what it will do, and avoid <code>sudo</code> (it tells the user which package-manager command to run themselves for <code>ripgrep</code> and <code>bubblewrap</code>). Updates: <code>minimake update</code> and a gentle "new version available" notice. Support <code>pipx</code> for people who prefer it.</p>
+<p><code>curl -fsSL https://&lt;your-domain&gt;/install.sh | sh</code> → ensure <code>uv</code> → <code>uv tool install m2c</code> → <code>m2c doctor</code>. The script must be readable, print what it will do, and avoid <code>sudo</code> (it tells the user which package-manager command to run themselves for <code>ripgrep</code> and <code>bubblewrap</code>). Updates: <code>m2c update</code> and a gentle "new version available" notice. Support <code>pipx</code> for people who prefer it.</p>
 <h3 id="11-3-trust-copy-use-consistently-in-the-app-the-">11.3 Trust copy (use consistently in the app, the docs and the web Devices page)</h3>
 <blockquote>
-<p><strong>Where your data lives.</strong> Your project files, session history, memory and settings are stored on your device. When you ask MiniMake to work, the relevant code and conversation are sent to our servers and to our model providers so the model can answer; we don't keep that content after the run ends. We keep only usage numbers (which model, how many tokens, when) so we can apply your plan's limit across the web app and MiniMake. You can revoke any device at any time.</p>
+<p><strong>Where your data lives.</strong> Your project files, session history, memory and settings are stored on your device. When you ask M2C to work, the relevant code and conversation are sent to our servers and to our model providers so the model can answer; we don't keep that content after the run ends. We keep only usage numbers (which model, how many tokens, when) so we can apply your plan's limit across the web app and M2C. You can revoke any device at any time.</p>
 </blockquote>
 <h3 id="11-4-what-the-server-may-and-may-not-log">11.4 What the server may and may not log</h3>
 <p>May log: user ID, device ID, opaque run ID, model, token counts, credits, status codes, durations, error codes. <strong>May not log:</strong> prompts, file contents, file paths, command lines, tool outputs, or exception messages that contain them (use your existing <code>error_sanitizer.py</code>). Q06 enforces it.</p>
-<h3 id="11-5-shared-cap-behavior-so-the-web-app-and-mini">11.5 Shared cap behavior (so the web app and MiniMake feel consistent)</h3>
+<h3 id="11-5-shared-cap-behavior-so-the-web-app-and-mini">11.5 Shared cap behavior (so the web app and M2C feel consistent)</h3>
 <ul>
 <li>One pool; both surfaces call the same <code>check</code> and <code>commit</code>.</li>
 <li>At 80% both show a warning; at 100% both pause with the same message and the same reset date.</li>
@@ -1313,7 +1314,7 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 </tr>
 <tr>
 <td>Client</td>
-<td><code>cd minimake &amp;&amp; pytest</code></td>
+<td><code>cd m2c &amp;&amp; pytest</code></td>
 <td>Sandbox tests skip loudly if <code>bwrap</code> is missing</td>
 </tr>
 <tr>
@@ -1323,12 +1324,12 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 </tr>
 <tr>
 <td>Evals</td>
-<td><code>python -m evals.minimake.run --suite golden</code></td>
+<td><code>python -m evals.m2c.run --suite golden</code></td>
 <td>After Q02; costs real money, run on demand</td>
 </tr>
 <tr>
 <td>Red team</td>
-<td><code>pytest minimake/tests/redteam -v</code></td>
+<td><code>pytest m2c/tests/redteam -v</code></td>
 <td>After Q03; blocks release</td>
 </tr>
 <tr>
@@ -1945,19 +1946,19 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 </ol>
 <p><em>End of the build guide.</em></p><div class="bk-footer">
   <div class="bk-footer-hdr">
-    <span>End of <b>Chapter 6: MiniMake Build Execution Guide</b></span>
+    <span>End of <b>Chapter 6: M2C L26 Build Execution Guide</b></span>
     <a href="docs.html">View all 14 chapters in Docs →</a>
   </div>
-  <div class="bk-footer-grid"><a href="doc-minimake-feature-guide.html" class="bk-fcard">
+  <div class="bk-footer-grid"><a href="doc-m2c-feature-guide.html" class="bk-fcard">
       <small>← Previous · Chapter 5</small>
-      <b>MiniMake — Complete Feature & Product Guide</b>
-      <span>Part III · MiniMake</span>
-    </a><a href="doc-minimake-product.html" class="bk-fcard bk-fnext">
+      <b>M2C L26 — Complete Feature & Product Guide</b>
+      <span>Part III · M2C L26</span>
+    </a><a href="doc-m2c-product.html" class="bk-fcard bk-fnext">
       <small>Next · Chapter 7 →</small>
-      <b>MiniMake Product & Build Guide (Initial Spec)</b>
-      <span>Part III · MiniMake</span>
+      <b>M2C L26 Product & Build Guide (Initial Spec)</b>
+      <span>Part III · M2C L26</span>
     </a></div>
-</div></article><div class="toc"><b>On this page</b><a class="t3" href="#from-the-first-patch-to-release-ordered-parallel">From the first patch to release: ordered, parallelizable, patc</a><a class="t2" href="#0-how-to-use-this-guide-with-your-patch-workflow">0. How to use this guide with your patch workflow</a><a class="t3" href="#0-1-inputs-for-every-patch-you-generate">0.1 Inputs for every patch you generate</a><a class="t3" href="#0-2-rules-for-one-patch">0.2 Rules for one patch</a><a class="t3" href="#0-3-prompt-template-copy-fill-the-brackets">0.3 Prompt template (copy, fill the brackets)</a><a class="t3" href="#0-4-running-patches-in-parallel-git-worktrees">0.4 Running patches in parallel (git worktrees)</a><a class="t3" href="#0-5-size-labels">0.5 Size labels</a><a class="t2" href="#1-overrides-what-changed-since-the-product-guide">1. Overrides: what changed since the product guide</a><a class="t3" href="#o1-data-placement-local-first">O1. Data placement (local-first)</a><a class="t3" href="#o2-one-account-one-cap-one-ledger">O2. One account, one cap, one ledger</a><a class="t3" href="#o3-platforms">O3. Platforms</a><a class="t3" href="#o4-client-implementation-and-packaging">O4. Client implementation and packaging</a><a class="t3" href="#o5-backend-package-name">O5. Backend package name</a><a class="t3" href="#o6-browser-slimming-decided">O6. Browser slimming (decided)</a><a class="t3" href="#o7-account-required-no-offline-mode">O7. Account required, no offline mode</a><a class="t3" href="#o8-profile-field">O8. Profile field</a><a class="t2" href="#2-decisions-to-lock-before-the-first-patch">2. Decisions to lock before the first patch</a><a class="t2" href="#3-the-map">3. The map</a><a class="t3" href="#3-1-phases-and-milestones">3.1 Phases and milestones</a><a class="t3" href="#3-2-tracks-letters-in-wp-ids">3.2 Tracks (letters in WP IDs)</a><a class="t3" href="#3-3-dependency-graph-arrows-mean-must-be-applied">3.3 Dependency graph (arrows mean "must be applied first")</a><a class="t3" href="#3-4-conflict-map-files-that-more-than-one-wp-tou">3.4 Conflict map: files that more than one WP touches</a><a class="t3" href="#3-5-reserved-numbers">3.5 Reserved numbers</a><a class="t3" href="#3-6-execution-waves-what-to-generate-in-parallel">3.6 Execution waves (what to generate in parallel)</a><a class="t2" href="#4-phase-0-build-tab-fixes-and-browser-slimming">4. Phase 0 — Build-tab fixes and browser slimming</a><a class="t3" href="#4-1-status-of-the-earlier-audit-items-at-your-cu">4.1 Status of the earlier audit items at your current main</a><a class="t3" href="#4-2-work-packages">4.2 Work packages</a><a class="t3" href="#4-3-phase-0-exit-checklist">4.3 Phase 0 exit checklist</a><a class="t2" href="#5-phase-1-contract-and-walking-skeleton">5. Phase 1 — Contract and walking skeleton</a><a class="t3" href="#p00-protocol-and-tool-schema-contract-s-wave-1-b">P00 · Protocol and tool-schema contract · S · Wave 1 · blocks </a><a class="t3" href="#s01-shared-usage-ledger-and-plan-limits-l-wave-1">S01 · Shared usage ledger and plan limits · L · Wave 1</a><a class="t3" href="#s02-credit-weighting-s-wave-2-after-s01">S02 · Credit weighting · S · Wave 2 (after S01)</a><a class="t3" href="#s03-device-pairing-and-credentials-l-wave-1">S03 · Device pairing and credentials · L · Wave 1</a><a class="t3" href="#s04-device-socket-endpoint-and-handshake-m-wave-">S04 · Device socket endpoint and handshake · M · Wave 2</a><a class="t3" href="#s05-model-adapter-with-native-tool-use-xl-wave-2">S05 · Model adapter with native tool use · XL · Wave 2</a><a class="t3" href="#s06-run-manager-ephemeral-buffer-run-metadata-l-">S06 · Run manager, ephemeral buffer, run metadata · L · Wave 3</a><a class="t3" href="#c01-client-skeleton-and-minimal-doctor-m-wave-1">C01 · Client skeleton and minimal doctor · M · Wave 1</a><a class="t3" href="#c02-local-store-m-wave-2">C02 · Local store · M · Wave 2</a><a class="t3" href="#c03-login-device-code-client-m-wave-2">C03 · Login (device-code client) · M · Wave 2</a><a class="t3" href="#c04-device-link-client-m-wave-3">C04 · Device link client · M · Wave 3</a><a class="t3" href="#x01-devices-page-in-the-web-app-m-wave-2">X01 · Devices page in the web app · M · Wave 2</a><a class="t3" href="#x02-usage-panel-s-wave-3">X02 · Usage panel · S · Wave 3</a><a class="t3" href="#i01-walking-skeleton-hello-run-m-wave-4">I01 · Walking skeleton ("hello run") · M · Wave 4</a><a class="t2" href="#6-phase-2-core-agent-milestone-m0-internal">6. Phase 2 — Core agent (milestone M0, internal)</a><a class="t3" href="#s09-server-tool-broker-m-wave-5">S09 · Server tool broker · M · Wave 5</a><a class="t3" href="#c05-local-tool-executors-v0-l-wave-5">C05 · Local tool executors v0 · L · Wave 5</a><a class="t3" href="#c06-policy-engine-v0-l-wave-5">C06 · Policy engine v0 · L · Wave 5</a><a class="t3" href="#c12-instructions-rules-and-memory-loader-m-wave-">C12 · Instructions, rules and memory loader · M · Wave 5</a><a class="t3" href="#c10-headless-mode-s-wave-5">C10 · Headless mode · S · Wave 5</a><a class="t3" href="#s07-agent-loop-executor-v0-xl-wave-6">S07 · Agent loop executor v0 · XL · Wave 6</a><a class="t3" href="#c07-shell-tool-v0-m-wave-6">C07 · Shell tool v0 · M · Wave 6</a><a class="t3" href="#c08-checkpoints-and-rewind-m-wave-6">C08 · Checkpoints and rewind · M · Wave 6</a><a class="t3" href="#s08-context-assembler-v0-m-wave-7">S08 · Context assembler v0 · M · Wave 7</a><a class="t3" href="#s10-metering-inside-the-loop-m-wave-7">S10 · Metering inside the loop · M · Wave 7</a><a class="t3" href="#c09-terminal-ui-v0-l-wave-7">C09 · Terminal UI v0 · L · Wave 7</a><a class="t3" href="#i02-first-real-task-m0-m-wave-8">I02 · First real task (M0) · M · Wave 8</a><a class="t2" href="#7-phase-3-safety-and-workflows-milestone-m1-safe">7. Phase 3 — Safety and workflows (milestone M1, safe daily dr</a><a class="t3" href="#c11-sandbox-bubblewrap-and-network-proxy-xl-wave">C11 · Sandbox (bubblewrap) and network proxy · XL · Wave 9</a><a class="t3" href="#c13-hooks-m-wave-9">C13 · Hooks · M · Wave 9</a><a class="t3" href="#c14-skills-m-wave-9">C14 · Skills · M · Wave 9</a><a class="t3" href="#c15-secrets-redaction-and-environment-m-wave-9">C15 · Secrets, redaction and environment · M · Wave 9</a><a class="t3" href="#l01-ask-user-tasks-plan-exit-m-wave-9">L01 · ask_user, tasks, plan_exit · M · Wave 9</a><a class="t3" href="#l02-subagents-l-wave-9">L02 · Subagents · L · Wave 9</a><a class="t3" href="#l03-compaction-v1-auto-memory-scratchpad-m-wave-">L03 · Compaction v1, auto-memory, scratchpad · M · Wave 9</a><a class="t3" href="#l04-verification-loop-and-stop-hooks-m-wave-9">L04 · Verification loop and Stop hooks · M · Wave 9</a><a class="t3" href="#s11-server-hardening-and-process-split-l-wave-9">S11 · Server hardening and process split · L · Wave 9</a><a class="t3" href="#c16-background-shell-m-wave-10">C16 · Background shell · M · Wave 10</a><a class="t3" href="#c17-web-tools-and-taint-tracking-l-wave-10">C17 · Web tools and taint tracking · L · Wave 10</a><a class="t3" href="#q01-ci-for-the-new-packages-s-wave-9">Q01 · CI for the new packages · S · Wave 9</a><a class="t3" href="#q02-eval-harness-l-wave-9">Q02 · Eval harness · L · Wave 9</a><a class="t3" href="#q03-red-team-suite-l-wave-9">Q03 · Red-team suite · L · Wave 9</a><a class="t3" href="#q06-no-content-at-rest-canary-test-m-wave-9">Q06 · "No content at rest" canary test · M · Wave 9</a><a class="t3" href="#i03-m1-acceptance-m-wave-10">I03 · M1 acceptance · M · Wave 10</a><a class="t2" href="#8-phase-4-platform-integration-and-beta-mileston">8. Phase 4 — Platform integration and beta (milestone M2, invi</a><a class="t3" href="#c20-pull-and-push-client-m-wave-11">C20 · Pull and push client · M · Wave 11</a><a class="t3" href="#x03-handoff-on-the-server-and-the-checked-out-ba">X03 · Handoff on the server and the "checked out" banner · L ·</a><a class="t3" href="#x04-live-remote-view-and-remote-approvals-l-wave">X04 · Live remote view and remote approvals · L · Wave 11</a><a class="t3" href="#l05-review-and-security-review-m-wave-11">L05 · /review and /security-review · M · Wave 11</a><a class="t3" href="#l06-plan-chains-and-escalation-m-wave-11">L06 · Plan chains and escalation · M · Wave 11</a><a class="t3" href="#c21-full-doctor-s-wave-11">C21 · Full doctor · S · Wave 11</a><a class="t3" href="#s12-beta-allowlist-and-billing-hooks-m-wave-11">S12 · Beta allowlist and billing hooks · M · Wave 11</a><a class="t3" href="#q04-device-link-security-review-m-wave-11">Q04 · Device-link security review · M · Wave 11</a><a class="t3" href="#i04-m2-beta-acceptance-m-wave-12">I04 · M2 beta acceptance · M · Wave 12</a><a class="t2" href="#9-phase-5-editors-scale-and-hardening-milestone-">9. Phase 5 — Editors, scale and hardening (milestone M3)</a><a class="t2" href="#10-phase-6-release-ga">10. Phase 6 — Release (GA)</a><a class="t2" href="#11-cross-cutting-specs">11. Cross-cutting specs</a><a class="t3" href="#11-1-wsl2-and-linux-requirements-for-doctor-and-">11.1 WSL2 and Linux requirements (for doctor and the docs)</a><a class="t3" href="#11-2-install-and-update">11.2 Install and update</a><a class="t3" href="#11-3-trust-copy-use-consistently-in-the-app-the-">11.3 Trust copy (use consistently in the app, the docs and the</a><a class="t3" href="#11-4-what-the-server-may-and-may-not-log">11.4 What the server may and may not log</a><a class="t3" href="#11-5-shared-cap-behavior-so-the-web-app-and-mini">11.5 Shared cap behavior (so the web app and MiniMake feel con</a><a class="t2" href="#12-tests-and-commands">12. Tests and commands</a><a class="t2" href="#13-risks-of-the-build-itself-and-stop-the-line-r">13. Risks of the build itself, and stop-the-line rules</a><a class="t2" href="#14-work-package-index">14. Work-package index</a><a class="t2" href="#15-your-first-week-a-concrete-start">15. Your first week (a concrete start)</a></div></div></main><script id="bk-chapter-script">
+</div></article><div class="toc"><b>On this page</b><a class="t3" href="#from-the-first-patch-to-release-ordered-parallel">From the first patch to release: ordered, parallelizable, patc</a><a class="t2" href="#0-how-to-use-this-guide-with-your-patch-workflow">0. How to use this guide with your patch workflow</a><a class="t3" href="#0-1-inputs-for-every-patch-you-generate">0.1 Inputs for every patch you generate</a><a class="t3" href="#0-2-rules-for-one-patch">0.2 Rules for one patch</a><a class="t3" href="#0-3-prompt-template-copy-fill-the-brackets">0.3 Prompt template (copy, fill the brackets)</a><a class="t3" href="#0-4-running-patches-in-parallel-git-worktrees">0.4 Running patches in parallel (git worktrees)</a><a class="t3" href="#0-5-size-labels">0.5 Size labels</a><a class="t2" href="#1-overrides-what-changed-since-the-product-guide">1. Overrides: what changed since the product guide</a><a class="t3" href="#o1-data-placement-local-first">O1. Data placement (local-first)</a><a class="t3" href="#o2-one-account-one-cap-one-ledger">O2. One account, one cap, one ledger</a><a class="t3" href="#o3-platforms">O3. Platforms</a><a class="t3" href="#o4-client-implementation-and-packaging">O4. Client implementation and packaging</a><a class="t3" href="#o5-backend-package-name">O5. Backend package name</a><a class="t3" href="#o6-browser-slimming-decided">O6. Browser slimming (decided)</a><a class="t3" href="#o7-account-required-no-offline-mode">O7. Account required, no offline mode</a><a class="t3" href="#o8-profile-field">O8. Profile field</a><a class="t2" href="#2-decisions-to-lock-before-the-first-patch">2. Decisions to lock before the first patch</a><a class="t2" href="#3-the-map">3. The map</a><a class="t3" href="#3-1-phases-and-milestones">3.1 Phases and milestones</a><a class="t3" href="#3-2-tracks-letters-in-wp-ids">3.2 Tracks (letters in WP IDs)</a><a class="t3" href="#3-3-dependency-graph-arrows-mean-must-be-applied">3.3 Dependency graph (arrows mean "must be applied first")</a><a class="t3" href="#3-4-conflict-map-files-that-more-than-one-wp-tou">3.4 Conflict map: files that more than one WP touches</a><a class="t3" href="#3-5-reserved-numbers">3.5 Reserved numbers</a><a class="t3" href="#3-6-execution-waves-what-to-generate-in-parallel">3.6 Execution waves (what to generate in parallel)</a><a class="t2" href="#4-phase-0-build-tab-fixes-and-browser-slimming">4. Phase 0 — Build-tab fixes and browser slimming</a><a class="t3" href="#4-1-status-of-the-earlier-audit-items-at-your-cu">4.1 Status of the earlier audit items at your current main</a><a class="t3" href="#4-2-work-packages">4.2 Work packages</a><a class="t3" href="#4-3-phase-0-exit-checklist">4.3 Phase 0 exit checklist</a><a class="t2" href="#5-phase-1-contract-and-walking-skeleton">5. Phase 1 — Contract and walking skeleton</a><a class="t3" href="#p00-protocol-and-tool-schema-contract-s-wave-1-b">P00 · Protocol and tool-schema contract · S · Wave 1 · blocks </a><a class="t3" href="#s01-shared-usage-ledger-and-plan-limits-l-wave-1">S01 · Shared usage ledger and plan limits · L · Wave 1</a><a class="t3" href="#s02-credit-weighting-s-wave-2-after-s01">S02 · Credit weighting · S · Wave 2 (after S01)</a><a class="t3" href="#s03-device-pairing-and-credentials-l-wave-1">S03 · Device pairing and credentials · L · Wave 1</a><a class="t3" href="#s04-device-socket-endpoint-and-handshake-m-wave-">S04 · Device socket endpoint and handshake · M · Wave 2</a><a class="t3" href="#s05-model-adapter-with-native-tool-use-xl-wave-2">S05 · Model adapter with native tool use · XL · Wave 2</a><a class="t3" href="#s06-run-manager-ephemeral-buffer-run-metadata-l-">S06 · Run manager, ephemeral buffer, run metadata · L · Wave 3</a><a class="t3" href="#c01-client-skeleton-and-minimal-doctor-m-wave-1">C01 · Client skeleton and minimal doctor · M · Wave 1</a><a class="t3" href="#c02-local-store-m-wave-2">C02 · Local store · M · Wave 2</a><a class="t3" href="#c03-login-device-code-client-m-wave-2">C03 · Login (device-code client) · M · Wave 2</a><a class="t3" href="#c04-device-link-client-m-wave-3">C04 · Device link client · M · Wave 3</a><a class="t3" href="#x01-devices-page-in-the-web-app-m-wave-2">X01 · Devices page in the web app · M · Wave 2</a><a class="t3" href="#x02-usage-panel-s-wave-3">X02 · Usage panel · S · Wave 3</a><a class="t3" href="#i01-walking-skeleton-hello-run-m-wave-4">I01 · Walking skeleton ("hello run") · M · Wave 4</a><a class="t2" href="#6-phase-2-core-agent-milestone-m0-internal">6. Phase 2 — Core agent (milestone M0, internal)</a><a class="t3" href="#s09-server-tool-broker-m-wave-5">S09 · Server tool broker · M · Wave 5</a><a class="t3" href="#c05-local-tool-executors-v0-l-wave-5">C05 · Local tool executors v0 · L · Wave 5</a><a class="t3" href="#c06-policy-engine-v0-l-wave-5">C06 · Policy engine v0 · L · Wave 5</a><a class="t3" href="#c12-instructions-rules-and-memory-loader-m-wave-">C12 · Instructions, rules and memory loader · M · Wave 5</a><a class="t3" href="#c10-headless-mode-s-wave-5">C10 · Headless mode · S · Wave 5</a><a class="t3" href="#s07-agent-loop-executor-v0-xl-wave-6">S07 · Agent loop executor v0 · XL · Wave 6</a><a class="t3" href="#c07-shell-tool-v0-m-wave-6">C07 · Shell tool v0 · M · Wave 6</a><a class="t3" href="#c08-checkpoints-and-rewind-m-wave-6">C08 · Checkpoints and rewind · M · Wave 6</a><a class="t3" href="#s08-context-assembler-v0-m-wave-7">S08 · Context assembler v0 · M · Wave 7</a><a class="t3" href="#s10-metering-inside-the-loop-m-wave-7">S10 · Metering inside the loop · M · Wave 7</a><a class="t3" href="#c09-terminal-ui-v0-l-wave-7">C09 · Terminal UI v0 · L · Wave 7</a><a class="t3" href="#i02-first-real-task-m0-m-wave-8">I02 · First real task (M0) · M · Wave 8</a><a class="t2" href="#7-phase-3-safety-and-workflows-milestone-m1-safe">7. Phase 3 — Safety and workflows (milestone M1, safe daily dr</a><a class="t3" href="#c11-sandbox-bubblewrap-and-network-proxy-xl-wave">C11 · Sandbox (bubblewrap) and network proxy · XL · Wave 9</a><a class="t3" href="#c13-hooks-m-wave-9">C13 · Hooks · M · Wave 9</a><a class="t3" href="#c14-skills-m-wave-9">C14 · Skills · M · Wave 9</a><a class="t3" href="#c15-secrets-redaction-and-environment-m-wave-9">C15 · Secrets, redaction and environment · M · Wave 9</a><a class="t3" href="#l01-ask-user-tasks-plan-exit-m-wave-9">L01 · ask_user, tasks, plan_exit · M · Wave 9</a><a class="t3" href="#l02-subagents-l-wave-9">L02 · Subagents · L · Wave 9</a><a class="t3" href="#l03-compaction-v1-auto-memory-scratchpad-m-wave-">L03 · Compaction v1, auto-memory, scratchpad · M · Wave 9</a><a class="t3" href="#l04-verification-loop-and-stop-hooks-m-wave-9">L04 · Verification loop and Stop hooks · M · Wave 9</a><a class="t3" href="#s11-server-hardening-and-process-split-l-wave-9">S11 · Server hardening and process split · L · Wave 9</a><a class="t3" href="#c16-background-shell-m-wave-10">C16 · Background shell · M · Wave 10</a><a class="t3" href="#c17-web-tools-and-taint-tracking-l-wave-10">C17 · Web tools and taint tracking · L · Wave 10</a><a class="t3" href="#q01-ci-for-the-new-packages-s-wave-9">Q01 · CI for the new packages · S · Wave 9</a><a class="t3" href="#q02-eval-harness-l-wave-9">Q02 · Eval harness · L · Wave 9</a><a class="t3" href="#q03-red-team-suite-l-wave-9">Q03 · Red-team suite · L · Wave 9</a><a class="t3" href="#q06-no-content-at-rest-canary-test-m-wave-9">Q06 · "No content at rest" canary test · M · Wave 9</a><a class="t3" href="#i03-m1-acceptance-m-wave-10">I03 · M1 acceptance · M · Wave 10</a><a class="t2" href="#8-phase-4-platform-integration-and-beta-mileston">8. Phase 4 — Platform integration and beta (milestone M2, invi</a><a class="t3" href="#c20-pull-and-push-client-m-wave-11">C20 · Pull and push client · M · Wave 11</a><a class="t3" href="#x03-handoff-on-the-server-and-the-checked-out-ba">X03 · Handoff on the server and the "checked out" banner · L ·</a><a class="t3" href="#x04-live-remote-view-and-remote-approvals-l-wave">X04 · Live remote view and remote approvals · L · Wave 11</a><a class="t3" href="#l05-review-and-security-review-m-wave-11">L05 · /review and /security-review · M · Wave 11</a><a class="t3" href="#l06-plan-chains-and-escalation-m-wave-11">L06 · Plan chains and escalation · M · Wave 11</a><a class="t3" href="#c21-full-doctor-s-wave-11">C21 · Full doctor · S · Wave 11</a><a class="t3" href="#s12-beta-allowlist-and-billing-hooks-m-wave-11">S12 · Beta allowlist and billing hooks · M · Wave 11</a><a class="t3" href="#q04-device-link-security-review-m-wave-11">Q04 · Device-link security review · M · Wave 11</a><a class="t3" href="#i04-m2-beta-acceptance-m-wave-12">I04 · M2 beta acceptance · M · Wave 12</a><a class="t2" href="#9-phase-5-editors-scale-and-hardening-milestone-">9. Phase 5 — Editors, scale and hardening (milestone M3)</a><a class="t2" href="#10-phase-6-release-ga">10. Phase 6 — Release (GA)</a><a class="t2" href="#11-cross-cutting-specs">11. Cross-cutting specs</a><a class="t3" href="#11-1-wsl2-and-linux-requirements-for-doctor-and-">11.1 WSL2 and Linux requirements (for doctor and the docs)</a><a class="t3" href="#11-2-install-and-update">11.2 Install and update</a><a class="t3" href="#11-3-trust-copy-use-consistently-in-the-app-the-">11.3 Trust copy (use consistently in the app, the docs and the</a><a class="t3" href="#11-4-what-the-server-may-and-may-not-log">11.4 What the server may and may not log</a><a class="t3" href="#11-5-shared-cap-behavior-so-the-web-app-and-mini">11.5 Shared cap behavior (so the web app and M2C feel con</a><a class="t2" href="#12-tests-and-commands">12. Tests and commands</a><a class="t2" href="#13-risks-of-the-build-itself-and-stop-the-line-r">13. Risks of the build itself, and stop-the-line rules</a><a class="t2" href="#14-work-package-index">14. Work-package index</a><a class="t2" href="#15-your-first-week-a-concrete-start">15. Your first week (a concrete start)</a></div></div></main><script id="bk-chapter-script">
 (function(){
   // Reading progress bar
   var bar = document.querySelector('.bk-progress');

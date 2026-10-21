@@ -10,12 +10,12 @@
     {t:"Ch. 2 · Technical Implementation Roadmap (Tech-A → Tech-H)", u:"doc-tech-roadmap.html", c:"Part I · Strategy", k:"tech-a tech-b tech-c tech-d tech-e tech-f tech-g tech-h brain monitor instrumentation"},
     {t:"Ch. 3 · Server Management & Splitting Guide", u:"doc-server-guide.html", c:"Part I · Strategy", k:"server split docker postgres redis worker vps hetzner"},
     {t:"Ch. 4 · MiniMe — Complete Feature & Product Guide", u:"doc-minime-feature-guide.html", c:"Part II · MiniMe Web", k:"minime feature guide chat notebooks research plan build test growth role library cad knowledge graph"},
-    {t:"Ch. 5 · MiniMake — Complete Feature & Product Guide", u:"doc-minimake-feature-guide.html", c:"Part III · MiniMake", k:"minimake feature guide cli tui terminal coding agent bubblewrap sandbox tools checkpoints"},
-    {t:"Ch. 6 · MiniMake Build Execution Guide (64 WPs)", u:"doc-minimake-plan.html", c:"Part III · MiniMake", k:"minimake build plan work packages waves b00 p00 s01 minicore"},
-    {t:"Ch. 7 · MiniMake Product & Build Guide (Initial Spec)", u:"doc-minimake-product.html", c:"Part III · MiniMake", k:"minimake initial product spec design note overrides"},
-    {t:"Ch. 8 · MiniMate — Complete Feature & Product Guide", u:"doc-minimate-feature-guide.html", c:"Part IV · MiniMate", k:"minimate feature guide automation node cron triggers approvals t0 t5 telegram email calendar vault playwright"},
-    {t:"Ch. 9 · MiniMate Build Execution Guide (59 WPs)", u:"doc-minimate-plan.html", c:"Part IV · MiniMate", k:"minimate build execution guide work packages waves mt-k00 mt-i01"},
-    {t:"Ch. 10 · MiniMate Product & Build Guide (Initial Spec)", u:"doc-minimate-product.html", c:"Part IV · MiniMate", k:"minimate initial product spec design note overrides"},
+    {t:"Ch. 5 · M2C L26 — Complete Feature & Product Guide", u:"doc-m2c-feature-guide.html", c:"Part III · M2C L26", k:"m2c feature guide cli tui terminal coding agent bubblewrap sandbox tools checkpoints"},
+    {t:"Ch. 6 · M2C L26 Build Execution Guide (64 WPs)", u:"doc-m2c-plan.html", c:"Part III · M2C L26", k:"m2c build plan work packages waves b00 p00 s01 minicore"},
+    {t:"Ch. 7 · M2C L26 Product & Build Guide (Initial Spec)", u:"doc-m2c-product.html", c:"Part III · M2C L26", k:"m2c initial product spec design note overrides"},
+    {t:"Ch. 8 · Menux — Complete Feature & Product Guide", u:"doc-menux-feature-guide.html", c:"Part IV · Menux", k:"menux feature guide automation node cron triggers approvals t0 t5 telegram email calendar vault playwright"},
+    {t:"Ch. 9 · Menux Build Execution Guide (59 WPs)", u:"doc-menux-plan.html", c:"Part IV · Menux", k:"menux build execution guide work packages waves mt-k00 mt-i01"},
+    {t:"Ch. 10 · Menux Product & Build Guide (Initial Spec)", u:"doc-menux-product.html", c:"Part IV · Menux", k:"menux initial product spec design note overrides"},
     {t:"Ch. 11 · FBEBC Research Program Guide", u:"doc-fbebc-program.html", c:"Part V · FBEBC", k:"fbebc research program bacterial colony funsearch stage 1 stage 2"},
     {t:"Ch. 12 · FBEBC Phase 1 Implementation Guide", u:"doc-fbebc-phase1.html", c:"Part V · FBEBC", k:"fbebc phase 1 barrier implementation spec"},
     {t:"Ch. 13 · FBEBC Preprint / Workshop Paper Guide", u:"doc-fbebc-paper.html", c:"Part V · FBEBC", k:"fbebc paper preprint claims c0 c3 wilcoxon"},
@@ -24,7 +24,7 @@
     {t:"To-do — Team Kanban, List, Calendar & Activity", u:"todo.html", c:"Plan & Tracking", k:"todo tasks kanban board calendar team sync"},
     {t:"Journey — Interactive Section-by-Section Book Map", u:"journey.html", c:"Plan & Tracking", k:"journey path sections progress chips"},
     {t:"Progress — Tech-A to Tech-H vs Codebase", u:"progress.html", c:"Plan & Tracking", k:"progress tech phases source files"},
-    {t:"Build — Work Package Checklists (MiniMake, MiniMate, FBEBC)", u:"build.html", c:"Plan & Tracking", k:"build work packages wps checklist export"},
+    {t:"Build — Work Package Checklists (M2C, Menux, FBEBC)", u:"build.html", c:"Plan & Tracking", k:"build work packages wps checklist export"},
     {t:"Decisions — 86 Golden Rules & Architectural Locks", u:"decisions.html", c:"Plan & Tracking", k:"decisions golden rules lock"},
     {t:"Consistency — Cross-Book Governance & Sync Matrix", u:"consistency.html", c:"Plan & Tracking", k:"consistency sync contradictions governance"},
     {t:"Explore — Global File, Function, Route & Guide Search", u:"explore.html", c:"Codebase Atlas", k:"explore search graph files functions routes"},
@@ -182,7 +182,7 @@
       '<div class="cmd-box">' +
         '<div class="cmd-top">' +
           '<span>⌕</span>' +
-          '<input type="search" id="cmd-inp" placeholder="Jump to any book chapter, page, or topic (e.g. MiniMake, Rulebook, T0-T5, FBEBC)...">' +
+          '<input type="search" id="cmd-inp" placeholder="Jump to any book chapter, page, or topic (e.g. M2C, Rulebook, T0-T5, FBEBC)...">' +
           '<button type="button" class="cmd-esc">Esc</button>' +
         '</div>' +
         '<div class="cmd-list" id="cmd-list"></div>' +

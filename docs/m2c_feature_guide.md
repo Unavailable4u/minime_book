@@ -1,33 +1,35 @@
-# MiniMake Feature Guide
+# M2C L26 Feature Guide
 
-**Purpose:** the user manual and feature register for MiniMake, the local-first coding agent built on the MiniMe platform.
+*Minime to Code · Level 26 (L26). Levels work like release versions: the next release will be L27.*
 
-**Status:** MiniMake is specified and being built in phases. This guide records the intended product behavior from the current build plan. It labels planned behavior explicitly because the plan contains work packages, not proof that every package has shipped.
+**Purpose:** the user manual and feature register for M2C, the local-first coding agent built on the MiniMe platform.
 
-- **Available or inherited:** behavior already present in the MiniMe web application or explicitly carried forward into MiniMake.
-- **Planned:** behavior described by the MiniMake build plan but not yet verified as released.
+**Status:** M2C is specified and being built in phases. This guide records the intended product behavior from the current build plan. It labels planned behavior explicitly because the plan contains work packages, not proof that every package has shipped.
+
+- **Available or inherited:** behavior already present in the MiniMe web application or explicitly carried forward into M2C.
+- **Planned:** behavior described by the M2C build plan but not yet verified as released.
 - **Gated:** behavior that requires a milestone, safety review, legal decision, or external service configuration first.
 
-### Architectural Synchronization (Overrides O1–O8 from `minimake_build_plan.md`)
+### Architectural Synchronization (Overrides O1–O8 from `m2c_build_plan.md`)
 
-Where the earlier standalone design note (`doc-minimake-product.html`) and this guide or `minimake_build_plan.md` differ, **these 8 synchronized rules govern**:
+Where the earlier standalone design note (`doc-m2c-product.html`) and this guide or `m2c_build_plan.md` differ, **these 8 synchronized rules govern**:
 
 | Override ID | Architectural Rule | How It Connects Across the Book |
 | :--- | :--- | :--- |
 | **O1 · Local-First Data Placement** | Repo files, SQLite `index.db`, git checkpoints, and shell/test runs stay on the user's device; server keeps only `usage_ledger` + 2h Redis buffer | Keeps server RAM/CPU near zero (`minime_server_management_guide.md` §9) |
-| **O2 · One Account, One Cap, One Ledger** | Shares the user's MiniMe tier (`Free / Basic $9 / Moderate $29 / Ultimate $79`) via `usage_ledger` (`surface='minimake'`, WP `S01`) | Built once with MiniMe `Tech-A/B` (`MiniMe_Financial_Strategy_Rulebook.md` Rule 4) |
-| **O3 · Linux & WSL2 First** | v1 targets native Linux and Windows via WSL2 (`bubblewrap`); native Windows & macOS deferred to post-GA | Enforced by `minimake doctor` (`C04`, `C21`) |
-| **O4 · Python CLI + `minicore/`** | Distributed via `uv tool install minimake` / `pipx`; shares `minicore/` package with `backend/` and `minimate/` | Extracted in WP `P00` (`Wave 1`) |
+| **O2 · One Account, One Cap, One Ledger** | Shares the user's MiniMe tier (`Free / Basic $9 / Moderate $29 / Ultimate $79`) via `usage_ledger` (`surface='m2c'`, WP `S01`) | Built once with MiniMe `Tech-A/B` (`MiniMe_Financial_Strategy_Rulebook.md` Rule 4) |
+| **O3 · Linux & WSL2 First** | v1 targets native Linux and Windows via WSL2 (`bubblewrap`); native Windows & macOS deferred to post-GA | Enforced by `m2c doctor` (`C04`, `C21`) |
+| **O4 · Python CLI + `minicore/`** | Distributed via `uv tool install m2c` / `pipx`; shares `minicore/` package with `backend/` and `menux/` | Extracted in WP `P00` (`Wave 1`) |
 | **O5 · Backend Route Namespace** | Server package lives at `backend/codeagent/` mounted under `/api/codeagent/*` | Avoids collision with existing `backend/agents/coder.py` |
 | **O6 · Phase 0 Browser Slimming** | Removes browser Python `Run`, `Terminal`, and `Local-folder mode` (`MK_B02–B06`); replaces with CLI handoff | Synchronized with `minime_feature_guide.md` §9.3 & §17.2 |
-| **O7 · Account Required (No Offline v1)** | Reasoning loop runs on MiniMe server using the 8-provider router; requires sign-in (`minimake login`) | Preserves Rulebook model routing & prompt caching |
-| **O8 · Profile Field (`profile="code"`)** | Every run carries `profile: "code"` so `minimate` can reuse the same protocol with `profile: "mate"` | Shared contract in `minicore/protocol.py` (`P00`) |
+| **O7 · Account Required (No Offline v1)** | Reasoning loop runs on MiniMe server using the 8-provider router; requires sign-in (`m2c login`) | Preserves Rulebook model routing & prompt caching |
+| **O8 · Profile Field (`profile="code"`)** | Every run carries `profile: "code"` so `menux` can reuse the same protocol with `profile: "mate"` | Shared contract in `minicore/protocol.py` (`P00`) |
 
 ---
 
-## 1. What MiniMake Is
+## 1. What M2C Is
 
-MiniMake is a coding-focused agent that works with a user's project on the user's device while using the MiniMe server and model providers for reasoning. It is intended to combine:
+M2C is a coding-focused agent that works with a user's project on the user's device while using the MiniMe server and model providers for reasoning. It is intended to combine:
 
 - a terminal-first coding workflow;
 - a browser editor and project explorer;
@@ -36,12 +38,12 @@ MiniMake is a coding-focused agent that works with a user's project on the user'
 - checkpoints, rewind, history, and conflict review;
 - a local policy engine and sandbox;
 - skills, hooks, memory, secrets handling, and MCP tools;
-- headless use for automation and MiniMate delegation;
-- one shared account and usage pool across MiniMe, MiniMake, and MiniMate.
+- headless use for automation and Menux delegation;
+- one shared account and usage pool across MiniMe, M2C, and Menux.
 
 The product's trust model is local-first, not local-only. Project files, history, settings, approvals, checkpoints, and local logs are intended to remain on the device. Relevant code and prompt context are sent to the MiniMe server and model providers during a run. The service keeps usage numbers and only the short-lived in-flight content needed to complete an active run; it does not promise that code never leaves the device.
 
-MiniMake is designed for Linux and WSL2 in version 1. Native Windows, WSL1, and macOS are not part of the initial supported platform promise.
+M2C is designed for Linux and WSL2 in version 1. Native Windows, WSL1, and macOS are not part of the initial supported platform promise.
 
 ---
 
@@ -63,21 +65,21 @@ Native Windows is not supported by the first version. WSL1 is not supported. mac
 
 ### 2.2 Installation
 
-The intended distribution is a Python package installed with `uv tool install minimake` or `pipx`, plus an installer script that:
+The intended distribution is a Python package installed with `uv tool install m2c` or `pipx`, plus an installer script that:
 
 - installs or checks `uv`;
 - checks for `ripgrep`;
 - checks for `git`;
 - checks for `bubblewrap`;
 - installs the command-line client;
-- runs `minimake doctor`;
+- runs `m2c doctor`;
 - explains missing dependencies and supported alternatives.
 
 A bundled native binary may be added later. It is not required for the first release.
 
 ### 2.3 Account and connectivity
 
-MiniMake requires a signed-in MiniMe account and a network connection because the reasoning engine is server-side. Offline mode is not part of v1.
+M2C requires a signed-in MiniMe account and a network connection because the reasoning engine is server-side. Offline mode is not part of v1.
 
 The device is paired with the account through a device credential flow. The server stores the device registry and credential hash, not the user's project content. Devices can be revoked.
 
@@ -85,30 +87,30 @@ The device is paired with the account through a device credential flow. The serv
 
 The intended command family includes:
 
-- `minimake login`;
-- `minimake logout`;
-- `minimake init`;
-- `minimake doctor`;
-- `minimake status`;
-- `minimake run`;
-- `minimake resume`;
-- `minimake stop`;
-- `minimake service install`;
-- `minimake service uninstall`;
-- `minimake vault add|list|remove`;
-- headless execution for MiniMate and scripts.
+- `m2c login`;
+- `m2c logout`;
+- `m2c init`;
+- `m2c doctor`;
+- `m2c status`;
+- `m2c run`;
+- `m2c resume`;
+- `m2c stop`;
+- `m2c service install`;
+- `m2c service uninstall`;
+- `m2c vault add|list|remove`;
+- headless execution for Menux and scripts.
 
 Exact command names are subject to the release package and may change while the protocol stabilizes.
 
 | Command / Surface | Arguments & Flags | Primary Purpose | Work Package |
 | :--- | :--- | :--- | :--- |
-| `minimake login` / `logout` | `--device-name`, `--all` | OAuth 2.0 RFC 8628 device-code pairing with MiniMe web account; stores token in OS keychain | `S02`, `C02` |
-| `minimake init` | `[path]` | Initializes `.minimake/` config, `.minimakeignore`, and `MINIMAKE.md` project instructions | `C01`, `L03` |
-| `minimake doctor` | `--json`, `--fix` | 14-point preflight check: OS/WSL2, `/mnt/c` path warning, `git`, `rg`, `bwrap`, auth, and sandbox smoke test | `C04`, `C21` |
-| `minimake` (Interactive TUI) | `[-m ask\|edit\|auto]`, `[--resume <id>]` | Full-screen Textual/Rich terminal UI with streaming diff viewer, approval prompt bar, and slash commands | `C01`, `C12` |
-| `minimake run` (Headless) | `"<prompt>" --json --max-usd <n>` | Non-interactive coding run for CI pipelines and **MiniMate IPC delegation (`MT-M07`)** | `C03`, `C17` |
-| `minimake review` | `[--staged \| --branch <ref>]` | Local pre-commit/PR diff review powered by `reviewer` & `security_scanner` sub-agents | `C20` |
-| `minimake handoff` | `<workspace_id>` | Pushes/pulls a compact summary bundle between local CLI and MiniMe Web Build tab | `S11`, `C16` |
+| `m2c login` / `logout` | `--device-name`, `--all` | OAuth 2.0 RFC 8628 device-code pairing with MiniMe web account; stores token in OS keychain | `S02`, `C02` |
+| `m2c init` | `[path]` | Initializes `.m2c/` config, `.m2cignore`, and `M2C.md` project instructions | `C01`, `L03` |
+| `m2c doctor` | `--json`, `--fix` | 14-point preflight check: OS/WSL2, `/mnt/c` path warning, `git`, `rg`, `bwrap`, auth, and sandbox smoke test | `C04`, `C21` |
+| `m2c` (Interactive TUI) | `[-m ask\|edit\|auto]`, `[--resume <id>]` | Full-screen Textual/Rich terminal UI with streaming diff viewer, approval prompt bar, and slash commands | `C01`, `C12` |
+| `m2c run` (Headless) | `"<prompt>" --json --max-usd <n>` | Non-interactive coding run for CI pipelines and **Menux IPC delegation (`MT-M07`)** | `C03`, `C17` |
+| `m2c review` | `[--staged \| --branch <ref>]` | Local pre-commit/PR diff review powered by `reviewer` & `security_scanner` sub-agents | `C20` |
+| `m2c handoff` | `<workspace_id>` | Pushes/pulls a compact summary bundle between local CLI and MiniMe Web Build tab | `S11`, `C16` |
 | Slash `/mode`, `/diff`, `/rewind`, `/compact`, `/usage` | In-session TUI commands | Switch `ask\|edit\|auto`, inspect diffs, roll back git checkpoints (`C10`), compact context (`L02`), or check shared pool | `C10`, `C12`, `L02` |
 
 ---
@@ -117,9 +119,9 @@ Exact command names are subject to the release package and may change while the 
 
 ### 3.1 Start a coding run
 
-A user can describe a coding task in natural language. MiniMake sends the task, relevant project context, policy state, and selected profile to the server-side run loop.
+A user can describe a coding task in natural language. M2C sends the task, relevant project context, policy state, and selected profile to the server-side run loop.
 
-Each run carries `profile: "code"`. This keeps coding assumptions explicit and lets MiniMate use the same engine with a different automation profile later.
+Each run carries `profile: "code"`. This keeps coding assumptions explicit and lets Menux use the same engine with a different automation profile later.
 
 A run can be:
 
@@ -152,7 +154,7 @@ Edit mode is for proposing code changes. The expected flow is:
 
 1. describe the requested change;
 2. provide or select relevant files, symbols, or context chips;
-3. let MiniMake inspect the repository;
+3. let M2C inspect the repository;
 4. generate a proposal;
 5. review affected files and hunks;
 6. keep all, keep selected changes, or reject;
@@ -222,7 +224,7 @@ The browser editor and local client are intended to provide:
 - save behavior;
 - ZIP download.
 
-The browser's v1 editor is cloud-project focused. The older local-folder mode and terminal panel are intentionally removed from the browser plan as MiniMake takes over local execution. The backend local workspace routes may remain during migration.
+The browser's v1 editor is cloud-project focused. The older local-folder mode and terminal panel are intentionally removed from the browser plan as M2C takes over local execution. The backend local workspace routes may remain during migration.
 
 ### 4.2 Code editor
 
@@ -245,11 +247,11 @@ The editor workbench includes or inherits:
 - wireframe preview;
 - resizable bottom panels.
 
-Python files are not intended to run directly inside the browser preview. Python execution belongs in the controlled MiniMake environment. Pyodide remains for chat artifacts where a small browser-side Python result is explicitly supported.
+Python files are not intended to run directly inside the browser preview. Python execution belongs in the controlled M2C environment. Pyodide remains for chat artifacts where a small browser-side Python result is explicitly supported.
 
 ### 4.3 Local project access
 
-MiniMake's local client can access the project through a guarded local tool layer. The path guard prevents access outside approved roots or protected paths. A local operation can be:
+M2C's local client can access the project through a guarded local tool layer. The path guard prevents access outside approved roots or protected paths. A local operation can be:
 
 - read-only;
 - a proposed write;
@@ -261,7 +263,7 @@ The product should not treat a natural-language request as permission to read ev
 
 ### 4.4 History and recovery
 
-MiniMake stores local history and checkpoints so a user can recover from an unwanted change. Intended operations include:
+M2C stores local history and checkpoints so a user can recover from an unwanted change. Intended operations include:
 
 - create a checkpoint before a risky run;
 - inspect file versions;
@@ -296,7 +298,7 @@ The server runs the coding profile through a shared agent loop. The loop can:
 - stop on policy violations;
 - produce a final answer and event record.
 
-The coding profile is deliberately separate from MiniMate's automation profile even though both use the same engine.
+The coding profile is deliberately separate from Menux's automation profile even though both use the same engine.
 
 ### 5.2 Built-in coding tools
 
@@ -323,7 +325,7 @@ Tool schemas are explicit. Unknown tools and malformed arguments fail closed.
 
 | Tool Name | Category | Default Approval (`Ask` / `Edit` / `Auto`) | Sandbox & Guardrails | Work Package |
 | :--- | :--- | :--- | :--- | :--- |
-| `read_file`, `list_dir`, `glob_search`, `grep_search` | Read & Search | Allowed / Allowed / Allowed | Path-jailed to repo root; blocks `.env*`, `~/.ssh`, and `.minimakeignore` | `C05` |
+| `read_file`, `list_dir`, `glob_search`, `grep_search` | Read & Search | Allowed / Allowed / Allowed | Path-jailed to repo root; blocks `.env*`, `~/.ssh`, and `.m2cignore` | `C05` |
 | `symbol_search`, `repo_map` | Code Index | Allowed / Allowed / Allowed | Queries local SQLite `index.db` (`FTS5` + tree-sitter symbol table) | `C06`, `C09` |
 | `git_status_diff`, `diagnostics` | Inspection | Allowed / Allowed / Allowed | Read-only `git status`/`diff` and linter/LSP problem collection | `C05`, `C08` |
 | `edit_file`, `write_file`, `apply_patch` | File Mutation | Denied / **Prompt Diff** / Auto in repo | Atomic temp-write + rename; creates git shadow checkpoint (`C10`) before mutation | `C07`, `C10` |
@@ -351,7 +353,7 @@ Subagents have their own budgets and context boundaries. The main run remains re
 
 ### 5.4 Compaction and long runs
 
-Long coding tasks need more context than one model request can hold. MiniMake is intended to support:
+Long coding tasks need more context than one model request can hold. M2C is intended to support:
 
 - rolling summaries;
 - preservation of task constraints;
@@ -427,7 +429,7 @@ The planned vault supports an OS keyring where available, a passphrase-derived k
 
 ### 6.5 Injection and output protection
 
-MiniMake includes or inherits:
+M2C includes or inherits:
 
 - prompt and instruction injection defenses;
 - secret and PII redaction;
@@ -471,7 +473,7 @@ A hook should declare what it does, what paths it needs, and whether it can make
 
 ### 7.2 Skills
 
-Skills are reusable packages of instructions, tools, files, and policy metadata. A skill can teach MiniMake a project-specific workflow such as:
+Skills are reusable packages of instructions, tools, files, and policy metadata. A skill can teach M2C a project-specific workflow such as:
 
 - how to run the test suite;
 - how to follow a repository's code style;
@@ -497,7 +499,7 @@ The run manager must preserve these instructions through context assembly and co
 
 ### 7.4 Memory
 
-MiniMake can retain local memory about a project, including:
+M2C can retain local memory about a project, including:
 
 - useful commands;
 - architecture facts;
@@ -515,7 +517,7 @@ Memory is stored on the device and can be searched locally. A memory item should
 
 ### 8.1 Build tab
 
-The MiniMe Build tab is the browser companion for MiniMake. It provides:
+The MiniMe Build tab is the browser companion for M2C. It provides:
 
 - task and feature board;
 - instruction checklist;
@@ -529,7 +531,7 @@ The MiniMe Build tab is the browser companion for MiniMake. It provides:
 - preview and dev-server URL support;
 - deployment proposal cards.
 
-The browser is a control and review surface. The local MiniMake client becomes the trusted place for local files, local policy, sandboxing, and terminal-oriented workflows.
+The browser is a control and review surface. The local M2C client becomes the trusted place for local files, local policy, sandboxing, and terminal-oriented workflows.
 
 ### 8.2 Device page and pairing
 
@@ -539,7 +541,7 @@ The web application is intended to show:
 - online or offline status;
 - last-seen time;
 - revoke-device actions;
-- the current MiniMake client version;
+- the current M2C client version;
 - pairing instructions;
 - local node health where available.
 
@@ -549,7 +551,7 @@ The browser can receive a live relay of an active local run. The relay is not a 
 
 ### 8.4 Shared usage
 
-The web app, MiniMake, and later MiniMate use one account, one plan, and one credit pool. Usage is shown by surface for transparency, but enforcement is server-side at every model call.
+The web app, M2C, and later Menux use one account, one plan, and one credit pool. Usage is shown by surface for transparency, but enforcement is server-side at every model call.
 
 ---
 
@@ -557,7 +559,7 @@ The web app, MiniMake, and later MiniMate use one account, one plan, and one cre
 
 ### 9.1 Local MCP client
 
-MiniMake can host local MCP connections. The client is intended to:
+M2C can host local MCP connections. The client is intended to:
 
 - configure a server command;
 - start and stop the server;
@@ -582,11 +584,11 @@ Network access is controlled by policy and sandbox. A tool or skill should decla
 
 ### 10.1 One shared pool
 
-MiniMake does not have a separate hidden allowance from the web application. The account ledger covers:
+M2C does not have a separate hidden allowance from the web application. The account ledger covers:
 
 - web application work;
-- MiniMake runs;
-- MiniMate runs;
+- M2C runs;
+- Menux runs;
 - system operations where applicable.
 
 Usage is measured in cost-weighted credits. The user can see usage by surface and an approximate remaining-session view.
@@ -618,9 +620,9 @@ When a provider, connection, or worker fails:
 
 ---
 
-## 11. Headless and MiniMate Delegation
+## 11. Headless and Menux Delegation
 
-MiniMake is intended to work without the interactive terminal UI. Headless mode lets MiniMate or another local orchestrator:
+M2C is intended to work without the interactive terminal UI. Headless mode lets Menux or another local orchestrator:
 
 - submit a coding task;
 - pass a project and profile;
@@ -630,13 +632,13 @@ MiniMake is intended to work without the interactive terminal UI. Headless mode 
 - collect a structured result;
 - retain the event log on the device.
 
-MiniMate should hand coding work to the installed MiniMake CLI through local IPC. This preserves MiniMake's sandbox, policy, and file safety instead of duplicating a second code execution engine.
+Menux should hand coding work to the installed M2C CLI through local IPC. This preserves M2C's sandbox, policy, and file safety instead of duplicating a second code execution engine.
 
 ---
 
 ## 12. Operations and Diagnostics
 
-`minimake doctor` is intended to diagnose:
+`m2c doctor` is intended to diagnose:
 
 - supported operating system;
 - WSL2 state;
@@ -678,7 +680,7 @@ The browser editor is made coherent and safe: remove browser Run, Terminal, and 
 
 The first complete path is:
 
-`minimake login` -> connect device -> send hello -> receive streamed model reply -> write a content-free usage ledger row -> show device and usage in the web app.
+`m2c login` -> connect device -> send hello -> receive streamed model reply -> write a content-free usage ledger row -> show device and usage in the web app.
 
 ### Phase 2: internal coding agent
 
@@ -705,15 +707,15 @@ Packaging, documentation, support, legal review, and release gates lead to gener
 | **Phase 0 · Browser Cleanup (`M0`)** | Waves 0–2 | `B00–B12` (13 WPs) | 20 pts | Self-host Pyodide (`B02`), remove browser Python Run/Terminal/Local-folder (`B03–B06`), fix save/move & CORS (`B07–B12`) |
 | **Phase 1 · Walking Skeleton (`M0`)** | Waves 1–3 | `P00`, `S01–S06`, `C01–C04`, `X01–X02`, `I01` (14 WPs) | 34 pts | Extract `minicore/`, shared `usage_ledger` (`S01`), device login, hello turn over SSE, `bwrap` wrapper (`I01` pass) |
 | **Phase 2 · Internal Coding Agent (`M1`)** | Waves 4–6 | `C05–C10`, `C12`, `S07–S10`, `I02` (12 WPs) | 30 pts | Local read/write/shell tools, SQLite FTS5 index, git checkpoints & rewind, TUI diff approval (`I02` self-hosting dogfood pass) |
-| **Phase 3 · Safe Daily Driver** | Waves 7–9 | `C11`, `C13–C15`, `L01–L04`, `Q01–Q03`, `Q06`, `I03` (13 WPs) | 36 pts | Hooks, skills, `MINIMAKE.md`, context compaction (`L02`), sub-agents (`L04`), red-team & canary suites (`I03` pass) |
-| **Phase 4 · Invite-Only Beta (`M2`)** | Waves 10–12 | `S11–S12`, `C16–C17`, `C20–C21`, `X03–X04`, `L05–L06`, `Q04`, `I04` (12 WPs) | 37 pts | Web Build-tab handoff (`S11`/`C16`), headless mode for MiniMate (`C17`), taint tracking (`X03`), plan chains (`L06`), beta launch (`I04`) |
+| **Phase 3 · Safe Daily Driver** | Waves 7–9 | `C11`, `C13–C15`, `L01–L04`, `Q01–Q03`, `Q06`, `I03` (13 WPs) | 36 pts | Hooks, skills, `M2C.md`, context compaction (`L02`), sub-agents (`L04`), red-team & canary suites (`I03` pass) |
+| **Phase 4 · Invite-Only Beta (`M2`)** | Waves 10–12 | `S11–S12`, `C16–C17`, `C20–C21`, `X03–X04`, `L05–L06`, `Q04`, `I04` (12 WPs) | 37 pts | Web Build-tab handoff (`S11`/`C16`), headless mode for Menux (`C17`), taint tracking (`X03`), plan chains (`L06`), beta launch (`I04`) |
 | **Phases 5–6 · Scale & Release (`M3 / GA`)** | Post-M2 | Editor extensions, ACP, worktrees, GA packaging | Gated on M2 | VS Code / JetBrains / Neovim adapters, macOS Seatbelt, external security audit, public GA |
 
 ---
 
-## 14. What MiniMake Does Not Promise
+## 14. What M2C Does Not Promise
 
-MiniMake does not promise:
+M2C does not promise:
 
 - that source code never leaves the device;
 - unrestricted shell or filesystem access;
@@ -732,7 +734,7 @@ The honest product promise is local-first storage, controlled remote reasoning, 
 
 ## 15. Maintenance Checklist
 
-For every MiniMake release, verify:
+For every M2C release, verify:
 
 - [ ] Login, device pairing, revocation, and reconnect work.
 - [ ] `doctor` detects unsupported platforms and missing sandbox dependencies.
@@ -748,7 +750,7 @@ For every MiniMake release, verify:
 - [ ] MCP tools declare trust, schema, domains, and approval behavior.
 - [ ] Usage charges the shared account pool and does not rely on client-side counting.
 - [ ] Browser live view does not become an unintended history store.
-- [ ] MiniMate can invoke headless MiniMake without bypassing policy.
+- [ ] Menux can invoke headless M2C without bypassing policy.
 - [ ] Content-free server persistence canary tests pass.
 - [ ] Backend, frontend, CLI, sandbox, and red-team suites are green.
 - [ ] Planned or gated features remain labeled accurately.
@@ -759,7 +761,7 @@ For every MiniMake release, verify:
 
 The main planning sources for this manual are:
 
-- `data/docs/minimake_build_plan.md`;
+- `data/docs/m2c_build_plan.md`;
 - MiniMe Build tab and workbench implementation;
 - backend local workspace, code proposal, task, and deployment routes;
 - the protocol, server, client, loop, policy, sandbox, and quality work packages described by the build plan.

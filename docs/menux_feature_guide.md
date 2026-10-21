@@ -1,35 +1,37 @@
-# MiniMate Feature Guide
+# Menux Feature Guide
 
-**Purpose:** the user manual and feature register for MiniMate, MiniMe's local-first personal automation system.
+*Minime agentic automation*
 
-**Status:** MiniMate is a staged product plan built on the MiniMake engine. This guide records the intended user experience and trust model while clearly separating planned, gated, and future capabilities.
+**Purpose:** the user manual and feature register for Menux, MiniMe's local-first personal automation system.
 
-- **Available or inherited:** behavior provided by MiniMe/MiniMake foundations or already defined as a shared contract.
-- **Planned:** described in the current MiniMate build plan but not necessarily implemented.
-- **Gated:** requires MiniMake maturity, security review, legal review, credentials, or a later milestone.
+**Status:** Menux is a staged product plan built on the M2C engine. This guide records the intended user experience and trust model while clearly separating planned, gated, and future capabilities.
 
-### Architectural Synchronization (Overrides O1–O8 from `MiniMate___Build_Execution_Guide.md`)
+- **Available or inherited:** behavior provided by MiniMe/M2C foundations or already defined as a shared contract.
+- **Planned:** described in the current Menux build plan but not necessarily implemented.
+- **Gated:** requires M2C maturity, security review, legal review, credentials, or a later milestone.
 
-Where the earlier standalone design note (`doc-minimate-product.html`) and this guide or `MiniMate___Build_Execution_Guide.md` differ, **these 8 synchronized rules govern**:
+### Architectural Synchronization (Overrides O1–O8 from `Menux___Build_Execution_Guide.md`)
+
+Where the earlier standalone design note (`doc-menux-product.html`) and this guide or `Menux___Build_Execution_Guide.md` differ, **these 8 synchronized rules govern**:
 
 | Override ID | Architectural Rule | How It Connects Across the Book |
 | :--- | :--- | :--- |
-| **O1 · Local-First Node Authority** | Scheduler, Run Engine, Approval Manager, 6 channel adapters, 9 connectors, Playwright browser, and Argon2id vault run on the user's device (`~/.minimate/`) | Server holds zero connector tokens, zero automation YAML, and zero permanent run logs (`minime_server_management_guide.md` §9) |
-| **O2 · One Account, One Cap, One Shared Ledger** | Uses the user's MiniMe plan (`Free / Basic $9 / Moderate $29 / Ultimate $79`) and logs into `usage_ledger` with `surface='minimate'` | Reuses `0012_usage_ledger_and_plans.sql` built in MiniMe `Tech-A/B` + MiniMake `S01` |
+| **O1 · Local-First Node Authority** | Scheduler, Run Engine, Approval Manager, 6 channel adapters, 9 connectors, Playwright browser, and Argon2id vault run on the user's device (`~/.menux/`) | Server holds zero connector tokens, zero automation YAML, and zero permanent run logs (`minime_server_management_guide.md` §9) |
+| **O2 · One Account, One Cap, One Shared Ledger** | Uses the user's MiniMe plan (`Free / Basic $9 / Moderate $29 / Ultimate $79`) and logs into `usage_ledger` with `surface='menux'` | Reuses `0012_usage_ledger_and_plans.sql` built in MiniMe `Tech-A/B` + M2C `S01` |
 | **O3 · Ephemeral 24h Redis Buffer** | In-flight server session state lives in Redis for at most 24h (idle 2h, max 500 events / 256 KB) so multi-hour approvals can resume | Enforced by canary test `MT-Q04` (zero user content in Postgres) |
-| **O4 · Built on `minicore/` After MiniMake M2** | Starts once MiniMake reaches Invite-Only Beta (`M2`), reusing `minicore/`, device-code auth, and `bubblewrap` | Planned window on Master Timeline: **Mar – Jun 2027** (59 WPs, 16 waves, 133 pts) |
-| **O5 · Backend Route Namespace** | Server routes mount under `/api/minimate/*` (`backend/minimate/` / `backend/mate/`) with `profile="mate"` | Shares brain turn loop with `/api/codeagent/*` |
+| **O4 · Built on `minicore/` After M2C M2** | Starts once M2C reaches Invite-Only Beta (`M2`), reusing `minicore/`, device-code auth, and `bubblewrap` | Planned window on Master Timeline: **Mar – Jun 2027** (59 WPs, 16 waves, 133 pts) |
+| **O5 · Backend Route Namespace** | Server routes mount under `/api/menux/*` (`backend/menux/` / `backend/mate/`) with `profile="mate"` | Shares brain turn loop with `/api/codeagent/*` |
 | **O6 · Reader / Actor Pipeline for Untrusted Data** | Any run ingesting untrusted emails, web pages, or stranger messages runs a tool-less Reader pass before the Actor pass | Blocks indirect prompt injection (`MT-T04`, `MT-Q02`) |
-| **O7 · Coding Delegated to MiniMake CLI** | MiniMate never implements a second code editor; coding tasks invoke `minimake run --json` over local IPC (`MT-M07`) | Preserves MiniMake's git checkpoints and OS sandbox |
+| **O7 · Coding Delegated to M2C CLI** | Menux never implements a second code editor; coding tasks invoke `m2c run --json` over local IPC (`MT-M07`) | Preserves M2C's git checkpoints and OS sandbox |
 | **O8 · Official Google Scopes Gated on CASA** | Local CalDAV/IMAP/ICS work immediately; official Google OAuth scopes wait for verification & legal gate (`MT-G03`) | Matches `MiniMe_Financial_Strategy_Rulebook.md` compliance gates |
 
 ---
 
-## 1. What MiniMate Is
+## 1. What Menux Is
 
-MiniMate is a personal automation node that runs on the user's device. It watches schedules, events, files, messages, and other approved triggers, then asks the MiniMe reasoning engine to decide what to do and executes approved local tools.
+Menux is a personal automation node that runs on the user's device. It watches schedules, events, files, messages, and other approved triggers, then asks the MiniMe reasoning engine to decide what to do and executes approved local tools.
 
-MiniMate is intended for work such as:
+Menux is intended for work such as:
 
 - sending a morning summary;
 - watching a folder and processing new files;
@@ -37,7 +39,7 @@ MiniMate is intended for work such as:
 - notifying the owner when a condition changes;
 - drafting an email or message;
 - running a repeatable project workflow;
-- delegating coding work to MiniMake;
+- delegating coding work to M2C;
 - maintaining local memory and skills;
 - responding to a paired channel such as Telegram;
 - asking for approval before an external or irreversible action.
@@ -65,7 +67,7 @@ The following data is intended to stay on the device:
 - local checkpoints;
 - tool outputs needed for local history.
 
-State is intended to live under `~/.minimate/`, including a SQLite database plus automation, memory, skill, log, and configuration files. The directory should be protected with restrictive permissions.
+State is intended to live under `~/.menux/`, including a SQLite database plus automation, memory, skill, log, and configuration files. The directory should be protected with restrictive permissions.
 
 ### 2.2 Server persistence
 
@@ -88,7 +90,7 @@ Webhook payloads use a short-lived delivery queue. The intended default is deliv
 
 ### 2.4 Third parties
 
-Model providers receive the prompt content needed for a run. Telegram receives messages sent through the user's bot. Connectors receive the data required by their own APIs. MiniMate's honest privacy statement is therefore:
+Model providers receive the prompt content needed for a run. Telegram receives messages sent through the user's bot. Connectors receive the data required by their own APIs. Menux's honest privacy statement is therefore:
 
 > Your automations, memory, skills, and connector credentials are stored on your device. When an automation runs, the content it needs is sent to our servers and model providers to produce the result; we do not keep it after the run ends. Messages from people you have not paired are treated as data, never as instructions. You can pause everything with one button.
 
@@ -98,7 +100,7 @@ Model providers receive the prompt content needed for a run. Telegram receives m
 
 ### 3.1 Prerequisite
 
-MiniMate depends on MiniMake's shared foundations. The intended starting gate is MiniMake's invite-only beta milestone. MiniMake supplies:
+Menux depends on M2C's shared foundations. The intended starting gate is M2C's invite-only beta milestone. M2C supplies:
 
 - protocol and golden fixtures;
 - shared account and usage ledger;
@@ -113,32 +115,32 @@ MiniMate depends on MiniMake's shared foundations. The intended starting gate is
 - web relay and device page;
 - evaluation and red-team suites.
 
-MiniMate should not duplicate these controls.
+Menux should not duplicate these controls.
 
 ### 3.2 Node commands
 
 The intended command family includes:
 
-- `minimate init`;
-- `minimate login`;
-- `minimate status`;
-- `minimate run`;
-- `minimate stop`;
-- `minimate service install`;
-- `minimate service uninstall`;
-- `minimate doctor`;
-- `minimate automation list`;
-- `minimate automation validate`;
-- `minimate automation dry-run`;
-- `minimate automation enable|disable`;
-- `minimate vault add|list|remove`;
+- `menux init`;
+- `menux login`;
+- `menux status`;
+- `menux run`;
+- `menux stop`;
+- `menux service install`;
+- `menux service uninstall`;
+- `menux doctor`;
+- `menux automation list`;
+- `menux automation validate`;
+- `menux automation dry-run`;
+- `menux automation enable|disable`;
+- `menux vault add|list|remove`;
 - channel pairing and connector commands.
 
 Some commands remain design targets until the corresponding build packages land.
 
 ### 3.3 Foreground and service operation
 
-On systems with systemd, MiniMate is intended to install a systemd user service. Where systemd is unavailable, such as many WSL2 setups, it runs in the foreground or through a guided keep-alive process.
+On systems with systemd, Menux is intended to install a systemd user service. Where systemd is unavailable, such as many WSL2 setups, it runs in the foreground or through a guided keep-alive process.
 
 The node provides:
 
@@ -153,9 +155,9 @@ The node provides:
 
 ### 3.4 WSL2 behavior
 
-WSL2 is supported with an important limitation: automations run only while the WSL instance is alive. MiniMate is intended to provide guided keep-alive setup and a `doctor` warning when it is missing.
+WSL2 is supported with an important limitation: automations run only while the WSL instance is alive. Menux is intended to provide guided keep-alive setup and a `doctor` warning when it is missing.
 
-For always-on use, the plan recommends a small Linux machine or other continuously running host. MiniMate does not promise Windows desktop automation from WSL2. Desktop control reaches Linux GUI applications inside WSLg only, not ordinary Windows applications.
+For always-on use, the plan recommends a small Linux machine or other continuously running host. Menux does not promise Windows desktop automation from WSL2. Desktop control reaches Linux GUI applications inside WSLg only, not ordinary Windows applications.
 
 Native Linux receives the full intended feature set. Native Windows and macOS are deferred for the initial product.
 
@@ -334,7 +336,7 @@ The device remains responsible for interpreting and executing the trigger.
 
 ### 6.1 T0 to T5 model
 
-MiniMate's intended automation tiers are:
+Menux's intended automation tiers are:
 
 - **T0 Observe:** read-only observation and status checks.
 - **T1 Derive:** summaries, drafts, classifications, and derived workspace content.
@@ -350,7 +352,7 @@ The exact capability registry determines which tools belong to which tier.
 | **T0 · Read-Only Local** | Minimal | Read local notes, list schedules, query local memory (`MT-M01`) | Runs automatically; allowed in unattended runs |
 | **T1 · Read External / Local Draft** | Low | Read calendar/RSS/weather, write local draft or staging file (`MT-H03`) | Runs automatically; untrusted inputs pass through Reader (`MT-T04`) |
 | **T2 · Notify Owner / Safe Write** | Moderate (Unattended Ceiling) | Send notification to paired owner channel (Telegram/Slack/Email to self), update local memory | **Maximum tier allowed unattended (`unattended_ceiling = T2`)** |
-| **T3 · External Write / Third-Party Send** | High | Send email/message to third party, create shared calendar event, POST to external webhook, delegate edit to MiniMake | **Requires explicit cryptographic owner approval (`nonce` + 15m TTL)** |
+| **T3 · External Write / Third-Party Send** | High | Send email/message to third party, create shared calendar event, POST to external webhook, delegate edit to M2C | **Requires explicit cryptographic owner approval (`nonce` + 15m TTL)** |
 | **T4 · Browser Action / Shell / System** | Very High | Playwright authenticated form submit (`MT-W01`), sandboxed shell script, skill install | **Requires explicit step-by-step owner approval with parameter preview** |
 | **T5 · Financial / Credential / Destructive** | Critical | Payment/checkout action, vault export, deleting non-staged files, modifying security policy | **Blocked unattended; requires interactive local CLI confirmation + re-auth** |
 
@@ -358,8 +360,8 @@ The exact capability registry determines which tools belong to which tier.
 
 A tool's effective tier is the higher of:
 
-- the MiniMake risk level declared by the tool;
-- the tier declared by the MiniMate connector or automation.
+- the M2C risk level declared by the tool;
+- the tier declared by the Menux connector or automation.
 
 An unknown capability is treated as T5 and denied. A user cannot lower a tool's real risk by writing a smaller number in YAML.
 
@@ -392,7 +394,7 @@ An approval should describe:
 
 ### 6.5 Panic button
 
-MiniMate is intended to provide a one-action pause for all automations. Panic behavior should:
+Menux is intended to provide a one-action pause for all automations. Panic behavior should:
 
 - stop starting new runs;
 - cancel or request cancellation for active runs;
@@ -519,10 +521,10 @@ A connector cannot access an undeclared domain or use a credential outside its d
 | **Telegram Bot (`MT-H02`)** | Bidirectional Channel | Read owner commands / Notify / Inline Approve (`✅`/`❌`) | `T2` (owner) / Untrusted (strangers) | Pinned owner `chat_id`; HMAC-signed callback nonces; stranger messages quarantined as data |
 | **Email IMAP / SMTP (`MT-H04`)** | Connector + Channel | Read inbox (`Reader` pass) / Draft reply / Send (`T3`) | `T1` (read/draft) · `T3` (send) | App-password/OAuth in local Argon2id vault (`MT-N04`); untrusted bodies stripped of instructions |
 | **Calendar CalDAV / ICS (`MT-H05`)** | Connector | Read events / Propose slot / Create invite (`T3`) | `T1` (read) · `T3` (invite others) | Local timezone & conflict check before proposing calendar writes |
-| **Local Watched Folders (`MT-H03`)** | Connector + Trigger | Read granted folder / Write to staging dir | `T1` (staging) · `T3` (outside staging) | Explicit per-automation `folder_grants`; blocks `~/.ssh`, `~/.minimate/vault.enc`, `.env*` |
+| **Local Watched Folders (`MT-H03`)** | Connector + Trigger | Read granted folder / Write to staging dir | `T1` (staging) · `T3` (outside staging) | Explicit per-automation `folder_grants`; blocks `~/.ssh`, `~/.menux/vault.enc`, `.env*` |
 | **Playwright Browser (`MT-W01`)** | Headless Automation | Read allowed domains / Fill & click (`T4`) | `T1` (read-only) · `T4` (stateful act) | Ephemeral context per run; blocks `file://`, RFC1918 local IPs, and password/payment fields |
 | **Inbound Webhooks (`MT-H08`, `MT-G04`)** | Trigger | Receive signed JSON payload (≤ 64 KB, 10m TTL) | `T1` (ingest via Reader) | HMAC-SHA256 verification; payload deleted from server relay immediately after node pull |
-| **MiniMake IPC Bridge (`MT-M07`)** | Sibling Delegation | Invoke `minimake run --json` on local repo | `T2` (Ask/Plan) · `T3` (Edit/Patch) | Inherits MiniMake's `bubblewrap` sandbox, git checkpoints, and path guard |
+| **M2C IPC Bridge (`MT-M07`)** | Sibling Delegation | Invoke `m2c run --json` on local repo | `T2` (Ask/Plan) · `T3` (Edit/Patch) | Inherits M2C's `bubblewrap` sandbox, git checkpoints, and path guard |
 | **Official Google Workspace (`MT-G03`)** | Gated OAuth Connector | Gmail / Drive / Calendar official OAuth scopes | **Gated (Phase 6)** | Requires Google CASA security audit, Limited Use compliance, and legal sign-off |
 
 ### 8.3 Telegram
@@ -584,7 +586,7 @@ A bring-your-own OAuth client may be available earlier for personal testing. It 
 
 ### 9.1 Local memory
 
-MiniMate can store reusable memory on the device:
+Menux can store reusable memory on the device:
 
 - owner preferences;
 - automation outcomes;
@@ -641,7 +643,7 @@ Skill drafts are intended to be reviewed by the owner and security/review roles 
 
 ### 10.1 Owner notifications
 
-MiniMate can notify the owner about:
+Menux can notify the owner about:
 
 - completed runs;
 - failed runs;
@@ -683,9 +685,9 @@ Interactive channel buttons carry an opaque approval ID and nonce. The node veri
 
 ---
 
-## 11. MiniMate and MiniMake Cooperation
+## 11. Menux and M2C Cooperation
 
-MiniMate can delegate coding tasks to the installed MiniMake CLI through local IPC. This allows an automation to say, for example:
+Menux can delegate coding tasks to the installed M2C CLI through local IPC. This allows an automation to say, for example:
 
 - inspect a repository after a dependency alert;
 - run the project's tests;
@@ -694,7 +696,7 @@ MiniMate can delegate coding tasks to the installed MiniMake CLI through local I
 - update a changelog draft;
 - create a proposal for owner approval.
 
-MiniMate should not implement a second coding sandbox. MiniMake remains responsible for code-specific policy, checkpoints, file proposals, and execution limits. The delegation boundary carries the automation profile and trust context into a headless coding run.
+Menux should not implement a second coding sandbox. M2C remains responsible for code-specific policy, checkpoints, file proposals, and execution limits. The delegation boundary carries the automation profile and trust context into a headless coding run.
 
 Delegated code changes remain proposals unless the automation's declared tier, policy, and approval path explicitly allow the action.
 
@@ -704,10 +706,10 @@ Delegated code changes remain proposals unless the automation's declared tier, p
 
 ### 12.1 One account and one pool
 
-MiniMate shares one account and one credit pool with:
+Menux shares one account and one credit pool with:
 
 - the MiniMe web application;
-- MiniMake;
+- M2C;
 - other future MiniMe surfaces.
 
 Usage is visible per surface, but the cap is shared. This avoids a user paying for separate hidden pools and prevents a scheduled automation from bypassing interactive usage limits.
@@ -748,7 +750,7 @@ The Planner and dry-run surfaces can provide an estimated credit range. Estimate
 
 ## 13. Operations, Doctor, and Recovery
 
-### 13.1 `minimate doctor`
+### 13.1 `menux doctor`
 
 The diagnostic command is intended to check:
 
@@ -773,7 +775,7 @@ The output should explain fixes rather than merely report a failed boolean.
 
 ### 13.2 Restart recovery
 
-After a restart, MiniMate should:
+After a restart, Menux should:
 
 - reacquire the single-instance lock;
 - reload enabled automations;
@@ -806,7 +808,7 @@ Local logs should record the event sequence without exposing secrets. Audit view
 
 ### Phase 0: foundations
 
-Inventory finished MiniMake code, extract shared `minicore`, add the automation profile, extend the protocol, define the automation schema, and define the trust-tier registry.
+Inventory finished M2C code, extract shared `minicore`, add the automation profile, extend the protocol, define the automation schema, and define the trust-tier registry.
 
 ### Phase 1: first automation
 
@@ -818,7 +820,7 @@ The walking skeleton is:
 4. describe or create a scheduled automation;
 5. run the server Brain;
 6. send a safe T2 notification to the owner;
-7. meter the run under the shared MiniMate surface.
+7. meter the run under the shared Menux surface.
 
 No broad unattended external action is required for this milestone.
 
@@ -832,7 +834,7 @@ Add memory search, memory poisoning defenses, skill manifests, reviewed skill dr
 
 ### Phase 4: invite-only beta
 
-Add planner chat, MiniMake delegation, WSL keep-alive guidance, cost estimates, browser automation surfaces, and complete operational documentation.
+Add planner chat, M2C delegation, WSL keep-alive guidance, cost estimates, browser automation surfaces, and complete operational documentation.
 
 ### Phase 5: desktop and voice
 
@@ -845,9 +847,9 @@ Potential additions include a scanned and signed skill marketplace, team feature
 | Phase & Milestone | Waves | Work Packages | Effort Points | Key Deliverable & Exit Gate |
 | :--- | :--- | :--- | :--- | :--- |
 | **Phase 0 · Foundations & Contracts** | Waves 1–2 | `MT-K00–K03`, `MT-A01`, `MT-T01` (6 WPs) | 12 pts | Prerequisite check on `minicore/` (`MT-K00`), automation YAML JSON Schema (`MT-A01`), `T0–T5` tier matrix (`MT-T01`) |
-| **Phase 1 · First Automation (`MT-I01`)** | Waves 3–5 | `MT-N01–N02`, `MT-N04–N06`, `MT-G01`, `MT-A02–A04`, `MT-H01`, `MT-H03`, `MT-I01` (12 WPs) | 28 pts | Local daemon (`~/.minimate/`), Argon2id vault (`MT-N04`), APScheduler cron (`MT-H01`), dry-run engine (`MT-A03`), first live morning briefing (`MT-I01`) |
+| **Phase 1 · First Automation (`MT-I01`)** | Waves 3–5 | `MT-N01–N02`, `MT-N04–N06`, `MT-G01`, `MT-A02–A04`, `MT-H01`, `MT-H03`, `MT-I01` (12 WPs) | 28 pts | Local daemon (`~/.menux/`), Argon2id vault (`MT-N04`), APScheduler cron (`MT-H01`), dry-run engine (`MT-A03`), first live morning briefing (`MT-I01`) |
 | **Phase 2 · Safe Unattended Operation (`MT-I02`)** | Waves 6–9 | `MT-H02`, `MT-H04–H06`, `MT-T02–T08`, `MT-A05–A06`, `MT-K04`, `MT-G02`, `MT-G04`, `MT-W01`, `MT-Q01–Q02`, `MT-Q04`, `MT-I02` (21 WPs) | 49 pts | Telegram inline approvals (`MT-H02`), Reader/Actor pipeline (`MT-T04`), panic switch (`MT-T07`), Playwright (`MT-W01`), prompt-injection & canary tests (`MT-I02`) |
-| **Phase 3 · Memory, Skills & Triggers (`MT-I03`)** | Waves 10–12 | `MT-M01–M07`, `MT-N03`, `MT-H07–H08`, `MT-G03`, `MT-E01`, `MT-Q03`, `MT-I03` (14 WPs) | 30 pts | Provenance-tagged memory (`MT-M01`), poisoning defense (`MT-M02`), signed skill manifests (`MT-M04`), MiniMake delegation (`MT-M07`) |
+| **Phase 3 · Memory, Skills & Triggers (`MT-I03`)** | Waves 10–12 | `MT-M01–M07`, `MT-N03`, `MT-H07–H08`, `MT-G03`, `MT-E01`, `MT-Q03`, `MT-I03` (14 WPs) | 30 pts | Provenance-tagged memory (`MT-M01`), poisoning defense (`MT-M02`), signed skill manifests (`MT-M04`), M2C delegation (`MT-M07`) |
 | **Phase 4 · Invite-Only Beta (`MT-I04`)** | Waves 13–16 | `MT-A07`, `MT-N07`, `MT-E02`, `MT-Q05`, `MT-R02`, `MT-I04` (6 WPs) | 14 pts | Natural-language Planner draft (`MT-A07`), WSL2 keep-alive helper (`MT-N07`), cost estimator (`MT-E02`), 7-day unattended soak (`MT-I04`) |
 | **Phases 5–6 · Desktop, Voice & GA** | Post-Beta | Linux AT-SPI desktop, voice, signed marketplace, GA | Gated on `MT-I04` | Headless desktop container, CASA verification for Google scopes, external security audit |
 
@@ -900,17 +902,17 @@ A marketplace is gated on:
 
 ### 15.5 Official Google integrations
 
-Gmail and some Drive scopes may require verification, CASA assessment, Limited Use compliance, and legal review. MiniMate should not promise official OAuth connectors until those obligations are resolved.
+Gmail and some Drive scopes may require verification, CASA assessment, Limited Use compliance, and legal review. Menux should not promise official OAuth connectors until those obligations are resolved.
 
-### 15.6 MiniMate Cloud
+### 15.6 Menux Cloud
 
 A cloud-hosted automation mode is explicitly not part of v1. It would require a separate trust model because automation specs, credentials, memory, and run content would no longer be device-only. It should be an opt-in product with separate disclosure and security review, not a silent change to the local node.
 
 ---
 
-## 16. What MiniMate Does Not Promise
+## 16. What Menux Does Not Promise
 
-MiniMate does not promise:
+Menux does not promise:
 
 - always-on operation when the device or WSL2 instance is stopped;
 - Windows desktop automation from WSL2;
@@ -931,9 +933,9 @@ The honest product promise is local storage and execution, controlled remote rea
 
 ## 17. Maintenance Checklist
 
-For every MiniMate release, verify:
+For every Menux release, verify:
 
-- [ ] `minimate doctor` identifies platform, WSL, service, vault, account, and sandbox problems.
+- [ ] `menux doctor` identifies platform, WSL, service, vault, account, and sandbox problems.
 - [ ] The node uses a single-instance lock and shuts down cleanly.
 - [ ] Automation YAML passes schema and semantic validation.
 - [ ] Unknown capabilities fail closed.
@@ -952,7 +954,7 @@ For every MiniMate release, verify:
 - [ ] Restart recovery does not duplicate triggers.
 - [ ] Local event history remains available after server disconnect.
 - [ ] Shared account credits are enforced server-side.
-- [ ] MiniMake delegation preserves MiniMake's policy and sandbox.
+- [ ] M2C delegation preserves M2C's policy and sandbox.
 - [ ] Memory provenance, deletion, and poisoning defenses are testable.
 - [ ] Browser inbox is live-relay behavior, not accidental permanent content storage.
 - [ ] Telegram callbacks from non-owners are rejected.
@@ -965,10 +967,10 @@ For every MiniMate release, verify:
 
 The main planning sources for this manual are:
 
-- `data/docs/MiniMate___Build_Execution_Guide.md`;
-- `data/docs/minimake_build_plan.md`;
+- `data/docs/Menux___Build_Execution_Guide.md`;
+- `data/docs/m2c_build_plan.md`;
 - the MiniMe device, usage, task, workspace, and integration surfaces;
-- the planned `minicore/`, `minimate/`, and `backend/mate/` packages;
+- the planned `minicore/`, `menux/`, and `backend/mate/` packages;
 - the protocol, policy, sandbox, connector, memory, and quality work packages described by the build guide.
 
 This document is the user-facing feature layer. The build guide remains authoritative for patch order, exact modules, tests, dependency gates, and implementation status.

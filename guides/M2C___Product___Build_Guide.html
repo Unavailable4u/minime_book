@@ -1,22 +1,22 @@
 <!doctype html><html data-theme="dark"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}</style><style>:root{color-scheme:light dark;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}}:root[data-theme="dark"]{color-scheme:dark;--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}:root[data-theme="light"]{color-scheme:light}@media print{:root,:root[data-theme="dark"]{color-scheme:light;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}}body{background:var(--md-bg);color:var(--md-text);max-width:720px;margin:0 auto;padding:32px;display:flex;flex-direction:column;gap:10px;font:14px/1.55 -apple-system,BlinkMacSystemFont,'SF Pro','Segoe UI',sans-serif;overflow-wrap:break-word}body>:first-child{margin-top:0}h1,h2,h3,h4,h5,h6{margin:6px 0 0;line-height:1.25;font-weight:600;text-wrap:balance}h1{font-size:1.35em}h2{font-size:1.15em;color:var(--md-muted)}h3,h4,h5,h6{font-size:1em}p,ul,ol,blockquote,table,pre,hr{margin:0}strong{font-weight:600}a{color:var(--md-link);text-decoration:none}a:hover{text-decoration:underline}ul,ol{display:flex;flex-direction:column;gap:6px;padding-left:22px}ul{list-style:disc}ol{list-style:decimal}:is(li,td,th)>*+:is(p,ul,ol,blockquote){margin-top:6px}blockquote{display:flex;flex-direction:column;gap:10px;border-left:2px solid var(--md-rule);padding-left:10px;color:var(--md-muted)}:not(pre)>code{background:var(--md-fill);padding:1px 3px;border-radius:4px;font:.92em 'SF Mono',ui-monospace,Menlo,Consolas,monospace}a>code{background:none;color:inherit}pre{background:var(--md-fill);padding:10px 12px;border-radius:6px;overflow-x:auto;font:12px/1.5 'SF Mono',ui-monospace,Menlo,Consolas,monospace;margin-block:4px}pre code{background:none;padding:0;font:inherit}table{width:100%;border-collapse:separate;border-spacing:2px;font:inherit}th,td{padding:6px 8px;border-radius:3px;text-align:left;vertical-align:top}th{background:var(--md-fill-strong);font-weight:600}td{background:var(--md-fill)}:is(th,td) :not(pre)>code{background:transparent}hr{border:0;border-top:1px solid var(--md-rule-strong);margin-block:10px}img{max-width:100%;height:auto;border-radius:4px}</style>
 </head><body><div id="atlas-sync-note" style="background:rgba(255,32,82,.1);border:1px solid rgba(255,32,82,.4);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;line-height:1.5">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:4px">
-    <strong style="color:#ff7a96">📚 MiniMe Connected Book · MiniMake Initial Product Spec</strong>
+    <strong style="color:#ff7a96">📚 MiniMe Connected Book · M2C Initial Product Spec</strong>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <a href="../doc-minimake-feature-guide.html" target="_top" style="color:#34d399;font-weight:600;text-decoration:none">→ Ch.5 MiniMake Feature Guide</a>
-      <a href="../doc-minimake-plan.html" target="_top" style="color:#c4b5fd;font-weight:600;text-decoration:none">→ Ch.6 Build Execution Guide</a>
+      <a href="../doc-m2c-feature-guide.html" target="_top" style="color:#34d399;font-weight:600;text-decoration:none">→ Ch.5 M2C L26 Feature Guide</a>
+      <a href="../doc-m2c-plan.html" target="_top" style="color:#c4b5fd;font-weight:600;text-decoration:none">→ Ch.6 Build Execution Guide</a>
       <button onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='light'?'dark':'light'" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:inherit;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11.5px">Toggle Light/Dark</button>
     </div>
   </div>
-  <span style="opacity:.85">Note: Where this initial design spec differs on data placement or billing, <b>Overrides O1–O8</b> in the Build Execution Guide &amp; Feature Guide govern (100% local-first execution on device; one shared account &amp; <code>usage_ledger</code> across Web, MiniMake, and MiniMate).</span>
+  <span style="opacity:.85">Note: Where this initial design spec differs on data placement or billing, <b>Overrides O1–O8</b> in the Build Execution Guide &amp; Feature Guide govern (100% local-first execution on device; one shared account &amp; <code>usage_ledger</code> across Web, M2C, and Menux).</span>
 </div>
-<h1>MiniMake — Product &amp; Build Guide</h1>
+<h1>M2C L26 — Product &amp; Build Guide</h1>
 <h3>The merged, research-driven specification</h3>
-<p><em>Version 1.0 · written 2026-10-02 · for the MiniMe founder · companion to <code>minimate_guide.md</code> and <code>minimake_design_note.md</code></em></p>
-<p><em>Names: <strong>MiniMake</strong> (the coding agent, formerly &quot;MiniCode&quot;) and <strong>MiniMate</strong> (the personal automation system, formerly &quot;miniU&quot;). Paths and commands use the new names (<code>minimake</code>, <code>~/.minimake/</code>, <code>MINIMAKE.md</code>).</em></p>
+<p><em>Version 1.0 · written 2026-10-02 · for the MiniMe founder · companion to <code>menux_guide.md</code> and <code>m2c_design_note.md</code></em></p>
+<p><em>Names: <strong>M2C L26</strong> — Minime to Code (the coding agent, formerly &quot;MiniCode&quot;) and <strong>Menux</strong> — Minime agentic automation (the personal automation system, formerly &quot;miniU&quot;). Paths and commands use the new names (<code>m2c</code>, <code>~/.m2c/</code>, <code>M2C.md</code>). M2C is at Level 26 (L26). Levels work like release versions: the next release will be L27.</em></p>
 <hr>
 <h2>0. How to read this guide</h2>
-<p><strong>What this is.</strong> A complete specification of MiniMake, the coding agent that runs on the user's machine and gets its intelligence from the MiniMe backend. It is built from (a) research across about 30 tools, docs and papers collected on 2026-10-02, (b) your Financial Strategy Rulebook, Technical Roadmap and old CLI plan, and (c) what I read in your repository and system-explanation diagrams in earlier turns.</p>
+<p><strong>What this is.</strong> A complete specification of M2C, the coding agent that runs on the user's machine and gets its intelligence from the MiniMe backend. It is built from (a) research across about 30 tools, docs and papers collected on 2026-10-02, (b) your Financial Strategy Rulebook, Technical Roadmap and old CLI plan, and (c) what I read in your repository and system-explanation diagrams in earlier turns.</p>
 <p><strong>What this is not.</strong> It is not a promise that everything here should be built. Section 16 sequences the work, and most items are tagged so you can cut them.</p>
 <p><strong>Tags used throughout</strong></p>
 <table>
@@ -55,7 +55,7 @@
 </ul>
 <hr>
 <h2>1. Executive summary</h2>
-<p><strong>MiniMake in one paragraph.</strong> A terminal-first coding agent that executes tools on the user's own machine while the reasoning loop, model routing, project context, review panel and metering live on the MiniMe backend. It reads and edits files, runs commands in an OS-level sandbox, plans before acting, keeps checkpoints so any change can be undone, and can be driven from the terminal, from editors (through ACP) or remotely from the MiniMe web app. Its edge over Claude Code and Codex is not a better loop; it is MiniMe's project context, multi-model orchestration, security-review pipeline and cost control, offered as one premium product.</p>
+<p><strong>M2C in one paragraph.</strong> A terminal-first coding agent that executes tools on the user's own machine while the reasoning loop, model routing, project context, review panel and metering live on the MiniMe backend. It reads and edits files, runs commands in an OS-level sandbox, plans before acting, keeps checkpoints so any change can be undone, and can be driven from the terminal, from editors (through ACP) or remotely from the MiniMe web app. Its edge over Claude Code and Codex is not a better loop; it is MiniMe's project context, multi-model orchestration, security-review pipeline and cost control, offered as one premium product.</p>
 <p><strong>The ten decisions this guide makes</strong></p>
 <ol>
 <li><strong>Brain on the server, hands on the machine, durable session log in between.</strong> Anthropic published exactly this pattern for its Managed Agents service and gave reasons that match your situation [R:S5]. It also fits your existing daemon bridge.</li>
@@ -188,7 +188,7 @@
 </ol>
 <hr>
 <h2>3. Feature harvest: what to adopt, adapt, build, later, skip</h2>
-<p>The table below is the heart of the research. &quot;Seen in&quot; names where the feature is strongest. &quot;Ver.&quot; is the version in which MiniMake should have it (v0 internal, v1 beta, v2 GA, v3 later).</p>
+<p>The table below is the heart of the research. &quot;Seen in&quot; names where the feature is strongest. &quot;Ver.&quot; is the version in which M2C should have it (v0 internal, v1 beta, v2 GA, v3 later).</p>
 <h3>3.1 Agent loop and orchestration</h3>
 <table>
 <thead>
@@ -297,7 +297,7 @@
 <td>CLAUDE.md, AGENTS.md, GEMINI.md [S1,S11,S15]</td>
 <td>Adopt</td>
 <td>v0</td>
-<td>Read <code>MINIMAKE.md</code> and also <code>AGENTS.md</code> and <code>CLAUDE.md</code> if present, so users keep one file.</td>
+<td>Read <code>M2C.md</code> and also <code>AGENTS.md</code> and <code>CLAUDE.md</code> if present, so users keep one file.</td>
 </tr>
 <tr>
 <td>Path-scoped rules that load only for matching files</td>
@@ -580,7 +580,7 @@
 <td>You already have an MCP client [M]; update for the 2026-07-28 spec.</td>
 </tr>
 <tr>
-<td>Run MiniMake as an MCP server</td>
+<td>Run M2C as an MCP server</td>
 <td>Codex [S11]</td>
 <td>Later</td>
 <td>v3</td>
@@ -682,7 +682,7 @@
 <td>Claude Code, Codex cloud, Cursor [S2,S16,S11]</td>
 <td>Adapt</td>
 <td>v3</td>
-<td>Browser-to-MiniMake handoff (§11.9).</td>
+<td>Browser-to-M2C handoff (§11.9).</td>
 </tr>
 <tr>
 <td>Remote Control (drive a local session from the browser)</td>
@@ -702,8 +702,8 @@
 <td>Scheduled/background runs</td>
 <td>Cowork, Claude Code Routines [S23,S1]</td>
 <td>Later</td>
-<td>MiniMate</td>
-<td>Belongs mainly in MiniMate.</td>
+<td>Menux</td>
+<td>Belongs mainly in Menux.</td>
 </tr>
 </tbody>
 </table>
@@ -763,7 +763,7 @@
 <li><strong>For whom:</strong> MiniMe users who generate projects in the browser and want to continue on their own machine with real toolchains, plus developers who want a cheaper, more controllable alternative to Claude Code or Codex [P].</li>
 <li><strong>Promise:</strong> &quot;The agent that already knows your project, runs on your machine, shows you everything it does, and can be undone.&quot;</li>
 <li><strong>Why switch from Claude Code or Codex:</strong> (1) it starts with your MiniMe plan, wireframes and instructions; (2) it uses the best-value model for each step instead of one vendor's model; (3) every change can be reviewed by your reviewer and security-review roles before you accept it; (4) one bill and one cost meter; (5) it connects to the browser app for handoff and remote control [M][P].</li>
-<li><strong>Honest competitive picture:</strong> Claude Code and Codex lead public terminal benchmarks [S25]. MiniMake should not claim to beat them on raw coding skill at launch. It should win on context, cost, review and integration.</li>
+<li><strong>Honest competitive picture:</strong> Claude Code and Codex lead public terminal benchmarks [S25]. M2C should not claim to beat them on raw coding skill at launch. It should win on context, cost, review and integration.</li>
 </ul>
 <h3>4.2 Principles</h3>
 <ol>
@@ -779,16 +779,16 @@
 <li>A full IDE, debugger or extension system. Use ACP and the user's editor.</li>
 <li>A plugin marketplace.</li>
 <li>Local models (maybe later through the same chain mechanism).</li>
-<li>General personal automation. That is MiniMate.</li>
+<li>General personal automation. That is Menux.</li>
 <li>Windows-native sandboxing. Support WSL2 first; Claude Code's own sandbox also requires WSL2 on Windows [S3].</li>
 </ul>
 <hr>
 <h2>5. Architecture</h2>
 <h3>5.1 The shape: brain, hands, session</h3>
-<p>Anthropic's engineering team describes three virtualized parts of an agent: a <strong>session</strong> (an append-only log of everything that happened), a <strong>harness</strong> (the loop that calls the model and routes tool calls), and a <strong>sandbox</strong> (where code runs and files are edited), each replaceable without disturbing the others [R:S5]. MiniMake maps onto this directly:</p>
+<p>Anthropic's engineering team describes three virtualized parts of an agent: a <strong>session</strong> (an append-only log of everything that happened), a <strong>harness</strong> (the loop that calls the model and routes tool calls), and a <strong>sandbox</strong> (where code runs and files are edited), each replaceable without disturbing the others [R:S5]. M2C maps onto this directly:</p>
 <pre><code>                       USER&#39;S MACHINE (hands)                          MINIME BACKEND (brain)
   ┌───────────────────────────────────────────────────┐        ┌─────────────────────────────────────────┐
-  │ minimake CLI/TUI ──┐                              │        │  Run manager (create, resume, cancel)   │
+  │ m2c CLI/TUI ──┐                                   │        │  Run manager (create, resume, cancel)   │
   │ editor via ACP ────┼─► Local agent host           │  WS    │  Agent loop executor (stateless worker) │
   │ browser remote ────┘   ├ policy engine (hard)     │◄──────►│  Context assembler + prompt cache plan  │
   │                        ├ tool executor            │ (TLS,  │  Model router (tiers, chains, fallback) │
@@ -797,7 +797,7 @@
   │                        ├ checkpoint store         │        │  Classifier (auto mode), summarizer     │
   │                        ├ secret/redaction filter  │        │  MCP proxy + credential vault           │
   │                        ├ keychain (device creds)  │        │  Metering, ledger, plan limits          │
-  │                        └ local config (MINIMAKE.md,│        │  ┌──────────────────────────────────┐   │
+  │                        └ local config (M2C.md,     │        │  ┌──────────────────────────────────┐   │
   │                           skills, hooks, rules)   │        │  │ SESSION LOG (durable, append-only)│   │
   └───────────────────────────────────────────────────┘        │  │ Postgres + Redis (hot state)      │   │
                                                                 │  └──────────────────────────────────┘   │
@@ -853,7 +853,7 @@
 <pre><code>backend/
   eo/                    # shared orchestration core (existing)
   utils/                 # shared (llm_client, quota, audit, redaction)
-  minimake/              # NEW
+  m2c/              # NEW
     server.py            # FastAPI app: /v1/code/*, /ws/device
     loop.py              # agent loop executor
     tools_schema.py      # tool JSON schemas + risk levels
@@ -863,12 +863,12 @@
     review.py            # reviewer / security-reviewer hooks into eo roles
     metering.py          # agent credits, per-run ceilings
     devices.py           # device pairing, credentials, revocation
-daemon/ → minimake/      # client (rename; keep path_guard, tools)
+daemon/ → m2c/      # client (rename; keep path_guard, tools)
 </code></pre>
 <h3>5.5 One step, end to end</h3>
 <ol>
 <li>User types a task. CLI sends <code>user_message</code> over the device socket.</li>
-<li>Backend appends the event to the session log, assembles context (system prompt, <code>MINIMAKE.md</code> content sent by the client, rules matched to files, memory, recent history), picks a model, calls it with tool schemas.</li>
+<li>Backend appends the event to the session log, assembles context (system prompt, <code>M2C.md</code> content sent by the client, rules matched to files, memory, recent history), picks a model, calls it with tool schemas.</li>
 <li>Model streams text and returns tool calls. Backend streams <code>text_delta</code> events to the client and appends them.</li>
 <li>For each tool call, backend sends <code>tool_proposed</code> with a call ID.</li>
 <li>Client policy engine decides: <strong>allow</strong> (rule or mode), <strong>ask</strong> (render approval prompt), or <strong>deny</strong>. A PreToolUse hook may block or modify it.</li>
@@ -1075,7 +1075,7 @@ daemon/ → minimake/      # client (rename; keep path_guard, tools)
 <p>The &quot;verify&quot; half of the loop is where quality comes from:</p>
 <ol>
 <li><strong>Diagnostics after edit</strong> (LSP if present, else syntax check). Surface only new errors.</li>
-<li><strong>Project commands</strong> from <code>MINIMAKE.md</code> or config: <code>lint_cmd</code>, <code>test_cmd</code>, <code>build_cmd</code>. Aider's lint-and-test auto-fix loop is the model: failures go back to the model until they pass or it reports what it could not fix [S12].</li>
+<li><strong>Project commands</strong> from <code>M2C.md</code> or config: <code>lint_cmd</code>, <code>test_cmd</code>, <code>build_cmd</code>. Aider's lint-and-test auto-fix loop is the model: failures go back to the model until they pass or it reports what it could not fix [S12].</li>
 <li><strong>Completion check:</strong> before the final message the model must list what it verified and what it did not. A Stop hook can enforce this.</li>
 <li><strong>Independent review</strong> (optional, v2): run your reviewer role on the diff before the user accepts it.</li>
 </ol>
@@ -1377,11 +1377,11 @@ daemon/ → minimake/      # client (rename; keep path_guard, tools)
 <hr>
 <h2>8. Permissions, sandbox and security</h2>
 <blockquote>
-<p>This section decides whether MiniMake is safe to ship. Everything here is enforced <strong>on the user's machine</strong>.</p>
+<p>This section decides whether M2C is safe to ship. Everything here is enforced <strong>on the user's machine</strong>.</p>
 </blockquote>
 <h3>8.1 The threat model in one picture</h3>
 <p>Simon Willison's &quot;lethal trifecta&quot; names the dangerous combination: private data, untrusted content, and a way to communicate externally. An agent that has all three can be tricked by instructions hidden in content it reads [R:S29]. Coding agents are useful precisely because they have all three (they read your code, read web pages and issues, and run commands), so the job is to <strong>reduce blast radius</strong>, not to hope the model resists [S29].</p>
-<p>Where untrusted text can enter MiniMake: web pages and search results, files in cloned repos, issue and PR text, dependency READMEs, MCP tool descriptions and responses, command output, skills and plugins [S29]. The security community's consensus in 2026 is that prompt injection is not solved; the effective defenses are architectural: least privilege, allowlists, sandboxing, human approval for risky actions, and removing one leg of the trifecta [S29].</p>
+<p>Where untrusted text can enter M2C: web pages and search results, files in cloned repos, issue and PR text, dependency READMEs, MCP tool descriptions and responses, command output, skills and plugins [S29]. The security community's consensus in 2026 is that prompt injection is not solved; the effective defenses are architectural: least privilege, allowlists, sandboxing, human approval for risky actions, and removing one leg of the trifecta [S29].</p>
 <table>
 <thead>
 <tr>
@@ -1473,7 +1473,7 @@ daemon/ → minimake/      # client (rename; keep path_guard, tools)
 <p>Reference behavior: Claude Code's Manual mode starts read-only and asks before edits and shell commands; Accept Edits auto-approves edits and a fixed set of filesystem commands; Plan explores without editing; Auto uses a separate classifier model to approve most actions and block risky ones, and explicit ask and deny rules still apply [S2, S4]. Codex has analogous approval policies (<code>untrusted</code>, <code>on-request</code>, <code>never</code>) paired with sandbox modes [S11]. Cline warns that its YOLO mode disables all safety checks and recommends isolated environments [S13]. Kiro installs in Autopilot by default, which one reviewer flagged as a risk; your default should be the safe one [S18].</p>
 <h3>8.3 Rules</h3>
 <p>Rule syntax <strong>[P]</strong>, modeled on Claude Code's allow/ask/deny rules [S1]:</p>
-<pre><code class="language-toml"># .minimake/settings.toml  (project)   ~/.minimake/settings.toml (user)   /etc/minimake/managed.toml (org)
+<pre><code class="language-toml"># .m2c/settings.toml  (project)   ~/.m2c/settings.toml (user)   /etc/m2c/managed.toml (org)
 [permissions]
 allow = [
   &#34;bash(npm test)&#34;,
@@ -1528,7 +1528,7 @@ deny = [
 </table>
 <p>Policy <strong>[P]</strong> (matching what Codex and Claude Code do by default [S9, S3, S10]):</p>
 <ul>
-<li><strong>Writable:</strong> the project directory and a temp dir. <strong>Read-only inside it:</strong> <code>.git/</code>, <code>.minimake/</code>, shell rc files. Codex keeps <code>.git</code> and <code>.codex</code> read-only even in workspace-write [S10].</li>
+<li><strong>Writable:</strong> the project directory and a temp dir. <strong>Read-only inside it:</strong> <code>.git/</code>, <code>.m2c/</code>, shell rc files. Codex keeps <code>.git</code> and <code>.codex</code> read-only even in workspace-write [S10].</li>
 <li><strong>Readable:</strong> the project, system directories needed for toolchains. <strong>Denied:</strong> home directory secrets (<code>~/.ssh</code>, <code>~/.aws</code>, browser profiles, keychains).</li>
 <li><strong>Network:</strong> off by default for sandboxed commands; allowed through a local proxy with a <strong>domain allowlist</strong>; the first time a command needs a new domain the user is prompted [S3].</li>
 <li><strong>Both filesystem and network isolation are required.</strong> Without filesystem isolation a compromised agent can alter system files to gain network access, and without network isolation it can leak files [S3].</li>
@@ -1541,7 +1541,7 @@ deny = [
 <li><strong>Two-form denylist</strong> (from your CLI plan [M]): a human-readable list in settings and a hard-coded list in the read tools that refuses <code>.env*</code>, private keys, credential stores. The hard-coded form cannot be edited by the model or by a project file.</li>
 <li><strong>Redaction filter</strong> on every tool result before it leaves the machine: pattern-based secret detection (cloud keys, JWTs, private-key blocks, high-entropy strings near words like &quot;key&quot;). Your rulebook already makes secret and PII redaction mandatory before external model calls [M].</li>
 <li><strong>Git credentials</strong> are used through the OS credential helper so <code>git push</code> works without the model seeing the token. Managed Agents does the equivalent by wiring the token into the git remote at setup so the agent never handles it [S5].</li>
-<li><strong>MCP OAuth tokens</strong> live in the OS keychain; MiniMake calls MCP servers through a local proxy so the model sees results, not credentials (the vault-plus-proxy pattern from Managed Agents [S5]).</li>
+<li><strong>MCP OAuth tokens</strong> live in the OS keychain; M2C calls MCP servers through a local proxy so the model sees results, not credentials (the vault-plus-proxy pattern from Managed Agents [S5]).</li>
 </ul>
 <h3>8.6 Taint tracking (a differentiator) [P]</h3>
 <p>Each session carries <code>tainted: bool</code>. It becomes true when untrusted content (<code>trust: external</code>) enters the context. While tainted:</p>
@@ -1554,16 +1554,16 @@ deny = [
 <h3>8.7 Auto mode classifier</h3>
 <ul>
 <li>A separate small model reviews proposed actions with a policy prompt and returns allow / block / ask. Claude Code's classifier blocks actions that escalate beyond the request, target unrecognized infrastructure, or appear driven by hostile content the agent read [S3, S4].</li>
-<li><strong>MiniMake rules [P]:</strong> (1) the classifier only runs on calls that survived the local deny rules; (2) it can only move a call from &quot;ask&quot; to &quot;allow&quot;, never override a deny; (3) it never sees secrets; (4) every verdict is logged; (5) ship it only after an eval of at least a few hundred labeled tool calls including injection attempts, and report false-allow rate as a release gate.</li>
+<li><strong>M2C rules [P]:</strong> (1) the classifier only runs on calls that survived the local deny rules; (2) it can only move a call from &quot;ask&quot; to &quot;allow&quot;, never override a deny; (3) it never sees secrets; (4) every verdict is logged; (5) ship it only after an eval of at least a few hundred labeled tool calls including injection attempts, and report false-allow rate as a release gate.</li>
 <li>The verdict comes from your backend, so a compromised backend could always say &quot;allow&quot;; that is why the sandbox and hard denies remain the real protection.</li>
 </ul>
 <h3>8.8 Hooks as deterministic guardrails</h3>
 <p>Hooks run a script or HTTP call at lifecycle events and can block. In Claude Code, <code>PreToolUse</code> exit code 2 blocks the call and shows the reason to the model; <code>Stop</code> exit code 2 forces the agent to continue; four handler types exist (command, http, prompt, agent) [S34]. The docs state the principle plainly: a CLAUDE.md instruction is a request; a hook is enforcement [S1].</p>
-<p>MiniMake events <strong>[P]</strong>: <code>SessionStart</code>, <code>UserPromptSubmit</code>, <code>PreToolUse</code>, <code>PermissionRequest</code>, <code>PostToolUse</code>, <code>PostToolUseFailure</code>, <code>SubagentStart/Stop</code>, <code>PreCompact</code>, <code>Stop</code>, <code>SessionEnd</code>. Exit 0 allows, 2 blocks. Project hooks need the folder-trust prompt. Hooks run <strong>outside</strong> the model's context and cost nothing unless they return text [S1].</p>
+<p>M2C events <strong>[P]</strong>: <code>SessionStart</code>, <code>UserPromptSubmit</code>, <code>PreToolUse</code>, <code>PermissionRequest</code>, <code>PostToolUse</code>, <code>PostToolUseFailure</code>, <code>SubagentStart/Stop</code>, <code>PreCompact</code>, <code>Stop</code>, <code>SessionEnd</code>. Exit 0 allows, 2 blocks. Project hooks need the folder-trust prompt. Hooks run <strong>outside</strong> the model's context and cost nothing unless they return text [S1].</p>
 <h3>8.9 Device identity and the backend link</h3>
 <p>Fixing the weakness found in the current daemon [M] (one shared pairing token; WebSocket path takes the workspace from the URL):</p>
 <ol>
-<li><strong>Pair with device-code flow:</strong> <code>minimake login</code> shows a short code; the user approves in the web app; the CLI receives a long-lived device credential stored in the OS keychain.</li>
+<li><strong>Pair with device-code flow:</strong> <code>m2c login</code> shows a short code; the user approves in the web app; the CLI receives a long-lived device credential stored in the OS keychain.</li>
 <li><strong>Per-connection short-lived token</strong> (JWT) signed by the backend, containing user ID, device ID and expiry; verified on connect.</li>
 <li><strong>Server verifies ownership</strong> of any workspace or project the device asks to touch.</li>
 <li><strong>Revocation list</strong> checked on connect and on a heartbeat; a &quot;sign out all devices&quot; button.</li>
@@ -1572,7 +1572,7 @@ deny = [
 <h3>8.10 Audit, kill switch and transparency</h3>
 <ul>
 <li><strong>Audit log</strong> of every proposal, decision (who or what decided), tool result summary and hook outcome, kept locally and sent to the backend log. Your <code>audit_log</code> utility already exists [M].</li>
-<li><strong>Kill switch:</strong> <code>Ctrl+C</code> twice, a <code>minimake stop</code> command, and a web button that sets the cancel flag.</li>
+<li><strong>Kill switch:</strong> <code>Ctrl+C</code> twice, a <code>m2c stop</code> command, and a web button that sets the cancel flag.</li>
 <li><strong>Always show</strong> the exact command before it runs, the files an edit touches, and the current mode, sandbox status and taint state in the status line.</li>
 </ul>
 <h3>8.11 Enterprise controls (v3) [S4, S15]</h3>
@@ -1584,7 +1584,7 @@ deny = [
 <ol>
 <li>System prompt (short; product and role only) [S7].</li>
 <li>Tool schemas (core tools full; deferred tools as names only) [S1].</li>
-<li>Instruction files: global <code>~/.minimake/MINIMAKE.md</code>, repo <code>MINIMAKE.md</code>, subdirectory files as the agent enters them, plus <code>AGENTS.md</code> / <code>CLAUDE.md</code> if present. Claude Code loads all levels additively and loads subdirectory files as it works in them; keep each under about 200 lines [S1].</li>
+<li>Instruction files: global <code>~/.m2c/M2C.md</code>, repo <code>M2C.md</code>, subdirectory files as the agent enters them, plus <code>AGENTS.md</code> / <code>CLAUDE.md</code> if present. Claude Code loads all levels additively and loads subdirectory files as it works in them; keep each under about 200 lines [S1].</li>
 <li>Rules matched to files currently in play (path-scoped) [S1].</li>
 <li>Auto-memory index (first ~200 lines or 25 KB) [S2].</li>
 <li>MiniMe project context if the project is linked: instructions, plan, parts and wiring summaries, wireframe summaries [M].</li>
@@ -1592,7 +1592,7 @@ deny = [
 <li>Tool results (older ones cleared first on pressure) [S2].</li>
 </ol>
 <h3>9.2 Instruction file spec</h3>
-<p><code>MINIMAKE.md</code> is plain Markdown. Guidance from Anthropic's team: keep it light, describe what the repo is for, spend tokens on <strong>gotchas</strong> the model cannot see from the file tree, and avoid stating obvious things; use references to skills for procedures such as how to verify work [S7].</p>
+<p><code>M2C.md</code> is plain Markdown. Guidance from Anthropic's team: keep it light, describe what the repo is for, spend tokens on <strong>gotchas</strong> the model cannot see from the file tree, and avoid stating obvious things; use references to skills for procedures such as how to verify work [S7].</p>
 <pre><code class="language-markdown"># Project: soil-monitor
 Firmware for an ESP32 soil sensor plus a small Flask dashboard.
 
@@ -1623,13 +1623,13 @@ See skill `verify-firmware`.
 <tr>
 <td>Instructions</td>
 <td>Rules the user wrote</td>
-<td><code>MINIMAKE.md</code> files</td>
+<td><code>M2C.md</code> files</td>
 <td>Always</td>
 </tr>
 <tr>
 <td>Auto-memory</td>
 <td>Things the agent learned about the user and project</td>
-<td><code>~/.minimake/memory/&lt;project&gt;/MEMORY.md</code> + topic files</td>
+<td><code>~/.m2c/memory/&lt;project&gt;/MEMORY.md</code> + topic files</td>
 <td>Index at start</td>
 </tr>
 <tr>
@@ -1656,7 +1656,7 @@ See skill `verify-firmware`.
 <h3>9.4 Compaction</h3>
 <ul>
 <li>When context nears the limit, <strong>clear old tool outputs first</strong>, then summarize the conversation; keep user requests and key code snippets [S2].</li>
-<li>Let users add &quot;compact instructions&quot; (what to keep) in <code>MINIMAKE.md</code> or pass a focus to <code>/compact</code> [S2].</li>
+<li>Let users add &quot;compact instructions&quot; (what to keep) in <code>M2C.md</code> or pass a focus to <code>/compact</code> [S2].</li>
 <li><strong>Stop auto-compacting</strong> after repeated failures where one huge output refills the window, and show an error with recovery steps [S2].</li>
 <li>Because the full session log is stored outside the context, nothing is lost when compaction drops messages; the harness can re-fetch positional slices of the log if the model needs earlier detail [S5].</li>
 </ul>
@@ -1670,11 +1670,11 @@ See skill `verify-firmware`.
 <h2>10. Extensibility</h2>
 <h3>10.1 Skills (open standard)</h3>
 <p>A skill is a folder with <code>SKILL.md</code> (YAML frontmatter with at least <code>name</code> and <code>description</code>, then instructions) and optional <code>scripts/</code>, <code>references/</code>, <code>assets/</code>. Agents load only name and description at startup, the body when a task matches, and bundled files only when referenced [R:S28]. The format was created by Anthropic, released openly and adopted by Claude Code, Codex, Cursor, Gemini CLI, OpenClaw and others [S28]; Zed supports it too, with a <code>disable-model-invocation</code> flag and a recommended body under 500 lines [S27].</p>
-<p>MiniMake <strong>[P]</strong>: read skills from <code>~/.minimake/skills</code>, <code>&lt;repo&gt;/.minimake/skills</code>, and (with a trust prompt) <code>&lt;repo&gt;/.agents/skills</code> and <code>.claude/skills</code> so users bring existing skills; support <code>disable-model-invocation: true</code> for skills with side effects; ship a few built-in skills (<code>verify</code>, <code>review</code>, <code>create-skill</code>, <code>init</code>); allow a skill to run in an isolated subagent context.</p>
+<p>M2C <strong>[P]</strong>: read skills from <code>~/.m2c/skills</code>, <code>&lt;repo&gt;/.m2c/skills</code>, and (with a trust prompt) <code>&lt;repo&gt;/.agents/skills</code> and <code>.claude/skills</code> so users bring existing skills; support <code>disable-model-invocation: true</code> for skills with side effects; ship a few built-in skills (<code>verify</code>, <code>review</code>, <code>create-skill</code>, <code>init</code>); allow a skill to run in an isolated subagent context.</p>
 <h3>10.2 Slash commands</h3>
 <p>Built-in set (see Appendix D for the full catalog): <code>/help</code>, <code>/init</code>, <code>/mode</code>, <code>/model</code>, <code>/plan</code>, <code>/review</code>, <code>/security-review</code>, <code>/compact</code>, <code>/context</code>, <code>/cost</code>, <code>/memory</code>, <code>/rewind</code>, <code>/resume</code>, <code>/fork</code>, <code>/mcp</code>, <code>/hooks</code>, <code>/permissions</code>, <code>/doctor</code>, <code>/login</code>, <code>/logout</code>, <code>/sandbox</code>, <code>/clear</code>. User skills appear as <code>/skill-name</code>.</p>
 <h3>10.3 Subagents as files</h3>
-<p><code>.minimake/agents/&lt;name&gt;.md</code> with frontmatter (<code>name</code>, <code>description</code>, <code>tools</code>, <code>model</code>, <code>skills</code>, <code>max_steps</code>) and a prompt body. Claude Code resolves duplicate names by priority (managed &gt; CLI &gt; project &gt; user &gt; plugin) [S1]; copy that precedence.</p>
+<p><code>.m2c/agents/&lt;name&gt;.md</code> with frontmatter (<code>name</code>, <code>description</code>, <code>tools</code>, <code>model</code>, <code>skills</code>, <code>max_steps</code>) and a prompt body. Claude Code resolves duplicate names by priority (managed &gt; CLI &gt; project &gt; user &gt; plugin) [S1]; copy that precedence.</p>
 <h3>10.4 Hooks</h3>
 <p>See §8.8. Handler types: command, http, prompt (one LLM call), agent (multi-turn with tools). Prompt and agent hooks are good for judgment calls such as &quot;did the model actually verify?&quot; [S34].</p>
 <h3>10.5 MCP</h3>
@@ -1730,15 +1730,15 @@ See skill `verify-firmware`.
 <h2>11. Workflows</h2>
 <h3>11.1 Checkpoints and rewind</h3>
 <ul>
-<li><strong>Before every file edit</strong>, snapshot the affected files locally (content-addressed store under <code>~/.minimake/checkpoints/&lt;run_id&gt;/</code>).</li>
+<li><strong>Before every file edit</strong>, snapshot the affected files locally (content-addressed store under <code>~/.m2c/checkpoints/&lt;run_id&gt;/</code>).</li>
 <li><strong>Rewind</strong> (<code>Esc Esc</code> or <code>/rewind</code>) restores files to an earlier step and optionally rewinds the conversation. Claude Code works this way: checkpoints are separate from git, survive resume, cover only file changes, and skip symlinked and hard-linked files [S2].</li>
 <li><strong>Be honest in the UI:</strong> actions on remote systems (databases, APIs, deployments) cannot be checkpointed and rely on permissions instead [S2].</li>
-<li>Replit's checkpoints also capture conversation context and connected databases [S32]; for MiniMake, file plus conversation is enough.</li>
+<li>Replit's checkpoints also capture conversation context and connected databases [S32]; for M2C, file plus conversation is enough.</li>
 <li>Gemini CLI checkpoints before destructive actions and offers <code>/restore</code> [S15].</li>
 </ul>
 <h3>11.2 Sessions</h3>
 <ul>
-<li>Sessions are stored locally and in the backend log. <code>minimake --resume</code> reopens the same session ID; <code>--fork</code> copies history into a new ID [S2].</li>
+<li>Sessions are stored locally and in the backend log. <code>m2c --resume</code> reopens the same session ID; <code>--fork</code> copies history into a new ID [S2].</li>
 <li><strong>Same session open in two terminals:</strong> warn and offer to fork.</li>
 <li>Sessions are tied to a directory; branches change the files but not the conversation [S2].</li>
 </ul>
@@ -1751,18 +1751,18 @@ See skill `verify-firmware`.
 </ul>
 <h3>11.4 Parallel work with worktrees</h3>
 <ul>
-<li><code>minimake --worktree feature-x</code> creates a git worktree and a session bound to it; up to N parallel sessions per user by plan.</li>
+<li><code>m2c --worktree feature-x</code> creates a git worktree and a session bound to it; up to N parallel sessions per user by plan.</li>
 <li>Cursor runs up to eight parallel agents on worktrees or cloud machines [S16]; Claude Code recommends worktrees for parallel sessions [S2]; Gemini and Cline list worktrees as a feature [S15, S13].</li>
 <li>A <strong>&quot;compare runs&quot;</strong> view (v3) shows diffs from several agents on one task, the idea behind Copilot Agent HQ's side-by-side PRs [S30]. It multiplies cost, so keep it opt-in.</li>
 </ul>
 <h3>11.5 Headless and CI</h3>
 <ul>
-<li><code>minimake -p &quot;task&quot;</code> runs once, prints the result and exits; <code>--output-format json</code> for scripts (Claude Code, Gemini and Cline have equivalents [S2, S15, S13]).</li>
+<li><code>m2c -p &quot;task&quot;</code> runs once, prints the result and exits; <code>--output-format json</code> for scripts (Claude Code, Gemini and Cline have equivalents [S2, S15, S13]).</li>
 <li>A <strong>GitHub Action / CI wrapper</strong> for PR review and fix-the-failing-check tasks. Claude Code and Amp have review bots [S1, S31].</li>
 <li>Headless runs use <strong>bypass-free</strong> policies: explicit allow rules only, no prompts; anything not allowed fails the run.</li>
 </ul>
 <h3>11.6 Lint, test and build loops</h3>
-<p>Configure once in <code>MINIMAKE.md</code> or settings:</p>
+<p>Configure once in <code>M2C.md</code> or settings:</p>
 <pre><code class="language-toml">[verify]
 lint  = &#34;ruff check .&#34;
 test  = &#34;pytest -q&#34;
@@ -1772,20 +1772,20 @@ before_finish = [&#34;test&#34;]     # Stop hook blocks until this passes
 max_fix_attempts = 3
 </code></pre>
 <h3>11.7 Review before accept (MiniMe-specific) [M][P]</h3>
-<p><code>/review</code> runs your reviewer role on the current diff; <code>/security-review</code> runs the security reviewer plus dependency and secret scans. Output is a short list of findings with file and line, which the user can send back to the agent as tasks. Devin Review and BugBot show how popular this is: Devin Review organizes large diffs, detects copied or moved code, flags likely bugs and can trigger autofixes [S17, S16]. Because you already have reviewer roles and a security aggregator, this is MiniMake's strongest differentiator and costs little to build.</p>
+<p><code>/review</code> runs your reviewer role on the current diff; <code>/security-review</code> runs the security reviewer plus dependency and secret scans. Output is a short list of findings with file and line, which the user can send back to the agent as tasks. Devin Review and BugBot show how popular this is: Devin Review organizes large diffs, detects copied or moved code, flags likely bugs and can trigger autofixes [S17, S16]. Because you already have reviewer roles and a security aggregator, this is M2C's strongest differentiator and costs little to build.</p>
 <h3>11.8 Spec-driven mode (later) [S18]</h3>
 <p>Kiro's three files are a useful pattern: <code>requirements.md</code> (user stories with acceptance criteria in EARS notation), <code>design.md</code> (architecture, data models, interfaces), <code>tasks.md</code> (sequenced tasks linked to requirements) [S18]. <strong>[P]</strong> Reuse MiniMe's Plan tab outputs as these files when a project is linked. Offer both Feature specs and Bugfix specs. Keep it optional; some users want to just chat.</p>
-<h3>11.9 Browser ↔ MiniMake handoff and remote control</h3>
-<p>The recommended design (see also earlier discussion): <strong>explicit pull and push on your existing version table, with a &quot;checked out in MiniMake&quot; banner in the browser</strong>, not live two-way sync.</p>
+<h3>11.9 Browser ↔ M2C handoff and remote control</h3>
+<p>The recommended design (see also earlier discussion): <strong>explicit pull and push on your existing version table, with a &quot;checked out in M2C&quot; banner in the browser</strong>, not live two-way sync.</p>
 <ul>
-<li><strong>Pull:</strong> <code>minimake pull &lt;project&gt;</code> writes the cloud project to a folder, skipping junk (<code>node_modules</code>, <code>.git</code>, build output).</li>
+<li><strong>Pull:</strong> <code>m2c pull &lt;project&gt;</code> writes the cloud project to a folder, skipping junk (<code>node_modules</code>, <code>.git</code>, build output).</li>
 <li><strong>Checked out:</strong> browser code files become read-only with a banner and a &quot;release checkout&quot; button.</li>
-<li><strong>Push:</strong> <code>minimake push</code> sends changed files; each becomes a new version in history; push carries the version it pulled from and is rejected if the cloud moved on.</li>
+<li><strong>Push:</strong> <code>m2c push</code> sends changed files; each becomes a new version in history; push carries the version it pulled from and is rejected if the cloud moved on.</li>
 <li><strong>Remote control (v2):</strong> the web app shows a live run (messages, diffs, approvals) from the backend session log and can approve or cancel. Claude Code's Remote Control runs the session on your machine and drives it from a browser while files stay local [S2]. Approvals made remotely still pass the local hard deny rules.</li>
 <li><strong>Git later:</strong> an optional GitHub link where push also creates a branch. Claude Code's cloud/teleport flow uses a pushed branch as the handoff and, for non-GitHub repos, bundles the local repo (up to 100 MB) [S2].</li>
 </ul>
 <h3>11.10 Scheduled and background runs</h3>
-<p>Reserved for MiniMate (see <code>minimate_guide.md</code>). MiniMake v1 supports <strong>background shells</strong> and <strong>headless runs</strong>, but no unattended agent runs.</p>
+<p>Reserved for Menux (see <code>menux_guide.md</code>). M2C v1 supports <strong>background shells</strong> and <strong>headless runs</strong>, but no unattended agent runs.</p>
 <hr>
 <h2>12. Surfaces and UX</h2>
 <h3>12.1 The terminal UI</h3>
@@ -1814,12 +1814,12 @@ Why: run the test suite to verify the change
 <h3>12.4 Onboarding</h3>
 <ol>
 <li><code>curl -fsSL &lt;your-domain&gt;/install.sh | bash</code> (and Homebrew/npm later). Claude Code, Codex and Gemini all install in one line [S2, S11, S15].</li>
-<li><code>minimake login</code> (device-code flow).</li>
-<li>First run in a folder: trust prompt, <code>/init</code> offer, sandbox check (<code>minimake doctor</code> reports readiness, as <code>computer-use-linux doctor</code> does for its tool [S24]).</li>
+<li><code>m2c login</code> (device-code flow).</li>
+<li>First run in a folder: trust prompt, <code>/init</code> offer, sandbox check (<code>m2c doctor</code> reports readiness, as <code>computer-use-linux doctor</code> does for its tool [S24]).</li>
 <li>Optional: link to a MiniMe project.</li>
 </ol>
 <h3>12.5 Editors through ACP</h3>
-<p>Implement <code>minimake acp</code> so Zed, JetBrains, Devin Desktop and VS Code (via a bridge) can launch MiniMake as a subprocess over JSON-RPC on stdio [S27]. Kiro CLI does exactly this with <code>kiro-cli acp</code> [S27]. When the editor supports a terminal capability, route command execution through the editor's terminal. This gives users a VS Code-class experience without you building an editor, which answers your earlier question about using &quot;VS Code or any other thing&quot;.</p>
+<p>Implement <code>m2c acp</code> so Zed, JetBrains, Devin Desktop and VS Code (via a bridge) can launch M2C as a subprocess over JSON-RPC on stdio [S27]. Kiro CLI does exactly this with <code>kiro-cli acp</code> [S27]. When the editor supports a terminal capability, route command execution through the editor's terminal. This gives users a VS Code-class experience without you building an editor, which answers your earlier question about using &quot;VS Code or any other thing&quot;.</p>
 <h3>12.6 Browser surface</h3>
 <p>Use the MiniMe web app for: project selection, run history and replay, remote approvals, diff review, cost dashboard, device management, settings sync (permissions, skills, memory export).</p>
 <hr>
@@ -1904,7 +1904,7 @@ code_policies(user_id, scope, body jsonb)                               -- synce
 <h3>13.4 Workers and scaling</h3>
 <ul>
 <li><strong>Stateless workers</strong> execute loop steps; a run's state is rows plus Redis. Any worker can continue any run, the &quot;cattle not pets&quot; principle [S5].</li>
-<li>Your current setup has one uvicorn process and a small agent task pool [M]. For MiniMake, run N workers behind a queue; keep WebSocket connections on a dedicated gateway process that forwards events to workers via Redis pub/sub.</li>
+<li>Your current setup has one uvicorn process and a small agent task pool [M]. For M2C, run N workers behind a queue; keep WebSocket connections on a dedicated gateway process that forwards events to workers via Redis pub/sub.</li>
 <li><strong>Pending approvals and daemon futures</strong> currently live in process memory and expire after 15 minutes [M]; move them to Redis or the database so restarts and multiple workers work.</li>
 <li><strong>Backpressure:</strong> per-user concurrent run limit; per-plan queue priority.</li>
 </ul>
@@ -1949,7 +1949,7 @@ code_policies(user_id, scope, body jsonb)                               -- synce
 <p>All price figures below come from your Financial Strategy Rulebook v1.1 [M]. Cached-input prices for some models are <strong>[A]</strong>. Replace everything marked [A] with measurements from your instrumentation before setting prices.</p>
 </blockquote>
 <h3>14.1 What the benchmarks imply for model choice</h3>
-<p>Terminal-Bench 2.1 (leaderboard snapshot) reports GPT-5.6 Luna at 75.7% and Claude Sonnet 5 at 74.6%, GPT-5.6 Terra at 78.4%, Claude Opus 4.8 at 78.9%, GPT-5.5 at 83.1%, Fable 5 at 83.8%, and GPT-6 Astra at 87.4% [S25]. Differences in harness and reasoning-effort settings mean these are not apples to apples, but the <strong>price gap between Luna and Sonnet/Opus-class models is large</strong>. If Luna-class models hold up in your own eval, MiniMake's main loop can run on a cheap class with escalation, which changes the economics completely.</p>
+<p>Terminal-Bench 2.1 (leaderboard snapshot) reports GPT-5.6 Luna at 75.7% and Claude Sonnet 5 at 74.6%, GPT-5.6 Terra at 78.4%, Claude Opus 4.8 at 78.9%, GPT-5.5 at 83.1%, Fable 5 at 83.8%, and GPT-6 Astra at 87.4% [S25]. Differences in harness and reasoning-effort settings mean these are not apples to apples, but the <strong>price gap between Luna and Sonnet/Opus-class models is large</strong>. If Luna-class models hold up in your own eval, M2C's main loop can run on a cheap class with escalation, which changes the economics completely.</p>
 <p>A separate harness-cost test showed that for the same accuracy one harness cost 2x more GPU time than another on self-hosted models [S25]. Token-efficient context handling is therefore a margin lever, not just a nicety.</p>
 <h3>14.2 Suggested chains [P] (verify with your eval)</h3>
 <table>
@@ -1982,7 +1982,7 @@ code_policies(user_id, scope, body jsonb)                               -- synce
 </tr>
 </tbody>
 </table>
-<p>(Your rulebook already defines classes and the code-authoring roster by plan [M]; MiniMake uses the same chains, with an explicit &quot;escalate&quot; action.)</p>
+<p>(Your rulebook already defines classes and the code-authoring roster by plan [M]; M2C uses the same chains, with an explicit &quot;escalate&quot; action.)</p>
 <h3>14.3 Cost per session (illustration) [A]</h3>
 <p>Assumed session: <strong>40 steps, average 30K input tokens per step (85% served from cache), 600 output tokens per step.</strong> That is 1.2M input tokens (1.02M cached, 0.18M uncached) and 24K output tokens.</p>
 <table>
@@ -2040,7 +2040,7 @@ code_policies(user_id, scope, body jsonb)                               -- synce
 </thead>
 <tbody>
 <tr>
-<td>A. Separate MiniMake pool, cached reads at a discount weight (e.g., 10%)</td>
+<td>A. Separate M2C pool, cached reads at a discount weight (e.g., 10%)</td>
 <td>Count 0.18M + 0.1×1.02M + 0.024M ≈ <strong>0.31M</strong> per session</td>
 <td>Familiar token unit; honest</td>
 <td>Still confusing to users</td>
@@ -2075,7 +2075,7 @@ code_policies(user_id, scope, body jsonb)                               -- synce
 <li><strong>Telemetry first.</strong> Log tokens, cache-hit rate, steps and cost for every run so you can tune with data (Roadmap Tech-A) [M].</li>
 </ul>
 <h3>14.7 Free tier</h3>
-<p>Do not offer free MiniMake usage on production keys. Your rulebook forbids free-tier keys in production, and shell access plus agent loops are the easiest way to abuse a free plan [M]. If you want a demo, offer a tiny capped trial per verified user.</p>
+<p>Do not offer free M2C usage on production keys. Your rulebook forbids free-tier keys in production, and shell access plus agent loops are the easiest way to abuse a free plan [M]. If you want a demo, offer a tiny capped trial per verified user.</p>
 <hr>
 <h2>15. Observability, evals and quality</h2>
 <h3>15.1 What to measure</h3>
@@ -2137,13 +2137,13 @@ code_policies(user_id, scope, body jsonb)                               -- synce
 <h3>15.3 Tracing</h3>
 <p>Use OpenTelemetry-style traces per run (model call, tool call, hook) exported to your backend and optionally to the user's collector in enterprise mode. Gemini CLI and Codex both document OTel export [S15, S9]. Redact before export.</p>
 <h3>15.4 Dogfooding</h3>
-<p>Run MiniMake on MiniMe's own repo from M0. Keep a short log of failures; each becomes an eval case (OpenHands-style replay makes this easy [S20]).</p>
+<p>Run M2C on MiniMe's own repo from M0. Keep a short log of failures; each becomes an eval case (OpenHands-style replay makes this easy [S20]).</p>
 <hr>
 <h2>16. Roadmap and milestones</h2>
 <p>Sizes are relative effort (S/M/L/XL), not dates. Dependencies on your roadmap items are marked [M].</p>
 <h3>M0 — Internal prototype (dev keys only) · size L</h3>
 <ul>
-<li>Device socket reuse, <code>minimake</code> CLI skeleton, TUI v0.</li>
+<li>Device socket reuse, <code>m2c</code> CLI skeleton, TUI v0.</li>
 <li>Tools: <code>read_file</code>, <code>list_dir</code>, <code>glob</code>, <code>grep</code>, <code>edit_file</code>, <code>write_file</code>, <code>bash</code> (no sandbox yet, <strong>ask</strong> mode always), <code>plan_exit</code>.</li>
 <li>Server loop with one tool-calling provider adapter; run state in Redis; events in Postgres; cancel.</li>
 <li>Checkpoints (local) and rewind.</li>
@@ -2153,7 +2153,7 @@ code_policies(user_id, scope, body jsonb)                               -- synce
 <ul>
 <li>OS sandbox (Seatbelt, bubblewrap), network proxy with allowlist, protected paths.</li>
 <li>Permission rules, accept-edits mode, hooks, folder trust.</li>
-<li>Compaction, auto-memory, <code>MINIMAKE.md</code>, rules, skills.</li>
+<li>Compaction, auto-memory, <code>M2C.md</code>, rules, skills.</li>
 <li>Subagents (explore, plan), tasks, ask_user, background shell, web fetch (taint).</li>
 <li>Secret redaction and sanitized env; two-form denylist.</li>
 <li><strong>Exit criteria:</strong> injection and sandbox suites pass; 20 golden tasks at a target success rate you set from baseline; no prompt-free dangerous actions.</li>
@@ -2253,7 +2253,7 @@ code_policies(user_id, scope, body jsonb)                               -- synce
 <li>First provider(s) for native tool use.</li>
 <li>Whether the shared-token fix happens before any outside user touches the daemon (it should).</li>
 <li>Where handoff lives: version-table pull/push (recommended) vs git.</li>
-<li><strong>Name: decided.</strong> Product MiniMake (formerly working-named MiniCode); CLI binary <code>minimake</code>. Still to do: check availability of the binary name, package names, domains and trademarks (not checked in this research).</li>
+<li><strong>Name: decided.</strong> Product M2C (formerly working-named MiniCode); CLI binary <code>m2c</code>. Still to do: check availability of the binary name, package names, domains and trademarks (not checked in this research).</li>
 <li>Whether to open-source the client (Codex CLI is Apache-2.0 and has 100k+ stars; Claude Code is proprietary [S25]). Open-source builds trust for a tool that runs commands on user machines; it also exposes your policy code to scrutiny, which is good.</li>
 </ol>
 <hr>
@@ -2264,19 +2264,19 @@ code_policies(user_id, scope, body jsonb)                               -- synce
 <strong>Later (v3+):</strong> plugins, semantic index, browser self-testing, compare-runs, MCP server mode, shareable sessions, dynamic workflows.
 <strong>Skip:</strong> edit-format zoo, notebooks, vendor-specific lock-in features.</p>
 <h2>Appendix B — Config files and directories</h2>
-<pre><code>~/.minimake/
+<pre><code>~/.m2c/
   settings.toml          # user settings, permissions, hooks
-  MINIMAKE.md            # global instructions
+  M2C.md            # global instructions
   skills/                # user skills
   agents/                # user subagents
   memory/&lt;project&gt;/      # auto-memory
   checkpoints/&lt;run&gt;/     # file snapshots
   logs/                  # local audit log
 &lt;repo&gt;/
-  MINIMAKE.md  AGENTS.md  CLAUDE.md   # read in this order if several exist
-  .minimake/
+  M2C.md  AGENTS.md  CLAUDE.md   # read in this order if several exist
+  .m2c/
     settings.toml  rules/*.md  skills/  agents/  hooks/
-/etc/minimake/managed.toml            # org-managed (v3)
+/etc/m2c/managed.toml            # org-managed (v3)
 </code></pre>
 <h2>Appendix C — Hook event reference</h2>
 <table>
@@ -2339,15 +2339,15 @@ code_policies(user_id, scope, body jsonb)                               -- synce
 <h2>Appendix D — Slash command catalog</h2>
 <p><code>/help</code> <code>/init</code> <code>/login</code> <code>/logout</code> <code>/mode</code> <code>/plan</code> <code>/model</code> <code>/oracle</code> <code>/review</code> <code>/security-review</code> <code>/compact</code> <code>/context</code> <code>/cost</code> <code>/memory</code> <code>/rewind</code> <code>/resume</code> <code>/fork</code> <code>/clear</code> <code>/mcp</code> <code>/hooks</code> <code>/permissions</code> <code>/sandbox</code> <code>/skills</code> <code>/agents</code> <code>/doctor</code> <code>/pull</code> <code>/push</code> <code>/worktree</code> <code>/export</code> <code>/feedback</code>.</p>
 <h2>Appendix E — Command-line reference (proposed)</h2>
-<pre><code>minimake                         # interactive
-minimake -p &#34;task&#34;               # headless one-shot
-minimake --resume [id] | --continue | --fork
-minimake --mode plan|ask|accept-edits|auto
-minimake --model &lt;class|name&gt;
-minimake --worktree &lt;name&gt;
-minimake login | logout | doctor | acp | pull &lt;project&gt; | push
-minimake mcp add|list|remove
-minimake skills list | install &lt;path&gt;
+<pre><code>m2c                         # interactive
+m2c -p &#34;task&#34;               # headless one-shot
+m2c --resume [id] | --continue | --fork
+m2c --mode plan|ask|accept-edits|auto
+m2c --model &lt;class|name&gt;
+m2c --worktree &lt;name&gt;
+m2c login | logout | doctor | acp | pull &lt;project&gt; | push
+m2c mcp add|list|remove
+m2c skills list | install &lt;path&gt;
 </code></pre>
 <h2>Appendix F — Protocol message catalog (sketch)</h2>
 <pre><code class="language-json">// client → server
@@ -2502,6 +2502,6 @@ minimake skills list | install &lt;path&gt;
 </tr>
 </tbody>
 </table>
-<p><em>End of the MiniMake guide.</em></p>
+<p><em>End of the M2C guide.</em></p>
 
 </body></html>

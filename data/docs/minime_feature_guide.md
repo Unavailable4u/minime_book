@@ -20,8 +20,8 @@ MiniMe Web (`surface='web'`) is the flagship workspace surface of a three-produc
 | **Ch. 2 · Technical Roadmap** | `minime_technical_roadmap.md` | Engineering sequence `Tech-A` → `Tech-H`, model hygiene, and cross-track timeline |
 | **Ch. 3 · Server Guide** | `minime_server_management_guide.md` | Metric-gated server split stages (`Stage 1` single box → `Stage 5` fleet) |
 | **Ch. 4 · MiniMe Feature Guide** | `minime_feature_guide.md` *(this guide)* | Complete feature manual for the MiniMe Web application across all 8 workspace tabs and 25 areas |
-| **Ch. 5 & 6 · MiniMake Guides** | `minimake_feature_guide.md` & `minimake_build_plan.md` | Local-first terminal & editor coding agent (`minimake`, `surface='minimake'`, 64 WPs) |
-| **Ch. 8 & 9 · MiniMate Guides** | `minimate_feature_guide.md` & `MiniMate___Build_Execution_Guide.md` | Local-first personal automation node (`minimate`, `surface='minimate'`, 59 WPs) |
+| **Ch. 5 & 6 · M2C Guides** | `m2c_feature_guide.md` & `m2c_build_plan.md` | Local-first terminal & editor coding agent (`m2c`, `surface='m2c'`, 64 WPs) |
+| **Ch. 8 & 9 · Menux Guides** | `menux_feature_guide.md` & `Menux___Build_Execution_Guide.md` | Local-first personal automation node (`menux`, `surface='menux'`, 59 WPs) |
 | **Ch. 11–14 · FBEBC Guides** | `fbebc-research-program-guide.md` + companions | Fitness-Band Elitist Bacterial Colony research track (`Stage 1` preprint → `Stage 2` `backend/agents/evolution/`) |
 
 ---
@@ -619,15 +619,15 @@ The Editor is a full code workbench rather than a plain text box. It includes:
 - server-versus-local version comparison;
 - ZIP download of workspace files.
 
-The editor works against cloud workspace files (`workspace_code_files` in PostgreSQL) and synchronizes with the **MiniMake local-first architecture (`minimake_build_plan.md` Override O6, Phase 0 `MK_B00–B12`)**:
+The editor works against cloud workspace files (`workspace_code_files` in PostgreSQL) and synchronizes with the **M2C local-first architecture (`m2c_build_plan.md` Override O6, Phase 0 `MK_B00–B12`)**:
 
 | Build Workbench Surface | Browser Disposition (`Phase 0` Sync) | Governing Work Package / Companion Guide |
 | :--- | :--- | :--- |
-| **Cloud File Explorer, CodeMirror Editor, Multi-Tab & Save** | **Retained in Browser (`Available`)** — full cloud project editing with dirty-state and conflict guards (`MK_B08–B11`) | `minime_feature_guide.md` §9.3, `minimake_build_plan.md` §4 |
+| **Cloud File Explorer, CodeMirror Editor, Multi-Tab & Save** | **Retained in Browser (`Available`)** — full cloud project editing with dirty-state and conflict guards (`MK_B08–B11`) | `minime_feature_guide.md` §9.3, `m2c_build_plan.md` §4 |
 | **AI Edit Proposals, Hunk Review, History, Problems & Console** | **Retained in Browser (`Available`)** — review-gated diffs, version comparison, and HTML/React/URL preview | `minime_feature_guide.md` §9.4–9.5 |
-| **Pyodide Chat Artifacts (`ArtifactRenderer.jsx`)** | **Retained & Self-Hosted (`MK_B02`)** — runs inline Python charts/calculators inside chat artifacts via Web Worker | `minimake_build_plan.md` `B02` |
-| **Browser Python `Run` in Preview Pane** | **Removed in Phase 0 (`MK_B03`)** — replaced with neutral empty state; real Python execution runs locally in **MiniMake CLI** | `minimake_build_plan.md` O6 & `B03` |
-| **Browser `Terminal` Sub-Tab & Browser `Local-Folder Mode`** | **Removed in Phase 0 (`MK_B04–B06`)** — replaced by the **"Work locally with MiniMake"** CLI handoff banner and `/api/codeagent/*` live view | `minimake_feature_guide.md` §8.1, `minimake_build_plan.md` `B04–B06` |
+| **Pyodide Chat Artifacts (`ArtifactRenderer.jsx`)** | **Retained & Self-Hosted (`MK_B02`)** — runs inline Python charts/calculators inside chat artifacts via Web Worker | `m2c_build_plan.md` `B02` |
+| **Browser Python `Run` in Preview Pane** | **Removed in Phase 0 (`MK_B03`)** — replaced with neutral empty state; real Python execution runs locally in **M2C CLI** | `m2c_build_plan.md` O6 & `B03` |
+| **Browser `Terminal` Sub-Tab & Browser `Local-Folder Mode`** | **Removed in Phase 0 (`MK_B04–B06`)** — replaced by the **"Work locally with M2C"** CLI handoff banner and `/api/codeagent/*` live view | `m2c_feature_guide.md` §8.1, `m2c_build_plan.md` `B04–B06` |
 
 ### 9.4 AI-assisted code editing
 
@@ -783,12 +783,12 @@ Usage data is intended to answer practical questions such as which agent is expe
 
 ### Unified Cross-Surface Plans & Shared Credit Pool (`Rulebook Part 7` + `Tech-A/B` + `S01`)
 
-Per `MiniMe_Financial_Strategy_Rulebook.md` (Rules 4–8) and `minimake_build_plan.md` Override O2, **one MiniMe account and one shared monthly token/dollar pool (`usage_ledger` + `user_plans` in migration `0012`)** govern **MiniMe Web (`surface='web'`)**, **MiniMake (`surface='minimake'`)**, and **MiniMate (`surface='minimate'`)**:
+Per `MiniMe_Financial_Strategy_Rulebook.md` (Rules 4–8) and `m2c_build_plan.md` Override O2, **one MiniMe account and one shared monthly token/dollar pool (`usage_ledger` + `user_plans` in migration `0012`)** govern **MiniMe Web (`surface='web'`)**, **M2C (`surface='m2c'`)**, and **Menux (`surface='menux'`)**:
 
 | Plan Tier | Monthly Price (USD / BDT) | Standard Pool | Deep / Expert Pool | Brain / Frontier Pool | Active Surfaces & Cap Rule |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Free** | `$0` / `৳0` | 150K tokens/day (hard daily ceiling) | Preview only | None | Web + MiniMake + MiniMate preview; Free budget capped at `$150/mo` total (`Rule 8`) |
-| **Basic** | `$9/mo` (`$90/yr`) · `৳799/mo` | **12M** tokens/mo | **1.5M** tokens/mo | None (Panel vote) | Shared across Web, MiniMake CLI, and MiniMate Node (`COGS-at-cap ≤ $3.49`, `41%`) |
+| **Free** | `$0` / `৳0` | 150K tokens/day (hard daily ceiling) | Preview only | None | Web + M2C + Menux preview; Free budget capped at `$150/mo` total (`Rule 8`) |
+| **Basic** | `$9/mo` (`$90/yr`) · `৳799/mo` | **12M** tokens/mo | **1.5M** tokens/mo | None (Panel vote) | Shared across Web, M2C CLI, and Menux Node (`COGS-at-cap ≤ $3.49`, `41%`) |
 | **Moderate** | `$29/mo` (`$290/yr`) · `৳2,499/mo` | **40M** tokens/mo | **6.0M** tokens/mo | **1.2M** tokens/mo (Batch Brain) | Unlocks in `S3a` (`Tech-C/E`); shared across all 3 surfaces (`COGS-at-cap ≤ $11.55`, `42%`) |
 | **Ultimate** | `$79/mo` (`$790/yr`) · `৳6,999/mo` | **120M** tokens/mo | **20.0M** tokens/mo | **4.5M** tokens/mo (Real-Time Brain) | Unlocks in `S3b` (`Tech-G`); shared across all 3 surfaces (`COGS-at-cap ≤ $31.80`, `43%`) |
 
@@ -875,7 +875,7 @@ The local workspace bridge can:
 - propose a local action;
 - confirm or deny a local action.
 
-The path guard and approval workflow are essential parts of this feature. **Synchronization Note (`minimake_build_plan.md` Override O6):** While the backend routes (`backend/eo/local_workspace.py` and `local_workspace_tools.py`) exist in the repository baseline, the browser UI's direct local-folder picker is retired in **Phase 0 (`MK_B05–B06`)** in favor of pairing the **MiniMake CLI (`minimake`)** and **MiniMate Node (`minimate`)** via device-code authentication (`minicore/`). This ensures all local file and shell operations run inside the local OS sandbox (`bubblewrap`) rather than through a browser tab.
+The path guard and approval workflow are essential parts of this feature. **Synchronization Note (`m2c_build_plan.md` Override O6):** While the backend routes (`backend/eo/local_workspace.py` and `local_workspace_tools.py`) exist in the repository baseline, the browser UI's direct local-folder picker is retired in **Phase 0 (`MK_B05–B06`)** in favor of pairing the **M2C CLI (`m2c`)** and **Menux Node (`menux`)** via device-code authentication (`minicore/`). This ensures all local file and shell operations run inside the local OS sandbox (`bubblewrap`) rather than through a browser tab.
 
 ### 17.3 Web research and clipping
 
@@ -1165,7 +1165,7 @@ The daemon remains out of internet-facing deployment until it receives its own s
 | Technical / Business Phase | Target Window | Core Capabilities Unlocked | Governing Gate |
 | :--- | :--- | :--- | :--- |
 | **Tech-A · Instrumentation & Baseline** | Oct 2026 – Apr 2027 (`S0`) | Per-call dollar/token telemetry (`llm_call_log` + `usage_ledger` `0012`), Groq & Gemini 3.1 Flash Image roster cleanup | Immediate priority (#1 checklist item) |
-| **Phase 0–6 · MiniMake & MiniMate** | Jan – Jun 2027 (`S0`) | Local-first `minimake` coding CLI (`Jan–Feb 2027`) and `minimate` automation node (`Mar–Jun 2027`) sharing `minicore/` | Nov 2026 architecture & shared ledger lock |
+| **Phase 0–6 · M2C & Menux** | Jan – Jun 2027 (`S0`) | Local-first `m2c` coding CLI (`Jan–Feb 2027`) and `menux` automation node (`Mar–Jun 2027`) sharing `minicore/` | Nov 2026 architecture & shared ledger lock |
 | **Tech-B · Harden Basic for Launch** | Mar 2027 – Jan 2028 (`S1 → S2`) | Multi-tenant RLS, paid provider keys (2/vendor), SSLCommerz/bKash/Nagad + MoR billing, quota enforcement | Tech-A exit criteria met |
 | **FBEBC Stage 2 · Evolution Engine** | Mar 2028+ (`Post-Basic`) | Ports `EvolutionEngine` (`elite_band` + `single_winner`) into `backend/agents/evolution/` | Gates `G1–G4` (Basic live, ops green, research budget line) |
 | **Tech-C & Tech-D · Moderate Prep & Brain Proto** | Jul 2028 – Jan 2029 (`Late S2`) | `PANEL_CHAINS[tier]`, passive Monitor v1, and internal-only Brain prototype scored offline against `routing_memory` | Business Gate 3.5 (ops manageable) + routing data volume |
