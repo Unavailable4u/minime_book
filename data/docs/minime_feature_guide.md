@@ -309,7 +309,7 @@ The current agent roster includes specialized capabilities for:
 
 This list describes the role vocabulary in the codebase. Availability of a role in a particular user flow depends on the selected stage, task type, enabled provider, and configured credentials.
 
-At commit `febb685`, the repository contains **73 Python modules in `backend/agents/`** (59 specialist agent modules + 14 package/support modules) mapped across **46 distinct router roles** in `backend/eo/model_router.py`:
+At commit `febb685`, the repository contains **73 Python modules in `backend/agents/`** (59 specialist agent modules + 14 package/support modules) mapped across **46 distinct router roles** in `backend/eo/registry.py` (`ROLE_PROMPTS_SEED`):
 
 | Agent Family | Module Count | Representative Modules in `backend/agents/` | Primary Router Roles & Model Tier |
 | :--- | :--- | :--- | :--- |
