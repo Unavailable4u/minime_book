@@ -1,7 +1,9 @@
-# MiniMake — Build Execution Guide
+# M2C L26 — Build Execution Guide
+
+*Minime to Code · Level 26 (L26). Levels work like release versions: the next release will be L27.*
 ### From the first patch to release: ordered, parallelizable, patch-sized work packages
 
-*Version 1.1 (Synchronized Edition) · Companion to `minimake_feature_guide.md` (canonical 16-section feature & product specification), `guides/MiniMake___Product___Build_Guide.html` (initial design note), `minime_technical_roadmap.md` (Tech-A/B shared ledger sequence), and `MiniMe_Financial_Strategy_Rulebook.md` (shared plan caps). Planned execution window on the Master Timeline: **Jan – Feb 2027** (64 work packages, 12 waves, 157 effort points). Where this guide and the initial HTML product guide disagree, **this guide and `minimake_feature_guide.md` win** (see §1 Overrides O1–O8).*
+*Version 1.1 (Synchronized Edition) · Companion to `m2c_feature_guide.md` (canonical 16-section feature & product specification), `guides/M2C___Product___Build_Guide.html` (initial design note), `minime_technical_roadmap.md` (Tech-A/B shared ledger sequence), and `MiniMe_Financial_Strategy_Rulebook.md` (shared plan caps). Planned execution window on the Master Timeline: **Jan – Feb 2027** (64 work packages, 12 waves, 157 effort points). Where this guide and the initial HTML product guide disagree, **this guide and `m2c_feature_guide.md` win** (see §1 Overrides O1–O8).*
 
 ---
 
@@ -12,7 +14,7 @@
 Give the patch-writing model, every time:
 
 1. **This guide**, pointing at one work package (WP) by ID, for example "implement WP S03".
-2. **`minimake_guide.md`** (the product spec). Each WP lists the sections it implements.
+2. **`m2c_guide.md`** (the product spec). Each WP lists the sections it implements.
 3. **The repo** at the commit you want to patch against.
 4. **Your patch conventions.** Your repo keeps patches as files at the repo root (`W6_2_console_bridge.patch` and so on), and your code uses long explanatory docstrings, "Patch B5"-style notes and fail-open helpers. New patches should follow that style. **[P]** Name them `MK_<id>_<slug>.patch`, for example `MK_B03_remove_python_run.patch`, and keep new ones in a `patches/` folder so the root stops growing.
 
@@ -30,9 +32,9 @@ Give the patch-writing model, every time:
 
 ```
 You are generating ONE patch for the MiniMe repo at commit [SHA].
-Work package: [ID — title] from minimake_build_plan.md.
-Read: that WP, §1 (Overrides) and §[cross-cutting section] of minimake_build_plan.md,
-and sections [..] of minimake_guide.md.
+Work package: [ID — title] from m2c_build_plan.md.
+Read: that WP, §1 (Overrides) and §[cross-cutting section] of m2c_build_plan.md,
+and sections [..] of m2c_guide.md.
 Constraints: touch only [files]; follow existing code style and docstring conventions;
 no new dependencies unless the WP lists them; security checks fail closed.
 Process: (1) read the files and list what you found, (2) write the tests first,
@@ -66,24 +68,24 @@ These come from your latest requirements (local-first trust, one shared account 
 
 | Where | What lives there | Notes |
 |---|---|---|
-| **User's device (source of truth)** | Project files; session transcripts and event log; approvals; checkpoints; memory; skills; hooks; settings; tool outputs; audit log; device credential | SQLite `~/.minimake/state.db` plus plain files under `~/.minimake/` |
+| **User's device (source of truth)** | Project files; session transcripts and event log; approvals; checkpoints; memory; skills; hooks; settings; tool outputs; audit log; device credential | SQLite `~/.m2c/state.db` plus plain files under `~/.m2c/` |
 | **Server, persistent, content-free** | Account; device registry (credential hash only); **usage ledger** (user, surface, model, token counts, credits, timestamps, opaque run ID); plan and quota; minimal error counters | **No prompts, code, file paths, or tool outputs.** |
 | **Server, ephemeral content** | The in-flight conversation for an **active** run, so the loop can call the model and keep prompt-cache prefixes stable | Encrypted in Redis, TTL (idle 2 h, hard cap 24 h), deleted when the run ends; never written to Postgres or logs |
 | **Third parties** | Model providers receive prompt content per request | Use providers and terms with no-training and shortest retention available; list as sub-processors (your rulebook already requires this) |
 
 Consequences:
 - The **device log is the truth.** If the server buffer expires or a worker dies, the client re-sends the needed history (`run.resume` with state) and the run continues.
-- **No web replay of past MiniMake runs** by default. The browser can show a **live** run through a non-stored relay. A later opt-in "sync my history to my account" may be added; it is **off** by default.
-- **Honest trust claim (use this wording, not "your data never leaves your device"):** *"Your files, history and settings are stored on your device. When you ask MiniMake to work, the relevant code is sent to our servers and our model providers to generate the answer; we don't keep it after the run ends."* A claim of "never leaves" would be false because the model runs remotely.
+- **No web replay of past M2C runs** by default. The browser can show a **live** run through a non-stored relay. A later opt-in "sync my history to my account" may be added; it is **off** by default.
+- **Honest trust claim (use this wording, not "your data never leaves your device"):** *"Your files, history and settings are stored on your device. When you ask M2C to work, the relevant code is sent to our servers and our model providers to generate the answer; we don't keep it after the run ends."* A claim of "never leaves" would be false because the model runs remotely.
 - Add a **canary test** in CI that proves no content reaches Postgres or logs (WP Q06).
 
 ### O2. One account, one cap, one ledger
 
-*Supersedes product guide §14.4 recommendation of a separate MiniMake pool.*
+*Supersedes product guide §14.4 recommendation of a separate M2C pool.*
 
-- The same **account and plan** covers the web app, MiniMake, and later MiniMate. Usage from all surfaces burns **one pool**; the user pays once.
+- The same **account and plan** covers the web app, M2C, and later Menux. Usage from all surfaces burns **one pool**; the user pays once.
 - Enforcement is **server-side** at every model call (pre-flight check, post-call commit). The device cannot be trusted to count.
-- **Your repo has no plan or per-user usage tables today** (existing counters are Upstash daily counters keyed by provider key, and `llm_call_log` has no user column). WP S01 builds the shared ledger and also meters the **existing web app**, not only MiniMake.
+- **Your repo has no plan or per-user usage tables today** (existing counters are Upstash daily counters keyed by provider key, and `llm_call_log` has no user column). WP S01 builds the shared ledger and also meters the **existing web app**, not only M2C.
 - **Unit:** one pool measured in **credits** (cost-weighted), shown to the user as "about N sessions left". Keep it one pool; make it cost-weighted so that agent loops (which re-read cached context every step) do not drain the pool unrealistically. Show usage per surface in the UI for transparency.
 - A per-run ceiling still applies on each surface.
 
@@ -93,13 +95,13 @@ Linux and **WSL2** only for v1. Native Windows: not supported. WSL1: not support
 
 ### O4. Client implementation and packaging
 
-- **Python client**, a new top-level package `minimake/` (reuses your daemon's `path_guard`, tool and connection code). Not Rust or TypeScript for v1.
-- Distribution: published package installed with `uv tool install minimake` (or `pipx`), plus an `install.sh` that installs `uv`, checks `ripgrep`, `git` and `bubblewrap`, and runs `minimake doctor`. A bundled binary can come later.
-- The existing `daemon/` stays untouched until MiniMake has parity; its preview proxy migrates in Phase 5.
+- **Python client**, a new top-level package `m2c/` (reuses your daemon's `path_guard`, tool and connection code). Not Rust or TypeScript for v1.
+- Distribution: published package installed with `uv tool install m2c` (or `pipx`), plus an `install.sh` that installs `uv`, checks `ripgrep`, `git` and `bubblewrap`, and runs `m2c doctor`. A bundled binary can come later.
+- The existing `daemon/` stays untouched until M2C has parity; its preview proxy migrates in Phase 5.
 
 ### O5. Backend package name
 
-The product guide proposed `backend/minimake/`. **Use `backend/codeagent/` instead** to avoid an import-name clash with the top-level `minimake/` client package when both are in one dev environment.
+The product guide proposed `backend/m2c/`. **Use `backend/codeagent/` instead** to avoid an import-name clash with the top-level `m2c/` client package when both are in one dev environment.
 
 ### O6. Browser slimming (decided)
 
@@ -107,11 +109,11 @@ Browser keeps: editor, explorer, AI proposals and review, history, Problems, Con
 
 ### O7. Account required, no offline mode
 
-The brain is server-side, so MiniMake needs a signed-in account and a connection. Say so in the install docs.
+The brain is server-side, so M2C needs a signed-in account and a connection. Say so in the install docs.
 
 ### O8. Profile field
 
-Every run carries `profile: "code"`. MiniMate will add other profiles on the same engine; do not hard-code "coding" assumptions into the run manager.
+Every run carries `profile: "code"`. Menux will add other profiles on the same engine; do not hard-code "coding" assumptions into the run manager.
 
 ---
 
@@ -127,7 +129,7 @@ Recommended defaults are in bold. Change them before generating patches, not aft
 | D4 | Where the server runs at first | **Mounted in the existing FastAPI app** (`/v1/code/*`); separate process in WP S11 | Separate service from day one costs more setup |
 | D5 | Credit definition | **1 credit = a fixed USD amount (config constant), cached reads at provider price** | Pick the constant when you set plans; ledger stores both credits and USD |
 | D6 | Ephemeral buffer TTL | **idle 2 h, hard cap 24 h** | Shorter is safer, longer helps resume |
-| D7 | Package and command name | **`minimake`** | Check availability on PyPI and your domain first (not checked) |
+| D7 | Package and command name | **`m2c`** | Check availability on PyPI and your domain first (not checked) |
 | D8 | Download host | Your domain (`install.sh`) + PyPI | Needed before WP C22 |
 | D9 | macOS | **Deferred** | Adds a Seatbelt backend later |
 | D10 | Linux distros supported | **Ubuntu 22.04+/24.04, Debian 12, Fedora current; Arch best effort; WSL2 Ubuntu is the primary Windows path** | Document tested versions in `doctor` |
@@ -142,7 +144,7 @@ Recommended defaults are in bold. Change them before generating patches, not aft
 | Phase | Goal | Ends with | Product milestone |
 |---|---|---|---|
 | **0** | Build-tab fixes and browser slimming | Clean, tested browser editor; CI green | – |
-| **1** | Contract and walking skeleton | `minimake login` → connect → send "hello" → streamed model reply → ledger row, shown in the web app | – |
+| **1** | Contract and walking skeleton | `m2c login` → connect → send "hello" → streamed model reply → ledger row, shown in the web app | – |
 | **2** | Core agent | Edit real files with approvals, checkpoints, rewind, TUI, headless | **M0 internal** |
 | **3** | Safety and workflows | Sandbox, hooks, skills, secrets, taint, subagents, compaction, eval harness, red-team suite | **M1 safe daily driver** |
 | **4** | Platform integration and beta | Handoff, remote view, review commands, plan chains, invite system | **M2 invite-only beta** |
@@ -157,10 +159,10 @@ Recommended defaults are in bold. Change them before generating patches, not aft
 | **AUD** | Read-only audits of unaudited browser areas | docs only |
 | **P** | Protocol and contract | `protocol/` (new) |
 | **S** | Server: ledger, devices, socket, adapter, runs, loop | `backend/codeagent/` (new), `backend/eo/` (few hooks), `backend/migrations/` |
-| **C** | Client application | `minimake/` (new) |
+| **C** | Client application | `m2c/` (new) |
 | **L** | Loop and agent features (spans server and client) | both |
-| **X** | Web app features for MiniMake (devices, usage, banner, remote view) | `frontend/` |
-| **Q** | Quality: CI, evals, red team, canary tests | `backend/evals/`, `minimake/tests/`, `.github/` |
+| **X** | Web app features for M2C (devices, usage, banner, remote view) | `frontend/` |
+| **Q** | Quality: CI, evals, red team, canary tests | `backend/evals/`, `m2c/tests/`, `.github/` |
 | **I** | Integration patches (join points) | small, across tracks |
 
 ### 3.3 Dependency graph (arrows mean "must be applied first")
@@ -222,7 +224,7 @@ Patches that touch the same file **cannot be in the same wave**; apply in the or
 |---|---|
 | Migration: plans and usage ledger | **0012** (S01) |
 | Migration: devices | **0013** (S03) |
-| Migration: MiniMake run metadata (content-free) | **0014** (S06) |
+| Migration: M2C run metadata (content-free) | **0014** (S06) |
 | Migration: project checkouts | **0015** (X03) |
 | Migration: beta allowlist / feature flags | **0016** (S12) |
 | Protocol version | **1** (`protocol/v1`) |
@@ -321,12 +323,12 @@ Run `pytest tests/unit tests/integration` in `backend/`, the frontend node tests
 
 **B09 · Remove the browser Terminal panel** · S · Wave 1
 *Files:* `frontend/app/components/workbench/BottomPanel.jsx`, `frontend/app/components/TerminalPanel.jsx` (delete), `EditorWorkbench.jsx` wiring, tests.
-*What:* Remove the Terminal tab and component. Keep Problems, Console and History. Leave the backend command routes in place (MiniMake replaces them later).
+*What:* Remove the Terminal tab and component. Keep Problems, Console and History. Leave the backend command routes in place (M2C replaces them later).
 *Done when:* no reference to `TerminalPanel` remains; the other bottom tabs behave as before; lint and build pass.
 
 **B10 · Remove Local folder mode from the browser editor** · M · Wave 2 (after B06, B09)
 *Files:* `fileProviders.js` (`createLocalFileProvider`), `EditorWorkbench.jsx` (the source toggle and local-only branches around lines 331, 500, 1005, 1690, 1729, 1757), the explorer's source switch, `HistoryPanel.jsx`, `PreviewPane.jsx` (only if it references local-source state), tests.
-*What:* The editor works on cloud project files only. **Keep** `useDaemonStatus` and the Dev-server URL preview proxy path (MiniMake replaces them in Phase 5). Leave backend `local_workspace` routes untouched.
+*What:* The editor works on cloud project files only. **Keep** `useDaemonStatus` and the Dev-server URL preview proxy path (M2C replaces them in Phase 5). Leave backend `local_workspace` routes untouched.
 *Done when:* no local-provider code path remains in the editor; Dev-server URL preview still works with a running daemon; all node tests, lint and build pass.
 
 **B11 · Frontend test runner and CI** · S · Wave 2 (after B02)
@@ -380,10 +382,10 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 *Files:* `backend/migrations/0012_user_plans_and_usage_ledger.sql`; new `backend/eo/usage_ledger.py`, `backend/eo/plans.py`, `backend/eo/usage_context.py`, `backend/config/plans.json`, `backend/api/routes/usage.py`; **small hooks** in `backend/utils/llm_client.py` (beside `_record_call_log`) and `backend/api/task_runner.py`; tests. *This WP is the only one allowed to edit `llm_client.py` and `task_runner.py`.*
 
 *What:*
-1. Tables: `user_plans(user_id, plan_key, credit_pool, period_start, period_end, status)` and `usage_ledger(id, user_id, surface, session_id, run_id, provider, model, input_tokens, cached_input_tokens, output_tokens, credits, cost_usd, created_at)` with `surface in ('web','minimake','minimate','system')`. Ledger rows hold **numbers and IDs only**, never content.
+1. Tables: `user_plans(user_id, plan_key, credit_pool, period_start, period_end, status)` and `usage_ledger(id, user_id, surface, session_id, run_id, provider, model, input_tokens, cached_input_tokens, output_tokens, credits, cost_usd, created_at)` with `surface in ('web','m2c','menux','system')`. Ledger rows hold **numbers and IDs only**, never content.
 2. `usage_context`: a `contextvars` holder for `(user_id, surface, session_id)`. `task_runner` sets it where `owner_id` is available; any other LLM entry point that has an owner sets it too. **First do an inventory** of every caller of `generate_text` / `stream_completion` and list in the patch description which ones carry an owner and which are attributed to `system`.
 3. The hook in `llm_client` writes one ledger row per real call, **fail-open** (a ledger error never fails the user's call), next to the existing `_record_call_log()`.
-4. `usage_ledger.check(user_id, estimate)` (pre-flight) and `commit(...)`; when the pool is exhausted it returns a structured `quota_exhausted` result (the web app and MiniMake each decide how to present it). Free and unconfigured accounts follow `plans.json` defaults.
+4. `usage_ledger.check(user_id, estimate)` (pre-flight) and `commit(...)`; when the pool is exhausted it returns a structured `quota_exhausted` result (the web app and M2C each decide how to present it). Free and unconfigured accounts follow `plans.json` defaults.
 5. `GET /api/usage`: pool, used, remaining, reset date, by-surface breakdown.
 6. RLS: users can read only their own rows; writes come from the app role.
 
@@ -398,7 +400,7 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 ### S03 · Device pairing and credentials · L · Wave 1
 
 *Implements:* product guide §8.9; this guide §O1.
-*Files:* `backend/migrations/0013_minimake_devices.sql`; new `backend/eo/devices.py`, `backend/api/routes/devices.py`, tests.
+*Files:* `backend/migrations/0013_m2c_devices.sql`; new `backend/eo/devices.py`, `backend/api/routes/devices.py`, tests.
 *What (device-code flow):*
 - `POST /v1/code/devices/pair/start` {device_name, os, client_version} → {device_code (secret), user_code (short, human-friendly), verification_url, interval, expires_in}.
 - `POST /v1/code/devices/pair/poll` {device_code} → `pending | approved{device_credential, device_id} | denied | expired`. The credential (256-bit random) is returned **once**; the server stores only its SHA-256.
@@ -422,53 +424,53 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 ### S06 · Run manager, ephemeral buffer, run metadata · L · Wave 3
 
 *Implements:* §O1; product guide §6.2.
-*Files:* `backend/migrations/0014_minimake_runs.sql`; new `backend/codeagent/runs.py`, `buffer.py`, tests.
+*Files:* `backend/migrations/0014_m2c_runs.sql`; new `backend/codeagent/runs.py`, `buffer.py`, tests.
 *What:* Create a run (`profile`, `mode`), run state machine (`created → running ⇄ awaiting_approval → completed`, plus `paused_budget`, `paused_disconnected`, `paused_error`, `cancelled`, `failed`, `expired`), content-free metadata row, and the **ephemeral buffer**: the conversation for an active run in Redis (via the existing bus), **encrypted** (AES-GCM, key derived from a server secret and the run ID), TTL per D6, deleted on completion. Cancel uses `eo/run_guard`'s flag. `run.resume` rebuilds the buffer from the device's `history` if it expired.
 *Done when:* state transitions are tested; buffer content is unreadable without the key; after completion nothing remains in Redis; **no content column exists** in the metadata table.
 
 ### C01 · Client skeleton and minimal `doctor` · M · Wave 1
 
 *Implements:* §O3, §O4; product guide §12.4, Appendix E.
-*Files (new):* `minimake/pyproject.toml`, `minimake/src/minimake/{__init__,cli,config,paths,logging_setup}.py`, `minimake/src/minimake/doctor.py`, `minimake/tests/`, CI step for `minimake/tests`.
-*What:* Entry point `minimake` with `--version`, `login`, `logout`, `doctor` (stubs for the first two). Creates `~/.minimake/` with `0700` permissions. `doctor` checks: Linux or WSL2 (reject WSL1 and native Windows with a clear message), Python version, `rg`, `git`, `bwrap` present, project path not under `/mnt/c`, writable config dir. Logging never records message content.
-*Done when:* installs in a clean venv; `minimake doctor` prints a readable report and a non-zero exit when a hard requirement is missing; unit tests mock each check.
+*Files (new):* `m2c/pyproject.toml`, `m2c/src/m2c/{__init__,cli,config,paths,logging_setup}.py`, `m2c/src/m2c/doctor.py`, `m2c/tests/`, CI step for `m2c/tests`.
+*What:* Entry point `m2c` with `--version`, `login`, `logout`, `doctor` (stubs for the first two). Creates `~/.m2c/` with `0700` permissions. `doctor` checks: Linux or WSL2 (reject WSL1 and native Windows with a clear message), Python version, `rg`, `git`, `bwrap` present, project path not under `/mnt/c`, writable config dir. Logging never records message content.
+*Done when:* installs in a clean venv; `m2c doctor` prints a readable report and a non-zero exit when a hard requirement is missing; unit tests mock each check.
 
 ### C02 · Local store · M · Wave 2
 
 *Implements:* §O1; product guide §9.3, §11.2.
-*Files:* `minimake/src/minimake/store/{db.py,migrations.py,sessions.py,events.py}`, tests.
-*What:* SQLite at `~/.minimake/state.db` with tables `sessions(id, project_path, created_at, mode, model_pref)`, `events(session_id, seq, ts, type, json)` (append-only), `approvals(...)`, `checkpoints(session_id, step, path, blob_hash, ts)`, plus a schema version table and forward-only migrations. Export to JSONL. File mode `0600`.
+*Files:* `m2c/src/m2c/store/{db.py,migrations.py,sessions.py,events.py}`, tests.
+*What:* SQLite at `~/.m2c/state.db` with tables `sessions(id, project_path, created_at, mode, model_pref)`, `events(session_id, seq, ts, type, json)` (append-only), `approvals(...)`, `checkpoints(session_id, step, path, blob_hash, ts)`, plus a schema version table and forward-only migrations. Export to JSONL. File mode `0600`.
 *Done when:* create, append, read-back and export work; an interrupted write leaves a valid database; migrations are tested from version 0.
 
 ### C03 · Login (device-code client) · M · Wave 2
 
-*Files:* `minimake/src/minimake/auth/{login.py,credentials.py}`, tests with a mock server.
-*What:* `minimake login` calls `pair/start`, prints the code and URL (do **not** depend on a browser opening, which often fails in WSL2), polls, then stores the credential. Storage: OS keyring when available, else a `0600` file under `~/.minimake/`. `logout` deletes it and calls revoke. Token fetching and refresh helper for the link.
+*Files:* `m2c/src/m2c/auth/{login.py,credentials.py}`, tests with a mock server.
+*What:* `m2c login` calls `pair/start`, prints the code and URL (do **not** depend on a browser opening, which often fails in WSL2), polls, then stores the credential. Storage: OS keyring when available, else a `0600` file under `~/.m2c/`. `logout` deletes it and calls revoke. Token fetching and refresh helper for the link.
 *Done when:* tests cover pending, approved, denied, expired and network errors; the credential never appears in logs or tracebacks.
 
 ### C04 · Device link client · M · Wave 3
 
 *Implements:* product guide §13.2; reuses ideas from `daemon/connection.py`.
-*Files:* `minimake/src/minimake/link/{client.py,reconnect.py}`, tests.
+*Files:* `m2c/src/m2c/link/{client.py,reconnect.py}`, tests.
 *What:* WebSocket client (`websockets`), handshake per P00, reconnect with backoff and jitter, `run.resume` using the last seen `seq`, request/response correlation by `id`, graceful shutdown. Event callbacks into the store (C02).
 *Done when:* tests replay the golden fixtures against a fake server; killing the connection mid-stream resumes without duplicate or missing events.
 
 ### X01 · Devices page in the web app · M · Wave 2
 
 *Files:* a Settings section (new component under `frontend/app/components/` and a route or tab entry), tests.
-*What:* Enter the code from the terminal to approve a device; list devices (name, OS, last seen); revoke. Show a short explanation of what MiniMake can and cannot do on that device and the trust statement from §O1.
+*What:* Enter the code from the terminal to approve a device; list devices (name, OS, last seen); revoke. Show a short explanation of what M2C can and cannot do on that device and the trust statement from §O1.
 *Done when:* the full pairing loop works with S03; revoked devices disappear from the active list; node tests and build pass.
 
 ### X02 · Usage panel · S · Wave 3
 
 *Files:* a small component using `GET /api/usage`.
-*What:* Shows pool, used, remaining, reset date, and a by-surface breakdown (web, MiniMake). Uses your four-numbers wording (what you used, what is left, when it resets, what a run costs roughly).
+*What:* Shows pool, used, remaining, reset date, and a by-surface breakdown (web, M2C). Uses your four-numbers wording (what you used, what is left, when it resets, what a run costs roughly).
 
 ### I01 · Walking skeleton ("hello run") · M · Wave 4
 
 *Joins:* S01, S04, S05, S06, C03, C04, X01.
-*Files:* `backend/codeagent/hello.py` (a minimal text-only loop), `minimake/src/minimake/repl.py` (a minimal prompt loop), end-to-end test.
-*What:* `minimake` after login opens a prompt; a typed message becomes `run.start` + `user_message`; the server calls the adapter; text streams back; a ledger row is written with `surface='minimake'` and the right user; the web Usage panel changes.
+*Files:* `backend/codeagent/hello.py` (a minimal text-only loop), `m2c/src/m2c/repl.py` (a minimal prompt loop), end-to-end test.
+*What:* `m2c` after login opens a prompt; a typed message becomes `run.start` + `user_message`; the server calls the adapter; text streams back; a ledger row is written with `surface='m2c'` and the right user; the web Usage panel changes.
 *Done when:*
 - [ ] Login approved in the web app; device appears there.
 - [ ] A message gets a streamed reply.
@@ -491,27 +493,27 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 ### C05 · Local tool executors v0 · L · Wave 5
 
 *Implements:* product guide §7; §8.5.
-*Files:* `minimake/src/minimake/tools/{files.py,search.py,paths.py}`, tests. Port and extend `daemon/path_guard.py` and the relevant parts of `daemon/tools.py`.
+*Files:* `m2c/src/m2c/tools/{files.py,search.py,paths.py}`, tests. Port and extend `daemon/path_guard.py` and the relevant parts of `daemon/tools.py`.
 *What:* `read_file` (line ranges; records "seen" state), `list_dir`, `glob`, `grep` (ripgrep wrapper, capped output), `edit_file` (exact string, fail if not unique), `write_file` (atomic: temp file, validate, rename; requires prior read for existing files), `delete_path`. Path guard pins everything under the session root and resolves symlinks. **Two-form denylist:** a hard-coded list the model and project files cannot change (private keys, `.env*`, credential stores) plus a user list in settings.
 *Done when:* tests include path traversal, symlink escape, read-before-write, non-unique edit, denylist, and a simulated interrupted write.
 
 ### C06 · Policy engine v0 · L · Wave 5
 
 *Implements:* product guide §8.2–8.3.
-*Files:* `minimake/src/minimake/policy/{modes.py,rules.py,decide.py,shellparse.py}`, tests.
-*What:* Modes `plan`, `ask`, `accept-edits`. Rules `allow`, `ask`, `deny` with exact strings first and simple patterns; evaluation order deny → ask → allow; settings layering (managed > user > project) with project settings requiring the trust prompt. **Compound commands** are split (`&&`, `||`, `;`, pipes, subshells, redirections) and each part is checked; unknown syntax means "ask". Protected paths (`.git/`, `.minimake/`, shell rc files) are read-only for edits. The decision function is pure and returns `allow | ask | deny` with a reason. **Fails closed.**
+*Files:* `m2c/src/m2c/policy/{modes.py,rules.py,decide.py,shellparse.py}`, tests.
+*What:* Modes `plan`, `ask`, `accept-edits`. Rules `allow`, `ask`, `deny` with exact strings first and simple patterns; evaluation order deny → ask → allow; settings layering (managed > user > project) with project settings requiring the trust prompt. **Compound commands** are split (`&&`, `||`, `;`, pipes, subshells, redirections) and each part is checked; unknown syntax means "ask". Protected paths (`.git/`, `.m2c/`, shell rc files) are read-only for edits. The decision function is pure and returns `allow | ask | deny` with a reason. **Fails closed.**
 *Done when:* a large table-driven test, including bypass attempts (`ls && curl …`, `$(…)`, backticks, env-var tricks), passes; no code path allows without an explicit rule or mode.
 
 ### C12 · Instructions, rules and memory loader · M · Wave 5
 
-*Files:* `minimake/src/minimake/context/{instructions.py,rules.py,memory.py}`, tests.
-*What:* Load `MINIMAKE.md`, then `AGENTS.md` and `CLAUDE.md` if present, hierarchically (global, repo, subdirectory) with `@path` imports (size and depth limits); path-scoped rules; auto-memory index (first ~200 lines or 25 KB). Produces the `instructions`, `rules` and `memory_index` fields for `run.start`. Memory writes are shown to the user and never include secrets.
+*Files:* `m2c/src/m2c/context/{instructions.py,rules.py,memory.py}`, tests.
+*What:* Load `M2C.md`, then `AGENTS.md` and `CLAUDE.md` if present, hierarchically (global, repo, subdirectory) with `@path` imports (size and depth limits); path-scoped rules; auto-memory index (first ~200 lines or 25 KB). Produces the `instructions`, `rules` and `memory_index` fields for `run.start`. Memory writes are shown to the user and never include secrets.
 *Done when:* tests for precedence, imports, oversize files and missing files.
 
 ### C10 · Headless mode · S · Wave 5
 
-*Files:* `minimake/src/minimake/headless.py`, tests.
-*What:* `minimake -p "task"` with `--output-format text|json`, `--mode`, non-interactive policy (only explicit allow rules; anything that would ask fails the run with a clear error).
+*Files:* `m2c/src/m2c/headless.py`, tests.
+*What:* `m2c -p "task"` with `--output-format text|json`, `--mode`, non-interactive policy (only explicit allow rules; anything that would ask fails the run with a clear error).
 *Done when:* exit codes distinguish success, policy denial, quota, and failure; tests with the fake server.
 
 ### S07 · Agent loop executor v0 · XL · Wave 6
@@ -523,14 +525,14 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 
 ### C07 · Shell tool v0 · M · Wave 6
 
-*Files:* `minimake/src/minimake/tools/shell.py`, tests.
+*Files:* `m2c/src/m2c/tools/shell.py`, tests.
 *What:* Run a command under the policy engine: timeout, streamed output, process-group kill on cancel, sanitized environment (strip `*KEY*`, `*TOKEN*`, `*SECRET*`, `*PASSWORD*`, cloud credentials), working directory pinned to the session root, output cap. **No sandbox yet** (C11): default mode `ask`, and print a visible warning that commands run with the user's full privileges.
 *Done when:* tests cover timeout, kill, env stripping, and truncation.
 
 ### C08 · Checkpoints and rewind · M · Wave 6
 
-*Files:* `minimake/src/minimake/checkpoints.py`, tests.
-*What:* Before each edit, snapshot affected files (content-addressed blobs under `~/.minimake/checkpoints/<session>/`), index in the store (C02). `rewind(step)` restores files and optionally truncates the conversation. Skips symlinks. UI states plainly that remote effects are not covered.
+*Files:* `m2c/src/m2c/checkpoints.py`, tests.
+*What:* Before each edit, snapshot affected files (content-addressed blobs under `~/.m2c/checkpoints/<session>/`), index in the store (C02). `rewind(step)` restores files and optionally truncates the conversation. Skips symlinks. UI states plainly that remote effects are not covered.
 *Done when:* edit, edit, rewind restores exact bytes; interrupted snapshot leaves no half state.
 
 ### S08 · Context assembler v0 · M · Wave 7
@@ -547,14 +549,14 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 ### C09 · Terminal UI v0 · L · Wave 7
 
 *Implements:* product guide §12.1–12.3 (using D2).
-*Files:* `minimake/src/minimake/tui/{app.py,render.py,approval.py,diff.py,status.py}`, tests for the pure render and approval logic.
+*Files:* `m2c/src/m2c/tui/{app.py,render.py,approval.py,diff.py,status.py}`, tests for the pure render and approval logic.
 *What:* Streaming chat, tool cards with collapsed diffs, an approval prompt (`y` once, `a` allow this exact command for the session, `n`, `e` edit, `d` deny), a status line (mode, model class, tainted flag, context percentage, running credits), `Esc` interrupt (queue messages while a tool runs), `Esc Esc` rewind, `Shift+Tab` mode cycle, `@` file mention. Everything behind a small `UI` interface so the library can be swapped.
 *Done when:* an interactive session works end to end against the fake server and the real server; tests cover approval keys, rendering of large diffs, and interrupt handling.
 
 ### I02 · First real task (M0) · M · Wave 8
 
 *Joins:* all Phase 2 WPs.
-*What:* Use MiniMake on the MiniMe repo to make a small real change (for example a docstring fix and a test). Capture the run as a golden transcript.
+*What:* Use M2C on the MiniMe repo to make a small real change (for example a docstring fix and a test). Capture the run as a golden transcript.
 *Done when:*
 - [ ] Read, grep, edit, run tests, with approvals at the right moments.
 - [ ] Checkpoint and rewind restore exact bytes.
@@ -571,9 +573,9 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 ### C11 · Sandbox (bubblewrap) and network proxy · XL · Wave 9
 
 *Implements:* product guide §8.4; §O3.
-*Files:* `minimake/src/minimake/sandbox/{bwrap.py,profile.py,netproxy.py,probe.py}`, tests (skipped when `bwrap` or user namespaces are unavailable, with a loud "SKIPPED" report).
+*Files:* `m2c/src/m2c/sandbox/{bwrap.py,profile.py,netproxy.py,probe.py}`, tests (skipped when `bwrap` or user namespaces are unavailable, with a loud "SKIPPED" report).
 *What:*
-- Run `bash` through bubblewrap: project directory writable; `.git/`, `.minimake/` and shell rc files read-only inside it; system toolchain paths read-only; home secrets (`~/.ssh`, `~/.aws`, browser profiles) not mounted; private `/tmp`; new PID namespace.
+- Run `bash` through bubblewrap: project directory writable; `.git/`, `.m2c/` and shell rc files read-only inside it; system toolchain paths read-only; home secrets (`~/.ssh`, `~/.aws`, browser profiles) not mounted; private `/tmp`; new PID namespace.
 - Network **off by default** inside the sandbox; a local **HTTP CONNECT proxy** with a domain allowlist is the only way out, prompting on a new domain.
 - `probe.py` tests at startup that the sandbox really works (can it write outside the project? read `~/.ssh`? reach a blocked host?) and `doctor` reports it. If the sandbox cannot be built (WSL2 without user namespaces, container without privileges), **say so and refuse `auto-allow`**; never pretend.
 - Landlock + seccomp as an alternative backend is optional and can wait.
@@ -582,19 +584,19 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 ### C13 · Hooks · M · Wave 9
 
 *Implements:* product guide §8.8, Appendix C.
-*Files:* `minimake/src/minimake/hooks/*`, tests.
+*Files:* `m2c/src/m2c/hooks/*`, tests.
 *What:* Events `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, `PostToolUseFailure`, `SubagentStart/Stop`, `PreCompact`, `Stop`, `SessionEnd`. Command handlers first (exit 0 allow, 2 block with message to the model; other codes warn). Project hooks require the folder-trust prompt. Hooks cannot be edited by the model (the settings paths are protected).
 *Done when:* a `PreToolUse` hook blocks a command; a `Stop` hook forces a continuation; a hook timeout does not hang the session.
 
 ### C14 · Skills · M · Wave 9
 
-*Files:* `minimake/src/minimake/skills/*`, tests.
-*What:* Load `SKILL.md` folders from `~/.minimake/skills`, `<repo>/.minimake/skills`, and (after a trust prompt) `<repo>/.agents/skills` and `.claude/skills`. Only name and description go into context; the `skill` tool loads the body. Support `disable-model-invocation`. Ship built-ins: `init`, `verify`, `review`, `create-skill`.
+*Files:* `m2c/src/m2c/skills/*`, tests.
+*What:* Load `SKILL.md` folders from `~/.m2c/skills`, `<repo>/.m2c/skills`, and (after a trust prompt) `<repo>/.agents/skills` and `.claude/skills`. Only name and description go into context; the `skill` tool loads the body. Support `disable-model-invocation`. Ship built-ins: `init`, `verify`, `review`, `create-skill`.
 
 ### C15 · Secrets, redaction and environment · M · Wave 9
 
 *Implements:* product guide §8.5.
-*Files:* `minimake/src/minimake/secrets/{redact.py,env.py}`, tests.
+*Files:* `m2c/src/m2c/secrets/{redact.py,env.py}`, tests.
 *What:* A redaction filter applied to **every** tool result before it leaves the machine (cloud keys, tokens, private-key blocks, JWTs, high-entropy strings near words like "key" or "secret"), with a test corpus and a false-positive budget. Stronger environment sanitization with named per-project exceptions.
 *Done when:* canary secrets planted in files and env never appear in outgoing messages (asserted against the fake server).
 
@@ -613,7 +615,7 @@ Summarization with user-controlled "compact instructions"; stop-on-thrash; memor
 ### S11 · Server hardening and process split · L · Wave 9
 
 *Files:* `backend/codeagent/` modules, `backend.Dockerfile` or a second service entry in `docker-compose.yml`, a new ASGI entry (for example `backend/codeagent/app.py`), tests.
-*What:* Move pending-approval and connection-routing state from process memory to Redis so multiple workers work; a dedicated gateway for WebSockets; per-user concurrent-run and rate limits; health checks; graceful drain on deploy. Run MiniMake traffic as its own process so long sessions do not compete with chat (your current setup runs one uvicorn process with a small agent task pool).
+*What:* Move pending-approval and connection-routing state from process memory to Redis so multiple workers work; a dedicated gateway for WebSockets; per-user concurrent-run and rate limits; health checks; graceful drain on deploy. Run M2C traffic as its own process so long sessions do not compete with chat (your current setup runs one uvicorn process with a small agent task pool).
 *Done when:* two server processes serve one run correctly (events routed, approvals found); killing one mid-run resumes on the other.
 
 ### C16 · Background shell · M · Wave 10
@@ -625,11 +627,11 @@ Long-running commands with ids, output polling, kill; dev servers and watchers. 
 *Done when:* a poisoned fetched page cannot cause an unapproved outbound action in the red-team suite.
 
 ### Q01 · CI for the new packages · S · Wave 9
-Run `minimake/tests`, `backend` tests (including `codeagent`), and the protocol checks on every push.
+Run `m2c/tests`, `backend` tests (including `codeagent`), and the protocol checks on every push.
 
 ### Q02 · Eval harness · L · Wave 9
-*Files:* `backend/evals/minimake/` (your repo already has `backend/evals/`).
-*What:* A runner that drives `minimake -p` against a fresh copy of a task repo, then runs a verifier script. Start with 20–30 golden tasks (a web app, a firmware-style repo, a Python service). Records success, steps, tokens, credits, cache-hit rate. Used for every model and prompt change.
+*Files:* `backend/evals/m2c/` (your repo already has `backend/evals/`).
+*What:* A runner that drives `m2c -p` against a fresh copy of a task repo, then runs a verifier script. Start with 20–30 golden tasks (a web app, a firmware-style repo, a Python service). Records success, steps, tokens, credits, cache-hit rate. Used for every model and prompt change.
 
 ### Q03 · Red-team suite · L · Wave 9
 Fixtures for indirect injection (README, issue text, fetched page, MCP-style tool description), secret-read attempts, sandbox escapes, denylist bypass, and hook tampering. **A release is blocked if any "no unapproved egress, no secret read, no write outside the project" test fails.**
@@ -641,15 +643,15 @@ Run a scripted session with canary strings in prompts, file contents and tool ou
 - [ ] Sandbox probes pass on Ubuntu and WSL2 Ubuntu; `doctor` is honest when they cannot.
 - [ ] Red-team and canary suites pass.
 - [ ] 20 golden tasks at the success rate you set from your baseline.
-- [ ] You use MiniMake for your own work for two weeks; failures are logged as backlog items.
+- [ ] You use M2C for your own work for two weeks; failures are logged as backlog items.
 
 ---
 
 ## 8. Phase 4 — Platform integration and beta (milestone M2, invite-only)
 
 ### C20 · Pull and push client · M · Wave 11
-*Files:* `minimake/src/minimake/projects/{pull.py,push.py}`, tests.
-*What:* `minimake pull <project>` writes a cloud project into a local folder (skipping `node_modules`, `.git`, build output) and records the base version per file; `minimake push` sends only changed files with their base versions. **Explicit, user-triggered, with a confirmation that shows what will be uploaded** (this is the one place project content goes to your servers on purpose).
+*Files:* `m2c/src/m2c/projects/{pull.py,push.py}`, tests.
+*What:* `m2c pull <project>` writes a cloud project into a local folder (skipping `node_modules`, `.git`, build output) and records the base version per file; `m2c push` sends only changed files with their base versions. **Explicit, user-triggered, with a confirmation that shows what will be uploaded** (this is the one place project content goes to your servers on purpose).
 
 ### X03 · Handoff on the server and the "checked out" banner · L · Wave 11
 *Files:* `backend/migrations/0015_project_checkouts.sql`; routes under `/v1/code/projects/{id}/pull|push|release`; frontend: banner and read-only state in the editor; tests.
@@ -657,7 +659,7 @@ Run a scripted session with canary strings in prompts, file contents and tool ou
 *Done when:* two conflicting edits are detected; release works; history shows pushed versions.
 
 ### X04 · Live remote view and remote approvals · L · Wave 11
-*What:* The web app shows a running MiniMake run **live** through a non-stored relay (nothing is kept after the stream), and can approve or cancel; remote approvals still pass the device's local hard rules. No history replay in the browser (see §O1).
+*What:* The web app shows a running M2C run **live** through a non-stored relay (nothing is kept after the stream), and can approve or cancel; remote approvals still pass the device's local hard rules. No history replay in the browser (see §O1).
 
 ### L05 · `/review` and `/security-review` · M · Wave 11
 Wire the `review` and `security-review` subagents to your existing reviewer and security-reviewer roles. Output: findings with file and line that the user can send back as tasks. Content sent for review is treated like any other model call (transient).
@@ -670,14 +672,14 @@ Adds sandbox probes, proxy check, clock skew, keyring availability, version and 
 
 ### S12 · Beta allowlist and billing hooks · M · Wave 11
 *Files:* `backend/migrations/0016_beta_allowlist.sql`, small routes, tests.
-*What:* Invite-only gate for MiniMake; assignment of `plan_key` from your billing events (the billing integration itself is outside this guide); admin script to grant, revoke and top up credits.
+*What:* Invite-only gate for M2C; assignment of `plan_key` from your billing events (the billing integration itself is outside this guide); admin script to grant, revoke and top up credits.
 
 ### Q04 · Device-link security review · M · Wave 11
 Penetration-style tests on pairing, token handling, revocation timing, and socket abuse (budgeted in your rulebook's pen-test line).
 
 ### I04 · M2 beta acceptance · M · Wave 12
 - [ ] 20–50 invited users; per-run and per-user cost within your pricing model.
-- [ ] Shared cap works across web and MiniMake (a user burns one pool).
+- [ ] Shared cap works across web and M2C (a user burns one pool).
 - [ ] Handoff and remote view work without storing content.
 - [ ] No critical findings from Q04; canary and red-team suites still green.
 - [ ] Support runbook exists (revoke device, reset credits, read diagnostics).
@@ -688,13 +690,13 @@ Penetration-style tests on pairing, token handling, revocation timing, and socke
 
 | WP | Title | Notes |
 |---|---|---|
-| **C18** | ACP server (`minimake acp`) | JSON-RPC over stdio so Zed, JetBrains and similar editors can launch MiniMake; route commands through the editor terminal when offered. |
+| **C18** | ACP server (`m2c acp`) | JSON-RPC over stdio so Zed, JetBrains and similar editors can launch M2C; route commands through the editor terminal when offered. |
 | **C19** | Worktrees and parallel sessions | `--worktree name`; per-plan concurrency limit; "compare runs" is optional and opt-in because it multiplies cost. |
 | **L07** | Auto-mode classifier | Ships only after an eval of a few hundred labeled tool calls, including injections; local deny rules and the sandbox always win; the classifier can move "ask" to "allow", never override a deny. |
 | **L08** | LSP diagnostics and repo map | Diagnostics after edits; tree-sitter outline as optional orientation; add a semantic index only if your eval shows gains. |
 | **C23** | Local MCP client | MCP servers run **on the device** (data stays local); trust levels per server; tool search to defer schemas; build against the 2026-07-28 spec. |
 | **—** | `apply_patch` tool | Multi-hunk edits. |
-| **S13** | Migrate the preview proxy from `daemon/` into `minimake/` | Then retire `daemon/`, the backend `local_workspace` routes and `useDaemonStatus`. |
+| **S13** | Migrate the preview proxy from `daemon/` into `m2c/` | Then retire `daemon/`, the backend `local_workspace` routes and `useDaemonStatus`. |
 | **—** | External security audit | Scope: device link, policy engine, sandbox, secrets, MCP. Budgeted in your rulebook; make it the gate for GA. |
 
 Exit: editors work via ACP; classifier meets its false-allow limit; audit findings fixed.
@@ -705,7 +707,7 @@ Exit: editors work via ACP; classifier meets its false-allow limit; audit findin
 
 | WP | Title | Notes |
 |---|---|---|
-| **C22** | Packaging and release | Publish to PyPI; `install.sh` (installs `uv`, checks `rg`, `git`, `bwrap`, runs `doctor`); `minimake update`; stable and beta channels; signed releases; changelog. |
+| **C22** | Packaging and release | Publish to PyPI; `install.sh` (installs `uv`, checks `rg`, `git`, `bwrap`, runs `doctor`); `m2c update`; stable and beta channels; signed releases; changelog. |
 | **X05** | Docs and trust pages | Install guide for Linux and WSL2, data-location page (use the §O1 wording), what leaves your device and when, security model, uninstall and data deletion, FAQ. |
 | **X06** | Legal and privacy | Sub-processor list, retention statement (run buffer TTL, ledger fields), terms for command execution on user machines. |
 | **—** | Support tooling | Content-free diagnostics, device revoke, credit adjustments, status page. |
@@ -729,17 +731,17 @@ GA checklist: audit findings closed; canary and red-team suites green on the rel
 
 ### 11.2 Install and update
 
-`curl -fsSL https://<your-domain>/install.sh | sh` → ensure `uv` → `uv tool install minimake` → `minimake doctor`. The script must be readable, print what it will do, and avoid `sudo` (it tells the user which package-manager command to run themselves for `ripgrep` and `bubblewrap`). Updates: `minimake update` and a gentle "new version available" notice. Support `pipx` for people who prefer it.
+`curl -fsSL https://<your-domain>/install.sh | sh` → ensure `uv` → `uv tool install m2c` → `m2c doctor`. The script must be readable, print what it will do, and avoid `sudo` (it tells the user which package-manager command to run themselves for `ripgrep` and `bubblewrap`). Updates: `m2c update` and a gentle "new version available" notice. Support `pipx` for people who prefer it.
 
 ### 11.3 Trust copy (use consistently in the app, the docs and the web Devices page)
 
-> **Where your data lives.** Your project files, session history, memory and settings are stored on your device. When you ask MiniMake to work, the relevant code and conversation are sent to our servers and to our model providers so the model can answer; we don't keep that content after the run ends. We keep only usage numbers (which model, how many tokens, when) so we can apply your plan's limit across the web app and MiniMake. You can revoke any device at any time.
+> **Where your data lives.** Your project files, session history, memory and settings are stored on your device. When you ask M2C to work, the relevant code and conversation are sent to our servers and to our model providers so the model can answer; we don't keep that content after the run ends. We keep only usage numbers (which model, how many tokens, when) so we can apply your plan's limit across the web app and M2C. You can revoke any device at any time.
 
 ### 11.4 What the server may and may not log
 
 May log: user ID, device ID, opaque run ID, model, token counts, credits, status codes, durations, error codes. **May not log:** prompts, file contents, file paths, command lines, tool outputs, or exception messages that contain them (use your existing `error_sanitizer.py`). Q06 enforces it.
 
-### 11.5 Shared cap behavior (so the web app and MiniMake feel consistent)
+### 11.5 Shared cap behavior (so the web app and M2C feel consistent)
 
 - One pool; both surfaces call the same `check` and `commit`.
 - At 80% both show a warning; at 100% both pause with the same message and the same reset date.
@@ -754,10 +756,10 @@ May log: user ID, device ID, opaque run ID, model, token counts, credits, status
 | Backend | `cd backend && pytest tests/unit tests/integration -v` | Matches your CI; real-DB tests need `TEST_DATABASE_URL` |
 | Backend static | `cd backend && pytest tests/static -v` | SQL-versus-grants test (B01) |
 | Frontend | `cd frontend && npm test && npx next lint && npx next build` | `npm test` arrives with B11 |
-| Client | `cd minimake && pytest` | Sandbox tests skip loudly if `bwrap` is missing |
+| Client | `cd m2c && pytest` | Sandbox tests skip loudly if `bwrap` is missing |
 | Protocol | `python protocol/validate.py` | Also in CI |
-| Evals | `python -m evals.minimake.run --suite golden` | After Q02; costs real money, run on demand |
-| Red team | `pytest minimake/tests/redteam -v` | After Q03; blocks release |
+| Evals | `python -m evals.m2c.run --suite golden` | After Q02; costs real money, run on demand |
+| Red team | `pytest m2c/tests/redteam -v` | After Q03; blocks release |
 | Canary | `pytest backend/tests/integration/test_no_content_at_rest.py` | After Q06; blocks release |
 
 ---

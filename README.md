@@ -18,3 +18,12 @@ One-time setup (about 2 minutes):
 Until the database is connected, the page still works but only on the one device, and says so in the pill.
 
 Master timeline items live in `data/master-timeline.js`. Edit that file to add or rename items.
+
+## Product names
+
+| Product | Short name | Full name | Tagline | CLI / paths |
+|---|---|---|---|---|
+| Terminal & editor coding agent | M2C | M2C L26 | Minime to Code | `m2c login`, `m2c run`, `~/.m2c/`, `M2C.md` |
+| Personal automation agent | Menux | Menux | Minime agentic automation | `menux status`, `menux run`, `~/.menux/` |
+
+L in M2C L26 means Level. Treat a level like a release version: the next release is M2C L27, then L28, and so on.

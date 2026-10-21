@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>MiniMake Product & Build Guide (Initial Spec) - MiniMe Atlas</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>M2C L26 Product & Build Guide (Initial Spec) - MiniMe Atlas</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap"><style>:root{--bg:#0a0a0c;--p:#121216;--p2:#17171d;--ln:#26262e;--tx:#f2f1ed;--dim:#a8a6a0;--r:#ff2052;--v:#a78bfa;--a:#f59e0b;--g:#34d399;--m:#f06cb4}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 Sora,Inter,system-ui,sans-serif;display:flex;min-height:100vh}
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background-image:linear-gradient(rgba(255,32,82,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,32,82,.12) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent);mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent)}
@@ -269,46 +269,46 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 .st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
 .st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
 .st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
-</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="on">Docs</a><a href="doc-minime-feature-guide.html" class="nav-sub">· Ch.4 MiniMe Guide</a><a href="doc-minimake-feature-guide.html" class="nav-sub">· Ch.5 MiniMake Guide</a><a href="doc-minimate-feature-guide.html" class="nav-sub">· Ch.8 MiniMate Guide</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main><h1>MiniMake Product & Build Guide (Initial Spec)</h1><p class="sub">MiniMake. <a href="guides/MiniMake___Product___Build_Guide.html" target="_blank">Open standalone</a></p><div class="bk-banner">
+</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="on">Docs</a><a href="doc-minime-feature-guide.html" class="nav-sub">· Ch.4 MiniMe Guide</a><a href="doc-m2c-feature-guide.html" class="nav-sub">· Ch.5 M2C Guide</a><a href="doc-menux-feature-guide.html" class="nav-sub">· Ch.8 Menux Guide</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main><h1>M2C L26 Product & Build Guide (Initial Spec)</h1><p class="sub">M2C. <a href="guides/M2C___Product___Build_Guide.html" target="_blank">Open standalone</a></p><div class="bk-banner">
   <div class="bk-top">
     <div>
-      <span class="bk-part">Part III · MiniMake (Local-First Terminal & Editor Coding Agent)</span>
+      <span class="bk-part">Part III · M2C L26 (Local-First Terminal & Editor Coding Agent)</span>
       <span class="bk-ch">Chapter 7 of 14</span>
       <span class="bk-sync">SYNCED</span>
     </div>
     <div class="bk-actions">
       <a href="docs.html" class="bk-pill-link">📚 All 14 Chapters</a>
-      <a href="journey.html#doc-minimake-product" class="bk-pill-link">🧭 Journey Map</a>
-      <a href="guides/MiniMake___Product___Build_Guide.html" target="_blank" class="bk-pill-link">↗ Open Standalone</a>
+      <a href="journey.html#doc-m2c-product" class="bk-pill-link">🧭 Journey Map</a>
+      <a href="guides/M2C___Product___Build_Guide.html" target="_blank" class="bk-pill-link">↗ Open Standalone</a>
     </div>
   </div>
-  <p class="bk-desc">Original design note and visual spec for MiniMake (with Local-First Override O1–O8 reconciliation banner).</p>
+  <p class="bk-desc">Original design note and visual spec for M2C (with Local-First Override O1–O8 reconciliation banner).</p>
   <div class="bk-meta">
     <span><b>Interactive HTML Spec</b> · Synchronized with Build Execution Guide & Feature Guide Overrides (O1–O8)</span>
   </div>
-  <div class="bk-prevnext"><a href="doc-minimake-plan.html" class="bk-nav-btn">← Ch. 6: MiniMake Build Execution Guide</a><a href="doc-minimate-feature-guide.html" class="bk-nav-btn bk-next">Ch. 8: MiniMate — Complete Feature & Product Guide →</a></div>
+  <div class="bk-prevnext"><a href="doc-m2c-plan.html" class="bk-nav-btn">← Ch. 6: M2C L26 Build Execution Guide</a><a href="doc-menux-feature-guide.html" class="bk-nav-btn bk-next">Ch. 8: Menux — Complete Feature & Product Guide →</a></div>
 </div><div class="bk-override-box">
   <h3>⚡ Book Synchronization Note: How this Initial Spec Connects to the Local-First Overrides (O1–O8)</h3>
-  <p>This standalone HTML document is the <b>initial product &amp; design specification</b> for MiniMake. When the engineering execution plan was locked, <b>8 architectural overrides (O1–O8)</b> were established so MiniMake runs <b>100% local-first</b> with near-zero server cost and shares a single account and credit pool with MiniMe Web:</p>
+  <p>This standalone HTML document is the <b>initial product &amp; design specification</b> for M2C. When the engineering execution plan was locked, <b>8 architectural overrides (O1–O8)</b> were established so M2C runs <b>100% local-first</b> with near-zero server cost and shares a single account and credit pool with MiniMe Web:</p>
   <ul>
     <li><b>O1 · Local-First Data Placement:</b> Your device is the source of truth (local repo/files, local SQLite state, local shell/cron/channels/browser, local OS keychain/Argon2id vault). The MiniMe server stores only a content-free <code>usage_ledger</code> and an ephemeral Redis resume buffer (2 hours, max 500 events / 256 KB).</li>
-    <li><b>O2 · One Account, One Cap, One Shared Ledger (<code>0012</code> / <code>S01</code>):</b> MiniMake uses your existing MiniMe subscription (<code>Free $0</code> / <code>Basic $9</code> / <code>Moderate $29</code> / <code>Ultimate $79</code>) and logs into the single shared <code>usage_ledger</code> with <code>surface='minimake'</code> — never a separate billing pool.</li>
+    <li><b>O2 · One Account, One Cap, One Shared Ledger (<code>0012</code> / <code>S01</code>):</b> M2C uses your existing MiniMe subscription (<code>Free $0</code> / <code>Basic $9</code> / <code>Moderate $29</code> / <code>Ultimate $79</code>) and logs into the single shared <code>usage_ledger</code> with <code>surface='m2c'</code> — never a separate billing pool.</li>
     <li><b>O3–O5 · Shared <code>minicore/</code> Package &amp; Routes:</b> Shared loop/router primitives live in <code>minicore/</code>; server endpoints mount at <code>/api/codeagent/*</code>.</li>
   </ul>
-  <p style="margin:8px 0 0"><a href="doc-minimake-feature-guide.html"><b>→ Read Chapter 5: MiniMake Complete Feature Guide</b></a> &nbsp;·&nbsp; <a href="doc-minimake-plan.html"><b>→ Read Chapter 6: MiniMake Build Execution Guide</b></a></p>
-</div><iframe src="guides/MiniMake___Product___Build_Guide.html" style="height:82vh"></iframe><div class="bk-footer">
+  <p style="margin:8px 0 0"><a href="doc-m2c-feature-guide.html"><b>→ Read Chapter 5: M2C Complete Feature Guide</b></a> &nbsp;·&nbsp; <a href="doc-m2c-plan.html"><b>→ Read Chapter 6: M2C L26 Build Execution Guide</b></a></p>
+</div><iframe src="guides/M2C___Product___Build_Guide.html" style="height:82vh"></iframe><div class="bk-footer">
   <div class="bk-footer-hdr">
-    <span>End of <b>Chapter 7: MiniMake Product & Build Guide (Initial Spec)</b></span>
+    <span>End of <b>Chapter 7: M2C L26 Product & Build Guide (Initial Spec)</b></span>
     <a href="docs.html">View all 14 chapters in Docs →</a>
   </div>
-  <div class="bk-footer-grid"><a href="doc-minimake-plan.html" class="bk-fcard">
+  <div class="bk-footer-grid"><a href="doc-m2c-plan.html" class="bk-fcard">
       <small>← Previous · Chapter 6</small>
-      <b>MiniMake Build Execution Guide</b>
-      <span>Part III · MiniMake</span>
-    </a><a href="doc-minimate-feature-guide.html" class="bk-fcard bk-fnext">
+      <b>M2C L26 Build Execution Guide</b>
+      <span>Part III · M2C L26</span>
+    </a><a href="doc-menux-feature-guide.html" class="bk-fcard bk-fnext">
       <small>Next · Chapter 8 →</small>
-      <b>MiniMate — Complete Feature & Product Guide</b>
-      <span>Part IV · MiniMate</span>
+      <b>Menux — Complete Feature & Product Guide</b>
+      <span>Part IV · Menux</span>
     </a></div>
 </div></main><script id="bk-chapter-script">
 (function(){

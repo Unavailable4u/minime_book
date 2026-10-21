@@ -1,6 +1,6 @@
 # MiniMe Atlas — The Connected Ecosystem Book (14 Guides + Full Codebase Index)
 
-Static, offline-capable engineering atlas and 14-chapter connected book for the MiniMe AI ecosystem (MiniMe Web, MiniMake Terminal/Editor Agent, MiniMate Personal Automation Agent, and FBEBC Research).
+Static, offline-capable engineering atlas and 14-chapter connected book for the MiniMe AI ecosystem (MiniMe Web, M2C L26 (Minime to Code) Terminal/Editor Agent, Menux (Minime agentic automation) Personal Automation Agent, and FBEBC Research).
 
 ## Start here
 - Human overview & ecosystem sync map: index.html
@@ -14,20 +14,20 @@ Static, offline-capable engineering atlas and 14-chapter connected book for the 
 ### Part I — Strategy, Governance & Master Sequence
 1. Financial & Model Strategy Rulebook (`data/docs/MiniMe_Financial_Strategy_Rulebook.md` -> `doc-rulebook.html`) — The constitution: 15 golden rules, 4 tiers (Free $0, Basic $9, Moderate $29, Ultimate $79), COGS-at-cap <= 45%, 8 LLM providers, hiring & funding gates.
 2. Technical Implementation Roadmap (`data/docs/minime_technical_roadmap.md` -> `doc-tech-roadmap.html`) — Tech-A to Tech-H sequence, shared `usage_ledger` (`0012`), model hygiene, and ecosystem timeline integration.
-3. Server Management & Splitting Guide (`data/docs/minime_server_management_guide.md` -> `doc-server-guide.html`) — Metric-gated infrastructure evolution from Stage 1 single VPS ($14/mo) to Stage 5 full split, plus local-first footprint of MiniMake & MiniMate.
+3. Server Management & Splitting Guide (`data/docs/minime_server_management_guide.md` -> `doc-server-guide.html`) — Metric-gated infrastructure evolution from Stage 1 single VPS ($14/mo) to Stage 5 full split, plus local-first footprint of M2C & Menux.
 
 ### Part II — MiniMe Core Flagship (Web Workspace)
 4. MiniMe — Complete Feature & Product Guide (`data/docs/minime_feature_guide.md` -> `doc-minime-feature-guide.html`) — All 25 subsystems, 25-stage orchestrator, 73 agent modules (46 router roles), 6-tier memory, knowledge graph, mechanical CAD engine, and S0->S3b evolution.
 
-### Part III — MiniMake (Local-First Terminal & Editor Coding Agent)
-5. MiniMake — Complete Feature & Product Guide (`data/docs/minimake_feature_guide.md` -> `doc-minimake-feature-guide.html`) — Local CLI (`minimake`), TUI, `minicore/` shared package, 14 local tools, OS sandbox, 6 sub-agents, git checkpoints, and editor extensions.
-6. MiniMake — Build Execution Guide (`data/docs/minimake_build_plan.md` -> `doc-minimake-plan.html`) — 64 patch-sized work packages across 12 waves (157 effort points), Phase 0 browser cut (`B00-B12`), and Overrides O1-O8.
-7. MiniMake — Original Product & Design Spec (`guides/MiniMake___Product___Build_Guide.html` -> `doc-minimake-product.html`) — Initial product spec (superseded on topology/billing by Overrides O1-O8).
+### Part III — M2C L26 · Minime to Code (Local-First Terminal & Editor Coding Agent)
+5. M2C L26 — Complete Feature & Product Guide (`data/docs/m2c_feature_guide.md` -> `doc-m2c-feature-guide.html`) — Local CLI (`m2c`), TUI, `minicore/` shared package, 14 local tools, OS sandbox, 6 sub-agents, git checkpoints, and editor extensions.
+6. M2C L26 — Build Execution Guide (`data/docs/m2c_build_plan.md` -> `doc-m2c-plan.html`) — 64 patch-sized work packages across 12 waves (157 effort points), Phase 0 browser cut (`B00-B12`), and Overrides O1-O8.
+7. M2C L26 — Original Product & Design Spec (`guides/M2C___Product___Build_Guide.html` -> `doc-m2c-product.html`) — Initial product spec (superseded on topology/billing by Overrides O1-O8).
 
-### Part IV — MiniMate (Local-First Personal Automation Agent)
-8. MiniMate — Complete Feature & Product Guide (`data/docs/minimate_feature_guide.md` -> `doc-minimate-feature-guide.html`) — Local-first personal automation daemon (`minimate`), Run Engine, 4-tier Approval Manager, 6 messaging channels, 9 connectors, Playwright browser automation, and Argon2id + AES-256-GCM vault.
-9. MiniMate — Build Execution Guide (`data/docs/MiniMate___Build_Execution_Guide.md` -> `doc-minimate-plan.html`) — 59 patch-sized work packages across 16 waves (133 effort points), local-first Overrides O1-O8.
-10. MiniMate — Original Product & Design Spec (`guides/MiniMate___Product___Build_Guide.html` -> `doc-minimate-product.html`) — Initial product spec (superseded on topology/billing by Overrides O1-O8).
+### Part IV — Menux · Minime agentic automation (Local-First Personal Automation Agent)
+8. Menux — Complete Feature & Product Guide (`data/docs/menux_feature_guide.md` -> `doc-menux-feature-guide.html`) — Local-first personal automation daemon (`menux`), Run Engine, 4-tier Approval Manager, 6 messaging channels, 9 connectors, Playwright browser automation, and Argon2id + AES-256-GCM vault.
+9. Menux — Build Execution Guide (`data/docs/Menux___Build_Execution_Guide.md` -> `doc-menux-plan.html`) — 59 patch-sized work packages across 16 waves (133 effort points), local-first Overrides O1-O8.
+10. Menux — Original Product & Design Spec (`guides/Menux___Product___Build_Guide.html` -> `doc-menux-product.html`) — Initial product spec (superseded on topology/billing by Overrides O1-O8).
 
 ### Part V — FBEBC Research Program (Fitness-Band Elitist Bacterial Colony)
 11. FBEBC — Research Program Guide (`data/docs/fbebc-research-program-guide.md` -> `doc-fbebc-program.html`) — Stage 1 zero-cost preprint to Stage 2 MiniMe-integrated evolution engine (`backend/agents/evolution/`).
@@ -40,7 +40,7 @@ Static, offline-capable engineering atlas and 14-chapter connected book for the 
 - `todo.html` — Shared team Kanban, List, Calendar, Timeline & Activity log
 - `journey.html` — Interactive section-by-section reading & build tracker across all 14 guides
 - `progress.html` — Tech-A through Tech-H matched against real codebase files
-- `build.html` — Interactive work-package tracker for MiniMake (64 WPs), MiniMate (59 WPs), and FBEBC
+- `build.html` — Interactive work-package tracker for M2C (64 WPs), Menux (59 WPs), and FBEBC
 - `decisions.html` — 86 golden rules, roadmap gates, and pre-patch architectural decisions
 - `consistency.html` — Cross-book governance & reconciliation matrix
 - `explore.html`, `map.html`, `code.html`, `functions.html`, `graph.html`, `api.html`, `agents.html`, `data.html`, `infra.html`, `history.html`, `architecture.html`, `tests.html`, `health.html`, `finance.html`, `rulebook.html`, `tables.html`

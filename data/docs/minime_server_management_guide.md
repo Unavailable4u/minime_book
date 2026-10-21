@@ -265,14 +265,14 @@ roadmap's own recommendation — nothing above changes that.
 
 ---
 
-## 9. How MiniMake, MiniMate, and FBEBC Fit the Server Topology
+## 9. How M2C, Menux, and FBEBC Fit the Server Topology
 
-A critical architectural decision across the MiniMe Book (`minimake_build_plan.md` O1 and `MiniMate___Build_Execution_Guide.md` O1) is that **both MiniMake and MiniMate are local-first**:
+A critical architectural decision across the MiniMe Book (`m2c_build_plan.md` O1 and `Menux___Build_Execution_Guide.md` O1) is that **both M2C and Menux are local-first**:
 
 | Surface / Track | What Runs on the User's Local Device | What Runs on the MiniMe Server Fleet | Impact on Server Split Triggers (§2–§6) |
 | :--- | :--- | :--- | :--- |
 | **MiniMe Web (`surface='web'`)** | Browser UI (`Next.js 16` + `Pyodide` Web Worker for chat artifacts) | FastAPI `/api/*`, 25-stage orchestrator, SSE stream, Postgres + pgvector, Redis, Celery workers | Primary driver of Stage 1 → Stage 5 split triggers |
-| **MiniMake CLI/IDE (`surface='minimake'`)** | Repo tree, SQLite `index.db` (FTS5 + local embeddings), working-tree diffs, shell/test runner, git checkpoints, OS keychain | `/api/codeagent/*` brain turn loop, `usage_ledger` metering, and **2-hour ephemeral Redis session buffer** (max 500 events / 256 KB, zero source code stored in Postgres) | **Zero worker/sandbox CPU on server**; 1,000 concurrent CLI sessions use `< 50 MB` of Redis RAM (`Stage 1` single box handles this effortlessly) |
-| **MiniMate Local Node (`surface='minimate'`)** | APScheduler cron/triggers,Run Engine, Approval Manager, 6 channel adapters (Telegram/Discord/Slack/WhatsApp/Email/Webhook), 9 connectors, Playwright browser, Argon2id + AES-256-GCM vault | `/api/minimate/*` brain turn loop, `usage_ledger` metering, and **24-hour ephemeral Redis session buffer** (max 500 events / 256 KB, zero secrets/runs stored in Postgres) | **Zero headless browser or cron worker load on server**; only lightweight JSON tool-selection turns hit the API |
+| **M2C CLI/IDE (`surface='m2c'`)** | Repo tree, SQLite `index.db` (FTS5 + local embeddings), working-tree diffs, shell/test runner, git checkpoints, OS keychain | `/api/codeagent/*` brain turn loop, `usage_ledger` metering, and **2-hour ephemeral Redis session buffer** (max 500 events / 256 KB, zero source code stored in Postgres) | **Zero worker/sandbox CPU on server**; 1,000 concurrent CLI sessions use `< 50 MB` of Redis RAM (`Stage 1` single box handles this effortlessly) |
+| **Menux Local Node (`surface='menux'`)** | APScheduler cron/triggers,Run Engine, Approval Manager, 6 channel adapters (Telegram/Discord/Slack/WhatsApp/Email/Webhook), 9 connectors, Playwright browser, Argon2id + AES-256-GCM vault | `/api/menux/*` brain turn loop, `usage_ledger` metering, and **24-hour ephemeral Redis session buffer** (max 500 events / 256 KB, zero secrets/runs stored in Postgres) | **Zero headless browser or cron worker load on server**; only lightweight JSON tool-selection turns hit the API |
 | **FBEBC Research (`Stage 1` → `Stage 2`)** | Stage 1 runs in standalone `fbebc-research` repo (`$0` free-tier pools) | Stage 2 (`Mar 2028+`, gated on `G1–G4`) runs as an async Celery worker queue inside `backend/agents/evolution/` | In Stage 2, FBEBC evolution runs belong on the **Worker Server (`Stage 2 Split`)** so long-running population evaluations never contend with web/CLI SSE latency |
 
