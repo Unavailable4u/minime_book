@@ -134,6 +134,7 @@ Recommended defaults are in bold. Change them before generating patches, not aft
 | D9 | macOS | **Deferred** | Adds a Seatbelt backend later |
 | D10 | Linux distros supported | **Ubuntu 22.04+/24.04, Debian 12, Fedora current; Arch best effort; WSL2 Ubuntu is the primary Windows path** | Document tested versions in `doctor` |
 | D11 | Open-sourcing the client | **Decide before beta** (trust benefit vs. exposing policy code) | Affects license headers from the start |
+| D12 | MiniLocker (`draft` repo) reuse | **A source of parts, not a base.** Copy a module in with a provenance header and its tests; no runtime dependency on the repo; never import its Docker sandbox, egress proxy, API or UI (§11.6) | Vendoring or a shared package couples release cadence and drags Docker, FastAPI and S3 dependencies into the client. Check the hackathon's terms before the first copy |
 
 ---
 
@@ -419,6 +420,7 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 
 *Files (new only):* `backend/codeagent/model_adapter.py`, `backend/codeagent/adapters/openai_compat.py`, `backend/tests/unit/test_codeagent_adapter.py`, `backend/tests/manual/smoke_tool_calling.py`.
 *What:* A provider-neutral streaming interface that yields `text_delta`, `tool_call{id, name, arguments}`, and `usage{input, cached_input, output}` events, with errors mapped onto your existing `utils/llm_errors.py`. First adapter: OpenAI-compatible chat completions with `tools`. Reuse the key selection and cooldown helpers from `llm_client.py` by **importing them read-only**; do not edit that file. Add the manual smoke script (20 tool-calling calls against the chosen dev provider; report malformed-call rate).
+*Reuse (MiniLocker, §11.6):* port `minilocker/llm/toolcalls.py` (tolerant parsing of malformed tool-call arguments and of calls written as plain text) with its tests into `backend/codeagent/adapters/`, and build the smoke script on `minilocker/llm/bakeoff.py`. MiniLocker's client does not stream, so the streaming layer is new work. The parser must pass this WP's malformed-argument tests as written.
 *Done when:* unit tests with a fake streaming server cover text-only, one tool call, parallel tool calls, malformed JSON arguments, and provider errors; the smoke script produces a report you can read to pick the dev model.
 
 ### S06 · Run manager, ephemeral buffer, run metadata · L · Wave 3
@@ -440,6 +442,7 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 *Implements:* §O1; product guide §9.3, §11.2.
 *Files:* `m2c/src/m2c/store/{db.py,migrations.py,sessions.py,events.py}`, tests.
 *What:* SQLite at `~/.m2c/state.db` with tables `sessions(id, project_path, created_at, mode, model_pref)`, `events(session_id, seq, ts, type, json)` (append-only), `approvals(...)`, `checkpoints(session_id, step, path, blob_hash, ts)`, plus a schema version table and forward-only migrations. Export to JSONL. File mode `0600`.
+*Reuse (MiniLocker, §11.6):* optional. `minilocker/ledger/chain.py` is a model for hash-chaining `events` (`prev_hash` and `hash` per row) and for reading back a log whose final line was torn by an interrupted write. The chain detects edits; it is not signed or anchored, so describe it that way.
 *Done when:* create, append, read-back and export work; an interrupted write leaves a valid database; migrations are tested from version 0.
 
 ### C03 · Login (device-code client) · M · Wave 2
@@ -502,6 +505,7 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 *Implements:* product guide §8.2–8.3.
 *Files:* `m2c/src/m2c/policy/{modes.py,rules.py,decide.py,shellparse.py}`, tests.
 *What:* Modes `plan`, `ask`, `accept-edits`. Rules `allow`, `ask`, `deny` with exact strings first and simple patterns; evaluation order deny → ask → allow; settings layering (managed > user > project) with project settings requiring the trust prompt. **Compound commands** are split (`&&`, `||`, `;`, pipes, subshells, redirections) and each part is checked; unknown syntax means "ask". Protected paths (`.git/`, `.m2c/`, shell rc files) are read-only for edits. The decision function is pure and returns `allow | ask | deny` with a reason. **Fails closed.**
+*Reuse (MiniLocker, §11.6):* test corpus only. Mine `minilocker/policy/engine.py` and its tests for bypass cases, but do not port the engine: it scores commands with regexes and treats unparseable syntax as low risk, the opposite of this WP's "unknown syntax means ask" and fail-closed rule.
 *Done when:* a large table-driven test, including bypass attempts (`ls && curl …`, `$(…)`, backticks, env-var tricks), passes; no code path allows without an explicit rule or mode.
 
 ### C12 · Instructions, rules and memory loader · M · Wave 5
@@ -579,6 +583,7 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 - Network **off by default** inside the sandbox; a local **HTTP CONNECT proxy** with a domain allowlist is the only way out, prompting on a new domain.
 - `probe.py` tests at startup that the sandbox really works (can it write outside the project? read `~/.ssh`? reach a blocked host?) and `doctor` reports it. If the sandbox cannot be built (WSL2 without user namespaces, container without privileges), **say so and refuse `auto-allow`**; never pretend.
 - Landlock + seccomp as an alternative backend is optional and can wait.
+*Reuse (MiniLocker, §11.6):* tests only. Re-aim the Attack Lab's escape and exfiltration attacks (`read_secrets`, `exfil_unknown_domain`, `host_escape_probes`, `malicious_repo_hook`) at the bubblewrap backend. The Docker sandbox itself is not reused.
 *Done when:* escape tests fail as intended (write `.git`, read `~/.ssh`, reach a blocked domain, `cd ..` then write); commands that need a new domain trigger the prompt; works on Ubuntu native and WSL2 Ubuntu.
 
 ### C13 · Hooks · M · Wave 9
@@ -624,6 +629,7 @@ Long-running commands with ids, output polling, kill; dev servers and watchers. 
 ### C17 · Web tools and taint tracking · L · Wave 10
 *Implements:* product guide §8.6.
 `web_fetch` runs **locally** through the sandbox proxy (so the user's IP and data stay local); `web_search` goes through the server (the search key stays server-side; queries are content that leaves the device, so say so in the trust copy). Any untrusted result sets the session `tainted`. While tainted: network-capable tools, `git push` and other outbound actions **always ask**, even in `accept-edits`; writes outside the project are denied. The UI shows the flag and the reason.
+*Reuse (MiniLocker, §11.6):* port `minilocker/policy/injection.py` (`sanitize`, `scan`, and the nonce `fence` for untrusted text) and the taint-floor idea from `policy/engine.py`. The scan is only a signal; the session `tainted` flag and the always-ask rule above remain the control.
 *Done when:* a poisoned fetched page cannot cause an unapproved outbound action in the red-team suite.
 
 ### Q01 · CI for the new packages · S · Wave 9
@@ -632,9 +638,11 @@ Run `m2c/tests`, `backend` tests (including `codeagent`), and the protocol check
 ### Q02 · Eval harness · L · Wave 9
 *Files:* `backend/evals/m2c/` (your repo already has `backend/evals/`).
 *What:* A runner that drives `m2c -p` against a fresh copy of a task repo, then runs a verifier script. Start with 20–30 golden tasks (a web app, a firmware-style repo, a Python service). Records success, steps, tokens, credits, cache-hit rate. Used for every model and prompt change.
+*Reuse (MiniLocker, §11.6):* model the runner on `minilocker/scenarios/runner.py` and the `fix_repo` scenario (`scenarios/repo_fix.py`): a verifier the model never sees, repeated runs per task, and a 95% interval (`wilson()`) reported beside the pass count. MiniLocker drives its own agent loop; this runner drives `m2c -p`.
 
 ### Q03 · Red-team suite · L · Wave 9
 Fixtures for indirect injection (README, issue text, fetched page, MCP-style tool description), secret-read attempts, sandbox escapes, denylist bypass, and hook tampering. **A release is blocked if any "no unapproved egress, no secret read, no write outside the project" test fails.**
+*Reuse (MiniLocker, §11.6):* seed the fixtures from the Attack Lab catalog (`minilocker/attacks/catalog.py`: `hostile_page_injection`, `deny_then_bypass`, `read_secrets`, `exfil_unknown_domain`, `malicious_repo_hook` and others), rewritten for the bubblewrap backend and the CONNECT proxy.
 
 ### Q06 · "No content at rest" canary test · M · Wave 9
 Run a scripted session with canary strings in prompts, file contents and tool outputs. Afterwards scan Postgres rows, application logs, Redis keys after run end, and error-reporting payloads for the canaries. Any hit fails CI. This is the test that backs your trust statement.
@@ -747,6 +755,31 @@ May log: user ID, device ID, opaque run ID, model, token counts, credits, status
 - At 80% both show a warning; at 100% both pause with the same message and the same reset date.
 - Per-run ceiling is separate from the pool; "grant more" raises the run ceiling only, never the pool.
 
+### 11.6 Reuse from MiniLocker (the `draft` repo)
+
+MiniLocker is your hackathon project: a Docker-based agent sandbox with a policy engine, an injection scanner, a hash-chained ledger and an attack suite. It was reviewed at commit `54520a2`. It is a **source of parts, not a base** (D12). M2C runs on the user's own machine inside `bubblewrap` (§O3, C11); MiniLocker runs the agent inside a Docker container on a server, so its sandbox, egress proxy, control-plane API, artifact store and UI do not carry over.
+
+Rules for any reuse:
+
+1. **Copy, do not depend.** Port the module and its tests into the package that owns the WP, add a header comment naming the source file and commit (`Adapted from MiniLocker 54520a2, minilocker/<path>`), and make no runtime import from the draft repo.
+2. **The WP's own *Done when* is the gate.** Ported code that passes MiniLocker's tests but not this WP's tests is not done.
+3. **Check the hackathon's rules on reuse** before the first copy (D12).
+4. **One module per patch** (§0.2), so a bad import is easy to revert.
+
+| MiniLocker module | Used in | What to take | Why it is not a drop-in |
+|---|---|---|---|
+| `llm/toolcalls.py`, `llm/bakeoff.py` | S05 | Tolerant tool-call parsing; the bake-off as the basis of the 20-call smoke script | Its client does not stream; the streaming adapter is new work |
+| `policy/injection.py` | C17 | Invisible-character stripping, injection scan, nonce-fenced wrapper for untrusted text, the taint-floor idea | The scan is a signal, not the control; tune it against the Q03 fixtures |
+| `ledger/chain.py` | C02 (optional) | Hash-chained event log; tolerates a torn final line | Not signed or anchored: it detects edits and does not prevent a full rewrite, so the trust pages (X05) must say so |
+| `policy/engine.py` | C06 (tests only) | Rules and cases as bypass tests for the C06 table | Regex scoring, unparseable syntax scored low, no `$(...)` or backtick parsing; C06 must fail closed |
+| `attacks/` catalog | Q03, C11 tests | The 13 attacks as red-team fixtures | Written for Docker paths and its egress proxy; rewrite for bubblewrap and the CONNECT proxy |
+| `scenarios/` runner | Q02 | Hidden-test verifier, repeated runs, 95% interval | It drives MiniLocker's own loop; Q02 drives `m2c -p` |
+| `sandbox/browser_worker.py`, `attacks/browser_attacks.py` | Menux D01 | URL-scheme refusal, page text returned as data, hostile-page attacks as tests | Runs inside a Docker container; Menux uses a dedicated Playwright profile and the proxy allowlist |
+
+**Not reused:** the Docker sandbox and its container lifecycle, the egress proxy, the control-plane API, the artifact store and the frontend. If server-side code execution is ever added (this plan has none), revisit.
+
+Size labels in §14 are unchanged. Reuse is a head start, not a reason to shrink an estimate before a port has actually passed its WP's tests.
+
 ---
 
 ## 12. Tests and commands
@@ -778,6 +811,7 @@ May log: user ID, device ID, opaque run ID, model, token counts, credits, status
 | Solo-founder capacity | Waves are the ceiling, not the target; Phase 0 and Phase 1 are the minimum viable proof |
 | Cost surprises during testing | Per-run ceilings from S10 from day one; dev keys until M2 |
 | Trust claim becomes untrue | Q06 canary test and the §11.4 logging rule |
+| Imported code carries the wrong assumption | Reuse is by copy (D12); the WP's own *Done when* tests and the C06 fail-closed rule decide, not the source project's tests |
 
 ---
 

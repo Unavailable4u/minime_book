@@ -586,7 +586,7 @@ All of this is **attended-first** and Linux-native. On WSL2 only Linux GUI apps 
 
 | WP | Title | Notes |
 | --- | --- | --- |
-| **D01** | Dedicated browser profile (Playwright, optional install) | Separate profile, never the user's daily one; sandboxed; domains through the proxy allowlist; page text is untrusted and tainting. |
+| **D01** | Dedicated browser profile (Playwright, optional install) | Separate profile, never the user's daily one; sandboxed; domains through the proxy allowlist; page text is untrusted and tainting. **Reuse (MiniLocker, `m2c_build_plan.md` §11.6):** URL-scheme refusal, page text returned as data with scan and fence, and `attacks/browser_attacks.py` as tests; the Docker and proxy parts are not reused, and approve-before-submit is new work. |
 | **D02** | AT-SPI reader | Accessibility tree first: role plus name targeting; `doctor` reports whether accessibility is enabled and warns if a screen reader must be stopped. |
 | **D03** | Screenshots and input | Screencast portal for screenshots (may prompt each time); `ydotool` on Wayland, `xdotool` on X11; per-compositor support matrix in `doctor`. |
 | **D04** | Headless virtual desktop in a container | For unattended GUI tasks: Xvfb or headless Wayland in a Podman container; disposable; no access to the real session. |
