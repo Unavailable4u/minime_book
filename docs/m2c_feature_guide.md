@@ -461,6 +461,10 @@ The quality plan includes evaluations for:
 
 These are release gates, not optional documentation exercises.
 
+### 6.7 Prior art and reused components
+
+Parts of the safety layer are adapted from MiniLocker, an earlier MiniMe-family project (a hackathon entry) that tested agent sandboxing, injection handling and tamper-evident logging. M2C reuses specific modules (tolerant tool-call parsing, the untrusted-content fence, an optional hash-chained log, and attack scenarios) and rewrites others. M2C does not run on MiniLocker's Docker sandbox: its boundary is the local `bubblewrap` sandbox and the device policy engine. Reused code counts only once it passes the M2C work package's own tests. The module-by-module map is in `m2c_build_plan.md` §11.6.
+
 ---
 
 ## 7. Hooks, Skills, Instructions, and Memory
@@ -764,6 +768,7 @@ The main planning sources for this manual are:
 - `data/docs/m2c_build_plan.md`;
 - MiniMe Build tab and workbench implementation;
 - backend local workspace, code proposal, task, and deployment routes;
-- the protocol, server, client, loop, policy, sandbox, and quality work packages described by the build plan.
+- the protocol, server, client, loop, policy, sandbox, and quality work packages described by the build plan;
+- `MiniLocker` (the `draft` repo, reviewed at commit `54520a2`) as a source of reusable modules and attack scenarios, as mapped in `m2c_build_plan.md` §11.6;
 
 This document is the user-facing layer. The build plan remains authoritative for patch order, exact module ownership, test commands, milestone gates, and implementation status.

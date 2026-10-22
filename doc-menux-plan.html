@@ -1198,7 +1198,7 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 <tr>
 <td><strong>D01</strong></td>
 <td>Dedicated browser profile (Playwright, optional install)</td>
-<td>Separate profile, never the user's daily one; sandboxed; domains through the proxy allowlist; page text is untrusted and tainting.</td>
+<td>Separate profile, never the user's daily one; sandboxed; domains through the proxy allowlist; page text is untrusted and tainting. <strong>Reuse (MiniLocker, <code>m2c_build_plan.md</code> §11.6):</strong> URL-scheme refusal, page text returned as data with scan and fence, and <code>attacks/browser_attacks.py</code> as tests; the Docker and proxy parts are not reused, and approve-before-submit is new work.</td>
 </tr>
 <tr>
 <td><strong>D02</strong></td>

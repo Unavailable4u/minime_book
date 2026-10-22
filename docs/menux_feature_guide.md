@@ -574,6 +574,8 @@ Folder grants distinguish read-only from read-write access.
 
 Playwright and headless Chromium are planned as an optional installation. Browser automation is disabled by default because it has a large dependency and can affect external systems. Sites, domains, credentials, and actions must be governed by capability and tier policy.
 
+The browser tool can reuse parts of MiniLocker's browsing design: refusing non-http(s) navigation, returning page text as data that is scanned and fenced before the model sees it, and a set of hostile-page attack scenarios used as tests. MiniLocker's browser runs in a Docker container behind an egress proxy; Menux uses a dedicated Playwright profile and the proxy allowlist instead (`D01`), so the container and proxy code is not reused. MiniLocker has no approve-before-submit step for web forms; the `T4` form submit (`MT-W01`) needs one, so that gate is new work. See `m2c_build_plan.md` §11.6.
+
 ### 8.8 Future connectors
 
 The connector host is intended to support additional services through manifests. Official Google connectors are gated by legal and compliance review because Gmail restricted scopes, CASA assessments, verification, Limited Use requirements, and model-provider handling of mail content create material obligations.
