@@ -1,0 +1,47 @@
+# Keeps the Atlas pages in step with data/census.json.
+#
+# Push a new data/census.json (see scripts/refresh_atlas.py for how to make
+# one) and this job re-renders every census-driven page and data/summary.md,
+# then commits the result. Vercel redeploys from that commit like any other
+# push, so the live site updates without anyone running the script by hand.
+#
+# It cannot trigger itself: it only runs on changes to data/census.json, and
+# the commit it makes touches pages and summary.md, never the census.
+#
+# Needs: Settings > Actions > General > Workflow permissions = "Read and
+# write", and no branch protection that blocks the bot pushing to main.
+name: Refresh Atlas
+on:
+  push:
+    branches: [main]
+    paths:
+      - "data/census.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-atlas
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Re-render pages from the census
+        run: python3 scripts/refresh_atlas.py
+      - name: Commit refreshed pages
+        run: |
+          if git diff --quiet; then
+            echo "Pages already match data/census.json; nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Atlas: refresh pages from data/census.json"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
