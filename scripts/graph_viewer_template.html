@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MiniMe Constellation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap">
+<style>
+/* Layout: one full-bleed canvas world (folders as halos, files as stars) under floating glass panels:
+   brand + level switch top-left, search top-right, folder list bottom-left, file details slide in from the right. */
+:root {
+  --bg: #060912;
+  --bg-2: #0a1020;
+  --panel: rgba(10, 16, 32, 0.78);
+  --panel-solid: #0b1121;
+  --line: rgba(150, 175, 255, 0.14);
+  --line-2: rgba(150, 175, 255, 0.28);
+  --fg: #e6ecfa;
+  --muted: #8a96b6;
+  --faint: #5d6a8c;
+  --out: #ff7a96;
+  --in: #a78bfa;
+  --hot: #ffd27a;
+  --display: 'Syne', 'Helvetica Neue', Arial, sans-serif;
+  --body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--body);
+  font-size: 13px;
+  line-height: 1.45;
+  overflow: hidden;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-font-smoothing: antialiased;
+}
+#cv { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; background: var(--bg); }
+#cv.pointer { cursor: pointer; }
+#cv.drag { cursor: grabbing; }
+#ui { position: relative; height: 100%; pointer-events: none; }
+#ui > * { pointer-events: auto; }
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; }
+
+.glass {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(14px) saturate(1.3);
+}
+.eyebrow { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+/* top bar */
+#top { position: absolute; top: 12px; left: 0; right: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; pointer-events: none; }
+#top > * { pointer-events: auto; }
+#brand h1 { margin: 2px 0 8px; font-family: var(--display); font-weight: 800; font-size: 30px; letter-spacing: -0.02em; line-height: 1; text-wrap: balance; }
+#brand h1 span { background: linear-gradient(90deg, #5be3d0, #7aa7ff 45%, #c08cff 75%, #ff8fa8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+#ctrls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 10px; }
+.seg button { border: 0; background: transparent; color: var(--muted); padding: 6px 14px; border-radius: 8px; font-weight: 500; letter-spacing: 0.01em; transition: background .2s, color .2s; }
+.seg button[aria-pressed="true"] { background: rgba(130, 160, 255, 0.2); color: var(--fg); box-shadow: inset 0 0 0 1px var(--line-2); }
+.seg button:hover { color: var(--fg); }
+.sel { display: inline-flex; align-items: center; gap: 8px; padding: 0 10px 0 12px; height: 36px; border-radius: 10px; }
+.sel label { color: var(--muted); }
+.sel select { background: transparent; border: 0; color: var(--fg); font-weight: 500; padding: 6px 2px; outline-offset: 4px; }
+.sel select option { background: var(--panel-solid); color: var(--fg); }
+#searchBtn { display: flex; align-items: center; gap: 10px; width: min(440px, 100%); height: 44px; padding: 0 12px 0 14px; text-align: left; color: var(--muted); border-radius: 12px; transition: border-color .2s, background .2s; }
+#searchBtn:hover { border-color: var(--line-2); color: var(--fg); }
+#searchBtn svg { flex: none; }
+#searchBtn .ph { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+kbd { font-family: var(--mono); font-size: 10.5px; padding: 2px 6px; border-radius: 5px; border: 1px solid var(--line-2); color: var(--muted); background: rgba(255, 255, 255, 0.03); }
+#crumb { display: none; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; border-radius: 999px; font-family: var(--mono); font-size: 11.5px; }
+#crumb.on { display: inline-flex; }
+#crumb button { border: 0; background: rgba(255, 255, 255, 0.08); width: 22px; height: 22px; border-radius: 50%; color: var(--fg); line-height: 1; }
+#qchip { display: none; }
+#qchip.on { display: inline-flex; }
+
+/* side list */
+#side { position: absolute; left: 0; bottom: 12px; width: 268px; max-height: calc(100% - 184px); display: flex; flex-direction: column; overflow: hidden; }
+#side header { display: flex; gap: 2px; padding: 6px 6px 0; border-bottom: 1px solid var(--line); }
+#side header button { border: 0; background: transparent; color: var(--muted); padding: 7px 10px 8px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; border-bottom: 2px solid transparent; }
+#side header button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--hot); }
+#side .body { overflow-y: auto; padding: 6px; min-height: 0; overscroll-behavior: contain; }
+#side .opts { padding: 8px 12px; display: flex; flex-direction: column; gap: 4px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+#side .opts label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+#side .opts input { accent-color: #7aa7ff; }
+.row { display: flex; align-items: center; gap: 8px; width: 100%; padding: 4px 6px; border: 0; background: transparent; text-align: left; border-radius: 7px; min-height: 28px; }
+.row:hover { background: rgba(130, 160, 255, 0.1); }
+.row.off { opacity: 0.38; }
+.row.on { background: rgba(130, 160, 255, 0.16); }
+.sw { flex: none; width: 12px; height: 12px; border-radius: 50%; border: 0; padding: 0; box-shadow: 0 0 10px 1px currentColor; }
+.row .nm { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .nm i { font-style: normal; color: var(--faint); }
+.row .ct { font-family: var(--mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ramp { height: 8px; border-radius: 4px; margin: 8px 6px 4px; background: linear-gradient(90deg, hsl(225 60% 42%), hsl(285 70% 60%), hsl(345 90% 66%), hsl(40 100% 74%)); }
+.rampl { display: flex; justify-content: space-between; margin: 0 6px 6px; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+#sideBtn { display: none; position: absolute; left: 0; bottom: 12px; height: 40px; padding: 0 14px; border-radius: 10px; }
+
+/* tools */
+#tools { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 6px 8px 6px 14px; border-radius: 999px; max-width: calc(100% - 24px); }
+#stats { display: flex; gap: 14px; font-family: var(--mono); font-size: 11px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+#stats b { color: var(--fg); font-weight: 500; }
+#zoom { display: flex; gap: 2px; }
+#zoom button { width: 30px; height: 30px; border: 0; border-radius: 50%; background: transparent; color: var(--fg); font-size: 16px; line-height: 1; }
+#zoom button:hover { background: rgba(130, 160, 255, 0.16); }
+
+/* details */
+#detail { position: absolute; right: 0; top: 74px; bottom: 12px; width: min(392px, 100%); overflow-y: auto; padding: 18px 18px 22px; transform: translateX(calc(100% + 24px)); transition: transform .42s cubic-bezier(.2,.8,.2,1); overscroll-behavior: contain; z-index: 5; }
+#detail.open { transform: none; }
+#detail .x { position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(255,255,255,0.07); color: var(--fg); }
+#detail h2 { margin: 6px 28px 2px 0; font-family: var(--display); font-weight: 700; font-size: 23px; letter-spacing: -0.01em; line-height: 1.12; overflow-wrap: anywhere; text-wrap: balance; }
+#detail .path { font-family: var(--mono); font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
+#detail .doc { margin: 12px 0 0; color: #b7c2dd; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; }
+.pill { font-family: var(--mono); font-size: 11px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line-2); color: #c6d0ea; white-space: nowrap; }
+.pill.dot::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; background: currentColor; }
+#detail h3 { margin: 20px 0 6px; font-family: var(--mono); font-weight: 500; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+#detail h3 em { font-style: normal; color: var(--fg); }
+#detail h3::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.lnk { display: grid; grid-template-columns: 1fr 64px; align-items: center; gap: 8px; width: 100%; padding: 4px 6px; border: 0; background: transparent; text-align: left; border-radius: 6px; min-height: 28px; }
+.lnk:hover { background: rgba(130, 160, 255, 0.1); }
+.lnk span.n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lnk span.n i { font-style: normal; color: var(--faint); font-size: 11px; margin-left: 6px; }
+.lnk .bar { height: 4px; border-radius: 2px; background: var(--c, var(--out)); width: var(--w, 10%); min-width: 6px; justify-self: end; opacity: .85; }
+.fnr { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; padding: 3px 6px; font-family: var(--mono); font-size: 11.5px; }
+.fnr span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fnr span + span { color: var(--muted); font-variant-numeric: tabular-nums; }
+.act { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 7px 12px; border-radius: 9px; border: 1px solid var(--line-2); background: rgba(130, 160, 255, 0.1); color: var(--fg); }
+.act:hover { background: rgba(130, 160, 255, 0.2); }
+a.act { text-decoration: none; color: var(--fg); }
+.stat4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 14px; }
+.stat4 div { padding: 8px 10px; border-radius: 9px; border: 1px solid var(--line); }
+.stat4 b { display: block; font-family: var(--display); font-size: 20px; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.stat4 span { font-size: 11px; color: var(--muted); }
+.none { color: var(--faint); padding: 2px 6px; }
+
+/* tooltip */
+#tip { position: fixed; left: 0; top: 0; z-index: 9; pointer-events: none; opacity: 0; transition: opacity .12s; padding: 8px 10px; border-radius: 9px; max-width: 280px; font-size: 12px; }
+#tip b { display: block; font-weight: 600; font-size: 13px; overflow-wrap: anywhere; }
+#tip span { color: var(--muted); font-family: var(--mono); font-size: 10.5px; display: block; overflow-wrap: anywhere; }
+
+/* search palette */
+#pal { position: fixed; inset: 0; z-index: 20; display: none; align-items: flex-start; justify-content: center; padding: max(72px, 10vh) 16px 16px; background: rgba(3, 5, 12, 0.6); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
+#pal.open { display: flex; }
+#palbox { width: min(640px, 100%); max-height: min(560px, calc(100% - 20px)); display: flex; flex-direction: column; overflow: hidden; background: rgba(10, 16, 32, 0.96); box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(150, 175, 255, 0.08); }
+#palin { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+#q { flex: 1; min-width: 0; background: transparent; border: 0; outline: none; font-size: 17px; }
+#q::placeholder { color: var(--faint); }
+#res { overflow-y: auto; padding: 6px; min-height: 0; }
+#res h4 { margin: 10px 8px 4px; font-family: var(--mono); font-weight: 500; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.hit { display: flex; align-items: center; gap: 10px; width: 100%; padding: 7px 10px; border: 0; background: transparent; border-radius: 8px; text-align: left; }
+.hit.act2, .hit:hover { background: rgba(130, 160, 255, 0.16); }
+.hit .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hit .nm i { font-style: normal; color: var(--faint); font-size: 11.5px; margin-left: 8px; font-family: var(--mono); }
+.hit mark { background: transparent; color: var(--hot); font-weight: 600; }
+.hit .ex { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+#palft { display: flex; gap: 14px; padding: 8px 14px; border-top: 1px solid var(--line); color: var(--faint); font-size: 11.5px; flex-wrap: wrap; }
+.empty { padding: 22px 12px; color: var(--muted); }
+
+@media (max-width: 760px) {
+  #brand h1 { font-size: 24px; }
+  #searchBtn { order: 3; width: 100%; }
+  #top { gap: 8px; }
+  #side { display: none; bottom: 64px; width: min(300px, 100%); max-height: 46%; }
+  #side.open { display: flex; }
+  #sideBtn { display: inline-flex; align-items: center; }
+  #tools { left: auto; right: 0; transform: none; padding: 4px; bottom: 12px; }
+  #stats { display: none; }
+  #detail { top: auto; height: 62%; width: 100%; transform: translateY(calc(100% + 24px)); }
+  #detail.open { transform: none; }
+  kbd { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { #detail { transition: none; } }
+</style>
+
+</head>
+<body>
+<canvas id="cv" aria-label="Interactive graph of MiniMe source files grouped by folder"></canvas>
+
+<div id="ui">
+  <div id="top">
+    <div id="brand">
+      <div class="eyebrow" id="eyebrow">MiniMe Atlas</div>
+      <h1><span>Constellation</span></h1>
+      <div id="ctrls">
+        <div class="seg glass" role="group" aria-label="Level of detail">
+          <button id="lvF" aria-pressed="false">Folders</button>
+          <button id="lvX" aria-pressed="true">Files</button>
+        </div>
+        <div class="sel glass"><label for="colorBy">Color</label>
+          <select id="colorBy">
+            <option value="folder">by folder</option>
+            <option value="lang">by language</option>
+            <option value="recent">by last change</option>
+          </select>
+        </div>
+        <div id="crumb" class="glass"><span id="crumbT"></span><button id="crumbX" aria-label="Leave folder">&times;</button></div>
+        <div id="qchip" class="glass sel"><span id="qchipT" style="font-family:var(--mono);font-size:11.5px"></span><button id="qchipX" class="row" style="width:auto;min-height:0;padding:2px 8px" aria-label="Clear search">&times;</button></div>
+      </div>
+    </div>
+    <button id="searchBtn" class="glass" aria-label="Search files and functions">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <span class="ph">Find a file or function, e.g. registry, llm_client, run_chain</span>
+      <kbd>Ctrl K</kbd>
+    </button>
+  </div>
+
+  <aside id="side" class="glass">
+    <header role="tablist">
+      <button role="tab" id="tabF" aria-selected="true">Folders</button>
+      <button role="tab" id="tabH" aria-selected="false">Hubs</button>
+      <button role="tab" id="tabL" aria-selected="false">Legend</button>
+    </header>
+    <div class="body" id="sideBody"></div>
+    <div class="opts">
+      <label><input type="checkbox" id="optTests" checked> Show test files</label>
+      <label><input type="checkbox" id="optIso" checked> Show files with no links</label>
+    </div>
+  </aside>
+  <button id="sideBtn" class="glass">Folders</button>
+
+  <div id="tools" class="glass">
+    <div id="stats"></div>
+    <div id="zoom">
+      <button id="zIn" aria-label="Zoom in">+</button>
+      <button id="zOut" aria-label="Zoom out">&minus;</button>
+      <button id="zFit" aria-label="Fit to screen" style="font-size:13px">&#x2316;</button>
+    </div>
+  </div>
+
+  <section id="detail" class="glass" aria-live="polite"></section>
+</div>
+
+<div id="tip" class="glass"></div>
+
+<div id="pal" role="dialog" aria-modal="true" aria-label="Search">
+  <div id="palbox" class="glass">
+    <div id="palin">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--muted)"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="text" placeholder="Search files and functions" autocomplete="off" spellcheck="false" aria-label="Search files and functions">
+      <kbd>Esc</kbd>
+    </div>
+    <div id="res"></div>
+    <div id="palft"><span>Up and Down to move</span><span>Enter to jump to it</span><span>Matches light up in the graph</span></div>
+  </div>
+</div>
+
+<script>
+(() => {
+const D = __DATA__;
+const G = D.groups, F = D.files, E = D.edges, FNS = D.fns, TOP = D.top, ROUTES = D.routes;
+const NF = F.length, NG = G.length;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const base = p => p.slice(p.lastIndexOf('/') + 1);
+const dirOf = p => { const i = p.lastIndexOf('/'); return i < 0 ? '' : p.slice(0, i); };
+const fmt = n => Number(n).toLocaleString('en-US');
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const LANG = { py: 'Python', ja: 'JavaScript', js: 'JSON', ot: 'Other', sq: 'SQL', ma: 'Markdown', ya: 'YAML', to: 'TOML', sh: 'Shell', te: 'Text', cs: 'CSS' };
+const LANGC = { py: '212 100% 68%', ja: '46 100% 62%', js: '22 100% 68%', sq: '326 95% 70%', ma: '108 62% 66%', ya: '262 90% 78%', to: '8 100% 74%', sh: '172 70% 62%', te: '222 25% 72%', cs: '250 90% 74%', ot: '222 18% 58%' };
+
+/* ---------- graph structure ---------- */
+const outL = Array.from({ length: NF }, () => []), inL = Array.from({ length: NF }, () => []);
+for (const [a, b, w] of E) { outL[a].push([b, w]); inL[b].push([a, w]); }
+const byW = (x, y) => y[1] - x[1];
+outL.forEach(l => l.sort(byW)); inL.forEach(l => l.sort(byW));
+const deg = new Uint16Array(NF);
+for (let i = 0; i < NF; i++) deg[i] = outL[i].length + inL[i].length;
+const gF = Array.from({ length: NG }, () => []);
+const gLoc = new Float64Array(NG), gFn = new Float64Array(NG), gTest = new Float64Array(NG);
+F.forEach((f, i) => { gF[f[7]].push(i); gLoc[f[7]] += f[2]; gFn[f[7]] += f[3]; gTest[f[7]] += f[6]; });
+const gR = gF.map(l => 36 + Math.sqrt(l.length) * 15);
+const hx = new Float32Array(NG), hy = new Float32Array(NG), hr = new Float32Array(NG), cenX = new Float32Array(NG), cenY = new Float32Array(NG), cenR = new Float32Array(NG);
+const GE = new Map();
+for (const [a, b, w] of E) {
+  const ga = F[a][7], gb = F[b][7]; if (ga === gb) continue;
+  const lo = Math.min(ga, gb), hi = Math.max(ga, gb), k = lo * 64 + hi;
+  let o = GE.get(k); if (!o) { o = { a: lo, b: hi, w: 0, n: 0 }; GE.set(k, o); }
+  o.w += w; o.n++;
+}
+const GEL = [...GE.values()];
+const gNb = Array.from({ length: NG }, () => []);
+for (const o of GEL) { gNb[o.a].push([o.b, o.w]); gNb[o.b].push([o.a, o.w]); }
+gNb.forEach(l => l.sort(byW));
+const dates = F.map(f => Date.parse(f[5]) || 0);
+const dMin = Math.min(...dates.filter(Boolean)), dMax = Math.max(...dates);
+
+/* ---------- colors ---------- */
+const FAM = { backend: [148, 232], frontend: [262, 318], m2c: [22, 46], protocol: [338, 372], daemon: [72, 104], scripts: [196, 196], docs: [188, 188], root: [218, 218] };
+const gCol = new Array(NG);
+(() => {
+  const fam = {};
+  G.forEach((g, i) => { const k = g.split('/')[0]; (fam[k] = fam[k] || []).push(i); });
+  for (const k in fam) {
+    const [lo, hi] = FAM[k] || [210, 210], l = fam[k];
+    l.forEach((gi, j) => {
+      const h = ((lo + (hi - lo) * (l.length > 1 ? j / (l.length - 1) : 0.5)) % 360 + 360) % 360;
+      const neutral = (k === 'root' || k === 'scripts' || k === 'docs');
+      gCol[gi] = `${Math.round(h)} ${neutral ? 22 : 82}% ${j % 2 ? 72 : 64}%`;
+    });
+  }
+})();
+let colorMode = 'folder';
+const ncs = new Array(NF);
+function recolor() {
+  for (let i = 0; i < NF; i++) {
+    if (colorMode === 'folder') ncs[i] = gCol[F[i][7]];
+    else if (colorMode === 'lang') ncs[i] = LANGC[F[i][1]] || LANGC.ot;
+    else {
+      const t = Math.round(clamp((dates[i] - dMin) / ((dMax - dMin) || 1), 0, 1) * 24) / 24;
+      ncs[i] = `${Math.round(225 + (400 - 225) * Math.pow(t, 0.8)) % 360} ${Math.round(60 + 40 * t)}% ${Math.round(46 + 30 * t)}%`;
+    }
+  }
+}
+const sprites = new Map();
+function sprite(c) {
+  let s = sprites.get(c); if (s) return s;
+  const z = 64, cv = document.createElement('canvas'); cv.width = cv.height = z;
+  const x = cv.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, 'rgba(255,255,255,0.6)');
+  g.addColorStop(0.1, `hsl(${c} / 1)`);
+  g.addColorStop(0.3, `hsl(${c} / 0.42)`);
+  g.addColorStop(0.58, `hsl(${c} / 0.07)`);
+  g.addColorStop(1, `hsl(${c} / 0)`);
+  x.fillStyle = g; x.fillRect(0, 0, z, z);
+  sprites.set(c, cv); return cv;
+}
+
+/* ---------- layout: folders, then files ---------- */
+const gx = new Float32Array(NG), gy = new Float32Array(NG);
+(function layoutFolders() {
+  const vx = new Float32Array(NG), vy = new Float32Array(NG);
+  for (let g = 0; g < NG; g++) { const an = g * 2.39996, rr = 160 * Math.sqrt(g + 1); gx[g] = Math.cos(an) * rr; gy[g] = Math.sin(an) * rr; }
+  const N = 900;
+  for (let it = 0; it < N; it++) {
+    const a = Math.max(0.03, 1 - it / N);
+    for (const o of GEL) {
+      const dx = gx[o.b] - gx[o.a], dy = gy[o.b] - gy[o.a], d = Math.hypot(dx, dy) || 1;
+      const lw = Math.log2(1 + o.w);
+      const rest = gR[o.a] + gR[o.b] + 24 + 300 / (1 + lw);
+      const f = (d - rest) * 0.05 * Math.min(1, lw / 6) * a, fx = dx / d * f, fy = dy / d * f;
+      vx[o.a] += fx; vy[o.a] += fy; vx[o.b] -= fx; vy[o.b] -= fy;
+    }
+    for (let i = 0; i < NG; i++) for (let j = i + 1; j < NG; j++) {
+      const dx = gx[j] - gx[i], dy = gy[j] - gy[i], d = Math.hypot(dx, dy) || 0.01, min = gR[i] + gR[j] + 30;
+      let f = 0;
+      if (d < min) f = -(min - d) * 0.35; else f = -gR[i] * gR[j] * 1.1 / (d * d) * a;
+      const fx = dx / d * f, fy = dy / d * f;
+      vx[i] += fx; vy[i] += fy; vx[j] -= fx; vy[j] -= fy;
+    }
+    for (let i = 0; i < NG; i++) {
+      vx[i] -= gx[i] * 0.0025; vy[i] -= gy[i] * 0.0025;
+      vx[i] *= 0.6; vy[i] *= 0.6; gx[i] += vx[i]; gy[i] += vy[i];
+    }
+  }
+  let sx = 0, sy = 0, sw = 0;
+  for (let i = 0; i < NG; i++) { const w = gF[i].length; sx += gx[i] * w; sy += gy[i] * w; sw += w; }
+  for (let i = 0; i < NG; i++) { gx[i] -= sx / sw; gy[i] -= sy / sw; }
+})();
+
+const px = new Float32Array(NF), py = new Float32Array(NF), pvx = new Float32Array(NF), pvy = new Float32Array(NF);
+const nr = new Float32Array(NF);
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+for (let i = 0; i < NF; i++) {
+  const g = F[i][7], an = rnd() * 6.2832, rr = Math.sqrt(rnd()) * gR[g] * 0.55;
+  px[i] = gx[g] + Math.cos(an) * rr; py[i] = gy[g] + Math.sin(an) * rr;
+  nr[i] = clamp(1.9 + Math.sqrt(F[i][2]) * 0.2 + Math.sqrt(deg[i]) * 0.32, 2.1, 11);
+}
+let alpha = 0.3;
+function tick(a) {
+  for (let e = 0; e < E.length; e++) {
+    const s = E[e][0], t = E[e][1], w = E[e][2], same = F[s][7] === F[t][7];
+    const dx = px[t] - px[s], dy = py[t] - py[s], d = Math.hypot(dx, dy) || 1;
+    const rest = same ? 20 : 70, k = (same ? 0.05 : 0.01) * (0.55 + 0.45 * Math.min(1, Math.log2(1 + w) / 3));
+    const f = (d - rest) * k * a, fx = dx / d * f, fy = dy / d * f;
+    pvx[s] += fx; pvy[s] += fy; pvx[t] -= fx; pvy[t] -= fy;
+  }
+  for (let i = 0; i < NF; i++) {
+    const xi = px[i], yi = py[i], ri = nr[i];
+    for (let j = i + 1; j < NF; j++) {
+      const dx = px[j] - xi; if (dx > 130 || dx < -130) continue;
+      const dy = py[j] - yi; if (dy > 130 || dy < -130) continue;
+      const d2 = dx * dx + dy * dy; if (d2 > 16900) continue;
+      const d = Math.sqrt(d2) || 0.1, min = ri + nr[j] + 2.5;
+      let f = 1000 * a / (d2 + 60);
+      if (d < min) f += (min - d) * 0.12;
+      const fx = dx / d * f, fy = dy / d * f;
+      pvx[i] -= fx; pvy[i] -= fy; pvx[j] += fx; pvy[j] += fy;
+    }
+  }
+  for (let i = 0; i < NF; i++) {
+    const g = F[i][7], dx = gx[g] - px[i], dy = gy[g] - py[i], d = Math.hypot(dx, dy) || 1, R = gR[g] * 0.9;
+    let k = 0.006 * a; if (d > R) k += 0.2 * (d - R) / d;
+    pvx[i] += dx * k; pvy[i] += dy * k;
+    pvx[i] *= 0.62; pvy[i] *= 0.62; px[i] += pvx[i]; py[i] += pvy[i];
+  }
+}
+for (let it = 0; it < 320; it++) tick(Math.max(0.15, 1 - it / 320));
+
+function updateHalos(m) {
+  for (let g = 0; g < NG; g++) {
+    const l = gF[g]; let sx = 0, sy = 0;
+    for (const i of l) { sx += px[i]; sy += py[i]; }
+    const cx = sx / l.length, cy = sy / l.length; let s2 = 0;
+    for (const i of l) { const dx = px[i] - cx, dy = py[i] - cy; s2 += dx * dx + dy * dy; }
+    cenX[g] = cx; cenY[g] = cy; cenR[g] = clamp(Math.sqrt(s2 / l.length) * 1.75 + 24, 30, gR[g] * 1.6);
+    hx[g] = gx[g] + (cx - gx[g]) * m; hy[g] = gy[g] + (cy - gy[g]) * m; hr[g] = gR[g] + (cenR[g] - gR[g]) * m;
+  }
+}
+/* ---------- state ---------- */
+const cv = $('cv'), ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1;
+const cam = { x: 0, y: 0, k: 0.4 }, camT = { x: 0, y: 0, k: 0.4 };
+let mix = REDUCED ? 1 : 0, mixT = 1;
+let hoverI = -1, hoverG = -1, selI = -1, selG = -1, focusG = -1, qset = null, qtext = '';
+const hiddenG = new Set();
+let showTests = true, showIso = true;
+const na = new Float32Array(NF).fill(0);
+let hl = null, hlCenter = -1;
+let stars = [];
+
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = cv.clientWidth; H = cv.clientHeight;
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+  stars = Array.from({ length: 140 }, () => [Math.random(), Math.random(), Math.random() * 1.2 + 0.2, Math.random() * 6.28]);
+}
+function usable() {
+  const wide = W > 760;
+  return { l: wide ? 300 : 0, r: wide && selOpen() ? 410 : 0, t: wide ? 90 : 140, b: wide ? 60 : (selOpen() ? H * 0.62 : 60) };
+}
+const selOpen = () => $('detail').classList.contains('open');
+function fitTo(minx, miny, maxx, maxy, instant, maxK = 6) {
+  const u = usable(), aw = Math.max(120, W - u.l - u.r), ah = Math.max(120, H - u.t - u.b);
+  const k = clamp(Math.min(aw / (maxx - minx + 60), ah / (maxy - miny + 60)), 0.12, maxK);
+  const cxw = (minx + maxx) / 2, cyw = (miny + maxy) / 2;
+  camT.k = k;
+  camT.x = cxw - ((u.l - u.r) / 2) / k; camT.y = cyw - ((u.t - u.b) / 2) / k;
+  if (instant) Object.assign(cam, camT);
+}
+function bounds(idxs, pad) {
+  let a = 1e9, b = 1e9, c = -1e9, d = -1e9;
+  for (const i of idxs) { a = Math.min(a, px[i]); b = Math.min(b, py[i]); c = Math.max(c, px[i]); d = Math.max(d, py[i]); }
+  return [a - pad, b - pad, c + pad, d + pad];
+}
+function fitAll(instant) {
+  let a = 1e9, b = 1e9, c = -1e9, d = -1e9;
+  const fl = mixT > 0.5;
+  for (let g = 0; g < NG; g++) { const x = fl ? cenX[g] : gx[g], y = fl ? cenY[g] : gy[g], r = fl ? cenR[g] : gR[g]; a = Math.min(a, x - r); b = Math.min(b, y - r); c = Math.max(c, x + r); d = Math.max(d, y + r); }
+  fitTo(a, b, c, d, instant);
+}
+function fitGroup(g) { const r = cenR[g] * 1.08; fitTo(cenX[g] - r, cenY[g] - r, cenX[g] + r, cenY[g] + r); }
+const toS = (x, y) => [(x - cam.x) * cam.k + W / 2, (y - cam.y) * cam.k + H / 2];
+const toW = (sx, sy) => [(sx - W / 2) / cam.k + cam.x, (sy - H / 2) / cam.k + cam.y];
+const scl = () => clamp(Math.pow(cam.k, 0.72), 0.5, 2.6);
+
+/* ---------- visibility and highlight ---------- */
+function isVis(i) {
+  const f = F[i];
+  return !hiddenG.has(f[7]) && (showTests || !f[6]) && (showIso || deg[i] > 0);
+}
+function recomputeHL() {
+  hlCenter = hoverI >= 0 ? hoverI : selI;
+  hl = null;
+  if (hlCenter >= 0) {
+    hl = new Uint8Array(NF); hl[hlCenter] = 1;
+    for (const [j] of outL[hlCenter]) hl[j] = 1;
+    for (const [j] of inL[hlCenter]) hl[j] = 1;
+  } else if (qset) {
+    hl = new Uint8Array(NF); qset.forEach(i => hl[i] = 1);
+  } else if (focusG >= 0) {
+    hl = new Uint8Array(NF); gF[focusG].forEach(i => hl[i] = 1);
+  }
+}
+
+/* ---------- drawing ---------- */
+const t0 = performance.now();
+function frame(now) {
+  const t = (now - t0) / 1000;
+  if (alpha > 0.02) { tick(alpha); alpha *= 0.985; }
+  mix += (mixT - mix) * (REDUCED ? 1 : 0.075); if (Math.abs(mixT - mix) < 0.002) mix = mixT;
+  updateHalos(mix);
+  for (const key of ['x', 'y', 'k']) cam[key] += (camT[key] - cam[key]) * (REDUCED ? 1 : 0.14);
+  const sc = scl();
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+  const bg = ctx.createRadialGradient(W * 0.5, H * 0.45, 0, W * 0.5, H * 0.5, Math.max(W, H) * 0.75);
+  bg.addColorStop(0, '#0d1530'); bg.addColorStop(0.55, '#070b18'); bg.addColorStop(1, '#04060d');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  for (const s of stars) {
+    const tw = REDUCED ? 0.5 : 0.35 + 0.35 * Math.sin(t * 0.8 + s[3]);
+    ctx.globalAlpha = tw * 0.5; ctx.fillStyle = '#9db4ff'; ctx.fillRect(s[0] * W, s[1] * H, s[2], s[2]);
+  }
+  ctx.globalAlpha = 1;
+  for (let i = 0; i < NF; i++) {
+    const target = !isVis(i) ? 0 : (hl && !hl[i] ? 0.3 : 1);
+    na[i] += (target - na[i]) * 0.2;
+  }
+  ctx.globalCompositeOperation = 'lighter';
+
+  /* folder halos / bubbles */
+  for (let g = 0; g < NG; g++) {
+    if (hiddenG.has(g)) continue;
+    const [sx, sy] = toS(hx[g], hy[g]), R = hr[g] * cam.k;
+    if (sx + R < -40 || sx - R > W + 40 || sy + R < -40 || sy - R > H + 40) continue;
+    const dim = (focusG >= 0 && focusG !== g) ? 0.5 : 1;
+    const hot = (hoverG === g || selG === g) ? 1 : 0;
+    const gr = ctx.createRadialGradient(sx, sy, 0, sx, sy, R * 1.12);
+    const a0 = (0.07 + 0.15 * (1 - mix) + 0.08 * hot) * dim;
+    gr.addColorStop(0, `hsl(${gCol[g]} / ${a0})`);
+    gr.addColorStop(0.7, `hsl(${gCol[g]} / ${a0 * 0.45})`);
+    gr.addColorStop(1, `hsl(${gCol[g]} / 0)`);
+    ctx.globalAlpha = 1; ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(sx, sy, R * 1.12, 0, 6.2832); ctx.fill();
+    ctx.strokeStyle = `hsl(${gCol[g]} / ${(0.18 + 0.4 * (1 - mix) + 0.3 * hot) * dim})`;
+    ctx.lineWidth = 1 + hot; ctx.setLineDash(mix > 0.5 ? [2, 6] : []);
+    ctx.beginPath(); ctx.arc(sx, sy, R * 0.98, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  /* folder-to-folder edges */
+  if (mix < 0.98) {
+    for (const o of GEL) {
+      if (hiddenG.has(o.a) || hiddenG.has(o.b)) continue;
+      const lw = Math.log2(1 + o.w);
+      let al = (1 - mix) * (0.12 + lw * 0.03);
+      if (selG >= 0 || hoverG >= 0) { const c = hoverG >= 0 ? hoverG : selG; al *= (o.a === c || o.b === c) ? 2.2 : 0.5; }
+      if (focusG >= 0 && o.a !== focusG && o.b !== focusG) al *= 0.5;
+      const [ax, ay] = toS(hx[o.a], hy[o.a]), [bx, by] = toS(hx[o.b], hy[o.b]);
+      const mx = (ax + bx) / 2 - (by - ay) * 0.12, my = (ay + by) / 2 + (bx - ax) * 0.12;
+      const gr = ctx.createLinearGradient(ax, ay, bx, by);
+      gr.addColorStop(0, `hsl(${gCol[o.a]})`); gr.addColorStop(1, `hsl(${gCol[o.b]})`);
+      ctx.globalAlpha = Math.min(0.9, al); ctx.strokeStyle = gr; ctx.lineWidth = (0.6 + lw * 0.55) * Math.min(1.6, Math.max(0.5, cam.k * 1.2));
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.quadraticCurveTo(mx, my, bx, by); ctx.stroke();
+    }
+  }
+
+  /* file edges */
+  const br = REDUCED ? 0 : 1;
+  const pos = (i) => {
+    const g = F[i][7], m = mix;
+    const ox = br * Math.sin(t * 0.55 + i * 1.7) * 0.9, oy = br * Math.cos(t * 0.47 + i * 2.3) * 0.9;
+    return [gx[g] + (px[i] + ox - gx[g]) * m, gy[g] + (py[i] + oy - gy[g]) * m];
+  };
+  if (mix > 0.02) {
+    ctx.lineCap = 'round';
+    for (let e = 0; e < E.length; e++) {
+      const s = E[e][0], d = E[e][1], w = E[e][2];
+      const as = na[s], ad = na[d]; if (as < 0.03 || ad < 0.03) continue;
+      const touch = hlCenter >= 0 && (s === hlCenter || d === hlCenter);
+      let al = (F[s][7] === F[d][7] ? 0.09 : 0.06) + Math.min(0.1, Math.log2(1 + w) * 0.018);
+      al *= mix * Math.min(as, ad);
+      if (hl && !touch && hlCenter >= 0) al *= 0.35;
+      if (hl && hlCenter < 0 && !(hl[s] && hl[d])) al *= 0.4;
+      if (touch) al = 0.7 * mix;
+      if (al < 0.012) continue;
+      const [ax, ay] = pos(s), [bx, by] = pos(d);
+      const [sx, sy] = toS(ax, ay), [ex, ey] = toS(bx, by);
+      if ((sx < -50 && ex < -50) || (sx > W + 50 && ex > W + 50) || (sy < -50 && ey < -50) || (sy > H + 50 && ey > H + 50)) continue;
+      ctx.globalAlpha = al;
+      ctx.strokeStyle = touch ? (s === hlCenter ? '#ff7a96' : '#a78bfa') : `hsl(${ncs[s]})`;
+      ctx.lineWidth = touch ? 1.2 + Math.min(2, Math.log2(1 + w) * 0.35) : 0.6;
+      ctx.beginPath(); ctx.moveTo(sx, sy);
+      if (F[s][7] !== F[d][7]) ctx.quadraticCurveTo((sx + ex) / 2 - (ey - sy) * 0.08, (sy + ey) / 2 + (ex - sx) * 0.08, ex, ey); else ctx.lineTo(ex, ey);
+      ctx.stroke();
+      if (touch && !REDUCED) {
+        const curved = F[s][7] !== F[d][7], ccx = (sx + ex) / 2 - (ey - sy) * 0.08, ccy = (sy + ey) / 2 + (ex - sx) * 0.08;
+        const ph = (s * 7 + d * 3) % 10 / 10;
+        for (let q = 0; q < 2; q++) {
+          const u = (t * 0.45 + ph + q * 0.5) % 1, v = 1 - u;
+          const qx = curved ? v * v * sx + 2 * v * u * ccx + u * u * ex : sx + (ex - sx) * u;
+          const qy = curved ? v * v * sy + 2 * v * u * ccy + u * u * ey : sy + (ey - sy) * u;
+          ctx.globalAlpha = 0.9; ctx.fillStyle = s === hlCenter ? '#ffd0da' : '#e0d6ff';
+          ctx.beginPath(); ctx.arc(qx, qy, 1.7, 0, 6.2832); ctx.fill();
+        }
+      }
+    }
+  }
+
+  /* file nodes */
+  const lab = [];
+  for (let i = 0; i < NF; i++) {
+    const a = na[i]; if (a < 0.02) continue;
+    const [wx, wy] = pos(i), [sx, sy] = toS(wx, wy);
+    if (sx < -30 || sx > W + 30 || sy < -30 || sy > H + 30) continue;
+    const isC = i === hlCenter, big = isC ? 1.5 : 1;
+    const r = (nr[i] * sc) * (0.35 + 0.65 * mix) * big;
+    const sp = sprite(ncs[i]), z = r * 4.2;
+    ctx.globalAlpha = a * (0.25 + 0.75 * mix) * (F[i][6] ? 0.8 : 0.9);
+    ctx.drawImage(sp, sx - z / 2, sy - z / 2, z, z);
+    if (F[i][6] && r > 2.2) { ctx.globalAlpha = a * mix * 0.6; ctx.strokeStyle = `hsl(${ncs[i]})`; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.arc(sx, sy, r * 1.15, 0, 6.2832); ctx.stroke(); }
+    if (i === selI) {
+      const pr = r * (1.8 + (REDUCED ? 0 : 0.35 * Math.sin(t * 3)));
+      ctx.globalAlpha = 0.9; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(sx, sy, pr + 3, 0, 6.2832); ctx.stroke();
+    }
+    if (mix > 0.6 && a > 0.4) {
+      const want = isC || (hlCenter >= 0 && hl && hl[i]) || (qset && qset.has(i) && qset.size < 40) || (cam.k > 2.4 && r > 3.2) || (cam.k > 1.15 && nr[i] > 7.5 && !hl) || (cam.k > 0.55 && deg[i] > 60 && !hl);
+      if (want) lab.push([i, sx, sy, r]);
+    }
+  }
+
+  /* labels */
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.textBaseline = 'middle';
+  for (let g = 0; g < NG; g++) {
+    if (hiddenG.has(g)) continue;
+    const [sx, sy] = toS(hx[g], hy[g]), R = hr[g] * cam.k;
+    if (sx + R < -60 || sx - R > W + 60 || sy + R < -60 || sy - R > H + 60) continue;
+    const name = G[g], par = dirOf(name), nm = base(name);
+    const dim = (focusG >= 0 && focusG !== g) ? 0.55 : 1;
+    const fs = clamp(11 + Math.sqrt(gF[g].length) * 0.45, 11, 20) * (0.85 + 0.15 * clamp(cam.k, 0.6, 1.6));
+    const ly = sy + (-R * 0.98 - 12 - sy + sy) * mix + 0 * (1 - mix);
+    const cy = sy * (1 - mix) + (sy - R * 0.98 - 13) * mix;
+    ctx.textAlign = 'center';
+    ctx.globalAlpha = (0.95 - 0.35 * mix) * dim * (cam.k > 2.8 ? 0.5 : 1);
+    ctx.fillStyle = `hsl(${gCol[g].replace(/\d+%$/, '86%')})`;
+    ctx.font = `700 ${fs * (1 - 0.12 * mix)}px Syne, "Helvetica Neue", Arial, sans-serif`;
+    ctx.fillText(mix > 0.5 ? name : (nm === '' ? name : nm), sx, cy - (par && mix < 0.5 ? 6 * (1 - mix) : 0) + (par ? 0 : 0));
+    if (par && mix < 0.6) {
+      ctx.globalAlpha = (1 - mix) * 0.7 * dim; ctx.font = `400 10px "JetBrains Mono", monospace`; ctx.fillStyle = '#9fb0d6';
+      ctx.fillText(par + '/', sx, cy - fs * 1.1 - 1);
+    }
+    if (mix < 0.6) {
+      ctx.globalAlpha = (1 - mix * 1.6) * 0.8 * dim; ctx.font = `400 10.5px "JetBrains Mono", monospace`; ctx.fillStyle = '#b8c4e4';
+      ctx.fillText(`${gF[g].length} files`, sx, cy + fs * 0.85 + 4);
+    }
+  }
+  ctx.font = '500 11px "IBM Plex Sans", system-ui, sans-serif'; ctx.textAlign = 'left';
+  lab.sort((p, q) => nr[q[0]] - nr[p[0]]);
+  const boxes = [];
+  for (const [i, sx, sy, r] of lab.slice(0, 90)) {
+    const txt = base(F[i][0]), w = ctx.measureText(txt).width + 10, x = sx + r * 1.5 + 4, y = sy;
+    if (i !== hlCenter && boxes.some(b => x < b[0] + b[2] && x + w > b[0] && y - 8 < b[1] + 16 && y + 8 > b[1])) continue;
+    boxes.push([x, y - 8, w]);
+    ctx.globalAlpha = 0.9; ctx.fillStyle = 'rgba(6,9,18,0.72)'; ctx.fillRect(x - 3, y - 8, w, 16);
+    ctx.fillStyle = i === hlCenter ? '#fff' : '#d3dcf3'; ctx.fillText(txt, x + 2, y);
+  }
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(frame);
+}
+
+/* ---------- hit testing ---------- */
+function hit(sx, sy) {
+  if (mix > 0.45) {
+    let best = -1, bd = 1e9;
+    for (let i = 0; i < NF; i++) {
+      if (na[i] < 0.2) continue;
+      const [wx, wy] = [px[i], py[i]], [x, y] = toS(wx, wy);
+      const dx = x - sx, dy = y - sy, d = dx * dx + dy * dy, r = Math.max(7, nr[i] * scl() * 1.25);
+      if (d < r * r && d < bd) { bd = d; best = i; }
+    }
+    if (best >= 0) return { f: best };
+  }
+  let bg = -1, bd = 1e9;
+  for (let g = 0; g < NG; g++) {
+    if (hiddenG.has(g)) continue;
+    const [x, y] = toS(hx[g], hy[g]), dx = x - sx, dy = y - sy, d = Math.hypot(dx, dy), R = hr[g] * cam.k;
+    if (d < R && d < bd) { bd = d; bg = g; }
+  }
+  return bg >= 0 && mix < 0.7 ? { g: bg } : {};
+}
+
+/* ---------- pointer ---------- */
+const ptrs = new Map(); let dragMoved = 0, pinch0 = 0;
+cv.addEventListener('pointerdown', e => {
+  cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]); dragMoved = 0;
+  if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch0 = Math.hypot(a[0] - b[0], a[1] - b[1]); }
+  cv.classList.add('drag');
+});
+cv.addEventListener('pointermove', e => {
+  const prev = ptrs.get(e.pointerId);
+  if (prev) {
+    const dx = e.clientX - prev[0], dy = e.clientY - prev[1]; dragMoved += Math.abs(dx) + Math.abs(dy);
+    ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+    if (ptrs.size === 1) { camT.x -= dx / cam.k; camT.y -= dy / cam.k; cam.x = camT.x; cam.y = camT.y; }
+    else if (ptrs.size === 2) {
+      const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      if (pinch0) zoomAt((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, d / pinch0); pinch0 = d;
+    }
+    return;
+  }
+  const h = hit(e.clientX, e.clientY);
+  const nI = h.f !== undefined ? h.f : -1, nG = h.g !== undefined ? h.g : -1;
+  if (nI !== hoverI || nG !== hoverG) { hoverI = nI; hoverG = nG; recomputeHL(); }
+  cv.classList.toggle('pointer', nI >= 0 || nG >= 0);
+  showTip(e.clientX, e.clientY);
+});
+cv.addEventListener('pointerleave', () => { hoverI = -1; hoverG = -1; recomputeHL(); $('tip').style.opacity = 0; });
+function endPtr(e) { ptrs.delete(e.pointerId); pinch0 = 0; cv.classList.remove('drag'); }
+cv.addEventListener('pointerup', e => {
+  const wasTap = dragMoved < 6 && ptrs.size === 1; endPtr(e);
+  if (!wasTap) return;
+  const h = hit(e.clientX, e.clientY);
+  if (h.f !== undefined) selectFile(h.f);
+  else if (h.g !== undefined) drill(h.g);
+  else clearSel();
+});
+cv.addEventListener('pointercancel', endPtr);
+cv.addEventListener('dblclick', e => { const h = hit(e.clientX, e.clientY); if (h.f !== undefined) zoomTo(h.f); });
+cv.addEventListener('wheel', e => { e.preventDefault(); zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * 0.0016)); }, { passive: false });
+function zoomAt(sx, sy, f) {
+  const [wx, wy] = toW(sx, sy), nk = clamp(camT.k * f, 0.1, 9);
+  camT.k = nk; cam.k = nk; cam.x = wx - (sx - W / 2) / nk; cam.y = wy - (sy - H / 2) / nk; camT.x = cam.x; camT.y = cam.y;
+}
+function zoomTo(i) { camT.k = Math.max(camT.k, 3); camT.x = px[i]; camT.y = py[i]; const u = usable(); camT.x -= ((u.l - u.r) / 2) / camT.k; camT.y -= ((u.t - u.b) / 2) / camT.k; }
+function showTip(x, y) {
+  const tip = $('tip');
+  if (hoverI >= 0) {
+    const f = F[hoverI]; tip.innerHTML = `<b>${esc(base(f[0]))}</b><span>${esc(dirOf(f[0]))}</span><span>${fmt(f[2])} lines &middot; ${f[3]} functions &middot; ${deg[hoverI]} links</span>`;
+  } else if (hoverG >= 0) {
+    tip.innerHTML = `<b>${esc(G[hoverG])}</b><span>${gF[hoverG].length} files &middot; ${fmt(gLoc[hoverG])} lines &middot; ${fmt(gFn[hoverG])} functions</span><span>Click to open this folder</span>`;
+  } else { tip.style.opacity = 0; return; }
+  tip.style.opacity = 1;
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.transform = `translate(${Math.min(x + 16, innerWidth - w - 8)}px, ${Math.min(y + 16, innerHeight - h - 8)}px)`;
+}
+
+/* ---------- selection and details ---------- */
+const det = $('detail');
+function openDetail(html) { det.innerHTML = `<button class="x" aria-label="Close details">&times;</button>${html}`; det.classList.add('open'); det.scrollTop = 0; det.querySelector('.x').onclick = clearSel; }
+function selectFile(i, fly) {
+  selI = i; selG = -1; recomputeHL();
+  if (mixT < 1) setLevel('files', true);
+  const f = F[i], g = f[7], tops = TOP[i] || [], o = outL[i], n = inL[i];
+  const mx = Math.max(1, ...o.map(x => x[1]), ...n.map(x => x[1]));
+  const lst = (l, c) => l.length ? l.slice(0, 12).map(([j, w]) => `<button class="lnk" data-f="${j}" style="--c:${c};--w:${Math.max(10, w / mx * 100)}%"><span class="n">${esc(base(F[j][0]))}<i>${esc(dirOf(F[j][0]))}</i></span><span class="bar"></span></button>`).join('') + (l.length > 12 ? `<div class="none">+ ${l.length - 12} more</div>` : '') : '<div class="none">None</div>';
+  const stem = base(f[0]).replace(/\.\w+$/, ''), tests = (!f[6] && stem.length > 3) ? F.map((t, j) => [t, j]).filter(([t]) => t[6] && base(t[0]).includes(stem)).slice(0, 6) : [];
+  const rts = ROUTES.filter(r => r[2] === i);
+  openDetail(`
+    <div class="eyebrow">${esc(G[g])}</div>
+    <h2>${esc(base(f[0]))}</h2>
+    <div class="path">${esc(f[0])}</div>
+    ${f[8] ? `<p class="doc">${esc(f[8])}</p>` : ''}
+    <div class="pills">
+      <span class="pill dot" style="color:hsl(${ncs[i]})">${esc(LANG[f[1]] || f[1])}</span>
+      <span class="pill">${fmt(f[2])} code lines</span><span class="pill">${f[3]} functions</span>
+      <span class="pill">${f[4]} commits</span><span class="pill">changed ${esc(f[5] || 'n/a')}</span>${f[6] ? '<span class="pill">test file</span>' : ''}
+    </div>
+    <h3>Links out <em>${o.length}</em></h3>${lst(o, 'var(--out)')}
+    <h3>Links in <em>${n.length}</em></h3>${lst(n, 'var(--in)')}
+    ${tops.length ? `<h3>Largest functions</h3>${tops.map(t => `<div class="fnr"><span>${esc(t[0])}</span><span>line ${t[1]}</span><span>${t[2]} ln</span></div>`).join('')}` : ''}
+    ${rts.length ? `<h3>Routes defined <em>${rts.length}</em></h3><div class="pills" style="margin-top:0">${rts.slice(0, 12).map(r => `<span class="pill">${esc(r[0])} ${esc(r[1])}</span>`).join('')}</div>` : ''}
+    ${tests.length ? `<h3>Related tests</h3>${tests.map(([t, j]) => `<button class="lnk" data-f="${j}" style="--w:0%"><span class="n">${esc(base(t[0]))}</span><span></span></button>`).join('')}` : ''}
+    <button class="act" data-g="${g}">Open folder ${esc(G[g])}</button>
+    <a class="act" style="margin-left:6px" href="explore.html#${encodeURIComponent(f[0])}" target="_top">Explore page &#8599;</a>
+  `);
+  if (fly) { const ids = [i, ...o.map(x => x[0]), ...n.map(x => x[0])]; const [a, b, c, d] = bounds(ids, 40); fitTo(a, b, c, d, false, 3.2); }
+}
+function openFolderDetail(g) {
+  selG = g; selI = -1; recomputeHL();
+  const big = gF[g].slice().sort((a, b) => F[b][2] - F[a][2]).slice(0, 8);
+  const nb = gNb[g].slice(0, 8), mx = Math.max(1, ...nb.map(x => x[1]));
+  openDetail(`
+    <div class="eyebrow">Folder</div>
+    <h2>${esc(base(G[g]) || G[g])}</h2>
+    <div class="path">${esc(G[g])}/</div>
+    <div class="stat4">
+      <div><b>${gF[g].length}</b><span>files</span></div><div><b>${fmt(gLoc[g])}</b><span>lines of code</span></div>
+      <div><b>${fmt(gFn[g])}</b><span>functions</span></div><div><b>${gTest[g]}</b><span>test files</span></div>
+    </div>
+    <h3>Most connected folders</h3>
+    ${nb.length ? nb.map(([j, w]) => `<button class="lnk" data-g="${j}" style="--c:hsl(${gCol[j]});--w:${Math.max(10, w / mx * 100)}%"><span class="n">${esc(G[j])}<i>${fmt(w)} links</i></span><span class="bar"></span></button>`).join('') : '<div class="none">No links to other folders</div>'}
+    <h3>Largest files</h3>
+    ${big.map(i => `<button class="lnk" data-f="${i}" style="--w:0%"><span class="n">${esc(base(F[i][0]))}<i>${fmt(F[i][2])} lines</i></span><span></span></button>`).join('')}
+    <button class="act" data-g="${g}">Zoom into the files</button>
+  `);
+}
+function clearSel() { selI = -1; selG = -1; det.classList.remove('open'); recomputeHL(); }
+det.addEventListener('click', e => {
+  const a = e.target.closest('[data-f]'), b = e.target.closest('[data-g]');
+  if (a) { selectFile(+a.dataset.f, true); }
+  else if (b) { if (mix < 0.5 && b.classList.contains('lnk')) { openFolderDetail(+b.dataset.g); } else drill(+b.dataset.g); }
+});
+function drill(g) { focusG = g; setLevel('files', true); updateCrumb(); fitGroup(g); openFolderDetail(g); syncSide(); }
+function updateCrumb() {
+  const c = $('crumb'); c.classList.toggle('on', focusG >= 0);
+  if (focusG >= 0) $('crumbT').textContent = G[focusG] + '  ·  ' + gF[focusG].length + ' files';
+}
+$('crumbX').onclick = () => { focusG = -1; updateCrumb(); recomputeHL(); fitAll(); syncSide(); };
+
+/* ---------- level, color, filters ---------- */
+function setLevel(l, keepCam) {
+  mixT = l === 'files' ? 1 : 0;
+  $('lvF').setAttribute('aria-pressed', l === 'folders'); $('lvX').setAttribute('aria-pressed', l === 'files');
+  if (l === 'folders') { focusG = -1; updateCrumb(); selI = -1; clearSel(); }
+  if (!keepCam) fitAll();
+}
+$('lvF').onclick = () => setLevel('folders'); $('lvX').onclick = () => { setLevel('files'); };
+$('colorBy').onchange = e => { colorMode = e.target.value; recolor(); renderSide(); };
+$('optTests').onchange = e => { showTests = e.target.checked; recomputeHL(); };
+$('optIso').onchange = e => { showIso = e.target.checked; recomputeHL(); };
+$('zIn').onclick = () => zoomAt(W / 2, H / 2, 1.5); $('zOut').onclick = () => zoomAt(W / 2, H / 2, 1 / 1.5);
+$('zFit').onclick = () => { focusG = -1; updateCrumb(); recomputeHL(); fitAll(); };
+
+/* ---------- side panel ---------- */
+let tab = 'F';
+const sideBody = $('sideBody');
+const hubs = [...Array(NF).keys()].sort((a, b) => deg[b] - deg[a]).slice(0, 16);
+function renderSide() {
+  if (tab === 'F') {
+    sideBody.innerHTML = [...Array(NG).keys()].map(g => `<div class="row ${hiddenG.has(g) ? 'off' : ''} ${focusG === g ? 'on' : ''}" data-g="${g}" role="button" tabindex="0"><button class="sw" data-sw="${g}" aria-label="Show or hide ${esc(G[g])}" style="background:hsl(${gCol[g]});color:hsl(${gCol[g]})"></button><span class="nm">${dirOf(G[g]) ? `<i>${esc(dirOf(G[g]))}/</i>` : ''}${esc(base(G[g]))}</span><span class="ct">${gF[g].length}</span></div>`).join('');
+  } else if (tab === 'H') {
+    sideBody.innerHTML = hubs.map(i => `<div class="row" data-f="${i}" role="button" tabindex="0"><span class="sw" style="background:hsl(${ncs[i]});color:hsl(${ncs[i]})"></span><span class="nm">${esc(base(F[i][0]))}<i> ${esc(dirOf(F[i][0]))}</i></span><span class="ct">${deg[i]}</span></div>`).join('');
+  } else if (colorMode === 'folder') {
+    sideBody.innerHTML = '<div class="none" style="padding:10px">Each folder has its own color. Related folders share a hue family: backend in teal to blue, frontend in violet, m2c in amber, protocol in rose, daemon in lime.</div>';
+  } else if (colorMode === 'lang') {
+    const cnt = {}; F.forEach(f => cnt[f[1]] = (cnt[f[1]] || 0) + 1);
+    sideBody.innerHTML = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]).map(k => `<div class="row"><span class="sw" style="background:hsl(${LANGC[k] || LANGC.ot});color:hsl(${LANGC[k] || LANGC.ot})"></span><span class="nm">${esc(LANG[k] || k)}</span><span class="ct">${cnt[k]}</span></div>`).join('');
+  } else {
+    sideBody.innerHTML = `<div class="ramp"></div><div class="rampl"><span>${new Date(dMin).toISOString().slice(0, 10)}</span><span>${new Date(dMax).toISOString().slice(0, 10)}</span></div><div class="none" style="padding:6px 10px">Brighter and warmer means changed more recently.</div>`;
+  }
+}
+function syncSide() { if (tab === 'F') renderSide(); }
+sideBody.addEventListener('click', e => {
+  const sw = e.target.closest('[data-sw]'), r = e.target.closest('[data-g],[data-f]');
+  if (sw) { const g = +sw.dataset.sw; hiddenG.has(g) ? hiddenG.delete(g) : hiddenG.add(g); renderSide(); recomputeHL(); return; }
+  if (!r) return;
+  if (r.dataset.g !== undefined) drill(+r.dataset.g); else selectFile(+r.dataset.f, true);
+  if (innerWidth <= 760) $('side').classList.remove('open');
+});
+sideBody.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.row')) { e.preventDefault(); e.target.click(); } });
+for (const [id, k] of [['tabF', 'F'], ['tabH', 'H'], ['tabL', 'L']]) $(id).onclick = () => { tab = k; for (const [i2, k2] of [['tabF', 'F'], ['tabH', 'H'], ['tabL', 'L']]) $(i2).setAttribute('aria-selected', k2 === k); renderSide(); };
+$('sideBtn').onclick = () => $('side').classList.toggle('open');
+
+/* ---------- search ---------- */
+const pal = $('pal'), qi = $('q'), res = $('res');
+const lowP = F.map(f => f[0].toLowerCase()), lowN = FNS.map(f => f[0].toLowerCase());
+let hits = [], act = 0;
+const mark = (s, toks) => {
+  const l = s.toLowerCase(); let best = -1, bl = 0;
+  for (const t of toks) { const k = l.indexOf(t); if (k >= 0 && t.length > bl) { best = k; bl = t.length; } }
+  return best < 0 ? esc(s) : esc(s.slice(0, best)) + '<mark>' + esc(s.slice(best, best + bl)) + '</mark>' + esc(s.slice(best + bl));
+};
+function runSearch(text) {
+  const toks = text.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!toks.length) { qset = null; qtext = ''; res.innerHTML = `<h4>Try</h4>${hubs.slice(0, 5).map(i => `<button class="hit" data-f="${i}"><span class="nm">${esc(base(F[i][0]))}<i>${esc(dirOf(F[i][0]))}</i></span><span class="ex">${deg[i]} links</span></button>`).join('')}`; hits = []; recomputeHL(); return; }
+  const fh = [], set = new Set();
+  for (let i = 0; i < NF; i++) {
+    const p = lowP[i]; if (!toks.every(t => p.includes(t))) continue;
+    const b = base(p), t0 = toks[0];
+    let sc = b === t0 ? 100 : b.startsWith(t0) ? 80 : b.includes(t0) ? 60 : 30;
+    sc += Math.min(10, deg[i] / 8); fh.push([i, sc]); set.add(i);
+  }
+  fh.sort((a, b) => b[1] - a[1]);
+  const nh = [], seen = new Set();
+  for (let k = 0; k < FNS.length; k++) {
+    const n = lowN[k]; if (!toks.every(t => n.includes(t) || lowP[FNS[k][1]].includes(t))) continue;
+    if (!toks.some(t => n.includes(t))) continue;
+    const sc = n === toks[0] ? 100 : n.startsWith(toks[0]) ? 80 : 50;
+    nh.push([k, sc + Math.min(8, F[FNS[k][1]][2] / 200)]); set.add(FNS[k][1]);
+  }
+  nh.sort((a, b) => b[1] - a[1]);
+  qset = set; qtext = text;
+  hits = [...fh.slice(0, 8).map(x => ({ t: 'f', i: x[0] })), ...nh.slice(0, 8).map(x => ({ t: 'n', k: x[0] }))];
+  let h = '';
+  if (fh.length) h += `<h4>Files <span style="color:var(--faint)">${fh.length}</span></h4>` + fh.slice(0, 8).map((x, n) => `<button class="hit" data-n="${n}"><span class="sw" style="background:hsl(${ncs[x[0]]});color:hsl(${ncs[x[0]]});width:10px;height:10px"></span><span class="nm">${mark(base(F[x[0]][0]), toks)}<i>${esc(dirOf(F[x[0]][0]))}</i></span><span class="ex">${deg[x[0]]} links</span></button>`).join('');
+  if (nh.length) h += `<h4>Functions <span style="color:var(--faint)">${nh.length}</span></h4>` + nh.slice(0, 8).map((x, n) => { const f = FNS[x[0]]; return `<button class="hit" data-n="${fh.slice(0, 8).length + n}"><span class="sw" style="background:#fff;color:#fff;width:6px;height:6px;margin:0 2px"></span><span class="nm">${mark(f[0], toks)}()<i>${esc(base(F[f[1]][0]))}</i></span><span class="ex">line ${f[2]}</span></button>`; }).join('');
+  res.innerHTML = h || `<div class="empty">Nothing matches &ldquo;${esc(text)}&rdquo;. Try part of a file name or a function name.</div>`;
+  act = 0; markAct(); recomputeHL();
+}
+function markAct() { [...res.querySelectorAll('.hit')].forEach((b, n) => b.classList.toggle('act2', n === act)); const a = res.querySelectorAll('.hit')[act]; if (a) a.scrollIntoView({ block: 'nearest' }); }
+function openPal() { pal.classList.add('open'); qi.value = qtext; qi.focus(); qi.select(); runSearch(qi.value); }
+function closePal(keep) { pal.classList.remove('open'); if (!keep) { qset = null; qtext = ''; } chip(); recomputeHL(); }
+function chip() { const c = $('qchip'); c.classList.toggle('on', !!qset); if (qset) $('qchipT').textContent = `“${qtext}” · ${qset.size} files`; }
+function choose(h) {
+  const i = h.t === 'f' ? h.i : FNS[h.k][1];
+  qset = null; qtext = ''; closePal(false); selectFile(i, true);
+}
+qi.addEventListener('input', () => runSearch(qi.value));
+qi.addEventListener('keydown', e => {
+  const n = res.querySelectorAll('.hit').length;
+  if (e.key === 'ArrowDown') { e.preventDefault(); act = Math.min(n - 1, act + 1); markAct(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); act = Math.max(0, act - 1); markAct(); }
+  else if (e.key === 'Enter') { e.preventDefault(); if (hits[act]) choose(hits[act]); else if (qset) closePal(true); }
+  else if (e.key === 'Escape') { e.preventDefault(); closePal(!!qi.value && e.shiftKey ? true : false); }
+});
+res.addEventListener('click', e => {
+  const b = e.target.closest('.hit'); if (!b) return;
+  if (b.dataset.f !== undefined) { closePal(false); selectFile(+b.dataset.f, true); } else if (hits[+b.dataset.n]) choose(hits[+b.dataset.n]);
+});
+pal.addEventListener('pointerdown', e => { if (e.target === pal) closePal(!!qset); });
+$('searchBtn').onclick = openPal;
+$('qchipX').onclick = () => { qset = null; qtext = ''; chip(); recomputeHL(); };
+addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openPal(); return; }
+  if (pal.classList.contains('open')) return;
+  if (e.target.matches('input, select, textarea')) return;
+  if (e.key === '/') { e.preventDefault(); openPal(); }
+  else if (e.key === 'Escape') { if (selI >= 0 || selG >= 0) clearSel(); else if (qset) { qset = null; chip(); recomputeHL(); } else if (focusG >= 0) $('crumbX').click(); }
+  else if (e.key === 'f' || e.key === 'F') $('zFit').click();
+  else if (e.key === '1') setLevel('folders'); else if (e.key === '2') setLevel('files');
+});
+
+/* ---------- start ---------- */
+function stats() {
+  const m = D.meta || {};
+  $('eyebrow').textContent = ['MiniMe Atlas', m.date ? 'snapshot ' + m.date : '', m.commit || ''].filter(Boolean).join(' \u00b7 ');
+  $('q').placeholder = `Search ${fmt(NF)} files and ${fmt(FNS.length)} functions`;
+  $('stats').innerHTML = `<span><b>${fmt(NF)}</b> files</span><span><b>${NG}</b> folders</span><span><b>${fmt(E.length)}</b> links</span><span><b>${fmt(FNS.length)}</b> functions</span>`;
+}
+addEventListener('resize', () => { resize(); if (mixT < 1) fitAll(true); });
+resize(); recolor(); updateHalos(0); renderSide(); stats(); fitAll(true);
+if (!REDUCED) { mix = 0; setTimeout(() => { mixT = 1; }, 650); } else mix = 1;
+mixT = REDUCED ? 1 : 0; if (!REDUCED) mixT = 0;
+requestAnimationFrame(frame);
+window.__atlas = { setLevel, selectFile, drill, runSearch, openPal, state: () => ({ mix, mixT, cam, NF, NG }) };
+})();
+</script>
+</body>
+</html>
