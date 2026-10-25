@@ -15,7 +15,9 @@ Only the Python standard library is used.
 
 What it refreshes, and where each number comes from:
 
-    graph-viewer.html   copy of graphify-out/graph.html (the interactive viewer shown on graph.html)
+    graph-viewer.html   the "Constellation" viewer shown on graph.html, generated from scripts/graph_viewer_template.html
+                        plus the file-level graph (files, functions and routes from explore.html, and every
+                        file-to-file link counted from graph.json, not just the top 14 per file)
     graph.html          node/link/community counts, the folder-to-folder matrix, "Strongest cross-folder
                         links", the "Communities, named" table (largest 40), and the Built stamp
     index.html          "graph nodes" and "graph links" KPIs, "Graph hubs (most connections)"
@@ -192,6 +194,11 @@ def community_table(g):
             f'<th style="width:80px">Nodes</th><th>Most common files</th></tr>{"".join(rows)}</table></div>')
 
 
+def refresh_viewer_blurb(html):
+    return ra.sub_once(html, r'(<h2>Interactive viewer</h2><p class="sub">)[^<]*(<a href="graph-viewer\.html" target="_blank">)',
+                       lambda m: f"{m.group(1)}Folders and files as a constellation. Search a file or function, click a folder to zoom in, click a file to see what it links to and from. {m.group(2)}")
+
+
 def refresh_graph_page(html, g):
     pairs, nodes = folder_stats(g)
     html = ra.sub_once(html, r'(<p class="sub">)[\d,]+ nodes and [\d,]+ links from Graphify(, summarized by folder first, then explorable\.</p>)',
@@ -204,6 +211,7 @@ def refresh_graph_page(html, g):
     html = ra._between(html, '<h3 style="margin-top:0">Strongest cross-folder links</h3>', "</div><h2>Communities, named",
                        '<h3 style="margin-top:0">Strongest cross-folder links</h3>' + strongest_bars(pairs))
     html = ra._between(html, '<p class="sub">Graphify\'s own labels', "<h2>Interactive viewer</h2>", community_table(g))
+    html = refresh_viewer_blurb(html)
     return ra.sub_once(html, r"Built \d{4}-\d{2}-\d{2} from commit [0-9a-f]+\.", f"Built {g.date} from commit {g.commit[:7]}.")
 
 
@@ -223,6 +231,70 @@ def refresh_explore(html, g):
     top = lambda lst: sorted(lst, key=lambda x: (-x[1], x[0]))[:EG_TOP]
     EG = {str(k): {"o": top(out.get(k, [])), "i": top(inn.get(k, []))} for k in sorted(set(out) | set(inn))}
     return ra.replace_literal(html, ",EG=", json.dumps(EG, separators=(",", ":")))
+
+
+# ------------------------------------------------------------------------- viewer
+VIEWER_TEMPLATE = ROOT / "scripts" / "graph_viewer_template.html"
+VIEWER_TOP_FUNCTIONS = 6                # largest functions listed in a file's details panel
+VIEWER_DESC_MAX = 110                   # characters of a file's docstring kept in the viewer
+
+
+def viewer_group(path):
+    """Folder a file is drawn in: 'backend/eo', 'frontend/app', 'daemon', or 'root' for loose top-level files."""
+    p = path.split("/")
+    if len(p) == 1 or p[0].startswith("."):
+        return "root"
+    return p[0] if len(p) == 2 else p[0] + "/" + p[1]
+
+
+def viewer_data(g, explore_html):
+    """Everything the viewer shows, as one JSON-able dict.
+
+    Files, functions and routes come from explore.html (which refresh_atlas.py builds from the census), so the
+    viewer always lists the same files as the rest of the Atlas. The links are counted from graph.json: one per
+    graph link between two different files, weighted by how many links join them.
+    """
+    rows = ra.read_literal(explore_html, "const F=")
+    fns = ra.read_literal(explore_html, ",FN=")
+    routes = ra.read_literal(explore_html, ",RT=")
+    count = collections.Counter(viewer_group(r[0]) for r in rows)
+    groups = sorted(count, key=lambda x: (-count[x], x))
+    gi = {x: i for i, x in enumerate(groups)}
+    files = []
+    for path, lang, code, nfn, commits, last, test, doc in rows:
+        doc = re.sub(r"\s+", " ", doc or "").strip()
+        if len(doc) > VIEWER_DESC_MAX:
+            doc = doc[:VIEWER_DESC_MAX - 3].rstrip() + "..."
+        files.append([path, lang, code, nfn, commits, last, 1 if test else 0, gi[viewer_group(path)], doc])
+    idx = {r[0]: i for i, r in enumerate(rows)}
+    weight = collections.Counter()
+    for a, b in g.links:
+        pa, pb = g.file_of[a], g.file_of[b]
+        if pa in idx and pb in idx and pa != pb:
+            weight[(idx[pa], idx[pb])] += 1
+    edges = sorted([a, b, w] for (a, b), w in weight.items())
+    by_file = collections.defaultdict(list)
+    for f in fns:                                         # [name, file index, line, lines, kind]
+        by_file[f[1]].append(f)
+    top = {str(i): [[f[0], f[2], f[3], f[4]] for f in sorted(l, key=lambda f: -f[3])[:VIEWER_TOP_FUNCTIONS]] for i, l in sorted(by_file.items())}
+    return {
+        "meta": {"date": g.date, "commit": g.commit[:7]},
+        "groups": groups,
+        "files": files,
+        "edges": edges,
+        "fns": [[f[0], f[1], f[2]] for f in fns],
+        "top": top,
+        "routes": [[r[0], r[1], r[2], r[3]] for r in routes],
+    }
+
+
+def viewer_html(data, template=VIEWER_TEMPLATE):
+    html = Path(template).read_text(encoding="utf-8")
+    if html.count("__DATA__") != 1:
+        raise ValueError(f"{template} must contain exactly one __DATA__ placeholder")
+    blob = json.dumps(data, separators=(",", ":"), ensure_ascii=False)
+    blob = blob.replace("</", "<\\/").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")   # keep it safe inside <script>
+    return html.replace("__DATA__", blob)
 
 
 # ----------------------------------------------------------------------------- api
@@ -322,6 +394,8 @@ def refresh_all(root, g, minime):
     page("index.html", refresh_index, g)
     page("graph.html", refresh_graph_page, g)
     page("explore.html", refresh_explore, g)
+    explore = root / "explore.html"
+    explore_html = changes[explore].decode("utf-8") if explore in changes else ra.read_lf(explore)[0]
     frontend = Path(minime) / "frontend"
     if frontend.is_dir():
         page("api.html", refresh_api, frontend)
@@ -331,14 +405,10 @@ def refresh_all(root, g, minime):
         new = update_summary(old, g)
         if new != old:
             changes[sp] = ra.to_native(new, crlf).encode("utf-8")
-    viewer = g.path.with_name("graph.html")
-    if viewer.exists():
-        data = viewer.read_bytes()
-        if b"RAW_NODES" not in data:
-            raise ValueError(f"{viewer} does not look like a Graphify viewer (no RAW_NODES)")
-        target = root / "graph-viewer.html"
-        if not target.exists() or target.read_bytes() != data:
-            changes[target] = data
+    target = root / "graph-viewer.html"
+    data = viewer_html(viewer_data(g, explore_html)).encode("utf-8")
+    if not target.exists() or target.read_bytes() != data:
+        changes[target] = data
     return changes
 
 

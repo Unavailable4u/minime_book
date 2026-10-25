@@ -37,7 +37,6 @@ class Fixture(unittest.TestCase):
         for rel in PAGES:
             shutil.copy(ROOT / rel, self.book / rel)
         (self.minime / "graphify-out").mkdir(parents=True)
-        (self.minime / "graphify-out" / "graph.html").write_text("<script>const RAW_NODES = []</script>", encoding="utf-8")
         files = [r[0] for r in ra.read_literal(read(self.book / "explore.html"), "const F=")]
         self.eo = next(f for f in files if f.startswith("backend/eo/"))
         self.ag = next(f for f in files if f.startswith("backend/agents/") and not f.startswith("backend/agents/test_"))
@@ -105,15 +104,63 @@ class Refresh(Fixture):
         self.assertEqual([[eo, 2]], eg[str(ag)]["o"])
         self.assertEqual([[ag, 2]], eg[str(eo)]["i"])
 
-    def test_summary_line_and_viewer_copy(self):
+    def test_summary_line(self):
         self.apply()
         self.assertRegex(read(self.book / "data" / "summary.md"), r"- Graph: 5 nodes, 5 links, 2 communities \(Graphify run of [\d-]+, commit `aaaaaaa`\)\.")
-        self.assertEqual(read(self.minime / "graphify-out" / "graph.html"), read(self.book / "graph-viewer.html"))
 
-    def test_a_file_that_is_not_a_graphify_viewer_is_refused(self):
-        (self.minime / "graphify-out" / "graph.html").write_text("<html>nothing</html>", encoding="utf-8")
+
+class Viewer(Fixture):
+    def data(self):
+        self.apply()
+        html = read(self.book / "graph-viewer.html")
+        return html, ra.read_literal(html, "const D = ")
+
+    def test_viewer_is_a_complete_page_with_the_graph_embedded(self):
+        html, d = self.data()
+        self.assertTrue(html.startswith("<!DOCTYPE html>"))
+        self.assertNotIn("__DATA__", html)
+        self.assertNotIn("RAW_NODES", html)                      # no longer Graphify's viewer
+        self.assertEqual({"date": self.graph().date, "commit": "aaaaaaa"}, d["meta"])
+        explore = read(self.book / "explore.html")
+        self.assertEqual(len(ra.read_literal(explore, "const F=")), len(d["files"]))
+        self.assertEqual(len(ra.read_literal(explore, ",FN=")), len(d["fns"]))
+
+    def test_links_are_counted_from_the_graph_without_the_explore_cap(self):
+        _, d = self.data()
+        paths = [f[0] for f in d["files"]]
+        ag, eo = paths.index(self.ag), paths.index(self.eo)
+        self.assertIn([ag, eo, 2], d["edges"])                  # a1 -> e1 and a1 -> e2
+        self.assertTrue(all(a != b for a, b, _ in d["edges"]))  # nothing links a file to itself
+        self.assertEqual(1, sum(1 for a, b, _ in d["edges"] if (a, b) == (ag, eo)))
+
+    def test_every_file_belongs_to_a_named_folder(self):
+        _, d = self.data()
+        self.assertTrue(all(0 <= f[7] < len(d["groups"]) for f in d["files"]))
+        self.assertEqual("backend/tests", d["groups"][0])      # biggest folder first
+        self.assertEqual("root", rg.viewer_group(".gitignore"))
+        self.assertEqual("root", rg.viewer_group("README.md"))
+        self.assertEqual("daemon", rg.viewer_group("daemon/main.py"))
+        self.assertEqual("frontend/app", rg.viewer_group("frontend/app/x/y.jsx"))
+
+    def test_graph_page_describes_the_new_viewer_once(self):
+        self.apply()
+        html = read(self.book / "graph.html")
+        self.assertIn("as a constellation", html)
+        self.assertNotIn("Your Graphify view, as generated.", html)
+        self.assertEqual(1, html.count('<iframe src="graph-viewer.html"'))
+
+    def test_a_template_without_the_data_placeholder_is_refused(self):
+        bad = self.tmp / "bad.html"
+        bad.write_text("<html></html>", encoding="utf-8")
         with self.assertRaises(ValueError):
-            rg.refresh_all(self.book, self.graph(), self.minime)
+            rg.viewer_html({}, template=bad)
+
+    def test_text_that_could_close_the_script_tag_is_escaped(self):
+        tpl = self.tmp / "t.html"
+        tpl.write_text("<script>const D = __DATA__;</script>", encoding="utf-8")
+        out = rg.viewer_html({"x": "</script><b>"}, template=tpl)
+        self.assertEqual(1, out.count("</script>"))
+        self.assertEqual({"x": "</script><b>"}, ra.read_literal(out, "const D = "))
 
 
 class ApiCallers(Fixture):
