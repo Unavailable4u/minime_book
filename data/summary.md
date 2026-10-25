@@ -3,7 +3,7 @@
 Snapshot 2026-10-25, commit 50e25b5.
 
 - 954 files, 183,004 lines of code, 10,978 functions, 183 API routes, 567 commits.
-- Graph: 13,004 nodes, 29,813 links (Graphify run of 2026-10-05, commit `febb685`; not regenerated with the census, the graph is built separately).
+- Graph: 17,097 nodes, 37,827 links, 621 communities (Graphify run of 2026-10-25, commit `50e25b5`).
 
 ## Data files
 - data/census.json: per-file and per-function metrics, routes, git history, dependencies.
