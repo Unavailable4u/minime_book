@@ -25,8 +25,8 @@ Static, offline-capable engineering atlas and 14-chapter connected book for the 
 7. M2C L26 — Original Product & Design Spec (`guides/M2C___Product___Build_Guide.html` -> `doc-m2c-product.html`) — Initial product spec (superseded on topology/billing by Overrides O1-O8).
 
 ### Part IV — Menux · Minime agentic automation (Local-First Personal Automation Agent)
-8. Menux — Complete Feature & Product Guide (`data/docs/menux_feature_guide.md` -> `doc-menux-feature-guide.html`) — Local-first personal automation daemon (`menux`), Run Engine, 4-tier Approval Manager, 6 messaging channels, 9 connectors, Playwright browser automation, and Argon2id + AES-256-GCM vault.
-9. Menux — Build Execution Guide (`data/docs/Menux___Build_Execution_Guide.md` -> `doc-menux-plan.html`) — 59 patch-sized work packages across 16 waves (133 effort points), local-first Overrides O1-O8.
+8. Menux — Complete Feature & Product Guide (`data/docs/menux_feature_guide.md` -> `doc-menux-feature-guide.html`) — Local-first personal automation daemon (`menux`), Run Engine, 4-tier Approval Manager, 6 messaging channels, 9 connectors, Playwright browser automation, and Argon2id + AES-256-GCM vault. Revision 1.1 adds the planned Companion Expansion (Reach 0-4, control ladder, virtual desktop, screen memory, skill templates; Sections 17-27, gated on Phase 4).
+9. Menux — Build Execution Guide (`data/docs/Menux___Build_Execution_Guide.md` -> `doc-menux-plan.html`) — 59 patch-sized work packages across 16 waves (133 effort points), local-first Overrides O1-O8. Revision 1.1 rewrites Phase 5 as 5A/5B/5C (45 WPs, about 133 points) with extensions CX1-CX7 and decisions D15-D25; Phases 0-4 unchanged.
 10. Menux — Original Product & Design Spec (`guides/Menux___Product___Build_Guide.html` -> `doc-menux-product.html`) — Initial product spec (superseded on topology/billing by Overrides O1-O8).
 
 ### Part V — FBEBC Research Program (Fitness-Band Elitist Bacterial Colony)
