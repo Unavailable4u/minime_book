@@ -10,6 +10,7 @@
 - **Planned:** described in the current Menux build plan but not necessarily implemented.
 - **Gated:** requires M2C maturity, security review, legal review, credentials, or a later milestone.
 - **Companion (planned, gated on Phase 4):** the Companion Expansion in §17–§27: shell, application, accessibility and vision control, a virtual desktop, screen memory, and learned and shared skills. None of it is part of v1 or of the 59-work-package beta plan. It is designed here so that v1 does not close doors on it.
+- **Mesh (planned, gated on Phase 4):** the device mesh in §28–§37, added in revision 1.2: link your phone, tablet and other computers to your MiniMe account, control and approve from them, sync between them, and use Windows and macOS through satellites. It is not part of v1 and is counted separately from the 59-work-package beta plan.
 
 ### Architectural Synchronization (Overrides O1–O8 from `Menux___Build_Execution_Guide.md`)
 
@@ -33,12 +34,28 @@ These seven rules govern the Companion Expansion (§17–§27). They sit beside 
 | Extension | Rule | Where |
 | :--- | :--- | :--- |
 | **CX1 · Reach Levels and the Control Ladder** | Menux's reach grows in five levels (Reach 0–4). For every task it uses the most reliable method that can do the job (commands, application scripting, accessibility, shortcuts, vision and pointer), and every method inherits the same tiers, approvals, panic button and audit log | §17, §18 |
-| **CX2 · Linux First, WSL2 Second** | Native Linux gets the full feature set. WSL2 gets everything that works inside Linux. Controlling Windows applications needs a separate Windows-side helper that is designed in Phase 5C and built in Phase 6 | §25 |
+| **CX2 · Linux First, WSL2 Second** | Native Linux gets the full feature set. WSL2 gets everything that works inside Linux. Windows and macOS applications are controlled through a **satellite** paired to a node (revision 1.2, Phase 5P, using agent-desktop); this replaces the Windows-side helper that earlier revisions planned. A Windows-only or Mac-only user still needs a node | §25, §34, §35 |
 | **CX3 · The User Always Wins** | Pointer and keyboard work runs on Menux's own virtual desktop by default. On the user's real screen Menux takes turns and yields the instant the user moves | §19 |
 | **CX4 · Screen Memory Is Local, Off by Default and Visible** | Text-first capture on events, raw images deleted after extraction, sensitive applications excluded, encrypted on the device, never stored on the server | §20 |
 | **CX5 · Two Perception Paths** | Everything that needs to "see" works on a CPU-only machine (with cloud help, by consent) and works faster and more privately on a machine with a GPU | §21 |
 | **CX6 · Skills Are Shared as Sanitized, Signed Templates** | The user's real automations and data stay on the device. Only a stripped, parameterized, scanned and signed template can be shared | §23 |
 | **CX7 · Reuse or Build, After a Licence Check** | A third-party component is used only after its licence has been reviewed and the decision recorded. If it does not fit, Menux builds its own | §27 |
+
+### Mesh Extensions (MX1–MX9, added in revision 1.2)
+
+These nine rules govern the device mesh (§28–§37). They sit beside O1–O8 and CX1–CX7 and never relax them: the local-first rules, the shared account and the T0–T5 tiers all still apply.
+
+| Extension | Rule | Where |
+| :--- | :--- | :--- |
+| **MX1 · Three Roles** | A device is a **node** (the full Menux, the only place a run lives), a **satellite** (executes a limited set of capabilities for a node) or a **controller** (sends commands and approvals, executes nothing) | §28 |
+| **MX2 · Local Policy Is Final** | The device that executes an action applies its own tiers, grants and dial. A remote origin can keep or raise a tier, never lower it. A satellite's dial can only narrow what the node may do | §31, §35 |
+| **MX3 · The Server Is a Pipe** | The relay forwards end-to-end encrypted, signed frames. It cannot read them, forge or replay a command, add a controller, or approve at T4 or above | §31.7 |
+| **MX4 · Node-Approved Pairing** | A new controller or satellite must be approved on the node. A stolen MiniMe login is not enough | §29 |
+| **MX5 · Controller Classes Cap Remote Power** | Local, trusted display, web and chat. The web class is capped at T3, chat approvals at T3, T4 needs a trusted display with step-up, and T5 and vault export are local only | §30, §31 |
+| **MX6 · Panic and Deny Always Work** | From every controller, without step-up, reaching every node in the mesh | §30.2 |
+| **MX7 · Sync Is Opt-In and Never Moves Secrets** | Per category, off by default. The vault, connector tokens, screen memory and the knowledge index never sync. An offline peer gets an encrypted mailbox of at most 24 hours | §32 |
+| **MX8 · Tighten at Once, Loosen with Care** | Panic, lower ceilings and new exclusions spread immediately from any controller; raising a limit does not | §31.6 |
+| **MX9 · Backends Behind Interfaces** | agent-desktop and every other control backend run as a pinned separate process behind `ControlBackend`, after a licence decision; an unknown command is T5 and denied | §34 |
 
 ---
 
@@ -62,6 +79,8 @@ Menux is intended for work such as:
 The local node is the scheduler, connector host, credential vault, memory store, approval store, and tool executor. The MiniMe server supplies the model-driven Brain, planning, orchestration, metering, and account-level limits. The server is not intended to become the permanent home of automation specifications, connector tokens, or run history in v1.
 
 **Direction.** Menux is designed to grow beyond notifications and small file changes into an agentic companion that can use the computer the way a person does, or better: running commands, driving applications, reading what is on the screen, remembering what the user was doing, and learning repeated work as skills. That growth is staged as five Reach levels (§17) and is built only after the beta (Phase 4). The v1 product described in §2–§16 is Reach 0 and is complete without it.
+
+**Your devices.** Menux is also designed to reach across the devices a person links to their MiniMe account: a phone or browser that can check status, approve routine actions and press Panic; a second computer that can take over when the first sleeps; and Windows and macOS machines that Menux can operate through a small satellite program. That is the device mesh (§28–§37). Everything still lives on, and is decided by, the device that owns it.
 
 ---
 
@@ -91,7 +110,7 @@ State is intended to live under `~/.menux/`, including a SQLite database plus au
 The server persistently stores only the minimum account and economics information required to run the service:
 
 - account identity;
-- paired device registry and credential hash;
+- paired device registry and credential hash (revision 1.2 adds device roles, links between device IDs, remote ceilings and presence states, §28);
 - usage ledger entries;
 - plan and quota;
 - minimal error counters;
@@ -102,6 +121,8 @@ The persistent server ledger should not contain prompts, code, file paths, conne
 ### 2.3 Ephemeral server content
 
 During an active run, the server may hold an encrypted in-flight conversation buffer so the model loop can operate and prompt-cache prefixes remain stable. The intended limits are an idle timeout of about two hours and a hard cap of 24 hours. The buffer is deleted when the run ends or expires.
+
+If sync is turned on (§32), an offline peer's changes wait in an encrypted mailbox for at most 24 hours (proposed) and are deleted on delivery; the server holds only ciphertext, a size, a recipient and an expiry. Leases that stop two nodes running the same automation are short-lived content-free keys (§33.2).
 
 Webhook payloads use a short-lived delivery queue. The intended default is delivery within ten minutes or dropping the payload, with a maximum payload size of 64 KB.
 
@@ -178,7 +199,7 @@ For always-on use, the plan recommends a small Linux machine or other continuous
 
 Native Linux receives the full intended feature set. Native Windows and macOS are deferred for the initial product.
 
-The same split applies to the Companion Expansion (§25). WSL2 users get everything that runs inside Linux: commands, files, Linux applications in WSLg, a browser inside WSL, automations and skills. Controlling Windows applications such as Microsoft Office or SolidWorks is not available until a Windows-side helper exists (designed in Phase 5C as `D07`, built in Phase 6 as `D08`, and only if its review passes). The honest launch message for Windows users is: *Menux works on the Linux side of your PC and on your files today; controlling Windows apps comes later.*
+The same split applies to the Companion Expansion (§25). WSL2 users get everything that runs inside Linux: commands, files, Linux applications in WSLg, a browser inside WSL, automations and skills. Controlling Windows applications such as Microsoft Office or SolidWorks is not available until the **Windows satellite** exists (Phase 5P, `MT-P03`, using agent-desktop; revision 1.2 replaced the earlier Windows-side helper plan `D07`/`D08`). The satellite pairs with the WSL2 node, so the WSL2 limits above still apply to the node itself. The honest launch message for Windows users is: *Menux works on the Linux side of your PC and on your files today; controlling Windows apps comes later, through a satellite.* A Windows-only user with no WSL2, Linux box or mini-PC has no node and cannot run Menux in v1 (§35.5).
 
 ---
 
@@ -411,6 +432,8 @@ An approval should describe:
 - the available decision;
 - the expiry or cancellation state.
 
+Revision 1.2 adds the remote paths. Which tiers can be approved from a phone, a browser, a chat app or a trusted display is set by the controller class (§31.2), and approvals travel as signed commands (§31.5), not as a bare nonce through the server.
+
 ### 6.5 Panic button
 
 Menux is intended to provide a one-action pause for all automations. Panic behavior should:
@@ -422,7 +445,7 @@ Menux is intended to provide a one-action pause for all automations. Panic behav
 - notify the owner when the system is paused;
 - require an explicit resume action.
 
-A panic state must survive a node restart until the owner clears it.
+A panic state must survive a node restart until the owner clears it. From revision 1.2, Panic can be pressed from any controller without step-up and reaches every node in the mesh (§30.2).
 
 ### 6.6 Context-based tiering and grants (Companion)
 
@@ -715,6 +738,8 @@ Interactive channel buttons carry an opaque approval ID and nonce. The node veri
 - it has not expired or already been decided;
 - the requested decision is allowed.
 
+A bare nonce that passes through the server does not prove what the person saw. §31.8 explains the gap and how revision 1.2 closes it for the remote paths.
+
 ---
 
 ## 11. Menux and M2C Cooperation
@@ -877,13 +902,16 @@ Phase 5 grows Menux from Reach 0 to Reach 4 (§17). It starts only after the bet
 
 - **Phase 5A, native control (Reach 1–2):** reuse-or-build licence review, hardware probe in `doctor`, protocol 1.2, context-based tiering and grants, shell and file tool in the sandbox, the application-control registry and ladder selector, LibreOffice and scriptable-application adapters, AT-SPI reader, shortcut and input maps, dedicated browser profile, control reliability benchmark. Milestone `MT-I05a`.
 - **Phase 5B, eyes and hands (Reach 3):** screenshots and input, headless virtual desktop with session manager, live view and take-over, shared mode with input arbitration, the tray control panel, screen memory (capture, extraction, store, search), dual-path vision grounding with server metering, the pointer-and-keyboard action layer with verification, guide mode, the Menux Map, and the GUI red-team and privacy suites. Milestone `MT-I05b`.
-- **Phase 5C, companion (Reach 4):** specialist tool kit and self-built tools, experience memory, learning by demonstration, GUI skill self-repair, skill templates and a curated shared library, game loop runner, optional session image, Windows-helper design spike, companion docs. Milestone `MT-I05c`.
+- **Phase 5C, companion (Reach 4):** specialist tool kit and self-built tools, experience memory, learning by demonstration, GUI skill self-repair, skill templates and a curated shared library, game loop runner, optional session image, companion docs. Milestone `MT-I05c`.
 
-Voice (`D06`) and the other connectors (`H09–H11`, `H13`) are independent of 5A–5C and are scheduled separately.
+- **Phase 5R, remote control and the device mesh (revision 1.2):** mesh protocol and device identity, signed commands, controller classes and the remote trust ladder, passkey step-up, node-approved pairing, the mesh relay, the Devices page, the phone and web controller, chat-controller hardening, sync spaces, placement and leases, remote live view, and the mesh red-team and privacy suites. Milestone `MT-I05r`.
+- **Phase 5P, platforms and satellites (revision 1.2):** platform abstraction, the satellite runtime, the Windows and macOS satellites on agent-desktop, a per-OS control benchmark, and a native-node feasibility spike. Milestone `MT-I05p`.
+
+Voice (`D06`) and the other connectors (`H09–H11`, `H13`) are independent of 5A–5R and are scheduled separately.
 
 ### Phase 6: ecosystem and release
 
-Potential additions include a scanned and signed community skill marketplace (building on the curated library from Phase 5C), the Windows-side helper for WSL2 users, team features, official Google connectors if legally approved, external security audit, packaging, support, and general availability.
+Potential additions include a scanned and signed community skill marketplace (building on the curated library from Phase 5C), team features, official Google connectors if legally approved, external security audit, packaging, support, and general availability.
 
 | Phase & Milestone | Waves | Work Packages | Effort Points | Key Deliverable & Exit Gate |
 | :--- | :--- | :--- | :--- | :--- |
@@ -892,12 +920,14 @@ Potential additions include a scanned and signed community skill marketplace (bu
 | **Phase 2 · Safe Unattended Operation (`MT-I02`)** | Waves 6–9 | `MT-H02`, `MT-H04–H06`, `MT-T02–T08`, `MT-A05–A06`, `MT-K04`, `MT-G02`, `MT-G04`, `MT-W01`, `MT-Q01–Q02`, `MT-Q04`, `MT-I02` (21 WPs) | 49 pts | Telegram inline approvals (`MT-H02`), Reader/Actor pipeline (`MT-T04`), panic switch (`MT-T07`), Playwright (`MT-W01`), prompt-injection & canary tests (`MT-I02`) |
 | **Phase 3 · Memory, Skills & Triggers (`MT-I03`)** | Waves 10–12 | `MT-M01–M07`, `MT-N03`, `MT-H07–H08`, `MT-G03`, `MT-E01`, `MT-Q03`, `MT-I03` (14 WPs) | 30 pts | Provenance-tagged memory (`MT-M01`), poisoning defense (`MT-M02`), signed skill manifests (`MT-M04`), M2C delegation (`MT-M07`) |
 | **Phase 4 · Invite-Only Beta (`MT-I04`)** | Waves 13–16 | `MT-A07`, `MT-N07`, `MT-E02`, `MT-Q05`, `MT-R02`, `MT-I04` (6 WPs) | 14 pts | Natural-language Planner draft (`MT-A07`), WSL2 keep-alive helper (`MT-N07`), cost estimator (`MT-E02`), 7-day unattended soak (`MT-I04`) |
-| **Phase 5A · Native Control (`MT-I05a`)** | Waves 17–21 | `MT-R05`, `MT-N08`, `MT-K05`, `MT-T10`, `MT-X01`, `MT-X02`, `MT-D01`, `MT-D02`, `MT-X03`, `MT-X04`, `MT-X05`, `MT-Q06`, `MT-I05a` (13 WPs) | 32 pts | Licence record (`MT-R05`), hardware probe (`MT-N08`), context-based tiering and grants (`MT-T10`), ladder selector (`MT-X02`), LibreOffice and app adapters (`MT-X03–X04`), reliability benchmark (`MT-Q06`) |
+| **Phase 5A · Native Control (`MT-I05a`)** | Waves 17–21 | `MT-R05`, `MT-N08`, `MT-K05`, `MT-T10`, `MT-X01`, `MT-X02`, `MT-D01`, `MT-D02`, `MT-X03`, `MT-X04`, `MT-X05`, `MT-Q06`, `MT-I05a` (13 WPs) | 34 pts | Licence record (`MT-R05`), hardware probe (`MT-N08`), context-based tiering and grants (`MT-T10`), ladder selector (`MT-X02`), LibreOffice and app adapters (`MT-X03–X04`), reliability benchmark (`MT-Q06`) |
 | **Phase 5B · Eyes and Hands (`MT-I05b`)** | Waves 19–24 | `MT-D03`, `MT-D04`, `MT-S05`, `MT-V01`, `MT-S01`, `MT-E03`, `MT-S02`, `MT-V02`, `MT-V03`, `MT-X06`, `MT-T11`, `MT-V04`, `MT-V05`, `MT-S03`, `MT-X07`, `MT-Q07`, `MT-S04`, `MT-W08`, `MT-W09`, `MT-Q08`, `MT-I05b` (21 WPs) | 67 pts | Virtual desktop with live view (`MT-V01–V02`), shared mode (`MT-V03`), tray dial (`MT-V04`), screen memory (`MT-S01–S04`), dual-path grounding (`MT-S05`), GUI red-team (`MT-Q07`), privacy suite (`MT-Q08`), Menux Map (`MT-W08`) |
-| **Phase 5C · Companion (`MT-I05c`)** | Waves 25–27 | `MT-X08`, `MT-M09`, `MT-N09`, `MT-D07`, `MT-X09`, `MT-X10`, `MT-M10`, `MT-M11`, `MT-M12`, `MT-R06`, `MT-I05c` (11 WPs) | 34 pts | Specialist tool kit (`MT-X08`), learning by demonstration (`MT-M10`), self-repair (`MT-M11`), skill templates and curated library (`MT-M12`), game loop (`MT-X10`), Windows-helper design (`MT-D07`) |
-| **Phase 6 · Ecosystem & GA** | Post-5C | Community marketplace (`MT-M08`), Windows-side helper build (`MT-D08`), team policy, Google connectors if approved, packaging | Gated on `MT-I05c` | CASA verification for Google scopes, external security audit |
+| **Phase 5C · Companion (`MT-I05c`)** | Waves 25–27 | `MT-X08`, `MT-M09`, `MT-N09`, `MT-X09`, `MT-X10`, `MT-M10`, `MT-M11`, `MT-M12`, `MT-R06`, `MT-I05c` (10 WPs) | 32 pts | Specialist tool kit (`MT-X08`), learning by demonstration (`MT-M10`), self-repair (`MT-M11`), skill templates and curated library (`MT-M12`), game loop (`MT-X10`) |
+| **Phase 5R · Remote Control & Mesh (`MT-I05r`)** | Waves 28–34 | `MT-K06`, `MT-A08`, `MT-T12–T14`, `MT-E04`, `MT-N10–N12`, `MT-W10–W11`, `MT-G05`, `MT-M13`, `MT-V06`, `MT-Q09–Q10`, `MT-I05r` (17 WPs) | 49 pts | Signed command channel (`MT-T12`), mesh relay (`MT-E04`), controller classes and trust ladder (`MT-T13`), phone and web controller (`MT-W11`), sync spaces (`MT-M13`), mesh red team (`MT-Q09`) |
+| **Phase 5P · Platforms & Satellites (`MT-I05p`)** | Waves 28–34 | `MT-P01–P06`, `MT-I05p` (7 WPs) | 22 pts | Satellite runtime (`MT-P02`), Windows and macOS satellites on agent-desktop (`MT-P03–P04`), per-OS benchmark (`MT-P05`), native-node spike (`MT-P06`) |
+| **Phase 6 · Ecosystem & GA** | Post-5R | Community marketplace (`MT-M08`), team policy, Google connectors if approved, packaging | Gated on `MT-I05c` | CASA verification for Google scopes, external security audit |
 
-Phases 0–4 total 59 work packages and 133 points and are unchanged by the Companion Expansion. Phase 5 is counted separately: 45 work packages and about 133 points on the same scale (S=1, M=2, L=4, XL=8, approximate), roughly the size of the whole v1 plan. It is therefore scheduled after the beta and is not part of the March–June 2027 window.
+Phases 0–4 total 59 work packages and 133 points and are unchanged by the Companion Expansion. Phase 5 is counted separately: 68 work packages and about 204 points on the same scale (S=1, M=2, L=4, XL=8, approximate): 5A 13 WPs and 34 pts, 5B 21 and 67, 5C 10 and 32, 5R 17 and 49, 5P 7 and 22. That is roughly one and a half times the whole v1 plan (revision 1.1 counted 45 WPs and about 133 points; revision 1.2 removed `MT-D07`, re-sized `MT-D02` from M to L and added 5R and 5P). It is therefore scheduled after the beta and is not part of the March–June 2027 window; each sub-phase is releasable on its own and the plan can stop after any of them.
 
 ---
 
@@ -916,7 +946,7 @@ Desktop control is no longer only a future idea: it is the Companion Expansion (
 - the virtual desktop as the default place for pointer work (§19);
 - the GUI red-team and screen-memory privacy suites green before any release (§26).
 
-WSL2 desktop control remains limited to Linux GUI applications in WSLg until a Windows-side helper exists (§25).
+WSL2 desktop control remains limited to Linux GUI applications in WSLg until a Windows satellite exists (§25, §35).
 
 ### 15.2 Voice
 
@@ -966,7 +996,7 @@ A cloud-hosted automation mode is explicitly not part of v1. It would require a 
 Menux does not promise:
 
 - always-on operation when the device or WSL2 instance is stopped;
-- Windows desktop automation from WSL2;
+- Windows desktop automation from WSL2 itself: it needs a Windows satellite (§35), and a Windows-only or Mac-only user with no node cannot run Menux in v1;
 - that messages from strangers become trusted instructions;
 - unrestricted unattended shell, browser, email, or financial actions;
 - that a connector token leaves the local vault;
@@ -984,9 +1014,15 @@ Menux does not promise:
 - that Menux works in real-time or competitive online games, or that it will bypass anti-cheat;
 - that a shared skill is safe because it was shared: every shared skill is a template that is reviewed and enabled locally;
 - that a third-party component is used when its licence does not allow it;
-- that the Companion Expansion ships on any date: it is gated on Phase 4.
+- that the Companion Expansion ships on any date: it is gated on Phase 4;
+- that a phone can approve everything: a browser or phone can approve routine actions only, T4 needs a device that shows the exact action, and T5 needs the node itself (§31);
+- that the server cannot interfere with the mesh: it cannot read or forge commands, but it can drop or delay them and see which devices talk and when (§31.7);
+- that remote commands work while the node is off, asleep or offline: risky commands are never queued;
+- that sync is on by default or ever carries the vault, passwords or screen memory;
+- that a satellite can control elevated Windows windows, a locked screen or an application that exposes no accessibility tree (§35.3);
+- that the device mesh ships on any date: it is gated on Phase 4.
 
-The honest product promise is local storage and execution, controlled remote reasoning, explicit trust tiers, visible approvals, bounded budgets, and recoverable automation state. For the Companion Expansion the promise adds: the user can always see what Menux sees, stop what Menux does, and delete what Menux remembers.
+The honest product promise is local storage and execution, controlled remote reasoning, explicit trust tiers, visible approvals, bounded budgets, and recoverable automation state. For the Companion Expansion the promise adds: the user can always see what Menux sees, stop what Menux does, and delete what Menux remembers. For the mesh the promise adds: every device that can command Menux was approved on the node, can be limited or removed at any time, and cannot lower a safety rule, and Panic works from all of them.
 
 ---
 
@@ -1097,7 +1133,7 @@ A separate display session owned by Menux, disposable and isolated from the real
 
 ### 19.4 Live view and take-over
 
-A remote-desktop-style viewer, bound to localhost and authenticated, shows the virtual desktop. The user can watch, take over (their input goes to the virtual desktop) and hand back. Every handover is logged. Viewing from another device through the relay is not part of the first release and would need its own security review.
+A remote-desktop-style viewer, bound to localhost and authenticated, shows the virtual desktop. The user can watch, take over (their input goes to the virtual desktop) and hand back. Every handover is logged. Viewing from another device through the relay is not part of the first release; revision 1.2 plans it as `MT-V06` (view only for the web class, take-over from a trusted display, end-to-end encrypted, with its own security review; §33.4).
 
 ### 19.5 Shared mode and input arbitration
 
@@ -1332,13 +1368,13 @@ To remove setup problems, an optional preconfigured **Menux session** (`MT-N09`)
 | Linux applications in WSLg; a browser inside WSL | Sending keyboard and mouse input to Windows applications |
 | Everything in Reach 0–2 that runs inside Linux | Always-on operation when the WSL instance is stopped |
 
-### 25.5 The Windows-side helper
+### 25.5 The Windows satellite (replaces the Windows-side helper)
 
-To control Windows applications, a small native Windows process in the user's session would expose screenshots, input and Windows UI Automation to the WSL2 node over an authenticated local channel, while the reasoning, memory, tiers and approvals stay where they are. It is designed and threat-modelled in `MT-D07` (Phase 5C) and built in `MT-D08` (Phase 6) only if the review passes. It is not a product promise.
+Revision 1.1 planned a small native Windows process (`MT-D07`, `MT-D08`). Revision 1.2 replaces it with the **Windows satellite** (`MT-P03`, Phase 5P): a signed program that runs in the user's interactive session, drives Windows applications through UI Automation using agent-desktop, and is paired to a node (often the WSL2 node on the same PC, over loopback or the relay). Reasoning, memory, tiers and approvals stay on the node and the satellite applies its own dial. See §34 and §35.
 
 ### 25.6 Native Windows and macOS
 
-Deferred, as before.
+A **node** running natively on Windows or macOS is still deferred; `MT-P06` is a research spike only. Windows and macOS **satellites** are planned in Phase 5P (§35).
 
 ---
 
@@ -1403,6 +1439,8 @@ The licences below are what the project pages and package metadata reported when
 | OmniParser | Screen parsing for grounding (`S05`) | Detection weights AGPL, caption weights MIT, as reported | AGPL may restrict commercial or closed use; review; fallback is our own detector with OCR and accessibility |
 | UI-TARS, GTA1, Holo, Moondream and similar | Local grounding models (`S05`, GPU path) | Per model | Review each model's licence before bundling or recommending |
 | `ydotool` | Wayland input injection (`D03`) | *Believed* copyleft | Verify; if needed write to `uinput` directly or use the RemoteDesktop portal |
+| agent-desktop (Vercel Labs) | Accessibility control on Linux, Windows and macOS behind `ControlBackend` (`D02`, `P03`, `P04`; §34) | Apache-2.0 as reported when reviewed on 2026-11-14, version 1.3.0 | Read the `LICENSE` file; run it as a pinned separate process; keep our own AT-SPI reader as the Linux fallback; record the decision in `R05` |
+| Mesh crypto and WebAuthn libraries | Identity keys, key exchange, passkey verification (`K06`, `T14`) | Per library; candidates are Ed25519, X25519 and a Noise-style handshake, and a WebAuthn verifier | Choose in `R05` behind a Menux interface; no custom primitives |
 | Playwright | Browser automation (`D01`) | *Believed* permissive | Verify |
 | OCR engine (Tesseract-class) | CPU OCR (`S02`) | *Believed* permissive | Verify |
 | Chess or other game engines | Engine tools (`X10`) | *Believed* strong copyleft for some | Use only as a separate process, after review |
@@ -1413,7 +1451,432 @@ Each candidate sits behind a Menux interface (`ControlBackend`, `Capturer`, `Gro
 
 ---
 
-## 28. Maintenance Checklist
+## 28. The Device Mesh
+
+*Added in revision 1.2 (2026-11-14). Planned and gated on Phase 4, like the Companion Expansion. Phases 0–4 are unchanged.*
+
+### 28.1 What the mesh is
+
+Every device a person links to their MiniMe account forms the **mesh**. A device holds one or more of three roles:
+
+| Role | What it does | What it holds | Examples |
+| :--- | :--- | :--- | :--- |
+| **Node** | The full Menux: scheduler, Run Engine, approvals, vault, memory, connectors. It is the only role that talks to the server "brain" for a run | Everything in `~/.menux/` | Native Linux machine, WSL2, a mini-PC or Raspberry Pi |
+| **Satellite** | Executes a limited set of capabilities for a node it is paired with (control a desktop, read granted files, mirror notifications). No scheduler, no vault, no memory | Its own device key and its own control dial, nothing else | A Windows PC, a Mac, a second Linux box |
+| **Controller** | Sends commands, approvals and queries and shows status. Executes nothing | A device key, and a session | A phone or tablet browser, the installable web app, `menux remote` on another computer, a Telegram or Slack chat |
+
+```
+                       ┌──────────────────────────────┐
+   Controllers         │  MiniMe server (relay only)  │         Nodes and satellites
+ ┌──────────────┐      │  account · device registry   │      ┌─────────────────────────┐
+ │ phone (web)  │◄────►│  forwards signed, encrypted  │◄────►│ NODE  (Linux / WSL2)    │
+ │ tablet       │      │  frames · cannot read them   │      │  scheduler · vault ·    │
+ │ menux remote │      │  cannot forge a command      │      │  memory · Run Engine    │
+ │ Telegram     │      └──────────────────────────────┘      └───────────┬─────────────┘
+ └──────────────┘                                                         │ signed requests
+        ▲  direct "local link" when on the same machine or LAN            ▼
+        └──────────────────────────────────────────────────────►  SATELLITES
+                                                                   Windows PC · Mac · 2nd Linux
+```
+
+The brain, metering and one shared credit pool stay exactly as in O1–O2. The mesh adds *where commands come from* and *where tools can run*; it does not add a second place where data lives.
+
+### 28.2 The rules (MX1–MX9)
+
+The nine rules are in the table at the top of this guide and in `Menux___Build_Execution_Guide.md` §2. In short: the device that owns the data decides (local policy is final); the server is a pipe it cannot read or forge through; adding a controller or satellite always needs approval on the node itself; remote power is limited by controller class and never reaches T5; sync is opt-in and never moves secrets or screen memory; tighter settings spread instantly, looser ones do not.
+
+### 28.3 The Devices page
+
+Today's MiniMe Devices page (built for M2C) lets a person approve a terminal with a short code, lists paired devices, and says that pairing does not let the website read files on the device. Menux extends the same page; it does not add a second one:
+
+- **Add a device**: a four-way choice (computer node, Windows or Mac satellite, phone or tablet controller, chat app). Each choice shows its own steps (§29).
+- **Per device**: name, platform and version, roles, capability names, last seen, which node it is linked to, and its **remote ceiling** (§31).
+- **Controls**: pause remote access for one device, change its ceiling (tightening is immediate; loosening needs step-up), revoke.
+- **Activity**: content-free counts and times ("12 commands, last at 21:40"). Never what the commands were.
+
+The M2C sentence "Pairing doesn't let this website read files" stays true for M2C devices. For Menux devices the page must say what is different, in plain words:
+
+> **What a Menux controller can do.** A controller you pair can ask your Menux node to run, pause and report on automations, and to approve or deny actions, up to the limit you set for that device. It cannot read your files or your screen unless you grant that separately. The node applies its own rules and can refuse any command. This website cannot add a controller on its own: every controller must also be approved on your node. You can revoke a device at any time, and Panic works from every controller.
+
+### 28.4 Device states
+
+`pending` (paired, never connected) · `online` · `away` (connected, no recent activity) · `offline` · `paused` (remote access paused by the owner) · `revoked`. The registry stores only these states and timestamps. Presence is content-free and is used to decide where to send a notification first (§33.5).
+
+---
+
+## 29. Pairing, Identity and Revocation
+
+### 29.1 Node to account
+
+Unchanged from M2C: `menux login` shows a short code, the person enters it on the Devices page, and the terminal receives a long-lived credential (stored in the OS keyring, or a `0600` file where there is none, as in D3). Revision 1.2 adds one step: the node generates a **device identity key** and registers only its public half.
+
+### 29.2 Controller to node (node-approved)
+
+1. On the controller (a browser signed in to MiniMe, or `menux remote pair`), a key pair is generated. In a browser the private key is non-extractable and stays in the browser's key store; on a native client it goes to the OS key store. The controller shows a short code and a **fingerprint of six words**.
+2. On the node the owner runs `menux pair controller` (or uses the tray, or a paired chat) and enters the code. The node shows the controller's name, its class (§30.1) and the six words, and the owner **confirms on the node** and chooses the ceiling.
+3. The node records a signed **trust edge** locally and tells the registry (device IDs only), so the Devices page shows the link.
+
+Why on the node: a stolen MiniMe password, or a compromised server, must not be enough to add a controller that can command the node. A controller can also be approved from an already trusted controller of the **trusted-display** class with step-up (§31), for the case where the owner is away from the node; the new controller never gets a higher ceiling than the one that approved it, and every other controller is notified.
+
+### 29.3 Satellite to node
+
+Same flow. The satellite's installer shows a code and lists the capabilities it can offer (for example `control.desktop`, `files.granted`, `notify.mirror`). The node owner approves **each capability**. Pointer, screenshot and file capabilities start off; the satellite also has its own dial (§35.2) that can only narrow what the node may do, never widen it.
+
+### 29.4 Keys
+
+| Key | Held by | Used for |
+| :--- | :--- | :--- |
+| Device identity key | Each device (OS key store or vault; never leaves) | Signing commands and handshakes |
+| Session keys | Two endpoints | Authenticated key exchange per connection; encrypts frames end to end. The server relays ciphertext |
+| Mesh key | Nodes and any device the owner lets sync | Encrypts sync records (§32). Wrapped separately for each trusted device; rotated when a device is revoked |
+| Passkey (WebAuthn) | The person's authenticator | Step-up approvals (§31.3). The **node** stores the public key and verifies the assertion itself |
+
+Algorithms and libraries (Ed25519 and X25519 with a Noise-style handshake are the candidates) are chosen under `R05` behind a Menux interface, with an own-build fallback.
+
+### 29.5 Revocation
+
+- **From the Devices page:** the server marks the device revoked and closes its sockets. The node also records the key as distrusted and **rotates the mesh key**, so a lying server cannot keep a revoked device in the mesh.
+- **From the node or any trusted-display controller** with step-up.
+- **Self-revoke:** `menux logout` should revoke the device itself. M2C does not yet offer that endpoint: its `logout()` deletes the local credential and tells the user to revoke on the web page (`m2c/src/m2c/auth/login.py`, which proposes `POST /v1/code/devices/revoke` as a follow-up to S03). Menux needs it (`S03b`, §1 of the build guide).
+- **Lost phone:** revoke it from another controller with step-up, from the web account, or from the node. Panic first if in doubt (§30.2).
+- A forged "add controller" from the server is rejected by the node (no local approval). A forged "revoke" only removes access.
+
+---
+
+## 30. Remote Control: Controllers and What They Can Do
+
+### 30.1 Controller classes
+
+| Class | Examples | How identity is proved | Typical ceiling |
+| :--- | :--- | :--- | :--- |
+| **Local** | CLI, tray or desktop notification on the node itself | Being on the machine, plus re-auth for T5 | T0–T5 |
+| **Trusted display** | `menux remote` on another computer; later a native mobile app | Signed build, key in the OS key store, passkey or biometric; it shows the exact action it asks you to approve | up to T4 |
+| **Web** | A browser or the installable web app on MiniMe | Account session, non-extractable key, passkey step-up. Its code is delivered by the server, so it **cannot be a trusted display** | up to T3 |
+| **Chat** | Telegram (v1), Slack or Discord (`H10`) | Owner-pinned chat identity. The chat provider relays the messages | up to T3 approvals; commands limited to status, pause and run-now |
+
+The class sets the ceiling. A controller cannot raise its own class or ceiling.
+
+### 30.2 What a controller can do
+
+| Action | Minimum class | Notes |
+| :--- | :--- | :--- |
+| See status, inbox, run summaries, device health | Any | Live relay, nothing stored on the server |
+| **Panic** (stop everything) | Any | Never needs step-up. Reaches **every node in the mesh**, survives restart, and is retried until acknowledged |
+| Pause or resume one automation | Any | |
+| Resume after panic | Web with passkey, trusted display or local | |
+| Run an automation now | Any | Its own tiers and approvals still apply |
+| Approve or deny a pending action | By tier (§31.2) | A **deny** is always accepted from any class |
+| Ask for a one-off task or chat with the Planner | Any | Creates a draft or an interactive run; normal tiers apply |
+| Create, enable, edit or delete an automation | Draft: any. Enable, edit, delete: trusted display or local | The web can *propose*; a trusted display or the node enables |
+| Request a screenshot of a node or satellite | Web with passkey | Needs the screen-awareness setting; by default the desktop asks on-device and times out in 60 seconds |
+| Watch a Background session live | Web (view only) | §33.4; the take-over needs a trusted display |
+| Fetch or send a small file | Trusted display | Granted folders only, size-capped, end-to-end encrypted, tagged with its origin |
+| Tighten settings (lower the ceiling, add exclusions, pause a device) | Any | Applies at once on every device (§31.6) |
+| Loosen settings (raise the ceiling, widen a grant, change the dial) | Trusted display with step-up, or local | Vault export and key changes are **local only** |
+
+### 30.3 When the node is not reachable
+
+Every command carries a lifetime. If the node is offline the controller says so ("offline since 21:40"). Low-risk commands (status refresh, pause) may wait up to 10 minutes; anything at T2 or above is **not queued** and never replayed after it expires. The node never relaxes its rules because the network is down; with no server it keeps running local automations and refuses remote ones.
+
+### 30.4 Every command is acknowledged
+
+A command gets one of `accepted`, `refused` (with the node's reason, shown to the person) or `done`. Commands are idempotent by ID, so a retry over a flaky connection cannot run twice.
+
+### 30.5 Origin in the audit log
+
+Every event records where it came from: `local`, `remote:<device>` or `satellite:<device>`. The log shows it, and it is part of the tier context (§31.5): a remote origin can only keep or raise a tier, never lower it.
+
+### 30.6 Notifications to controllers
+
+Push goes through Web Push (the optional subscription table reserved as migration `0018`) and chat apps. The text is minimal by default ("An approval is waiting"); the details open over the relay. The notifier sends first to the device that was most recently active and to the rest after a delay.
+
+---
+
+## 31. The Remote Trust Ladder
+
+### 31.1 Why classes
+
+A web page cannot prove to the node what the person saw, because the server that delivers the page could deliver a different one. End-to-end encryption protects the *transport*, not a page the server writes. So high-risk approvals need a **trusted display**: a signed client that shows the action itself. The ladder makes that explicit instead of pretending a phone browser is the same as the node.
+
+### 31.2 Who can approve what
+
+| Tier | Chat | Web | Trusted display | Local |
+| :--- | :--- | :--- | :--- | :--- |
+| T0–T2 | Yes | Yes | Yes | Yes |
+| T3 | Yes (owner-pinned identity, nonce) | Yes, with passkey | Yes | Yes |
+| T4 | **No** | **No** (the request is sent to a trusted display) | Yes, with parameter preview and step-up | Yes |
+| T5 | No | No | No | **Only here**, with interactive confirmation and re-auth |
+| Always-confirm list (§22.5), other than the last row | No | No | Yes, with step-up | Yes |
+| Vault export, key changes, loosening the dial | No | No | No | **Only here** |
+
+Deny is accepted from any class.
+
+### 31.3 Step-up
+
+A passkey (WebAuthn) or biometric assertion whose challenge is bound to the approval: the approval ID, nonce, a digest of the action and its expiry. The node verifies the assertion against the passkey public key it stored at pairing. An assertion cannot be reused for another approval and goes stale within minutes. A device that cannot do passkeys is limited to the trusted-display path.
+
+### 31.4 Remote sessions
+
+A controller holds a session that ends on idle (proposed: 1 hour), on a maximum age (proposed: 12 hours), on revoke and on panic. **Travel mode**, a switch the owner sets, lowers every ceiling by one tier and requires step-up for every action at T2 or above until turned off.
+
+### 31.5 What the node checks
+
+Every remote command is signed by the controller's device key and carries its ID, the controller and node IDs, the command, a digest of its arguments, the issue time, a lifetime and a counter. The node checks, in order: signature against a key it trusts, not revoked, inside its lifetime and clock-skew window (proposed 120 seconds), counter not seen, command known (unknown commands fail closed), command allowed for this class and ceiling, and then the **normal** policy: capability tiers, context-based tiering (§6.6, where origin is now part of the context), grants, the dial, approvals. Remote origin never lowers a tier.
+
+### 31.6 Tighten at once, loosen with care
+
+Panic, lowered ceilings, new exclusions and paused devices propagate to every device immediately, from any controller. Raising a limit does not propagate: it must be done on each device that is affected, or from a trusted display with step-up.
+
+### 31.7 What a compromised server can and cannot do
+
+It **can** drop or delay frames, see metadata (which device talked to which, when, and how large), refuse service, and serve a hostile web controller (limited to T3 and to what a passkey prompt will confirm). It **cannot** read frames, add a controller to a node, forge or replay a signed command, approve at T4 or above, or reach the local-only list.
+
+### 31.8 A known gap in the earlier phases
+
+Section 10.2 and 10.3 describe approvals through the browser inbox and chat buttons with an opaque ID and nonce. The inbox is a live relay, so that nonce passes through the server. Until the signed channel (`MT-T12`) exists, treat T3 approvals from the inbox as trusting the server. Revision 1.2 therefore keeps T4 off chat apps and replaces unsigned inbox approvals with signed ones.
+
+---
+
+## 32. Sync Spaces
+
+### 32.1 What sync is for
+
+A second node (a Raspberry Pi that takes over while the laptop sleeps), a controller that shows the same automations, the same skills on two machines. Sync is **opt-in per category** and **off by default**.
+
+### 32.2 What can sync
+
+| Category | Default | Rules |
+| :--- | :--- | :--- |
+| Non-secret settings | Off | Tighten-only settings (§31.6) propagate regardless |
+| Automation specs | Off, per automation | Versions (`A06`) are the unit. Conflicts keep both; the owner picks. YAML is never auto-merged. Arrives **disabled** |
+| Skills | Off, per skill | Arrives disabled until enabled on the target, so the target's own policy decides |
+| Memory notes | Off, per note | Provenance stays. An imported note keeps its trust label and gains an origin-device label; it is not upgraded. Conflicts keep both and the consolidation job (`M02`) reconciles |
+| Run summaries | Off | Summaries only, for controllers. Full event logs stay on their node |
+| Knowledge index | Never | Rebuilt locally from the folders |
+| **Screen memory** | **Never** | CX4: it never leaves the device it was captured on |
+| **Vault and connector tokens** | **Never by sync** | A secret moves only by an explicit transfer ceremony: node-approved, encrypted to the recipient's key, six-word fingerprint check, expires. Otherwise re-authorize on the new device |
+
+### 32.3 How
+
+Records are versioned, content-addressed blobs identified by a record ID, a version counter per device and a parent hash. They are encrypted with the **mesh key** before they leave the device. Conflict detection uses version counters, not wall clocks. Deletes are tombstones kept for 30 days (proposed), and a "forget" command propagates to every device that holds the record.
+
+Transport: a live relay pipe when both ends are online; direct when on the same machine or LAN (the local link, §33.6); an **encrypted mailbox** for an offline peer, held for at most 24 hours (proposed default) and deleted on delivery. The server stores ciphertext, a size, a recipient ID and an expiry, and cannot search or read it. A person who does not want the mailbox can sync only when both ends are online or over the local link, or use the export and import of `M07`.
+
+### 32.4 Where this touches O1
+
+The mailbox is the only place the server holds something derived from user data beyond the run buffer: ciphertext for up to 24 hours. It is why sync is opt-in, why it appears in the trust copy (§28.3, build guide §2), and why the canary suite is extended (`MT-Q10`).
+
+### 32.5 Setting up a new device
+
+Pair it (§29), choose categories, receive an initial snapshot over the local link or the relay (size-capped), then see a checklist of what arrived disabled and what needs re-authorizing.
+
+---
+
+## 33. Placement, Routing, Leases and Presence
+
+### 33.1 Placement fields
+
+An automation spec gains four optional fields (an additive schema revision of `A01`): `runs_on` (a device name or `any`), `prefer`, `requires` (capability names such as `control.desktop.windows`) and `failover` (`false` by default). The Planner sees capability names only, never data, so it can draft `requires` correctly.
+
+### 33.2 One writer, with a lease
+
+A scheduled automation fires on **one** node. Where two nodes could run it, the node must hold a short **lease** kept by the server as a content-free key with an opaque ID (proposed: 90-second lifetime, renewed every 30 seconds). If the holder is gone (WSL stopped, laptop asleep), a standby node may take over only if the spec says `failover: true`, after the missed-run policy (§5.3), and the takeover is recorded. Each fire time is also an **idempotency key**, so a late holder and a new holder cannot both run it. If a node cannot reach the server it does **not** take over: when in doubt it skips rather than duplicates. This is also the answer to the WSL2 keep-alive problem (§3.4): an always-on Pi can run what the sleeping laptop would miss.
+
+### 33.3 Routing a tool to a satellite
+
+When a run on node N needs a capability that lives on satellite S, N's tool broker sends S a signed request (N is the "controller" for that link). S applies **its own** dial, tiers and grants and may refuse. The result comes back labelled `origin: satellite:<name>`; text or pixels from applications pass the Reader (`T11`) like any untrusted content. A timeout or refusal feeds the ladder (§18.3): another rung, then Guide mode, then a message to the owner. An offline satellite gives a defined outcome set by the spec: skip with a notice, wait up to the command lifetime, or fail the run.
+
+### 33.4 Remote live view
+
+The localhost viewer of §19.4 gains an end-to-end encrypted remote path (`MT-V06`), with its own security review. The web class gets **view only**. Taking over from afar needs a trusted display and step-up. A visible indicator on the desktop shows while anyone is viewing, and nothing is recorded or stored on the server.
+
+### 33.5 Presence and triggers from devices
+
+Content-free presence (`online`, `away`, `offline`) routes notifications to the device in use. Devices can also raise event triggers: `device.online`, `device.offline`, and `notification.received` from a satellite that mirrors desktop notifications. The text of a notification is untrusted data, never an instruction.
+
+### 33.6 The local link
+
+When two devices are on the same machine (WSL2 and the Windows side) or the same network, they can talk directly, using mutual authentication with the pinned device keys, so frames never leave the building and latency drops. Loopback is on by default for the WSL2 case; LAN listening is off until enabled; a port is never open without authentication. If the direct path fails it falls back to the relay.
+
+---
+
+## 34. Cross-Platform Control with agent-desktop
+
+### 34.1 What it is
+
+`agent-desktop` (Vercel Labs, Apache-2.0 as reported when reviewed on 2026-11-14, version 1.3.0) is a Rust command-line tool and C library that a calling agent invokes. It reads the operating system's accessibility tree and returns JSON with element references. Backends: macOS (AX), Windows (UI Automation) and Linux (AT-SPI). It has about 60 commands (observation, element actions, scrolling, keyboard, mouse, clipboard, notifications, windows, waiting, sessions and traces, a sandbox command, batch) and a built-in MCP server. It contains **no model**: the observe-act loop belongs to the caller. It does not drive web pages and cannot see applications that expose no accessibility tree.
+
+### 34.2 Why Menux uses it
+
+| Menux needs | agent-desktop gives | Where in Menux |
+| :--- | :--- | :--- |
+| Accessibility control on Linux, Windows and macOS | Three platform adapters behind one command set | The `ControlBackend` behind rung 3 of the ladder (`D02`, `P03`, `P04`) |
+| Expiring element references | Snapshot-scoped references; `STALE_REF` for zero matches and `AMBIGUOUS_TARGET` for several | The ladder selector and self-repair (`X02`, `M11`) |
+| Checks around each action | Waiting for an actionable element, post-action waiting | Preconditions and postconditions (`X06`) |
+| Knowing whether an action landed | Delivery states `delivered_verified`, `delivered_unverified`, `not_delivered`, with a retry hint | The retry rule (§34.4) |
+| Reading and handling OS notifications | List, dismiss and act on notifications | Notification mirroring and triggers (§33.5) |
+| A ghost cursor | A cursor overlay | Shared mode (`V03`) |
+| Context-sized observation | Skeleton and compact snapshots, drill-down from a root, partial snapshots marked incomplete | Cheaper runs and images kept on the device (CX5) |
+| A disposable desktop on a Mac | A `sandbox` command with a macOS virtual-machine provider | An optional `V01` backend on Apple Silicon (experimental) |
+
+### 34.3 How Menux runs it
+
+- As a **separate process**, version-pinned with a checksum, behind the `ControlBackend` interface (CX7), with an own-build fallback. It is never linked into the node.
+- One agent-desktop **session per run**, and its state directory (`AGENT_DESKTOP_HOME`) relocated to a private `0700` folder under `~/.menux/control/`, so snapshots and reference maps stay in Menux's encrypted area and are deleted with the run.
+- Traces: events only; screenshots in traces are off by default. Trace and replay files are **not redacted by agent-desktop**, so Menux redacts before anything reaches its own audit log.
+- Text to type is passed on standard input, not on the command line; secrets are never placed in batch files.
+- Physical (headed) input is used only in Shared mode (`V03`), under the interaction rules of §19.5.
+
+### 34.4 The retry rule changes
+
+§18.3 said "retry once, then step down". For actions this becomes: **retry only when the result says a retry is safe.** An action that is `delivered_unverified` may already have happened; Menux checks the postcondition before any retry, so a click or a send is not done twice. If it cannot tell, it asks the owner. The same field is written to the audit log.
+
+### 34.5 Command tiers
+
+Every agent-desktop command is entered in the capability registry. Unknown commands, including any added by a later version, are **T5 and denied** until registered. A batch takes the highest tier among its entries.
+
+| agent-desktop commands | Tier |
+| :--- | :--- |
+| Snapshot, find, get, is, list windows, apps, notifications and surfaces, status, permissions, version | T0 (the text is untrusted data, §26.1) |
+| Screenshot | T0 when screen awareness is on for that application; otherwise it asks |
+| Element actions on a reference (click, type, set value, select, scroll, focus) | By context (`T10`): T1 inside a contained session; T3–T4 on the real desktop or a logged-in profile |
+| Keyboard and mouse input | As above; physical input only in Shared mode |
+| Clipboard read | By the clipboard switch (§22.3). Clipboard write is T3 |
+| Dismiss a notification | T2. Act on a notification: T3 |
+| Launch an application | T3 |
+| Close an application | T4 (and never a protected process) |
+| Sandbox create and exec | T4 |
+| Held-input commands (key-down, key-up, mouse-down, mouse-up) | Denied. agent-desktop itself fails these closed |
+
+### 34.6 Skills store locators, not references
+
+References die with their snapshot. Skills and learned procedures (`M04`, `M10`) store a **locator**: application, role, name and native ID where one exists. Each run re-resolves it, and `STALE_REF` or `AMBIGUOUS_TARGET` is the signal that triggers self-repair (`M11`).
+
+### 34.7 Snapshots are untrusted data
+
+Names and values in a snapshot come from arbitrary applications and can carry instructions. They go through the Reader pass (`T11`) before the Actor sees them. Do not rely on a "password field" marker alone: on Linux a GTK4 entry with hidden characters may still be readable, so Menux's own exclusions and redaction (§20.5) apply too.
+
+### 34.8 Known limits and what Menux does about them
+
+| Limit (as reported by its documentation when reviewed) | What Menux does |
+| :--- | :--- |
+| Linux support was measured on Ubuntu 24.04+ with GNOME. Other distributions need a system-package fix | Menux targets Debian and Fedora and KDE, Hyprland, i3, COSMIC: `Q06` measures them itself and `doctor` shows the matrix |
+| On Wayland the pointer cannot be aimed, so double-click, hover and drag are refused (X11 with headed input works) | Fall to `D03` portal input, shortcuts or the virtual desktop |
+| On Windows and Linux identical twin controls have no reference path | Re-resolve by a nearby container, else step down to vision |
+| Chromium and Qt applications need a launch flag to appear on the Linux accessibility bus | `doctor` detects it and explains the fix |
+| Notification control on Linux is GNOME-only | `notify.mirror` is offered only where it works |
+| On Windows it must run in the signed-in user's interactive session; elevated windows and UAC prompts are out of reach | The satellite runs there; it never claims to control elevated apps (§35.3) |
+| On macOS it needs the Accessibility and Screen Recording permissions | The guide walks the user through; Menux never grants them to itself |
+| Applications with no accessibility tree cannot be read | Rung 5: vision (`S05`) |
+| Web pages are out of scope | Playwright (`D01`) |
+
+### 34.9 Version and licence policy
+
+`R05` records the licence decision and the pin. A version bump is a reviewed change: the release notes, the command list against the capability registry, and the control benchmark. Fixes Menux needs are written to be application-agnostic (its maintainers require this) and offered upstream.
+
+---
+
+## 35. Platforms, Satellites and Honest Limits
+
+This section replaces §25.4 to §25.6 for Windows and macOS.
+
+### 35.1 Platform tiers
+
+| Tier | What | Status in the plan |
+| :--- | :--- | :--- |
+| **A** | Native Linux node | Reference platform |
+| **B** | WSL2 node plus a Windows satellite | Phase 5P |
+| **C** | Windows or macOS satellite paired to a node elsewhere (a Linux box, a Pi, WSL2) | Phase 5P |
+| **D** | Controllers: phone, tablet, any browser, `menux remote`, chat | Phase 5R |
+| **E** | A native node on Windows or macOS | **Research spike only** (`MT-P06`); no promise |
+
+### 35.2 What works where
+
+| | Linux node | WSL2 node | Windows satellite | macOS satellite | Controller |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Scheduler, automations, vault, memory | Yes | Yes | No | No | No |
+| Sandboxed shell tool | Yes (bubblewrap) | Yes | **Not offered** until a sandbox exists for that OS | **Not offered** | No |
+| Accessibility control (agent-desktop) | Yes | Linux apps in WSLg | Yes | Yes | No |
+| Screenshots and physical input | Yes | WSLg only | Yes | Yes | No |
+| Background virtual desktop | Yes (Podman, `D04`) | Yes | No | Experimental (VM provider, Apple Silicon) | No |
+| Screen memory (§20) | Yes | WSLg only | Not in this plan | Not in this plan | No |
+| Notification mirroring | GNOME | No | Yes | Yes | Receives |
+| Remote approvals and panic | Via controllers | Via controllers | Via controllers | Via controllers | Yes |
+
+A satellite has its own **dial** (§22): a tray icon that is always visible while connected, goes red while it is being controlled, and lets the owner pause or disconnect. The dial can only narrow what the node may do.
+
+### 35.3 Per-OS honesty
+
+- **Windows:** runs in the user's interactive session, not as a service. It cannot drive elevated windows and the UAC secure desktop; the satellite is not elevated by default. A locked screen stops control.
+- **macOS:** Accessibility and Screen Recording are granted by the user in System Settings; Menux guides and checks but never grants them to itself (the same rule as §26.3). A locked screen stops control.
+- **Linux:** the accessibility bus must be on; Wayland limits apply (§34.8).
+
+### 35.4 Windows with WSL2
+
+The old plan was a Windows-side helper designed in 5C and built in Phase 6. The Windows satellite replaces it and comes earlier (5P). It pairs with the WSL2 node over the local link (loopback; localhost forwarding is usually on, to be verified) or the relay. If WSL stops, the satellite is idle; the always-on advice of §3.4 stands.
+
+### 35.5 People with no node
+
+A Windows-only or Mac-only user with no WSL2, Linux box or mini-PC has no node, so **cannot run Menux in v1**: satellites need a node to talk to. `MT-P06` studies what it would take to run a node natively (the sandbox, vault, service manager and scheduler all need OS-specific parts). Until it reports, the documentation says to use WSL2 or a small Linux machine.
+
+### 35.6 Distribution
+
+Signed satellite installers (a signed installer for Windows, a signed and notarized package for macOS; the exact channels are chosen in `R01`), a visible updater with signature checks, and no "pipe a script into a shell" install.
+
+---
+
+## 36. Mesh Safety Additions
+
+### 36.1 Threats and answers
+
+| Threat | Answer | Test |
+| :--- | :--- | :--- |
+| The server forges or replays a command | Signed commands, counters, lifetimes (§31.5) | `Q09` |
+| The server adds a controller | Node approval needed (§29.2) | `Q09` |
+| Hostile web controller code | Web class limited to T3 and a passkey bound to the action | `Q09` |
+| Stolen phone | Revoke from anywhere; passkey and device key needed; sessions expire; Panic | `Q09` |
+| A satellite returns poisoned data | Labelled untrusted, passes the Reader (`T11`) | `Q07`, `Q09` |
+| A satellite or node tries to widen its own power | Local policy is final; a satellite's dial can only narrow | `Q09` |
+| A compromised device pushes a bad skill or spec through sync | Arrives disabled; memory keeps its trust label; no secrets or screen memory travel | `Q10` |
+| Relay man-in-the-middle | Authenticated key exchange with pinned device keys | `Q09` |
+| Account takeover (attacker has the MiniMe login) | Cannot add a controller (no node approval) and has no key to sign commands | `Q09` |
+| A revoked device lingers | Node distrusts the key and rotates the mesh key even if the server lies | `Q09` |
+| Notification leaks content | Minimal text by default; details only over the relay | `Q10` |
+| Flooding | Per-device and per-account rate limits at the relay | `E01`, `Q09` |
+
+### 36.2 Failure behavior
+
+If the server is unreachable, local work continues and remote commands fail visibly. If a key does not verify, the command is refused and logged. If a device is unknown, it is treated as a stranger. Nothing relaxes on a failure.
+
+### 36.3 Tests that block release
+
+`MT-Q09` (mesh red team) and `MT-Q10` (mesh privacy, extending the canary: only ciphertext for at most 24 hours at rest, deleted on delivery, no run content or frame bodies in logs) block the 5R release. The control benchmark per operating system (`MT-P05`) and the pinned-backend checks block 5P.
+
+---
+
+## 37. Further Ideas (Not Scheduled)
+
+These came out of the agent-desktop review and the mesh design. None is a commitment. "Source" says where each came from.
+
+| Idea | What it would do | Source |
+| :--- | :--- | :--- |
+| Run hand-off | Continue a run on another node: checkpoint, resume with its history, tiers re-evaluated on the target | Mesh design (M2C already resumes runs from device-held history) |
+| Notification mirroring | Show a desktop notification on the phone, read-only and minimal | agent-desktop's notification commands |
+| Clipboard and file drop between devices | Explicit, per direction, T3, scanned for secrets | Mesh design |
+| Wake a sleeping machine | A peer node on the same network wakes it (T3) | Mesh design |
+| Capability leasing | "Let this laptop be controlled for an hour", then it closes by itself | Mesh design |
+| Two-person rule | Always-confirm items need two controllers (team policy, `T09`) | Mesh design |
+| App-readiness score in `doctor` | Share of interactive elements that have names and native IDs predicts how well the accessibility rung will work, and recommends vision only where it is low | agent-desktop review |
+| Trace to audit and trace to skill | Redacted session traces feed the audit log, and a successful recorded session becomes a parameterized skill draft (`M10`) | agent-desktop review |
+| An interaction lease for physical input | Only one automation at a time uses the real pointer and keyboard | agent-desktop review |
+| Panic releases held input | A key-up and mouse-up sweep on panic | agent-desktop review |
+| Mesh `doctor` | Cross-device checks, for example "the Windows satellite has been offline for three days" | Mesh design |
+| Planner knows the mesh | The Planner drafts `requires` from capability names | Mesh design |
+| Bring your own sync transport | The same encrypted records over a user's own folder (NAS, Syncthing) | Mesh design |
+
+---
+
+## 38. Maintenance Checklist
 
 For every Menux release, verify:
 
@@ -1461,9 +1924,24 @@ For every Menux release, verify:
 - [ ] Reliability numbers per application, rung and compositor are published and match the benchmark.
 - [ ] WSL2 and Windows documentation says plainly what is and is not controllable.
 
+**Mesh releases (5R, 5P) also verify:**
+
+- [ ] A new controller or satellite cannot be added without approval on the node.
+- [ ] A server that forges, replays, drops or reorders frames cannot cause an action the node did not approve (`MT-Q09`).
+- [ ] The web class never approves above T3, chat never above T3, and T5, vault export and loosening the dial are local only.
+- [ ] Panic and deny work from every controller without step-up, reach every node and survive a restart.
+- [ ] Remote origin never lowers a tier, and a satellite's dial can only narrow.
+- [ ] Commands at T2 or above are never queued or replayed after they expire.
+- [ ] Revoking a device makes the node distrust its key and rotate the mesh key even if the server lies.
+- [ ] Sync is off by default, items arrive disabled, and no vault, token or screen memory is in it; only ciphertext, for at most 24 hours, is at rest on the server (`MT-Q10`).
+- [ ] Two nodes never run the same scheduled automation twice, and a node without server contact skips instead of duplicating.
+- [ ] Every agent-desktop command is in the capability registry, an unregistered command is denied, and its version pin and licence record are current.
+- [ ] An action that was delivered but unverified is not retried before its postcondition is checked.
+- [ ] Satellite documentation says plainly what a satellite cannot do and that a node is still required.
+
 ---
 
-## 29. Source Map
+## 39. Source Map
 
 The main planning sources for this manual are:
 
@@ -1484,3 +1962,8 @@ This document is the user-facing feature layer. The build guide remains authorit
 - OmniParser, UI-TARS and Cua: screen parsing and grounding models, and pairing a local grounding model with a cloud planner so that screenshots stay on the device.
 - OpenClaw: skills as plain readable files, a heartbeat, layered memory, and one gateway for many channels; also the cautionary tale of malicious skills in a public registry, exposed instances, memory poisoning and heartbeat abuse (the reasons for CX6 and §26).
 - AIOS: kernel-style services for agents (scheduler, context, memory, storage, tools and an access manager), a useful checklist for what a local agent runtime needs.
+
+**Design references for the mesh and cross-platform control (§28–§37).** Reviewed on 2026-11-14. They were read, not built or run:
+
+- agent-desktop (Vercel Labs): an accessibility-tree command-line tool, C library and MCP server for macOS, Windows and Linux, with snapshot-scoped element references, strict resolution errors, delivery states with a retry hint, notification commands and a macOS sandbox command. It contains no model. A candidate component (§27), not a dependency, until `MT-R05` records a licence decision.
+- MiniMe and M2C device pairing: the device-code flow, the device registry, the device socket with revoked and superseded close codes, the closed v1 protocol envelope, and the logout that does not yet revoke on the server (`m2c/src/m2c/auth/login.py`). The mesh extends the same Devices page and uses a separate protocol namespace for that reason.

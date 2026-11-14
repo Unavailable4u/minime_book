@@ -21,7 +21,7 @@ Snapshot 2026-10-26, commit 50e25b5.
 - **Part I — Strategy, Governance & Master Sequence**: `MiniMe_Financial_Strategy_Rulebook.md`, `minime_technical_roadmap.md`, `minime_server_management_guide.md`
 - **Part II — MiniMe Core Flagship (Web Workspace)**: `minime_feature_guide.md` (25 subsystems, 73 agent modules / 46 router roles)
 - **Part III — M2C L26 · Minime to Code (Local-First Terminal & Editor Coding Agent)**: `m2c_feature_guide.md` (16 sections), `m2c_build_plan.md` (64 WPs, 12 waves, 157 pts), `guides/M2C___Product___Build_Guide.html`
-- **Part IV — Menux · Minime agentic automation (Local-First Personal Automation Agent)**: `menux_feature_guide.md` (18 sections), `Menux___Build_Execution_Guide.md` (59 WPs, 16 waves, 133 pts), `guides/Menux___Product___Build_Guide.html`
+- **Part IV — Menux · Minime agentic automation (Local-First Personal Automation Agent)**: `menux_feature_guide.md` (39 sections), `Menux___Build_Execution_Guide.md` (Phases 0-4: 59 WPs, 16 waves, 133 pts; Phase 5 incl. 5R and 5P: 68 WPs, about 204 pts), `guides/Menux___Product___Build_Guide.html`
 - **Part V — FBEBC Research Program**: `fbebc-research-program-guide.md`, `fbebc-phase1-implementation-guide.md`, `fbebc-preprint-workshop-paper-guide.md`, `STATUS.md`
 - **Unified Ecosystem Principles**:
   1. **One Account, One Plan Cap, One Shared Ledger (`0012_usage_ledger_and_plans.sql`)**: Built once in `Tech-A`/`Tech-B` + `S01`, shared across `surface in ('web', 'm2c', 'menux', 'system')`.
