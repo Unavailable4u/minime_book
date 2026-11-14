@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en" data-layout="reader">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Styleguide - MiniMe Atlas</title>
+<script src="assets/js/theme.js"></script>
+<link rel="preload" href="assets/fonts/sora-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/stix-two-text-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<style>
+/* Page-only layout for this reference page. Everything else comes from tokens and components. */
+.sg-wrap { max-width: 1240px; margin: 0 auto; padding: var(--space-6) var(--space-4) var(--space-8); }
+.sg-wrap > section { margin-top: var(--space-8); }
+.sg-lede { max-width: var(--reader-w); color: var(--ink-dim); }
+.sg-pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); align-items: start; }
+@media (max-width: 960px) { .sg-pair { grid-template-columns: 1fr; } }
+.sg-pane { min-width: 0; padding: var(--space-5); background: var(--bg); color: var(--ink); border: 1px solid var(--line-strong); border-radius: var(--radius-3); }
+.sg-pane > h3 { margin-top: 0; }
+.sg-pane .sg-block { margin: 0 0 var(--space-6); }
+.sg-pane .sg-block > h4 { margin: 0 0 var(--space-3); font-size: var(--fs-sm); color: var(--ink-dim); }
+.sg-pane .mm-topbar, .sg-pane .mm-toasts { position: static; }
+.sg-pane .mm-topbar { border: 1px solid var(--line); border-radius: var(--radius-2); }
+.sg-side { width: min(16rem, 100%); padding: var(--space-3) 0; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-2); }
+.sg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--space-4); }
+.sg-sw { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); gap: var(--space-3); align-items: center; padding: var(--space-2) 0; border-bottom: 1px solid var(--line); font-size: var(--fs-sm); }
+.sg-sw i { font-style: normal; display: block; width: 2.5rem; height: 2.5rem; border-radius: var(--radius-2); border: 1px solid var(--line-strong); }
+.sg-sw code { font-size: var(--fs-xs); }
+.sg-ratio { display: inline-flex; gap: var(--space-1); align-items: center; font-family: var(--font-mono); font-size: var(--fs-xs); margin-right: var(--space-3); }
+.sg-ratio b { font-weight: 700; }
+.sg-pass { color: var(--ok); }
+.sg-fail { color: var(--brand); }
+.sg-key { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.sg-key li { display: flex; align-items: center; gap: var(--space-3); margin: 0; padding: var(--space-3); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-2); font-size: var(--fs-sm); }
+.sg-key svg { flex: none; width: 2.2rem; height: 1.4rem; }
+.sg-scale { display: grid; gap: var(--space-3); }
+.sg-scale > div { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: var(--space-4); align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: var(--space-2); }
+@media (max-width: 560px) { .sg-scale > div { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); } }
+.sg-scale code { font-size: var(--fs-xs); color: var(--ink-dim); background: none; border: 0; padding: 0; }
+.sg-tok { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: end; }
+.sg-tok > div { display: grid; gap: var(--space-1); justify-items: start; font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-dim); }
+.sg-bar { height: 1rem; background: var(--brand); border-radius: var(--radius-1); }
+.sg-box { width: 4.5rem; height: 3rem; background: var(--panel); border: 1px solid var(--line); }
+.sg-fig text { fill: var(--ink); font-family: var(--font-ui); font-size: 13px; }
+.sg-fig .box { fill: var(--panel); stroke: var(--line-strong); stroke-width: 1.5; }
+.sg-fig .here { stroke: var(--brand); stroke-width: 3; }
+.sg-fig .flow { stroke: var(--flow); stroke-width: 2.5; fill: none; }
+.sg-fig .gate { fill: var(--panel); stroke: var(--gate); stroke-width: 2.5; }
+.sg-fig .head { fill: var(--flow); }
+noscript .mm-callout { margin: var(--space-4) 0; }
+</style>
+</head>
+<body class="mm">
+<a class="mm-skip" href="#main">Skip to content</a>
+
+<header class="mm-topbar">
+  <ol class="mm-crumbs" aria-label="Breadcrumb">
+    <li><a href="index.html">Atlas</a></li>
+    <li aria-current="page">Styleguide</li>
+  </ol>
+  <span class="mm-topbar__spacer"></span>
+  <button type="button" class="mm-btn" id="theme-btn">Switch theme</button>
+</header>
+
+<main id="main" class="sg-wrap">
+  <h1>Styleguide</h1>
+  <p class="sg-lede">The visual language for Atlas 2, built before it touches a real page. Every panel below renders twice, in Dark and in Paper, from the same markup and the same tokens. Nothing on this page uses the old per-page CSS. Sample figures are labelled as samples.</p>
+  <noscript><div class="mm-callout mm-callout--warning"><p class="mm-callout__title">JavaScript is off</p><p>The side-by-side panels, contrast ratios and demo controls on this page are built with JavaScript. The tokens and components themselves need none.</p></div></noscript>
+
+  <section aria-labelledby="h-colour">
+    <h2 id="h-colour">Colour</h2>
+    <p class="sg-lede">Hex values and contrast ratios are read from the live tokens, so they cannot drift from the CSS. Text tokens must reach 4.5:1 on the three surfaces; the control border must reach 3:1.</p>
+    <div class="sg-pair" id="colour-pair"></div>
+    <h3 style="margin-top: var(--space-6)">What the colours mean</h3>
+    <ul class="sg-key">
+      <li><svg viewBox="0 0 36 22" aria-hidden="true"><path d="M2 11h26" stroke="var(--flow)" stroke-width="3"/><path d="M26 4l8 7-8 7z" fill="var(--flow)"/></svg><span><b>Cyan</b>: data flows, the request path</span></li>
+      <li><svg viewBox="0 0 36 22" aria-hidden="true"><path d="M18 2l14 9-14 9L4 11z" fill="none" stroke="var(--gate)" stroke-width="3"/></svg><span><b>Amber</b>: gates, approvals, invariants</span></li>
+      <li><svg viewBox="0 0 36 22" aria-hidden="true"><rect x="14" y="2" width="8" height="18" rx="1" fill="var(--brand)"/></svg><span><b>Crimson</b>: you are here, brand</span></li>
+      <li><svg viewBox="0 0 36 22" aria-hidden="true"><circle cx="18" cy="11" r="8" fill="var(--ok)"/></svg><span><b>Green</b>: verified, fresh</span></li>
+      <li><svg viewBox="0 0 36 22" aria-hidden="true"><path d="M6 16L18 6l12 10" fill="none" stroke="var(--graph)" stroke-width="2.5"/><circle cx="6" cy="16" r="3.5" fill="var(--graph)"/><circle cx="18" cy="6" r="3.5" fill="var(--graph)"/><circle cx="30" cy="16" r="3.5" fill="var(--graph)"/></svg><span><b>Violet</b>: relations in the graph</span></li>
+    </ul>
+    <p class="sg-lede" style="margin-top: var(--space-3)">Colour is never the only carrier. Each meaning above also has its own shape, and every badge and callout has a label.</p>
+  </section>
+
+  <section aria-labelledby="h-type">
+    <h2 id="h-type">Typography</h2>
+    <p class="sg-lede">Sora for interface and headings. STIX Two Text for chapter prose only, with a Serif/Sans reader toggle later. JetBrains Mono for code, paths and numbers in tables.</p>
+    <div class="sg-scale">
+      <div><code>--fs-3xl 2.44rem</code><span style="font: 700 var(--fs-3xl)/var(--lh-tight) var(--font-ui)">Atlas of the code</span></div>
+      <div><code>--fs-2xl 1.95rem</code><span style="font: 700 var(--fs-2xl)/var(--lh-tight) var(--font-ui)">Atlas of the code</span></div>
+      <div><code>--fs-xl 1.56rem</code><span style="font: 600 var(--fs-xl)/var(--lh-tight) var(--font-ui)">Atlas of the code</span></div>
+      <div><code>--fs-lg 1.25rem</code><span style="font: 600 var(--fs-lg)/var(--lh-tight) var(--font-ui)">Atlas of the code</span></div>
+      <div><code>--fs-md 1.06rem</code><span style="font: 400 var(--fs-md)/var(--lh-ui) var(--font-ui)">Interface text, large</span></div>
+      <div><code>--fs-base 0.94rem</code><span style="font: 400 var(--fs-base)/var(--lh-ui) var(--font-ui)">Interface text, default, as in the Atlas today</span></div>
+      <div><code>--fs-sm 0.81rem</code><span style="font: 400 var(--fs-sm)/var(--lh-ui) var(--font-ui)">Tables, captions, secondary text</span></div>
+      <div><code>--fs-xs 0.75rem</code><span style="font: 400 var(--fs-xs)/var(--lh-ui) var(--font-ui)">Badges, counts, meta</span></div>
+      <div><code>--fs-prose 1.08rem</code><span style="font: 400 var(--fs-prose)/var(--lh-prose) var(--font-prose)">Chapter prose is set in STIX Two Text at a 1.7 line height, with <em>italic</em> and <strong>bold</strong> weights.</span></div>
+      <div><code>mono</code><span class="mm-mono">src/m2c/protocol/schema.py:142 &nbsp;0123456789 &nbsp;!= == =&gt; -&gt;</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-tokens">
+    <h2 id="h-tokens">Spacing, radii, shadows, layers</h2>
+    <div class="sg-pair">
+      <div class="sg-pane" data-theme="dark"><div class="sg-tok" id="tok-dark"></div></div>
+      <div class="sg-pane" data-theme="paper"><div class="sg-tok" id="tok-paper"></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-components">
+    <h2 id="h-components">Components</h2>
+    <p class="sg-lede">Behaviour on this page (sorting, tabs, the split bar, copy) is demo code. The real behaviour arrives with the patches that need it.</p>
+    <div class="sg-pair" id="component-pair"></div>
+  </section>
+</main>
+
+<template id="sg-components">
+  <div class="sg-block">
+    <h4>Topbar, breadcrumb, buttons</h4>
+    <div class="mm-topbar">
+      <button type="button" class="mm-btn mm-btn--icon" aria-label="Toggle sidebar"><svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><path d="M0 1h16M0 6h16M0 11h16" stroke="currentColor" stroke-width="2"/></svg></button>
+      <ol class="mm-crumbs" aria-label="Breadcrumb"><li><a href="index.html">Book</a></li><li><a href="docs.html">Part II</a></li><li aria-current="page">Chapter 4</li></ol>
+      <span class="mm-topbar__spacer"></span>
+      <button type="button" class="mm-btn">Search <kbd>Ctrl K</kbd></button>
+    </div>
+    <p class="mm-row" style="margin-top: var(--space-3)"><button type="button" class="mm-btn mm-btn--primary">Open source</button><button type="button" class="mm-btn">Copy link</button><button type="button" class="mm-btn" aria-pressed="true">Compact</button></p>
+  </div>
+
+  <div class="sg-block">
+    <h4>Sidebar group</h4>
+    <nav class="sg-side" aria-label="Sample sidebar">
+      <div class="mm-sidegroup">
+        <p class="mm-sidegroup__title">Code library</p>
+        <ul class="mm-sidegroup__list">
+          <li><a class="mm-sidelink" href="functions.html" aria-current="page">Explorer <span class="mm-sidelink__count">10,978</span></a></li>
+          <li><a class="mm-sidelink" href="api.html">API <span class="mm-sidelink__count">183</span></a></li>
+          <li><a class="mm-sidelink" href="agents.html">Agents</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <div class="sg-block">
+    <h4>Badges: status, freshness, AI-written, reviewed</h4>
+    <p class="mm-row"><span class="mm-badge mm-badge--ok">Fresh</span><span class="mm-badge mm-badge--stale">Stale</span><span class="mm-badge mm-badge--ai">AI-written, medium confidence</span><span class="mm-badge mm-badge--reviewed">Reviewed</span><span class="mm-badge mm-badge--here">You are here</span><span class="mm-badge">Neutral</span></p>
+  </div>
+
+  <div class="sg-block">
+    <h4>KPI with context, card</h4>
+    <div class="mm-card">
+      <div class="mm-kpi">
+        <span class="mm-kpi__label">Functions in the census</span>
+        <span class="mm-kpi__value">10,978</span>
+        <span class="mm-kpi__context">1,982 have a docstring (18%). The rest are explained by notes.</span>
+        <span class="mm-kpi__source"><span class="mm-badge">Sample</span> data/census.json, built 2026-10-26</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sg-block">
+    <h4>Callouts</h4>
+    <div class="mm-callout mm-callout--note"><p class="mm-callout__title">Note</p><p>Chapter bodies are never edited. The reader layer enhances them at runtime.</p></div>
+    <div class="mm-callout mm-callout--rule"><p class="mm-callout__title">Rule</p><p>Do not change markup inside a region a generator owns until that page is migrated.</p></div>
+    <div class="mm-callout mm-callout--invariant"><p class="mm-callout__title">Invariant</p><p><code>python scripts/update_all.py</code> stays green after every patch.</p></div>
+    <div class="mm-callout mm-callout--definition"><p class="mm-callout__title">Definition</p><p><strong>Census:</strong> the per-file and per-function facts extracted from MiniMe into <code>data/census.json</code>.</p></div>
+    <div class="mm-callout mm-callout--warning"><p class="mm-callout__title">Warning</p><p>Text written by an AI is labelled, carries a confidence level, and can go stale when the code changes.</p></div>
+    <div class="mm-callout mm-callout--decision"><p class="mm-callout__title">Decision</p><p>Fonts are self-hosted. No third-party font CDN is loaded.</p></div>
+  </div>
+
+  <div class="sg-block">
+    <h4>Chapter prose and hover-card</h4>
+    <div class="mm-prose">
+      <p>Each chapter is read in a single 72-character column. A term such as <span class="mm-hovercard"><span class="mm-hovercard__trigger" tabindex="0">the census</span><span class="mm-hovercard__card" role="tooltip"><span class="mm-hovercard__term">Census</span>The per-file and per-function facts extracted from MiniMe. Reading it needs no AI.</span></span> opens a card on hover or focus, and <code>code_identifiers</code> become links to the real source.</p>
+    </div>
+  </div>
+
+  <div class="sg-block">
+    <h4>Tabs</h4>
+    <div class="sg-tabs">
+      <div class="mm-tabs" role="tablist" aria-label="Sample tabs">
+        <button type="button" class="mm-tab" role="tab" aria-selected="true">Explanation</button>
+        <button type="button" class="mm-tab" role="tab" aria-selected="false" tabindex="-1">Source</button>
+        <button type="button" class="mm-tab" role="tab" aria-selected="false" tabindex="-1">Relations</button>
+      </div>
+      <div class="mm-tabpanel" role="tabpanel">What the symbol is for, in plain English.</div>
+      <div class="mm-tabpanel" role="tabpanel" hidden>The exact lines of source, with the explained range highlighted.</div>
+      <div class="mm-tabpanel" role="tabpanel" hidden>Callers, callees and the chapters that mention it.</div>
+    </div>
+  </div>
+
+  <div class="sg-block">
+    <h4>Data table: sticky header, sort, filter, density, copy cell (sample rows)</h4>
+    <div class="sg-table">
+      <div class="mm-toolbar">
+        <input class="mm-input" type="search" placeholder="Filter pages" aria-label="Filter pages">
+        <button type="button" class="mm-btn sg-density" aria-pressed="false">Compact rows</button>
+      </div>
+      <div class="mm-tablewrap">
+        <table class="mm-table">
+          <thead><tr>
+            <th aria-sort="none"><button type="button" data-col="0" data-type="text">Page</button></th>
+            <th class="is-num" aria-sort="none"><button type="button" data-col="1" data-type="num">Size KB</button></th>
+            <th class="is-num" aria-sort="none"><button type="button" data-col="2" data-type="num">Style blocks</button></th>
+          </tr></thead>
+          <tbody>
+            <tr><td class="is-mono"><button type="button" class="mm-copy" title="Copy">explore.html</button></td><td class="is-num">1239</td><td class="is-num">3</td></tr>
+            <tr><td class="is-mono"><button type="button" class="mm-copy" title="Copy">graph-viewer.html</button></td><td class="is-num">1268</td><td class="is-num">1</td></tr>
+            <tr><td class="is-mono"><button type="button" class="mm-copy" title="Copy">functions.html</button></td><td class="is-num">458</td><td class="is-num">2</td></tr>
+            <tr><td class="is-mono"><button type="button" class="mm-copy" title="Copy">doc-rulebook.html</button></td><td class="is-num">260</td><td class="is-num">7</td></tr>
+            <tr><td class="is-mono"><button type="button" class="mm-copy" title="Copy">code.html</button></td><td class="is-num">118</td><td class="is-num">2</td></tr>
+            <tr><td class="is-mono"><button type="button" class="mm-copy" title="Copy">index.html</button></td><td class="is-num">23</td><td class="is-num">2</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="sg-block">
+    <h4>Code block: line numbers, highlighted range (sample)</h4>
+    <div class="mm-code">
+      <div class="mm-code__head"><span>sample.py</span><button type="button" class="mm-btn sg-copycode">Copy</button></div>
+      <pre class="mm-code__body"><code><span class="mm-code__line">def read_lf(path):</span><span class="mm-code__line is-hl">    with open(path, "rb") as f:</span><span class="mm-code__line is-hl">        text = f.read().decode("utf-8")</span><span class="mm-code__line">    return text.replace("\r\n", "\n")</span></code></pre>
+    </div>
+  </div>
+
+  <div class="sg-block">
+    <h4>Tree</h4>
+    <ul class="mm-tree" role="tree" aria-label="Sample file tree">
+      <li role="treeitem" aria-expanded="true"><button type="button" class="mm-tree__row"><span class="mm-tree__twisty" aria-hidden="true"></span><span class="mm-tree__name">backend/</span><span class="mm-tree__meta">639</span></button>
+        <ul role="group">
+          <li role="treeitem" aria-expanded="false"><button type="button" class="mm-tree__row"><span class="mm-tree__twisty" aria-hidden="true"></span><span class="mm-tree__name">agents/</span><span class="mm-tree__meta">77</span></button>
+            <ul role="group"><li role="treeitem"><button type="button" class="mm-tree__row" aria-selected="false"><span class="mm-tree__twisty" aria-hidden="true" style="visibility:hidden"></span><span class="mm-tree__name">example.py</span></button></li></ul>
+          </li>
+          <li role="treeitem"><button type="button" class="mm-tree__row" aria-selected="true"><span class="mm-tree__twisty" aria-hidden="true" style="visibility:hidden"></span><span class="mm-tree__name">api/</span><span class="mm-tree__meta">23</span></button></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <div class="sg-block">
+    <h4>Split pane (drag the bar, or focus it and use arrow keys)</h4>
+    <div class="mm-split"><div class="mm-split__pane">Explanation</div><div class="mm-split__bar" role="separator" aria-orientation="vertical" aria-label="Resize panes" aria-valuemin="20" aria-valuemax="80" aria-valuenow="50" tabindex="0"></div><div class="mm-split__pane">Source</div></div>
+  </div>
+
+  <div class="sg-block">
+    <h4>Timeline and stepper</h4>
+    <ol class="mm-timeline">
+      <li class="mm-timeline__item is-done"><span class="mm-timeline__when">P00</span>Guardrails and local serving</li>
+      <li class="mm-timeline__item is-now"><span class="mm-timeline__when">P01</span>Design tokens and components</li>
+      <li class="mm-timeline__item"><span class="mm-timeline__when">P02</span>Shared shell and navigation</li>
+    </ol>
+    <ol class="mm-stepper" aria-label="Standard gate">
+      <li class="is-done">check_site</li><li class="is-done">refresh --check</li><li aria-current="step">tests</li><li>serve</li>
+    </ol>
+  </div>
+
+  <div class="sg-block">
+    <h4>Figure frame (numbered caption, expand button)</h4>
+    <figure class="mm-figure" style="margin: 0">
+      <button type="button" class="mm-btn mm-figure__expand sg-expand">Expand</button>
+      <div class="mm-figure__canvas">
+        <svg class="sg-fig" viewBox="0 0 420 90" width="420" role="img" aria-label="An explanation links to source through a secret-scan gate">
+          <rect class="box" x="6" y="25" width="108" height="40" rx="6"/><text x="60" y="50" text-anchor="middle">Explanation</text>
+          <path class="flow" d="M114 45h58"/><path class="head" d="M170 38l10 7-10 7z"/>
+          <path class="gate" d="M210 45l26-24 26 24-26 24z"/><text x="236" y="49" text-anchor="middle" style="font-size:11px">scan</text>
+          <path class="flow" d="M262 45h50"/><path class="head" d="M310 38l10 7-10 7z"/>
+          <rect class="box here" x="322" y="25" width="92" height="40" rx="6"/><text x="368" y="50" text-anchor="middle">Source</text>
+        </svg>
+      </div>
+      <figcaption class="mm-figure__caption"><span class="mm-figure__num">Fig. 1</span><span>How an explanation reaches the real source. Cyan is the data path; amber is the gate.</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="sg-block">
+    <h4>Toast, empty state, skeleton</h4>
+    <div class="mm-toasts" role="status"><div class="mm-toast">Copied explorer.html</div></div>
+    <p><button type="button" class="mm-btn sg-toastbtn">Show a toast</button></p>
+    <div class="mm-empty"><p class="mm-empty__title">No notes for this file yet</p><p>Run the notes batch in MiniMe, then refresh the Atlas.</p></div>
+    <div style="margin-top: var(--space-4)" aria-hidden="true"><span class="mm-skeleton" style="width: 70%"></span><span class="mm-skeleton" style="width: 90%"></span><span class="mm-skeleton" style="width: 55%"></span></div>
+  </div>
+</template>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  /* ---- colour maths (WCAG 2.x relative luminance) ---- */
+  function rgb(c) { var m = c.match(/[\d.]+/g); return [+m[0], +m[1], +m[2]]; }
+  function lum(c) { var v = rgb(c).map(function (x) { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; }
+  function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  function hex(c) { return "#" + rgb(c).map(function (x) { return ("0" + Math.round(x).toString(16)).slice(-2); }).join(""); }
+  function tok(host, name, prop) { var p = document.createElement("span"); p.style[prop] = "var(--" + name + ")"; host.appendChild(p); var v = getComputedStyle(p)[prop === "color" ? "color" : "backgroundColor"]; host.removeChild(p); return v; }
+
+  function pane(theme, label) {
+    var el = document.createElement("div");
+    el.className = "sg-pane"; el.setAttribute("data-theme", theme);
+    el.innerHTML = "<h3>" + label + "</h3>";
+    return el;
+  }
+
+  /* ---- colour panes ---- */
+  var surfaces = ["bg", "panel", "panel-2"];
+  var text = ["ink", "ink-dim", "brand", "flow", "gate", "ok", "graph", "pink"];
+  var fills = ["bg", "panel", "panel-2", "line"];
+  [["dark", "Dark (default)"], ["paper", "Paper (reading, print)"]].forEach(function (t) {
+    var p = pane(t[0], t[1]); $("#colour-pair").appendChild(p);
+    var host = document.createElement("div"); p.appendChild(host);
+    var surf = surfaces.map(function (s) { return tok(p, s, "backgroundColor"); });
+    fills.forEach(function (n) {
+      var c = tok(p, n, "backgroundColor");
+      host.insertAdjacentHTML("beforeend", '<div class="sg-sw"><i style="background:var(--' + n + ')"></i><div><code>--' + n + "</code> " + hex(c) + "</div></div>");
+    });
+    text.forEach(function (n) {
+      var c = tok(p, n, "color"), out = "";
+      surf.forEach(function (s, i) { var r = ratio(c, s); out += '<span class="sg-ratio">on ' + surfaces[i] + ' <b>' + r.toFixed(2) + '</b> <span class="' + (r >= 4.5 ? "sg-pass" : "sg-fail") + '">' + (r >= 4.5 ? "AA pass" : "AA fail") + "</span></span>"; });
+      host.insertAdjacentHTML("beforeend", '<div class="sg-sw"><i style="background:var(--' + n + ')"></i><div><code>--' + n + "</code> " + hex(c) + "<br>" + out + "</div></div>");
+    });
+    var ls = tok(p, "line-strong", "backgroundColor"), lo = "";
+    [0, 1].forEach(function (i) { var r = ratio(ls, surf[i]); lo += '<span class="sg-ratio">vs ' + surfaces[i] + ' <b>' + r.toFixed(2) + '</b> <span class="' + (r >= 3 ? "sg-pass" : "sg-fail") + '">' + (r >= 3 ? "3:1 pass" : "3:1 fail") + "</span></span>"; });
+    host.insertAdjacentHTML("beforeend", '<div class="sg-sw"><i style="background:var(--line-strong)"></i><div><code>--line-strong</code> ' + hex(ls) + " (control border)<br>" + lo + "</div></div>");
+    var ob = tok(p, "on-brand", "backgroundColor"), br = tok(p, "brand", "backgroundColor"), r2 = ratio(ob, br);
+    host.insertAdjacentHTML("beforeend", '<div class="sg-sw"><i style="background:var(--brand);display:grid;place-items:center;color:var(--on-brand);font-weight:700">Aa</i><div><code>--on-brand</code> on <code>--brand</code> (primary button)<br><span class="sg-ratio"><b>' + r2.toFixed(2) + '</b> <span class="' + (r2 >= 4.5 ? "sg-pass" : "sg-fail") + '">' + (r2 >= 4.5 ? "AA pass" : "AA fail") + "</span></span></div></div>");
+  });
+
+  /* ---- spacing / radii / shadow / z-index ---- */
+  ["dark", "paper"].forEach(function (t) {
+    var h = $("#tok-" + t), s = "";
+    ["1", "2", "3", "4", "5", "6", "7", "8"].forEach(function (n) { s += '<div><span class="sg-bar" style="width:var(--space-' + n + ')"></span>space-' + n + "</div>"; });
+    ["1", "2", "3"].forEach(function (n) { s += '<div><span class="sg-box" style="border-radius:var(--radius-' + n + ')"></span>radius-' + n + "</div>"; });
+    ["1", "2", "3"].forEach(function (n) { s += '<div><span class="sg-box" style="box-shadow:var(--shadow-' + n + ')"></span>shadow-' + n + "</div>"; });
+    s += "<div style=\"flex-basis:100%\">z: " + ["base", "raised", "sticky", "sidebar", "topbar", "popover", "modal", "toast"].map(function (n) { return n + " " + getComputedStyle(document.documentElement).getPropertyValue("--z-" + n).trim(); }).join(" &lt; ") + "</div>";
+    h.innerHTML = s;
+  });
+
+  /* ---- components, cloned into both themes ---- */
+  var tpl = $("#sg-components"), uid = 0;
+  [["dark", "Dark (default)"], ["paper", "Paper (reading, print)"]].forEach(function (t) {
+    var p = pane(t[0], t[1]); $("#component-pair").appendChild(p);
+    p.appendChild(tpl.content.cloneNode(true));
+    wire(p);
+  });
+
+  function toast(p, msg) {
+    var box = $(".mm-toasts", p), n = document.createElement("div");
+    n.className = "mm-toast"; n.textContent = msg; box.appendChild(n);
+    setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n); }, 2600);
+  }
+
+  function wire(p) {
+    $$(".mm-toasts .mm-toast", p).forEach(function (n) { n.parentNode.removeChild(n); });
+
+    /* tabs */
+    var tw = $(".sg-tabs", p), tabs = $$("[role=tab]", tw), panels = $$("[role=tabpanel]", tw);
+    tabs.forEach(function (tb, i) {
+      var id = "sg" + (++uid);
+      tb.id = id + "t"; panels[i].id = id + "p"; tb.setAttribute("aria-controls", id + "p"); panels[i].setAttribute("aria-labelledby", id + "t");
+      tb.addEventListener("click", function () { pick(i); });
+      tb.addEventListener("keydown", function (e) {
+        var k = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!k) return;
+        var j = (i + k + tabs.length) % tabs.length; pick(j); tabs[j].focus(); e.preventDefault();
+      });
+    });
+    function pick(i) { tabs.forEach(function (tb, j) { tb.setAttribute("aria-selected", j === i); tb.tabIndex = j === i ? 0 : -1; panels[j].hidden = j !== i; }); }
+
+    /* table: sort, filter, density, copy */
+    var tbl = $(".mm-table", p), body = $("tbody", tbl);
+    $$("thead button", tbl).forEach(function (b) {
+      b.addEventListener("click", function () {
+        var th = b.parentNode, asc = th.getAttribute("aria-sort") !== "ascending", c = +b.dataset.col, num = b.dataset.type === "num";
+        $$("thead th", tbl).forEach(function (x) { x.setAttribute("aria-sort", "none"); });
+        th.setAttribute("aria-sort", asc ? "ascending" : "descending");
+        $$("tr", body).sort(function (a, z) {
+          var x = a.children[c].textContent.trim(), y = z.children[c].textContent.trim();
+          var d = num ? (+x) - (+y) : x.localeCompare(y); return asc ? d : -d;
+        }).forEach(function (r) { body.appendChild(r); });
+      });
+    });
+    $("input[type=search]", p).addEventListener("input", function (e) {
+      var q = e.target.value.toLowerCase();
+      $$("tr", body).forEach(function (r) { r.hidden = q && r.textContent.toLowerCase().indexOf(q) < 0; });
+    });
+    var dens = $(".sg-density", p);
+    dens.addEventListener("click", function () { var on = tbl.classList.toggle("is-compact"); dens.setAttribute("aria-pressed", on); });
+    $$(".mm-copy", p).forEach(function (b) {
+      b.addEventListener("click", function () {
+        try { navigator.clipboard.writeText(b.textContent); } catch (e) {}
+        toast(p, "Copied " + b.textContent);
+      });
+    });
+    $(".sg-copycode", p).addEventListener("click", function () {
+      var t = $$(".mm-code__line", p).map(function (l) { return l.textContent; }).join("\n");
+      try { navigator.clipboard.writeText(t); } catch (e) {}
+      toast(p, "Copied 4 lines");
+    });
+
+    /* tree */
+    $$(".mm-tree__row", p).forEach(function (row) {
+      row.addEventListener("click", function () {
+        var li = row.parentNode;
+        if (li.hasAttribute("aria-expanded") && li.querySelector("ul")) { li.setAttribute("aria-expanded", li.getAttribute("aria-expanded") !== "true"); return; }
+        $$(".mm-tree__row", p).forEach(function (r) { r.setAttribute("aria-selected", "false"); });
+        row.setAttribute("aria-selected", "true");
+      });
+    });
+
+    /* split pane */
+    var sp = $(".mm-split", p), bar = $(".mm-split__bar", sp);
+    function setSplit(v) { v = Math.max(20, Math.min(80, v)); sp.style.setProperty("--split-a", v + "fr"); sp.style.gridTemplateColumns = v + "fr 8px " + (100 - v) + "fr"; bar.setAttribute("aria-valuenow", Math.round(v)); }
+    bar.addEventListener("keydown", function (e) { var k = { ArrowLeft: -5, ArrowRight: 5 }[e.key]; if (k) { setSplit(+bar.getAttribute("aria-valuenow") + k); e.preventDefault(); } });
+    bar.addEventListener("pointerdown", function (e) {
+      bar.setPointerCapture(e.pointerId);
+      function mv(ev) { var r = sp.getBoundingClientRect(); setSplit((ev.clientX - r.left) / r.width * 100); }
+      function up() { bar.removeEventListener("pointermove", mv); bar.removeEventListener("pointerup", up); }
+      bar.addEventListener("pointermove", mv); bar.addEventListener("pointerup", up);
+    });
+
+    $(".sg-toastbtn", p).addEventListener("click", function () { toast(p, "Saved. Sample toast."); });
+    $(".sg-expand", p).addEventListener("click", function () { toast(p, "Expand opens a full-screen viewer in P06."); });
+  }
+
+  /* ---- page theme button ---- */
+  $("#theme-btn").addEventListener("click", function () { window.minimeTheme && window.minimeTheme.cycle(); });
+})();
+</script>
+</body>
+</html>

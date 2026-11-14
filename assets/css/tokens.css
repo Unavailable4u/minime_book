@@ -1,0 +1,144 @@
+/* MiniMe Atlas 2 - design tokens (P01).
+   Dark is the default. Paper is the light theme for long reading and print.
+   Themes are selected with data-theme="dark|paper" on <html> (set before paint by assets/js/theme.js),
+   and can also be set on any element to preview the other theme side by side (see styleguide.html).
+
+   Semantic colour rule, used in every figure:
+     cyan = data flows | amber = gates, approvals, invariants | crimson = you are here, brand
+     green = verified, fresh | violet = relations.   Colour is never the only carrier: add a label or shape.
+
+   WCAG AA: every text token below is >= 4.5:1 on --bg, --panel and --panel-2 in both themes
+   (--line-strong, the control border, is >= 3:1 on --bg and --panel). The one change from the plan's table:
+   Paper --gate is #a64a07 (the plan's #b45309 measured 4.44:1 on --panel-2). */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* surface and ink */
+  --bg: #0a0a0c;
+  --panel: #121216;
+  --panel-2: #17171d;
+  --line: #26262e;
+  --line-strong: #6a6a78;
+  --ink: #f2f1ed;
+  --ink-dim: #a8a6a0;
+
+  /* signal colours */
+  --brand: #ff2052;
+  --on-brand: #0a0a0c;
+  --flow: #22d3ee;
+  --gate: #f59e0b;
+  --ok: #34d399;
+  --graph: #a78bfa;
+  --pink: #f06cb4;
+
+  /* derived */
+  --focus: var(--flow);
+  --selection: rgb(255 32 82 / 0.35);
+  --grid-line: rgb(255 32 82 / 0.07);   /* the faint crimson grid of the existing Atlas */
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.5);
+  --shadow-2: 0 6px 20px rgb(0 0 0 / 0.55);
+  --shadow-3: 0 18px 48px rgb(0 0 0 / 0.65);
+  --scrim: rgb(0 0 0 / 0.6);
+  --skeleton-a: var(--panel-2);
+  --skeleton-b: #202028;
+}
+
+[data-theme="paper"] {
+  color-scheme: light;
+
+  --bg: #fbfaf6;
+  --panel: #ffffff;
+  --panel-2: #f3f1ea;
+  --line: #dcd8cc;
+  --line-strong: #8b8779;
+  --ink: #1b1b1f;
+  --ink-dim: #5d5b55;
+
+  --brand: #d3103f;
+  --on-brand: #ffffff;
+  --flow: #0e7490;
+  --gate: #a64a07;
+  --ok: #047857;
+  --graph: #6d28d9;
+  --pink: #be185d;
+
+  --focus: var(--flow);
+  --selection: rgb(211 16 63 / 0.18);
+  --grid-line: rgb(211 16 63 / 0.06);
+  --shadow-1: 0 1px 2px rgb(27 27 31 / 0.12);
+  --shadow-2: 0 6px 20px rgb(27 27 31 / 0.14);
+  --shadow-3: 0 18px 48px rgb(27 27 31 / 0.2);
+  --scrim: rgb(27 27 31 / 0.45);
+  --skeleton-a: var(--panel-2);
+  --skeleton-b: #e8e5da;
+}
+
+/* Tokens that do not change with the theme. */
+:root,
+[data-theme] {
+  /* type */
+  --font-ui: "Sora", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-prose: "STIX Two Text", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.8125rem;
+  --fs-base: 0.9375rem;     /* 15px, the Atlas body size today */
+  --fs-md: 1.0625rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.5625rem;
+  --fs-2xl: 1.953rem;
+  --fs-3xl: 2.441rem;
+  --fs-prose: 1.08rem;      /* chapter prose */
+  --lh-tight: 1.2;
+  --lh-ui: 1.55;
+  --lh-prose: 1.7;
+
+  /* spacing scale (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+
+  /* radii */
+  --radius-1: 4px;
+  --radius-2: 8px;
+  --radius-3: 14px;
+  --radius-pill: 999px;
+
+  /* layout */
+  --topbar-h: 52px;
+  --sbw: 264px;             /* sidebar width, expanded */
+  --sbw-rail: 48px;         /* sidebar width, collapsed rail */
+  --reader-w: 72ch;
+  --toc-w: 220px;
+
+  /* z-index map: use these, never a bare number */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 100;
+  --z-sidebar: 200;
+  --z-topbar: 300;
+  --z-popover: 400;
+  --z-modal: 500;
+  --z-toast: 600;
+
+  /* motion */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur-1: 120ms;
+  --dur-2: 220ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root,
+  [data-theme] {
+    --dur-1: 0ms;
+    --dur-2: 0ms;
+  }
+}
