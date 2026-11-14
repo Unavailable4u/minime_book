@@ -1,0 +1,1725 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Migration Guide: Rust, TypeScript and a Hardened Python Backend - MiniMe Atlas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap"><style>:root{--bg:#0a0a0c;--p:#121216;--p2:#17171d;--ln:#26262e;--tx:#f2f1ed;--dim:#a8a6a0;--r:#ff2052;--v:#a78bfa;--a:#f59e0b;--g:#34d399;--m:#f06cb4}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 Sora,Inter,system-ui,sans-serif;display:flex;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background-image:linear-gradient(rgba(255,32,82,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,32,82,.12) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent);mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent)}
+nav{overflow-y:auto;position:sticky;top:0;height:100vh;width:210px;flex:none;padding:22px 14px;border-right:1px solid var(--ln);background:rgba(10,10,12,.9);z-index:2}
+nav .logo{font-weight:700;font-size:18px;margin:0 8px 18px}nav .logo b{color:var(--r)}nav a{display:block;padding:8px 12px;border-radius:9px;color:var(--dim);text-decoration:none;margin:2px 0}
+nav a:hover{background:var(--p2);color:var(--tx)}nav a.on{background:rgba(255,32,82,.14);color:#fff;box-shadow:inset 2px 0 var(--r)}.nv{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:#6d6b66;margin:16px 10px 4px}nav small{display:block;margin:18px 8px 0;color:#6d6b66;font-size:12px}
+main{flex:1;min-width:0;padding:34px 40px 80px;position:relative;z-index:1;max-width:1500px}
+h1{font-size:30px;margin:0 0 4px;letter-spacing:-.02em}h2{font-size:20px;margin:34px 0 12px}h3{font-size:16px;margin:22px 0 8px}.sub{color:var(--dim);margin:0 0 24px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.card{background:var(--p);border:1px solid var(--ln);border-radius:14px;padding:16px 18px}.card.h:hover{border-color:var(--r);transform:translateY(-2px);transition:.15s}
+.k{font-size:30px;font-weight:700;letter-spacing:-.02em;color:#fff}.k small{font-size:13px;color:var(--dim);font-weight:400}.l{color:var(--dim);font-size:13px}
+.bar{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:13px}.bar span:first-child{width:170px;flex:none;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar i{display:block;height:9px;border-radius:5px;background:linear-gradient(90deg,var(--r),var(--m))}.bar em{font-style:normal;color:var(--tx);min-width:60px}
+a{color:#ff7a96}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:7px 10px;border-bottom:1px solid var(--ln);text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:var(--p2);cursor:pointer;color:var(--dim);font-weight:600}td.n{text-align:right;font-variant-numeric:tabular-nums}tr:hover td{background:rgba(255,255,255,.03)}
+.tw{overflow-x:auto;border:1px solid var(--ln);border-radius:12px;margin:12px 0}input[type=search],input[type=text]{background:var(--p);border:1px solid var(--ln);color:var(--tx);border-radius:10px;padding:9px 13px;width:320px;max-width:100%;font:inherit}
+button{background:var(--p2);color:var(--tx);border:1px solid var(--ln);border-radius:9px;padding:7px 14px;cursor:pointer;font:inherit}button:hover{border-color:var(--r)}
+.chip{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;border:1px solid var(--ln);color:var(--dim);cursor:pointer;user-select:none}
+.chip.done{color:#0a0a0c;background:var(--g);border-color:var(--g)}.chip.prog{color:#0a0a0c;background:var(--a);border-color:var(--a)}.chip.plan{color:var(--v);border-color:var(--v)}
+.lane{margin:26px 0}.lane h2{display:flex;gap:12px;align-items:center}.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}.cards .card{font-size:13px}.cards .card b{display:block;margin-bottom:6px;font-size:14px}
+.doc{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:40px}.doc article{min-width:0;max-width:880px}.toc{position:sticky;top:20px;align-self:start;max-height:90vh;overflow:auto;font-size:13px;border-left:1px solid var(--ln);padding-left:14px}
+.toc a{display:block;color:var(--dim);text-decoration:none;padding:2px 0}.toc a:hover{color:#fff}.toc .t3{padding-left:12px;font-size:12px}
+article h1,article h2{border-bottom:1px solid var(--ln);padding-bottom:6px}pre{background:var(--p);border:1px solid var(--ln);border-radius:10px;padding:12px;overflow:auto;font-size:12.5px}
+code{background:var(--p2);padding:1px 6px;border-radius:5px;font-size:.9em;color:#ffb3c2}pre code{background:none;padding:0;color:inherit}blockquote{margin:12px 0;padding:6px 16px;border-left:3px solid var(--r);color:var(--dim);background:var(--p)}
+iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}.pie{width:150px;height:150px;border-radius:50%}.row{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.lg div{font-size:13px;color:var(--dim)}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px}.pill{font-size:11px;color:var(--dim);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;display:inline-block}
+.thumb{height:210px;overflow:hidden;border-radius:10px;border:1px solid var(--ln);position:relative;background:#fff}.thumb iframe{width:1280px;height:840px;transform:scale(.3);transform-origin:0 0;border:0;pointer-events:none}
+.card,.grid>*,.g2>*{min-width:0}.card{overflow-wrap:anywhere}td,th{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}.stack>.card{margin:0 0 14px}#tm .lf{white-space:nowrap;text-overflow:ellipsis}main{overflow-x:clip}@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style id="atlas-mobile-css">
+.m-topbar{display:none}
+.m-backdrop{display:none}
+.nav-mclose,.toc-mhdr{display:none}
+.nav-qjump{display:flex;justify-content:space-between;align-items:center;width:calc(100% - 12px);margin:0 6px 12px;padding:7px 10px;border-radius:9px;background:var(--p2);border:1px solid var(--ln);color:var(--dim);font-size:12px;cursor:pointer}
+.nav-qjump:hover{border-color:var(--r);color:#fff}
+.nav-qjump kbd{font-size:10px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--ln);color:var(--dim)}
+.nav-sub{padding-left:20px!important;font-size:12.5px!important;color:#8e8c86!important}
+.nav-sub:hover{color:#fff!important}
+.svg-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.m-btt{position:fixed;right:18px;bottom:18px;width:38px;height:38px;border-radius:50%;background:var(--r);color:#fff;border:0;font-weight:700;font-size:16px;cursor:pointer;z-index:90;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.m-btt.vis{opacity:1;pointer-events:auto}
+.cmd-modal{position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:8vh 14px 20px}
+.cmd-modal.open{display:flex}
+.cmd-box{width:100%;max-width:640px;background:var(--p);border:1px solid var(--ln);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.65)}
+.cmd-top{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ln);background:var(--p2)}
+.cmd-top input{flex:1;background:transparent;border:0;color:var(--tx);font:inherit;font-size:14.5px;outline:none;width:auto}
+.cmd-esc{padding:3px 8px;font-size:11px;border-radius:6px}
+.cmd-list{max-height:62vh;overflow-y:auto;padding:6px}
+.cmd-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;text-decoration:none;color:var(--tx);font-size:13.5px}
+.cmd-item:hover{background:rgba(255,32,82,.14);color:#fff}
+.cmd-item small{display:block;font-size:11px;color:var(--dim)}
+@media(max-width:900px){
+  body{display:block;padding-top:54px}
+  .m-topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;position:fixed;top:0;left:0;right:0;height:54px;padding:0 12px;background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--ln);z-index:1001}
+  .m-brand{font-weight:700;font-size:15px;color:var(--tx);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .m-brand b{color:var(--r)}
+  .m-brand small{font-weight:400;color:var(--dim);font-size:13px}
+  .m-right{display:flex;gap:6px;align-items:center;flex:none}
+  .m-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);font-size:12.5px;cursor:pointer}
+  .m-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);z-index:1002}
+  body.nav-open .m-backdrop,body.toc-open .m-backdrop{display:block}
+  nav{display:block!important;position:fixed!important;top:0!important;left:0!important;bottom:0!important;height:100dvh!important;width:270px!important;max-width:84vw!important;background:#0e0e13!important;z-index:1003!important;transform:translateX(-105%);transition:transform .22s ease;box-shadow:12px 0 36px rgba(0,0,0,.6)}
+  body.nav-open nav{transform:translateX(0)}
+  nav .logo{display:flex;justify-content:space-between;align-items:center}
+  .nav-mclose{display:inline-block;padding:3px 8px;font-size:11.5px;border-radius:6px;background:var(--p2);border:1px solid var(--ln);color:var(--dim)}
+  .toc{display:block!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;height:100dvh!important;max-height:100dvh!important;width:290px!important;max-width:86vw!important;background:#101016!important;border-left:1px solid var(--ln)!important;padding:16px!important;z-index:1003!important;transform:translateX(105%);transition:transform .22s ease;box-shadow:-12px 0 36px rgba(0,0,0,.6)}
+  body.toc-open .toc{transform:translateX(0)}
+  .toc-mhdr{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--ln)}
+  .toc-mclose{padding:3px 8px;font-size:11.5px;border-radius:6px}
+  main{padding:18px 14px 64px!important;max-width:100%!important}
+  h1{font-size:24px}h2{font-size:18px}
+  .g2,.parts,.bk-grid,.bk-footer-grid,.cards{grid-template-columns:1fr!important}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .bar{flex-wrap:wrap;gap:6px}.bar span:first-child{width:100%}
+  .svg-scroll svg{min-width:680px}
+  .ex #res{max-height:38vh}
+  #tm{height:62vh!important;min-height:380px!important}
+  .split{grid-template-columns:1fr!important}
+  .board{grid-template-columns:repeat(4,minmax(250px,82vw))!important;overflow-x:auto;padding-bottom:8px}
+  .cal{min-width:560px}
+}
+@media(max-width:480px){
+  .m-btn span{display:none}
+  .grid{grid-template-columns:1fr 1fr}
+  .k{font-size:24px}
+  input[type=search],input[type=text]{width:100%!important}
+}
+</style><style id="bk-chapter-style">
+.bk-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff2052,#a78bfa,#34d399);width:0%;z-index:9999;transition:width .08s linear}
+.bk-banner{background:linear-gradient(180deg,rgba(255,32,82,.08),rgba(18,18,22,.96));border:1px solid rgba(255,32,82,.32);border-radius:16px;padding:16px 20px;margin:0 0 24px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bk-part{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff7a96;margin-right:8px}
+.bk-ch{font-size:12px;background:var(--p2);border:1px solid var(--ln);padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bk-new{font-size:10.5px;background:rgba(52,211,153,.18);border:1px solid #34d399;color:#34d399;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.bk-sync{font-size:10.5px;background:rgba(167,139,250,.16);border:1px solid #a78bfa;color:#c4b5fd;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.bk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bk-pill-link{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);text-decoration:none;white-space:nowrap}
+.bk-pill-link:hover{border-color:var(--r);color:#fff}
+.bk-desc{margin:4px 0 10px;color:var(--dim);font-size:13.5px}
+.bk-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.bk-meta b{color:var(--tx)}
+.bk-prevnext{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ln)}
+.bk-nav-btn{font-size:12.5px;color:var(--dim);text-decoration:none;padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--ln);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-nav-btn:hover{border-color:var(--r);color:#fff}
+.bk-nav-btn.bk-next{color:#ff7a96;border-color:rgba(255,32,82,.35)}
+.bk-override-box{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.45);border-left:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 18px;font-size:13.5px}
+.bk-override-box h3{margin:0 0 6px;font-size:15px;color:#fbbf24}
+.bk-override-box p{margin:0 0 8px;color:var(--tx)}
+.bk-override-box ul{margin:6px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.bk-footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--ln)}
+.bk-footer-hdr{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--dim);margin-bottom:14px}
+.bk-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.bk-fcard{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:var(--p);border:1px solid var(--ln);text-decoration:none;color:var(--tx);transition:.15s}
+.bk-fcard:hover{border-color:var(--r);transform:translateY(-2px)}
+.bk-fcard small{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.bk-fcard b{font-size:15px;color:#fff}
+.bk-fcard span{font-size:12px;color:#ff7a96}
+.bk-fcard.bk-fnext{text-align:right;border-color:rgba(255,32,82,.32);background:linear-gradient(135deg,var(--p),rgba(255,32,82,.08))}
+.toc a.active-sec{color:#ff7a96;font-weight:600;border-left:2px solid var(--r);padding-left:8px;margin-left:-10px}
+.st-badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.03em;vertical-align:middle;margin:0 2px}
+.st-live{background:rgba(52,211,153,.18);color:#34d399;border:1px solid rgba(52,211,153,.45)}
+.st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
+.st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
+.st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
+</style><style>article h4{font-size:15.5px;margin:32px 0 8px;padding-top:16px;border-top:1px solid var(--ln);color:#fff}article h3{margin-top:40px}article ul,article ol{padding-left:22px}article li{margin:4px 0}article th{white-space:nowrap}article td>strong:only-child{white-space:nowrap}</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="on">Docs</a><a href="doc-minime-feature-guide.html" class="nav-sub">· Ch.4 MiniMe Guide</a><a href="doc-m2c-feature-guide.html" class="nav-sub">· Ch.5 M2C Guide</a><a href="doc-menux-feature-guide.html" class="nav-sub">· Ch.8 Menux Guide</a><a href="tables.html" class="">Tables</a><small>Private. Added 2026-11-14 on commit aaca7f1.</small></nav><main><h1>Migration Guide: Rust, TypeScript and a Hardened Python Backend</h1><p class="sub">Appendix A. 12,289 words. <a href="data/docs/migration_guide.md" download>Download .md</a></p><div class="bk-banner">
+  <div class="bk-top">
+    <div>
+      <span class="bk-part">Appendix A · Migration</span>
+      <span class="bk-ch">Not one of the 14 chapters</span>
+      <span class="bk-new">NEW</span>
+    </div>
+    <div class="bk-actions">
+      <a href="docs.html" class="bk-pill-link">📚 All 14 Chapters</a>
+      <a href="data/docs/migration_guide.md" download class="bk-pill-link">⬇ Download .md</a>
+    </div>
+  </div>
+  <p class="bk-desc">42 patch-sized work packages (114 effort points, 9 dependency waves) to move the M2C client and Menux to Rust, the frontend to TypeScript, keep the backend in Python and harden it, and retire the old daemon.</p>
+  <div class="bk-meta">
+    <span><b>12,289</b> words (~56 min read)</span><span>·</span><span><b>61</b> sections</span><span>·</span><span><b>10</b> tables</span>
+  </div>
+  <div class="bk-prevnext"><a href="docs.html" class="bk-nav-btn">← Back to the book</a><a href="doc-m2c-plan.html" class="bk-nav-btn bk-next">Ch. 6: M2C L26 Build Execution Guide →</a></div>
+</div><div class="doc"><article><h1 id="migration-guide-rust-typescript-and-a-hardened-python-backend">Migration Guide: Rust, TypeScript and a Hardened Python Backend</h1>
+<p><em>Minime agentic automation: what to convert, what to keep, and the order to do it</em></p>
+<p><strong>Version 1.0 · 2026-11-14 · Appendix A of the connected book (it is not one of the 14 chapters).</strong> Companion to <code>m2c_build_plan.md</code> (rev 1.2), <code>m2c_feature_guide.md</code> (rev 1.2), <code>Menux___Build_Execution_Guide.md</code> (rev 1.2) and <code>protocol/README.md</code> in the MiniMe repo. Where this guide and one of those disagree about <strong>which language something is written in</strong>, this guide wins; on everything else they win.</p>
+<blockquote>
+<p><strong>What this guide does.</strong> It turns one decision into work: the M2C client and the Menux node are rebuilt in <strong>Rust</strong>, the web frontend and the Menux controller move to <strong>TypeScript</strong>, and the <strong>backend stays Python</strong> and is hardened and measured. It lists 42 patch-sized work packages (<code>MG-*</code>), their order, how each is proven correct, and what to do with the old <code>daemon/</code>.</p>
+<p><strong>Evidence basis.</strong> Read from the MiniMe repo at commit <code>94af156</code> ("wave 9 part 2 complete") and the book at <code>aaca7f1</code>. <strong>No tests were run, nothing was built, and no crate or package version was checked.</strong> Line numbers and counts are from those commits and will drift. Where a statement depends on something that was not verified, the work package that verifies it is named.</p>
+<p><strong>No calendar.</strong> Work is ordered by dependency, not by date. Sizes use the book's scale (S = 1, M = 2, L = 4, XL = 8 points) and are estimates.</p>
+</blockquote>
+<hr />
+<h2 id="0-how-to-use-this-guide">0. How to use this guide</h2>
+<ul>
+<li><strong>Read §1 to §4 once.</strong> They are the decisions, the target picture, the facts the plan rests on, and the rules that stop the migration from going wrong.</li>
+<li><strong>Work from §5.</strong> Pick a work package whose dependencies are done, open its entry in §6, generate one patch with the template in §11.</li>
+<li><strong>The patch workflow is the one in <code>m2c_build_plan.md</code> §0</strong>: one work package is one patch, tests first, one writer per shared file, log each patch in <code>PATCHES.md</code>, regenerate rather than hand-edit hunks.</li>
+<li><strong>Prefix.</strong> Work packages are <code>MG-&lt;track&gt;&lt;nn&gt;</code> (for example <code>MG-R03</code>). <strong>Always write the <code>MG-</code> prefix.</strong> The M2C build plan already has <code>B00</code> to <code>B12</code> (browser cleanup), the Menux guide has <code>R05</code> and <code>D02</code>, and both books number their decisions <code>D1</code> to <code>D38</code>, so a bare <code>B03</code>, <code>R05</code> or <code>D04</code> is ambiguous. Tracks: <strong>Z</strong> foundations, <strong>F</strong> frontend, <strong>D</strong> daemon retirement, <strong>B</strong> backend hardening, <strong>R</strong> Rust client.</li>
+</ul>
+<hr />
+<h2 id="1-decisions">1. Decisions</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Decision</th>
+<th>Why</th>
+<th>Revisit when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DM-1</strong></td>
+<td><strong>The backend, including <code>backend/codeagent/</code>, stays Python</strong> and is hardened and measured (track B).</td>
+<td>It is I/O-bound (model streams, Postgres, Redis, device sockets) and already <code>async</code> where it matters. It is wired into <code>backend/eo/</code> (ledger, devices, provider keys) and changes with every prompt and adapter. The wire contract already isolates it from the clients.</td>
+<td><code>MG-B06</code> decides with numbers from <code>MG-B00</code>/<code>MG-B01</code>.</td>
+</tr>
+<tr>
+<td><strong>DM-2</strong></td>
+<td><strong>The M2C client is rebuilt in Rust</strong>, as a Cargo workspace whose shared crates are named <code>minicore-*</code> from day one.</td>
+<td>It runs on the user's machine: one static-ish binary, no Python to install, small idle footprint, and compile-time checking where the safety code lives (policy, paths, redaction, sandbox).</td>
+<td>Never for the safety crates; the TUI library is an open choice (§12).</td>
+</tr>
+<tr>
+<td><strong>DM-3</strong></td>
+<td><strong>The Menux node is built in Rust</strong> on the same crates; the <strong>phone/web controller is TypeScript</strong>; <strong>browser automation is a TypeScript sidecar</strong> process behind <code>ControlBackend</code> (MX9).</td>
+<td>Menux has not started (planned after M2C reaches M2), so nothing is ported: it is built right the first time. Playwright's supported bindings are Node, Python, Java and .NET, not Rust.</td>
+<td>Per connector in Phase 3 (§8).</td>
+</tr>
+<tr>
+<td><strong>DM-4</strong></td>
+<td><strong>The frontend moves to TypeScript, leaf-first and file by file.</strong> No big-bang, no freeze.</td>
+<td>109 <code>.jsx</code> and 73 <code>.js</code> files in Next.js 14; Next compiles TypeScript natively, and JS and TS can coexist.</td>
+<td>Never.</td>
+</tr>
+<tr>
+<td><strong>DM-5</strong></td>
+<td><strong>The contract is data.</strong> Wire: <code>protocol/v1/*.json</code> plus <code>protocol/fixtures/</code>. Behavior: <code>protocol/conformance/</code> vectors (new). Every language must pass the same files.</td>
+<td>This is what makes a three-language system safe to change. A Rust port is "done" when it passes what the Python reference passes.</td>
+<td>Never.</td>
+</tr>
+<tr>
+<td><strong>DM-6</strong></td>
+<td><strong><code>daemon/</code> is retired, not ported.</strong> M2C already ported its path guard and file tools and went well beyond it.</td>
+<td>See §6.3: it is not a plain deletion, because the daemon's approval gate is shared with server-side MCP.</td>
+<td><code>MG-D00</code> records the option chosen.</td>
+</tr>
+<tr>
+<td><strong>DM-7</strong></td>
+<td><strong><code>uv</code> replaces <code>pip</code> for installs</strong> in CI and Docker. Pinned <code>requirements.txt</code> files stay; no lockfile migration now.</td>
+<td>Near-free and faster.</td>
+<td>Never.</td>
+</tr>
+<tr>
+<td><strong>DM-8</strong></td>
+<td><strong>Python M2C is frozen at a tag and kept as the reference.</strong> It is deleted only after the Rust client has shipped and one release has overlapped.</td>
+<td>The reference is what the vectors and the differential tests are proven against.</td>
+<td>After <code>MG-R13</code>.</td>
+</tr>
+<tr>
+<td><strong>DM-9</strong></td>
+<td><strong>From now on, client work packages not yet built are built in Rust</strong>, never in Python first (§7). Server halves stay Python.</td>
+<td>Building in Python and porting later is paying twice.</td>
+<td>Never.</td>
+</tr>
+<tr>
+<td><strong>DM-10</strong></td>
+<td><strong>Rust must never be more permissive than the Python reference</strong> on any policy, path or redaction case, unless a reviewed note says the reference was too strict.</td>
+<td>These are the safety properties. A port that is faster and looser is a regression.</td>
+<td>Never.</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="2-target-architecture">2. Target architecture</h2>
+<pre><code>                         ┌────────────────────────────────────────────────┐
+   protocol/             │  CONTRACT (data, language-neutral)             │
+                         │  protocol/v1/*.json      wire schemas          │
+                         │  protocol/fixtures/      golden transcripts    │
+                         │  protocol/conformance/   behavior vectors (new)│
+                         └───────────────┬───────────────┬────────────────┘
+                                         │               │
+              ┌──────────────────────────┘               └─────────────────────────┐
+              │ every consumer must pass the same files                              │
+              ▼                                                                      ▼
+   ┌─────────────────────┐   WS /v1/code/device   ┌──────────────────────────────────────┐
+   │ DEVICE (Rust)       │◄──────────────────────►│ SERVER (Python, hardened)            │
+   │ m2c  (CLI, TUI)     │   protocol v1          │ backend/codeagent  loop, broker,     │
+   │ menux node (later)  │                        │   buffer, metering, ws               │
+   │ crates: minicore-*  │                        │ backend/eo  ledger, devices, ...     │
+   │  protocol paths     │                        │ backend/api  REST for the web app    │
+   │  secrets policy     │                        │ relay / gateway (language: MG-B06)      │
+   │  store link auth    │                        └───────────────▲──────────────────────┘
+   │  sandbox            │                                        │ REST + realtime
+   └─────────┬───────────┘                                        │ (OpenAPI types, MG-F01)
+             │ JSON over stdio                       ┌────────────┴─────────────┐
+             ▼                                       │ WEB (TypeScript, Next 14)│
+   ┌─────────────────────┐                           │ frontend/app             │
+   │ browser sidecar (TS)│                           │ Menux controller (TS)    │
+   │ Playwright, no keys │                           └──────────────────────────┘
+   └─────────────────────┘
+</code></pre>
+<p>Two rules hold the picture together: <strong>the device and the server meet only at the protocol</strong>, and <strong>a language boundary is always a data boundary</strong> (JSON schema, JSON-RPC over stdio, or OpenAPI), never a shared library.</p>
+<hr />
+<h2 id="3-what-the-code-says-today">3. What the code says today</h2>
+<p>All from the commits named above. "Lines" are physical lines.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Fact</th>
+<th>Why it matters here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>M2C client</strong></td>
+<td><code>m2c/src/m2c/</code>: 27,152 lines of Python, 105 test files, 37,411 lines of tests. Runtime deps: <code>websockets</code> (only <code>m2c/link</code>), <code>prompt_toolkit</code> and <code>rich</code> (only <code>m2c/tui/app.py</code>), enforced by a test (D14).</td>
+<td>The tests are bigger than the code. They are the real specification and the main asset of the port.</td>
+</tr>
+<tr>
+<td><strong>M2C size by package</strong></td>
+<td><code>tools</code> 3,581 · <code>sandbox</code> 3,193 · <code>policy</code> 3,115 · <code>tui</code> 3,004 · <code>link</code> 1,959 · <code>context</code> 1,530 · <code>auth</code> 1,420 · <code>checkpoints.py</code> 1,301 · <code>store</code> 1,233 · <code>headless.py</code> 1,190 · <code>runner.py</code> 1,146 · <code>secrets</code> 932 · <code>trust</code> 836 · <code>doctor.py</code> 481 · <code>cli.py</code> 468 · <code>repl.py</code> 421 · <code>session_setup.py</code> 413 · <code>interact</code> 408</td>
+<td>Sets the port order and the sizes in §5.</td>
+</tr>
+<tr>
+<td><strong>Policy engine</strong></td>
+<td><code>policy.decide(request, context) -&gt; Decision</code>: "all of it is data, none is read from the environment". <code>shellparse.parse</code> alone is a ~1,200-line function family.</td>
+<td>A pure function is the best possible port target: inputs and outputs can be written down as vectors.</td>
+</tr>
+<tr>
+<td><strong>Secret redaction</strong></td>
+<td><code>secrets/redact.py</code> uses <strong>11 lookaround assertions</strong> (<code>(?&lt;!…)</code>, <code>(?!…)</code>) and <strong>2 possessive quantifiers</strong> (<code>{0,64}+</code>, <code>{20,200}+</code>). Rust's <code>regex</code> crate supports neither. <code>context/instructions.py</code> also uses a lookbehind and a backreference (the code-span pattern <code>(`+).+?\1</code>).</td>
+<td>The most surprising cost of the port (see <code>MG-R02</code>, <code>MG-R08</code>).</td>
+</tr>
+<tr>
+<td><strong>Fake secrets in tests</strong></td>
+<td><code>m2c/tests/secret_handling/secret_fakes.py</code> assembles every fake secret <strong>at run time from pieces</strong>, because Gitleaks runs in the pre-commit hook and CI and <code>m2c/tests/</code> is not on its allowlist.</td>
+<td>Vectors cannot simply contain fake keys as literals (see <code>MG-Z04</code>).</td>
+</tr>
+<tr>
+<td><strong>Wire contract</strong></td>
+<td><code>protocol/v1/</code>: 15 message types, 11 tool schemas, Draft 2020-12, cross-file <code>$ref</code>. 4 golden transcripts (13, 26, 26, 15 lines) and 60 invalid examples that must each fail on a named keyword and path. <code>validate.py</code> also keeps a byte-identical client copy at <code>m2c/src/m2c/protocol/v1/</code>.</td>
+<td>Ready-made conformance for the wire. The client copy path must move (<code>MG-Z08</code>, <code>MG-R00</code>).</td>
+</tr>
+<tr>
+<td><strong>Socket limits</strong></td>
+<td><code>codeagent/ws.py</code>: hello timeout 10 s, max message 1 MiB, max 3 parallel runs, credential revalidation <strong>every 30 s per connection</strong>, close codes 1008/1009/1011/4400/4401/4403/4408/4409/4426/4429.</td>
+<td>Revalidation alone means N/30 credential checks per second for N connected devices (1,000 → ~33/s; 10,000 → ~333/s). <code>MG-B01</code> measures what each costs.</td>
+</tr>
+<tr>
+<td><strong>Connection registry</strong></td>
+<td><code>codeagent/connections.py</code> <code>InMemoryRegistry</code>: live sockets of this process only, by design; <code>S11</code> is to add cross-process presence in Redis and a Redis-backed handshake limiter. <code>buffer.py</code> talks to Redis through the Upstash client (<code>memory.bus.redis</code>).</td>
+<td>The scale work (track B) is already designed in the code's own comments.</td>
+</tr>
+<tr>
+<td><strong>Async vs sync</strong></td>
+<td>Backend: 221 <code>async def</code> against 2,411 plain <code>def</code>. Outside tests and scripts, <strong>26 <code>requests.*</code> calls and 7 <code>time.sleep</code> calls</strong> (33 sites) in <code>agents/</code>, <code>utils/</code>, <code>api/</code> and <code>eo/</code>.</td>
+<td>Not necessarily a problem: plain <code>def</code> handlers and dependencies run on FastAPI's threadpool, so a blocking call there ties up a worker thread, not the event loop. But the sites are unclassified (<code>MG-B04</code>).</td>
+</tr>
+<tr>
+<td><strong>Frontend</strong></td>
+<td><code>app/components</code> 100 <code>.jsx</code>, <code>app/context</code> 8 <code>.jsx</code>, <code>app/lib</code> 55 <code>.js</code>, <code>app/hooks</code> 11 <code>.js</code>. No <code>tsconfig.json</code>, no <code>jsconfig.json</code>, no PropTypes. Next 14.2.35, React 18.3.1. Tests: 49 <code>*.test.mjs</code> run by <code>node --test</code>, CI on <strong>Node 22.22.0</strong>.</td>
+<td>TypeScript can start immediately; tests are plain Node.</td>
+</tr>
+<tr>
+<td><strong>Giant frontend files</strong></td>
+<td><code>NotebooksTab.jsx</code> 3,690 · <code>SessionContext.jsx</code> 2,718 · <code>WorkspaceChatPanel.jsx</code> 2,601 · <code>EditorWorkbench.jsx</code> 2,448 · <code>BuildTab.jsx</code> 2,067 · <code>GrowthTab.jsx</code> 1,822 · <code>TestTab.jsx</code> 1,600 · <code>WorkspaceDockContext.jsx</code> 1,590</td>
+<td>These eight need a staged conversion (<code>MG-F00</code>, <code>MG-F04</code>).</td>
+</tr>
+<tr>
+<td><strong>Daemon</strong></td>
+<td><code>daemon/</code>: 16 files. Backend side: <code>eo/local_workspace.py</code> (WS <code>/ws/daemon/{workspace_id}</code>), <code>eo/local_workspace_tools.py</code>, <code>api/routes/local_workspace.py</code>. <strong><code>api/routes/mcp.py</code> and <code>eo/mcp_agent_tools.py</code> reuse the daemon's approval functions.</strong> A code comment says the routes and daemon "stay until M2C Phase 5".</td>
+<td>Retiring it is a small refactor first, then deletions (§6.3).</td>
+</tr>
+<tr>
+<td><strong>Measured startup of the Python client</strong></td>
+<td>In this guide's cloud sandbox, 5 runs each: <code>m2c --version</code> 117–130 ms; <code>m2c doctor</code> 134–174 ms; bare <code>python -c pass</code> 14 ms; importing the TUI libraries ~155 ms warm (458 ms cold). Not your machine.</td>
+<td>A baseline for <code>MG-R12</code>, not a reason to port: against model replies that take seconds, this is not what users feel. The reasons are in DM-2.</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="4-rules-of-the-migration-stop-the-line">4. Rules of the migration (stop the line)</h2>
+<p>If any of these is broken, stop and fix it before the next patch.</p>
+<ol>
+<li><strong>A vector enters <code>protocol/conformance/</code> only if the frozen Python reference passes it.</strong> The vectors describe what exists, so a failing vector is a bug in the vector.</li>
+<li><strong>Never edit a vector to make Rust pass.</strong> A vector changes only with a written reason, and, if it makes a safety decision looser, a second look. Rule DM-10 applies.</li>
+<li><strong>The protocol changes only by addition</strong>, schema first. Regenerate the Rust and TypeScript types and the fixtures in the same patch.</li>
+<li><strong>No new Rust dependency without an entry in <code>rust/deps-allowlist.toml</code></strong> (name, exact version, reason, licence). This is D14 in Rust form. Pin exactly and use only releases that are more than two weeks old, as the Python side does.</li>
+<li><strong><code>#![forbid(unsafe_code)]</code> in every crate.</strong> An exception is one named module with a recorded reason (the likely candidates are in <code>minicore-paths</code> and <code>minicore-sandbox</code>).</li>
+<li><strong>Security code fails closed and is differential-tested</strong>, not only unit-tested (<code>MG-R02</code>, <code>MG-R03</code>).</li>
+<li><strong>One writer per shared file at a time</strong>, as in the existing plan. Shared files in this migration: <code>.github/workflows/ci.yml</code>, <code>protocol/validate.py</code>, <code>backend/api/server.py</code>, <code>frontend/package.json</code>.</li>
+<li><strong>No <code>// @ts-nocheck</code> outside the allowlist</strong> <code>frontend/ts-nocheck-allowlist.txt</code>, and that list may only shrink.</li>
+<li><strong>Do not delete a Python module until its Rust replacement has passed <code>MG-R12</code></strong>, and do not delete the Python client until one release after <code>MG-R13</code> (DM-8).</li>
+</ol>
+<hr />
+<h2 id="5-work-package-index">5. Work-package index</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Work package</th>
+<th>Size</th>
+<th>Depends on</th>
+<th>Wave</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MG-Z00</strong></td>
+<td>Freeze and tag the Python M2C reference</td>
+<td>S</td>
+<td>-</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>MG-Z01</strong></td>
+<td>Switch Python CI and Docker installs to uv</td>
+<td>S</td>
+<td>-</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>MG-Z02</strong></td>
+<td>Conformance vector format and Python runner</td>
+<td>M</td>
+<td>MG-Z00</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>MG-Z03</strong></td>
+<td>Policy vectors (decide, rules, modes, shell parsing)</td>
+<td>L</td>
+<td>MG-Z02</td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>MG-Z04</strong></td>
+<td>Secret-redaction vectors</td>
+<td>M</td>
+<td>MG-Z02</td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>MG-Z05</strong></td>
+<td>Path-guard vectors (M2C and daemon cases)</td>
+<td>M</td>
+<td>MG-Z02</td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>MG-Z06</strong></td>
+<td>Local-store compatibility fixtures</td>
+<td>S</td>
+<td>MG-Z00</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>MG-Z07</strong></td>
+<td>Rust workspace, toolchain and CI</td>
+<td>M</td>
+<td>MG-Z00</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>MG-Z08</strong></td>
+<td>Protocol codegen (Rust, TypeScript) and fixture replay</td>
+<td>M</td>
+<td>MG-Z07</td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>MG-Z09</strong></td>
+<td>Book edits for the new plan</td>
+<td>S</td>
+<td>MG-Z00</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>MG-F00</strong></td>
+<td>TypeScript foundation and test-runner spike</td>
+<td>M</td>
+<td>-</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>MG-F01</strong></td>
+<td>Generate API types from FastAPI's OpenAPI</td>
+<td>M</td>
+<td>MG-F00</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>MG-F02</strong></td>
+<td>Convert app/lib modules</td>
+<td>L</td>
+<td>MG-F00, MG-F01</td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>MG-F03</strong></td>
+<td>Convert hooks and context providers</td>
+<td>M</td>
+<td>MG-F02</td>
+<td>4</td>
+</tr>
+<tr>
+<td><strong>MG-F04</strong></td>
+<td>Convert components, directory by directory</td>
+<td>XL</td>
+<td>MG-F03</td>
+<td>5</td>
+</tr>
+<tr>
+<td><strong>MG-F05</strong></td>
+<td>Strict everywhere, drop allowJs</td>
+<td>M</td>
+<td>MG-F04</td>
+<td>6</td>
+</tr>
+<tr>
+<td><strong>MG-D00</strong></td>
+<td>Decide the fate of the shared action gate</td>
+<td>S</td>
+<td>-</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>MG-D01</strong></td>
+<td>Extract the neutral action gate</td>
+<td>M</td>
+<td>MG-D00</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>MG-D02</strong></td>
+<td>Remove frontend daemon surfaces</td>
+<td>S</td>
+<td>MG-D01</td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>MG-D03</strong></td>
+<td>Remove backend daemon routes, registry and events</td>
+<td>M</td>
+<td>MG-D01, MG-D02</td>
+<td>4</td>
+</tr>
+<tr>
+<td><strong>MG-D04</strong></td>
+<td>Delete daemon/ and its CI job</td>
+<td>S</td>
+<td>MG-D03, MG-Z05</td>
+<td>5</td>
+</tr>
+<tr>
+<td><strong>MG-B00</strong></td>
+<td>Load-test harness</td>
+<td>M</td>
+<td>-</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>MG-B01</strong></td>
+<td>Baseline run, numbers recorded in the book</td>
+<td>S</td>
+<td>MG-B00</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>MG-B02</strong></td>
+<td>Redis-backed presence and handshake limiter</td>
+<td>M</td>
+<td>MG-B01</td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>MG-B03</strong></td>
+<td>Gateway process split</td>
+<td>L</td>
+<td>MG-B02</td>
+<td>4</td>
+</tr>
+<tr>
+<td><strong>MG-B04</strong></td>
+<td>Blocking-call audit on hot paths</td>
+<td>M</td>
+<td>MG-B01</td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>MG-B05</strong></td>
+<td>Typing ratchet and response models</td>
+<td>M</td>
+<td>-</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>MG-B06</strong></td>
+<td>Gateway language decision record</td>
+<td>S</td>
+<td>MG-B03, MG-B04</td>
+<td>5</td>
+</tr>
+<tr>
+<td><strong>MG-R00</strong></td>
+<td>minicore-protocol</td>
+<td>M</td>
+<td>MG-Z08</td>
+<td>4</td>
+</tr>
+<tr>
+<td><strong>MG-R01</strong></td>
+<td>minicore-paths</td>
+<td>M</td>
+<td>MG-Z05, MG-Z07</td>
+<td>4</td>
+</tr>
+<tr>
+<td><strong>MG-R02</strong></td>
+<td>minicore-secrets</td>
+<td>L</td>
+<td>MG-Z04, MG-Z07</td>
+<td>4</td>
+</tr>
+<tr>
+<td><strong>MG-R03</strong></td>
+<td>minicore-policy</td>
+<td>XL</td>
+<td>MG-Z03, MG-R01</td>
+<td>5</td>
+</tr>
+<tr>
+<td><strong>MG-R04</strong></td>
+<td>minicore-store</td>
+<td>M</td>
+<td>MG-Z06, MG-Z07</td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>MG-R05</strong></td>
+<td>minicore-link and minicore-auth</td>
+<td>L</td>
+<td>MG-R00, MG-R04</td>
+<td>5</td>
+</tr>
+<tr>
+<td><strong>MG-R06</strong></td>
+<td>minicore-sandbox</td>
+<td>XL</td>
+<td>MG-R01, MG-Z07</td>
+<td>5</td>
+</tr>
+<tr>
+<td><strong>MG-R07</strong></td>
+<td>m2c-tools and the tool runner</td>
+<td>L</td>
+<td>MG-R00, MG-R01, MG-R02, MG-R03, MG-R05, MG-R06</td>
+<td>6</td>
+</tr>
+<tr>
+<td><strong>MG-R08</strong></td>
+<td>m2c-context, trust and interact</td>
+<td>M</td>
+<td>MG-R03, MG-R04</td>
+<td>6</td>
+</tr>
+<tr>
+<td><strong>MG-R09</strong></td>
+<td>m2c-checkpoints</td>
+<td>M</td>
+<td>MG-R01, MG-R04</td>
+<td>5</td>
+</tr>
+<tr>
+<td><strong>MG-R10</strong></td>
+<td>m2c-headless, cli and doctor</td>
+<td>L</td>
+<td>MG-R07, MG-R08, MG-R09</td>
+<td>7</td>
+</tr>
+<tr>
+<td><strong>MG-R11</strong></td>
+<td>m2c-tui</td>
+<td>XL</td>
+<td>MG-R07, MG-R08, MG-R09</td>
+<td>7</td>
+</tr>
+<tr>
+<td><strong>MG-R12</strong></td>
+<td>Parity suite and install test</td>
+<td>L</td>
+<td>MG-R10, MG-R11</td>
+<td>8</td>
+</tr>
+<tr>
+<td><strong>MG-R13</strong></td>
+<td>Cutover to the Rust client</td>
+<td>S</td>
+<td>MG-R12</td>
+<td>9</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Totals</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Track</th>
+<th>Work packages</th>
+<th>Points</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Z · Foundations</td>
+<td>10</td>
+<td>18</td>
+</tr>
+<tr>
+<td>F · Frontend to TypeScript</td>
+<td>6</td>
+<td>20</td>
+</tr>
+<tr>
+<td>D · Retire the daemon</td>
+<td>5</td>
+<td>7</td>
+</tr>
+<tr>
+<td>B · Backend hardening (Python)</td>
+<td>7</td>
+<td>14</td>
+</tr>
+<tr>
+<td>R · M2C client to Rust</td>
+<td>14</td>
+<td>55</td>
+</tr>
+<tr>
+<td><strong>All</strong></td>
+<td><strong>42</strong></td>
+<td><strong>114</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Waves</strong> (everything in a wave can run in parallel once the previous waves it depends on are done):</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Wave</th>
+<th>Work packages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>MG-Z00, MG-Z01, MG-F00, MG-D00, MG-B00, MG-B05</td>
+</tr>
+<tr>
+<td>2</td>
+<td>MG-Z02, MG-Z06, MG-Z07, MG-Z09, MG-F01, MG-D01, MG-B01</td>
+</tr>
+<tr>
+<td>3</td>
+<td>MG-Z03, MG-Z04, MG-Z05, MG-Z08, MG-F02, MG-D02, MG-B02, MG-B04, MG-R04</td>
+</tr>
+<tr>
+<td>4</td>
+<td>MG-F03, MG-D03, MG-B03, MG-R00, MG-R01, MG-R02</td>
+</tr>
+<tr>
+<td>5</td>
+<td>MG-F04, MG-D04, MG-B06, MG-R03, MG-R05, MG-R06, MG-R09</td>
+</tr>
+<tr>
+<td>6</td>
+<td>MG-F05, MG-R07, MG-R08</td>
+</tr>
+<tr>
+<td>7</td>
+<td>MG-R10, MG-R11</td>
+</tr>
+<tr>
+<td>8</td>
+<td>MG-R12</td>
+</tr>
+<tr>
+<td>9</td>
+<td>MG-R13</td>
+</tr>
+</tbody>
+</table></div>
+<p>Sizes are estimates on the book's scale. By points, the critical path is <code>MG-Z00 → MG-Z02 → MG-Z03 → MG-R03 → MG-R07 → MG-R11 → MG-R12 → MG-R13</code> (32 of the 114 points): the policy vectors and the policy crate are the longest pole, then the tool runner and the TUI. By count, the longest chain is nine work packages (the nine waves). The <strong>F</strong>, <strong>D</strong> and <strong>B</strong> tracks run beside it and do not block it, except that <code>MG-D04</code> needs <code>MG-Z05</code> (the daemon's path-guard cases must be harvested before <code>daemon/</code> is deleted).</p>
+<hr />
+<h2 id="6-work-packages-in-detail">6. Work packages in detail</h2>
+<h3 id="61-track-z-foundations">6.1 Track Z · Foundations</h3>
+<h4 id="mg-z00-freeze-and-tag-the-python-m2c-reference-s-wave-1">MG-Z00 · Freeze and tag the Python M2C reference · S · Wave 1</h4>
+<p><em>Files:</em> a git tag, and a new <code>m2c/PARITY.md</code>.</p>
+<p><em>What:</em></p>
+<ol>
+<li>Tag the commit the Python client is frozen at: <code>git tag -a m2c-py-ref -m "Python M2C reference for the Rust migration"</code> (at the time of writing, <code>94af156</code>). Push the tag.</li>
+<li>Write <code>m2c/PARITY.md</code>: the checklist the Rust client must meet. Copy it from the code, not from memory: every command and flag in <code>m2c --help</code>; the exit codes (0 success, 1 general failure, 2 usage, 3 policy denial, 4 quota, 5 not logged in or revoked, 130 Ctrl-C, 143 SIGTERM); the environment variables (<code>M2C_HOME</code>, <code>M2C_LOG_LEVEL</code>, <code>M2C_SERVER_URL</code>); the 11 tools; the three modes (<code>plan</code>, <code>ask</code>, <code>accept-edits</code>); what is written under <code>M2C_HOME</code>; and the list of built work packages from <code>m2c_build_plan.md</code> §0.6.</li>
+<li>State the freeze rule at the top of that file: after the tag, <code>m2c/</code> (Python) accepts <strong>only security fixes</strong>, and each one lands together with a conformance vector.</li>
+<li>What is <strong>not</strong> frozen: <code>backend/codeagent/</code>, <code>backend/eo/</code>, <code>protocol/</code> (additive changes only).</li>
+</ol>
+<p><em>Done when:</em> the tag is pushed and <code>PARITY.md</code> has been checked line by line against <code>m2c --help</code> run at the tag.</p>
+<h4 id="mg-z01-switch-python-ci-and-docker-installs-to-uv-s-wave-1">MG-Z01 · Switch Python CI and Docker installs to <code>uv</code> · S · Wave 1</h4>
+<p><em>Files:</em> <code>.github/workflows/ci.yml</code>, <code>backend.Dockerfile</code>, any README that says <code>pip install</code>.</p>
+<p><em>What:</em> <code>uv pip install</code> is a drop-in for the fully pinned requirement files you already have.</p>
+<ul>
+<li><strong>CI</strong> (line numbers at <code>94af156</code>): <code>pip install -r requirements.txt</code> in <code>test</code> (58), <code>canary</code> (401) and <code>promptfoo</code> (535); <code>pip install -e ".[dev]"</code> in <code>m2c-test</code> (211); <code>pip install -r protocol/requirements.txt</code> in <code>protocol</code> (328); <code>pip install ruff==0.17.1</code> in <code>lint</code> (74); <code>pip install --no-deps -e ../m2c</code> in <code>canary</code> (404). Line 105 belongs to the <code>daemon-test</code> job, which <code>MG-D04</code> deletes, so leave it.</li>
+<li><strong>Docker:</strong> <code>RUN pip install --no-cache-dir -r requirements.txt</code> becomes <code>uv pip install --system --no-cache -r requirements.txt</code>, with the <code>uv</code> binary copied from Astral's published image <strong>pinned by version</strong> (<code>COPY --from=ghcr.io/astral-sh/uv:&lt;version&gt; /uv /usr/local/bin/uv</code>). Look the version up at the time; none is chosen here.</li>
+<li><strong>Actions:</strong> if you add a setup action, pin it by commit SHA with a version comment, like every other action in <code>ci.yml</code>. The SHA is not given here because it was not looked up.</li>
+<li><strong>Do not</strong> introduce a <code>uv.lock</code>, change build backends, or touch <code>m2c/pyproject.toml</code> (it still uses <code>hatchling</code> until <code>MG-R13</code>). The <code>requirements.txt</code> comments explaining pin conflicts (the <code>click</code> cap from <code>guardrails-ai</code>, the <code>lxml</code> pin) stay as they are.</li>
+</ul>
+<p><em>Done when:</em> every job is green, the backend image builds, and the before/after time of the <code>test</code> job and of the image build is in the patch description. If <code>uv</code> rejects a pin set that <code>pip</code> accepted, treat that as a real finding about the pins, not a reason to revert.</p>
+<h4 id="mg-z02-conformance-vector-format-and-python-runner-m-wave-2">MG-Z02 · Conformance vector format and Python runner · M · Wave 2</h4>
+<p><em>Files:</em> <code>protocol/conformance/README.md</code>, <code>protocol/conformance/schema/vector.json</code>, <code>protocol/conformance/run_python.py</code>, CI job <code>conformance-python</code>.</p>
+<p><em>What:</em> one JSON object per line, one decision per line, in <code>protocol/conformance/&lt;area&gt;/&lt;name&gt;.jsonl</code>.</p>
+<pre><code class="language-json">{&quot;id&quot;: &quot;policy/shell/compound-with-denied-part&quot;,
+ &quot;area&quot;: &quot;policy&quot;,
+ &quot;desc&quot;: &quot;A compound command is as bad as its worst part&quot;,
+ &quot;input&quot;: {
+   &quot;request&quot;: {&quot;tool&quot;: &quot;bash&quot;, &quot;input&quot;: {&quot;command&quot;: &quot;ls &amp;&amp; curl http://x&quot;}, &quot;risk&quot;: &quot;R2&quot;},
+   &quot;context&quot;: {&quot;mode&quot;: &quot;ask&quot;, &quot;project_root&quot;: &quot;/home/u/proj&quot;, &quot;home&quot;: &quot;/home/u&quot;,
+               &quot;project_trusted&quot;: false, &quot;non_interactive&quot;: false, &quot;cwd&quot;: null,
+               &quot;layers&quot;: {&quot;user&quot;:    {&quot;allow&quot;: [&quot;bash(ls)&quot;], &quot;ask&quot;: [], &quot;deny&quot;: [&quot;bash(curl:*)&quot;]},
+                          &quot;managed&quot;: {&quot;allow&quot;: [], &quot;ask&quot;: [], &quot;deny&quot;: []},
+                          &quot;project&quot;: {&quot;allow&quot;: [], &quot;ask&quot;: [], &quot;deny&quot;: []}}}},
+ &quot;expect&quot;: {&quot;action&quot;: &quot;deny&quot;},
+ &quot;source&quot;: &quot;m2c/tests/policy/test_policy_decide_table.py&quot;,
+ &quot;tags&quot;: [&quot;shell&quot;, &quot;compound&quot;]}
+</code></pre>
+<p><em>This example is illustrative.</em> <code>MG-Z03</code> generates the real rows from the existing tests, and the Python runner proves each one.</p>
+<ul>
+<li><strong>Fields.</strong> <code>id</code> (unique, <code>area/group/name</code>), <code>area</code>, <code>desc</code>, <code>input</code>, <code>expect</code>, <code>source</code> (the Python test it came from, or <code>"new"</code>), <code>tags</code>. <code>expect</code> lists only what must match (for policy: <code>action</code>, optionally <code>matched_rule</code>, <code>risk</code>, <code>basis</code>; never the free-text <code>reason</code>).</li>
+<li><strong>Runner.</strong> <code>run_python.py [--area X] [--tag T]</code> loads the vectors and calls the Python implementation through an adapter table (<code>ADAPTERS = {"policy": ..., "secrets": ..., "paths": ...}</code>), and exits non-zero on any mismatch. A second mode, <code>--oracle</code>, reads vectors from stdin and writes the Python answer for each: the differential fuzzers in <code>MG-R02</code> and <code>MG-R03</code> use it.</li>
+<li><strong>Known failures.</strong> A vector tagged <code>known-fail-python</code> is expected to fail on the reference (the reference has a bug) and to pass on Rust. The runner treats it as an expected failure and prints the list.</li>
+<li><strong>Rules.</strong> §4 rules 1 and 2. Vectors are data only: no code, no environment. Path vectors describe a small file tree that each runner builds in a temporary directory (<code>MG-Z05</code>).</li>
+</ul>
+<p><em>Done when:</em> the schema validates every vector, the runner fails on a deliberately broken vector (a test proves this), and the CI job is green.</p>
+<h4 id="mg-z03-policy-vectors-l-wave-3">MG-Z03 · Policy vectors · L · Wave 3</h4>
+<p><em>Files:</em> <code>protocol/conformance/policy/</code>, an adapter in <code>run_python.py</code>.</p>
+<p><em>Sources:</em> <code>m2c/tests/policy/</code> (8 test files and <code>policy_helpers.py</code>): <code>test_policy_decide_table</code>, <code>_rules</code>, <code>_modes</code>, <code>_shellparse</code>, <code>_interact</code>, <code>_invariants</code>, <code>_robustness</code>, <code>_review_findings</code>.</p>
+<p><em>What:</em></p>
+<ol>
+<li><strong>Export the table-driven tests.</strong> Wrap <code>decide(...)</code> and <code>shellparse.parse(...)</code> with a recorder, run the existing tests once, and dump each <code>(input, output)</code> pair. Remove duplicates, then review the dump by hand. Rule sets are plain strings (<code>bash(git status)</code>), paths are plain strings, nothing touches disk (<code>policy_helpers.py</code> already works this way).</li>
+<li><strong><code>shellparse</code> needs a JSON projection</strong>: <code>parse(command) -&gt; ParseResult</code> of <code>Part</code>, <code>Word</code> and <code>Redirect</code> objects. Define the projection once in the adapter (for example words as text plus a quoting flag) and document it in the vector README. Vectors compare the projection.</li>
+<li><strong>Do not export property tests.</strong> <code>test_policy_invariants</code> and <code>test_policy_robustness</code> express properties, not cases. Keep them as Python tests, write the equivalent <code>proptest</code> properties in <code>MG-R03</code>, and add concrete instances as vectors.</li>
+<li><strong>Author the Q07 bypass corpus here, as vectors.</strong> <code>Q07</code> is in the build plan and not built (§0.6). Writing it as vectors from the start means both languages run it. Groups, from the plan: compound commands (<code>&amp;&amp;</code>, <code>;</code>, pipes, <code>$(...)</code>, backticks, process substitution, here-documents, <code>bash -c</code>, <code>env X=1 cmd</code>, <code>xargs</code>, <code>find -exec</code>, <code>timeout</code>, <code>sudo</code>); one program named in a rule running another (aliases, <code>PATH</code> shadowing, <code>./git</code>); deny rules versus relative paths, <code>cd</code>, symlinks, letter case, restarts; settings and trust; sandbox-protected paths; control characters in names and output.</li>
+<li><strong>Where the Python reference is too permissive</strong>, record the safe answer as <code>expect</code> and tag the row <code>known-fail-python</code>. That is how the corpus finds real bugs.</li>
+</ol>
+<p><em>Done when:</em> every row of <code>test_policy_decide_table</code> is exported (the counts match), every Q07 group has rows, the runner is green with the known-fail list documented, and the vector README lists the shellparse projection.</p>
+<h4 id="mg-z04-secret-redaction-vectors-m-wave-3">MG-Z04 · Secret-redaction vectors · M · Wave 3</h4>
+<p><em>Files:</em> <code>protocol/conformance/secrets/</code>.</p>
+<p><em>Sources:</em> <code>m2c/tests/secret_handling/</code>: <code>test_secrets_corpus</code>, <code>_detectors</code>, <code>_env</code>, <code>_memory</code>, <code>_runner</code>, <code>_stream</code>.</p>
+<p><em>What:</em></p>
+<ol>
+<li><strong>Detectors.</strong> For every detector kind in <code>secrets/redact.py</code> (AWS keys, tokens, JWTs, URL credentials, <code>Authorization</code> headers, <code>--password</code> style flags, assignments, high-entropy candidates), positive rows (the secret must not survive) and negative rows (ordinary developer text must be left alone: hashes, UUIDs, base64 of non-secrets, file paths).</li>
+<li><strong>Chunk boundaries.</strong> <code>_stream</code> rows: <code>input.chunks</code> is a list, and a secret split across two chunks must still be caught.</li>
+<li><strong>Environment.</strong> <code>secrets/env.py</code> rows: environment in, sanitized environment out.</li>
+<li><strong>Fake secrets and Gitleaks.</strong> Vectors must not contain a credential-shaped literal, or the pre-commit hook and CI fail. Store each fake as <strong>pieces</strong> the runner joins (<code>"parts": ["gh", "p_", "&lt;body&gt;"]</code>), the same idea as <code>secret_fakes.py</code>'s <code>_cat</code>. If Gitleaks still flags a body, the fallback is to add <code>protocol/conformance/secrets/</code> to the <code>.gitleaks.toml</code> allowlist <strong>and</strong> add a test that fails if any row there lacks <code>"fake": true</code>. Prefer the pieces; the allowlist switches scanning off for that folder.</li>
+<li><strong>Do not use Python's seeded <code>random</code> to make fakes.</strong> Rust cannot reproduce that stream. The vectors hold concrete values.</li>
+</ol>
+<p><em>Done when:</em> each detector kind has positive and negative rows, the stream-split rows exist, the runner is green, and Gitleaks is green on the commit.</p>
+<h4 id="mg-z05-path-guard-vectors-m-wave-3">MG-Z05 · Path-guard vectors · M · Wave 3</h4>
+<p><em>Files:</em> <code>protocol/conformance/paths/</code>.</p>
+<p><em>Sources:</em> <code>m2c/tests/tools/test_tools_paths.py</code>, <code>m2c/tests/tools/test_tools_path_guard_port.py</code> (ported from <code>daemon/tests/test_path_guard.py</code>), and <code>daemon/tests/test_path_guard.py</code> itself.</p>
+<p><em>What:</em> each row holds a small tree spec (<code>{"files": {"a/b.txt": "x"}, "dirs": [...], "symlinks": {"link": "../outside"}}</code>), an operation (<code>resolve</code>, <code>open_read</code>, <code>open_write</code>), a root and a path, and the expected result (<code>{"ok": true, "resolved": "a/b.txt"}</code> or <code>{"error": "&lt;name from tools/paths.py&gt;"}</code>). Runners build the tree in a temp directory and substitute <code>{ROOT}</code>. Cover: <code>..</code> traversal, absolute paths, <code>~</code>, symlinks pointing outside, symlinks inside, dot segments, trailing slashes, NUL bytes, very long paths, case, Unicode normalization.
+<strong>Also compare the daemon's test file with the M2C port</strong> and add any case that exists only in the daemon's tests, so deleting <code>daemon/</code> loses nothing (<code>MG-D04</code> depends on this).
+A race (a symlink swapped between check and use) cannot be a static row; it becomes a Rust-only test in <code>MG-R01</code>.</p>
+<p><em>Done when:</em> every case in both test files is exported or explicitly marked as race-only, and the runner is green.</p>
+<h4 id="mg-z06-local-store-compatibility-fixtures-s-wave-2">MG-Z06 · Local-store compatibility fixtures · S · Wave 2</h4>
+<p><em>Files:</em> <code>rust/fixtures/store/</code>, <code>m2c/tests/store/make_golden.py</code>.</p>
+<p><em>What:</em> the Rust client must open what the Python client wrote, and the reverse, while the two overlap. <code>store/migrations.py</code> creates <code>sessions</code>, <code>events</code>, <code>approvals</code>, <code>checkpoints</code> and <code>schema_version</code>.</p>
+<ol>
+<li>A script, run at the frozen tag, builds a small deterministic database through the Python store API (several sessions, events, approvals, checkpoints). Commit the <code>.sqlite</code> file and a JSON dump of its logical content.</li>
+<li>Do the same for every other file the Python client writes under <code>M2C_HOME</code>: the credential file (<code>0600</code>), the folder-trust decisions, the settings layers. List them in <code>PARITY.md</code>.</li>
+</ol>
+<p><em>Done when:</em> a Python test reopens the golden database and matches the dump, and the file list under <code>M2C_HOME</code> is complete.</p>
+<h4 id="mg-z07-rust-workspace-toolchain-and-ci-m-wave-2">MG-Z07 · Rust workspace, toolchain and CI · M · Wave 2</h4>
+<p><em>Files:</em> <code>rust/Cargo.toml</code>, <code>rust/rust-toolchain.toml</code>, <code>rust/deny.toml</code>, <code>rust/deps-allowlist.toml</code>, <code>.github/workflows/ci.yml</code>.</p>
+<p><em>What:</em></p>
+<p><strong>Layout</strong> (Python and Rust coexist under one repo until <code>MG-R13</code>):</p>
+<pre><code>rust/
+  Cargo.toml  Cargo.lock  rust-toolchain.toml  deny.toml  deps-allowlist.toml
+  crates/
+    minicore-protocol  minicore-paths  minicore-secrets  minicore-policy
+    minicore-store     minicore-link   minicore-auth     minicore-sandbox
+    m2c-tools  m2c-context  m2c-checkpoints  m2c-tui  m2c-cli   (bin: m2c)
+  fixtures/
+</code></pre>
+<p>The <code>minicore-*</code> crates are exactly the shared pieces the Menux guide lists for <code>MT-K01</code>. Naming them now is what turns <code>MT-K01</code> from an extraction into a boundary check (§8).</p>
+<p>Then:</p>
+<ul>
+<li><strong>Pin the toolchain</strong> in <code>rust-toolchain.toml</code>; commit <code>Cargo.lock</code>; CI uses <code>--locked</code>.</li>
+<li><strong>CI jobs:</strong> <code>cargo fmt --check</code>, <code>cargo clippy --all-targets -- -D warnings</code>, <code>cargo test --workspace --locked</code>, <code>cargo deny check</code>, <code>cargo audit</code>, the conformance job for Rust (added as vectors arrive), and a dependency-allowlist test that reads <code>cargo metadata</code> and fails on any crate without an entry (§4 rule 4).</li>
+<li><strong>Candidate crates</strong> (candidates only; verify the current version and licence and pin exactly in the patch that adds each): <code>tokio</code>; <code>serde</code>, <code>serde_json</code>; <code>jsonschema</code>; <code>tokio-tungstenite</code>; <code>rusqlite</code> (bundled SQLite); <code>clap</code>; <code>ratatui</code> with <code>crossterm</code>; <code>regex</code>; <code>rustix</code> or <code>nix</code>; <code>keyring</code> (optional feature); <code>tracing</code>; <code>thiserror</code>, <code>anyhow</code>; <code>similar</code>; <code>toml</code>; <code>sha2</code>; <code>proptest</code>; <code>insta</code>.</li>
+<li><strong>Targets:</strong> x86_64 and aarch64 Linux (WSL2 runs on both). Linux first, as the book already says (CX2). glibc versus musl is decided in <code>MG-R05</code> (§12).</li>
+</ul>
+<p><em>Done when:</em> <code>cargo test --workspace --locked</code> is green on the empty skeleton, every CI job runs, and the allowlist test is proven red when a crate is added without an entry.</p>
+<h4 id="mg-z08-protocol-codegen-and-fixture-replay-m-wave-3">MG-Z08 · Protocol codegen and fixture replay · M · Wave 3</h4>
+<p><em>Files:</em> <code>protocol/validate.py</code> (a second sync target), <code>rust/crates/minicore-protocol/schemas/</code>, <code>protocol/generated/ts/</code>, CI check.</p>
+<p><em>What:</em></p>
+<ol>
+<li><strong>Spike first.</strong> The schemas are Draft 2020-12 with cross-file <code>$ref</code> (<code>common.json#/$defs/uuid</code>), a custom <code>x-m2c-types</code> keyword, and a payload chosen by the envelope's <code>t</code>. Code generators differ in how much of that they handle. Try one Rust generator (for example <code>typify</code>) and one TypeScript generator (for example <code>json-schema-to-typescript</code>) on the real files and record what works. <strong>If generation cannot express the <code>t</code>-tagged payloads, hand-write the Rust enum and the TypeScript union.</strong> Generation is a convenience; the fixture replay below is the guard.</li>
+<li><strong>Commit the generated output</strong> and add a CI check that regenerates and fails on any diff, the same idea as <code>validate.py --check-client-copy</code>.</li>
+<li><strong>Fixture replay.</strong> In Rust and in TypeScript: parse every line of <code>protocol/fixtures/*.jsonl</code> into the types and serialize it back to equal JSON; run <code>check_transcript</code> (sequence runs, call-id pairing, resume cursors, terminal states, as <code>validate.py</code> does); and require that every one of the 60 <code>invalid_examples.jsonl</code> rows is rejected <strong>on the keyword and path it names</strong>. For TypeScript runtime validation use Ajv's 2020-12 class.</li>
+<li><strong>Sync target.</strong> <code>validate.py --sync-client</code> copies the schemas into <code>m2c/src/m2c/protocol/v1/</code>. Add the Rust crate's <code>schemas/</code> directory as a second target with the same byte-identical check. Keep the Python target until <code>MG-R13</code>.</li>
+</ol>
+<p><em>Done when:</em> Rust and TypeScript replay all four transcripts, reject all 60 invalid rows for the named reason, and the regenerate-and-diff check is green.</p>
+<h4 id="mg-z09-book-edits-for-the-new-plan-s-wave-2">MG-Z09 · Book edits for the new plan · S · Wave 2</h4>
+<p><em>Files (in this book repo):</em> <code>data/docs/m2c_feature_guide.md</code> (and its mirror in <code>docs/</code>), <code>data/docs/m2c_build_plan.md</code>, <code>data/docs/Menux___Build_Execution_Guide.md</code>, <code>data/docs/menux_feature_guide.md</code>, <code>docs.html</code>, <code>llms.txt</code>, <code>data/summary.md</code>, <code>consistency.html</code>.</p>
+<p><em>What:</em> make the existing guides agree with DM-1 to DM-10.</p>
+<ul>
+<li><strong><code>m2c_feature_guide.md</code>:</strong> O4 and §2.2 (distribution is a signed binary plus the installer script, Python is no longer required; keep <code>uv tool install</code> text only for the frozen reference); every "Python 3.11" requirement; the <code>minicore/</code> wording (it becomes workspace crates); the dependency policy (D14 becomes the crate allowlist).</li>
+<li><strong><code>m2c_build_plan.md</code>:</strong> D1 (Python ≥ 3.11) and D14; add a short "§0.7 Migration status" pointing at this guide; <code>C22</code> packaging (binary releases, checksums and signing instead of a wheel); <code>Q01</code> CI; <code>Q08</code> (the docs-drift check runs against the Rust <code>m2c --help</code>); <code>P00</code> (the client-copy path); §0.6 gets a "Rust" status column as packages port.</li>
+<li><strong><code>Menux___Build_Execution_Guide.md</code>:</strong> the precondition (Menux starts when the <strong>Rust</strong> M2C reaches M2); <code>K00</code> (inventory of the Rust workspace); <code>K01</code> (size L becomes S: the crates already exist, §8); <code>D1</code> scheduler (<code>croniter</code>), <code>D3</code> vault libraries, <code>D7</code> (YAML 1.1 versus 1.2, §8), Playwright as a sidecar, the prompt template ("Python" becomes "Rust"), and the risk row "extracting <code>minicore</code> breaks M2C".</li>
+<li><strong><code>docs.html</code>:</strong> the <code>minicore</code> node of the architecture panel says the shared <code>minicore/</code> library was "extracted in M2C Wave 1" (<code>P00</code>). The build plan says <code>P00</code> created <code>protocol/</code>, and <code>minicore/</code> does not exist yet. Rewrite the text to describe the planned <code>minicore-*</code> crates.</li>
+<li><strong>In the MiniMe repo (not this book), at <code>MG-D04</code>:</strong> mark the daemon entry in <code>DEFERRED.md</code> <code>[RESOLVED]</code> with how it closed (the file's own convention), and add a "Superseded" note to <code>docs/decisions/0003-cli-attach-daemon-dir.md</code>. Do not delete decision records.</li>
+</ul>
+<p><em>Done when:</em> a search of the three guides for "Python 3.11", "<code>uv tool install m2c</code>" and "<code>minicore/</code>" finds only intentional mentions, and the consistency page lists this guide.</p>
+<hr />
+<h3 id="62-track-f-frontend-to-typescript">6.2 Track F · Frontend to TypeScript</h3>
+<h4 id="mg-f00-typescript-foundation-and-test-runner-spike-m-wave-1">MG-F00 · TypeScript foundation and test-runner spike · M · Wave 1</h4>
+<p><em>Files:</em> <code>frontend/package.json</code>, <code>frontend/tsconfig.json</code> (new), <code>frontend/ts-nocheck-allowlist.txt</code> (new), <code>.github/workflows/ci.yml</code> (<code>frontend-lint</code>).</p>
+<p><em>What:</em></p>
+<p><strong>1. Dependencies.</strong> Add devDependencies <code>typescript</code>, <code>@types/node</code>, <code>@types/react</code>, <code>@types/react-dom</code> and a script <code>"typecheck": "tsc --noEmit"</code>. Add that script to the <code>frontend-lint</code> job.
+<strong>2. <code>tsconfig.json</code></strong>, starting point:</p>
+<pre><code class="language-json">{
+  &quot;compilerOptions&quot;: {
+    &quot;target&quot;: &quot;ES2022&quot;, &quot;lib&quot;: [&quot;dom&quot;, &quot;dom.iterable&quot;, &quot;esnext&quot;],
+    &quot;module&quot;: &quot;esnext&quot;, &quot;moduleResolution&quot;: &quot;bundler&quot;, &quot;jsx&quot;: &quot;preserve&quot;,
+    &quot;allowJs&quot;: true, &quot;checkJs&quot;: false, &quot;strict&quot;: true, &quot;noEmit&quot;: true,
+    &quot;isolatedModules&quot;: true, &quot;skipLibCheck&quot;: true, &quot;resolveJsonModule&quot;: true,
+    &quot;allowImportingTsExtensions&quot;: true, &quot;erasableSyntaxOnly&quot;: true,
+    &quot;verbatimModuleSyntax&quot;: true, &quot;incremental&quot;: true
+  },
+  &quot;include&quot;: [&quot;next-env.d.ts&quot;, &quot;app/**/*&quot;, &quot;middleware.js&quot;],
+  &quot;exclude&quot;: [&quot;node_modules&quot;]
+}
+</code></pre>
+<p><code>allowJs</code> without <code>checkJs</code> means unconverted JS is not checked; <strong>a converted file is strictly checked from the moment it is renamed.</strong> That is the ratchet, no baseline file needed. Keep <code>next.config.js</code>, <code>tailwind.config.js</code>, <code>postcss.config.js</code> and the Sentry config files as JavaScript: Next 14 reads a JavaScript config.</p>
+<p><strong>3. Spike the test runner.</strong> Your CI uses Node 22.22.0, and the Node 22.18.0 release turned on native type stripping by default (<a href="https://nodejs.org/blog/release/v22.18.0">release notes</a>). Take the smallest <code>app/lib</code> module that a <code>.test.mjs</code> imports, rename it to <code>.ts</code>, change the import in the test to the <code>.ts</code> specifier, and run <code>npm test</code>, <code>npm run typecheck</code> and <code>npm run build</code>. Type stripping removes types but does not rewrite anything else, which is why the config above has <code>erasableSyntaxOnly</code> (no <code>enum</code>, namespaces or parameter properties; it needs TypeScript 5.8 or newer, so pick the <code>typescript</code> version with that in mind), <code>verbatimModuleSyntax</code> (type-only imports use <code>import type</code>) and <code>allowImportingTsExtensions</code> (so the bundler accepts <code>.ts</code> specifiers). It also cannot run JSX, so <strong>tests may import <code>.ts</code> modules and never <code>.tsx</code></strong>: keep the logic that tests exercise in <code>.ts</code> files. If the spike fails on 22.22.0, the fallback is <code>node --import tsx --test</code>, which adds a <code>tsx</code> devDependency; record whichever you choose.</p>
+<p><strong>4. The no-check allowlist.</strong> The eight files over 1,500 lines (§3) may carry <code>// @ts-nocheck</code> while they are split. List them in <code>frontend/ts-nocheck-allowlist.txt</code>; a CI step fails if a file outside the list uses <code>@ts-nocheck</code> or if the list grows.</p>
+<p><em>Done when:</em> <code>typecheck</code>, <code>build</code> and <code>test</code> are green with the spike file converted, and the choice (native stripping or <code>tsx</code>) is recorded.</p>
+<h4 id="mg-f01-generate-api-types-from-fastapis-openapi-m-wave-2">MG-F01 · Generate API types from FastAPI's OpenAPI · M · Wave 2</h4>
+<p><em>Files:</em> <code>backend/scripts/dump_openapi.py</code> (new), <code>frontend/app/lib/api/schema.d.ts</code> (generated, committed), <code>frontend/app/lib/api/client.ts</code>, <code>frontend/app/lib/events.ts</code>, <code>frontend/package.json</code> (<code>gen:api</code>).</p>
+<p><em>What:</em> the frontend talks to the backend over REST and Pusher, not over the device protocol, so its contract is the OpenAPI document FastAPI already produces.</p>
+<ol>
+<li><code>dump_openapi.py</code> imports <code>api.server.app</code> and prints <code>app.openapi()</code>. If importing the app needs environment variables, run it with the same environment as the CI <code>test</code> job.</li>
+<li>Generate <code>schema.d.ts</code> with an OpenAPI-to-TypeScript generator (<code>openapi-typescript</code> is the usual choice), commit it, and add a CI step that regenerates and fails on any diff.</li>
+<li>A small typed wrapper around <code>authFetch</code> in <code>client.ts</code>, generic over path and method.</li>
+<li><strong>Routes without a <code>response_model</code> produce loose types.</strong> Tightening them is <code>MG-B05</code>. Start with the eight to ten routes the frontend calls most.</li>
+<li><strong>Realtime events have no schema.</strong> Write <code>app/lib/events.ts</code> by hand, a typed map of the Pusher event names and payloads taken from <code>backend/relay/emitter.py</code>. Emitting a schema from Python later is optional.</li>
+</ol>
+<p><em>Done when:</em> the generated file is committed with its diff check, at least one real call site uses the typed wrapper end to end, and <code>events.ts</code> covers every event the frontend subscribes to.</p>
+<h4 id="mg-f02-convert-applib-modules-l-wave-3">MG-F02 · Convert <code>app/lib</code> modules · L · Wave 3</h4>
+<p><em>Files:</em> the 55 <code>.js</code> files under <code>frontend/app/lib/</code> (including <code>preview/</code> and <code>workbench/</code>) and the tests that import them.</p>
+<p><em>Order:</em> modules that touch backend data first (<code>authFetch</code>, <code>devices</code>, <code>usage</code>, <code>streamTicket</code>, <code>ingestDispatch</code>, <code>pusherClient</code>, <code>chatMessageCache</code>, <code>latestRequest</code>), then the rest (<code>notebookAffinities</code>, <code>notebookCapabilities</code>, <code>highlightCode</code>, <code>clearLocalAppState</code>, <code>langfuseTraceId</code>, <code>pyodideRunner</code>, <code>supabaseClient</code>, <code>supabaseServer</code>, then <code>preview/</code> and <code>workbench/</code>).</p>
+<p><em>What:</em> rename <code>.js</code> to <code>.ts</code>, type the exports from <code>schema.d.ts</code> and <code>events.ts</code>, update the import specifiers in tests to <code>.ts</code>. Convert at most about ten files per patch.</p>
+<p><em>Done when:</em> <code>app/lib</code> has no <code>.js</code> (except where a file must stay JavaScript, with the reason in a comment), and <code>typecheck</code>, <code>build</code> and <code>test</code> are green.</p>
+<h4 id="mg-f03-convert-hooks-and-context-providers-m-wave-4">MG-F03 · Convert hooks and context providers · M · Wave 4</h4>
+<p><em>Files:</em> <code>frontend/app/hooks/</code> (11 files), <code>frontend/app/context/</code> (8 files).</p>
+<p><em>What:</em> <strong>do not convert <code>hooks/useDaemonStatus.js</code>; <code>MG-D02</code> deletes it.</strong> <code>SessionContext.jsx</code> (2,718 lines) and <code>WorkspaceDockContext.jsx</code> (1,590) go on the no-check allowlist first; before removing the comment, extract their reducers, selectors and pure helpers into <code>.ts</code> modules and type those. That is also where hidden bugs sit.</p>
+<p><em>Done when:</em> hooks and context are <code>.tsx</code>/<code>.ts</code>, the two giant providers are either converted or on the allowlist with an extraction plan, and CI is green.</p>
+<h4 id="mg-f04-convert-components-directory-by-directory-xl-wave-5">MG-F04 · Convert components, directory by directory · XL · Wave 5</h4>
+<p><em>Files:</em> <code>frontend/app/components/</code> (100 <code>.jsx</code>, including <code>tabs/</code> and <code>workbench/</code>).</p>
+<p><em>What:</em> leaf components first (presentational, no context), then components that use contexts, then the <code>tabs/*Tab.jsx</code> files last. About ten files per patch. Third-party types: <code>reactflow</code>, <code>recharts</code>, <code>react-force-graph-2d</code>, the <code>@codemirror/*</code> packages and xterm ship their own; add <code>@types/three</code> if a 3D component is converted. <strong>Giant files in two steps:</strong> (1) rename to <code>.tsx</code>, add them to the allowlist, extract pure logic into <code>.ts</code> modules and type those; (2) split the component until the <code>@ts-nocheck</code> can be removed. The files are <code>NotebooksTab</code>, <code>WorkspaceChatPanel</code>, <code>EditorWorkbench</code>, <code>BuildTab</code>, <code>GrowthTab</code>, <code>TestTab</code>.</p>
+<p><em>Done when:</em> no <code>.jsx</code> remains under <code>app/components/</code>, and the allowlist holds only files with a written split plan.</p>
+<h4 id="mg-f05-strict-everywhere-drop-allowjs-m-wave-6">MG-F05 · Strict everywhere, drop <code>allowJs</code> · M · Wave 6</h4>
+<p><em>What:</em> empty and delete <code>ts-nocheck-allowlist.txt</code>, set <code>allowJs: false</code>, turn the ESLint <code>no-explicit-any</code> rule from warning to error, and consider <code>noUncheckedIndexedAccess</code> as an option (§12).</p>
+<p><em>Done when:</em> no <code>.js</code> or <code>.jsx</code> is left under <code>frontend/app/</code> apart from configuration files, and <code>typecheck</code> is green with <code>strict</code>.</p>
+<hr />
+<h3 id="63-track-d-retire-the-daemon">6.3 Track D · Retire the daemon</h3>
+<p><strong>Why this is not a plain deletion.</strong> <code>daemon/</code> is superseded: M2C's <code>tools/paths.py</code>, <code>tools/files.py</code> and <code>tools/search.py</code> carry "Ported from daemon/…" headers (a test asserts it), and M2C adds a policy engine, a bubblewrap sandbox, a network proxy and a reconnecting device link. But the backend half is entangled with something that stays:</p>
+<ul>
+<li><code>eo/local_workspace_tools.py</code> holds both the daemon calls (<code>call_daemon</code>) and the propose / confirm / deny gate.</li>
+<li><code>api/routes/mcp.py</code> imports the gate functions from it and says it deliberately reuses the same ones; <code>eo/mcp_agent_tools.py</code> mirrors it. That gate protects <strong>server-side MCP for the web agents</strong>, which stays.</li>
+<li><code>relay/emitter.py</code> fires <code>LOCAL_TOOL_*</code> events that the MCP path also uses.</li>
+<li><code>frontend/app/lib/workbench/fileProviders.js</code> (line 13) carries a comment, "The backend local_workspace routes and daemon/ stay until M2C Phase 5." This guide moves that earlier on purpose; its condition is that the browser's Local-folder mode is already gone. That was Phase 0 of the M2C build plan (its own work packages numbered B03 to B06, which are unrelated to this guide's track B); §0.6 of the plan lists three of them as built and one as not checked, so confirm which one covered Local-folder before MG-D02.</li>
+<li><code>eo/local_workspace.py</code> has its own process-local <code>_connections</code> dict for daemon sockets. It is not the M2C registry (<code>codeagent/connections.py</code>) and disappears with <code>MG-D03</code>.</li>
+<li><strong>Not part of this:</strong> <code>eo/ws_registry.py</code> and its test are the web UI's WebSocket bridge, unrelated to the daemon. Keep them.</li>
+</ul>
+<h4 id="mg-d00-decide-the-fate-of-the-shared-action-gate-s-wave-1">MG-D00 · Decide the fate of the shared action gate · S · Wave 1</h4>
+<p><em>Files:</em> a new decision record in the MiniMe repo, <code>docs/decisions/&lt;next free number&gt;-daemon-retirement.md</code> (numbers 0001 to 0003 exist).</p>
+<p><em>Options:</em> <strong>A (recommended)</strong> extract the gate into a neutral module both paths use, then delete the daemon half. <strong>B</strong> leave <code>local_workspace_tools.py</code> as it is and delete only <code>daemon/</code> and the socket route (dead code stays). <strong>C</strong> retire server-side MCP for web agents too (D18 says M2C's MCP is device-only; the web agents still use <code>eo/mcp_client.py</code>, so this is a product decision).</p>
+<p><em>Done when:</em> the record names the option and pastes the result of <code>grep -rn "local_workspace_tools" backend frontend</code> as its inventory.</p>
+<h4 id="mg-d01-extract-the-neutral-action-gate-m-wave-2">MG-D01 · Extract the neutral action gate · M · Wave 2</h4>
+<p><em>Files:</em> new <code>backend/eo/action_gate.py</code>; <code>eo/local_workspace_tools.py</code>, <code>eo/mcp_agent_tools.py</code>, <code>api/routes/mcp.py</code>.</p>
+<p><em>What:</em> move the propose / confirm / deny functions and their audit-event emission into <code>action_gate.py</code>. Behavior-preserving: keep a re-export shim in <code>local_workspace_tools.py</code> until <code>MG-D03</code>. Do not rename the event types the MCP path emits.</p>
+<p><em>Tests that must stay green:</em> <code>tests/unit/test_eo_local_workspace_tools_mcp_gate.py</code>, <code>test_eo_mcp_agent_tools.py</code>, <code>test_eo_mcp_client.py</code>, and the route tests.</p>
+<p><em>Done when:</em> <code>grep</code> shows no MCP code importing from <code>local_workspace_tools</code>.</p>
+<h4 id="mg-d02-remove-frontend-daemon-surfaces-s-wave-3">MG-D02 · Remove frontend daemon surfaces · S · Wave 3</h4>
+<p><em>Files:</em> <code>app/hooks/useDaemonStatus.js</code> (delete), its callers, the daemon tool-call log in <code>components/AgentStepList.jsx</code> and <code>context/WorkspaceDockContext.jsx</code>, the comment in <code>app/lib/workbench/fileProviders.js</code>, and <code>app/lib/workbench/__tests__/localFolderRemoved.test.mjs</code> (it currently asserts that the hook still polls <code>/local/status</code>; rewrite it to assert that nothing does).</p>
+<p><em>What:</em> a search for <code>daemon|local.?workspace</code> in <code>frontend/app</code> matches <code>LandingPage</code>, <code>workbench/BottomPanel</code>, <code>Explorer</code>, <code>UrlPreview</code>, <code>EditorWorkbench</code>, <code>agentRoleIcons</code>, <code>RoutingTraceGraph</code>, <code>PendingActionBar</code>, <code>AgentStepList</code> and <code>useDaemonStatus</code>. Not all are real callers: review each. Keep any handling of the shared <code>LOCAL_TOOL_*</code> events that MCP calls still produce.</p>
+<p><em>Done when:</em> no frontend code requests <code>/local/</code> routes, and <code>lint</code>, <code>test</code> and <code>build</code> are green.</p>
+<h4 id="mg-d03-remove-backend-daemon-routes-registry-and-events-m-wave-4">MG-D03 · Remove backend daemon routes, registry and events · M · Wave 4</h4>
+<p><em>Files:</em> delete <code>eo/local_workspace.py</code> (WS <code>/ws/daemon/{workspace_id}</code>, <code>_connections</code>, the <code>MINIME_PAIRING_TOKEN</code> check) and <code>api/routes/local_workspace.py</code>; edit <code>api/server.py</code> (the imports near lines 95 and 133 and the <code>include_router</code> calls near 387–388), <code>relay/emitter.py</code> (remove only daemon-specific callers), <code>eo/introspection.py</code> and <code>api/routes/code_edit.py</code> (comments); tests <code>test_eo_local_workspace.py</code>, <code>test_eo_local_workspace_tools.py</code>, and the daemon-specific part of <code>test_task_routes_full_payload.py</code>; the shim from <code>MG-D01</code>.</p>
+<p><em>Done when:</em> <code>pytest tests/unit tests/integration tests/static</code> is green, a static test asserts that <code>/ws/daemon/{workspace_id}</code> is not in the route table, and <code>MINIME_PAIRING_TOKEN</code> appears nowhere in code or docs.</p>
+<h4 id="mg-d04-delete-daemon-and-its-ci-job-s-wave-5">MG-D04 · Delete <code>daemon/</code> and its CI job · S · Wave 5</h4>
+<p><em>Files:</em> <code>daemon/</code> (16 files), the <code>daemon-test</code> job in <code>ci.yml</code> (lines 76–106) and the comment in <code>m2c-test</code> that mentions it (near line 116); wording in <code>m2c/pyproject.toml</code> (comments about sharing pins with <code>daemon/requirements.txt</code>) and the docstring at <code>m2c/tests/test_cli.py:233</code>; <code>DEFERRED.md</code> and <code>docs/decisions/0003-…</code> as in <code>MG-Z09</code>.</p>
+<p><em>Checked:</em> no M2C test reads a file from <code>daemon/</code>; the mentions are comments and docstrings. The tests that assert the "Ported from daemon/…" headers read M2C's own source, so they stay.</p>
+<p><em>Done when:</em> <code>git grep -n "daemon/"</code> finds only decision records and history, and CI is green without the job. Requires <code>MG-Z05</code>.</p>
+<hr />
+<h3 id="64-track-b-backend-hardening-python">6.4 Track B · Backend hardening (Python)</h3>
+<h4 id="mg-b00-load-test-harness-m-wave-1">MG-B00 · Load-test harness · M · Wave 1</h4>
+<p><em>Files:</em> <code>backend/loadtest/</code> (new: <code>run.py</code>, <code>scenarios.py</code>, <code>README.md</code>, its own requirements file; <strong>not</strong> <code>backend/requirements.txt</code>).</p>
+<p><em>What:</em> a program that opens N device WebSockets and behaves like real clients, so the server's numbers come from measurement.</p>
+<ul>
+<li><strong>Handshake</strong> (from <code>protocol/v1/hello.json</code> and <code>welcome.json</code>): connect to <code>/v1/code/device</code>, send <code>hello</code> with <code>protocol_versions</code>, <code>device_credential</code>, <code>client_version</code>, <code>capabilities</code>; expect <code>welcome</code> with <code>protocol</code>, <code>min_protocol</code>, <code>token_ttl_s</code>, <code>limits</code>. The server gives a client 10 s to send <code>hello</code>.</li>
+<li><strong>Credentials.</strong> Devices are stored by the SHA-256 hash of the credential (<code>eo/devices.py</code>). The harness creates N test devices in a <strong>staging database</strong> with random credentials whose hashes it inserts. <strong>Never run it against production data.</strong></li>
+<li><strong>No real model calls.</strong> <code>codeagent/model_adapter.py</code> defines the provider-neutral <code>ModelAdapter</code> (a stream of <code>TextDelta</code>, <code>ToolCall</code>, <code>Usage</code>). Add a scripted fake adapter that can be selected only by an explicit staging setting, and make the server refuse to start with it when a production flag is set. Without this, a load test spends money on providers.</li>
+<li><strong>Scenarios:</strong> <strong>S1</strong> idle hold (connect N, ping every ~25 s, hold for 10 minutes); <strong>S2</strong> busy (a fraction start runs with scripted tool calls and approvals); <strong>S3</strong> reconnect storm (restart the server, all N reconnect, with and without jitter); <strong>S4</strong> slow consumer (some clients stop reading; check that the per-connection send lock does not stall others); <strong>S5</strong> resume (drop and resume with <code>run.resume{last_seq}</code> under load).</li>
+<li><strong>Ramp:</strong> 100, 1,000, 5,000, 10,000 connections, as far as the staging box allows.</li>
+<li><strong>Measure:</strong> handshake time p50/p95/p99; server memory per connection; event-loop lag (<code>asyncio</code> slow-callback logging); database and Redis operations per second per idle connection; CPU; time to full recovery in S3; close codes seen (4429 means the rate limiter fired).</li>
+</ul>
+<p><em>Done when:</em> all five scenarios run against staging with the fake adapter, results are written to <code>loadtest/results/&lt;run&gt;.json</code>, and the README says exactly how to set up a staging database.</p>
+<h4 id="mg-b01-baseline-run-numbers-recorded-in-the-book-s-wave-2">MG-B01 · Baseline run, numbers recorded in the book · S · Wave 2</h4>
+<p><em>What:</em> run <code>MG-B00</code> on the current code at the chosen staging size and put the table in <code>minime_server_management_guide.md</code> (this book) next to its existing scale triggers.
+<strong>Hypotheses to test, not conclusions:</strong> (1) the 30-second revalidation per connection is the first cost to appear (N/30 credential checks per second); (2) <code>buffer.py</code> writes every replayed event to Redis through the Upstash client, which is an HTTP request per command (and retries once, so a push can land twice, as its own comments say), so replay-buffer round trips, not Python, may dominate at load; (3) event-loop lag shows up with S2 before CPU does.</p>
+<p><em>Done when:</em> the table is in the book with the staging hardware stated, and each hypothesis is marked confirmed or refuted.</p>
+<h4 id="mg-b02-redis-backed-presence-and-handshake-limiter-m-wave-3">MG-B02 · Redis-backed presence and handshake limiter · M · Wave 3</h4>
+<p><em>Files:</em> <code>codeagent/connections.py</code> (the <code>ConnectionRegistry</code> and <code>HandshakeLimiter</code> interfaces), a Redis-backed implementation, wiring in <code>ws.py</code>.</p>
+<p><em>What:</em> the <code>S11</code> pieces the code comments already name. Live sockets stay process-local (they cannot leave the process) and cross-process presence ("is this device online anywhere") goes to Redis with a TTL and heartbeat; the failed-handshake limiter moves to Redis so several gateway processes share one budget; per-user limits. If <code>MG-B01</code> shows Upstash round trips dominate, put a TCP Redis client behind the existing <code>RedisLike</code> interface in <code>buffer.py</code> for the hot paths.</p>
+<p><em>Done when:</em> two gateway processes behind the test harness report correct presence and a shared limiter, and S1 and S3 are re-run with before/after numbers.</p>
+<h4 id="mg-b03-gateway-process-split-l-wave-4">MG-B03 · Gateway process split · L · Wave 4</h4>
+<p><em>What:</em> read <code>S11</code> in <code>m2c_build_plan.md</code> and the process-split section in <code>minime_server_management_guide.md</code> first. This work package <strong>is</strong> <code>S11</code>'s process split, started earlier and measured. The migration adds three requirements: do it in Python; re-run <code>MG-B00</code> before and after; and keep the gateway behind a narrow interface (<code>DeviceConnection</code>, <code>ConnectionRegistry</code>, the envelope send path), so <code>MG-B06</code> can swap its implementation without touching the loop.</p>
+<p><em>Done when:</em> the gateway and the loop run as separate processes, a graceful drain on deploy works, and S1 to S5 meet the targets in the book.</p>
+<h4 id="mg-b04-blocking-call-audit-on-hot-paths-m-wave-3">MG-B04 · Blocking-call audit on hot paths · M · Wave 3</h4>
+<p><em>What:</em> classify every blocking call, with evidence. A grep outside tests and scripts finds 33 sites.</p>
+<ul>
+<li><strong><code>requests.*</code> (26):</strong> <code>agents/component_spec_lookup.py</code> (5), <code>agents/academic_search.py</code> (4), <code>agents/calendar_agent.py</code> (3), <code>utils/web_search.py</code> (3), <code>api/deps.py</code> (2: the user lookups by email and by id), <code>api/routes/workspace_data.py</code> (2: the Google Calendar OAuth callback), and one each in <code>utils/llm_client.py</code>, <code>utils/embedding.py</code>, <code>eo/integrations.py</code>, <code>agents/web_researcher.py</code>, <code>agents/pagespeed_agent.py</code>, <code>agents/deploy_agent.py</code> and <code>check_hf_embedding.py</code> (a script).</li>
+<li><strong><code>time.sleep</code> (7):</strong> <code>utils/llm_client.py</code> (6, retry and backoff) and <code>utils/retry.py</code> (1).</li>
+<li><strong>Classify each as</strong> <strong>on the event loop</strong> (a real problem: wrap in <code>asyncio.to_thread</code> or move to <code>httpx.AsyncClient</code>), <strong>on a worker thread</strong> (fine at current scale; add timeouts and a shared <code>requests.Session</code>), or <strong>in a script</strong> (ignore). The <code>api/deps.py</code> and OAuth-callback sites are plain <code>def</code> functions, which FastAPI runs on its threadpool, so they are worker-thread sites, not event-loop ones. The sites that matter most are the model client (<code>utils/llm_client.py</code>, which sleeps in its retry loop on every LLM call) and anything reached from an <code>async def</code> or from <code>codeagent/</code>.</li>
+<li><strong>Find the ones a grep cannot see:</strong> run the server under S2 with slow-callback logging (<code>loop.slow_callback_duration</code>).</li>
+</ul>
+<p><em>Done when:</em> a table classifies every site with evidence, every event-loop site is fixed, and S2 shows no callback over 100 ms.</p>
+<h4 id="mg-b05-typing-ratchet-and-response-models-m-wave-1">MG-B05 · Typing ratchet and response models · M · Wave 1</h4>
+<p><em>Files:</em> <code>backend/pyproject.toml</code> (it already holds the ruff config), a CI job.</p>
+<p><em>What:</em> add a type checker (pyright or mypy) in basic mode on <code>codeagent/</code>, <code>eo/devices.py</code>, <code>eo/usage_ledger.py</code> and <code>api/routes/devices.py</code>, non-blocking for one cycle and then blocking on those paths; the list of checked paths only grows. Add Pydantic <code>response_model</code>s to the routes the frontend calls most; this is what makes <code>MG-F01</code>'s generated types precise.</p>
+<p><em>Done when:</em> those paths are blocking in CI and the first ten routes have response models.</p>
+<h4 id="mg-b06-gateway-language-decision-record-s-wave-5">MG-B06 · Gateway language decision record · S · Wave 5</h4>
+<p><em>Files:</em> <code>docs/decisions/00NN-gateway-language.md</code>.</p>
+<p><em>What:</em> with the numbers from <code>MG-B01</code> and <code>MG-B03</code>, apply the triggers already in the book (paid users ≥ 100, sustained Pusher connections &gt; 80, p95 CPU &gt; 60%, and the capacity target of 1,000 concurrent CLI sessions in under 50 MB of Redis) and choose one of: stay Python; a Rust gateway for the socket and replay layer behind the same interface; a Rust relay only for the Menux mesh (MX3 says the server is a pipe).</p>
+<p><em>Rule:</em> switch only if the hardened Python gateway cannot meet the target on the chosen machine size.</p>
+<p><em>Done when:</em> the record exists with its inputs attached.</p>
+<hr />
+<h3 id="65-track-r-m2c-client-to-rust">6.5 Track R · M2C client to Rust</h3>
+<p><strong>How every port works.</strong> (1) Read the Python module and write a one-page behavior inventory in the patch description. (2) Export or reuse the vectors (<code>MG-Z03</code>–<code>MG-Z06</code>). (3) Write the Rust tests first. (4) Implement. (5) For security code, run a differential fuzzer against the Python reference through <code>run_python.py --oracle</code>. (6) A divergence is either a Rust bug or a Python bug; Python bugs get a <code>known-fail-python</code> vector and the Rust follows the safe answer (DM-10).</p>
+<h4 id="mg-r00-minicore-protocol-m-wave-4">MG-R00 · <code>minicore-protocol</code> · M · Wave 4</h4>
+<p><em>Python source:</em> <code>protocol/validate.py</code>, <code>m2c/src/m2c/protocol/</code> (client schema copy).</p>
+<p><em>What:</em> generated or hand-written types from <code>MG-Z08</code>; <code>validate_message</code> strict by default and a tolerant mode that relaxes <strong>exactly one thing</strong> (unknown optional properties outside tool input), as <code>validate.py</code> does; <code>check_transcript</code>; the schemas embedded with <code>include_str!</code> from the synced copy.</p>
+<p><em>Done when:</em> all four transcripts replay, all 60 invalid examples are rejected for the named reason, the byte-identical schema check is in CI, and a <code>cargo-fuzz</code> target over the envelope parser finds no panic.</p>
+<h4 id="mg-r01-minicore-paths-m-wave-4">MG-R01 · <code>minicore-paths</code> · M · Wave 4</h4>
+<p><em>Python source:</em> <code>tools/paths.py</code> (ported from <code>daemon/path_guard.py</code>).</p>
+<p><em>What:</em> normalization, root containment, and no-follow opens done <strong>relative to a directory descriptor</strong> (<code>openat2</code> with <code>RESOLVE_BENEATH</code>/<code>RESOLVE_NO_SYMLINKS</code> where the kernel has it, component-by-component <code>O_NOFOLLOW</code> otherwise), through <code>rustix</code> or <code>nix</code>. The Python guard checks then opens; Rust should not copy that race. Handle names as bytes or <code>OsStr</code>, not <code>String</code>: a Linux file name need not be UTF-8.</p>
+<p><em>Tests:</em> the <code>MG-Z05</code> vectors, plus Rust-only tests that swap a symlink in a loop between check and use.</p>
+<p><em>Done when:</em> all <code>MG-Z05</code> vectors pass, the race tests pass, and <code>forbid(unsafe_code)</code> holds (or the exception is recorded).</p>
+<h4 id="mg-r02-minicore-secrets-l-wave-4">MG-R02 · <code>minicore-secrets</code> · L · Wave 4</h4>
+<p><em>Python source:</em> <code>secrets/redact.py</code>, <code>secrets/env.py</code> (932 lines).</p>
+<p><em>The problem:</em> Rust's <code>regex</code> crate has no lookaround and no possessive quantifiers, and the detectors use both (§3).</p>
+<p><em>Approach:</em> keep the <code>regex</code> crate, because it matches in linear time and cannot be sent into catastrophic backtracking. Rewrite <code>(?&lt;!X)</code> and <code>(?!X)</code> as an explicit check of the character before and after a match, and each possessive quantifier as an equivalent bounded form. <strong>Equivalence is proven by the vectors and the fuzzer, not assumed.</strong> <code>fancy-regex</code> supports lookaround, but it backtracks (a denial-of-service risk on every tool result and stream chunk), so use it only if a rewrite is impossible, with a backtrack limit.</p>
+<p><em>Also:</em> redaction runs across stream chunk boundaries (<code>MG-Z04</code> rows); the Rust version keeps that carry-over.</p>
+<p><em>Tests:</em> the <code>MG-Z04</code> vectors; a differential fuzzer that generates text from the corpus plus mutations and compares findings with the Python oracle; a benchmark (recorded, not a goal).</p>
+<p><em>Done when:</em> all vectors pass and the fuzzer runs to the agreed length with every divergence triaged.</p>
+<h4 id="mg-r03-minicore-policy-xl-wave-5">MG-R03 · <code>minicore-policy</code> · XL · Wave 5</h4>
+<p><em>Python source:</em> <code>policy/</code> (3,115 lines): <code>rules.py</code>, <code>modes.py</code>, <code>shellparse.py</code> (<code>parse</code>), <code>decide.py</code> (<code>decide</code>).</p>
+<p><em>What:</em> port in dependency order: <code>rules</code> (parsing and matching, layers), <code>modes</code>, <code>shellparse</code>, then <code>decide</code>. The public surface stays <code>decide(Request, Context) -&gt; Decision</code>, pure, with no environment access. Port the invariant and robustness tests as <code>proptest</code> properties (deny beats ask beats allow; a protected path always asks; a compound command is as bad as its worst part).</p>
+<p><em>Differential fuzzing:</em> generate commands from a grammar and by mutating the Q07 corpus; compare <code>action</code>, <code>risk</code> and <code>basis</code> with the Python oracle. Run it for a fixed time in CI nightly and for longer before <code>MG-R13</code>. <strong>Every divergence is triaged.</strong> Rust must not be more permissive than Python anywhere (DM-10).</p>
+<p><em>Done when:</em> all <code>MG-Z03</code> vectors pass, every Q07 group passes (including the <code>known-fail-python</code> rows), the fuzzer is clean for the agreed time, and the crate holds no <code>unsafe</code>.</p>
+<h4 id="mg-r04-minicore-store-m-wave-3">MG-R04 · <code>minicore-store</code> · M · Wave 3</h4>
+<p><em>Python source:</em> <code>store/</code> (1,233 lines; tables <code>sessions</code>, <code>events</code>, <code>approvals</code>, <code>checkpoints</code>, <code>schema_version</code>).</p>
+<p><em>What:</em> <code>rusqlite</code> with bundled SQLite. <strong>Same schema, same migration numbers, same SQL text, and the same pragmas as the Python migrations</strong> (read <code>store/migrations.py</code> and copy them; do not guess). One writer task; reads through a pool.</p>
+<p><em>Done when:</em> Rust opens the <code>MG-Z06</code> golden database; a database created by Python at the tag is read, appended to by Rust, and read back by Python.</p>
+<h4 id="mg-r05-minicore-link-and-minicore-auth-l-wave-5">MG-R05 · <code>minicore-link</code> and <code>minicore-auth</code> · L · Wave 5</h4>
+<p><em>Python source:</em> <code>link/</code> (1,959 lines: <code>client.py</code>, <code>reconnect.py</code>) and <code>auth/</code> (1,420 lines: device-code login, credential storage).</p>
+<p><em>What:</em> a WebSocket client (<code>tokio-tungstenite</code> is the candidate) with reconnect, backoff and <code>run.resume{last_seq}</code>; the handshake limits (hello within 10 s, 1 MiB messages); a table mapping every close code (1008, 1009, 1011, 4400, 4401, 4403, 4408, 4409, 4426, 4429) to the same client behavior as <code>reconnect.py</code>, with one test per code; TLS through <code>rustls</code> (no OpenSSL dependency, to be confirmed by the spike). Auth: the device-code login over HTTPS (choose a small HTTP client, <code>ureq</code> or <code>reqwest</code>, in the spike); credential in a <code>0600</code> file, or the OS keyring as an optional feature, in the <strong>same file format the Python client wrote</strong> (<code>MG-Z06</code>).</p>
+<p><em>Spike (decides §12):</em> glibc versus musl. The keyring backends differ (a C <code>libdbus</code> binding versus a pure-Rust one) and that decides whether a static musl build is possible.</p>
+<p><em>Done when:</em> fixture 03 (disconnect and resume) passes against a fake server, Rust reads a Python-written credential and the reverse, <code>logout</code> removes it, and 4401/4403 produce the documented behavior.</p>
+<h4 id="mg-r06-minicore-sandbox-xl-wave-5">MG-R06 · <code>minicore-sandbox</code> · XL · Wave 5</h4>
+<p><em>Python source:</em> <code>sandbox/</code> (3,193 lines): <code>bwrap.py</code> (argument builder), <code>profile.py</code>, <code>probe.py</code>, <code>netpolicy.py</code>, <code>netproxy.py</code> (CONNECT proxy), <code>bridge.py</code>.</p>
+<p><em>What:</em> first export the <strong>pure</strong> parts as vectors from <code>tests/sandbox/</code> (14 test files): a policy in, the exact <code>bwrap</code> argument list out; a network policy in, an allow or deny decision per host, port and IP literal out. Prove them on Python, then implement. <code>bwrap</code> stays an external binary and <code>doctor</code> still checks for it. The proxy and bridge are <code>tokio</code> tasks. Helper processes the sandbox starts get an environment with no tokens or keys. <strong>D17 holds:</strong> a sandboxed command still follows the permission flow, and auto-allow is refused when the probe fails. Tests that need a real <code>bwrap</code> run only where it is installed, the same condition as today.</p>
+<p><em>Done when:</em> the exported vectors pass, the sandbox tests that need <code>bwrap</code> pass on a runner that has it, and the Q07 sandbox rows (protected <code>.m2c/</code> files, the shared git directory of a worktree) pass.</p>
+<h4 id="mg-r07-m2c-tools-and-the-tool-runner-l-wave-6">MG-R07 · <code>m2c-tools</code> and the tool runner · L · Wave 6</h4>
+<p><em>Python source:</em> <code>tools/</code> (3,581 lines: <code>files.py</code>, <code>search.py</code>, <code>shell.py</code>, <code>paths.py</code>) and <code>runner.py</code> (1,146 lines, <code>C24</code>).</p>
+<p><em>What:</em> the 11 tools of <code>protocol/v1/tools/</code> (<code>read_file</code>, <code>list_dir</code>, <code>glob</code>, <code>grep</code>, <code>edit_file</code>, <code>write_file</code>, <code>delete_path</code>, <code>bash</code>, <code>plan_exit</code>, <code>ask_user</code>, <code>tasks</code>). <code>glob</code> and <code>grep</code> keep shelling out to <code>rg</code>, which the README already requires. The runner executes server-proposed calls under the policy, redacts results, streams <code>tool_stream</code>, and returns <code>tool_result</code>. Port the nine <code>tests/tools/</code> files as Rust tests with the same inputs. Watch: Python's <code>fnmatch</code> and Rust glob crates do not agree on every pattern, so the policy's glob handling must go through the <code>MG-Z03</code> vectors, not an assumption.</p>
+<p><em>Done when:</em> transcripts 01 to 04 pass end to end against a fake server, and every case in <code>tests/tools/</code> has a Rust equivalent.</p>
+<h4 id="mg-r08-m2c-context-trust-and-interact-m-wave-6">MG-R08 · <code>m2c-context</code>, trust and interact · M · Wave 6</h4>
+<p><em>Python source:</em> <code>context/</code> (1,530 lines, <code>C12</code>), <code>trust/</code> (836 lines, <code>C26</code>), <code>interact/</code> (408 lines).</p>
+<p><em>What:</em> the instruction loader, whose <code>@path</code> import and code-span rules use a lookbehind and a backreference in Python; write them as small hand-built scanners and cover them with vectors (add a <code>context</code> area to <code>protocol/conformance/</code>). Folder trust: the fingerprint <strong>coverage set</strong> (<code>.m2c/hooks</code>, <code>.m2c/skills</code>, <code>.agents/skills</code>, <code>.claude/skills</code>, and every file that can change policy) must be identical to Python's; the hash values need not be, because a different value only makes the user trust a folder once more, which fails closed. <code>ask_user</code> and <code>tasks</code>.</p>
+<p><em>Done when:</em> the instruction vectors pass, a vector lists the fingerprint coverage set, and an untrusted folder's project settings and hooks are ignored.</p>
+<h4 id="mg-r09-m2c-checkpoints-m-wave-5">MG-R09 · <code>m2c-checkpoints</code> · M · Wave 5</h4>
+<p><em>Python source:</em> <code>checkpoints.py</code> (1,301 lines, <code>C08</code>/<code>C10</code>).</p>
+<p><em>What:</em> start with a one-page behavior inventory (this file was not read in detail for this guide). Keep shelling out to <code>git</code>, as today: <code>git</code> is already a hard requirement. A checkpoint made by Python at the tag must be restorable by Rust and the reverse if they share an on-disk format; if they do not, say so in <code>PARITY.md</code> and handle it at cutover.</p>
+<p><em>Done when:</em> <code>/rewind</code> round-trips in both directions on the golden fixtures, and a checkpoint is never half written (the <code>Q09</code> crash rows pass).</p>
+<h4 id="mg-r10-m2c-headless-cli-and-doctor-l-wave-7">MG-R10 · <code>m2c-headless</code>, cli and doctor · L · Wave 7</h4>
+<p><em>Python source:</em> <code>headless.py</code> (1,190), <code>cli.py</code> (468), <code>doctor.py</code> (481), <code>session_setup.py</code> (413), <code>repl.py</code> (421).</p>
+<p><em>What:</em> <code>clap</code> for the command line. Commands and flags exactly as in <code>PARITY.md</code>: <code>login [--device-name]</code>, <code>logout</code>, <code>doctor [--project PATH]</code>, <code>trust [--list|--forget PATH]</code>, <code>-p/--print</code> with <code>--output-format text|json</code>, <code>--mode plan|ask|accept-edits</code>, <code>--allow</code>, <code>--deny</code>, <code>--sandbox auto|required|off</code>, <code>--cwd</code>, <code>--plain</code>, <code>--version</code>. Exit codes 0, 1, 2, 3, 4, 5, 130, 143 with SIGINT and SIGTERM cancelling the run first (<code>tokio::signal</code>). <code>doctor</code> drops the Python check and adds an architecture line; it keeps the checks for <code>git</code>, <code>rg</code>, <code>bwrap</code>, the project location (warn on <code>/mnt/c</code>) and the config directory. In headless mode a call that would ask ends the run with exit code 3.</p>
+<p><em>Done when:</em> every <code>PARITY.md</code> row for commands, flags, exit codes and environment variables passes, and <code>-p --output-format json</code> output equals the Python client's on the golden runs after a normalizer removes timestamps and ids.</p>
+<h4 id="mg-r11-m2c-tui-xl-wave-7">MG-R11 · <code>m2c-tui</code> · XL · Wave 7</h4>
+<p><em>Python source:</em> <code>tui/</code> (3,004 lines, <code>prompt_toolkit</code> and <code>rich</code>).</p>
+<p><em>What:</em> a rewrite on <code>ratatui</code> and <code>crossterm</code>, not a line-by-line port. Behavior parity checklist: streaming reply text; the approval prompt and its keys; <code>/help</code>, <code>/rewind</code>, <code>/exit</code>; the <code>--plain</code> line-by-line fallback; terminal resize; Ctrl-C semantics; <strong>terminal safety</strong> (control characters in file names, paths, tool output and <code>-p</code> text are neutralized before they reach the terminal, the Q07 terminal rows); WSL2 terminals. Snapshot tests with <code>insta</code> over <code>ratatui</code>'s test backend.</p>
+<p><em>Done when:</em> the checklist is green, the snapshot tests cover the approval and diff views, and the <code>--plain</code> mode works with no TTY.</p>
+<h4 id="mg-r12-parity-suite-and-install-test-l-wave-8">MG-R12 · Parity suite and install test · L · Wave 8</h4>
+<p><em>What:</em></p>
+<ol>
+<li><strong>Golden-run parity.</strong> Run the same scenario scripts through the Python client (at the tag) and the Rust client against the same fake server; compare the normalized event streams, the local store, and exit codes.</li>
+<li><strong>Every vector and fixture</strong> green in Python, Rust and (for the wire) TypeScript.</li>
+<li><strong>Install test</strong> in a clean Ubuntu container and a WSL2-like environment: install the binary, run <code>m2c doctor</code>, run one <code>-p</code> task against a fake server.</li>
+<li><strong>Canary and red-team</strong> (<code>Q06</code>, <code>Q03</code>) run against the Rust client. The <code>canary</code> CI job today installs the Python client with <code>pip install --no-deps -e ../m2c</code> (<code>ci.yml</code> line 404); it must install the Rust binary instead.</li>
+<li><strong>Crash and resume</strong> (<code>Q09</code>): kill the client at each step of a run; the local log must hold every completed turn or a clear marker.</li>
+<li><strong>Footprint.</strong> Re-measure startup and idle memory on your machine and record them beside the Python numbers in §3.</li>
+<li>A long differential-fuzz run of <code>MG-R02</code> and <code>MG-R03</code>.</li>
+</ol>
+<p><em>Done when:</em> all of the above are green and the numbers are recorded.</p>
+<h4 id="mg-r13-cutover-to-the-rust-client-s-wave-9">MG-R13 · Cutover to the Rust client · S · Wave 9</h4>
+<p><em>What:</em> tag the first Rust release; switch the <code>m2c-test</code> and <code>canary</code> jobs to <code>cargo</code>; update the README, <code>§2.2</code> and <code>C22</code> (release binaries, checksums, signing, the installer script that already checks for <code>bubblewrap</code>); retire <code>m2c/pyproject.toml</code> from the default build. <strong>Keep the Python tree and the <code>m2c-py-ref</code> tag for one release</strong> (DM-8), then delete the Python client.</p>
+<p><em>Done when:</em> a fresh install from the release artifact passes <code>MG-R12</code>'s install test and <code>PARITY.md</code> is fully ticked.</p>
+<hr />
+<h2 id="7-m2c-work-packages-not-built-yet-where-each-lands">7. M2C work packages not built yet: where each lands</h2>
+<p>From <code>m2c_build_plan.md</code> §0.6 (rev 1.2). <strong>Client halves are built in Rust (DM-9); server halves stay Python; web halves are TypeScript.</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Work package</th>
+<th>Client (Rust)</th>
+<th>Server (Python)</th>
+<th>Web (TypeScript)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>C13</code> hooks (D15: JSON on stdin, exit codes, tighten-only)</td>
+<td>yes, new crate module on <code>minicore-policy</code></td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>C14</code> skills (local files, never unattended without an allow rule)</td>
+<td>yes</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>C16</code> background subagents and the <code>m2c handoff</code> bundle</td>
+<td>yes</td>
+<td><code>S11</code> side</td>
+<td>Build-tab handoff</td>
+</tr>
+<tr>
+<td><code>C17</code> taint tracking and <code>web_fetch</code> / <code>web_search</code></td>
+<td>yes (<code>web_fetch</code> runs locally through the sandbox proxy)</td>
+<td><code>web_search</code> route (reuses <code>utils/web_search.py</code>)</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>C25</code> safe "always allow" (D16)</td>
+<td>yes</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>C28</code> <code>--output-format stream-json</code></td>
+<td>yes</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>C20</code>, <code>C21</code>, <code>L05</code>, <code>L06</code> review and security roles, doctor extensions</td>
+<td>yes</td>
+<td>role prompts</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>L01</code> remainder, <code>L02</code> subagents, <code>L03</code> model-written summaries, <code>L04</code></td>
+<td>the client part of each</td>
+<td><strong>the loop and context assembler</strong> (<code>loop.py</code>, <code>context.py</code>)</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>X03</code>, <code>X04</code> remote live view, <code>X01</code>/<code>X02</code> devices and usage pages</td>
+<td>relay client side</td>
+<td>relay</td>
+<td><strong>yes</strong> (uses the <code>MG-F01</code>/<code>MG-Z08</code> types)</td>
+</tr>
+<tr>
+<td><code>Q07</code> bypass corpus</td>
+<td>vectors written in <code>MG-Z03</code></td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>Q08</code> docs-drift check</td>
+<td>runs against the Rust <code>--help</code></td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>Q09</code> crash and resume tests</td>
+<td>Rust fault-injection suite</td>
+<td>fake server</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>Q01</code>, <code>Q02</code>, <code>Q03</code>, <code>Q06</code> CI, evals, red-team, canary</td>
+<td>run against the Rust binary</td>
+<td><code>backend/tests/canary</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>S11</code> server hardening</td>
+<td>none</td>
+<td><strong>track B</strong></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>S12</code> beta allowlist and plan hooks</td>
+<td>none</td>
+<td>yes</td>
+<td>settings UI</td>
+</tr>
+<tr>
+<td><code>C22</code> packaging, <code>X05</code>, <code>X06</code> release</td>
+<td>binary release pipeline</td>
+<td>none</td>
+<td>docs</td>
+</tr>
+<tr>
+<td><code>C18</code>, <code>C19</code>, <code>L07</code>, <code>L08</code>, <code>C23</code>, <code>C27</code>, <code>S13</code> (Phase 5)</td>
+<td>Rust</td>
+<td>as needed</td>
+<td>as needed</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="8-menux-phase-3">8. Menux (Phase 3)</h2>
+<p>Menux starts when the Rust M2C reaches M2, the same milestone as before. Nothing in Menux is built yet, so nothing is ported. What changes in the Menux guide:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Menux element</th>
+<th>Python-era plan</th>
+<th>New plan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MT-K00</code> inventory</td>
+<td>read-only inventory of the finished M2C</td>
+<td>the same, of the Rust workspace</td>
+</tr>
+<tr>
+<td><code>MT-K01</code> extract <code>minicore</code> (size L, "extracting <code>minicore</code> breaks M2C")</td>
+<td>move finished Python code into a shared package</td>
+<td><strong>size S: a boundary check.</strong> The <code>minicore-*</code> crates already exist from <code>MG-Z07</code>. K01 verifies that Menux depends only on them and that both products' tests pass.</td>
+</tr>
+<tr>
+<td>Node runtime, scheduler (<code>D1</code>: <code>croniter</code> + SQLite)</td>
+<td>Python</td>
+<td>Rust. Add <code>scheduler/next_fire</code> vectors with <code>croniter</code> as the oracle before writing the Rust.</td>
+</tr>
+<tr>
+<td>Spec format (<code>D7</code>: YAML validated by JSON Schema, "same parser on server and node")</td>
+<td>PyYAML on both</td>
+<td><strong>The server's PyYAML is YAML 1.1 and Rust YAML crates are mostly 1.2.</strong> They disagree on <code>yes</code>/<code>no</code>/<code>on</code>/<code>off</code>, some number forms and merge keys. Define a strict subset, validate with JSON Schema on both sides, and add vectors that include the awkward scalars.</td>
+</tr>
+<tr>
+<td>Vault (<code>D3</code>: OS keyring, else passphrase-derived, else <code>0600</code> file)</td>
+<td>Python libraries</td>
+<td>Rust: <code>keyring</code>, an Argon2id crate, an AEAD crate, zeroizing wrappers. Use audited primitives; do not invent any.</td>
+</tr>
+<tr>
+<td>Tiers <code>T0</code>–<code>T5</code>, reader/actor (O6), approvals</td>
+<td>Python <code>policy</code> extension</td>
+<td>extension of <code>minicore-policy</code>. <strong>Write the Menux policy tests as conformance vectors first</strong>, then implement in Rust only.</td>
+</tr>
+<tr>
+<td>Connectors (9) and channel adapters (6)</td>
+<td>Python libraries</td>
+<td>Decide <strong>per connector</strong>: a native Rust client, or a sidecar (TypeScript or Python) behind a connector interface when the Rust client is immature. Telegram's HTTP API is easy; IMAP and CalDAV are the ones to check.</td>
+</tr>
+<tr>
+<td>Browser (Playwright)</td>
+<td>Python, in the node</td>
+<td><strong>TypeScript sidecar</strong>, JSON over stdio, behind <code>ControlBackend</code> (MX9). The sidecar never holds tokens; the node injects what each call needs.</td>
+</tr>
+<tr>
+<td><code>agent-desktop</code> for Windows and macOS satellites</td>
+<td>separate pinned process</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td>Coding delegation (O7)</td>
+<td><code>m2c -p "task" --output-format json</code></td>
+<td>unchanged: a process boundary is still the right one (it keeps M2C's checkpoints and sandbox). <code>stream-json</code> once <code>C28</code> lands.</td>
+</tr>
+<tr>
+<td>Mesh (5R): signed commands, end-to-end encrypted frames, passkey step-up (<code>D31</code>)</td>
+<td>Python</td>
+<td>Rust node; schemas in <code>protocol/mesh/v1</code> go through the same codegen as <code>MG-Z08</code>. Use maintained crates for the primitives and for WebAuthn verification on the node. <strong>Get an external review of the mesh design before it ships</strong> (the guide already plans its own security review).</td>
+</tr>
+<tr>
+<td>Controller (phone and web, <code>D37</code>)</td>
+<td>web app</td>
+<td><strong>TypeScript</strong>, in the same Next.js app or a separate installable web app (§12); types from <code>protocol/mesh/v1</code>; the browser's WebAuthn API for step-up.</td>
+</tr>
+<tr>
+<td>Relay <code>WS /v1/mate/mesh</code> (MX3: "the server is a pipe")</td>
+<td>Python in the backend</td>
+<td>Python first; the best Rust-gateway candidate later, decided by <code>MG-B06</code>.</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="9-ci-after-the-migration">9. CI after the migration</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Job</th>
+<th>Today</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test</code> (backend)</td>
+<td><code>pip install -r requirements.txt</code>, pytest</td>
+<td><code>uv pip install</code>, pytest, type check on the ratchet paths (<code>MG-B05</code>), OpenAPI diff (<code>MG-F01</code>)</td>
+</tr>
+<tr>
+<td><code>lint</code></td>
+<td>ruff</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>daemon-test</code></td>
+<td>pytest on <code>daemon/</code></td>
+<td><strong>removed</strong> (<code>MG-D04</code>)</td>
+</tr>
+<tr>
+<td><code>m2c-test</code></td>
+<td>pytest on the Python client</td>
+<td>frozen until <code>MG-R13</code>, then replaced by the Rust jobs</td>
+</tr>
+<tr>
+<td><code>protocol</code></td>
+<td>schema and fixture checks, <code>pip install</code></td>
+<td>adds the Rust and TypeScript fixture replay and the regenerate-and-diff check (<code>MG-Z08</code>)</td>
+</tr>
+<tr>
+<td><code>conformance-python</code></td>
+<td>none</td>
+<td><strong>new</strong> (<code>MG-Z02</code>): all vectors on the reference</td>
+</tr>
+<tr>
+<td>Rust jobs</td>
+<td>none</td>
+<td><strong>new</strong> (<code>MG-Z07</code>): <code>fmt</code>, <code>clippy</code>, <code>test</code>, <code>deny</code>, <code>audit</code>, the allowlist test, conformance, nightly fuzz</td>
+</tr>
+<tr>
+<td><code>frontend-lint</code></td>
+<td><code>npm run lint</code></td>
+<td>adds <code>npm run typecheck</code> and the no-check allowlist check</td>
+</tr>
+<tr>
+<td><code>frontend-test</code></td>
+<td><code>node --test</code></td>
+<td>unchanged command; some tests import <code>.ts</code></td>
+</tr>
+<tr>
+<td><code>canary</code></td>
+<td>installs the Python client</td>
+<td>installs the Rust binary (<code>MG-R12</code>/<code>MG-R13</code>)</td>
+</tr>
+<tr>
+<td><code>secrets-scan</code>, <code>promptfoo</code></td>
+<td>as they are</td>
+<td>unchanged (<code>promptfoo</code> gets <code>uv</code>)</td>
+</tr>
+<tr>
+<td>load test</td>
+<td>none</td>
+<td><strong>manual or nightly against staging</strong> (<code>MG-B00</code>), never against production</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="10-risks">10. Risks</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Where it bites</th>
+<th>What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Regex semantics.</strong> The detectors use lookaround and possessive quantifiers; Rust's <code>regex</code> has neither.</td>
+<td><code>MG-R02</code>, <code>MG-R08</code></td>
+<td>Linear-time engine plus explicit boundary checks; prove equivalence with vectors and the fuzzer. Do not reach for a backtracking engine by default.</td>
+</tr>
+<tr>
+<td><strong>Shell parsing differences.</strong> <code>shellparse</code> is the largest single function family and security-critical.</td>
+<td><code>MG-R03</code></td>
+<td>Pure-function port, differential fuzzing against the oracle, Q07 corpus, Rust never more permissive.</td>
+</tr>
+<tr>
+<td><strong>Glob and path semantics.</strong> <code>fnmatch</code>, Unicode normalization, trailing slashes, symlinks and non-UTF-8 names differ between Python and Rust.</td>
+<td><code>MG-R01</code>, <code>MG-R07</code></td>
+<td>Vectors for each; bytes, not <code>String</code>, for local paths.</td>
+</tr>
+<tr>
+<td><strong>TOCTOU in the path guard.</strong> Check-then-open is racy.</td>
+<td><code>MG-R01</code></td>
+<td>Descriptor-relative operations; race tests.</td>
+</tr>
+<tr>
+<td><strong>Store compatibility.</strong> Two clients writing one <code>M2C_HOME</code> during overlap.</td>
+<td><code>MG-R04</code>, <code>MG-R09</code></td>
+<td>Same SQL and pragmas; golden databases; compatibility tested both ways at the tag.</td>
+</tr>
+<tr>
+<td><strong>TUI rewrite is a rewrite.</strong> <code>prompt_toolkit</code> and <code>ratatui</code> are different models.</td>
+<td><code>MG-R11</code></td>
+<td>Behavior checklist and snapshot tests; do not chase pixel parity.</td>
+</tr>
+<tr>
+<td><strong>Static linking and the keyring.</strong> Secret Service bindings can block a musl build.</td>
+<td><code>MG-R05</code></td>
+<td>Spike before choosing; the choice is recorded (§12).</td>
+</tr>
+<tr>
+<td><strong>Three-language drift.</strong> Types and behavior silently diverge.</td>
+<td>everywhere</td>
+<td>DM-5: schemas, fixtures and vectors are the only definition, enforced in CI.</td>
+</tr>
+<tr>
+<td><strong>YAML 1.1 vs 1.2</strong> between the Python planner and the Rust node.</td>
+<td>Menux <code>D7</code></td>
+<td>Strict subset plus JSON Schema plus awkward-scalar vectors.</td>
+</tr>
+<tr>
+<td><strong>Scope creep during the port.</strong> New features land in Python "just this once".</td>
+<td>all</td>
+<td>DM-9 and §4 rule 9. The frozen tag makes the rule visible.</td>
+</tr>
+<tr>
+<td><strong>Load test touches production or real model keys.</strong></td>
+<td><code>MG-B00</code></td>
+<td>Staging database only; a fake model adapter that cannot be enabled when a production flag is set.</td>
+</tr>
+<tr>
+<td><strong>TypeScript giant files stall.</strong></td>
+<td><code>MG-F04</code></td>
+<td>Two-step conversion with the allowlist that only shrinks.</td>
+</tr>
+<tr>
+<td><strong>Rust learning curve.</strong></td>
+<td><code>R*</code></td>
+<td>Start with <code>MG-R00</code> and <code>MG-R01</code> (small, well specified, fully vectored); they teach the toolchain on code you can check.</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="11-prompt-template-for-one-port-patch">11. Prompt template for one port patch</h2>
+<p>Same style as the Menux guide's template.</p>
+<pre><code>You are generating ONE patch for the MiniMe repo at commit [SHA].
+Work package: [MG-ID: title] from docs/migration_guide.md (section 6).
+Read first: m2c/PARITY.md, the Python module(s) named in the work package
+(at tag m2c-py-ref), the matching tests, protocol/conformance/[area]/ and its
+README, and sections 1, 4 and 10 of the migration guide.
+Constraints: touch only [crates / files]; follow the Rust workspace conventions
+(forbid(unsafe_code), no dependency not in rust/deps-allowlist.toml); the Rust
+must never be more permissive than the Python reference (DM-10); fail closed on
+anything unknown; do not edit a conformance vector to make a test pass.
+Process: write a one-page behavior inventory of the Python module -&gt; write the
+Rust tests first (vectors, then properties) -&gt; implement -&gt; run
+`cargo fmt --check`, `cargo clippy -D warnings`, `cargo test --workspace --locked`
+and `python protocol/conformance/run_python.py --area [area]` before and after.
+Security code: add or extend the differential fuzzer against `--oracle`.
+Output one unified diff, [MG_ID]_[slug].patch, that applies with `git apply`
+on [SHA]. List each &quot;Done when&quot; item with the evidence for it. If the work
+package is wrong against the real code, STOP and report.
+</code></pre>
+<hr />
+<h2 id="12-decisions-that-are-still-yours">12. Decisions that are still yours</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Decision</th>
+<th>Recommendation</th>
+<th>Decide at</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Daemon gate: option A, B or C (§6.3)</td>
+<td><strong>A</strong></td>
+<td><code>MG-D00</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Does server-side MCP for the web agents stay?</td>
+<td>Yes for now; it is separate from M2C's device-local MCP (D18)</td>
+<td><code>MG-D00</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>glibc or musl for the released binary</td>
+<td>Let the <code>MG-R05</code> spike decide; prefer whichever lets the keyring work</td>
+<td><code>MG-R05</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>TUI library</td>
+<td><code>ratatui</code> + <code>crossterm</code></td>
+<td><code>MG-R11</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Gateway language</td>
+<td>Python until <code>MG-B06</code> has numbers</td>
+<td><code>MG-B06</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Menux controller: inside the Next.js app or a separate installable web app</td>
+<td>Separate app if it needs its own service worker and offline shell; same app otherwise</td>
+<td>before Menux Phase 5R</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Rust client or sidecar for each Menux connector</td>
+<td>Per connector (§8)</td>
+<td>Menux Phase 3</td>
+</tr>
+<tr>
+<td>8</td>
+<td>How long the Python client is kept after <code>MG-R13</code></td>
+<td>One release</td>
+<td><code>MG-R13</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>noUncheckedIndexedAccess</code> in TypeScript</td>
+<td>Optional; turn on after <code>MG-F05</code> if the churn is acceptable</td>
+<td><code>MG-F05</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td>Where the load test runs (staging size)</td>
+<td>The smallest box that can reach the target connection count</td>
+<td><code>MG-B01</code></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="13-evidence-and-what-was-not-checked">13. Evidence and what was not checked</h2>
+<p><strong>Read:</strong> the MiniMe repo at <code>94af156</code>: <code>m2c/</code> (layout, line counts, <code>pyproject.toml</code>, README, the policy, secrets and store entry points and their test file lists), <code>protocol/</code> (README, <code>validate.py</code> header, schemas list, fixtures), <code>backend/codeagent/</code> (module headers, <code>ws.py</code> constants, <code>connections.py</code>, <code>buffer.py</code>), <code>backend/</code> (daemon-related files and their cross-references, dependency list, blocking-call grep), <code>frontend/</code> (package files, directory and file counts, largest files, test layout), <code>.github/workflows/ci.yml</code>, <code>backend.Dockerfile</code>, <code>DEFERRED.md</code>; the book at <code>aaca7f1</code>: the three guides' changed sections, <code>UPDATING.md</code>, <code>llms.txt</code>.</p>
+<p><strong>Measured:</strong> the Python client's startup, in a cloud sandbox, five runs per command (§3). Not on your machine.</p>
+<p><strong>Not done:</strong> no test was run (Python, Rust or TypeScript); nothing was built; no crate, package or tool version was verified, and none is recommended by number; <code>checkpoints.py</code>, <code>link/</code>, <code>auth/</code>, <code>sandbox/</code> and <code>tui/</code> were sized but not read in detail (their work packages begin with a behavior inventory for that reason); the policy and redaction function bodies were not reviewed; the claim that Rust's <code>regex</code> crate lacks lookaround and possessive quantifiers is from general knowledge and should be confirmed in <code>MG-R02</code>'s first commit; the Node type-stripping claim rests on the release notes cited in <code>MG-F00</code> and must be confirmed on your Node 22.22.0 by that work package's spike; the size of every work package is an estimate.</p>
+<p><strong>Sources:</strong> <a href="https://nodejs.org/blog/release/v22.18.0">Node.js v22.18.0 release notes</a> (native type stripping on by default).</p></article><div class="toc"><b>On this page</b><a class="t2" href="#0-how-to-use-this-guide">0. How to use this guide</a><a class="t2" href="#1-decisions">1. Decisions</a><a class="t2" href="#2-target-architecture">2. Target architecture</a><a class="t2" href="#3-what-the-code-says-today">3. What the code says today</a><a class="t2" href="#4-rules-of-the-migration-stop-the-line">4. Rules of the migration (stop the line)</a><a class="t2" href="#5-work-package-index">5. Work-package index</a><a class="t2" href="#6-work-packages-in-detail">6. Work packages in detail</a><a class="t3" href="#61-track-z-foundations">6.1 Track Z · Foundations</a><a class="t3" href="#mg-z00-freeze-and-tag-the-python-m2c-reference-s-wave-1">MG-Z00 · Freeze and tag the Python M2C reference · S · Wave 1</a><a class="t3" href="#mg-z01-switch-python-ci-and-docker-installs-to-uv-s-wave-1">MG-Z01 · Switch Python CI and Docker installs to uv · S · Wave 1</a><a class="t3" href="#mg-z02-conformance-vector-format-and-python-runner-m-wave-2">MG-Z02 · Conformance vector format and Python runner · M · Wa...</a><a class="t3" href="#mg-z03-policy-vectors-l-wave-3">MG-Z03 · Policy vectors · L · Wave 3</a><a class="t3" href="#mg-z04-secret-redaction-vectors-m-wave-3">MG-Z04 · Secret-redaction vectors · M · Wave 3</a><a class="t3" href="#mg-z05-path-guard-vectors-m-wave-3">MG-Z05 · Path-guard vectors · M · Wave 3</a><a class="t3" href="#mg-z06-local-store-compatibility-fixtures-s-wave-2">MG-Z06 · Local-store compatibility fixtures · S · Wave 2</a><a class="t3" href="#mg-z07-rust-workspace-toolchain-and-ci-m-wave-2">MG-Z07 · Rust workspace, toolchain and CI · M · Wave 2</a><a class="t3" href="#mg-z08-protocol-codegen-and-fixture-replay-m-wave-3">MG-Z08 · Protocol codegen and fixture replay · M · Wave 3</a><a class="t3" href="#mg-z09-book-edits-for-the-new-plan-s-wave-2">MG-Z09 · Book edits for the new plan · S · Wave 2</a><a class="t3" href="#62-track-f-frontend-to-typescript">6.2 Track F · Frontend to TypeScript</a><a class="t3" href="#mg-f00-typescript-foundation-and-test-runner-spike-m-wave-1">MG-F00 · TypeScript foundation and test-runner spike · M · Wa...</a><a class="t3" href="#mg-f01-generate-api-types-from-fastapis-openapi-m-wave-2">MG-F01 · Generate API types from FastAPI&#x27;s OpenAPI · M · Wave 2</a><a class="t3" href="#mg-f02-convert-applib-modules-l-wave-3">MG-F02 · Convert app/lib modules · L · Wave 3</a><a class="t3" href="#mg-f03-convert-hooks-and-context-providers-m-wave-4">MG-F03 · Convert hooks and context providers · M · Wave 4</a><a class="t3" href="#mg-f04-convert-components-directory-by-directory-xl-wave-5">MG-F04 · Convert components, directory by directory · XL · Wa...</a><a class="t3" href="#mg-f05-strict-everywhere-drop-allowjs-m-wave-6">MG-F05 · Strict everywhere, drop allowJs · M · Wave 6</a><a class="t3" href="#63-track-d-retire-the-daemon">6.3 Track D · Retire the daemon</a><a class="t3" href="#mg-d00-decide-the-fate-of-the-shared-action-gate-s-wave-1">MG-D00 · Decide the fate of the shared action gate · S · Wave 1</a><a class="t3" href="#mg-d01-extract-the-neutral-action-gate-m-wave-2">MG-D01 · Extract the neutral action gate · M · Wave 2</a><a class="t3" href="#mg-d02-remove-frontend-daemon-surfaces-s-wave-3">MG-D02 · Remove frontend daemon surfaces · S · Wave 3</a><a class="t3" href="#mg-d03-remove-backend-daemon-routes-registry-and-events-m-wave-4">MG-D03 · Remove backend daemon routes, registry and events · ...</a><a class="t3" href="#mg-d04-delete-daemon-and-its-ci-job-s-wave-5">MG-D04 · Delete daemon/ and its CI job · S · Wave 5</a><a class="t3" href="#64-track-b-backend-hardening-python">6.4 Track B · Backend hardening (Python)</a><a class="t3" href="#mg-b00-load-test-harness-m-wave-1">MG-B00 · Load-test harness · M · Wave 1</a><a class="t3" href="#mg-b01-baseline-run-numbers-recorded-in-the-book-s-wave-2">MG-B01 · Baseline run, numbers recorded in the book · S · Wave 2</a><a class="t3" href="#mg-b02-redis-backed-presence-and-handshake-limiter-m-wave-3">MG-B02 · Redis-backed presence and handshake limiter · M · Wa...</a><a class="t3" href="#mg-b03-gateway-process-split-l-wave-4">MG-B03 · Gateway process split · L · Wave 4</a><a class="t3" href="#mg-b04-blocking-call-audit-on-hot-paths-m-wave-3">MG-B04 · Blocking-call audit on hot paths · M · Wave 3</a><a class="t3" href="#mg-b05-typing-ratchet-and-response-models-m-wave-1">MG-B05 · Typing ratchet and response models · M · Wave 1</a><a class="t3" href="#mg-b06-gateway-language-decision-record-s-wave-5">MG-B06 · Gateway language decision record · S · Wave 5</a><a class="t3" href="#65-track-r-m2c-client-to-rust">6.5 Track R · M2C client to Rust</a><a class="t3" href="#mg-r00-minicore-protocol-m-wave-4">MG-R00 · minicore-protocol · M · Wave 4</a><a class="t3" href="#mg-r01-minicore-paths-m-wave-4">MG-R01 · minicore-paths · M · Wave 4</a><a class="t3" href="#mg-r02-minicore-secrets-l-wave-4">MG-R02 · minicore-secrets · L · Wave 4</a><a class="t3" href="#mg-r03-minicore-policy-xl-wave-5">MG-R03 · minicore-policy · XL · Wave 5</a><a class="t3" href="#mg-r04-minicore-store-m-wave-3">MG-R04 · minicore-store · M · Wave 3</a><a class="t3" href="#mg-r05-minicore-link-and-minicore-auth-l-wave-5">MG-R05 · minicore-link and minicore-auth · L · Wave 5</a><a class="t3" href="#mg-r06-minicore-sandbox-xl-wave-5">MG-R06 · minicore-sandbox · XL · Wave 5</a><a class="t3" href="#mg-r07-m2c-tools-and-the-tool-runner-l-wave-6">MG-R07 · m2c-tools and the tool runner · L · Wave 6</a><a class="t3" href="#mg-r08-m2c-context-trust-and-interact-m-wave-6">MG-R08 · m2c-context, trust and interact · M · Wave 6</a><a class="t3" href="#mg-r09-m2c-checkpoints-m-wave-5">MG-R09 · m2c-checkpoints · M · Wave 5</a><a class="t3" href="#mg-r10-m2c-headless-cli-and-doctor-l-wave-7">MG-R10 · m2c-headless, cli and doctor · L · Wave 7</a><a class="t3" href="#mg-r11-m2c-tui-xl-wave-7">MG-R11 · m2c-tui · XL · Wave 7</a><a class="t3" href="#mg-r12-parity-suite-and-install-test-l-wave-8">MG-R12 · Parity suite and install test · L · Wave 8</a><a class="t3" href="#mg-r13-cutover-to-the-rust-client-s-wave-9">MG-R13 · Cutover to the Rust client · S · Wave 9</a><a class="t2" href="#7-m2c-work-packages-not-built-yet-where-each-lands">7. M2C work packages not built yet: where each lands</a><a class="t2" href="#8-menux-phase-3">8. Menux (Phase 3)</a><a class="t2" href="#9-ci-after-the-migration">9. CI after the migration</a><a class="t2" href="#10-risks">10. Risks</a><a class="t2" href="#11-prompt-template-for-one-port-patch">11. Prompt template for one port patch</a><a class="t2" href="#12-decisions-that-are-still-yours">12. Decisions that are still yours</a><a class="t2" href="#13-evidence-and-what-was-not-checked">13. Evidence and what was not checked</a></div></div></main><script id="bk-chapter-script">
+(function(){
+  // Reading progress bar
+  var bar = document.querySelector('.bk-progress');
+  if(!bar){
+    bar = document.createElement('div');
+    bar.className = 'bk-progress';
+    document.body.appendChild(bar);
+  }
+  window.addEventListener('scroll', function(){
+    var h = document.documentElement;
+    var sc = h.scrollTop || document.body.scrollTop;
+    var max = (h.scrollHeight - h.clientHeight) || 1;
+    bar.style.width = Math.min(100, Math.max(0, (sc / max) * 100)) + '%';
+  }, {passive:true});
+
+  // Scroll-spy for TOC
+  var tocLinks = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+  if(tocLinks.length){
+    var heads = tocLinks.map(function(a){
+      var id = a.getAttribute('href').slice(1);
+      return {a: a, el: document.getElementById(id)};
+    }).filter(function(x){ return !!x.el; });
+    window.addEventListener('scroll', function(){
+      var y = window.scrollY + 120;
+      var cur = heads[0];
+      for(var i=0;i<heads.length;i++){
+        if(heads[i].el.offsetTop <= y) cur = heads[i];
+      }
+      tocLinks.forEach(function(a){ a.classList.remove('active-sec'); });
+      if(cur) cur.a.classList.add('active-sec');
+    }, {passive:true});
+  }
+
+  // Highlight inline status badges in article
+  var art = document.querySelector('article');
+  if(art){
+    art.querySelectorAll('strong, b, code').forEach(function(el){
+      var t = el.textContent.trim();
+      if(/^\[(LIVE|DONE|VERIFIED|V)\]$/.test(t)){
+        el.className = (el.className + ' st-badge st-live').trim();
+      } else if(/^\[(PARTIAL|IN PROGRESS|FIX|A)\]$/.test(t) || /^\[PHASE 0/.test(t)){
+        el.className = (el.className + ' st-badge st-part').trim();
+      } else if(/^\[(PLANNED|STAGE|PHASE|WAVE|DECIDE|U)/.test(t)){
+        el.className = (el.className + ' st-badge st-plan').trim();
+      } else if(/^\[(REMOVED|DEFERRED)/.test(t)){
+        el.className = (el.className + ' st-badge st-rem').trim();
+      }
+    });
+  }
+})();
+</script></body></html>

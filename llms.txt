@@ -35,6 +35,9 @@ Static, offline-capable engineering atlas and 14-chapter connected book for the 
 13. FBEBC — Preprint / Workshop Paper Guide (`data/docs/fbebc-preprint-workshop-paper-guide.md` -> `doc-fbebc-paper.html`) — Claim ladder (C0-C3), figures, stats recipes, and submission checklist.
 14. FBEBC — Live Build & Run Status (`data/docs/STATUS.md` -> `doc-fbebc-status.html`) — 89 passing tests, 4 bug fixes (D1-D4), and live FunSearch run log.
 
+## Appendix (not one of the 14 chapters)
+A. Migration Guide: Rust, TypeScript and a Hardened Python Backend (`data/docs/migration_guide.md` -> `doc-migration-guide.html`) — 42 patch-sized work packages (114 effort points, 9 dependency waves) to move the M2C client and Menux to Rust, the frontend to TypeScript, keep and harden the Python backend, and retire the old `daemon/`; the protocol schemas, golden fixtures and new conformance vectors are the shared contract across languages.
+
 ## Interactive Atlas Pages
 - `roadmap.html` — Master timeline (plan vs actual) + 5-swimlane dependency & gate map
 - `todo.html` — Shared team Kanban, List, Calendar, Timeline & Activity log

@@ -20,6 +20,7 @@
     {t:"Ch. 12 · FBEBC Phase 1 Implementation Guide", u:"doc-fbebc-phase1.html", c:"Part V · FBEBC", k:"fbebc phase 1 barrier implementation spec"},
     {t:"Ch. 13 · FBEBC Preprint / Workshop Paper Guide", u:"doc-fbebc-paper.html", c:"Part V · FBEBC", k:"fbebc paper preprint claims c0 c3 wilcoxon"},
     {t:"Ch. 14 · FBEBC Live Build & Run Status", u:"doc-fbebc-status.html", c:"Part V · FBEBC", k:"fbebc status tests bug fixes d1 d4 capset"},
+    {t:"Appendix A · Migration Guide: Rust, TypeScript and a Hardened Python Backend", u:"doc-migration-guide.html", c:"Appendix", k:"migration rust typescript python uv m2c menux daemon retire conformance vectors codegen frontend backend hardening load test minicore crates"},
     {t:"Roadmap — Master Timeline & Critical Path", u:"roadmap.html", c:"Plan & Tracking", k:"roadmap timeline gantt plan actual swimlanes gates"},
     {t:"To-do — Team Kanban, List, Calendar & Activity", u:"todo.html", c:"Plan & Tracking", k:"todo tasks kanban board calendar team sync"},
     {t:"Journey — Interactive Section-by-Section Book Map", u:"journey.html", c:"Plan & Tracking", k:"journey path sections progress chips"},
