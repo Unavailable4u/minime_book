@@ -1,9 +1,9 @@
 # MiniMe Atlas - machine-readable summary
 
-Snapshot 2026-10-26, commit 50e25b5.
+Snapshot 2026-11-15, commit 94af156.
 
-- 954 files, 183,004 lines of code, 10,978 functions, 183 API routes, 567 commits.
-- Graph: 17,097 nodes, 37,827 links, 621 communities (Graphify run of 2026-10-25, commit `50e25b5`).
+- 1,185 files, 243,011 lines of code, 17,941 functions, 184 API routes, 580 commits.
+- Graph: 26,597 nodes, 64,321 links, 806 communities (Graphify run of 2026-11-15, commit `94af156`).
 
 ## Data files
 - data/census.json: per-file and per-function metrics, routes, git history, dependencies.
