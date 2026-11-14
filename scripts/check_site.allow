@@ -1,0 +1,28 @@
+# Known issues that scripts/check_site.py must not fail on.
+# Format:  <code>|<file>|<detail>      # why it is allowed, and which patch removes it
+# `*` is the only wildcard. `python scripts/check_site.py --write-allow` prints the exact keys.
+# A line that matches nothing is reported as a warning (unused-allow): delete it, the issue is gone.
+
+# --- Real bugs, to be fixed by the patch named ------------------------------------------------------------
+# Superseded product specs have no section on the Journey map, so "Journey Map" lands at the top of the page.
+broken-anchor|doc-m2c-product.html|journey.html#doc-m2c-product      # P04 (chapter header) or P21 (journey alignment)
+broken-anchor|doc-menux-product.html|journey.html#doc-menux-product  # same
+# Title says the product name twice.
+dup-title-part|index.html|MiniMe Atlas - MiniMe Atlas               # P02 normalises every title
+# Source guides copied from another tool; they have no <title>. They are inputs of doc-m2c-product / doc-menux-product.
+no-title|guides/M2C___Product___Build_Guide.html|-                  # P23
+no-title|guides/Menux___Product___Build_Guide.html|-                # P23
+
+# --- Not bugs: the target page resolves the hash in JavaScript ---------------------------------------------
+# build.html reads location.hash as the phase key ("m2c" or "menux"); it has no element with that id.
+broken-anchor|journey.html|build.html#m2c                           # client-side route; stays valid
+broken-anchor|journey.html|build.html#menux                         # client-side route; stays valid
+# explore.html opens the file whose path is in the hash. Health's hotspot table links to files that way.
+broken-anchor|health.html|explore.html#*                            # removed with explore.html in P19 (links move to the Explorer)
+
+# --- Size budget exceptions ----------------------------------------------------------------------------------
+# archify output: stays as generated (P09 wraps these in the System page, it does not change them).
+big-file|architecture/*|-
+# Source-of-truth input of every generator. The browser never needs it whole once P10 shards the data.
+big-file|data/census.json|-
+# explore.html (P19) and graph-viewer.html (P20) are deliberately NOT listed: their warning is the reminder.

@@ -1,0 +1,38 @@
+# Catches a broken Atlas before it is deployed: links, anchors, titles, JSON, size budget, and the unit tests.
+#
+# Separate from refresh-atlas.yml on purpose. That job rewrites pages from data/census.json and pushes with
+# the default token (which does not trigger other workflows); this one only reads and reports.
+# Run the same thing locally:
+#     python scripts/check_site.py
+#     python scripts/test_check_site.py
+#     python scripts/test_refresh_atlas.py
+#     python scripts/test_refresh_graph.py
+name: Site check
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Check links, anchors, titles, JSON and size budget
+        run: python3 scripts/check_site.py
+      - name: Unit tests
+        run: |
+          python3 scripts/test_check_site.py
+          python3 scripts/test_refresh_atlas.py
+          python3 scripts/test_refresh_graph.py
