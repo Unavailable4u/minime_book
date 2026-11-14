@@ -10,6 +10,8 @@
 - **Planned:** behavior described by the M2C build plan but not yet verified as released.
 - **Gated:** behavior that requires a milestone, safety review, legal decision, or external service configuration first.
 
+> **Revision 1.2 (2026-11-14).** This revision records what exists in the code today and corrects places where this guide had drifted from the build plan. **Built (from a read of the code; tests were not run):** login and logout, device link, the chat terminal UI, headless `-p`, the local policy engine with the modes `plan`, `ask` and `accept-edits`, checkpoints and `/rewind`, secrets redaction, the folder-trust prompt (`m2c trust`), the bubblewrap sandbox with its network proxy, and the server loop behind `/v1/code/*`. **Not built yet:** hooks, skills, subagents, model-written compaction, web tools, handoff, MCP, worktrees and packaging. The per-WP table is `m2c_build_plan.md` §0.6. **Corrections:** the commands and tools in §2.4 and §5.2 now match the code; the work-package IDs and effort counts in §13 now match the plan's index; O4 and O5 below are fixed. **New:** §17 (what other coding agents do and what M2C takes from them) and §18 (ideas not yet scheduled). The plan gained six work packages: C25, Q07, Q08, Q09, C28 and C27.
+
 ### Architectural Synchronization (Overrides O1–O8 from `m2c_build_plan.md`)
 
 Where the earlier standalone design note (`doc-m2c-product.html`) and this guide or `m2c_build_plan.md` differ, **these 8 synchronized rules govern**:
@@ -19,8 +21,8 @@ Where the earlier standalone design note (`doc-m2c-product.html`) and this guide
 | **O1 · Local-First Data Placement** | Repo files, SQLite `index.db`, git checkpoints, and shell/test runs stay on the user's device; server keeps only `usage_ledger` + 2h Redis buffer | Keeps server RAM/CPU near zero (`minime_server_management_guide.md` §9) |
 | **O2 · One Account, One Cap, One Ledger** | Shares the user's MiniMe tier (`Free / Basic $9 / Moderate $29 / Ultimate $79`) via `usage_ledger` (`surface='m2c'`, WP `S01`) | Built once with MiniMe `Tech-A/B` (`MiniMe_Financial_Strategy_Rulebook.md` Rule 4) |
 | **O3 · Linux & WSL2 First** | v1 targets native Linux and Windows via WSL2 (`bubblewrap`); native Windows & macOS deferred to post-GA | Enforced by `m2c doctor` (`C04`, `C21`) |
-| **O4 · Python CLI + `minicore/`** | Distributed via `uv tool install m2c` / `pipx`; shares `minicore/` package with `backend/` and `menux/` | Extracted in WP `P00` (`Wave 1`) |
-| **O5 · Backend Route Namespace** | Server package lives at `backend/codeagent/` mounted under `/api/codeagent/*` | Avoids collision with existing `backend/agents/coder.py` |
+| **O4 · Python CLI + `minicore/`** | Distributed via `uv tool install m2c` / `pipx` (packaging is Phase 6). Runs today as a self-contained package; the shared `minicore/` library is **not extracted yet**. Menux's `MT-K01` extracts it from M2C once M2C reaches M2 | `P00` built the protocol contract in `protocol/v1/`; the library comes later |
+| **O5 · Backend Route Namespace** | Server package lives at `backend/codeagent/`, served under `/v1/code/*` (as built; an earlier draft said `/api/codeagent/*`) | Avoids collision with existing `backend/agents/coder.py` |
 | **O6 · Phase 0 Browser Slimming** | Removes browser Python `Run`, `Terminal`, and `Local-folder mode` (`MK_B02–B06`); replaces with CLI handoff | Synchronized with `minime_feature_guide.md` §9.3 & §17.2 |
 | **O7 · Account Required (No Offline v1)** | Reasoning loop runs on MiniMe server using the 8-provider router; requires sign-in (`m2c login`) | Preserves Rulebook model routing & prompt caching |
 | **O8 · Profile Field (`profile="code"`)** | Every run carries `profile: "code"` so `menux` can reuse the same protocol with `profile: "mate"` | Shared contract in `minicore/protocol.py` (`P00`) |
@@ -83,35 +85,35 @@ M2C requires a signed-in MiniMe account and a network connection because the rea
 
 The device is paired with the account through a device credential flow. The server stores the device registry and credential hash, not the user's project content. Devices can be revoked.
 
-### 2.4 Initial commands
+### 2.4 Commands
 
-The intended command family includes:
+**Commands and flags that exist today** (from `m2c --help`; the list is checked by the Q08 docs test once that exists):
 
-- `m2c login`;
-- `m2c logout`;
-- `m2c init`;
-- `m2c doctor`;
-- `m2c status`;
-- `m2c run`;
-- `m2c resume`;
-- `m2c stop`;
-- `m2c service install`;
-- `m2c service uninstall`;
-- `m2c vault add|list|remove`;
-- headless execution for Menux and scripts.
+| Command or flag | Purpose |
+| :--- | :--- |
+| `m2c` | Opens the chat terminal UI in the current folder (`--plain` for a line-by-line fallback) |
+| `m2c login` / `m2c logout` | Device-code pairing with the MiniMe account (`--device-name`); the credential is stored locally and the server keeps only its hash |
+| `m2c doctor` | Preflight checks (`--project PATH` to check a folder) |
+| `m2c trust` | Shows and manages folder-trust decisions (`--list`, `--forget PATH`); a project's own settings, hooks and skills are used only after the folder is trusted |
+| `m2c -p "task"` (`--print`) | Headless run. `--output-format text\|json` (`stream-json` is planned, C28), `--mode plan\|ask\|accept-edits`, `--allow RULE`, `--deny RULE`, `--sandbox auto\|required\|off`, `--cwd PATH` |
+| `--version` | Prints the version |
+| In the chat | `/help`, `/rewind`, `/exit` |
 
-Exact command names are subject to the release package and may change while the protocol stabilizes.
+**Environment variables:** `M2C_HOME` (where local state lives), `M2C_LOG_LEVEL`, `M2C_SERVER_URL`.
 
-| Command / Surface | Arguments & Flags | Primary Purpose | Work Package |
-| :--- | :--- | :--- | :--- |
-| `m2c login` / `logout` | `--device-name`, `--all` | OAuth 2.0 RFC 8628 device-code pairing with MiniMe web account; stores token in OS keychain | `S02`, `C02` |
-| `m2c init` | `[path]` | Initializes `.m2c/` config, `.m2cignore`, and `M2C.md` project instructions | `C01`, `L03` |
-| `m2c doctor` | `--json`, `--fix` | 14-point preflight check: OS/WSL2, `/mnt/c` path warning, `git`, `rg`, `bwrap`, auth, and sandbox smoke test | `C04`, `C21` |
-| `m2c` (Interactive TUI) | `[-m ask\|edit\|auto]`, `[--resume <id>]` | Full-screen Textual/Rich terminal UI with streaming diff viewer, approval prompt bar, and slash commands | `C01`, `C12` |
-| `m2c run` (Headless) | `"<prompt>" --json --max-usd <n>` | Non-interactive coding run for CI pipelines and **Menux IPC delegation (`MT-M07`)** | `C03`, `C17` |
-| `m2c review` | `[--staged \| --branch <ref>]` | Local pre-commit/PR diff review powered by `reviewer` & `security_scanner` sub-agents | `C20` |
-| `m2c handoff` | `<workspace_id>` | Pushes/pulls a compact summary bundle between local CLI and MiniMe Web Build tab | `S11`, `C16` |
-| Slash `/mode`, `/diff`, `/rewind`, `/compact`, `/usage` | In-session TUI commands | Switch `ask\|edit\|auto`, inspect diffs, roll back git checkpoints (`C10`), compact context (`L02`), or check shared pool | `C10`, `C12`, `L02` |
+**Exit codes of `m2c -p`:** 0 success · 1 general failure · 2 usage error · 3 policy denial (a tool would ask or was denied) · 4 quota exhausted · 5 not logged in or the device was revoked · 130 ended by Ctrl-C · 143 ended by SIGTERM.
+
+**Planned commands**, with the work package that owns each. Names may change before release.
+
+| Planned | Work package | Note |
+| :--- | :--- | :--- |
+| `m2c init` and an `M2C.md` project file | `C12` built the instruction loading; the `init` skill comes with `C14` | |
+| `/compact`, `/diff`, `/usage`, `/mode`, `/why` | `L03`, `C09`, `S10`, `C06`, `C25` | `/why` shows which rule or mode decided the last call |
+| `m2c -p ... --output-format stream-json` | `C28` | One JSON event per line; the interface Menux uses for delegation |
+| `m2c review` | `C20` | Diff review with reviewer and security roles |
+| `m2c handoff` | `S11`, `C16` | Summary bundle between the CLI and the web Build tab |
+| `--worktree`, `m2c service ...`, `m2c vault ...`, `m2c status`, `m2c resume`, `m2c stop` | **no work package yet** | Earlier drafts of this guide listed them. Either add a WP (see §18) or drop them |
+| Managed settings and presets | `C27` | For companies; Phase 5 |
 
 ---
 
@@ -323,15 +325,18 @@ The intended coding tool catalog includes:
 
 Tool schemas are explicit. Unknown tools and malformed arguments fail closed.
 
-| Tool Name | Category | Default Approval (`Ask` / `Edit` / `Auto`) | Sandbox & Guardrails | Work Package |
+**The tool catalog in the code today** is the eleven tools of `protocol/v1/tools/*.json`. The list above is the long-term intent; this table is what exists. A tool that is not in the catalog (an MCP tool, a later tool) is denied by the policy engine until a WP adds it.
+
+| Tool | Class | Risk | Default decision (`plan` / `ask` / `accept-edits`) | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| `read_file`, `list_dir`, `glob_search`, `grep_search` | Read & Search | Allowed / Allowed / Allowed | Path-jailed to repo root; blocks `.env*`, `~/.ssh`, and `.m2cignore` | `C05` |
-| `symbol_search`, `repo_map` | Code Index | Allowed / Allowed / Allowed | Queries local SQLite `index.db` (`FTS5` + tree-sitter symbol table) | `C06`, `C09` |
-| `git_status_diff`, `diagnostics` | Inspection | Allowed / Allowed / Allowed | Read-only `git status`/`diff` and linter/LSP problem collection | `C05`, `C08` |
-| `edit_file`, `write_file`, `apply_patch` | File Mutation | Denied / **Prompt Diff** / Auto in repo | Atomic temp-write + rename; creates git shadow checkpoint (`C10`) before mutation | `C07`, `C10` |
-| `delete_file` | File Deletion | Denied / **Prompt Always** / **Prompt Always** | Never auto-approved; recoverable via git checkpoint rewind | `C07` |
-| `run_command`, `run_tests` | Shell Execution | Denied / **Prompt Command** / Allowlisted tests | Executed inside `bubblewrap` (`X01`); strips secrets (`X02`); blocks dangerous commands | `C08`, `X01` |
-| `ask_user`, `todo_write`, `web_fetch_docs` | Control & Docs | Allowed / Allowed / Allowed | Structured clarification prompt (`L01`), task list tracker, and domain-gated doc fetch | `L01`, `C15` |
+| `read_file`, `list_dir`, `glob`, `grep` | Read | R0 | Allow / Allow / Allow | Path rules and `.m2cignore` still apply; protected paths such as `.env*` fall back to ask |
+| `edit_file`, `write_file` | Edit | R1 | Deny / Ask / Allow inside the project | A checkpoint is taken before a change (`C10`); protected paths always ask |
+| `delete_path` | Delete | R1, up to R4 | Deny / Ask / Ask | Never auto-allowed; recoverable through `/rewind` |
+| `bash` | Shell | R2 | Deny / Ask / Ask | Runs inside the bubblewrap sandbox; no mode default ever allows it. Reaching the network or leaving the project raises the risk to R3 |
+| `plan_exit` | Plan | R0 | Ask | The only way out of plan mode |
+| `ask_user`, `tasks` | Interact | R0 | Allow in every mode | They only show something to the person (`ask_user` is the prompt); a deny rule still wins |
+
+Planned additions: `web_fetch` and `web_search` (`C17`, tainted results), `apply_patch` (Phase 5), `symbol_search`/`repo_map` (`L08`), and MCP tools (`C23`). Earlier drafts of this guide named `run_command`, `run_tests`, `git_status_diff`, `diagnostics`, `symbol_search`, `todo_write` and `web_fetch_docs`; those names do not exist in the code.
 
 ### 5.3 Subagents and delegation
 
@@ -398,6 +403,8 @@ The product is designed around modes that control how much autonomy is allowed. 
 
 Approval records are stored locally and included in the audit trail. A later step cannot pretend that an approval happened if it did not.
 
+**Modes in the current build:** `plan` (reads only; every change is denied and `plan_exit` asks to leave), `ask` (the default; edits, deletes and shell ask) and `accept-edits` (edits inside the project to non-protected paths are allowed; deletes and shell still ask). The "Ask mode" and "Edit mode" of §3.2 and §3.3 describe the workflow, not the setting names. `auto` (L07) is planned and not available. **Rules:** `tool(pattern)` allow and deny rules; deny wins. **"Always allow" (D16, `C25`):** the `a` key in the prompt saves only the exact call, and only if that call would be allowed when checked again against the new rule set, so a compound command with one denied part is never always-allowed. **A sandbox is not an approval (D17):** a command that runs in the sandbox still follows the normal flow; skipping the prompt for sandboxed commands is a later opt-in setting that is off by default.
+
 ### 6.3 Sandbox
 
 Untrusted or high-risk work runs in a sandbox. The first Linux implementation uses `bubblewrap` and a controlled network path. The sandbox is intended to provide:
@@ -461,9 +468,13 @@ The quality plan includes evaluations for:
 
 These are release gates, not optional documentation exercises.
 
+**Boundary regression corpus (`Q07`, planned).** Bugs in permission matching and sandboxing repeat across coding agents: compound commands, wrapper programs, relative deny patterns, symlinks, settings files that the agent can edit, control characters in output. `Q07` keeps one table of such cases with the decision M2C must give each, and every future policy or sandbox bug adds a row as part of its fix. `Q09` does the same for crashes and resume, and `Q08` fails the build when the docs and the code disagree.
+
 ### 6.7 Prior art and reused components
 
 Parts of the safety layer are adapted from MiniLocker, an earlier MiniMe-family project (a hackathon entry) that tested agent sandboxing, injection handling and tamper-evident logging. M2C reuses specific modules (tolerant tool-call parsing, the untrusted-content fence, an optional hash-chained log, and attack scenarios) and rewrites others. M2C does not run on MiniLocker's Docker sandbox: its boundary is the local `bubblewrap` sandbox and the device policy engine. Reused code counts only once it passes the M2C work package's own tests. The module-by-module map is in `m2c_build_plan.md` §11.6.
+
+**Outside references (D13).** M2C learns from public documentation, public changelogs, observable behavior and code under a licence that has been read and recorded. It does not use leaked, unlicensed or source-unavailable code, including copies re-uploaded under a permissive licence. See §17.
 
 ---
 
@@ -474,6 +485,8 @@ Parts of the safety layer are adapted from MiniLocker, an earlier MiniMe-family 
 Hooks let a project or user run controlled actions around a coding event, such as before a run, after a proposal, after an accepted change, or after a test. Hooks are subject to the same policy and sandbox rules as other tools.
 
 A hook should declare what it does, what paths it needs, and whether it can make an external request. Hidden side effects are not an intended feature.
+
+**Contract (D15, `C13`, planned).** A command hook receives the event as JSON on standard input. Exit code 0 means "no objection" and the normal policy still decides; exit code 2 blocks the action and sends the hook's message to the model; any other code only warns. **A hook can tighten (ask, deny) and never loosen:** its "allow" does not override deny rules, protected paths, the taint rules, the sandbox or the folder-trust rule. Hooks have a timeout and a trimmed environment, their output is redacted like a tool result, and project hooks run only after the folder is trusted. The model cannot edit hook files: the sandbox refuses writes to them (a `Q07` case).
 
 ### 7.2 Skills
 
@@ -486,6 +499,8 @@ Skills are reusable packages of instructions, tools, files, and policy metadata.
 - how to generate a particular artifact.
 
 Skill loading is manifest-driven. Skills can be reviewed and scanned before use. Future skill drafts are intended to enter a review queue rather than becoming active immediately.
+
+A skill that declares tools or hooks does not run unattended (headless, or called by Menux) until the owner has an explicit allow rule for it, and a skill can never grant itself more than policy allows. Skills are local files; the server-side skill store used by the web agents (`backend/eo/skill_library.py`) is a different design and is not used by M2C.
 
 ### 7.3 Instructions
 
@@ -578,6 +593,8 @@ M2C can host local MCP connections. The client is intended to:
 
 MCP is an extension point, not an automatic trust upgrade. A connected server can be blocked, read-only, or approval-required.
 
+**Where it runs (D18, `C23`).** MCP servers run on the device, never on the MiniMe server, so the data they touch stays local. The server-side MCP client in the backend (`backend/eo/mcp_client.py`) serves the web agents and is only a protocol reference. A server's tool names and descriptions are untrusted data and taint the session; rules match a tool's exact name; servers start inside the sandbox unless the owner marks one as trusted.
+
 ### 9.2 External network access
 
 Network access is controlled by policy and sandbox. A tool or skill should declare allowed domains. Web content is tainted and must not silently become a trusted instruction or be allowed to write project files without the appropriate gate.
@@ -637,6 +654,8 @@ M2C is intended to work without the interactive terminal UI. Headless mode lets 
 - retain the event log on the device.
 
 Menux should hand coding work to the installed M2C CLI through local IPC. This preserves M2C's sandbox, policy, and file safety instead of duplicating a second code execution engine.
+
+**The interface today** is `m2c -p "task" --output-format json` (or `text`), with `--mode`, `--allow`, `--deny`, `--sandbox` and `--cwd`, and the exit codes listed in §2.4. In headless mode a call that would ask is not answered by a prompt: it ends the run with exit code 3, so an unattended run cannot widen its own permissions. **Planned (`C28`):** `--output-format stream-json`, one event per line plus a final result line, which is what Menux's delegation test (`MT-A07`) needs. An earlier name, `m2c run --json`, never existed.
 
 ---
 
@@ -706,14 +725,19 @@ Potential additions include ACP, worktrees, request classification, LSP and repo
 
 Packaging, documentation, support, legal review, and release gates lead to general availability.
 
+**Counts (recounted from the plan's index in revision 1.2).** Sizes: S=1, M=2, L=4, XL=8 points. Phases 0–4 are **69 work packages and about 163 points**; the earlier headline of 157 points (64 packages) did not include the six read-only audits (AUD1–6) and does not include the five packages this revision adds. The four packages the build added on its own (C24, C26, S14, S15) are done and not counted.
+
 | Phase & Milestone | Waves | Work Packages | Effort Points | Key Deliverable & Exit Gate |
 | :--- | :--- | :--- | :--- | :--- |
-| **Phase 0 · Browser Cleanup (`M0`)** | Waves 0–2 | `B00–B12` (13 WPs) | 20 pts | Self-host Pyodide (`B02`), remove browser Python Run/Terminal/Local-folder (`B03–B06`), fix save/move & CORS (`B07–B12`) |
-| **Phase 1 · Walking Skeleton (`M0`)** | Waves 1–3 | `P00`, `S01–S06`, `C01–C04`, `X01–X02`, `I01` (14 WPs) | 34 pts | Extract `minicore/`, shared `usage_ledger` (`S01`), device login, hello turn over SSE, `bwrap` wrapper (`I01` pass) |
-| **Phase 2 · Internal Coding Agent (`M1`)** | Waves 4–6 | `C05–C10`, `C12`, `S07–S10`, `I02` (12 WPs) | 30 pts | Local read/write/shell tools, SQLite FTS5 index, git checkpoints & rewind, TUI diff approval (`I02` self-hosting dogfood pass) |
-| **Phase 3 · Safe Daily Driver** | Waves 7–9 | `C11`, `C13–C15`, `L01–L04`, `Q01–Q03`, `Q06`, `I03` (13 WPs) | 36 pts | Hooks, skills, `M2C.md`, context compaction (`L02`), sub-agents (`L04`), red-team & canary suites (`I03` pass) |
-| **Phase 4 · Invite-Only Beta (`M2`)** | Waves 10–12 | `S11–S12`, `C16–C17`, `C20–C21`, `X03–X04`, `L05–L06`, `Q04`, `I04` (12 WPs) | 37 pts | Web Build-tab handoff (`S11`/`C16`), headless mode for Menux (`C17`), taint tracking (`X03`), plan chains (`L06`), beta launch (`I04`) |
-| **Phases 5–6 · Scale & Release (`M3 / GA`)** | Post-M2 | Editor extensions, ACP, worktrees, GA packaging | Gated on M2 | VS Code / JetBrains / Neovim adapters, macOS Seatbelt, external security audit, public GA |
+| **Phase 0 · Browser Cleanup (`M0`)** | 0–3 | `B00–B12` (13 WPs, plus six audits `AUD1–6`) | 17 pts | Self-host Pyodide (`B02`), remove browser Python Run, Terminal and Local-folder (`B03–B06`), fix save, move and CORS (`B07–B12`) |
+| **Phase 1 · Walking Skeleton (`M0`)** | 1–4 | `P00`, `S01–S06`, `C01–C04`, `X01–X02`, `I01` (14 WPs) | 37 pts | Protocol contract (`P00`), shared `usage_ledger` (`S01`), device login, a "hello" turn over the socket, the first end-to-end pass (`I01`). **Built** |
+| **Phase 2 · Internal Coding Agent (`M1` prerequisite)** | 5–8 | `S07–S10`, `C05–C10`, `C12`, `I02` (12 WPs) | 35 pts | Local read, write and shell tools, checkpoints and rewind, the terminal UI, headless mode, and the dogfood pass (`I02`). **Built**; `I02` itself not confirmed |
+| **Phase 3 · Safe Daily Driver (`M1`)** | 9–10 | `C11`, `C13–C17`, `L01–L04`, `S11`, `Q01–Q03`, `Q06`, `I03`, plus new `C25`, `Q07`, `Q08`, `Q09` (20 WPs) | 52 pts (was 47) | Sandbox, hooks, skills, secrets, taint, compaction, subagents, red-team and canary suites (`I03`). **In progress:** `C11`, `C15` built, `L01` partly |
+| **Phase 4 · Invite-Only Beta (`M2`)** | 11–12 | `S12`, `C20–C21`, `X03–X04`, `L05–L06`, `Q04`, `I04`, plus new `C28` (10 WPs) | 22 pts (was 21) | Review commands, remote live view, plan chains, invites, streaming headless output for Menux (`C28`), beta launch (`I04`) |
+| **Phase 5 · Platform Expansion (`M3`)** | 13+ | `C18`, `C19`, `L07`, `L08`, `C23`, `S13`, plus new `C27` (7 WPs) | 26 pts (was 24) | ACP, worktrees, auto mode, repository maps, local MCP, managed settings and presets, external security audit |
+| **Phase 6 · Release (`GA`)** | 13+ | `C22`, `X05`, `X06` (3 WPs) | 6 pts | Packaging, documentation, support, legal review, general availability |
+
+The web Build-tab handoff (`S11`, `C16`) belongs to Phase 3 in the plan's index (it is a prerequisite for the Phase 4 beta). Editor adapters (VS Code, JetBrains, Neovim) and a macOS sandbox are not in any work package yet; see §18.
 
 ---
 
@@ -730,6 +754,9 @@ M2C does not promise:
 - browser-based execution of every language;
 - that a connected MCP server is trusted by default;
 - that a roadmap item is already released;
+- that a hook, skill or MCP server can loosen a permission (they can only tighten, D15);
+- that a sandbox replaces approval (D17);
+- that every command or tool named in an older draft of this guide exists (§2.4 and §5.2 list what does);
 - that a failed telemetry service will explain every event without gaps.
 
 The honest product promise is local-first storage, controlled remote reasoning, explicit approvals, bounded execution, and recoverable work.
@@ -758,6 +785,10 @@ For every M2C release, verify:
 - [ ] Content-free server persistence canary tests pass.
 - [ ] Backend, frontend, CLI, sandbox, and red-team suites are green.
 - [ ] Planned or gated features remain labeled accurately.
+- [ ] The README, §2.4 and §5.2 list exactly the commands, flags, tools and dependencies that exist (the `Q08` check passes).
+- [ ] The `Q07` bypass corpus and the `Q09` crash and resume suite pass; every policy or sandbox fix added a row.
+- [ ] "Always allow" saves only the exact call, and a deny rule still wins after `cd`, restart and reconnect.
+- [ ] No code from a leaked or unlicensed source entered the repository (D13).
 
 ---
 
@@ -770,5 +801,50 @@ The main planning sources for this manual are:
 - backend local workspace, code proposal, task, and deployment routes;
 - the protocol, server, client, loop, policy, sandbox, and quality work packages described by the build plan;
 - `MiniLocker` (the `draft` repo, reviewed at commit `54520a2`) as a source of reusable modules and attack scenarios, as mapped in `m2c_build_plan.md` §11.6;
+- the `m2c/`, `backend/codeagent/` and `protocol/` trees of the MiniMe repository (revision 1.2 status, `m2c_build_plan.md` §0.6);
+- the public changelog and example settings of the official Claude Code repository, read as documentation only (`m2c_build_plan.md` §11.7);
 
 This document is the user-facing layer. The build plan remains authoritative for patch order, exact module ownership, test commands, milestone gates, and implementation status.
+
+---
+
+## 17. Prior Art: What Other Coding Agents Do and What M2C Takes
+
+**Rule (D13).** M2C uses public documentation, public changelogs, observable behavior and code whose licence has been read. It does not use leaked, unlicensed or source-unavailable code, including a copy re-uploaded under a permissive licence, and it is not written as a close rewrite of any such code. This guide therefore names no repository that republishes proprietary source. The comparison below is limited to what public changelogs and example files say.
+
+| Area | What comparable agents do | What M2C takes | Where |
+| :--- | :--- | :--- | :--- |
+| Permission rules | `tool(pattern)` rules; a long history of fixes for compound commands, wrapper programs, relative patterns and symlinks | Turn each past bug class into a test row before it can happen here | `Q07` |
+| "Always allow" | Saves a rule from the prompt | Save only the exact call, re-check it, never broader | `C25`, D16 |
+| Sandbox | Sandboxed commands still follow the permission flow; auto-allow is an opt-in | Same rule; off by default | D17 |
+| Hooks | JSON on stdin, exit codes, blocking events | Same contract, but tighten-only | `C13`, D15 |
+| Skills and commands | Folder-based, can declare tools | Local files only; no unattended run without an allow rule | `C14` |
+| MCP | A major extension point and a major attack surface | Device-local only; descriptions are untrusted; exact-name rules | `C23`, D18 |
+| Subagents | Separate context, own model | Own model class and budget; retry truncated answers | `L02` |
+| Compaction | Summaries, user instructions kept | Never drop recent turns after a crash; react to "context too long" | `L03`, `Q09` |
+| Headless | `-p`, JSON, streaming JSON, service exit codes | `stream-json` for Menux; the exit-code table stays | `C28` |
+| Organization policy | Managed settings, strict presets | A managed layer that a lower layer cannot loosen | `C27` |
+| Terminal safety | Control characters in output and file names | Neutralise before printing | `Q07` |
+
+**Where M2C is already ahead of what the public record shows:** the fail-closed tool catalog with a test that stops it drifting from the protocol, the "risk may be raised by the client and never lowered" rule, the content-free server design (O1) and the folder-trust fingerprint that already covers hook, skill and agent folders.
+
+---
+
+## 18. Ideas Not Yet Scheduled
+
+These are suggestions, not commitments, and none has a work package yet. Each should become one only after the Phase 3 gate (`I03`).
+
+| Idea | What it is | Why |
+| :--- | :--- | :--- |
+| **`/why` everywhere** | Beyond `C25`'s last-call explanation, an `m2c explain-policy` that shows, for a hypothetical call, which rule or mode would decide | Makes rules debuggable without trial and error |
+| **Session rules with expiry** | An approval can be "for this session" or "for 30 minutes", listed and revocable with `/permissions` | Avoids permanent rules from a one-time yes |
+| **`m2c replay`** | Re-run a saved local transcript against a new build with a fake model, and diff the tool calls | Cheap regression test for the golden tasks (`Q02`) with no model cost |
+| **Repo-local subagents** | `.m2c/agents/*.md` with a name, tools and a model class; trusted through the folder-trust prompt | Lets a team ship its own reviewer or migrator |
+| **Verify-loop presets** | `m2c init` detects the project's test and lint commands and writes them as the `verify` skill | Makes `L04` useful on day one |
+| **Service-mode exit codes** | A separate documented set for a long-running `m2c` used by a supervisor | For unattended and Menux use |
+| **Trust gate for apps and hooks** | One screen listing every hook, skill, agent and MCP server a folder wants to use, approved together | Folder trust (`C26`) already fingerprints them |
+| **Native Windows and macOS** | A sandbox backend for each (Windows job objects and AppContainer, macOS Seatbelt), then Menux's device mesh can use M2C on every machine | Required by Menux revision 1.2; outside O3 for v1 |
+| **Editor adapters** | VS Code, JetBrains and Neovim over ACP (`C18`) | Already named as Phase 5 intent |
+| **Status, resume, stop, service, vault** | The commands earlier drafts of this guide listed | Decide: give each a work package, or remove it from the guide |
+
+*End of the guide.*

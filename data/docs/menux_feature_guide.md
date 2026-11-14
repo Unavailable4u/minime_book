@@ -24,7 +24,7 @@ Where the earlier standalone design note (`doc-menux-product.html`) and this gui
 | **O4 · Built on `minicore/` After M2C M2** | Starts once M2C reaches Invite-Only Beta (`M2`), reusing `minicore/`, device-code auth, and `bubblewrap` | Planned window on Master Timeline: **Mar – Jun 2027** (59 WPs, 16 waves, 133 pts) |
 | **O5 · Backend Route Namespace** | Server routes mount under `/api/menux/*` (`backend/menux/` / `backend/mate/`) with `profile="mate"` | Shares brain turn loop with `/api/codeagent/*` |
 | **O6 · Reader / Actor Pipeline for Untrusted Data** | Any run ingesting untrusted emails, web pages, or stranger messages runs a tool-less Reader pass before the Actor pass | Blocks indirect prompt injection (`MT-T04`, `MT-Q02`) |
-| **O7 · Coding Delegated to M2C CLI** | Menux never implements a second code editor; coding tasks invoke `m2c run --json` over local IPC (`MT-M07`) | Preserves M2C's git checkpoints and OS sandbox |
+| **O7 · Coding Delegated to M2C CLI** | Menux never implements a second code editor; coding tasks invoke `m2c -p "task" --output-format json` (`stream-json` once M2C `C28` lands) over local IPC (`MT-M07`) | Preserves M2C's git checkpoints and OS sandbox |
 | **O8 · Official Google Scopes Gated on CASA** | Local CalDAV/IMAP/ICS work immediately; official Google OAuth scopes wait for verification & legal gate (`MT-G03`) | Matches `MiniMe_Financial_Strategy_Rulebook.md` compliance gates |
 
 ### Companion Extensions (CX1–CX7, added in revision 1.1)
@@ -575,7 +575,7 @@ A connector cannot access an undeclared domain or use a credential outside its d
 | **Local Watched Folders (`MT-H03`)** | Connector + Trigger | Read granted folder / Write to staging dir | `T1` (staging) · `T3` (outside staging) | Explicit per-automation `folder_grants`; blocks `~/.ssh`, `~/.menux/vault.enc`, `.env*` |
 | **Playwright Browser (`MT-W01`)** | Headless Automation | Read allowed domains / Fill & click (`T4`) | `T1` (read-only) · `T4` (stateful act) | Ephemeral context per run; blocks `file://`, RFC1918 local IPs, and password/payment fields |
 | **Inbound Webhooks (`MT-H08`, `MT-G04`)** | Trigger | Receive signed JSON payload (≤ 64 KB, 10m TTL) | `T1` (ingest via Reader) | HMAC-SHA256 verification; payload deleted from server relay immediately after node pull |
-| **M2C IPC Bridge (`MT-M07`)** | Sibling Delegation | Invoke `m2c run --json` on local repo | `T2` (Ask/Plan) · `T3` (Edit/Patch) | Inherits M2C's `bubblewrap` sandbox, git checkpoints, and path guard |
+| **M2C IPC Bridge (`MT-M07`)** | Sibling Delegation | Invoke `m2c -p "task" --output-format json` (`stream-json` once M2C `C28` lands) on local repo | `T2` (Ask/Plan) · `T3` (Edit/Patch) | Inherits M2C's `bubblewrap` sandbox, git checkpoints, and path guard |
 | **Official Google Workspace (`MT-G03`)** | Gated OAuth Connector | Gmail / Drive / Calendar official OAuth scopes | **Gated (Phase 6)** | Requires Google CASA security audit, Limited Use compliance, and legal sign-off |
 
 ### 8.3 Telegram

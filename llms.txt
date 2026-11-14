@@ -20,8 +20,8 @@ Static, offline-capable engineering atlas and 14-chapter connected book for the 
 4. MiniMe — Complete Feature & Product Guide (`data/docs/minime_feature_guide.md` -> `doc-minime-feature-guide.html`) — All 25 subsystems, 25-stage orchestrator, 73 agent modules (46 router roles), 6-tier memory, knowledge graph, mechanical CAD engine, and S0->S3b evolution.
 
 ### Part III — M2C L26 · Minime to Code (Local-First Terminal & Editor Coding Agent)
-5. M2C L26 — Complete Feature & Product Guide (`data/docs/m2c_feature_guide.md` -> `doc-m2c-feature-guide.html`) — Local CLI (`m2c`), TUI, `minicore/` shared package, 14 local tools, OS sandbox, 6 sub-agents, git checkpoints, and editor extensions.
-6. M2C L26 — Build Execution Guide (`data/docs/m2c_build_plan.md` -> `doc-m2c-plan.html`) — 64 patch-sized work packages across 12 waves (157 effort points), Phase 0 browser cut (`B00-B12`), and Overrides O1-O8.
+5. M2C L26 — Complete Feature & Product Guide (`data/docs/m2c_feature_guide.md` -> `doc-m2c-feature-guide.html`) — Local CLI (`m2c`), TUI, the 11-tool catalog in the code today, policy modes, OS sandbox, git checkpoints, headless `-p`, and a prior-art and ideas section (revision 1.2: commands and tools now match the code; status marked built or planned).
+6. M2C L26 — Build Execution Guide (`data/docs/m2c_build_plan.md` -> `doc-m2c-plan.html`) — 69 patch-sized work packages across 12 waves for Phases 0-4 (163 effort points; Phase 5 adds 7 more), Phase 0 browser cut (`B00-B12`), Overrides O1-O8, a build status snapshot (§0.6), decisions D13-D18, and the new C25, Q07, Q08, Q09, C28 and C27 packages (revision 1.2).
 7. M2C L26 — Original Product & Design Spec (`guides/M2C___Product___Build_Guide.html` -> `doc-m2c-product.html`) — Initial product spec (superseded on topology/billing by Overrides O1-O8).
 
 ### Part IV — Menux · Minime agentic automation (Local-First Personal Automation Agent)

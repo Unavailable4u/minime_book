@@ -3,7 +3,9 @@
 *Minime to Code · Level 26 (L26). Levels work like release versions: the next release will be L27.*
 ### From the first patch to release: ordered, parallelizable, patch-sized work packages
 
-*Version 1.1 (Synchronized Edition) · Companion to `m2c_feature_guide.md` (canonical 16-section feature & product specification), `guides/M2C___Product___Build_Guide.html` (initial design note), `minime_technical_roadmap.md` (Tech-A/B shared ledger sequence), and `MiniMe_Financial_Strategy_Rulebook.md` (shared plan caps). Planned execution window on the Master Timeline: **Jan – Feb 2027** (64 work packages, 12 waves, 157 effort points). Where this guide and the initial HTML product guide disagree, **this guide and `m2c_feature_guide.md` win** (see §1 Overrides O1–O8).*
+*Version 1.2 (2026-11-14; revision of the 1.1 Synchronized Edition) · Companion to `m2c_feature_guide.md` (canonical 16-section feature & product specification), `guides/M2C___Product___Build_Guide.html` (initial design note), `minime_technical_roadmap.md` (Tech-A/B shared ledger sequence), and `MiniMe_Financial_Strategy_Rulebook.md` (shared plan caps). Planned execution window on the Master Timeline: **Jan – Feb 2027** (64 work packages, 12 waves, 157 effort points). Where this guide and the initial HTML product guide disagree, **this guide and `m2c_feature_guide.md` win** (see §1 Overrides O1–O8).*
+
+> **Revision 1.2 (2026-11-14): status snapshot, outside-reference rule and six new work packages.** §0.6 records what the MiniMe code actually contains (Waves 1–8 built, Wave 9 partly built) and where this plan and the code disagree. D13–D18 add the outside-reference rule, the dependency policy, the hook contract, the "always allow" rule, "sandbox is not approval" and where MCP runs; §11.7 records what was learned from the public Claude Code changelog. **New work packages:** **C25** (safe "always allow"), **Q07** (bypass regression corpus), **Q08** (docs and catalog drift check) and **Q09** (crash and resume integrity) in Phase 3; **C28** (streaming headless output, for Menux delegation) in Phase 4; **C27** (managed settings and presets) in Phase 5. Notes were added to C11, C13, C14, C15, C17, L01, L02, L03, C19 and C23. §16 is the restart order. **Counts:** Phases 0–4 are now 69 work packages and about 163 points (the earlier 64 and 157 excluded the six read-only audits; this adds 5 WPs and 6 points); Phase 5 is 7 work packages and about 26 points (was 6 and 24). The four WPs the build added (C24, C26, S14, S15) are done and are not counted.
 
 ---
 
@@ -55,6 +57,48 @@ is wrong or impossible against the real code, STOP and report instead of improvi
 ### 0.5 Size labels
 
 **S** (about one focused session) · **M** (a few sessions) · **L** (a week-ish of patch rounds) · **XL** (break it up if the model struggles). Sizes are relative effort, not dates.
+
+### 0.6 Build status snapshot (2026-11-14)
+
+Added in revision 1.2. **How this was established:** from the `m2c/`, `backend/codeagent/`, `backend/eo/`, `backend/api/` and `protocol/` trees of the MiniMe repo, the "Patch XNN" headers inside the code, the test folders, `.github/workflows/ci.yml`, and the commit log (latest commit "wave 9 part 2 complete", 2026-11-14). **The tests were not run.** The plan's own resume log (`PATCHES.md`, §0.4) is not in the repository, so correct any row that is wrong and then create that log from this table.
+
+Status words: **Built** = code and tests are present; **Partly** = some of the WP is present; **Not found** = no code found; **Not checked** = could not be told from the files.
+
+| WP | Status | Evidence |
+|---|---|---|
+| B01, B03, B04, B06, B07, B09 | Built | One commit named for each in the history |
+| B00, B02, B05, B08, B10–B12, AUD1–6 | Not checked | Not looked at in this review |
+| P00 | Built | `protocol/v1/` (envelope, 11 tool schemas, errors) and its fixtures |
+| S01, S02 | Built (not checked in depth) | `backend/eo/usage_ledger.py`, `credits.py`, migration `0012` |
+| S03, X01 | Built | `backend/eo/devices.py`, `backend/api/routes/devices.py`, migration `0013`, `DevicesPanel.jsx` |
+| S04, S05, S06, S09 | Built | `backend/codeagent/ws.py`, `adapters/openai_compat.py`, `run_manager.py`, `buffer.py`, `broker.py`, migration `0014` |
+| S07, S08, S10 | Built | `loop.py` (with S07b, leaving plan mode), `context.py` (mechanical compaction), `metering.py` |
+| C01–C04 | Built | `m2c/` package, store, `m2c login`/`logout`, device link (`link/`) |
+| C05, C06, C07, C08, C12 | Built | `tools/`, `policy/`, `tools/shell.py`, `checkpoints.py`, `context/` |
+| C09 (with C09a, C09b), C10 (with C10b) | Built | `tui/`, `headless.py`, `session_setup.py` |
+| I01 | Built | Walking skeleton |
+| I02 | Not checked | Phase 3 work has started, so it presumably passed, but no record was found |
+| C11 (as C11a and C11b) | Built | `sandbox/` (bubblewrap profile, probe, CONNECT proxy, network bridge) |
+| C15 | Built | `secrets/redact.py`, `secrets/env.py` |
+| L01 | Partly | `ask_user` and `tasks` built (L01a); `plan_exit` is in the protocol and the loop (S07b) |
+| L03 | Partly | Only the mechanical compaction of S08; model-written summaries, compact instructions and the scratchpad are not built |
+| Q01 | Partly | `m2c-test` job in `ci.yml`; whether it covers `codeagent` tests and the protocol check was not checked |
+| Q06 | Partly | A canary harness exists in `backend/tests/canary/`; whether it covers M2C runs was not checked |
+| S11 | Not checked | Redis is used by `buffer.py`, `connections.py` and `emitter.py`; the process split is not visible |
+| C13, C14 | Not found | `trust/fingerprint.py` already reserves `.m2c/hooks`, `.m2c/skills`, `.agents/skills`, `.claude/skills` |
+| C16, C17, L02, L04, Q02, Q03 | Not found | `backend/evals/promptfoo/` belongs to the web app, not to M2C |
+| Phase 4, 5 and 6 WPs | Not found | No `projects/`, ACP, MCP, worktree or packaging code in `m2c/` |
+| **Added during the build** | Built | **C24** device tool runner (`runner.py`), **C26** folder-trust prompt and `m2c trust` (`trust/`), **S14** message router and emitter, **S15** switch of the server to the real loop (`wiring.py`). Sub-patches C09a/b, C10b, C11a/b, S07b and L01a are splits of WPs above |
+
+**Where the plan and the code disagree (found while building this table):**
+
+- The client is **not** standard-library only. Its runtime dependencies are `websockets` (only `m2c/link` imports it), and `prompt_toolkit` and `rich` (only `m2c/tui/app.py` imports them); a test fails if another is added. See D14.
+- `m2c/README.md` still says the client can only do `doctor`, `login` and `logout`. It also has the chat UI, `-p`, `trust`, checkpoints, the sandbox and the policy engine.
+- Permission modes in the code are `plan`, `ask` and `accept-edits`; the feature guide's `ask|edit|auto` was an earlier idea. `auto` waits for L07.
+- The tool catalog in the code is the 11 tools of `protocol/v1/tools/` (`read_file`, `list_dir`, `glob`, `grep`, `edit_file`, `write_file`, `delete_path`, `bash`, `plan_exit`, `ask_user`, `tasks`). The feature guide's older table named tools that do not exist.
+- The server routes are `/v1/code/*` (as §3.5 says), not `/api/codeagent/*`.
+- `minicore/` does not exist yet. M2C is self-contained; Menux's `MT-K01` extracts the shared library from it after M2C reaches M2.
+- Menux's feature guide called the delegation interface `m2c run --json`. The real interface is `m2c -p "task" --output-format json`.
 
 ---
 
@@ -135,6 +179,12 @@ Recommended defaults are in bold. Change them before generating patches, not aft
 | D10 | Linux distros supported | **Ubuntu 22.04+/24.04, Debian 12, Fedora current; Arch best effort; WSL2 Ubuntu is the primary Windows path** | Document tested versions in `doctor` |
 | D11 | Open-sourcing the client | **Decide before beta** (trust benefit vs. exposing policy code) | Affects license headers from the start |
 | D12 | MiniLocker (`draft` repo) reuse | **A source of parts, not a base.** Copy a module in with a provenance header and its tests; no runtime dependency on the repo; never import its Docker sandbox, egress proxy, API or UI (§11.6) | Vendoring or a shared package couples release cadence and drags Docker, FastAPI and S3 dependencies into the client. Check the hackathon's terms before the first copy |
+| D13 | Outside reference policy | **Learn from public documentation, public changelogs, observable behavior and permissively licensed code whose licence has been read. Never use leaked, unlicensed or source-unavailable code, including copies re-uploaded under another licence, and never write a close rewrite from it.** If such code is seen by accident, stop, do not copy from it, and tell the owner | Protects the product's right to ship; see §11.7 |
+| D14 | Client runtime dependencies | **Standard library plus three recorded exceptions:** `websockets` (only `m2c/link`), `prompt_toolkit` and `rich` (only `m2c/tui/app.py`, imported lazily). A test fails if another appears; adding one needs a decision here | The code already works this way; the README said otherwise |
+| D15 | Hook contract | **Command hooks; the event as JSON on stdin; exit 0 means "no objection" (the normal policy still decides), exit 2 blocks with a message to the model, other codes warn. A hook can tighten (ask, deny) and never loosen: a hook's "allow" does not override deny rules, protected paths, the taint floor, the sandbox or the folder-trust rule.** Project hooks run only in a trusted folder; the model cannot edit hook or settings paths | Same direction as Menux MX8 |
+| D16 | "Always allow" | **A saved rule is offered only if the same call, checked again against the new rule set, would be allowed; it is never broader than what the person approved; deny and ask rules also apply to an approval that arrives after a reconnect or restart.** Headless runs use explicit rules only | `C25`; avoids rules that quietly stop working or quietly allow more |
+| D17 | Sandbox is not approval | **A command that runs in the sandbox still follows the normal permission flow. Skipping the prompt for sandboxed shell commands is an opt-in setting, off by default, and refused when the sandbox probe fails** | Matches C11 ("refuse auto-allow when the sandbox cannot be built") |
+| D18 | Where MCP runs | **On the device only (C23).** `backend/eo/mcp_client.py` is a protocol reference for the connect, discover and call code, not a runtime dependency: the server never calls third-party MCP servers for an M2C run. MCP tool descriptions and results are untrusted data and taint the session | Data stays local (O1) |
 
 ---
 
@@ -190,13 +240,15 @@ PHASE 3   C07 ──► C11 (sandbox) ──► C16, C17(taint)
           C06 ──► C13 (hooks) , C14 (skills), C15 (secrets)
           S07 ──► L01, L02, L03, L04      S06 ──► S11
           Q01, Q02, Q03, Q06 (any time after M0)  ──► I03 (M1)
+          (rev 1.2)  C06+C09 ──► C25      C06+C11+C25 ──► Q07 ──► Q03      Q08 (independent)      C02+C08+C09 ──► Q09
 
 PHASE 4   C02 ──► C20 ──► X03      S06 ──► X04      S01 ──► X02
           L02 ──► L05 (review)      S07 ──► L06 (chains)     C11 ──► C21 (doctor full)
           Q04, S12 (invites/billing hooks) ──► I04 (M2)
+          (rev 1.2)  C10+L01 ──► C28 (streaming output for delegation)
 
 PHASE 5   C18 (ACP), C19 (worktrees), L07 (classifier), L08 (LSP/repo map),
-          C23 (local MCP), S13 (migrate preview proxy), external audit
+          C23 (local MCP), S13 (migrate preview proxy), C27 (managed settings), external audit
 
 PHASE 6   C22 (packaging), X05 (docs), X06 (legal) ──► GA
 ```
@@ -218,6 +270,9 @@ Patches that touch the same file **cannot be in the same wave**; apply in the or
 | `backend/api/server.py` | B07 (CORS line) and S04 (one `include_router` line). Different hunks; low risk. If `git apply` fails, regenerate the later one |
 | `backend/migrations/` | Numbers are **reserved** (§3.5) so parallel patches never collide |
 | `protocol/v1/*` | P00 creates it; later edits are versioned additions only |
+| `m2c/src/m2c/policy/{decide,rules}.py` | C06 → L01a (built) → C25 → C13 (adds the hook call point) → L07 → C27. One writer at a time |
+| `m2c/src/m2c/headless.py`, `cli.py` | C10b (built) → C26 (built) → C28 |
+| `m2c/README.md` | Any WP that adds a command, flag or dependency updates it in the same patch; Q08 checks it |
 
 ### 3.5 Reserved numbers
 
@@ -245,11 +300,11 @@ Within a wave, patches are independent. Apply in the order listed.
 | **6** | S07, C07, C08 | S05+S06+S09; C06; C02+C05 |
 | **7** | S08, S10, C09 | S07; S01+S07; C05–C08, C12 |
 | **8** | I02 (M0) | All of Phase 2 |
-| **9** | C11, C13, C14, C15, L01, L02, L03, L04, S11, Q01, Q02, Q03, Q06 | C07; C06; C06; C06; S07+C09; S07; S07; S07+C13; S06; M0; M0; M0; S06 |
+| **9** | C11, C13, C14, C15, L01, L02, L03, L04, S11, Q01, Q02, Q03, Q06 **plus, in revision 1.2, C25, Q07, Q08, Q09.** Built so far: C11, C15, L01a. Order for the rest: §16 | C07; C06; C06; C06; S07+C09; S07; S07; S07+C13; S06; M0; M0; M0; S06; C25 needs C06+C09; Q07 needs C06+C11+C25; Q08 nothing; Q09 needs C02+C08+C09 |
 | **10** | C16, C17, I03 (M1) | C11; C11+C06; Phase 3 |
-| **11** | C20, X03, X04, L05, L06, C21, S12, Q04 | C02; C20; S06+S07; L02; S07; C11; S06; C11 |
+| **11** | C20, X03, X04, L05, L06, C21, S12, Q04, C28 | C02; C20; S06+S07; L02; S07; C11; S06; C11; C10+L01 |
 | **12** | I04 (M2 beta) | Phase 4 |
-| **13+** | C18, C19, L07, L08, C23, S13, apply_patch tool; then C22, X05, X06 | per WP |
+| **13+** | C18, C19, L07, L08, C23, C27, S13, apply_patch tool; then C22, X05, X06 | per WP |
 
 \* B10 needs B06 and B09 applied first; place it at the end of wave 2.
 
@@ -576,6 +631,8 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 
 ### C11 · Sandbox (bubblewrap) and network proxy · XL · Wave 9
 
+*Status (2026-11-14): built as two patches, C11a (profile, probe, shell integration) and C11b (the CONNECT proxy and network bridge). New in revision 1.2: D17 (sandbox is not approval) and the Q07 sandbox cases (config folders and the shared git directory are protected).*
+
 *Implements:* product guide §8.4; §O3.
 *Files:* `m2c/src/m2c/sandbox/{bwrap.py,profile.py,netproxy.py,probe.py}`, tests (skipped when `bwrap` or user namespaces are unavailable, with a loud "SKIPPED" report).
 *What:*
@@ -590,15 +647,18 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 
 *Implements:* product guide §8.8, Appendix C.
 *Files:* `m2c/src/m2c/hooks/*`, tests.
-*What:* Events `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, `PostToolUseFailure`, `SubagentStart/Stop`, `PreCompact`, `Stop`, `SessionEnd`. Command handlers first (exit 0 allow, 2 block with message to the model; other codes warn). Project hooks require the folder-trust prompt. Hooks cannot be edited by the model (the settings paths are protected).
+*What:* Events `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, `PostToolUseFailure`, `SubagentStart/Stop`, `PreCompact`, `Stop`, `SessionEnd`. Command handlers first. **Contract (D15):** the event arrives as JSON on stdin; exit 0 means "no objection" and the normal policy still decides, exit 2 blocks and sends the message to the model, other codes warn; a hook can tighten (ask, deny) and never loosen, so a hook's "allow" does not override deny rules, protected paths, the taint floor, the sandbox or the folder-trust rule. A `PermissionRequest` hook can answer only ask or deny. Hooks get a timeout and a trimmed environment, and their output is redacted like any tool result. Project hooks require the folder-trust prompt (`trust/fingerprint.py` already covers `.m2c/hooks`). Hooks cannot be edited by the model (the settings paths are protected, and Q07 tests that the sandbox refuses writes there).
 *Done when:* a `PreToolUse` hook blocks a command; a `Stop` hook forces a continuation; a hook timeout does not hang the session.
 
 ### C14 · Skills · M · Wave 9
 
 *Files:* `m2c/src/m2c/skills/*`, tests.
 *What:* Load `SKILL.md` folders from `~/.m2c/skills`, `<repo>/.m2c/skills`, and (after a trust prompt) `<repo>/.agents/skills` and `.claude/skills`. Only name and description go into context; the `skill` tool loads the body. Support `disable-model-invocation`. Ship built-ins: `init`, `verify`, `review`, `create-skill`.
+*Revision 1.2:* a skill that declares tools or hooks does not run unattended (headless, or called by Menux) until the owner has an explicit allow rule for `skill(name)`; a skill can never grant itself more than policy allows; skills copied from `.agents/skills` and `.claude/skills` follow the same trust prompt. `backend/eo/skill_library.py` is the web agents' server-side skill store, a different design, so it is not reused here (skills are local files, O1).
 
 ### C15 · Secrets, redaction and environment · M · Wave 9
+
+*Status (2026-11-14): built.*
 
 *Implements:* product guide §8.5.
 *Files:* `m2c/src/m2c/secrets/{redact.py,env.py}`, tests.
@@ -606,13 +666,16 @@ Read-only reviews that produce a findings document, no code: Tasks board, Instru
 *Done when:* canary secrets planted in files and env never appear in outgoing messages (asserted against the fake server).
 
 ### L01 · `ask_user`, `tasks`, `plan_exit` · M · Wave 9
+*Status (2026-11-14): partly built. L01a (`ask_user` and `tasks`, client and server) and S07b (leaving plan mode) are in; check that every *Done when* item below has a test, then close it.*
 Server tools and client rendering for a blocking structured question, a small task list with statuses and dependencies, and plan approval. *Done when:* a run can pause on a question and continue; plan mode ends only through `plan_exit`.
 
 ### L02 · Subagents · L · Wave 9
 `explore` and `plan` first (read-only tools, cheap model class, separate context, return a summary only, no further spawning, share the run's budget). `review` and `security-review` come in L05. *Done when:* a subagent's exploration does not enter the main context, and its tool calls are fully logged locally.
+*Revision 1.2:* a subagent keeps its own model class and budget and is not moved by a parent's mode or plan-chain change; a subagent answer cut off at the token limit is asked again more briefly instead of returning only its tail; background subagents wait for C16.
 
 ### L03 · Compaction v1, auto-memory, scratchpad · M · Wave 9
 Summarization with user-controlled "compact instructions"; stop-on-thrash; memory writes shown and undoable; a run-scoped scratchpad file for long tasks. *Done when:* a 60-step run stays within a set context percentage and the final answer still reflects early decisions.
+*Status:* S08 already does mechanical compaction on the server; this WP adds model-written summaries, compact instructions and the scratchpad. *Revision 1.2:* compaction must never drop the most recent turns after an unclean exit (Q09), a provider "context too long" error triggers compaction instead of failing every later turn, and the instructions loaded by C12 survive compaction.
 
 ### L04 · Verification loop and Stop hooks · M · Wave 9
 `lint`, `test`, `build` commands from settings; run after edits; the `Stop` hook can block finishing until tests pass; at most N fix attempts, then report what could not be fixed. *Done when:* a failing test sends the model back to fix it, and a stuck loop ends with an honest report.
@@ -628,7 +691,7 @@ Long-running commands with ids, output polling, kill; dev servers and watchers. 
 
 ### C17 · Web tools and taint tracking · L · Wave 10
 *Implements:* product guide §8.6.
-`web_fetch` runs **locally** through the sandbox proxy (so the user's IP and data stay local); `web_search` goes through the server (the search key stays server-side; queries are content that leaves the device, so say so in the trust copy). Any untrusted result sets the session `tainted`. While tainted: network-capable tools, `git push` and other outbound actions **always ask**, even in `accept-edits`; writes outside the project are denied. The UI shows the flag and the reason.
+`web_fetch` runs **locally** through the sandbox proxy (so the user's IP and data stay local); `web_search` goes through the server (the search key stays server-side; queries are content that leaves the device, so say so in the trust copy; the server side can reuse the existing `backend/utils/web_search.py`, Tavily then Exa, behind a `/v1/code/` tool route). Any untrusted result sets the session `tainted`. While tainted: network-capable tools, `git push` and other outbound actions **always ask**, even in `accept-edits`; writes outside the project are denied. The UI shows the flag and the reason.
 *Reuse (MiniLocker, §11.6):* port `minilocker/policy/injection.py` (`sanitize`, `scan`, and the nonce `fence` for untrusted text) and the taint-floor idea from `policy/engine.py`. The scan is only a signal; the session `tainted` flag and the always-ask rule above remain the control.
 *Done when:* a poisoned fetched page cannot cause an unapproved outbound action in the red-team suite.
 
@@ -641,17 +704,50 @@ Run `m2c/tests`, `backend` tests (including `codeagent`), and the protocol check
 *Reuse (MiniLocker, §11.6):* model the runner on `minilocker/scenarios/runner.py` and the `fix_repo` scenario (`scenarios/repo_fix.py`): a verifier the model never sees, repeated runs per task, and a 95% interval (`wilson()`) reported beside the pass count. MiniLocker drives its own agent loop; this runner drives `m2c -p`.
 
 ### Q03 · Red-team suite · L · Wave 9
-Fixtures for indirect injection (README, issue text, fetched page, MCP-style tool description), secret-read attempts, sandbox escapes, denylist bypass, and hook tampering. **A release is blocked if any "no unapproved egress, no secret read, no write outside the project" test fails.**
+Fixtures for indirect injection (README, issue text, fetched page, MCP-style tool description), secret-read attempts, sandbox escapes, denylist bypass, and hook tampering. *Revision 1.2:* start from the Q07 bypass corpus and add end-to-end scenarios on top of it. **A release is blocked if any "no unapproved egress, no secret read, no write outside the project" test fails.**
 *Reuse (MiniLocker, §11.6):* seed the fixtures from the Attack Lab catalog (`minilocker/attacks/catalog.py`: `hostile_page_injection`, `deny_then_bypass`, `read_secrets`, `exfil_unknown_domain`, `malicious_repo_hook` and others), rewritten for the bubblewrap backend and the CONNECT proxy.
 
 ### Q06 · "No content at rest" canary test · M · Wave 9
 Run a scripted session with canary strings in prompts, file contents and tool outputs. Afterwards scan Postgres rows, application logs, Redis keys after run end, and error-reporting payloads for the canaries. Any hit fails CI. This is the test that backs your trust statement.
+
+### C25 · Safe "always allow" and rule hygiene · S · Wave 9 · *new in revision 1.2*
+
+*Implements:* D16. *Files:* `m2c/src/m2c/policy/rules.py`, `m2c/src/m2c/tui/approval.py`, tests.
+*What:* The `a` key in the approval prompt saves the exact call (tool and normalized arguments), never a broader pattern. A saved rule is offered only when the same call, evaluated again against the new rule set, would be allowed (so a compound command with one denied or asking part is never "always allowed"). Relative deny and ask patterns such as `read_file(.env*)` are anchored to the project root, not to the current directory, so they still hold after a `cd` inside a shell command and for added directories. A late approval (after a reconnect or a restart) is checked against the current deny and ask rules before it is used. `/why` shows which rule or mode decided the last call (the decision function already returns the reason).
+*Done when:* tests cover the compound-command case, a deny pattern surviving a `cd`, a late approval for a call that is now denied being refused, and `/why` naming the deciding rule; the policy invariants test stays green.
+
+### Q07 · Policy and sandbox bypass regression corpus · M · Wave 9 · *new in revision 1.2*
+
+*Files:* `m2c/tests/redteam/bypass_corpus/` (table-driven), CI wiring.
+*What:* One table of boundary-bypass patterns with the decision M2C must give each. This class of bug is well known from the public changelogs of comparable agents, so the rows are written from those patterns and from M2C's own findings, never from anyone's source code (D13). Groups:
+- **Compound commands:** `a && b`, `a; b`, pipes, `$(...)`, backticks, process substitution, here-documents, `bash -c '...'`, `env X=1 cmd`, `xargs`, `find -exec`, `timeout cmd`, `sudo`. An allow rule for one program must not allow a program it wraps.
+- **A rule naming one program running another:** aliases, `PATH` shadowing, a symlinked or relative binary (`./git`).
+- **Deny rules:** relative paths, `cd`, added directories, symlinks, letter case, a deny rule that applies after a restart.
+- **Settings and trust:** a committed project settings or hooks file must never be treated as the person's own; the folder-trust fingerprint covers every file that can change policy.
+- **Sandbox:** writes to `.m2c/` settings, hooks, skills and agents are refused in the project and in added directories; a linked worktree's shared git directory and a `.git` file that points elsewhere are protected; helper processes the sandbox starts (the network bridge and proxy) get an environment with no tokens or keys.
+- **Terminal safety:** control characters in file names, paths, tool output and `-p` text output are neutralised before they reach a terminal.
+Each future policy or sandbox bug adds a row as part of its fix.
+*Done when:* every row has an expected decision and runs in CI; Q03 reuses the corpus as its first fixtures.
+
+### Q08 · Docs and catalog drift check · S · Wave 9 · *new in revision 1.2*
+
+*Files:* `m2c/tests/docs/`, optionally a small script in the book repo.
+*What:* A test that fails when the documentation and the code disagree: the tool names in `protocol/v1/tools/*.json` against `policy/modes.py` (a partial check already exists) and against the tool table in the feature guide; the commands and flags printed by `m2c --help` against the README's command table; the runtime dependencies in `pyproject.toml` against the README and D14. Optional second half in the book repo: every WP ID in the index is unique, every dependency exists, every non-added WP appears in exactly one wave, and the headline counts match the index.
+*Done when:* the README is regenerated or corrected first, the check is green, and changing a tool schema without updating the docs turns it red.
+
+### Q09 · Crash, resume and truncation integrity tests · S · Wave 9 · *new in revision 1.2*
+
+*Files:* `m2c/tests/runner/`, `m2c/tests/store/`, fake server fixtures.
+*What:* Kill the client at each step of a run (after a tool result is written, before an event is flushed, during a checkpoint, during an atomic write) and check that: the local log holds every completed turn or a clear marker, never silently missing recent turns; `history` rebuilt for `run.resume` (C09a) is correct; a checkpoint is never half written; a command issued after the working directory was deleted fails with a message and does not run somewhere else; a repeated `tool_result` or approval after a reconnect is idempotent by `call_id`; a provider "context too long" error triggers compaction instead of failing every turn.
+*Done when:* the fault-injection suite passes in CI against the fake server.
 
 ### I03 · M1 acceptance · M · Wave 10
 - [ ] Sandbox probes pass on Ubuntu and WSL2 Ubuntu; `doctor` is honest when they cannot.
 - [ ] Red-team and canary suites pass.
 - [ ] 20 golden tasks at the success rate you set from your baseline.
 - [ ] You use M2C for your own work for two weeks; failures are logged as backlog items.
+- [ ] The Q07 bypass corpus and the Q09 crash and resume suite pass, and the Q08 docs check is green (revision 1.2).
+- [ ] `PATCHES.md` matches the code and the README lists the commands that exist.
 
 ---
 
@@ -685,12 +781,19 @@ Adds sandbox probes, proxy check, clock skew, keyring availability, version and 
 ### Q04 · Device-link security review · M · Wave 11
 Penetration-style tests on pairing, token handling, revocation timing, and socket abuse (budgeted in your rulebook's pen-test line).
 
+### C28 · Streaming headless output for delegation · S · Wave 11 · *new in revision 1.2*
+
+*Files:* `m2c/src/m2c/headless.py`, `m2c/src/m2c/cli.py`, tests.
+*What:* `m2c -p "task" --output-format stream-json` writes one JSON event per line on stdout (the same event types as the protocol's `run_event`, with secrets already redacted), and ends with one result line that carries the exit status and the usage totals. The existing exit-code table and signal behavior (SIGINT or SIGTERM cancels the run first) are unchanged, and `text` and `json` stay as they are. This is the interface Menux uses for delegation (Menux `MT-A07`); the earlier name `m2c run --json` does not exist.
+*Done when:* a test reads the stream line by line from a fake server run, a cancelled run ends with the documented code, and Menux's delegation test can start a plan-mode run, read its events and stop it.
+
 ### I04 · M2 beta acceptance · M · Wave 12
 - [ ] 20–50 invited users; per-run and per-user cost within your pricing model.
 - [ ] Shared cap works across web and M2C (a user burns one pool).
 - [ ] Handoff and remote view work without storing content.
 - [ ] No critical findings from Q04; canary and red-team suites still green.
 - [ ] Support runbook exists (revoke device, reset credits, read diagnostics).
+- [ ] Menux's delegation test (`MT-A07`) runs against `m2c -p --output-format stream-json` (C28).
 
 ---
 
@@ -699,10 +802,11 @@ Penetration-style tests on pairing, token handling, revocation timing, and socke
 | WP | Title | Notes |
 |---|---|---|
 | **C18** | ACP server (`m2c acp`) | JSON-RPC over stdio so Zed, JetBrains and similar editors can launch M2C; route commands through the editor terminal when offered. |
-| **C19** | Worktrees and parallel sessions | `--worktree name`; per-plan concurrency limit; "compare runs" is optional and opt-in because it multiplies cost. |
+| **C19** | Worktrees and parallel sessions | `--worktree name`; per-plan concurrency limit; "compare runs" is optional and opt-in because it multiplies cost. *Revision 1.2:* the sandbox must treat a linked worktree's shared git directory and hook paths as protected (a Q07 row); cleanup must not delete a worktree that holds uncommitted work. |
 | **L07** | Auto-mode classifier | Ships only after an eval of a few hundred labeled tool calls, including injections; local deny rules and the sandbox always win; the classifier can move "ask" to "allow", never override a deny. |
 | **L08** | LSP diagnostics and repo map | Diagnostics after edits; tree-sitter outline as optional orientation; add a semantic index only if your eval shows gains. |
-| **C23** | Local MCP client | MCP servers run **on the device** (data stays local); trust levels per server; tool search to defer schemas; build against the 2026-07-28 spec. |
+| **C23** | Local MCP client | MCP servers run **on the device** (data stays local, D18); trust levels per server (blocked, read-only, ask); tool search to defer schemas; build against the 2026-07-28 spec. *Revision 1.2:* tool names and descriptions from a server are untrusted data and taint the session; a rule for an MCP tool matches its exact name and a name that differs only by letter case is refused; a server's output is redacted like any tool result; servers start inside the sandbox unless the owner marks one as trusted. Reference code for the protocol handling: `backend/eo/mcp_client.py` (it runs on the server and cannot be reused as is). |
+| **C27** | Managed settings and policy presets | *New in revision 1.2.* Fill the empty `managed` layer of `load_layers` (a root-owned file such as `/etc/m2c/managed-settings.toml`): precedence managed over user over project; keys for rules-only-from-managed, hooks-only-from-managed, a fixed domain allowlist, "sandbox required" and a highest mode; a lower layer can never loosen a managed setting; `doctor` shows which settings are managed and from where. Ship three documented presets, `strict`, `standard` and `lax`. Size M. Needs C06 and C26. For teams and companies, so it waits for M2. |
 | **—** | `apply_patch` tool | Multi-hunk edits. |
 | **S13** | Migrate the preview proxy from `daemon/` into `m2c/` | Then retire `daemon/`, the backend `local_workspace` routes and `useDaemonStatus`. |
 | **—** | External security audit | Scope: device link, policy engine, sandbox, secrets, MCP. Budgeted in your rulebook; make it the gate for GA. |
@@ -780,6 +884,30 @@ Rules for any reuse:
 
 Size labels in §14 are unchanged. Reuse is a head start, not a reason to shrink an estimate before a port has actually passed its WP's tests.
 
+### 11.7 Prior art, outside references and what M2C takes from them (revision 1.2)
+
+**The rule (D13).** M2C may learn from public documentation, public changelogs, observable behavior, and code under a licence that has been read and recorded. It may not use leaked, unlicensed or source-unavailable code, including a copy that someone re-uploaded under an MIT or other licence (the uploader cannot license what they do not own), and it may not be written as a close rewrite of such code. A repository that republishes another company's proprietary source is not a reference, however it is labeled. If such material is seen by accident, stop, copy nothing from it, and tell the owner. The product is meant to be shipped and sold, so the right to ship matters more than any feature.
+
+**What was compared (2026-11-14).** The official public Claude Code repository (the changelog, example settings, one example hook, and a few small plugins; it contains no application source) against the M2C code. The comparison is limited to what that changelog and those examples say exists; Claude Code itself was not run. Two repositories that republish its proprietary source were deliberately not used.
+
+| Area | M2C today | Public Claude Code | What M2C takes |
+|---|---|---|---|
+| Core tools, plan mode, checkpoints and rewind, folder trust | Built | Present | Nothing; M2C's fail-closed checks and tests are already strong |
+| Permission rules | `tool(pattern)` allow and deny, deny wins | Same shape, plus a long history of rule-matching fixes | **C25** (D16) and **Q07**: turn that history into M2C tests |
+| Sandbox | `bubblewrap` plus a proxy | Present; sandboxed commands follow the normal permission flow by default, auto-allow is opt-in | **D17** |
+| Hooks | Not built (C13) | A major area | **D15**: the contract, tighten-only |
+| Skills, slash commands, plugins | Not built (C14, later C22) | Present | C14 notes on unattended use; plugins stay out of scope |
+| MCP | Not built (C23, Phase 5) | A major area | **D18**: local only; the backend client is a protocol reference |
+| Subagents, background agents | Not built (L02, C16) | Present | L02 notes (own model and budget, truncated output) |
+| Compaction | Mechanical only (S08) | Present | L03 notes (never drop recent turns after a crash; react to context-too-long) |
+| Worktrees | Not built (C19) | Present | C19 notes (sandbox must protect the shared git directory) |
+| Web search and fetch | Not built (C17); a Tavily and Exa helper exists on the server | Present | C17 note: reuse the server helper |
+| Organization settings | `managed` layer is empty (C06) | MDM examples; strict and HIPAA presets | **C27** |
+| Headless and service use | `-p` with exit codes | `-p`, an SDK, service exit codes | **C28** |
+| IDE, LSP, notebooks, scheduled tasks | Not planned yet (ACP is C18; LSP is L08) | Present | Backlog (feature guide §18) |
+
+**Existing reuse inside the repository.** The backend already has an MCP client (`backend/eo/mcp_client.py`, JSON-RPC over stdio and HTTP), a server-side skill library (`backend/eo/skill_library.py`) and a web-search helper (`backend/utils/web_search.py`, Tavily then Exa). They were built for the web agents, not for M2C: the first two run on the server, where M2C needs the work done on the device. Use them as reference for protocol handling and fixtures, then write the client-side versions inside the owning WP. The same rule as MiniLocker (§11.6) applies: copy by patch, name the source in a header, and let the WP's own *Done when* decide.
+
 ---
 
 ## 12. Tests and commands
@@ -794,12 +922,15 @@ Size labels in §14 are unchanged. Reuse is a head start, not a reason to shrink
 | Evals | `python -m evals.m2c.run --suite golden` | After Q02; costs real money, run on demand |
 | Red team | `pytest m2c/tests/redteam -v` | After Q03; blocks release |
 | Canary | `pytest backend/tests/integration/test_no_content_at_rest.py` | After Q06; blocks release |
+| Bypass corpus | `pytest m2c/tests/redteam/bypass_corpus -v` | After Q07; blocks release (revision 1.2) |
+| Docs drift | `pytest m2c/tests/docs -v` | After Q08 (revision 1.2) |
+| Crash and resume | `pytest m2c/tests/runner m2c/tests/store -v` | Includes the Q09 fault-injection cases (revision 1.2) |
 
 ---
 
 ## 13. Risks of the build itself, and stop-the-line rules
 
-**Stop the line (do not generate more patches until fixed):** the base test suite is red; a patch weakens a security check; the canary or red-team test fails; a migration number is used twice; two applied patches disagree about the protocol.
+**Stop the line (do not generate more patches until fixed):** the base test suite is red; the docs drift check (Q08) is red; a policy or sandbox bug is fixed without a new row in the Q07 corpus; a patch weakens a security check; the canary or red-team test fails; a migration number is used twice; two applied patches disagree about the protocol.
 
 | Risk | Mitigation |
 |---|---|
@@ -812,6 +943,9 @@ Size labels in §14 are unchanged. Reuse is a head start, not a reason to shrink
 | Cost surprises during testing | Per-run ceilings from S10 from day one; dev keys until M2 |
 | Trust claim becomes untrue | Q06 canary test and the §11.4 logging rule |
 | Imported code carries the wrong assumption | Reuse is by copy (D12); the WP's own *Done when* tests and the C06 fail-closed rule decide, not the source project's tests |
+| Code from an unlicensed or leaked source reaches the product | D13: use public docs, changelogs and observed behavior only; reviewers ask "where did this come from?" for any large new module; provenance header on anything copied (D12) |
+| Docs and code drift apart (the README, the tool table and the plan already did) | Q08 in CI; update the README in the same patch that adds a command; keep `PATCHES.md` |
+| A hook, skill or MCP server widens what the agent may do | D15 (tighten only), D17, D18; Q07 and Q03 cases; project extensions only after the folder-trust prompt |
 
 ---
 
@@ -872,6 +1006,10 @@ Size labels in §14 are unchanged. Reuse is a head start, not a reason to shrink
 | Q02 | Eval harness | 3 | 9 | M0 | L |
 | Q03 | Red-team suite | 3 | 9 | M0 | L |
 | Q06 | No-content canary test | 3 | 9 | S06 | M |
+| C25 | Safe "always allow" and rule hygiene | 3 | 9 | C06, C09 | S |
+| Q07 | Policy and sandbox bypass regression corpus | 3 | 9 | C06, C11, C25 | M |
+| Q08 | Docs and catalog drift check | 3 | 9 | – | S |
+| Q09 | Crash, resume and truncation integrity tests | 3 | 9 | C02, C08, C09 | S |
 | C16 | Background shell | 3 | 10 | C11 | M |
 | C17 | Web tools and taint | 3 | 10 | C06, C11 | L |
 | I03 | M1 acceptance | 3 | 10 | Phase 3 | M |
@@ -883,9 +1021,13 @@ Size labels in §14 are unchanged. Reuse is a head start, not a reason to shrink
 | C21 | Full doctor | 4 | 11 | C11 | S |
 | S12 | Beta allowlist and billing hooks | 4 | 11 | S01 | M |
 | Q04 | Device-link security review | 4 | 11 | C11 | M |
+| C28 | Streaming headless output for delegation | 4 | 11 | C10, L01 | S |
 | I04 | M2 beta acceptance | 4 | 12 | Phase 4 | M |
 | C18, C19, L07, L08, C23, S13 | Phase 5 items | 5 | 13+ | per WP | L each |
+| C27 | Managed settings and policy presets | 5 | 13+ | C06, C26 | M |
 | C22, X05, X06 | Release items | 6 | 13+ | Phase 5 | M each |
+
+**Added during the build (done; not in the counts above).** C24 device tool runner · C26 folder-trust prompt and `m2c trust` · S14 message router and emitter · S15 switch of the server to the real loop. Sub-patches C09a/b, C10b, C11a/b, S07b and L01a are splits of WPs already in the index.
 
 ---
 
@@ -895,5 +1037,19 @@ Size labels in §14 are unchanged. Reuse is a head start, not a reason to shrink
 2. **Generate Wave 1 in parallel**, each in its own worktree: B01, B03, B04, B06, B07, B09, P00, S01, S03, C01, plus AUD1–AUD6 as read-only tasks. Apply in this order: B07, B06, B03, B04, B09, B01, P00, C01, S03, S01 (S01 last because it touches the most shared code).
 3. **Then Wave 2:** B05, B08, B10, B11, S02, S04, S05, C02, C03, X01.
 4. **Aim for I01 (the walking skeleton).** When "hello" streams back from your own server to your own terminal and the web app shows the usage, the architecture is proven and the rest is incremental.
+
+## 16. Your first week back (2026-11, revision 1.2)
+
+The original §15 stays as the record of how the build started. This is how to restart from where the code is now (§0.6).
+
+1. **Day 1: confirm the ground.** Run `cd m2c && pytest`, the codeagent tests, `python protocol/validate.py` and CI. Correct any wrong row in §0.6, then save it as `PATCHES.md` (§0.4) so the next session starts from a log and not from a guess.
+2. **Day 1: fix the README.** It still says the client can only do `doctor`, `login` and `logout`. List the commands and flags that exist, the three runtime dependencies (D14) and the exit codes. Q08 keeps it right afterwards.
+3. **Wave 9, next patches, in this order:**
+   - **C25** (safe always-allow, `/why`): small, and everything else that touches rules builds on it.
+   - **Q08** (docs and catalog drift check): small and independent, so it can go in at the same time.
+   - **C13** (hooks, D15), then **Q07** (bypass corpus), which should include the hook cases.
+4. **Then:** C14 (skills), L03 (finish compaction), L04 (verification loop and Stop hooks, which needs C13), L02 (subagents), then Q03 (seeded from Q07), Q06 (check the canary covers M2C), Q02 (golden tasks), Q09 (crash and resume), S11 and C16, C17 (web tools, taint), and last I03.
+5. **Hold the gate.** Do not start Phase 4 before I03 passes: the two-week dogfood from I02 and the red-team and canary suites green. C28 (streaming output) is the first Phase 4 patch because Menux's delegation (`MT-A07`) needs it.
+6. **Stop-the-line additions (revision 1.2):** the docs-drift check is red, or a policy or sandbox bug is fixed without a new row in the Q07 corpus.
 
 *End of the build guide.*
