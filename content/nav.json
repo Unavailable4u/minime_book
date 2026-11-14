@@ -1,0 +1,137 @@
+{
+  "site": { "name": "MiniMe Atlas", "home": "index.html" },
+  "parts": {
+    "strategy": "Part I · Strategy",
+    "minime": "Part II · MiniMe",
+    "m2c": "Part III · M2C",
+    "menux": "Part IV · Menux",
+    "fbebc": "Part V · FBEBC",
+    "appendix": "Appendix"
+  },
+  "wings": [
+    {
+      "id": "start",
+      "title": "Start here",
+      "icon": "start",
+      "items": [
+        { "id": "index", "title": "Overview", "url": "index.html", "layout": "reader",
+          "blurb": "What MiniMe is and where everything lives", "keywords": "home overview start readme kpi dashboard" }
+      ]
+    },
+    {
+      "id": "system",
+      "title": "System",
+      "icon": "system",
+      "items": [
+        { "id": "architecture", "title": "System map", "url": "architecture.html", "layout": "reader",
+          "blurb": "Architecture diagrams: request, task run, workspace, daemon approval", "keywords": "architecture diagrams system pipeline lifecycle archify" }
+      ]
+    },
+    {
+      "id": "code",
+      "title": "Code library",
+      "icon": "code",
+      "open": false,
+      "items": [
+        { "id": "explore", "title": "Explore", "url": "explore.html", "layout": "workbench",
+          "blurb": "Search files, functions, routes and guides", "keywords": "explore search graph files functions routes" },
+        { "id": "code", "title": "Files", "url": "code.html", "layout": "workbench", "count_from": "files",
+          "blurb": "Full repository file inventory", "keywords": "files code inventory loc churn" },
+        { "id": "functions", "title": "Functions", "url": "functions.html", "layout": "workbench", "count_from": "functions",
+          "blurb": "Functions and classes with complexity", "keywords": "functions classes methods symbols complexity" },
+        { "id": "api", "title": "API", "url": "api.html", "layout": "workbench", "count_from": "routes",
+          "blurb": "FastAPI routes, handlers and frontend callers", "keywords": "api routes endpoints fastapi handlers" },
+        { "id": "agents", "title": "Agents & roles", "url": "agents.html", "layout": "workbench",
+          "blurb": "Agent modules and model-router roles", "keywords": "agents roles model router registry providers" },
+        { "id": "data", "title": "Data model", "url": "data.html", "layout": "workbench",
+          "blurb": "Tables, columns and migrations", "keywords": "data database tables schema migrations postgres sql" },
+        { "id": "infra", "title": "Infra & env", "url": "infra.html", "layout": "workbench",
+          "blurb": "Docker, CI, env vars and the provider key pool", "keywords": "infra docker env keys ci environment variables deploy" },
+        { "id": "graph", "title": "Graph", "url": "graph.html", "layout": "workbench",
+          "blurb": "Knowledge-graph communities, hubs and links", "keywords": "graph graphify communities nodes edges hubs" },
+        { "id": "map", "title": "Map", "url": "map.html", "layout": "workbench",
+          "blurb": "Codebase treemap by lines, churn and recency", "keywords": "map treemap lines of code churn recency" },
+        { "id": "history", "title": "History", "url": "history.html", "layout": "workbench",
+          "blurb": "Git velocity and commit timeline", "keywords": "history git commits velocity timeline" }
+      ]
+    },
+    {
+      "id": "book",
+      "title": "The book",
+      "icon": "book",
+      "open": false,
+      "items": [
+        { "id": "docs", "title": "Library", "url": "docs.html", "layout": "reader",
+          "blurb": "All chapters of the MiniMe book", "keywords": "docs book chapters guides library reading contents" },
+        { "id": "doc-rulebook", "title": "Financial & Model Strategy Rulebook", "url": "doc-rulebook.html", "layout": "reader", "part": "strategy", "chapter": 1,
+          "blurb": "Pricing tiers, model routing, budget, hiring and equity", "keywords": "rulebook pricing tiers basic moderate ultimate models groq gemini deepseek anthropic openai budget hiring equity" },
+        { "id": "doc-tech-roadmap", "title": "Technical Implementation Roadmap", "url": "doc-tech-roadmap.html", "layout": "reader", "part": "strategy", "chapter": 2,
+          "blurb": "Tech-A to Tech-H", "keywords": "tech-a tech-b tech-c tech-d tech-e tech-f tech-g tech-h brain monitor instrumentation" },
+        { "id": "doc-server-guide", "title": "Server Management & Splitting Guide", "url": "doc-server-guide.html", "layout": "reader", "part": "strategy", "chapter": 3,
+          "blurb": "Web, worker, Postgres, Redis and the VPS", "keywords": "server split docker postgres redis worker vps hetzner" },
+        { "id": "doc-minime-feature-guide", "title": "MiniMe Feature & Product Guide", "url": "doc-minime-feature-guide.html", "layout": "reader", "part": "minime", "chapter": 4,
+          "blurb": "Chat, notebooks, research, build, test, growth, knowledge graph", "keywords": "minime feature guide chat notebooks research plan build test growth role library cad knowledge graph" },
+        { "id": "doc-m2c-feature-guide", "title": "M2C L26 Feature & Product Guide", "url": "doc-m2c-feature-guide.html", "layout": "reader", "part": "m2c", "chapter": 5,
+          "blurb": "The terminal coding agent: sandbox, tools, checkpoints", "keywords": "m2c feature guide cli tui terminal coding agent bubblewrap sandbox tools checkpoints" },
+        { "id": "doc-m2c-plan", "title": "M2C L26 Build Execution Guide", "url": "doc-m2c-plan.html", "layout": "reader", "part": "m2c", "chapter": 6,
+          "blurb": "Work packages and waves", "keywords": "m2c build plan work packages waves b00 p00 s01 minicore" },
+        { "id": "doc-m2c-product", "title": "M2C L26 Product & Build Guide", "url": "doc-m2c-product.html", "layout": "reader", "part": "m2c", "chapter": 7,
+          "blurb": "Initial specification (superseded in part)", "keywords": "m2c initial product spec design note overrides" },
+        { "id": "doc-menux-feature-guide", "title": "Menux Feature & Product Guide", "url": "doc-menux-feature-guide.html", "layout": "reader", "part": "menux", "chapter": 8,
+          "blurb": "Automation nodes, triggers, approval tiers T0 to T5", "keywords": "menux feature guide automation node cron triggers approvals t0 t5 telegram email calendar vault playwright" },
+        { "id": "doc-menux-plan", "title": "Menux Build Execution Guide", "url": "doc-menux-plan.html", "layout": "reader", "part": "menux", "chapter": 9,
+          "blurb": "Work packages and waves", "keywords": "menux build execution guide work packages waves mt-k00 mt-i01" },
+        { "id": "doc-menux-product", "title": "Menux Product & Build Guide", "url": "doc-menux-product.html", "layout": "reader", "part": "menux", "chapter": 10,
+          "blurb": "Initial specification (superseded in part)", "keywords": "menux initial product spec design note overrides" },
+        { "id": "doc-fbebc-program", "title": "FBEBC Research Program Guide", "url": "doc-fbebc-program.html", "layout": "reader", "part": "fbebc", "chapter": 11,
+          "blurb": "Research program, stage 1 and stage 2", "keywords": "fbebc research program bacterial colony funsearch stage 1 stage 2" },
+        { "id": "doc-fbebc-phase1", "title": "FBEBC Phase 1 Implementation Guide", "url": "doc-fbebc-phase1.html", "layout": "reader", "part": "fbebc", "chapter": 12,
+          "blurb": "Barrier implementation specification", "keywords": "fbebc phase 1 barrier implementation spec" },
+        { "id": "doc-fbebc-paper", "title": "FBEBC Preprint / Workshop Paper Guide", "url": "doc-fbebc-paper.html", "layout": "reader", "part": "fbebc", "chapter": 13,
+          "blurb": "Claims C0 to C3 and the paper outline", "keywords": "fbebc paper preprint claims c0 c3 wilcoxon" },
+        { "id": "doc-fbebc-status", "title": "FBEBC Build & Run Status", "url": "doc-fbebc-status.html", "layout": "reader", "part": "fbebc", "chapter": 14,
+          "blurb": "What has been built and run so far", "keywords": "fbebc status tests bug fixes d1 d4 capset" },
+        { "id": "doc-migration-guide", "title": "Migration Guide: Rust, TypeScript and a Hardened Python Backend", "url": "doc-migration-guide.html", "layout": "reader", "part": "appendix", "chapter": "A",
+          "blurb": "Current versus target stack", "keywords": "migration rust typescript python uv m2c menux daemon retire conformance vectors codegen frontend backend hardening load test" },
+        { "id": "tables", "title": "Tables", "url": "tables.html", "layout": "workbench",
+          "blurb": "Every table in the book, searchable", "keywords": "tables search reference" }
+      ]
+    },
+    {
+      "id": "project",
+      "title": "Project",
+      "icon": "project",
+      "open": false,
+      "items": [
+        { "id": "roadmap", "title": "Roadmap", "url": "roadmap.html", "layout": "reader",
+          "blurb": "Master timeline and critical path", "keywords": "roadmap timeline gantt plan actual swimlanes gates" },
+        { "id": "todo", "title": "Team to-do", "url": "todo.html", "layout": "workbench",
+          "blurb": "Kanban, list, calendar and activity; live-synced", "keywords": "todo tasks kanban board calendar team sync" },
+        { "id": "build", "title": "Build", "url": "build.html", "layout": "reader",
+          "blurb": "Work-package checklists for M2C, Menux and FBEBC", "keywords": "build work packages wps checklist export" },
+        { "id": "progress", "title": "Progress", "url": "progress.html", "layout": "reader",
+          "blurb": "Tech-A to Tech-H against the codebase", "keywords": "progress tech phases source files" },
+        { "id": "decisions", "title": "Decisions", "url": "decisions.html", "layout": "reader",
+          "blurb": "Golden Rules and architectural locks", "keywords": "decisions golden rules lock" },
+        { "id": "rulebook", "title": "Rulebook summary", "url": "rulebook.html", "layout": "reader",
+          "blurb": "Golden Rules and the model roster at a glance", "keywords": "rulebook summary rules models" },
+        { "id": "consistency", "title": "Consistency", "url": "consistency.html", "layout": "reader",
+          "blurb": "Cross-book governance and sync matrix", "keywords": "consistency sync contradictions governance" },
+        { "id": "journey", "title": "Journey", "url": "journey.html", "layout": "reader",
+          "blurb": "Section-by-section map of the book", "keywords": "journey path sections progress chips" },
+        { "id": "tests", "title": "Tests & coverage", "url": "tests.html", "layout": "workbench",
+          "blurb": "Automated tests and coverage", "keywords": "tests unit integration security coverage" },
+        { "id": "health", "title": "Health", "url": "health.html", "layout": "workbench",
+          "blurb": "Largest files, hotspots and audit risks", "keywords": "health audit risks complexity hotspots" },
+        { "id": "finance", "title": "Finance", "url": "finance.html", "layout": "reader",
+          "blurb": "Pricing, margins, scenarios and runway", "keywords": "finance money revenue burn runway pricing margins" }
+      ]
+    }
+  ],
+  "hidden": [
+    { "id": "styleguide", "title": "Style guide", "url": "styleguide.html", "layout": "reader",
+      "blurb": "Standalone showcase of the design system (P01)" },
+    { "id": "graph-viewer", "title": "Graph viewer", "url": "graph-viewer.html", "layout": "bare",
+      "blurb": "Generated by refresh_graph.py; embedded in graph.html" }
+  ]
+}

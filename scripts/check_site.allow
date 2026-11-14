@@ -7,8 +7,6 @@
 # Superseded product specs have no section on the Journey map, so "Journey Map" lands at the top of the page.
 broken-anchor|doc-m2c-product.html|journey.html#doc-m2c-product      # P04 (chapter header) or P21 (journey alignment)
 broken-anchor|doc-menux-product.html|journey.html#doc-menux-product  # same
-# Title says the product name twice.
-dup-title-part|index.html|MiniMe Atlas - MiniMe Atlas               # P02 normalises every title
 # Source guides copied from another tool; they have no <title>. They are inputs of doc-m2c-product / doc-menux-product.
 no-title|guides/M2C___Product___Build_Guide.html|-                  # P23
 no-title|guides/Menux___Product___Build_Guide.html|-                # P23

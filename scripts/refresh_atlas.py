@@ -27,6 +27,7 @@ was originally built from -- that is how every renderer below was validated):
     api        route table, KPIs, routes per file
     infra      services, Dockerfiles, CI pipeline, dependencies, environment variables
     explore    file, function and route search data
+    data/index/stats.json   the live numbers the shared shell shows (sidebar counts, snapshot chip)
 
 What it deliberately does NOT touch, because the census cannot supply it:
 
@@ -556,6 +557,21 @@ def update_summary(text, c):
     return s.replace("\n", nl)
 
 
+STATS_REL = "data/index/stats.json"
+
+
+def build_stats(c):
+    """The numbers assets/js/shell.js shows next to nav entries ("count_from" in content/nav.json) and in the
+    top-bar snapshot chip. Deterministic: no timestamp of its own, sorted keys."""
+    return {
+        "commit": c["git"]["head"],
+        "files": sum(1 for f in c["files"] if not f.get("binary")),
+        "functions": c["totals"]["functions"],
+        "generated": c["meta"]["generated"][:10],
+        "routes": len(c["routes"]),
+    }
+
+
 def refresh_all(root, census):
     """Return {path: new_text} for every file whose content would change."""
     changes = {}
@@ -571,6 +587,11 @@ def refresh_all(root, census):
         new = update_summary(old, census)
         if new != old:
             changes[sp] = to_native(new, crlf)
+    stp = root / STATS_REL
+    new = json.dumps(build_stats(census), indent=2, sort_keys=True) + "\n"
+    old, crlf = read_lf(stp) if stp.exists() else (None, False)
+    if new != old:
+        changes[stp] = to_native(new, crlf)
     return changes
 
 
@@ -634,6 +655,7 @@ def main(argv=None):
         print("everything is in sync with data/census.json" if not changes else f"{len(changes)} file(s) out of date; run: python scripts/refresh_atlas.py")
         return 1 if changes else 0
     for p, text in changes.items():
+        p.parent.mkdir(parents=True, exist_ok=True)
         p.write_bytes(text.encode("utf-8"))
         print("updated:", p.relative_to(root))
     if not changes:

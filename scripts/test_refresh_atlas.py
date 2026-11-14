@@ -26,7 +26,7 @@ _spec = importlib.util.spec_from_file_location("refresh_atlas", ROOT / "scripts"
 ra = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ra)
 
-FILES = [f"{name}.html" for name in ra.PAGES] + ["data/census.json", "data/summary.md"]
+FILES = [f"{name}.html" for name in ra.PAGES] + ["data/census.json", "data/summary.md", "data/index/stats.json"]
 
 
 def read(p):
@@ -43,7 +43,7 @@ class RepoState(unittest.TestCase):
 class OnACopy(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp())
-        (self.tmp / "data").mkdir()
+        (self.tmp / "data" / "index").mkdir(parents=True)
         for rel in FILES:
             shutil.copy(ROOT / rel, self.tmp / rel)
         self.census = json.loads(read(self.tmp / "data" / "census.json"))
@@ -147,6 +147,26 @@ class OnACopy(unittest.TestCase):
         for rel in ("code.html", "infra.html"):
             raw = changes[self.tmp / rel].encode("utf-8")
             self.assertEqual(raw.count(b"\r\n"), raw.count(b"\n"), f"{rel}: a bare LF was introduced")
+
+    def test_stats_json_follows_the_census(self):
+        """data/index/stats.json feeds the shell's sidebar counts and snapshot chip (content/nav.json count_from)."""
+        self.newer_census()
+        self.assertIn(self.tmp / "data" / "index" / "stats.json", self.refresh())
+        stats = json.loads(read(self.tmp / "data" / "index" / "stats.json"))
+        self.assertEqual({"commit", "files", "functions", "generated", "routes"}, set(stats))
+        self.assertEqual("abc1234", stats["commit"])
+        self.assertEqual("2099-01-02", stats["generated"])
+        self.assertEqual(len(self.census["routes"]), stats["routes"])
+        self.assertEqual(self.census["totals"]["functions"], stats["functions"])
+        self.assertEqual(sum(1 for f in self.census["files"] if not f.get("binary")), stats["files"])
+
+    def test_stats_json_is_created_when_missing_and_keeps_crlf(self):
+        (self.tmp / "data" / "index" / "stats.json").unlink()
+        self.assertEqual(0, ra.main(["--root", str(self.tmp)]))       # main() must create data/index itself
+        sp = self.tmp / "data" / "index" / "stats.json"
+        self.assertTrue(sp.exists())
+        sp.write_bytes(read(sp).replace("\n", "\r\n").encode("utf-8"))
+        self.assertEqual({}, ra.refresh_all(self.tmp, self.census), "CRLF alone must not count as out of date")
 
     def test_summary_keeps_windows_line_endings(self):
         sp = self.tmp / "data" / "summary.md"

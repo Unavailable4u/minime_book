@@ -1,5 +1,8 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Menux Product & Build Guide (Initial Spec) - MiniMe Atlas</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap"><style>:root{--bg:#0a0a0c;--p:#121216;--p2:#17171d;--ln:#26262e;--tx:#f2f1ed;--dim:#a8a6a0;--r:#ff2052;--v:#a78bfa;--a:#f59e0b;--g:#34d399;--m:#f06cb4}
+<!doctype html><html lang="en" data-layout="reader"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Menux Product &amp; Build Guide · MiniMe Atlas</title>
+<script src="assets/js/theme.js"></script>
+<script data-mm="prepaint">(function(d,w){var r=d.documentElement,s=null,v=w.innerWidth;try{s=localStorage.getItem("minime_sidebar")}catch(e){}if(/[?&]legacy=1(&|$)/.test(w.location.search))return;r.dataset.sidebar=v<=760?"drawer":s==="open"||s==="collapsed"?s:r.dataset.layout==="workbench"||v<1100?"collapsed":"open"})(document,window)</script>
+<link rel="preload" href="assets/fonts/sora-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>:root{--bg:#0a0a0c;--p:#121216;--p2:#17171d;--ln:#26262e;--tx:#f2f1ed;--dim:#a8a6a0;--r:#ff2052;--v:#a78bfa;--a:#f59e0b;--g:#34d399;--m:#f06cb4}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 Sora,Inter,system-ui,sans-serif;display:flex;min-height:100vh}
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background-image:linear-gradient(rgba(255,32,82,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,32,82,.12) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent);mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent)}
 nav{overflow-y:auto;position:sticky;top:0;height:100vh;width:210px;flex:none;padding:22px 14px;border-right:1px solid var(--ln);background:rgba(10,10,12,.9);z-index:2}
@@ -269,7 +272,12 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 .st-part{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.45)}
 .st-plan{background:rgba(167,139,250,.18);color:#c4b5fd;border:1px solid rgba(167,139,250,.45)}
 .st-rem{background:rgba(255,32,82,.16);color:#ff7a96;border:1px solid rgba(255,32,82,.4)}
-</style></head><body><nav><div class="logo">Mini<b>Me</b> Atlas</div><a href="index.html" class="">Overview</a><div class="nv">Plan</div><a href="roadmap.html" class="">Roadmap</a><a href="todo.html" class="">To-do</a><a href="journey.html" class="">Journey</a><a href="progress.html" class="">Progress</a><a href="build.html" class="">Build</a><a href="decisions.html" class="">Decisions</a><a href="consistency.html" class="">Consistency</a><div class="nv">Code</div><a href="explore.html" class="">Explore</a><a href="map.html" class="">Map</a><a href="code.html" class="">Files</a><a href="functions.html" class="">Functions</a><a href="graph.html" class="">Graph</a><a href="api.html" class="">API</a><a href="agents.html" class="">Agents</a><a href="data.html" class="">Data model</a><a href="infra.html" class="">Infra</a><a href="history.html" class="">History</a><a href="architecture.html" class="">Architecture</a><div class="nv">Quality</div><a href="tests.html" class="">Tests</a><a href="health.html" class="">Health</a><div class="nv">Money</div><a href="finance.html" class="">Finance</a><a href="rulebook.html" class="">Rulebook</a><div class="nv">Reading</div><a href="docs.html" class="on">Docs</a><a href="doc-minime-feature-guide.html" class="nav-sub">· Ch.4 MiniMe Guide</a><a href="doc-m2c-feature-guide.html" class="nav-sub">· Ch.5 M2C Guide</a><a href="doc-menux-feature-guide.html" class="nav-sub">· Ch.8 Menux Guide</a><a href="tables.html" class="">Tables</a><small>Private. Built 2026-10-07 from commit febb685.</small></nav><main><h1>Menux Product & Build Guide (Initial Spec)</h1><p class="sub">Menux. <a href="guides/Menux___Product___Build_Guide.html" target="_blank">Open standalone</a></p><div class="bk-banner">
+</style>
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<link rel="stylesheet" href="assets/css/shell.css">
+</head><body data-page="doc-menux-product"><main><h1>Menux Product & Build Guide (Initial Spec)</h1><p class="sub">Menux. <a href="guides/Menux___Product___Build_Guide.html" target="_blank">Open standalone</a></p><div class="bk-banner">
   <div class="bk-top">
     <div>
       <span class="bk-part">Part IV · Menux (Local-First Personal Automation Agent)</span>
@@ -310,7 +318,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
       <b>FBEBC Research Program Guide</b>
       <span>Part V · FBEBC Research</span>
     </a></div>
-</div></main><script id="bk-chapter-script">
+</div></main><small class="mm-built">Private. Built 2026-10-07 from commit febb685.</small><script id="bk-chapter-script">
 (function(){
   // Reading progress bar
   var bar = document.querySelector('.bk-progress');
@@ -361,4 +369,4 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
     });
   }
 })();
-</script></body></html>
+</script><script type="module" src="assets/js/shell.js"></script></body></html>
