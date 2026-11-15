@@ -38,7 +38,7 @@ def run_node(body: str, data=None):
         (tmp / "run.mjs").write_text(
             "import * as R from './reader.mjs'; import fs from 'node:fs';\n"
             "const data = JSON.parse(fs.readFileSync('data.json', 'utf8'));\n" + body, encoding="utf-8")
-        res = subprocess.run([NODE, "run.mjs"], cwd=tmp, capture_output=True, text=True, timeout=60)
+        res = subprocess.run([NODE, "run.mjs"], cwd=tmp, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60)
         if res.returncode != 0:
             raise AssertionError(res.stderr)
         return json.loads(res.stdout)
@@ -427,7 +427,7 @@ class Wiring(unittest.TestCase):
         """P04 must not edit doc-*.html: they are rebuilt by an external builder. Only checks when git is available."""
         if not shutil.which("git") or not (ROOT / ".git").exists():
             self.skipTest("not a git checkout")
-        r = subprocess.run(["git", "status", "--porcelain", "--", "doc-*.html"], cwd=ROOT, capture_output=True, text=True)
+        r = subprocess.run(["git", "status", "--porcelain", "--", "doc-*.html"], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace")
         self.assertEqual(r.stdout.strip(), "", "a chapter page has uncommitted changes")
 
 
@@ -467,11 +467,11 @@ class ListHeadings(unittest.TestCase):
 
     def test_command_line(self):
         r = subprocess.run([sys.executable, str(ROOT / "scripts" / "list_headings.py"), "doc-rulebook", "--max-level", "1", "--json"],
-                           capture_output=True, text=True, cwd=ROOT)
+                           capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=ROOT)
         self.assertEqual(r.returncode, 0, r.stderr)
         rows = json.loads(r.stdout)["doc-rulebook"]
         self.assertEqual(len(rows), 29)
-        r = subprocess.run([sys.executable, str(ROOT / "scripts" / "list_headings.py"), "nope-not-here"], capture_output=True, text=True, cwd=ROOT)
+        r = subprocess.run([sys.executable, str(ROOT / "scripts" / "list_headings.py"), "nope-not-here"], capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=ROOT)
         self.assertNotEqual(r.returncode, 0)
 
 

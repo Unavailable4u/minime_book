@@ -123,6 +123,9 @@ def chapter_files() -> list[Path]:
 
 
 def main(argv=None) -> int:
+    for stream in (sys.stdout, sys.stderr):      # Windows pipes default to cp1252, which cannot print every heading
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("chapter", nargs="?", help="chapter id (doc-rulebook) or file name; omit with --all")
     ap.add_argument("--all", action="store_true", help="every chapter listed in content/nav.json")
