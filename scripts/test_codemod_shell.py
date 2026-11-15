@@ -226,6 +226,7 @@ class PrePaintMatchesShell(unittest.TestCase):
         tmp = Path(tempfile.mkdtemp())
         try:
             shutil.copy(ROOT / "assets" / "js" / "shell.js", tmp / "shell.mjs")
+            shutil.copy(ROOT / "assets" / "js" / "palette.js", tmp / "palette.js")   # shell.js imports it (P03)
             (tmp / "run.mjs").write_text(
                 "import vm from 'node:vm'; import fs from 'node:fs'; import { pickSidebar } from './shell.mjs';\n"
                 "const snippet = fs.readFileSync('snippet.js', 'utf8'); const cases = JSON.parse(fs.readFileSync('cases.json', 'utf8'));\n"
@@ -247,24 +248,17 @@ class PrePaintMatchesShell(unittest.TestCase):
             self.assertIsNone(r["legacy"], "?legacy=1 must leave html[data-sidebar] unset (shell off)")
         self.assertEqual({"open", "collapsed", "drawer"}, {r["pre"] for r in rows})
 
-    @unittest.skipUnless(NODE, "node is not installed")
-    def test_palette_scoring(self):
-        tmp = Path(tempfile.mkdtemp())
-        try:
-            shutil.copy(ROOT / "assets" / "js" / "shell.js", tmp / "shell.mjs")
-            (tmp / "run.mjs").write_text(
-                "import { scorePage } from './shell.mjs';\n"
-                "const it = { title: 'API', wingTitle: 'Code library', keywords: 'routes fastapi', blurb: 'HTTP routes', part: null };\n"
-                "console.log(JSON.stringify([scorePage(it, {}, 'api'), scorePage(it, {}, 'fastapi'), scorePage(it, {}, 'api routes'), scorePage(it, {}, 'zebra')]));\n",
-                encoding="utf-8")
-            res = subprocess.run([NODE, "run.mjs"], cwd=tmp, capture_output=True, text=True, timeout=60)
-            self.assertEqual(0, res.returncode, res.stderr)
-            title, keyword, both, none = json.loads(res.stdout)
-        finally:
-            shutil.rmtree(tmp, ignore_errors=True)
-        self.assertGreater(title, keyword)
-        self.assertGreater(both, keyword)
-        self.assertEqual(-1, none)
+    def test_shell_uses_the_p03_palette_and_has_no_second_one(self):
+        """P02's basic palette was replaced in P03. Two Ctrl+K handlers would open two palettes."""
+        js = (ROOT / "assets" / "js" / "shell.js").read_text(encoding="utf-8")
+        self.assertRegex(js, r'import \{[^}]*initPalette[^}]*\} from "\./palette\.js"')
+        self.assertIn("initPalette()", js)
+        for gone in ("scorePage", "buildPalette", "renderPalette", "mm-pal"):
+            self.assertNotIn(gone, js, f"{gone} belongs to the retired basic palette")
+        self.assertNotIn("mm-pal", (ROOT / "assets" / "css" / "shell.css").read_text(encoding="utf-8"))
+        # the key handlers that moved to palette.js must not still be here
+        self.assertNotRegex(js, r'k === "k"')
+        self.assertNotIn("minimeTheme", js)
 
 
 class ShellCss(unittest.TestCase):

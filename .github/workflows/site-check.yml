@@ -7,6 +7,10 @@
 #     python scripts/test_check_site.py
 #     python scripts/test_refresh_atlas.py
 #     python scripts/test_refresh_graph.py
+#     python scripts/build_index.py --check
+#     python scripts/test_build_index.py
+#     python scripts/test_palette.py
+#     python scripts/test_codemod_shell.py
 name: Site check
 on:
   pull_request:
@@ -31,8 +35,13 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Check links, anchors, titles, JSON and size budget
         run: python3 scripts/check_site.py
+      - name: Search index is current
+        run: python3 scripts/build_index.py --check
       - name: Unit tests
         run: |
           python3 scripts/test_check_site.py
           python3 scripts/test_refresh_atlas.py
           python3 scripts/test_refresh_graph.py
+          python3 scripts/test_build_index.py
+          python3 scripts/test_palette.py
+          python3 scripts/test_codemod_shell.py

@@ -24,7 +24,7 @@ import webbrowser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-sys.dont_write_bytecode = True      # the repo tracks scripts/__pycache__; do not make it show as modified
+sys.dont_write_bytecode = True      # serving the site should not leave __pycache__ folders behind
 
 ROOT = Path(__file__).resolve().parent.parent
 

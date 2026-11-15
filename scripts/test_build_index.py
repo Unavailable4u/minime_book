@@ -58,6 +58,11 @@ CENSUS = {
 }
 
 
+def unpack(shard):
+    """On-disk shard -> [[qual, path, line, kind]] (what palette.js's symbolItems() reads)."""
+    return [[q, shard["files"][fi], line, kind] for q, fi, line, kind in shard["rows"]]
+
+
 def make_site(root: Path, nav=NAV, census=CENSUS, glossary=None) -> None:
     (root / "content").mkdir(parents=True, exist_ok=True)
     (root / "data").mkdir(parents=True, exist_ok=True)
@@ -134,11 +139,24 @@ class BuildIndexTests(unittest.TestCase):
         out = self.built()
         man = out["data/index/symbols.json"]
         self.assertEqual([s["id"] for s in man["shards"]], ["backend", "frontend"])
-        rows = out["data/index/symbols-backend.json"]["rows"]
-        self.assertEqual(rows[0], ["Agent", "Agent", "backend/agents/a.py", 10, "cls"])
-        self.assertIn(["run", "Agent.run", "backend/agents/a.py", 70, "fn"], rows)
+        shard = out["data/index/symbols-backend.json"]
+        rows = unpack(shard)
+        self.assertEqual(rows[0], ["Agent", "backend/agents/a.py", 10, "cls"])
+        self.assertIn(["Agent.run", "backend/agents/a.py", 70, "fn"], rows)
         self.assertEqual(man["shards"][0]["count"], len(rows))
         self.assertEqual(man["fields"], bi.SYMBOL_FIELDS)
+        self.assertEqual(man["fields"], ["qual", "file", "line", "kind"])
+
+    def test_shard_lists_each_path_once(self):
+        shard = self.built()["data/index/symbols-backend.json"]
+        self.assertEqual(shard["files"], ["backend/agents/a.py", "backend/api/routes.py"])
+        self.assertEqual(len(shard["rows"]), 4)  # Agent, _clean_query, Agent.run, health: four rows, two paths
+        self.assertTrue(all(isinstance(r[1], int) for r in shard["rows"]))
+
+    def test_short_name_is_not_stored(self):
+        shard = self.built()["data/index/symbols-backend.json"]
+        self.assertTrue(all(len(r) == 4 for r in shard["rows"]))
+        self.assertIn("Agent.run", [r[0] for r in shard["rows"]])
 
     def test_root_level_files_go_to_root_shard(self):
         census = {"files": [{"path": "setup.py", "functions": [{"name": "main", "qual": "main", "start": 3}]}]}
@@ -158,8 +176,34 @@ class BuildIndexTests(unittest.TestCase):
     def test_duplicate_quals_are_kept(self):
         census = {"files": [{"path": "a/b.py", "functions": [
             {"name": "x", "qual": "C.x", "start": 1}, {"name": "x", "qual": "C.x", "start": 9}]}]}
-        rows = self.built(census=census)["data/index/symbols-a.json"]["rows"]
-        self.assertEqual([r[3] for r in rows], [1, 9])
+        rows = unpack(self.built(census=census)["data/index/symbols-a.json"])
+        self.assertEqual([r[2] for r in rows], [1, 9])
+
+    def test_binary_files_are_not_in_paths(self):
+        census = {"files": [{"path": "docs/logo.png", "binary": True}, {"path": "docs/a.md"}]}
+        self.assertEqual(self.built(census=census)["data/index/paths.json"]["paths"], ["docs/a.md"])
+
+    def test_census_argument_overrides_the_file_on_disk(self):
+        fresh = {"files": [{"path": "new/only.py", "functions": [{"name": "f", "qual": "f", "start": 1}]}]}
+        out = bi.build(self.root, self.warnings.append, census=fresh)
+        self.assertEqual(json.loads(out["data/index/paths.json"])["paths"], ["new/only.py"])
+        bi.write_all(self.root, self.warnings.append)             # the index for the census on disk ...
+        self.assertTrue(bi.check_all(self.root, self.warnings.append, census=fresh))   # ... is stale for the fresh one
+        bi.write_all(self.root, self.warnings.append, census=fresh)
+        self.assertEqual(bi.check_all(self.root, self.warnings.append, census=fresh), [])
+
+    def test_chapter_pages_get_label_and_part(self):
+        nav = {"parts": {"strategy": "Part I · Strategy"},
+               "wings": [{"id": "book", "title": "THE BOOK", "items": [
+                   {"id": "a", "title": "Rulebook", "url": "doc-a.html", "chapter": 1, "part": "strategy"},
+                   {"id": "m", "title": "Migration", "url": "doc-b.html", "chapter": "A", "part": "appendix"},
+                   {"id": "o", "title": "Overview", "url": "index.html"}]}]}
+        pages = {p["url"]: p for p in bi.collect_pages(nav)}
+        self.assertEqual(pages["doc-a.html"]["label"], "Ch. 1 · Rulebook")
+        self.assertEqual(pages["doc-a.html"]["part"], "Part I · Strategy")
+        self.assertEqual(pages["doc-b.html"]["label"], "App. A · Migration")
+        self.assertNotIn("part", pages["doc-b.html"])  # "appendix" is not in nav.parts
+        self.assertNotIn("label", pages["index.html"])
 
     def test_deterministic_and_no_timestamps(self):
         make_site(self.root)

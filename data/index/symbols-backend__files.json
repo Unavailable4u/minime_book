@@ -1,1 +1,1 @@
-{"fields":["name","qual","path","line","kind"],"rows":[["timed_call","timed_call","backend/check_hf_embedding.py",34,"fn"]]}
+{"fields":["qual","file","line","kind"],"files":["backend/check_hf_embedding.py"],"rows":[["timed_call",0,34,"fn"]]}

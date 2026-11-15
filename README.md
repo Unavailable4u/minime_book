@@ -36,6 +36,8 @@ It refuses to replace `data/census.json` if the new one is untrustworthy (no tre
 
 Other commands: `python scripts/refresh_atlas.py` refreshes from the census you already have, `--check` changes nothing and exits 1 if anything is out of date, and `python scripts/test_refresh_atlas.py` runs the tests.
 
+**Search (Ctrl/Cmd+K).** The command palette reads `data/index/*.json`, which `scripts/build_index.py` builds from `content/nav.json`, the chapter headings, the glossary and `data/census.json`. `refresh_atlas.py` rebuilds it with the pages, so the automatic route above keeps it current; run `python scripts/build_index.py` on its own after you edit `nav.json` or a chapter, and `--check` to see whether it is stale. Operators: `>` pages, `#` book headings, `/` files, `@` functions and classes, `:` API routes, `?` help. Keys: `t` theme, `?` shortcut sheet, `g` then `o` / `e` / `b` / `s` to jump. The palette needs `http(s)`, so test it with `python scripts/serve.py`, not by opening the file.
+
 **Not refreshed, because the census cannot supply it.** From the Graphify graph: the graph nodes, graph links and guides cards, "Graph hubs", the API "frontend callers" column (carried over per route, blank for routes added since) and the Explore connection edges (carried over per file). From other inputs: Tests, Health, Data model, Tables, Graph, Roadmap, Finance, Decisions and the document pages. Each of those keeps its own "Built ... from commit ..." label, so every page says how old it is.
 
 ## Product names

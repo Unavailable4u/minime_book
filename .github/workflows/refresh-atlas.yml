@@ -1,12 +1,12 @@
 # Keeps the Atlas pages in step with data/census.json.
 #
 # Push a new data/census.json (see scripts/refresh_atlas.py for how to make
-# one) and this job re-renders every census-driven page and data/summary.md,
-# then commits the result. Vercel redeploys from that commit like any other
+# one) and this job re-renders every census-driven page, data/summary.md and
+# the search index (data/index/), then commits the result. Vercel redeploys from that commit like any other
 # push, so the live site updates without anyone running the script by hand.
 #
 # It cannot trigger itself: it only runs on changes to data/census.json, and
-# the commit it makes touches pages and summary.md, never the census.
+# the commit it makes touches pages, summary.md and data/index/, never the census.
 #
 # Needs: Settings > Actions > General > Workflow permissions = "Read and
 # write", and no branch protection that blocks the bot pushing to main.

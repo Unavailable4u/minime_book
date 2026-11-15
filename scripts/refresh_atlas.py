@@ -28,6 +28,8 @@ was originally built from -- that is how every renderer below was validated):
     infra      services, Dockerfiles, CI pipeline, dependencies, environment variables
     explore    file, function and route search data
     data/index/stats.json   the live numbers the shared shell shows (sidebar counts, snapshot chip)
+    data/index/*.json       the command-palette search index (scripts/build_index.py: pages, book headings,
+                            files, routes, functions). It follows the census, so it is rebuilt here too.
 
 What it deliberately does NOT touch, because the census cannot supply it:
 
@@ -595,6 +597,15 @@ def refresh_all(root, census):
     return changes
 
 
+def build_index_module():
+    """scripts/build_index.py (P03). Imported by path so it works however this file was started."""
+    here = str(Path(__file__).resolve().parent)
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    import build_index
+    return build_index
+
+
 def read_lf(path):
     """Read a text file as LF, remembering whether it used CRLF (Windows checkouts with autocrlf)."""
     raw = Path(path).read_bytes().decode("utf-8")
@@ -649,16 +660,24 @@ def main(argv=None):
         run_census(args.census_from, cpath, args.force)
     census = json.loads(cpath.read_text(encoding="utf-8"))
     changes = refresh_all(root, census)
+    index = build_index_module()           # the palette's search index follows the census (and the chapters/nav)
     if args.check:
         for p in sorted(changes):
             print("out of date:", p.relative_to(root))
-        print("everything is in sync with data/census.json" if not changes else f"{len(changes)} file(s) out of date; run: python scripts/refresh_atlas.py")
-        return 1 if changes else 0
+        stale_index = index.check_all(root, census=census)
+        for problem in stale_index:
+            print("out of date:", problem)
+        n = len(changes) + len(stale_index)
+        print("everything is in sync with data/census.json" if not n else f"{n} file(s) out of date; run: python scripts/refresh_atlas.py")
+        return 1 if n else 0
     for p, text in changes.items():
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_bytes(text.encode("utf-8"))
         print("updated:", p.relative_to(root))
-    if not changes:
+    wrote_index = index.write_all(root, census=census)
+    for rel in wrote_index:
+        print("updated:", rel)
+    if not changes and not wrote_index:
         print("already up to date")
     g = census["git"]
     print(f"census: {census['meta']['generated'][:10]}, commit {g['head']}, parser {census['meta']['js_parser']}" + (f", WARNING: {g['dirty_files']} uncommitted file(s) when it was generated" if g["dirty_files"] else ""))

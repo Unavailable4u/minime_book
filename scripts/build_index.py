@@ -12,12 +12,16 @@ Inputs
 
 Outputs (all under data/index/)
   search.json              {"pages": [...], "headings": [...], "terms": [...]}
+                           a page may carry "label" ("Ch. 4 · Title") and "part"
   paths.json               {"paths": [...]}
   routes.json              {"routes": [{method, route, handler, file, line}]}
   symbols.json             manifest of the shards below
-  symbols-<shard>.json     {"fields": [...], "rows": [[name, qual, path, line, kind]]}
+  symbols-<shard>.json     {"fields": ["qual","file","line","kind"], "files": [path, ...],
+                            "rows": [[qual, index into files, line, kind]]}
                            sharded by top folder; a folder with more than
-                           MAX_SHARD_ROWS rows is split by its second level
+                           MAX_SHARD_ROWS rows is split by its second level.
+                           The short name is not stored: it is always the end of qual.
+                           Paths are listed once per shard, not once per row (about 60 % smaller).
 
 Usage
   python scripts/build_index.py            write the index
@@ -36,7 +40,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 INDEX_DIR = "data/index"
 MAX_SHARD_ROWS = 4000
-SYMBOL_FIELDS = ["name", "qual", "path", "line", "kind"]
+SYMBOL_FIELDS = ["qual", "file", "line", "kind"]
 GLOSSARY_PAGE = "glossary.html"
 LOCAL_URL_SKIP = ("http://", "https://", "#", "mailto:")
 
@@ -136,20 +140,27 @@ def _keywords(v) -> list[str]:
 def collect_pages(nav: dict) -> list[dict]:
     pages: list[dict] = []
     seen: set[str] = set()
+    parts = nav.get("parts") if isinstance(nav.get("parts"), dict) else {}
 
     def add(it: dict, wing: str) -> None:
         url, title = it.get("url"), it.get("title")
         if not url or not title or url.startswith(LOCAL_URL_SKIP) or url in seen:
             return
         seen.add(url)
-        pages.append({
+        page = {
             "id": it.get("id") or slug(url),
             "title": title,
             "url": url,
             "wing": wing or it.get("wing") or "",
             "blurb": it.get("blurb") or "",
             "keywords": _keywords(it.get("keywords")),
-        })
+        }
+        if it.get("chapter") is not None:  # chapters are found as "Ch. 4 · ..." / "App. A · ..."
+            prefix = "App." if it.get("part") == "appendix" else "Ch."
+            page["label"] = f"{prefix} {it['chapter']} · {title}"
+        if it.get("part") and parts.get(it["part"]):
+            page["part"] = parts[it["part"]]
+        pages.append(page)
 
     for w in _wing_list(nav.get("wings")):
         wname = w.get("title") or w.get("id") or ""
@@ -237,21 +248,26 @@ def _int(v) -> int:
 
 
 def collect_paths(census: dict) -> list[str]:
-    return sorted({_file_path(f) for f in _census_files(census) if _file_path(f)})
+    """Text files only (images, zips and the like are not worth a palette entry); same set as stats.json "files"."""
+    return sorted({_file_path(f) for f in _census_files(census) if _file_path(f) and not f.get("binary")})
+
+
+def _row_key(r):
+    """rows here are [qual, path, line, kind]"""
+    return (r[1], r[2], r[0], r[3])
 
 
 def collect_symbols(census: dict) -> list[list]:
+    """[[qual, path, line, kind], ...] sorted by path, line, qual."""
     rows: set[tuple] = set()
 
     def add(path: str, item, kind: str) -> None:
         if not path or not isinstance(item, dict):
             return
-        name = item.get("name") or ""
-        qual = item.get("qual") or name
+        qual = item.get("qual") or item.get("name") or ""
         if not qual:
             return
-        name = name or qual.rsplit(".", 1)[-1]
-        rows.add((name, qual, path, _int(item.get("start") or item.get("line")), kind))
+        rows.add((qual, path, _int(item.get("start") or item.get("line")), kind))
 
     for f in _census_files(census):
         p = _file_path(f)
@@ -266,7 +282,7 @@ def collect_symbols(census: dict) -> list[list]:
             for item in flat:
                 if isinstance(item, dict):
                     add(item.get("file") or item.get("path") or "", item, kind)
-    return sorted((list(r) for r in rows), key=lambda r: (r[2], r[3], r[1], r[0], r[4]))
+    return sorted((list(r) for r in rows), key=_row_key)
 
 
 def collect_routes(census: dict) -> list[dict]:
@@ -291,7 +307,7 @@ def shard_symbols(rows: list[list]) -> dict[str, list[list]]:
     """Group by top folder; split oversized folders by their second level."""
     by_top: dict[str, list[list]] = defaultdict(list)
     for r in rows:
-        parts = r[2].split("/")
+        parts = r[1].split("/")
         by_top[parts[0] if len(parts) > 1 else "_root"].append(r)
 
     shards: dict[str, list[list]] = {}
@@ -300,17 +316,33 @@ def shard_symbols(rows: list[list]) -> dict[str, list[list]]:
             shards.setdefault(slug(top), []).extend(rs)
             continue
         for r in rs:
-            parts = r[2].split("/")
+            parts = r[1].split("/")
             second = parts[1] if len(parts) > 2 else "_files"
             shards.setdefault(f"{slug(top)}__{slug(second)}", []).append(r)
     for rs in shards.values():
-        rs.sort(key=lambda r: (r[2], r[3], r[1], r[0], r[4]))
+        rs.sort(key=_row_key)
     return shards
 
 
+def pack_shard(rows: list[list]) -> dict:
+    """[[qual, path, line, kind]] -> the on-disk shape (each path stored once)."""
+    files: list[str] = []
+    index: dict[str, int] = {}
+    packed = []
+    for qual, path, line, kind in rows:
+        if path not in index:
+            index[path] = len(files)
+            files.append(path)
+        packed.append([qual, index[path], line, kind])
+    return {"fields": SYMBOL_FIELDS, "files": files, "rows": packed}
+
+
 # ----------------------------------------------------------------------- build
-def build(root: Path, warn=None) -> dict[str, str]:
-    """Return {repo-relative output path: file text}. Pure: writes nothing."""
+def build(root: Path, warn=None, census: dict | None = None) -> dict[str, str]:
+    """Return {repo-relative output path: file text}. Pure: writes nothing.
+
+    `census` lets a caller that already holds the (possibly just regenerated) census pass it in;
+    otherwise data/census.json is read."""
     root = Path(root)
     warn = warn or (lambda m: print(f"warning: {m}", file=sys.stderr))
 
@@ -318,7 +350,8 @@ def build(root: Path, warn=None) -> dict[str, str]:
     if nav is None:
         warn("content/nav.json not found: the pages list will be empty (run P02 first)")
         nav = {}
-    census = load_json(root / "data" / "census.json", None)
+    if census is None:
+        census = load_json(root / "data" / "census.json", None)
     if census is None:
         warn("data/census.json not found: files, symbols and routes will be empty")
         census = {}
@@ -336,7 +369,7 @@ def build(root: Path, warn=None) -> dict[str, str]:
     manifest = []
     for sid in sorted(shards):
         fname = f"symbols-{sid}.json"
-        out[f"{INDEX_DIR}/{fname}"] = dumps({"fields": SYMBOL_FIELDS, "rows": shards[sid]})
+        out[f"{INDEX_DIR}/{fname}"] = dumps(pack_shard(shards[sid]))
         manifest.append({"id": sid, "file": fname, "count": len(shards[sid])})
     out[f"{INDEX_DIR}/symbols.json"] = dumps({"fields": SYMBOL_FIELDS, "shards": manifest})
     return out
@@ -349,10 +382,10 @@ def _stale_shards(root: Path, outputs: dict[str, str]) -> list[Path]:
     return [p for p in sorted(d.glob("symbols-*.json")) if f"{INDEX_DIR}/{p.name}" not in outputs]
 
 
-def write_all(root: Path = ROOT, warn=None) -> list[str]:
+def write_all(root: Path = ROOT, warn=None, census: dict | None = None) -> list[str]:
     """Write the index (only files whose content changed). Returns changed paths."""
     root = Path(root)
-    outputs = build(root, warn)
+    outputs = build(root, warn, census)
     changed: list[str] = []
     for rel, text in sorted(outputs.items()):
         p = root / rel
@@ -367,10 +400,10 @@ def write_all(root: Path = ROOT, warn=None) -> list[str]:
     return changed
 
 
-def check_all(root: Path = ROOT, warn=None) -> list[str]:
+def check_all(root: Path = ROOT, warn=None, census: dict | None = None) -> list[str]:
     """Return a list of problems; empty means the index on disk is current."""
     root = Path(root)
-    outputs = build(root, warn)
+    outputs = build(root, warn, census)
     problems: list[str] = []
     for rel, text in sorted(outputs.items()):
         p = root / rel

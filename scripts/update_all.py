@@ -17,9 +17,10 @@ Then, from this repo:
 What it runs, in order, stopping at the first problem:
 
     1. checks MiniMe is a clean checkout and graphify-out/graph.json was built at its current commit
-    2. refresh_atlas.py --census-from <MiniMe>   new census, then every census-driven page
+    2. refresh_atlas.py --census-from <MiniMe>   new census, then every census-driven page and the search index
     3. refresh_graph.py --minime <MiniMe>        every Graphify-driven part (graph, hubs, Explore edges, API callers)
-    4. both scripts with --check, and the unit tests, to prove nothing is left stale
+    4. both scripts with --check (refresh_atlas.py --check covers the search index too), and the unit tests,
+       to prove nothing is left stale
     5. with --push: git add, commit and push
 
 Standard library only (the census itself needs tree-sitter and PyYAML, see --install-deps).
@@ -31,7 +32,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.dont_write_bytecode = True      # the repo tracks scripts/__pycache__; do not make it show as modified
+sys.dont_write_bytecode = True      # no __pycache__ next to the scripts (it is git-ignored, but there is no need to make it)
 
 ROOT = Path(__file__).resolve().parent.parent
 PY = sys.executable
@@ -97,6 +98,8 @@ def main(argv=None):
     run(*(graph + ["--check"] + (["--allow-stale-graph"] if args.allow_stale_graph else [])))
     run(PY, "scripts/test_refresh_atlas.py")
     run(PY, "scripts/test_refresh_graph.py")
+    run(PY, "scripts/test_build_index.py")
+    run(PY, "scripts/test_palette.py")
 
     print("\n== Result ==")
     run("git", "status", "--short")

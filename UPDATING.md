@@ -4,7 +4,7 @@ The Atlas has two kinds of generated content:
 
 | From | Refreshed by | Pages |
 |---|---|---|
-| `data/census.json` (MiniMe's `scripts/codebase_census.py`) | `scripts/refresh_atlas.py` | Overview, Files, Functions, History, Map, API, Agents, Infra, Explore, `data/summary.md` |
+| `data/census.json` (MiniMe's `scripts/codebase_census.py`) | `scripts/refresh_atlas.py` | Overview, Files, Functions, History, Map, API, Agents, Infra, Explore, `data/summary.md`, the search index (`data/index/*.json`) |
 | The Graphify graph (`MiniMe/graphify-out/`) | `scripts/refresh_graph.py` | Graph and its viewer, Overview graph numbers and hubs, Explore connections, API "Frontend callers", `data/summary.md` graph line |
 
 `scripts/update_all.py` runs both, then proves nothing is stale and runs the tests.
@@ -43,9 +43,9 @@ MiniMe is expected next to this repo in a folder named `MiniMe`. Otherwise add `
 ## What `update_all.py` checks and does
 
 1. MiniMe has no uncommitted or untracked files, and `graphify-out/graph.json` was built at MiniMe's current commit. If not, it stops and tells you which step to redo. This stops the site from mixing two versions of the code.
-2. `refresh_atlas.py --census-from <MiniMe>`: new census, then every census-driven page.
+2. `refresh_atlas.py --census-from <MiniMe>`: new census, then every census-driven page and the search index.
 3. `refresh_graph.py --minime <MiniMe>`: every Graphify-driven part.
-4. Both scripts with `--check`, then the unit tests of both.
+4. Both scripts with `--check` (the first also proves the search index is current), then the unit tests, including the index builder and the palette.
 5. With `--push`: `git add -A`, commit, `git pull --rebase`, `git push`.
 
 The GitHub Action (`refresh-atlas.yml`) still runs when `data/census.json` is pushed. After this routine it finds nothing to change, so it commits nothing.
@@ -60,6 +60,15 @@ The GitHub Action (`refresh-atlas.yml`) still runs when `data/census.json` is pu
 * **Explore "Links out / in"**: for each file, the 14 files it is most linked to, weighted by the number of graph links between them.
 * **API "Frontend callers"**: not in the graph. The script scans `MiniMe/frontend` for `/api/...` strings (including ones built from a `const base = ...` and `${...}` expressions) and matches them to route paths by shape. It is inferred, not proven, and ignores the HTTP method, as the page already says. Calls built from fully dynamic strings are missed, so a route can show 0 although the frontend calls it.
 
+## The search index
+
+`data/index/` feeds the command palette (Ctrl/Cmd+K). `scripts/build_index.py` writes it from `content/nav.json` (pages), the `h2`/`h3` headings of every chapter, the glossary and `data/census.json` (files, routes, functions). It is deterministic: same inputs, same bytes. `refresh_atlas.py` rebuilds it with the pages, so `update_all.py` and the GitHub Action keep it current. Two things change it without the census changing: editing `content/nav.json` and editing a chapter. After either, run:
+
+```
+python scripts/build_index.py          # rewrite what changed
+python scripts/build_index.py --check  # change nothing; exit 1 if the index is stale
+```
+
 ## Still manual
 
 Tests, Health, Data model, Tables, Roadmap, Finance, Decisions and the document pages do not come from the census or the graph, so they keep their own "Built ... from commit ..." labels.
@@ -72,6 +81,7 @@ Tests, Health, Data model, Tables, Roadmap, Finance, Decisions and the document 
 | `The graph was built at X but MiniMe is at Y` | You committed after generating the graph. Run the Copilot prompt again. |
 | `graph.json not found` | Run the Copilot prompt; the graph is not committed. |
 | `Not replacing data/census.json, the new census is not trustworthy` | Follow the `pip install` line it prints. |
+| `search index is stale` / `missing: data/index/...` | Run `python scripts/build_index.py` (you edited `nav.json` or a chapter). |
 | `git push` rejected | Branch protection or a new remote commit. Run `git pull --rebase`, then `git push`. |
 
-Single steps: `python scripts/refresh_atlas.py --check` and `python scripts/refresh_graph.py --minime ../MiniMe --check` change nothing and exit 1 if a page is out of date.
+Single steps: `python scripts/build_index.py --check`, `python scripts/refresh_atlas.py --check` and `python scripts/refresh_graph.py --minime ../MiniMe --check` change nothing and exit 1 if a page is out of date.

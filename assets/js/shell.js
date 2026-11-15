@@ -1,18 +1,24 @@
-/* MiniMe Atlas 2 - shell (P02). One ES module, no dependencies.
-   Builds the sidebar, top bar, breadcrumbs and a basic command palette from content/nav.json, and takes over the
-   jobs atlas-ui.js used to do (mobile chapter-contents drawer, back-to-top button, wrapping wide SVGs and the
-   roadmap edit table). Loaded as <script type="module"> by every converted page (scripts/codemod_shell.py), so it
-   needs http(s): run `python scripts/serve.py`, a module cannot load from file://.
+/* MiniMe Atlas 2 - shell (P02, palette wiring P03). One ES module, no dependencies.
+   Builds the sidebar, top bar and breadcrumbs from content/nav.json, and takes over the jobs atlas-ui.js used to do
+   (mobile chapter-contents drawer, back-to-top button, wrapping wide SVGs and the roadmap edit table). The command
+   palette, theme key, shortcut sheet and "g" jump keys live in palette.js (P03), which this file imports.
+   Loaded as <script type="module"> by every converted page (scripts/codemod_shell.py), so it needs http(s):
+   run `python scripts/serve.py`, a module cannot load from file://.
 
    The page frame is prepared before first paint by the inline snippet in <head> (it sets html[data-sidebar] to
    open | collapsed | drawer); this file only keeps that state, it never decides it differently:
    pickSidebar() below is the same rule as the snippet, and scripts/test_codemod_shell.py checks that.
 
-   Hooks for later patches (events on document):
-     minime:sidebar   detail = "open" | "collapsed" | "drawer-open" | "drawer-closed"
-     minime:toc-toggle  fired by "]"    (P04 listens and toggles "On this page")
-     minime:help        fired by "?"    (P03 listens and shows the shortcut sheet)
-   P03 replaces the basic palette below; P04 may add its own table-of-contents behaviour. */
+   Keys handled here: [ and Ctrl/Cmd+B (sidebar), ] (fires minime:toc-toggle for P04), Esc (closes drawers).
+   Keys handled by palette.js: Ctrl/Cmd+K, t, ?, g + o/e/b/s.
+
+   Events on document:
+     minime:sidebar      detail = "open" | "collapsed" | "drawer-open" | "drawer-closed"
+     minime:toc-toggle   fired by "]"   (P04 listens and toggles "On this page")
+     minime:palette      detail = "open" | "close"   (from palette.js; the mobile drawer closes on "open")
+     minime:theme        detail = "dark" | "paper"   (from theme.js) */
+
+import { initPalette, openPalette, toggleTheme } from "./palette.js";
 
 const KEY_SIDEBAR = "minime_sidebar";   // "open" | "collapsed", the reader's choice for desktop widths
 const KEY_WINGS = "minime_wings";       // { wingId: true|false }, which sidebar groups are open
@@ -25,23 +31,6 @@ export function pickSidebar(width, saved, layout) {
   if (width <= 760) return "drawer";
   if (saved === "open" || saved === "collapsed") return saved;
   return layout === "workbench" || width < 1100 ? "collapsed" : "open";
-}
-
-/* Basic palette scoring over nav entries. Every word typed must appear somewhere; title matches rank first.
-   Returns -1 for "not a match". */
-export function scorePage(item, parts, query) {
-  const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
-  const title = item.title.toLowerCase();
-  const hay = [item.title, item.wingTitle, item.part ? parts[item.part] : "", item.keywords, item.blurb].join(" ").toLowerCase();
-  let score = 0;
-  for (const tok of tokens) {
-    if (title.startsWith(tok)) score += 100;
-    else if (title.includes(" " + tok)) score += 60;
-    else if (title.includes(tok)) score += 40;
-    else if (hay.includes(tok)) score += 10;
-    else return -1;
-  }
-  return score;
 }
 
 /* ------------------------------------------------------------------ small helpers */
@@ -89,7 +78,7 @@ const isTyping = (t) => !!t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t
 const itemLabel = (it) => (it.chapter == null ? it.title : `${it.part === "appendix" ? "App." : "Ch."} ${it.chapter} · ${it.title}`);
 
 /* ------------------------------------------------------------------ state */
-const S = { nav: null, stats: {}, items: [], cur: null, sb: null, top: null, scrim: null, scroller: null, palette: null };
+const S = { nav: null, stats: {}, items: [], cur: null, sb: null, top: null, scrim: null, scroller: null };
 
 function readWings() {
   try { return JSON.parse(store.get(KEY_WINGS) || "{}") || {}; } catch { return {}; }
@@ -145,7 +134,6 @@ function applySidebar() {
 /* closes whatever transient layer is open; returns true if something was closed */
 function closeTransient() {
   let closed = false;
-  if (S.palette && !S.palette.root.hidden) { closePalette(); closed = true; }
   if (document.body.classList.contains("toc-open")) { setToc(false); closed = true; }
   if (drawerOpen()) { setDrawer(false); closed = true; }
   if (S.sb && S.sb.classList.contains("is-peek")) { S.sb.classList.remove("is-peek"); closed = true; }
@@ -168,7 +156,7 @@ function buildSidebar() {
     el("span", { class: "mm-sb__mark", "aria-hidden": "true" }, "M"),
     el("span", { class: "mm-sb__brand-t" }, "Mini", el("b", {}, "Me"), " Atlas"));
   const collapse = el("button", { class: "mm-ib mm-sb__collapse", type: "button", title: "Collapse sidebar ( [ )", onclick: toggleSidebar, html: ICONS.panel });
-  const jump = el("button", { class: "mm-sb__jump", type: "button", title: "Search the Atlas (Ctrl+K)", onclick: openPalette },
+  const jump = el("button", { class: "mm-sb__jump", type: "button", title: "Search the Atlas (Ctrl+K)", onclick: () => openPalette() },
     el("span", { class: "mm-sb__jump-i", html: ICONS.search }),
     el("span", { class: "mm-sb__jump-t" }, "Quick jump"),
     el("kbd", {}, "Ctrl K"));
@@ -236,7 +224,7 @@ function buildTop() {
         "MiniMe ", el("code", {}, String(stats.commit).slice(0, 7)))
     : null;
   const theme = el("button", { class: "mm-ib mm-top__theme", type: "button", title: "Switch theme (Dark / Paper)", html: ICONS.theme,
-    onclick: () => window.minimeTheme && window.minimeTheme.cycle() });
+    onclick: () => toggleTheme() });
 
   return el("header", { class: "mm-top" },
     el("button", { class: "mm-ib mm-top__menu", type: "button", "aria-controls": "mm-sb", "aria-expanded": "false", title: "Toggle sidebar ( [ )", html: ICONS.menu, onclick: toggleSidebar }),
@@ -245,97 +233,9 @@ function buildTop() {
     hasToc ? el("button", { class: "mm-top__toc", type: "button", "aria-expanded": "false", onclick: () => setToc(!document.body.classList.contains("toc-open")) },
       el("span", { html: ICONS.toc }), el("span", { class: "mm-top__toc-t" }, "Contents")) : null,
     chip,
-    el("button", { class: "mm-top__k", type: "button", title: "Search the Atlas (Ctrl+K)", onclick: openPalette },
+    el("button", { class: "mm-top__k", type: "button", title: "Search the Atlas (Ctrl+K)", onclick: () => openPalette() },
       el("span", { html: ICONS.search }), el("span", { class: "mm-top__k-t" }, "Search"), el("kbd", {}, "Ctrl K")),
     theme);
-}
-
-/* ------------------------------------------------------------------ palette (basic; P03 replaces it) */
-function buildPalette() {
-  const input = el("input", { class: "mm-pal__in", type: "text", placeholder: "Jump to a page, chapter or topic (try: rulebook, api, m2c)", autocomplete: "off", spellcheck: "false",
-    role: "combobox", "aria-expanded": "true", "aria-controls": "mm-pal-list", "aria-label": "Search the Atlas" });
-  const list = el("div", { class: "mm-pal__list", id: "mm-pal-list", role: "listbox", "aria-label": "Pages" });
-  const box = el("div", { class: "mm-pal__box", role: "dialog", "aria-modal": "true", "aria-label": "Search the Atlas" },
-    el("div", { class: "mm-pal__top" }, el("span", { html: ICONS.search }), input, el("button", { class: "mm-pal__esc", type: "button", onclick: closePalette }, "Esc")),
-    list);
-  const rootEl = el("div", { class: "mm-pal", hidden: true }, box);
-  rootEl.addEventListener("mousedown", (e) => { if (e.target === rootEl) closePalette(); });
-  const p = { root: rootEl, input, list, results: [], idx: 0, opener: null };
-
-  input.addEventListener("input", () => renderPalette(input.value));
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-      e.preventDefault();
-      if (!p.results.length) return;
-      p.idx = (p.idx + (e.key === "ArrowDown" ? 1 : p.results.length - 1)) % p.results.length;
-      markPalette();
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      const hit = p.results[p.idx];
-      if (hit) window.location.href = hit.url;
-      else if (input.value.trim()) window.location.href = `explore.html#${encodeURIComponent(input.value.trim())}`;
-    } else if (e.key === "Tab") {
-      e.preventDefault();                                          // keep focus in the dialog
-    }
-  });
-  document.body.append(rootEl);
-  S.palette = p;
-}
-
-function renderPalette(q) {
-  const p = S.palette;
-  const query = q.trim();
-  p.results = query
-    ? S.items.map((it) => [scorePage(it, S.nav.parts, query), it]).filter(([s]) => s >= 0).sort((a, b) => b[0] - a[0]).map(([, it]) => it).slice(0, 30)
-    : S.items.slice();
-  p.idx = 0;
-  p.list.replaceChildren();
-  if (!p.results.length) {
-    const safe = encodeURIComponent(query);
-    p.list.append(el("div", { class: "mm-pal__none" }, "No page matches. ", el("a", { href: `explore.html#${safe}` }, `Search "${query}" in Explore \u2192`)));
-    p.input.removeAttribute("aria-activedescendant");
-    return;
-  }
-  let lastWing = null;
-  p.results.forEach((it, i) => {
-    if (!query && it.wing !== lastWing) { p.list.append(el("div", { class: "mm-pal__g", role: "presentation" }, it.wingTitle)); lastWing = it.wing; }
-    p.list.append(el("a", { class: "mm-pal__r", id: `mm-pal-r${i}`, href: it.url, role: "option", tabindex: "-1", "data-i": String(i),
-      onmousemove: () => { if (p.idx !== i) { p.idx = i; markPalette(false); } } },
-      el("span", { class: "mm-pal__rt" }, el("b", {}, itemLabel(it)), el("small", {}, it.blurb || it.url)),
-      el("span", { class: "mm-pal__pill" }, it.part ? S.nav.parts[it.part] : it.wingTitle)));
-  });
-  markPalette();
-}
-
-function markPalette(scroll = true) {
-  const p = S.palette;
-  p.list.querySelectorAll(".mm-pal__r").forEach((n) => {
-    const on = Number(n.dataset.i) === p.idx;
-    n.setAttribute("aria-selected", String(on));
-    if (on) {
-      p.input.setAttribute("aria-activedescendant", n.id);
-      if (scroll) n.scrollIntoView({ block: "nearest" });
-    }
-  });
-}
-
-export function openPalette() {
-  if (!S.nav) return;
-  if (!S.palette) buildPalette();
-  const p = S.palette;
-  p.opener = document.activeElement;
-  if (drawerOpen()) setDrawer(false);
-  p.root.hidden = false;
-  p.input.value = "";
-  renderPalette("");
-  p.input.focus();
-}
-
-function closePalette() {
-  const p = S.palette;
-  if (!p || p.root.hidden) return;
-  p.root.hidden = true;
-  if (p.opener && p.opener.focus) p.opener.focus({ preventScroll: true });
 }
 
 /* ------------------------------------------------------------------ what atlas-ui.js used to do */
@@ -444,6 +344,7 @@ async function load() {
 
 function boot() {
   const run = () => {
+    initPalette();                                                  // before load(): Ctrl+K works even if nav.json fails
     legacyFixups();
     load();
     const idle = window.requestIdleCallback || ((f) => setTimeout(f, 200));
@@ -457,16 +358,17 @@ function boot() {
       if (S.sb && S.sb.classList.contains("is-peek") && !e.target.closest(".mm-sb")) S.sb.classList.remove("is-peek");
       if (mode() === "drawer" && drawerOpen() && e.target.closest(".mm-sb a")) setDrawer(false);
     });
+    // the palette closes the mobile drawer when it opens, so the two never stack
+    document.addEventListener("minime:palette", (e) => { if (e.detail === "open" && drawerOpen()) setDrawer(false); });
     document.addEventListener("keydown", (e) => {
+      if (e.defaultPrevented || e.isComposing || typeof e.key !== "string") return;   // autofill fires keydown without a key
       const mod = (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey;
       const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-      if (mod && k === "k") { e.preventDefault(); openPalette(); return; }
       if (mod && k === "b") { e.preventDefault(); toggleSidebar(); return; }
       if (e.key === "Escape") { closeTransient(); return; }
-      if (e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target) || (S.palette && !S.palette.root.hidden)) return;
+      if (e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target)) return;
       if (e.key === "[") { e.preventDefault(); toggleSidebar(); }
       else if (e.key === "]") document.dispatchEvent(new CustomEvent("minime:toc-toggle"));
-      else if (e.key === "?") document.dispatchEvent(new CustomEvent("minime:help"));
     });
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run, { once: true });

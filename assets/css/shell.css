@@ -1,4 +1,4 @@
-/* MiniMe Atlas 2 - shell (P02): sidebar, top bar, breadcrumbs, palette, and the layout rules that make the
+/* MiniMe Atlas 2 - shell (P02): sidebar, top bar, breadcrumbs, command palette, and the layout rules that make the
    old pages sit correctly next to them. Loaded LAST on every converted page (after the page's own inline CSS), so
    these rules win by order; where a selector would tie with an old one it is made more specific on purpose.
    Uses tokens only. Built by assets/js/shell.js from content/nav.json. The old per-page CSS goes away page by page in P23. */
@@ -51,8 +51,8 @@ html[data-sidebar]:not([data-shell])::after { content: ""; position: fixed; z-in
 @keyframes mm-ph { to { visibility: hidden; } }
 
 /* ============================================================ 3. sidebar */
-.mm-sb, .mm-top, .mm-pal, .mm-scrim, .mm-btt, .mm-skipnav { font-family: var(--font-ui); font-size: var(--fs-sm); line-height: var(--lh-ui); color: var(--ink); }
-.mm-sb *, .mm-top *, .mm-pal *, .mm-btt { box-sizing: border-box; }
+.mm-sb, .mm-top, .mmp, .mm-scrim, .mm-btt, .mm-skipnav { font-family: var(--font-ui); font-size: var(--fs-sm); line-height: var(--lh-ui); color: var(--ink); }
+.mm-sb *, .mm-top *, .mmp *, .mm-btt { box-sizing: border-box; }
 
 .mm-sb { position: fixed; z-index: var(--z-sidebar); top: 0; bottom: 0; left: 0; width: var(--sbw); display: flex; flex-direction: column;
   padding: 0; background: var(--bg); border-right: 1px solid var(--line); overflow: hidden;
@@ -71,7 +71,7 @@ html[data-sidebar]:not([data-shell])::after { content: ""; position: fixed; z-in
 .mm-sb .mm-sb__jump:hover { border-color: var(--brand); color: var(--ink); }
 .mm-sb__jump-i { display: inline-flex; flex: none; }
 .mm-sb__jump-t { flex: 1; min-width: 0; white-space: nowrap; }
-.mm-sb kbd, .mm-top kbd, .mm-pal kbd { font-family: var(--font-mono); font-size: var(--fs-xs); background: var(--bg); color: var(--ink-dim); border: 1px solid var(--line); border-radius: var(--radius-1); padding: 0 var(--space-1); white-space: nowrap; }
+.mm-sb kbd, .mm-top kbd { font-family: var(--font-mono); font-size: var(--fs-xs); background: var(--bg); color: var(--ink-dim); border: 1px solid var(--line); border-radius: var(--radius-1); padding: 0 var(--space-1); white-space: nowrap; }
 
 .mm-sb__scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--space-2) 0 var(--space-4); scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 
@@ -147,25 +147,43 @@ html[data-layout="bare"] .mm-top__menu { display: none; }
 html[data-drawer="open"] .mm-scrim { opacity: 1; pointer-events: auto; }
 body.toc-open .mm-scrim { opacity: 1; pointer-events: auto; z-index: 1002; }      /* under the old mobile .toc drawer (z-index 1003) */
 
-.mm-pal { position: fixed; inset: 0; z-index: var(--z-modal); display: flex; align-items: flex-start; justify-content: center;
+/* command palette and shortcut sheet (assets/js/palette.js, P03; its toasts use the .mm-toasts component). Above the old mobile .toc drawer (z-index 1003). */
+.mmp-backdrop { position: fixed; inset: 0; z-index: 1100; display: flex; align-items: flex-start; justify-content: center;
   padding: max(8vh, env(safe-area-inset-top, 0px)) var(--space-4) var(--space-5); background: var(--scrim); backdrop-filter: blur(3px); }
-.mm-pal[hidden] { display: none; }
-.mm-pal__box { width: 100%; max-width: 640px; max-height: 80vh; display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line-strong); border-radius: var(--radius-3); box-shadow: var(--shadow-3); overflow: hidden; }
-.mm-pal__top { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-4); background: var(--panel-2); border-bottom: 1px solid var(--line); color: var(--ink-dim); }
-.mm-pal__top:focus-within { box-shadow: inset 0 -2px 0 var(--focus); }
-.mm-pal .mm-pal__in { flex: 1; min-width: 0; width: auto; padding: var(--space-2) 0; background: transparent; border: 0; border-radius: 0; color: var(--ink); font: inherit; font-size: var(--fs-md); outline: none; }
-.mm-pal .mm-pal__in::placeholder { color: var(--ink-dim); }
-.mm-pal .mm-pal__esc { padding: 2px var(--space-2); background: var(--bg); color: var(--ink-dim); border: 1px solid var(--line); border-radius: var(--radius-1); font: inherit; font-size: var(--fs-xs); cursor: pointer; }
-.mm-pal__list { overflow-y: auto; padding: var(--space-2); }
-.mm-pal__g { padding: var(--space-3) var(--space-3) var(--space-1); font-size: var(--fs-xs); letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-dim); }
-.mm-pal a.mm-pal__r { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-2); color: var(--ink); text-decoration: none; }
-.mm-pal a.mm-pal__r[aria-selected="true"] { background: var(--panel-2); box-shadow: inset 2px 0 var(--brand); }
-.mm-pal__rt { min-width: 0; }
-.mm-pal__rt b { display: block; font-weight: 600; font-size: var(--fs-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mm-pal__rt small { display: block; font-size: var(--fs-xs); color: var(--ink-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mm-pal__pill { flex: none; padding: 1px var(--space-2); border: 1px solid var(--line); border-radius: var(--radius-pill); font-size: var(--fs-xs); color: var(--ink-dim); white-space: nowrap; }
-.mm-pal__none { padding: var(--space-4); color: var(--ink-dim); }
-.mm-pal__none a { color: var(--brand); }
+.mmp-backdrop[hidden] { display: none; }
+html.mmp-open { overflow: hidden; }
+.mmp { width: min(680px, 100%); max-height: min(76vh, 720px); display: flex; flex-direction: column; overflow: hidden;
+  background: var(--panel); border: 1px solid var(--line-strong); border-radius: var(--radius-3); box-shadow: var(--shadow-3); }
+.mmp .mmp-input { width: 100%; padding: var(--space-4); background: var(--panel-2); border: 0; border-bottom: 1px solid var(--line); border-radius: 0;
+  color: var(--ink); font: inherit; font-size: max(16px, var(--fs-md)); outline: none; }      /* 16px+ stops iOS zooming the page */
+.mmp .mmp-input::placeholder { color: var(--ink-dim); }
+.mmp:focus-within .mmp-input { box-shadow: inset 0 -2px 0 var(--focus); border-bottom-color: transparent; }
+.mmp-list { overflow-y: auto; padding: var(--space-2); overscroll-behavior: contain; }
+.mmp-group { padding: var(--space-3) var(--space-3) var(--space-1); font-size: var(--fs-xs); letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-dim); }
+.mmp-note { padding: var(--space-4); color: var(--ink-dim); }
+.mmp a.mmp-opt, .mmp div.mmp-opt { display: flex; align-items: baseline; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-2);
+  color: var(--ink); text-decoration: none; cursor: pointer; }
+.mmp .mmp-opt[aria-selected="true"] { background: var(--panel-2); box-shadow: inset 2px 0 var(--brand); }
+.mmp-badge { flex: none; min-width: 46px; padding: 1px var(--space-2); text-align: center; border: 1px solid var(--line); border-radius: var(--radius-1);
+  font: 600 var(--fs-xs)/1.6 var(--font-mono); color: var(--ink-dim); }
+.mmp-title { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mmp .mmp-title mark { background: none; color: var(--brand); font-weight: 700; }
+.mmp-title.mono { font-family: var(--font-mono); font-size: var(--fs-sm); }
+.mmp-sub { flex: 0 1 38%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-xs); color: var(--ink-dim); }
+.mmp-foot { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); padding: var(--space-2) var(--space-4); border-top: 1px solid var(--line); font-size: var(--fs-xs); color: var(--ink-dim); }
+.mmp-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.mmp.mms-box { max-width: 560px; }
+.mmp .mms-head { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4); background: var(--panel-2); border-bottom: 1px solid var(--line); }
+.mmp .mms-head h2 { margin: 0; padding: 0; border: 0; font-size: var(--fs-md); color: var(--ink); }
+.mms-body { overflow-y: auto; padding: var(--space-2) var(--space-4) var(--space-4); }
+.mmp .mms-body h3 { margin: var(--space-4) 0 var(--space-1); padding: 0; border: 0; font-size: var(--fs-xs); letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-dim); }
+.mms-row { display: flex; justify-content: space-between; gap: var(--space-4); padding: var(--space-1) 0; border-bottom: 1px solid var(--line); }
+.mmp .mms-row kbd { font-family: var(--font-mono); font-size: var(--fs-xs); padding: 1px var(--space-2); background: var(--bg); color: var(--ink-dim); border: 1px solid var(--line); border-radius: var(--radius-1); white-space: nowrap; }
+.mmp .mms-close { padding: var(--space-1) var(--space-3); background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-1); font: inherit; font-size: var(--fs-sm); cursor: pointer; }
+.mmp :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.mmp .mmp-input:focus-visible { outline: none; }                    /* the input shows its own inset ring above */
+@media (prefers-reduced-motion: no-preference) { .mmp { animation: mmp-in var(--dur-1) var(--ease); } @keyframes mmp-in { from { opacity: 0; transform: translateY(-6px); } } }
+@media (max-width: 560px) { .mmp-sub { display: none; } .mmp-backdrop { padding-top: max(3vh, env(safe-area-inset-top, 0px)); } }
 
 .mm-btt { position: fixed; right: max(18px, env(safe-area-inset-right, 0px)); bottom: max(18px, env(safe-area-inset-bottom, 0px)); z-index: var(--z-sticky); width: 38px; height: 38px; padding: 0;
   display: inline-flex; align-items: center; justify-content: center; background: var(--brand); color: var(--on-brand); border: 0; border-radius: 50%; box-shadow: var(--shadow-2);
@@ -175,7 +193,7 @@ body.toc-open .mm-scrim { opacity: 1; pointer-events: auto; z-index: 1002; }    
 .mm-skipnav { position: fixed; left: var(--space-3); top: -4rem; z-index: var(--z-toast); padding: var(--space-2) var(--space-4); background: var(--brand); color: var(--on-brand); border-radius: var(--radius-2); font-weight: 600; text-decoration: none; }
 .mm-skipnav:focus { top: calc(var(--space-3) + env(safe-area-inset-top, 0px)); }
 
-.mm-sb :focus-visible, .mm-top :focus-visible, .mm-pal :focus-visible, .mm-btt:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.mm-sb :focus-visible, .mm-top :focus-visible, .mm-btt:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .mm-sb :focus-visible { outline-offset: -2px; }
 
 /* ============================================================ 6. narrow screens */
@@ -207,7 +225,7 @@ body.toc-open .mm-scrim { opacity: 1; pointer-events: auto; z-index: 1002; }    
 
 /* ============================================================ 8. print */
 @media print {
-  .mm-sb, .mm-top, .mm-scrim, .mm-btt, .mm-skipnav, .mm-pal { display: none !important; }
+  .mm-sb, .mm-top, .mm-scrim, .mm-btt, .mm-skipnav, .mmp-backdrop, .mm-toasts { display: none !important; }
   html[data-sidebar] body { padding-left: 0; }
   html[data-sidebar] body > main { margin-top: 0; }
 }
