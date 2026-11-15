@@ -1,0 +1,281 @@
+/* MiniMe Atlas 2 - chapter reader layer (P04). Loaded by assets/js/reader.js, AFTER the page's own inline CSS and shell.css.
+
+   Every rule is scoped under html[data-reader], which reader.js sets only once it has run: until then the page looks
+   exactly as it did, and with ?legacy=1 (no shell, no reader) it stays that way. The old chapter CSS uses simple selectors
+   (.doc article, .toc a, ...) and a few !important mobile rules for the contents drawer; the selectors here are more
+   specific on purpose, and the !important ones are matched only where an old !important has to be beaten.
+
+   Tokens only (tokens.css). Raw colours appear only inside @media print, where the page is forced to white paper.
+
+   Layout, wide screens:     [ sidebar ][ ...... article track (~100ch) ...... ][ On this page ]
+                                         text column ~72ch, centred in the track;
+                                         tables and code use the whole track (they "bleed" evenly on both sides)
+   Below 1200px:             no side rail; "On this page" is a bottom sheet opened by the top bar's Contents button. */
+
+/* ============================================================ 1. frame */
+html[data-reader] {
+  --rd-fs: 1.08rem;                                       /* prose size; reader.js overrides it with the saved Aa choice */
+  --rd-bar-h: 38px;                                       /* the chapter bar */
+  --rd-bar-top: 0px;                                      /* ...counted in only while the bar is showing (html[data-rdbar]) */
+  --rd-measure: calc(var(--rd-fs) * 36);                  /* ~72 characters of the serif face */
+  --rd-wide: calc(var(--rd-fs) * 50);                     /* ~100 characters: the track that tables and code may use */
+  --rd-head-w: calc(var(--rd-wide) + var(--toc-w) + var(--space-7));
+  scroll-padding-top: calc(var(--topbar-h) + var(--rd-bar-h) + 12px);
+}
+html[data-reader][data-rdbar] { --rd-bar-top: var(--rd-bar-h); }
+@media (max-width: 1199px) { html[data-reader] { --rd-head-w: var(--rd-wide); } }
+@media (prefers-reduced-motion: reduce) { html[data-reader] { scroll-behavior: auto; } }
+
+html[data-reader] main.rd-main { max-width: none; padding: var(--space-6) clamp(var(--space-4), 3vw, var(--space-7)) var(--space-8); }
+html[data-reader] main.rd-main--doc > :is(h1, .sub, .bk-banner, .bk-override-box) { max-width: var(--rd-head-w); margin-inline: auto; }
+
+html[data-reader] .doc { display: grid; grid-template-columns: minmax(0, var(--rd-wide)) var(--toc-w); column-gap: var(--space-7); justify-content: center; align-items: start; }
+@media (max-width: 1199px) { html[data-reader] .doc { grid-template-columns: minmax(0, var(--rd-wide)); } }
+html[data-reader][data-toc="closed"] .doc { grid-template-columns: minmax(0, var(--rd-wide)); }
+@media (min-width: 1200px) { html[data-reader][data-toc="closed"] .doc > .toc { display: none; } }
+
+/* the old per-page progress bar is replaced by .rd-progress */
+html[data-reader] .bk-progress { display: none; }
+
+/* chapter pages have no .mm wrapper, so base.css's `.mm .mm-sr-only` never applies to them: same rule, scoped here */
+html[data-reader] .mm-sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ============================================================ 2. typography of the article */
+html[data-reader] .doc article {
+  max-width: none; min-width: 0;
+  font-family: var(--font-prose); font-size: var(--rd-fs); line-height: var(--lh-prose); color: var(--ink);
+  font-kerning: normal; font-variant-ligatures: common-ligatures; text-rendering: optimizeLegibility; overflow-wrap: break-word;
+}
+html[data-reader][data-reader-font="sans"] .doc article { font-family: var(--font-ui); line-height: 1.65; }
+
+/* text blocks keep the reading measure and sit in the middle of the track; wide things (tables, code, footer) do not */
+html[data-reader] .doc article > :is(p, ul, ol, dl, blockquote, h1, h2, h3, h4, h5, h6, hr) { max-width: var(--rd-measure); margin-inline: auto; }
+
+html[data-reader] .doc article p { margin-top: 0; margin-bottom: 1.05em; }
+html[data-reader] .doc article > :first-child { margin-top: 0; }
+html[data-reader] .doc article strong, html[data-reader] .doc article b { font-weight: 700; }
+
+/* justified + hyphenated paragraphs: desktop, serif only, and only direct paragraphs (never lists, tables, callouts, code) */
+@media (min-width: 900px) {
+  html[data-reader]:not([data-reader-font="sans"]) .doc article > p:not(.rd-callout) { text-align: justify; text-justify: inter-word; hyphens: auto; -webkit-hyphens: auto; }
+}
+
+html[data-reader] .doc article :is(ul, ol) { margin-top: 0; margin-bottom: 1.05em; padding-left: 1.45em; }
+html[data-reader] .doc article li { margin: 0.3em 0; }
+html[data-reader] .doc article li > :is(ul, ol) { margin: 0.3em 0 0; }
+html[data-reader] .doc article li::marker { color: var(--ink-dim); }
+html[data-reader] .doc article li > p { margin-bottom: 0.5em; }
+
+html[data-reader] .doc article blockquote { margin-block: 1.4em; padding: 0.15em 0 0.15em var(--space-4); background: none; border-left: 3px solid var(--line-strong); color: var(--ink); font-style: italic; }
+html[data-reader] .doc article blockquote > :last-child { margin-bottom: 0; }
+html[data-reader] .doc article hr { border: 0; border-top: 1px solid var(--line); margin-block: 2em; }
+html[data-reader] .doc article a { color: var(--brand); text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+html[data-reader] .doc article a:hover { text-decoration-thickness: 2px; }
+html[data-reader] .doc article :is(a, button, input, [tabindex]):focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--radius-1); }
+
+/* headings: the UI face, set against the serif body */
+html[data-reader] .doc article :is(h1, h2, h3, h4) {
+  position: relative; font-family: var(--font-ui); font-weight: 600; line-height: var(--lh-tight); letter-spacing: -0.012em; color: var(--ink); text-wrap: balance;
+  scroll-margin-top: calc(var(--topbar-h) + var(--rd-bar-h) + 16px);
+}
+html[data-reader] .doc article h1 { margin-top: 2.6em; margin-bottom: 0.6em; padding-bottom: 0.3em; border-bottom: 1px solid var(--line); font-size: calc(var(--rd-fs) * 1.85); font-weight: 700; letter-spacing: -0.02em; }
+html[data-reader] .doc article h2 { margin-top: 2.1em; margin-bottom: 0.55em; padding-bottom: 0.25em; border-bottom: 1px solid var(--line); font-size: calc(var(--rd-fs) * 1.42); }
+html[data-reader] .doc article h3 { margin-top: 1.8em; margin-bottom: 0.45em; font-size: calc(var(--rd-fs) * 1.16); }
+html[data-reader] .doc article h4 { margin-top: 1.5em; margin-bottom: 0.4em; font-size: var(--rd-fs); color: var(--ink-dim); }
+html[data-reader] .doc article :is(h1, h2, h3, h4):first-child { margin-top: 0; }
+html[data-reader] .doc article [data-rd-num]::before { content: attr(data-rd-num) " "; margin-right: 0.35em; font-family: var(--font-mono); font-size: 0.62em; font-weight: 500; letter-spacing: 0; color: var(--ink-dim); white-space: nowrap; }
+
+/* copy-link on a heading: sits in the margin on a pointer device, after the text on touch */
+html[data-reader] .rd-anchor { position: absolute; left: -1.5em; top: 50%; display: inline-flex; align-items: center; justify-content: center; width: 1.2em; height: 1.2em; margin-top: -0.6em;
+  color: var(--ink-dim); opacity: 0; text-decoration: none; border-radius: var(--radius-1); transition: opacity var(--dur-1) var(--ease); }
+html[data-reader] :is(h1, h2, h3, h4):is(:hover, :focus-within) > .rd-anchor, html[data-reader] .rd-anchor:focus-visible { opacity: 1; }
+html[data-reader] .rd-anchor:hover { color: var(--brand); }
+@media (hover: none) { html[data-reader] .rd-anchor { position: static; margin: 0 0 0 0.4em; opacity: 0.4; vertical-align: -0.1em; } }
+
+/* inline code and code blocks */
+html[data-reader] .doc article :not(pre) > code { font-family: var(--font-mono); font-variant-ligatures: none; font-size: 0.84em; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-1); padding: 0.08em 0.36em; overflow-wrap: anywhere; hyphens: none; }
+html[data-reader] .doc article pre { margin: 0; padding: var(--space-3) var(--space-4); font-family: var(--font-mono); font-variant-ligatures: none; font-size: 0.8em; line-height: 1.55; tab-size: 4; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-2); }
+html[data-reader] .doc article pre code { font-size: inherit; color: inherit; background: none; border: 0; padding: 0; }
+html[data-reader] .rd-pre { position: relative; margin: 1.3em 0; }
+html[data-reader] .rd-copy { position: absolute; top: var(--space-2); right: var(--space-2); padding: 0.15em 0.6em; font: 600 var(--fs-xs)/1.6 var(--font-ui); color: var(--ink-dim); background: var(--panel-2); border: 1px solid var(--line-strong); border-radius: var(--radius-1); cursor: pointer; opacity: 0; transition: opacity var(--dur-1) var(--ease); }
+html[data-reader] .rd-pre:is(:hover, :focus-within) > .rd-copy, html[data-reader] .rd-copy:focus-visible { opacity: 1; }
+html[data-reader] .rd-copy:hover { color: var(--ink); border-color: var(--brand); }
+@media (hover: none) { html[data-reader] .rd-copy { opacity: 0.8; } }
+
+/* ============================================================ 3. tables: scroll box with a sticky header, optional filter */
+html[data-reader] .doc article .rd-tablewrap {
+  margin: 1.4em 0; overflow: auto; overscroll-behavior: auto; max-height: min(var(--rd-table-max, 75vh), 44rem);
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-2);
+  content-visibility: auto; contain-intrinsic-block-size: auto calc(var(--rd-rows, 8) * 2.35rem);
+}
+html[data-reader] .doc article table { width: 100%; border-collapse: separate; border-spacing: 0; font-family: var(--font-ui); font-size: calc(var(--rd-fs) * 0.8); line-height: 1.45; font-variant-ligatures: none; hyphens: none; text-align: left; }
+html[data-reader] .doc article :is(th, td) { padding: 0.5em 0.8em; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+html[data-reader] .doc article th { position: sticky; top: 0; z-index: var(--z-raised); background: var(--panel-2); color: var(--ink); font-weight: 600; cursor: default; }
+html[data-reader] .doc article tbody tr:last-child td { border-bottom: 0; }
+html[data-reader] .doc article tbody tr:hover td { background: color-mix(in srgb, var(--panel-2) 70%, transparent); }
+html[data-reader] .doc article tr[hidden] { display: none; }
+html[data-reader] .rd-tbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin: 1.4em 0 0.5em; font-family: var(--font-ui); font-size: var(--fs-sm); color: var(--ink-dim); }
+html[data-reader] .rd-tbar + .rd-tablewrap { margin-top: 0; }
+html[data-reader] .rd-tbar__q { width: min(22rem, 100%); }
+html[data-reader] .rd-tbar__n { font-variant-numeric: tabular-nums; }
+
+/* ============================================================ 4. callouts (the P01 .mm-callout, applied in place to the paragraph) */
+html[data-reader] .doc article > p.rd-callout { margin-block: 1.5em; padding: 0.7em 1em 0.8em; font-size: 0.94em; line-height: 1.6; text-align: left; hyphens: manual; border-radius: 0 var(--radius-2) var(--radius-2) 0; }
+html[data-reader] .rd-callout .mm-callout__title { margin: 0 0 0.3em; font-size: var(--fs-xs); }
+html[data-reader] .rd-callout .rd-callout__ref { margin-left: auto; font-weight: 500; color: var(--ink-dim); }
+html[data-reader] .rd-callout .rd-callout__ref:hover { color: var(--brand); }
+html[data-reader] .rd-callout--muted { --c: var(--line-strong); background: transparent; color: var(--ink-dim); font-size: 0.9em; }
+
+/* ============================================================ 5. page header: title, banner (compact), override box, footer cards */
+html[data-reader] main > h1 { margin: 0 0 var(--space-1); font-family: var(--font-ui); font-size: var(--fs-2xl); letter-spacing: -0.02em; }
+html[data-reader] main > .sub { margin: 0 0 var(--space-4); font-size: var(--fs-sm); color: var(--ink-dim); }
+
+html[data-reader] .bk-banner { margin: 0 0 var(--space-5); padding: var(--space-3) var(--space-4); background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--brand); border-radius: var(--radius-2); }
+html[data-reader] .bk-top { margin-bottom: var(--space-1); gap: var(--space-2) var(--space-3); }
+html[data-reader] .bk-part { margin-right: var(--space-2); font-size: var(--fs-sm); font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--brand); }
+html[data-reader] .bk-ch { padding: 1px var(--space-2); font-size: var(--fs-xs); font-weight: 600; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-pill); }
+html[data-reader] .bk-actions { gap: var(--space-2); }
+html[data-reader] .bk-pill-link { padding: 3px var(--space-3); font: 500 var(--fs-xs)/1.6 var(--font-ui); color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-2); cursor: pointer; }
+html[data-reader] .bk-pill-link:hover { color: var(--ink); border-color: var(--brand); }
+html[data-reader] .bk-desc { margin: 0 0 var(--space-2); font-size: var(--fs-sm); color: var(--ink-dim); }
+html[data-reader] .bk-meta { margin-bottom: var(--space-2); gap: var(--space-2) var(--space-3); font-size: var(--fs-xs); color: var(--ink-dim); }
+html[data-reader] .bk-meta b { color: var(--ink); }
+html[data-reader] .bk-prevnext { padding-top: var(--space-2); border-top: 1px solid var(--line); gap: var(--space-2); }
+html[data-reader] .bk-nav-btn { padding: 2px var(--space-3); font-size: var(--fs-xs); color: var(--ink-dim); background: transparent; border: 1px solid var(--line); border-radius: var(--radius-2); }
+html[data-reader] .bk-nav-btn:hover { color: var(--ink); border-color: var(--brand); }
+html[data-reader] .bk-nav-btn.bk-next { color: var(--brand); border-color: var(--line-strong); }
+html[data-reader] .rd-aa-glyph { font-family: var(--font-prose); font-weight: 600; }
+
+html[data-reader] .bk-override-box { background: color-mix(in srgb, var(--gate) 9%, var(--panel)); border: 1px solid var(--line); border-left: 4px solid var(--gate); border-radius: 0 var(--radius-2) var(--radius-2) 0; color: var(--ink); }
+html[data-reader] .bk-override-box h3 { color: var(--ink); }
+html[data-reader] .bk-override-box p { color: var(--ink); }
+html[data-reader] .bk-override-box ul { color: var(--ink-dim); }
+
+html[data-reader] .bk-footer { max-width: none; margin-top: var(--space-8); padding-top: var(--space-5); border-top: 1px solid var(--line); font-family: var(--font-ui); font-size: var(--fs-base); line-height: var(--lh-ui); text-align: left; hyphens: manual; }
+html[data-reader] .bk-footer-hdr { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2) var(--space-4); margin-bottom: var(--space-3); font-size: var(--fs-sm); color: var(--ink-dim); }
+html[data-reader] .bk-footer-hdr b { color: var(--ink); }
+html[data-reader] .bk-footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+html[data-reader] .bk-fcard { display: block; padding: var(--space-3) var(--space-4); text-decoration: none; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-2); }
+html[data-reader] .bk-fcard:hover { border-color: var(--brand); }
+html[data-reader] .bk-fcard small { display: block; font-size: var(--fs-xs); letter-spacing: 0; text-transform: none; color: var(--ink-dim); }
+html[data-reader] .bk-fcard b { display: block; font-size: var(--fs-base); color: var(--ink); }
+html[data-reader] .bk-fcard span { font-size: var(--fs-xs); color: var(--ink-dim); }
+html[data-reader] .bk-fcard.bk-fnext { text-align: right; background: var(--panel); }
+@media (max-width: 640px) { html[data-reader] .bk-footer-grid { grid-template-columns: 1fr; } }
+
+/* ============================================================ 6. progress bar and chapter bar */
+.rd-progress { display: none; }
+html[data-reader] .rd-progress { position: fixed; top: 0; left: var(--sb-w, 0px); right: 0; z-index: calc(var(--z-topbar) + 1); display: block; height: 3px; pointer-events: none; }
+html[data-reader] .rd-progress > i { display: block; height: 100%; background: var(--brand); transform: scaleX(0); transform-origin: 0 50%; }
+
+.rd-bar, .rd-aa { display: none; }
+html[data-reader] .rd-bar {
+  position: fixed; z-index: var(--z-sticky); top: calc(var(--topbar-h) + env(safe-area-inset-top, 0px)); left: var(--sb-w, 0px); right: 0; height: var(--rd-bar-h);
+  display: flex; align-items: center; gap: var(--space-3); padding: 0 max(var(--space-4), env(safe-area-inset-right, 0px)) 0 var(--space-4);
+  font-family: var(--font-ui); font-size: var(--fs-sm); color: var(--ink-dim);
+  background: color-mix(in srgb, var(--bg) 94%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line);
+  transform: translateY(-100%); opacity: 0; visibility: hidden;
+  transition: transform var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease), left var(--dur-2) var(--ease), visibility 0s linear var(--dur-2);
+}
+html[data-reader] .rd-bar.is-on { transform: none; opacity: 1; visibility: visible; transition: transform var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease), left var(--dur-2) var(--ease), visibility 0s; }
+html[data-reader] .rd-bar__ch { flex: none; padding: 0 var(--space-2); font: 600 var(--fs-xs)/1.7 var(--font-mono); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-pill); white-space: nowrap; }
+html[data-reader] .rd-bar__min { flex: none; font-size: var(--fs-xs); white-space: nowrap; }
+html[data-reader] .rd-bar__sec { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; color: var(--ink); }
+html[data-reader] .rd-bar__sp { flex: 0 0 0; }
+html[data-reader] .rd-bar__pct { flex: none; min-width: 3ch; text-align: right; font: 500 var(--fs-xs)/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+html[data-reader] .rd-bar__nav, html[data-reader] .rd-bar__aa { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 32px; height: 32px; padding: 0; color: var(--ink-dim); background: transparent; border: 1px solid transparent; border-radius: var(--radius-2); text-decoration: none; font: inherit; cursor: pointer; }
+html[data-reader] .rd-bar__nav[aria-disabled="true"] { opacity: 0.35; cursor: default; }
+html[data-reader] a.rd-bar__nav:hover, html[data-reader] .rd-bar__aa:hover { color: var(--ink); background: var(--panel-2); border-color: var(--line); }
+html[data-reader] .rd-bar :focus-visible, html[data-reader] .rd-aa :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+@media (max-width: 760px) { html[data-reader] .rd-bar { gap: var(--space-2); padding-left: var(--space-3); } html[data-reader] .rd-bar__min { display: none; } }
+
+/* reading settings (Aa) */
+html[data-reader] .rd-aa { position: fixed; z-index: var(--z-popover); display: grid; gap: var(--space-3); width: 15.5rem; padding: var(--space-3); font-family: var(--font-ui); font-size: var(--fs-sm); color: var(--ink);
+  background: var(--panel); border: 1px solid var(--line-strong); border-radius: var(--radius-3); box-shadow: var(--shadow-3); }
+html[data-reader] .rd-aa[hidden] { display: none; }
+html[data-reader] .rd-aa__row { display: flex; align-items: center; gap: var(--space-2); }
+html[data-reader] .rd-aa__opt { flex: 1; min-height: 34px; padding: 0 var(--space-3); font: inherit; font-weight: 600; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line-strong); border-radius: var(--radius-2); cursor: pointer; }
+html[data-reader] .rd-aa__opt:hover:not(:disabled) { border-color: var(--brand); }
+html[data-reader] .rd-aa__opt[aria-pressed="true"] { border-color: var(--brand); box-shadow: inset 0 0 0 1px var(--brand); }
+html[data-reader] .rd-aa__opt:disabled { opacity: 0.4; cursor: default; }
+html[data-reader] .rd-aa__val { flex: none; min-width: 3.4em; text-align: center; font: 500 var(--fs-xs)/1 var(--font-mono); color: var(--ink-dim); }
+html[data-reader] .rd-aa__reset { justify-self: end; padding: 0; font: inherit; font-size: var(--fs-xs); color: var(--ink-dim); background: none; border: 0; text-decoration: underline; cursor: pointer; }
+html[data-reader] .rd-aa__reset:hover { color: var(--brand); }
+
+/* ============================================================ 7. On this page */
+html[data-reader] .toc.rd-toc {
+  position: sticky; top: calc(var(--topbar-h) + var(--rd-bar-top) + var(--space-4)); align-self: start;
+  max-height: calc(100vh - var(--topbar-h) - var(--rd-bar-top) - var(--space-6)); overflow-y: auto; overscroll-behavior: contain;
+  padding: 0 0 var(--space-4) var(--space-3); font-family: var(--font-ui); font-size: var(--fs-sm); line-height: 1.35; border-left: 1px solid var(--line);
+  scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent;
+}
+html[data-reader] .rd-toc .toc-mhdr { display: none; }
+html[data-reader] .rd-toc__hd { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin: 0 0 var(--space-2); font-size: var(--fs-xs); color: var(--ink-dim); }
+html[data-reader] .rd-toc__hd b { font-weight: 600; letter-spacing: 0.02em; }
+html[data-reader] .rd-toc__all { display: inline-flex; padding: 3px; color: var(--ink-dim); background: none; border: 1px solid transparent; border-radius: var(--radius-1); cursor: pointer; }
+html[data-reader] .rd-toc__all:hover { color: var(--ink); border-color: var(--line); }
+html[data-reader] .rd-toc__list, html[data-reader] .rd-toc__sub { margin: 0; padding: 0; list-style: none; }
+html[data-reader] .rd-toc li { margin: 0; }
+html[data-reader] .rd-toc__row { display: flex; align-items: flex-start; }
+html[data-reader] .rd-toc__tw { flex: none; display: inline-grid; place-items: center; width: 20px; height: 24px; padding: 0; color: var(--ink-dim); background: none; border: 0; cursor: pointer; }
+html[data-reader] .rd-toc__tw svg { transition: transform var(--dur-1) var(--ease); }
+html[data-reader] .rd-toc__tw[aria-expanded="true"] svg { transform: rotate(90deg); }
+html[data-reader] .rd-toc__tw:hover { color: var(--ink); }
+html[data-reader] .rd-toc__g:not(.is-open) > .rd-toc__sub { display: none; }
+html[data-reader] .toc.rd-toc a.rd-toc__a { display: block; flex: 1; min-width: 0; padding: 2px var(--space-2) 2px var(--space-2); margin: 0; border-left: 2px solid transparent; border-radius: 0 var(--radius-1) var(--radius-1) 0; color: var(--ink-dim); text-decoration: none; overflow-wrap: anywhere; }
+html[data-reader] .toc.rd-toc a.rd-toc__a:hover { color: var(--ink); background: var(--panel-2); }
+html[data-reader] .toc.rd-toc a.rd-toc__a.is-active { color: var(--ink); font-weight: 600; border-left-color: var(--brand); background: color-mix(in srgb, var(--brand) 10%, transparent); }
+html[data-reader] .rd-toc__sub .rd-toc__a { padding-left: var(--space-3); font-size: var(--fs-xs); }
+html[data-reader] .rd-toc__sub .rd-toc__a[data-depth="2"] { padding-left: var(--space-5); }
+html[data-reader] .rd-toc__n { margin-right: 0.4em; font-family: var(--font-mono); font-size: 0.92em; color: var(--ink-dim); white-space: nowrap; }
+html[data-reader] .rd-toc :is(a, button):focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+
+/* narrow screens: a bottom sheet instead of a rail. The old chapter CSS turns .toc into a right-hand drawer with !important at
+   <= 900px, so the sheet needs !important too (it wins on specificity). z-index 1003 sits above the shell's scrim (1002). */
+@media (max-width: 1199px) {
+  html[data-reader] .mm-top .mm-top__toc { display: inline-flex; }
+  html[data-reader] .toc.rd-toc {
+    display: block !important; position: fixed !important; top: auto !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    width: auto !important; max-width: none !important; height: auto !important; max-height: 72dvh !important;
+    padding: 0 var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom, 0px)) !important; z-index: 1003 !important;
+    background: var(--panel) !important; border: 1px solid var(--line-strong) !important; border-bottom: 0 !important; border-radius: var(--radius-3) var(--radius-3) 0 0 !important;
+    box-shadow: var(--shadow-3) !important; transform: translateY(105%); visibility: hidden;
+    transition: transform var(--dur-2) var(--ease), visibility 0s linear var(--dur-2);
+  }
+  html[data-reader] body.toc-open .toc.rd-toc { transform: none; visibility: visible; transition: transform var(--dur-2) var(--ease), visibility 0s; }
+  html[data-reader] .rd-toc .toc-mhdr { display: flex; position: sticky; top: 0; z-index: var(--z-raised); margin: 0 calc(var(--space-4) * -1) var(--space-2); padding: var(--space-3) var(--space-4); background: var(--panel); border-bottom: 1px solid var(--line); }
+  html[data-reader] .rd-toc__hd { display: none; }
+}
+@media (min-width: 1200px) { html[data-reader][data-toc="closed"] .mm-top .mm-top__toc { display: inline-flex; } }
+
+/* ============================================================ 8. toasts (copy link, resume) */
+html[data-reader] .mm-toasts:is(.rd-toasts, .rd-resume) { bottom: calc(var(--space-4) + 52px + env(safe-area-inset-bottom, 0px)); }   /* above the back-to-top button */
+html[data-reader] .rd-resume .mm-toast { flex-wrap: wrap; max-width: min(34rem, calc(100vw - 2 * var(--space-4))); border-left-color: var(--brand); }
+html[data-reader] .rd-resume__t { flex: 1 1 14rem; min-width: 0; }
+html[data-reader] .rd-resume__t b { font-weight: 600; }
+html[data-reader] .rd-resume__go, html[data-reader] .rd-resume__no { padding: 2px var(--space-3); font: 600 var(--fs-sm)/1.6 var(--font-ui); color: var(--ink); background: var(--panel-2); border: 1px solid var(--line-strong); border-radius: var(--radius-2); cursor: pointer; }
+html[data-reader] .rd-resume__go { color: var(--on-brand); background: var(--brand); border-color: var(--brand); }
+html[data-reader] .rd-resume__no { padding-inline: var(--space-2); border-color: transparent; background: none; color: var(--ink-dim); }
+html[data-reader] .rd-resume :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ============================================================ 9. print: always white paper, no chrome */
+@media print {
+  html[data-reader] {
+    --bg: #fff; --panel: #fff; --panel-2: #f4f4f4; --line: #cfcfcf; --line-strong: #888; --ink: #000; --ink-dim: #444;
+    --brand: #a00018; --gate: #8a4b00; --ok: #065f46; --flow: #075985; --graph: #5b21b6; --pink: #9d174d;
+    --rd-fs: 11pt; --rd-measure: none; --rd-wide: none;
+  }
+  html[data-reader] body { background: #fff; color: #000; }
+  html[data-reader] body::before { display: none; }                     /* the crimson grid wash of the old pages */
+  html[data-reader] :is(.rd-bar, .rd-progress, .rd-aa, .rd-aa-btn, .rd-toasts, .rd-resume, .rd-tbar, .rd-copy, .rd-anchor, .doc > .toc, .bk-prevnext, .mm-btt) { display: none !important; }
+  html[data-reader] main.rd-main { padding: 0; margin: 0; }
+  html[data-reader] .doc { display: block; }
+  html[data-reader] .doc article > :is(p, ul, ol, dl, blockquote, h1, h2, h3, h4, h5, h6, hr) { max-width: none; }
+  html[data-reader] .doc article > p:not(.rd-callout) { text-align: justify; hyphens: auto; orphans: 3; widows: 3; }
+  html[data-reader] .doc article :is(h1, h2, h3, h4) { break-after: avoid; }
+  html[data-reader] .doc article :is(pre, blockquote, .rd-callout, tr, .bk-fcard, figure, .mm-figure) { break-inside: avoid; }
+  html[data-reader] .doc article .rd-tablewrap { max-height: none; overflow: visible; content-visibility: visible; border-color: var(--line); }
+  html[data-reader] .doc article th { position: static; }
+  html[data-reader] .doc article a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.82em; color: var(--ink-dim); word-break: break-all; }   /* real footnotes need a print engine; the URL after the link is the portable version */
+  html[data-reader] .bk-banner { break-inside: avoid; }
+}

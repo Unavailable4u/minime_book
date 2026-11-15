@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "defaults": {
+    "numbered": false,
+    "tableFilterMinRows": 25,
+    "tableMaxHeightVh": 75
+  },
+  "typography": {
+    "sizes": [0.96, 1.02, 1.08, 1.16, 1.26],
+    "defaultSize": 2,
+    "defaultFont": "serif"
+  },
+  "callouts": [
+    { "pattern": "^Purpose\\s*:", "type": "note", "label": "Purpose" },
+    { "pattern": "^Status basis\\s*:", "type": "note", "label": "Status basis", "muted": true },
+    { "pattern": "^(?:Invariants?|Locks?)\\s*:", "type": "invariant", "label": "Invariant" },
+    { "pattern": "^(?:Golden Rule|Rule)(?:\\s+\\d+)?\\s*:", "type": "rule", "label": "Rule", "href": "decisions.html", "hrefLabel": "Decisions" },
+    { "pattern": "^Definition\\s*:", "type": "definition", "label": "Definition" },
+    { "pattern": "^(?:Warning|Risk|Caution)\\s*:", "type": "warning", "label": "Warning" },
+    { "pattern": "^Decision\\s*:", "type": "decision", "label": "Decision" }
+  ],
+  "chapters": {
+    "doc-fbebc-status": { "numbered": true }
+  }
+}

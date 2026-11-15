@@ -100,6 +100,7 @@ def main(argv=None):
     run(PY, "scripts/test_refresh_graph.py")
     run(PY, "scripts/test_build_index.py")
     run(PY, "scripts/test_palette.py")
+    run(PY, "scripts/test_reader.py")
 
     print("\n== Result ==")
     run("git", "status", "--short")

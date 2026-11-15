@@ -45,7 +45,7 @@ MiniMe is expected next to this repo in a folder named `MiniMe`. Otherwise add `
 1. MiniMe has no uncommitted or untracked files, and `graphify-out/graph.json` was built at MiniMe's current commit. If not, it stops and tells you which step to redo. This stops the site from mixing two versions of the code.
 2. `refresh_atlas.py --census-from <MiniMe>`: new census, then every census-driven page and the search index.
 3. `refresh_graph.py --minime <MiniMe>`: every Graphify-driven part.
-4. Both scripts with `--check` (the first also proves the search index is current), then the unit tests, including the index builder and the palette.
+4. Both scripts with `--check` (the first also proves the search index is current), then the unit tests, including the index builder, the palette and the chapter reader.
 5. With `--push`: `git add -A`, commit, `git pull --rebase`, `git push`.
 
 The GitHub Action (`refresh-atlas.yml`) still runs when `data/census.json` is pushed. After this routine it finds nothing to change, so it commits nothing.

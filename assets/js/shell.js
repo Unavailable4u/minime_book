@@ -12,6 +12,8 @@
    Keys handled here: [ and Ctrl/Cmd+B (sidebar), ] (fires minime:toc-toggle for P04), Esc (closes drawers).
    Keys handled by palette.js: Ctrl/Cmd+K, t, ?, g + o/e/b/s.
 
+   Chapter pages (a .bk-banner or a .doc article inside <main>) also load reader.js (P04) on demand: see loadReader().
+
    Events on document:
      minime:sidebar      detail = "open" | "collapsed" | "drawer-open" | "drawer-closed"
      minime:toc-toggle   fired by "]"   (P04 listens and toggles "On this page")
@@ -79,6 +81,10 @@ const itemLabel = (it) => (it.chapter == null ? it.title : `${it.part === "appen
 
 /* ------------------------------------------------------------------ state */
 const S = { nav: null, stats: {}, items: [], cur: null, sb: null, top: null, scrim: null, scroller: null };
+
+/* Settles once with { nav, stats } (fresh from the network, else the session cache, else null). reader.js waits on it for prev / next. */
+let settleNav = () => {};
+const navReady = new Promise((resolve) => { settleNav = resolve; });
 
 function readWings() {
   try { return JSON.parse(store.get(KEY_WINGS) || "{}") || {}; } catch { return {}; }
@@ -336,10 +342,19 @@ async function load() {
       session.set(KEY_CACHE, JSON.stringify(fresh));
       mount(fresh);
     }
+    settleNav(fresh);
   } catch (err) {
     if (!(cached && cached.nav)) mountFallback();
     console.warn("[atlas shell]", err);
+    settleNav(cached && cached.nav ? cached : null);
   }
+}
+
+/* P04: chapter pages get the reader layer. It is a separate module, fetched only where it is used; if it fails to load
+   the chapter simply stays as it was. */
+function loadReader() {
+  if (root.dataset.layout === "bare" || !document.querySelector("main .bk-banner, main .doc article")) return;
+  import("./reader.js").then((m) => m.initReader({ navReady })).catch((err) => console.warn("[atlas reader]", err));
 }
 
 function boot() {
@@ -347,6 +362,7 @@ function boot() {
     initPalette();                                                  // before load(): Ctrl+K works even if nav.json fails
     legacyFixups();
     load();
+    loadReader();
     const idle = window.requestIdleCallback || ((f) => setTimeout(f, 200));
     idle(markStickyTables);
 
