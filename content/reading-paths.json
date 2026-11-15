@@ -1,0 +1,204 @@
+{
+  "version": 1,
+  "paths": [
+    {
+      "id": "what-is-minime",
+      "title": "I want to understand what MiniMe is",
+      "blurb": "The product first, then the role system that does the work, then the code that picks a role.",
+      "steps": [
+        {
+          "chapter": "doc-minime-feature-guide",
+          "heading": "1-what-minime-is",
+          "note": "What the flagship workspace is and who it is for."
+        },
+        {
+          "chapter": "doc-minime-feature-guide",
+          "heading": "2-the-main-user-experience",
+          "note": "Chat, workspaces and the stages a project moves through."
+        },
+        {
+          "chapter": "doc-minime-feature-guide",
+          "heading": "5-the-agent-system",
+          "note": "How roles and agent modules fit together."
+        },
+        {
+          "file": "backend/eo/registry.py",
+          "qual": "resolve_role",
+          "note": "Where roles are defined and resolved."
+        }
+      ]
+    },
+    {
+      "id": "how-a-task-runs",
+      "title": "I want to see how a task becomes agent work",
+      "blurb": "From the role library to the code that dispatches a role to a module.",
+      "steps": [
+        {
+          "chapter": "doc-minime-feature-guide",
+          "heading": "12-role-library",
+          "note": "The vocabulary of roles."
+        },
+        {
+          "file": "backend/eo/registry.py",
+          "qual": "resolve_role",
+          "note": "The map from roles to dedicated modules, and the lookup that uses it."
+        },
+        {
+          "file": "backend/eo/executor.py",
+          "qual": "_run_concurrent_group",
+          "note": "Runs the chosen roles, including concurrent groups."
+        },
+        {
+          "file": "backend/api/task_runner.py",
+          "note": "The tiered runner that sits above the executor."
+        }
+      ]
+    },
+    {
+      "id": "money-and-models",
+      "title": "I want to understand money, plans and model routing",
+      "blurb": "The rules first, then the price sheet, then where usage is recorded.",
+      "steps": [
+        {
+          "chapter": "doc-rulebook",
+          "heading": "1-the-15-golden-rules",
+          "note": "The non-negotiable rules everything else obeys."
+        },
+        {
+          "chapter": "doc-rulebook",
+          "heading": "3-provider-strategy",
+          "note": "Which providers, and how keys and failover are organised."
+        },
+        {
+          "chapter": "doc-rulebook",
+          "heading": "4-price-sheet-single-source-of-truth",
+          "note": "The single source for prices."
+        },
+        {
+          "chapter": "doc-tech-roadmap",
+          "heading": "2-tech-a-instrumentation-baseline",
+          "note": "The instrumentation that replaces assumptions with measurements."
+        },
+        {
+          "file": "backend/utils/llm_client.py",
+          "qual": "log_usage",
+          "note": "Where each model call is logged and costed."
+        }
+      ]
+    },
+    {
+      "id": "m2c-safety",
+      "title": "I want to understand how M2C keeps your machine safe",
+      "blurb": "Policy, sandbox and checkpoints: the three layers between the model and your files.",
+      "steps": [
+        {
+          "chapter": "doc-m2c-feature-guide",
+          "heading": "6-safety-and-trust",
+          "note": "The safety model as a user sees it."
+        },
+        {
+          "chapter": "doc-m2c-feature-guide",
+          "heading": "6-3-sandbox",
+          "note": "The sandbox in the feature guide."
+        },
+        {
+          "chapter": "doc-m2c-plan",
+          "heading": "c11-sandbox-bubblewrap-and-network-proxy-xl-wave",
+          "note": "The work package that built it."
+        },
+        {
+          "file": "m2c/src/m2c/policy/decide.py",
+          "note": "Where an action is allowed, asked about or denied."
+        },
+        {
+          "file": "m2c/src/m2c/sandbox/bwrap.py",
+          "note": "The bubblewrap profile."
+        },
+        {
+          "file": "m2c/src/m2c/checkpoints.py",
+          "qual": "snapshot",
+          "note": "Snapshots before edits, and rewind."
+        }
+      ]
+    },
+    {
+      "id": "menux-trust",
+      "title": "I want to understand what Menux may do on its own",
+      "blurb": "Data placement, the trust tiers, and the two-run design for untrusted input.",
+      "steps": [
+        {
+          "chapter": "doc-menux-feature-guide",
+          "heading": "1-what-menux-is",
+          "note": "What Menux is."
+        },
+        {
+          "chapter": "doc-menux-feature-guide",
+          "heading": "2-trust-and-data-placement",
+          "note": "What stays on the device."
+        },
+        {
+          "chapter": "doc-menux-feature-guide",
+          "heading": "6-trust-tiers-and-unattended-work",
+          "note": "T0 to T5 and the unattended ceiling."
+        },
+        {
+          "chapter": "doc-menux-feature-guide",
+          "heading": "7-3-reader-and-actor-pipeline",
+          "note": "How untrusted content is kept away from tools."
+        }
+      ]
+    },
+    {
+      "id": "build-order",
+      "title": "I want to plan the build order",
+      "blurb": "How the plans are used, how waves sort the work, and where the migration changes things.",
+      "steps": [
+        {
+          "chapter": "doc-m2c-plan",
+          "heading": "0-how-to-use-this-guide-with-your-patch-workflow",
+          "note": "One work package at a time."
+        },
+        {
+          "chapter": "doc-m2c-plan",
+          "heading": "3-6-execution-waves-what-to-generate-in-parallel",
+          "note": "What can run in parallel."
+        },
+        {
+          "chapter": "doc-menux-plan",
+          "heading": "4-6-waves",
+          "note": "The same for Menux."
+        },
+        {
+          "chapter": "doc-migration-guide",
+          "heading": "5-work-package-index",
+          "note": "The migration's own index."
+        }
+      ]
+    },
+    {
+      "id": "one-server",
+      "title": "I want to see how the three products share one server",
+      "blurb": "What runs on the device, what stays on the server, and the contract between them.",
+      "steps": [
+        {
+          "chapter": "doc-server-guide",
+          "heading": "9-how-m2c-menux-and-fbebc-fit-the-server",
+          "note": "The server's share of M2C, Menux and FBEBC."
+        },
+        {
+          "chapter": "doc-tech-roadmap",
+          "heading": "12-ecosystem-synchronization-how-minime-web-mini",
+          "note": "How the products connect."
+        },
+        {
+          "file": "protocol/README.md",
+          "note": "The wire contract between the M2C client and the backend."
+        },
+        {
+          "file": "backend/codeagent/broker.py",
+          "note": "The server side of the code agent."
+        }
+      ]
+    }
+  ]
+}

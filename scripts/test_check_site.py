@@ -264,6 +264,76 @@ class Navigation(SiteCase):
         self.assertEqual([], self.codes(s.check()))
 
 
+class GlossaryAndPaths(SiteCase):
+    """content/glossary.json and content/reading-paths.json (P05): every target they point at must exist."""
+
+    NAV = json.dumps({"wings": [{"id": "w", "title": "W", "items": [
+        {"id": "docs", "title": "Library", "url": "docs.html"},
+        {"id": "doc-a", "title": "A", "url": "doc-a.html", "chapter": 1}]}]})
+    CENSUS = json.dumps({"files": [{"path": "backend/x.py", "functions": [{"name": "run", "qual": "Agent.run"}], "classes": [{"name": "Agent", "qual": "Agent"}]}]})
+
+    def files(self, glossary=None, paths=None, census=True):
+        f = {
+            "docs.html": page("Library - MiniMe Atlas"),
+            "doc-a.html": page("A - MiniMe Atlas", "<h2 id='intro'>Intro</h2>"),
+            "content/nav.json": self.NAV,
+        }
+        if census:
+            f["data/census.json"] = self.CENSUS
+        if glossary is not None:
+            f["content/glossary.json"] = json.dumps(glossary)
+        if paths is not None:
+            f["content/reading-paths.json"] = json.dumps(paths)
+        return f
+
+    def run_site(self, **kw):
+        return self.site(self.files(**kw)).check()
+
+    def test_a_good_glossary_and_paths_pass(self):
+        r = self.run_site(
+            glossary={"terms": [{"term": "Golden Rule", "short": "A rule.", "see": ["doc-a", "doc-a#intro", "backend/x.py", "backend/x.py::Agent.run"]}]},
+            paths={"paths": [{"id": "p", "title": "P", "steps": [{"chapter": "doc-a", "heading": "intro"}, {"file": "backend/x.py", "qual": "Agent"}]}]})
+        self.assertEqual([], self.codes(r))
+
+    def test_see_targets_that_do_not_exist_are_errors(self):
+        r = self.run_site(glossary=[{"term": "T", "short": "s", "see": ["doc-zzz", "doc-a#nope", "backend/gone.py", "backend/x.py::Agent.missing", ""]}])
+        self.assertEqual(["glossary-bad-see"] * 5, self.codes(r, "ERROR"))
+
+    def test_entries_need_a_term_and_a_short_definition(self):
+        r = self.run_site(glossary=[{"short": "no name"}, {"term": "No short"}, {"term": "Bad", "short": "s", "match": "sometimes"}, "nonsense"])
+        self.assertEqual(["glossary-bad-entry"] * 4, self.codes(r, "ERROR"))
+
+    def test_two_terms_with_the_same_anchor_are_an_error(self):
+        r = self.run_site(glossary=[{"term": "Work package", "short": "a"}, {"term": "work-package!", "short": "b"}])
+        self.assertEqual(["glossary-dup-term"], self.codes(r, "ERROR"))
+
+    def test_long_text_and_shared_aliases_only_warn(self):
+        r = self.run_site(glossary=[{"term": "A", "short": "x" * 161, "long": "y" * 601, "aliases": ["shared"]}, {"term": "B", "short": "ok", "aliases": ["Shared"]}])
+        self.assertEqual([], self.codes(r, "ERROR"))
+        self.assertEqual(["glossary-dup-alias", "glossary-long", "glossary-long"], self.codes(r, "WARN"))
+
+    def test_without_a_census_code_targets_are_not_judged(self):
+        r = self.run_site(glossary=[{"term": "T", "short": "s", "see": ["backend/anything.py::x"]}], census=False)
+        self.assertEqual([], self.codes(r))
+
+    def test_reading_path_problems(self):
+        r = self.run_site(paths={"paths": [
+            {"id": "p", "title": "P", "steps": [{"chapter": "doc-a", "heading": "nope"}, {"file": "backend/gone.py"}, {"chapter": "doc-a", "file": "x"}, {}]},
+            {"id": "p", "title": "Dup", "steps": [{"chapter": "doc-a"}]},
+            {"id": "empty", "title": "Empty", "steps": []},
+            {"title": "No id"},
+        ]})
+        self.assertEqual(["path-bad-entry"] * 5 + ["path-bad-target"] * 2, self.codes(r, "ERROR"))
+
+    def test_nothing_to_check_without_the_files(self):
+        self.assertEqual([], self.codes(self.run_site()))
+
+    def test_the_committed_glossary_and_paths_are_clean(self):
+        report = cs.run_checks(ROOT, allow=cs.load_allow(cs.DEFAULT_ALLOW))
+        bad = [str(f) for f in report.findings if f.code.startswith(("glossary", "path-"))]
+        self.assertEqual([], bad)
+
+
 class AllowList(SiteCase):
     FILES = {"index.html": page(body='<a href="nope.html">x</a><a href="e.html#abc.py">y</a>'), "e.html": page("E - X")}
 

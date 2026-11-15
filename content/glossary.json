@@ -1,0 +1,338 @@
+{
+  "version": 1,
+  "terms": [
+    {
+      "term": "Agent module",
+      "aliases": [
+        "agent modules"
+      ],
+      "category": "MiniMe",
+      "short": "A Python module in backend/agents/ that carries out the work of one or more roles.",
+      "long": "At the commit the Feature Guide was written against, backend/agents/ held 73 modules: 59 specialist agent modules and 14 package or support modules. The registry maps roles onto them.",
+      "see": [
+        "doc-minime-feature-guide#5-the-agent-system",
+        "doc-minime-feature-guide#12-role-library"
+      ]
+    },
+    {
+      "term": "Bubblewrap sandbox",
+      "aliases": [
+        "bubblewrap",
+        "bwrap"
+      ],
+      "category": "Safety & trust",
+      "short": "The Linux sandbox (bwrap) that M2C and Menux use to run untrusted commands, with network access only through an allow-list proxy.",
+      "long": "The M2C sandbox work package builds a bubblewrap profile, a probe, a CONNECT proxy and a network bridge. v1 targets native Linux and Windows through WSL2, and m2c doctor checks that bubblewrap is installed. A sandbox is not an approval: the policy engine still decides what may run.",
+      "see": [
+        "doc-m2c-feature-guide#6-3-sandbox",
+        "doc-m2c-plan#c11-sandbox-bubblewrap-and-network-proxy-xl-wave",
+        "m2c/src/m2c/sandbox/bwrap.py"
+      ]
+    },
+    {
+      "term": "Checkpoint",
+      "aliases": [
+        "checkpoints",
+        "shadow checkpoint"
+      ],
+      "category": "Safety & trust",
+      "short": "In M2C, a snapshot of the files an edit will change, taken first so /rewind can put the project back.",
+      "long": "Before an edit, M2C saves what the affected files looked like, on the user's device. /rewind restores the project to the state just before a chosen step ran, which makes agent edits reversible. A file that did not exist before the step is deleted again by the rewind.",
+      "see": [
+        "doc-m2c-feature-guide#1-what-m2c-is",
+        "m2c/src/m2c/checkpoints.py"
+      ],
+      "match": "off"
+    },
+    {
+      "term": "Daemon",
+      "aliases": [
+        "Menux daemon"
+      ],
+      "category": "Engineering",
+      "short": "In the book, the Menux node's long-running local process. The old top-level daemon/ folder is a different thing and is being retired.",
+      "long": "The Menux daemon lives under ~/.menux/ and owns the scheduler, the approval manager and the vault. The older daemon/ folder in the MiniMe repo is superseded by M2C's tools, policy engine and sandbox, and the migration guide covers how to retire it.",
+      "see": [
+        "doc-menux-feature-guide#3-installation-and-node-lifecycle",
+        "doc-migration-guide#63-track-d-retire-the-daemon"
+      ],
+      "needs_review": true
+    },
+    {
+      "term": "FBEBC",
+      "aliases": [
+        "Fitness-Band Elitist Bacterial Colony"
+      ],
+      "category": "Products",
+      "short": "Fitness-Band Elitist Bacterial Colony: the research track, from a zero-cost preprint (Stage 1) to a MiniMe-integrated version (Stage 2).",
+      "long": "FBEBC is the research program in Part V of the book. Stage 1 runs standalone at no cost and ends in a preprint; Stage 2 ports the evolution engine into backend/agents/evolution/ once the gate between the two stages is passed. The four FBEBC chapters cover the program, the Phase 1 implementation, the paper and the live build status.",
+      "see": [
+        "doc-fbebc-program#0-the-shape-of-the-whole-program",
+        "doc-fbebc-program#3-the-gate-between-stage-1-and-stage-2",
+        "doc-fbebc-status"
+      ]
+    },
+    {
+      "term": "Golden Rule",
+      "aliases": [
+        "Golden Rules"
+      ],
+      "category": "Governance",
+      "short": "One of the 15 non-negotiable rules of the Rulebook: if a proposal breaks one, the proposal changes, not the rule.",
+      "long": "The 15 Golden Rules open the Rulebook. Examples: no free-tier keys in production (Rule 1), and never one vendor on a critical path (Rule 2). Other chapters cite them by number, so a reference like Golden Rule 5 always points back to the same list.",
+      "see": [
+        "doc-rulebook#1-the-15-golden-rules"
+      ]
+    },
+    {
+      "term": "Lock",
+      "aliases": [
+        "Locks",
+        "decision lock"
+      ],
+      "category": "Governance",
+      "short": "A decision settled before the first patch is generated, so later work builds on it instead of reopening it.",
+      "long": "The M2C plan keeps a list of decisions to lock before the first patch (D1, D2 and so on). The technical roadmap has a dated gate of the same kind, the Cross-Product Architecture and Ledger Lock, which fixes the single account, the single usage ledger and the shared library.",
+      "see": [
+        "doc-m2c-plan#2-decisions-to-lock-before-the-first-patch",
+        "doc-tech-roadmap#10-master-technical-timeline"
+      ],
+      "match": "off",
+      "needs_review": true
+    },
+    {
+      "term": "M2C L26",
+      "aliases": [
+        "M2C",
+        "Minime to Code"
+      ],
+      "category": "Products",
+      "short": "Minime to Code, Level 26: the local-first terminal and editor coding agent (the m2c command).",
+      "long": "M2C is MiniMe's coding agent for your own machine. Levels work like release versions, so the next release after L26 is L27. Repo files, the SQLite index, git checkpoints and shell or test runs stay on the user's device; the server keeps only the usage ledger and a short Redis buffer. It shares the user's MiniMe account, plan and cap.",
+      "see": [
+        "doc-m2c-feature-guide#1-what-m2c-is",
+        "doc-m2c-plan"
+      ]
+    },
+    {
+      "term": "Menux",
+      "aliases": [],
+      "category": "Products",
+      "short": "Minime agentic automation: a local-first personal automation node built on the M2C engine.",
+      "long": "Menux runs automations on the user's own device: the scheduler, run engine, approval manager, channel adapters, connectors and the vault all live there (under ~/.menux/). The server holds no connector tokens, no automation files and no permanent run logs. What an automation may do on its own is decided by the T0 to T5 trust tiers.",
+      "see": [
+        "doc-menux-feature-guide#1-what-menux-is",
+        "doc-menux-plan"
+      ]
+    },
+    {
+      "term": "minicore",
+      "aliases": [],
+      "category": "Engineering",
+      "short": "The shared library meant to be extracted from M2C so that M2C and Menux depend on one runtime.",
+      "long": "minicore holds the pieces both products need: store, device link, auth, policy, sandbox, secrets, hooks and the skill and memory loaders. At the M2C guide's current revision it is not extracted yet; Menux's first foundation work package extracts it once M2C reaches its beta milestone.",
+      "see": [
+        "doc-menux-plan#mt-k01-extract-minicore-from-m2c-l-wave-2",
+        "doc-m2c-feature-guide"
+      ]
+    },
+    {
+      "term": "Part 0 knowledge graph",
+      "aliases": [
+        "knowledge graph"
+      ],
+      "category": "MiniMe",
+      "short": "The node-and-edge layer from Part 0 of the MiniMe blueprint, shared by notes, research and plan.",
+      "long": "Nodes are searchable content; edges are typed relationships between them (supports, cites, contradicts and so on), kept in a small JSON store. Agents write an edge when they consume one node to produce another. It is separate from Graphify's code graph on the Atlas graph page.",
+      "see": [
+        "doc-minime-feature-guide#16-knowledge-graph-and-structured-data",
+        "backend/eo/graph_edges.py::create_edge",
+        "backend/graph/adapters.py::node_to_artifact"
+      ],
+      "needs_review": true
+    },
+    {
+      "term": "Plan tiers",
+      "aliases": [
+        "plan tier",
+        "tier",
+        "Free, Basic, Moderate and Ultimate"
+      ],
+      "category": "Money & models",
+      "short": "The four plans on the one shared account: Free, Basic, Moderate and Ultimate.",
+      "long": "A person has one MiniMe account and one plan, and that plan applies on every surface: Web, M2C and Menux. The Rulebook's price sheet is the single source for prices and token limits, so they are not repeated here. The Free tier exists but never runs on free-tier provider keys in production (Golden Rule 1).",
+      "see": [
+        "doc-rulebook#4-price-sheet-single-source-of-truth",
+        "doc-rulebook#1-the-15-golden-rules"
+      ],
+      "match": "off",
+      "needs_review": true
+    },
+    {
+      "term": "Provider key pool",
+      "aliases": [
+        "free-key pool",
+        "key pool"
+      ],
+      "category": "Money & models",
+      "short": "The API keys held per model provider. The Rulebook retires the old free-key pool in favour of paid, first-party accounts.",
+      "long": "Golden Rule 1 forbids free-tier keys in production. Section 3.3 sets one organisation account per provider with four keys each (prod-paid, prod-free, staging, evals) plus a second prod-paid key for rotation. Keys never sit in the repo or in .env.example.",
+      "see": [
+        "doc-rulebook#1-the-15-golden-rules",
+        "doc-rulebook#3-3-account-and-key-architecture-replaces-the-fr"
+      ],
+      "needs_review": true
+    },
+    {
+      "term": "Reader and Actor pipeline",
+      "aliases": [
+        "Reader pass",
+        "Reader/Actor",
+        "reader and actor"
+      ],
+      "category": "Safety & trust",
+      "short": "A two-run design for untrusted input: a Reader run that can only read and must return checked JSON, then an Actor run that sees only that result.",
+      "long": "When a Menux automation ingests untrusted content (inbound mail, fetched pages, a stranger's message), the node runs two separate runs. The Reader has read-only tools for that content and no outbound or write tools, and returns JSON that matches a schema. The Actor receives only that structured result plus the owner's instructions. This blocks indirect prompt injection.",
+      "see": [
+        "doc-menux-feature-guide#7-3-reader-and-actor-pipeline",
+        "doc-menux-feature-guide#2-trust-and-data-placement"
+      ]
+    },
+    {
+      "term": "REAL_ACTION_ROLES",
+      "aliases": [],
+      "category": "MiniMe",
+      "short": "The map in backend/eo/registry.py from roles that do a real action to the dedicated module that does it.",
+      "long": "Only roles that write files, call a scanning API or run tests get an explicit entry here (for example implementer, verifier, fixer, security_reviewer, sandbox_tester). Every reasoning-only role resolves to generic_worker instead, and resolve_role also tries curated aliases and a conservative fuzzy match.",
+      "see": [
+        "doc-minime-feature-guide#12-role-library",
+        "backend/eo/registry.py::resolve_role"
+      ],
+      "match": "cs"
+    },
+    {
+      "term": "Role",
+      "aliases": [
+        "roles",
+        "router role",
+        "router roles"
+      ],
+      "category": "MiniMe",
+      "short": "A named job the router can hire for a task. A role with no dedicated module falls back to the generic worker.",
+      "long": "The role vocabulary lives in backend/eo/registry.py (the book counts 46 router roles). Roles that do real work, such as writing files or calling a scanning API, map to a dedicated agent module; a new role invented later needs no code change, because it falls through to generic_worker.",
+      "see": [
+        "doc-minime-feature-guide#12-role-library",
+        "backend/eo/registry.py::resolve_role"
+      ],
+      "match": "off"
+    },
+    {
+      "term": "Stage (workspace)",
+      "aliases": [
+        "stage",
+        "workspace stage"
+      ],
+      "category": "MiniMe",
+      "short": "A step in a MiniMe workspace's lifecycle: notebook, research, plan, build, test and growth.",
+      "long": "A task is promoted into a durable workspace and organized into stages; each stage has its own tab, and promotion moves the project to the next one. This is a different thing from the Stage 1 to Stage 5 server splits in the server guide and the Stage 1 and 2 of FBEBC.",
+      "see": [
+        "doc-minime-feature-guide#2-2-navigate-by-stage",
+        "doc-minime-feature-guide#4-workspaces-and-projects"
+      ],
+      "match": "off"
+    },
+    {
+      "term": "T0 to T5 approval tiers",
+      "aliases": [
+        "T0–T5",
+        "T0-T5",
+        "approval tiers",
+        "trust tiers",
+        "trust tier"
+      ],
+      "category": "Safety & trust",
+      "short": "Six trust tiers that decide whether a Menux action runs alone or needs the owner's approval. T2 is the ceiling for unattended runs.",
+      "long": "T0 read-only local; T1 read external or local draft; T2 notify the owner or safe write; T3 external write (explicit approval with a nonce and a time limit); T4 browser, shell or system actions (step-by-step approval with a parameter preview); T5 financial, credential or destructive (blocked unattended, needs local confirmation and re-authentication).",
+      "see": [
+        "doc-menux-feature-guide#6-trust-tiers-and-unattended-work"
+      ]
+    },
+    {
+      "term": "Tech-A to Tech-H",
+      "aliases": [
+        "Tech-A",
+        "Tech-B",
+        "Tech-C",
+        "Tech-D",
+        "Tech-E",
+        "Tech-F",
+        "Tech-G",
+        "Tech-H"
+      ],
+      "category": "Build process",
+      "short": "The eight technical phases of the roadmap, from instrumentation (Tech-A) to gated code authoring (Tech-H).",
+      "long": "Tech-A Instrumentation and Baseline; Tech-B Harden Basic for Real Users; Tech-C Moderate Scaffolding; Tech-D Brain Prototype (internal only); Tech-E Brain Integration into Moderate; Tech-F Monitor v2; Tech-G Ultimate's Brain Tier; Tech-H Executable Code-Authoring (gated, no fixed date). Each names the business phase it runs beside.",
+      "see": [
+        "doc-tech-roadmap#1-the-two-track-view",
+        "doc-tech-roadmap#2-tech-a-instrumentation-baseline",
+        "doc-tech-roadmap#9-tech-h-executable-code-authoring-gated-no-fixe"
+      ]
+    },
+    {
+      "term": "usage_ledger",
+      "aliases": [
+        "usage ledger",
+        "shared ledger"
+      ],
+      "category": "Money & models",
+      "short": "The one table where every surface logs its usage against the user's shared plan cap.",
+      "long": "usage_ledger (migration 0012) records usage from the web app, M2C, Menux and the system under a surface field, so one account has one cap and one ledger across all three products. It is built once during Tech-A and Tech-B and reused by M2C (work package S01) and Menux.",
+      "see": [
+        "doc-tech-roadmap#2-tech-a-instrumentation-baseline",
+        "doc-m2c-plan"
+      ]
+    },
+    {
+      "term": "Vault",
+      "aliases": [],
+      "category": "Safety & trust",
+      "short": "The Argon2id-encrypted local store where Menux keeps connector credentials on the user's device.",
+      "long": "App passwords and OAuth tokens for connectors such as email sit in the vault under ~/.menux/, never on the server. Exporting the vault is a T5 action.",
+      "see": [
+        "doc-menux-feature-guide#2-trust-and-data-placement",
+        "doc-menux-feature-guide#6-trust-tiers-and-unattended-work"
+      ]
+    },
+    {
+      "term": "Wave",
+      "aliases": [
+        "waves"
+      ],
+      "category": "Build process",
+      "short": "A group of work packages that can be generated in parallel once the earlier waves are done.",
+      "long": "Each plan sorts its work packages into numbered waves. Packages in one wave do not depend on each other, so they can be built side by side in separate worktrees. Waves are a ceiling, not a target: a solo founder's capacity decides how many to run.",
+      "see": [
+        "doc-m2c-plan#3-6-execution-waves-what-to-generate-in-parallel",
+        "doc-menux-plan#4-6-waves"
+      ],
+      "match": "off"
+    },
+    {
+      "term": "Work package (WP)",
+      "aliases": [
+        "work package",
+        "work packages",
+        "WP",
+        "WPs"
+      ],
+      "category": "Build process",
+      "short": "A patch-sized unit of work in a build plan, with an ID, a size (S, M, L or XL) and dependencies.",
+      "long": "Build plans are lists of ordered, parallelizable, patch-sized work packages. You point your agent at one by ID (for example S03 or MT-K01), it generates one patch, and the patch is tested before the next package starts. Sizes map to approximate effort points (S=1, M=2, L=4, XL=8).",
+      "see": [
+        "doc-m2c-plan#0-how-to-use-this-guide-with-your-patch-workflow",
+        "doc-menux-plan",
+        "doc-migration-guide#5-work-package-index"
+      ]
+    }
+  ]
+}

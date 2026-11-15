@@ -62,7 +62,7 @@ The GitHub Action (`refresh-atlas.yml`) still runs when `data/census.json` is pu
 
 ## The search index
 
-`data/index/` feeds the command palette (Ctrl/Cmd+K). `scripts/build_index.py` writes it from `content/nav.json` (pages), the `h2`/`h3` headings of every chapter, the glossary and `data/census.json` (files, routes, functions). It is deterministic: same inputs, same bytes. `refresh_atlas.py` rebuilds it with the pages, so `update_all.py` and the GitHub Action keep it current. Two things change it without the census changing: editing `content/nav.json` and editing a chapter. After either, run:
+`data/index/` feeds the command palette (Ctrl/Cmd+K). `scripts/build_index.py` writes it from `content/nav.json` (pages), the `h2`/`h3` headings of every chapter, the glossary and `data/census.json` (files, routes, functions). It is deterministic: same inputs, same bytes. `refresh_atlas.py` rebuilds it with the pages, so `update_all.py` and the GitHub Action keep it current. It also writes `data/index/book.json`, the library page's data (chapter descriptions, word, section and table counts and last-built date, read from each chapter's banner). Three things change it without the census changing: editing `content/nav.json`, editing a chapter (a new chapter build changes its counts) and editing `content/glossary.json` (the palette's `#` search lists its terms). After any of them, run:
 
 ```
 python scripts/build_index.py          # rewrite what changed
@@ -81,7 +81,8 @@ Tests, Health, Data model, Tables, Roadmap, Finance, Decisions and the document 
 | `The graph was built at X but MiniMe is at Y` | You committed after generating the graph. Run the Copilot prompt again. |
 | `graph.json not found` | Run the Copilot prompt; the graph is not committed. |
 | `Not replacing data/census.json, the new census is not trustworthy` | Follow the `pip install` line it prints. |
-| `search index is stale` / `missing: data/index/...` | Run `python scripts/build_index.py` (you edited `nav.json` or a chapter). |
+| `search index is stale` / `missing: data/index/...` | Run `python scripts/build_index.py` (you edited `nav.json`, a chapter or the glossary). |
+| `glossary-bad-see` / `path-bad-target` from `check_site.py` | A glossary term or reading-path step points at a chapter, heading id, file or symbol that is gone (a chapter was rebuilt, or MiniMe moved a file). `python scripts/list_headings.py <chapter>` lists the current heading ids; fix the target in `content/glossary.json` or `content/reading-paths.json`. |
 | `git push` rejected | Branch protection or a new remote commit. Run `git pull --rebase`, then `git push`. |
 
 Single steps: `python scripts/build_index.py --check`, `python scripts/refresh_atlas.py --check` and `python scripts/refresh_graph.py --minime ../MiniMe --check` change nothing and exit 1 if a page is out of date.

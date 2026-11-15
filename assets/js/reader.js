@@ -17,6 +17,8 @@
      callouts     "Purpose:", "Status basis:", "Rule:" ... paragraphs become typed callouts (patterns in reader.json)
      numbering    opt-in per chapter; refused when the headings already start with numbers (the rulebook's do)
      tables       horizontal scroll + sticky header in a capped box, a filter box above tables with > 25 rows
+     glossary     (P05) the first use of each glossary term in a section gets a dotted underline and a tooltip
+                  (content/glossary.json; hover, focus or tap; Esc closes; never inside headings, code or links)
      small things stable ids for headings that have none (existing ids are never changed), copy-link on headings,
                   copy button on <pre>, print rules (in reader.css)
 
@@ -27,6 +29,7 @@ const KEY_PREFS = "minime_reader";       // { font: "serif" | "sans", size: 0..4
 const KEY_POS = "minime_reader_pos";     // { [chapter id]: { id, off, pct, t } }, newest 40 kept
 const KEY_TOC = "minime_toc";            // "open" | "closed": the desktop side rail
 const MAX_POSITIONS = 40;
+const GLOSSARY_PAGE = "glossary.html";
 const WIDE = "(min-width: 1200px)";      // same breakpoint as reader.css: side rail at or above, bottom sheet below
 const BASE = new URL("../../", import.meta.url);
 
@@ -34,7 +37,7 @@ const BASE = new URL("../../", import.meta.url);
 
 export const FALLBACK_CONFIG = {
   version: 1,
-  defaults: { numbered: false, tableFilterMinRows: 25, tableMaxHeightVh: 75 },
+  defaults: { numbered: false, tableFilterMinRows: 25, tableMaxHeightVh: 75, glossary: true },
   typography: { sizes: [0.96, 1.02, 1.08, 1.16, 1.26], defaultSize: 2, defaultFont: "serif" },
   callouts: [],
   chapters: {},
@@ -188,6 +191,65 @@ export function prunePositions(map, max = MAX_POSITIONS) {
   return Object.fromEntries(keep);
 }
 
+
+/* ------------------------------------------------------------------ glossary (P05) */
+
+const escapeRe = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+
+/* content/glossary.json -> the terms that may get a tooltip. A term with match "off" is for the glossary page only (common words such as
+   "stage" or "wave" would underline half the book). Same shape check as glossary.js. */
+export function normalizeGlossary(raw) {
+  const list = Array.isArray(raw) ? raw : raw && Array.isArray(raw.terms) ? raw.terms : [];
+  const out = [];
+  for (const t of list) {
+    if (!t || typeof t.term !== "string" || !t.term.trim() || typeof t.short !== "string" || !t.short.trim()) continue;
+    const match = t.match === "cs" || t.match === "off" ? t.match : "ci";
+    if (match === "off") continue;
+    out.push({
+      id: t.term.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "root",
+      term: t.term.trim(), category: t.category || "", short: t.short.trim(), match,
+      labels: [t.term, ...(Array.isArray(t.aliases) ? t.aliases : [])].filter((a) => typeof a === "string" && a.trim()).map((a) => a.trim()),
+    });
+  }
+  return out;
+}
+
+/* One regex per match mode (any case / exact case). A label matches as a whole word (letters, digits, "_" and "-" around it do not
+   count as a boundary) and may carry a plural "s". Longest label first, so "Golden Rules" wins over "Rules". */
+export function compileTerms(terms) {
+  const groups = { ci: [], cs: [] };
+  for (const t of terms) for (const label of t.labels) groups[t.match === "cs" ? "cs" : "ci"].push({ label, term: t });
+  const build = (items, flags) => {
+    if (!items.length) return null;
+    items.sort((a, b) => b.label.length - a.label.length);
+    const alt = items.map((i) => `(${escapeRe(i.label)}${/[A-Za-z]$/.test(i.label) ? "s?" : ""})`).join("|");
+    return { re: new RegExp(`(?<![\\p{L}\\p{N}_-])(?:${alt})(?![\\p{L}\\p{N}_-])`, flags), items };
+  };
+  return [build(groups.ci, "giu"), build(groups.cs, "gu")].filter(Boolean);
+}
+
+/* [{ start, end, term }] for every term in `text`, left to right, no overlaps (earlier start wins, then the longer match). */
+export function findTermHits(text, compiled) {
+  const hits = [];
+  for (const { re, items } of compiled) {
+    re.lastIndex = 0;
+    for (const m of text.matchAll(re)) {
+      const g = m.findIndex((x, i) => i > 0 && x !== undefined) - 1;
+      if (g >= 0) hits.push({ start: m.index, end: m.index + m[0].length, term: items[g].term });
+    }
+  }
+  hits.sort((a, b) => a.start - b.start || b.end - a.end);
+  const out = [];
+  for (const x of hits) if (!out.length || x.start >= out[out.length - 1].end) out.push(x);
+  return out;
+}
+
+/* "First occurrence per section": take(section, id) is true the first time a term is seen in a section. */
+export function sectionTracker() {
+  const seen = new Map();
+  return { take(section, id) { let set = seen.get(section); if (!set) seen.set(section, (set = new Set())); if (set.has(id)) return false; set.add(id); return true; } };
+}
+
 /* ================================================================== DOM layer */
 
 const root = typeof document !== "undefined" ? document.documentElement : null;
@@ -224,6 +286,7 @@ const R = {
   started: false, cfg: null, cc: null, prefs: null, chapter: "", main: null, article: null, doc: null, banner: null,
   heads: [], spy: [], plan: null, labels: null, tocEl: null, tocLinks: new Map(), activeLink: null, autoGroup: null,
   active: -1, raf: 0, saveT: 0, hold: false, bar: null, barOn: false, aa: null, progress: null, toasts: null,
+  tip: null, tipFor: null, tipTimer: 0, tipAt: 0,
 };
 
 function safe(name, fn) {
@@ -289,6 +352,7 @@ export async function initReader(opts = {}) {
     safe("code", enhanceCode);
     safe("anchors", addAnchors);
     safe("toc", buildToc);
+    if (R.cc.glossary !== false) safe("glossary", startGlossary);
   }
   safe("banner", tuneBanner);
   safe("bar", buildBar);
@@ -373,6 +437,118 @@ function applyCallouts() {
     p.setAttribute("role", "note");
     p.prepend(h("span", { class: "mm-callout__title" }, rule.label, rule.href ? h("a", { class: "rd-callout__ref", href: rule.href }, rule.hrefLabel || rule.href) : null));
   }
+}
+
+/* ------------------------------------------------------------------ glossary tooltips */
+const TERM_SKIP_TAGS = new Set(["PRE", "CODE", "A", "BUTTON", "KBD", "SAMP", "SCRIPT", "STYLE", "TEXTAREA", "INPUT", "SELECT", "SVG", "SUMMARY", "TIME"]);
+const TERM_SKIP_CLASS = /(?:^|\s)(?:mm-callout__title|rd-term|rd-anchor|rd-copy|rd-filter|rd-tip)(?:\s|$)/;
+
+function startGlossary() {
+  const idle = window.requestIdleCallback || ((f) => setTimeout(f, 300));
+  idle(() => {
+    fetch(new URL("content/glossary.json", BASE)).then((r) => { if (!r.ok) throw new Error(`glossary.json: ${r.status}`); return r.json(); })
+      .then((raw) => safe("glossary", () => markTerms(normalizeGlossary(raw))))
+      .catch((err) => console.warn("[atlas reader] no glossary tooltips:", err));
+  });
+}
+
+/* Walks the article's text (not headings, code, links or buttons) and wraps the first use of each term per section. Section = the text
+   between two headings (h1 to h3). Runs in small slices so a 260 KB chapter never blocks scrolling. */
+function markTerms(terms) {
+  if (!terms.length || !R.article) return;
+  const compiled = compileTerms(terms);
+  if (!compiled.length) return;
+  const nodes = [];
+  let section = 0;
+  const walker = document.createTreeWalker(R.article, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
+    acceptNode(n) {
+      if (n.nodeType === 3) return n.nodeValue.trim().length > 2 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      if (/^H[1-3]$/.test(n.tagName)) { section++; return NodeFilter.FILTER_REJECT; }
+      if (/^H[4-6]$/.test(n.tagName) || TERM_SKIP_TAGS.has(n.tagName.toUpperCase()) || TERM_SKIP_CLASS.test(n.className || "")) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_SKIP;
+    },
+  });
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) nodes.push({ node: n, section });
+  const tracker = sectionTracker();
+  let i = 0, used = 0;
+  const slice = () => {
+    const stop = Math.min(nodes.length, i + 120);
+    for (; i < stop; i++) {
+      const { node, section: sec } = nodes[i];
+      if (!node.isConnected) continue;
+      const text = node.nodeValue;
+      const hits = findTermHits(text, compiled).filter((x) => tracker.take(sec, x.term.id));
+      if (!hits.length) continue;
+      const frag = document.createDocumentFragment();
+      let at = 0;
+      for (const x of hits) {
+        if (x.start > at) frag.append(text.slice(at, x.start));
+        frag.append(h("span", { class: "rd-term", tabindex: "0", role: "button", "data-term": x.term.id }, text.slice(x.start, x.end)));
+        at = x.end;
+        used++;
+      }
+      if (at < text.length) frag.append(text.slice(at));
+      node.replaceWith(frag);
+    }
+    if (i < nodes.length) setTimeout(slice, 16);
+    else if (used) bindTips(new Map(terms.map((t) => [t.id, t])));
+  };
+  slice();
+}
+
+function bindTips(byId) {
+  const tip = h("div", { class: "rd-tip", role: "tooltip", id: "rd-tip", hidden: "" });
+  document.body.append(tip);
+  R.tip = tip;
+  const termOf = (e) => (e.target && e.target.closest ? e.target.closest(".rd-term") : null);
+  const close = (restore = false) => {
+    clearTimeout(R.tipTimer);
+    if (!R.tipFor) return;
+    const t = R.tipFor;
+    t.removeAttribute("aria-describedby");
+    t.setAttribute("aria-expanded", "false");
+    tip.hidden = true;
+    R.tipFor = null;
+    if (restore && tip.contains(document.activeElement)) t.focus({ preventScroll: true });
+  };
+  const open = (t) => {
+    const def = byId.get(t.dataset.term);
+    if (!def) return;
+    if (R.tipFor && R.tipFor !== t) close();
+    R.tipFor = t;
+    R.tipAt = Date.now();
+    tip.replaceChildren(
+      h("div", { class: "rd-tip__t" }, h("b", {}, def.term), def.category ? h("span", { class: "rd-tip__c" }, def.category) : null),
+      h("p", { class: "rd-tip__s" }, def.short),
+      h("a", { class: "rd-tip__m", href: `${GLOSSARY_PAGE}#${def.id}` }, "Full definition \u2192"));
+    t.setAttribute("aria-describedby", "rd-tip");
+    t.setAttribute("aria-expanded", "true");
+    tip.hidden = false;
+    const r = t.getClientRects()[0] || t.getBoundingClientRect(), tw = tip.offsetWidth, th = tip.offsetHeight, m = 8;
+    const left = Math.min(Math.max(m, r.left), Math.max(m, window.innerWidth - tw - m));
+    const below = r.bottom + 6, top = below + th + m > window.innerHeight && r.top - th - 6 > m ? r.top - th - 6 : below;
+    tip.style.left = `${Math.round(left)}px`;
+    tip.style.top = `${Math.round(top)}px`;
+  };
+  const later = (fn, ms) => { clearTimeout(R.tipTimer); R.tipTimer = setTimeout(fn, ms); };
+
+  R.article.addEventListener("pointerover", (e) => { const t = termOf(e); if (t && e.pointerType === "mouse") later(() => open(t), 140); });
+  R.article.addEventListener("pointerout", (e) => { if (termOf(e) && e.pointerType === "mouse") later(close, 220); });
+  tip.addEventListener("pointerenter", () => clearTimeout(R.tipTimer));
+  tip.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") later(close, 220); });
+  R.article.addEventListener("focusin", (e) => { const t = termOf(e); if (t) open(t); });
+  R.article.addEventListener("focusout", (e) => { if (termOf(e) && !(e.relatedTarget && tip.contains(e.relatedTarget))) close(); });
+  tip.addEventListener("focusout", (e) => { if (!(e.relatedTarget && (tip.contains(e.relatedTarget) || (R.tipFor && R.tipFor.contains(e.relatedTarget))))) close(); });
+  // With a mouse, hover and focus already opened it, so a click keeps it open; on a touch screen a second tap closes it.
+  R.article.addEventListener("click", (e) => { const t = termOf(e); if (!t) return; if (R.tipFor === t && !tip.hidden && window.matchMedia("(hover: none)").matches) close(); else open(t); });
+  R.article.addEventListener("keydown", (e) => {
+    const t = termOf(e);
+    if (t && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); if (R.tipFor === t && !tip.hidden) close(); else open(t); }
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && R.tipFor) { close(true); e.stopPropagation(); } }, true);
+  document.addEventListener("click", (e) => { if (R.tipFor && !e.target.closest(".rd-term, .rd-tip")) close(); });
+  window.addEventListener("scroll", () => { if (R.tipFor && Date.now() - R.tipAt > 250) close(); }, { passive: true });   // focusing a term can scroll it into view
+  window.addEventListener("resize", () => close(), { passive: true });
 }
 
 /* ------------------------------------------------------------------ tables and code */

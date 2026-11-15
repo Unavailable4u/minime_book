@@ -3,7 +3,8 @@
   "defaults": {
     "numbered": false,
     "tableFilterMinRows": 25,
-    "tableMaxHeightVh": 75
+    "tableMaxHeightVh": 75,
+    "glossary": true
   },
   "typography": {
     "sizes": [0.96, 1.02, 1.08, 1.16, 1.26],

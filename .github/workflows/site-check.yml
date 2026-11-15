@@ -11,6 +11,7 @@
 #     python scripts/test_build_index.py
 #     python scripts/test_palette.py
 #     python scripts/test_reader.py
+#     python scripts/test_library.py
 #     python scripts/test_codemod_shell.py
 name: Site check
 on:
@@ -46,4 +47,5 @@ jobs:
           python3 scripts/test_build_index.py
           python3 scripts/test_palette.py
           python3 scripts/test_reader.py
+          python3 scripts/test_library.py
           python3 scripts/test_codemod_shell.py

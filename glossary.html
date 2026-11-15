@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" data-layout="reader">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Glossary · MiniMe Atlas</title>
+<script src="assets/js/theme.js"></script>
+<script data-mm="prepaint">(function(d,w){var r=d.documentElement,s=null,v=w.innerWidth;try{s=localStorage.getItem("minime_sidebar")}catch(e){}if(/[?&]legacy=1(&|$)/.test(w.location.search))return;r.dataset.sidebar=v<=760?"drawer":s==="open"||s==="collapsed"?s:r.dataset.layout==="workbench"||v<1100?"collapsed":"open"})(document,window)</script>
+<link rel="preload" href="assets/fonts/sora-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<link rel="stylesheet" href="assets/css/shell.css">
+<link rel="stylesheet" href="assets/css/library.css">
+</head>
+<body data-page="glossary"><main>
+<div class="lib">
+  <h1>Glossary</h1>
+  <p class="lib__sub">The named terms of the book, defined once. In a chapter, the first use of a term in each section is underlined: hover, focus or tap it for the short definition, and press Esc to close it. Terms marked <em>needs review</em> were drafted from the sources and wait for your approval. Back to the <a href="docs.html">library</a>.</p>
+
+  <div class="lib-tools" role="search">
+    <input id="gl-q" class="lib-q" type="search" placeholder="Filter terms ( / )" aria-label="Filter glossary terms" autocomplete="off">
+    <span id="gl-chips" class="lib-tools" role="group" aria-label="Filter by category"></span>
+  </div>
+  <p class="gl-count" id="gl-count" aria-live="polite"></p>
+
+  <div class="gl-list" id="gl-list"><p class="lib__empty">Loading the glossary&hellip;</p></div>
+  <p class="lib__empty" id="gl-none" hidden>No term matches that filter.</p>
+</div>
+</main>
+<script type="module" src="assets/js/glossary.js"></script>
+<script type="module" src="assets/js/shell.js"></script>
+</body>
+</html>

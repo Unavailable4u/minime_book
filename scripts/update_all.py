@@ -101,6 +101,7 @@ def main(argv=None):
     run(PY, "scripts/test_build_index.py")
     run(PY, "scripts/test_palette.py")
     run(PY, "scripts/test_reader.py")
+    run(PY, "scripts/test_library.py")
 
     print("\n== Result ==")
     run("git", "status", "--short")

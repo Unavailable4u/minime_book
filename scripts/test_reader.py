@@ -475,5 +475,95 @@ class ListHeadings(unittest.TestCase):
         self.assertNotEqual(r.returncode, 0)
 
 
+GLOSSARY_SAMPLE = {"terms": [
+    {"term": "Golden Rule", "aliases": ["Golden Rules"], "category": "Governance", "short": "A rule."},
+    {"term": "Rule", "short": "Too short a word to match alone.", "match": "off"},
+    {"term": "T0 to T5 approval tiers", "aliases": ["T0\u2013T5", "trust tiers"], "short": "Tiers."},
+    {"term": "REAL_ACTION_ROLES", "short": "A map.", "match": "cs"},
+    {"term": "work package", "aliases": ["WP"], "short": "A unit."},
+    {"term": "", "short": "no name"}, {"term": "No short"},
+]}
+
+
+@unittest.skipUnless(NODE, "node is not installed")
+class GlossaryTooltips(unittest.TestCase):
+    """The pure half of the glossary tooltips (P05): which words get underlined. The DOM half is checked by hand in a browser."""
+
+    def hits(self, text):
+        return run_node("""
+            const terms = R.normalizeGlossary(data.g), c = R.compileTerms(terms);
+            console.log(JSON.stringify(R.findTermHits(data.t, c).map((h) => [data.t.slice(h.start, h.end), h.term.term])));""",
+                        {"g": GLOSSARY_SAMPLE, "t": text})
+
+    def test_off_and_malformed_entries_are_dropped(self):
+        out = run_node("console.log(JSON.stringify(R.normalizeGlossary(data).map((t) => [t.id, t.match])));", GLOSSARY_SAMPLE)
+        self.assertEqual(out, [["golden-rule", "ci"], ["t0-to-t5-approval-tiers", "ci"], ["real-action-roles", "cs"], ["work-package", "ci"]])
+
+    def test_whole_words_any_case_aliases_and_plurals(self):
+        self.assertEqual(self.hits("The golden rules say: see Golden Rule 5. Work packages and a WP."),
+                         [["golden rules", "Golden Rule"], ["Golden Rule", "Golden Rule"], ["Work packages", "work package"], ["WP", "work package"]])
+
+    def test_a_term_inside_a_longer_word_or_a_hyphenated_name_is_left_alone(self):
+        self.assertEqual(self.hits("Unwp is not one, nor is subwork packager, nor my-WP-thing or GoldenRule."), [])
+
+    def test_terms_that_contain_dashes_and_spaces_match(self):
+        self.assertEqual(self.hits("T0\u2013T5 and the trust  tiers."), [["T0\u2013T5", "T0 to T5 approval tiers"], ["trust  tiers", "T0 to T5 approval tiers"]])
+
+    def test_exact_case_terms_ignore_other_casings(self):
+        self.assertEqual(self.hits("real_action_roles and REAL_ACTION_ROLES"), [["REAL_ACTION_ROLES", "REAL_ACTION_ROLES"]])
+
+    def test_first_use_per_section_only(self):
+        out = run_node("""
+            const t = R.sectionTracker();
+            console.log(JSON.stringify([t.take(1, 'a'), t.take(1, 'a'), t.take(1, 'b'), t.take(2, 'a'), t.take(2, 'a')]));""")
+        self.assertEqual(out, [True, False, True, True, False])
+
+    def test_the_committed_glossary_marks_words_in_at_least_two_chapters(self):
+        from html.parser import HTMLParser
+
+        class Text(HTMLParser):
+            def __init__(self):
+                super().__init__(convert_charrefs=True)
+                self.parts, self.skip = [], 0
+
+            def handle_starttag(self, tag, attrs):
+                self.skip += tag in ("script", "style", "code", "pre", "a")
+
+            def handle_endtag(self, tag):
+                self.skip = max(0, self.skip - (tag in ("script", "style", "code", "pre", "a")))
+
+            def handle_data(self, data):
+                if not self.skip:
+                    self.parts.append(data)
+
+        texts = {}
+        for ch in ("doc-rulebook", "doc-minime-feature-guide", "doc-menux-feature-guide"):
+            p = Text()
+            p.feed((ROOT / f"{ch}.html").read_text(encoding="utf-8"))
+            texts[ch] = " ".join(p.parts)
+        out = run_node("""
+            const c = R.compileTerms(R.normalizeGlossary(data.g)), n = {};
+            for (const [k, v] of Object.entries(data.t)) n[k] = new Set(R.findTermHits(v, c).map((h) => h.term.id)).size;
+            console.log(JSON.stringify(n));""", {"g": load_json(ROOT / "content" / "glossary.json"), "t": texts})
+        self.assertGreaterEqual(sum(1 for n in out.values() if n >= 3), 2, out)
+
+
+class GlossaryWiring(unittest.TestCase):
+    def test_reader_js_skips_headings_code_and_links_and_closes_on_escape(self):
+        s = READER_JS.read_text(encoding="utf-8")
+        for needle in ('"PRE"', '"CODE"', '"A"', "/^H[1-3]$/", "/^H[4-6]$/", 'e.key === "Escape" && R.tipFor'):
+            self.assertIn(needle, s)
+
+    def test_css_styles_the_term_and_the_tip_under_the_reader_attribute(self):
+        css = re.sub(r"/\*.*?\*/", "", READER_CSS.read_text(encoding="utf-8"), flags=re.S)
+        for sel in (".rd-term", ".rd-tip"):
+            self.assertRegex(css, r"html\[data-reader\]\s+" + re.escape(sel))
+        self.assertRegex(css, r"underline dotted")
+        self.assertRegex(css, r"@media print\s*\{[^@]*?\.rd-tip\s*\{\s*display:\s*none")
+
+    def test_the_switch_is_in_reader_json_and_defaults_on(self):
+        self.assertIs(load_json(READER_JSON)["defaults"]["glossary"], True)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=1)

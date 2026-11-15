@@ -258,6 +258,20 @@ html[data-reader] .rd-resume__go { color: var(--on-brand); background: var(--bra
 html[data-reader] .rd-resume__no { padding-inline: var(--space-2); border-color: transparent; background: none; color: var(--ink-dim); }
 html[data-reader] .rd-resume :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
+/* ============================================================ 8b. glossary tooltips (P05) */
+html[data-reader] .rd-term { text-decoration: underline dotted var(--ink-dim); text-decoration-thickness: 1px; text-underline-offset: 0.22em; cursor: help; border-radius: 2px; }
+html[data-reader] .rd-term:hover, html[data-reader] .rd-term[aria-expanded="true"] { text-decoration-color: var(--brand); background: var(--panel-2); }
+html[data-reader] .rd-term:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+html[data-reader] .rd-tip { position: fixed; z-index: var(--z-popover); width: min(22rem, calc(100vw - 2 * var(--space-3))); padding: var(--space-3) var(--space-4); color: var(--ink);
+  background: var(--panel); border: 1px solid var(--line-strong); border-left: 3px solid var(--brand); border-radius: var(--radius-2); box-shadow: var(--shadow-3);
+  font: 400 var(--fs-sm)/1.5 var(--font-ui); text-align: left; hyphens: manual; }
+html[data-reader] .rd-tip[hidden] { display: none; }
+html[data-reader] .rd-tip__t { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-2); margin: 0 0 var(--space-1); }
+html[data-reader] .rd-tip__c { color: var(--ink-dim); font-size: var(--fs-xs); }
+html[data-reader] .rd-tip__s { margin: 0 0 var(--space-2); }
+html[data-reader] .rd-tip__m { color: var(--ink); font-size: var(--fs-xs); font-weight: 600; }
+html[data-reader] .rd-tip__m:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
 /* ============================================================ 9. print: always white paper, no chrome */
 @media print {
   html[data-reader] {
@@ -267,6 +281,8 @@ html[data-reader] .rd-resume :focus-visible { outline: 2px solid var(--focus); o
   }
   html[data-reader] body { background: #fff; color: #000; }
   html[data-reader] body::before { display: none; }                     /* the crimson grid wash of the old pages */
+  html[data-reader] .rd-tip { display: none; }
+  html[data-reader] .rd-term { text-decoration: none; }
   html[data-reader] :is(.rd-bar, .rd-progress, .rd-aa, .rd-aa-btn, .rd-toasts, .rd-resume, .rd-tbar, .rd-copy, .rd-anchor, .doc > .toc, .bk-prevnext, .mm-btt) { display: none !important; }
   html[data-reader] main.rd-main { padding: 0; margin: 0; }
   html[data-reader] .doc { display: block; }

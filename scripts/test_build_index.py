@@ -255,5 +255,105 @@ class BuildIndexTests(unittest.TestCase):
         self.assertEqual(bi.main(["--root", str(self.root), "--check"]), 0)
 
 
+BANNER_DOC = (
+    '<html><head><title>Ch1</title></head><body><main><div class="bk-banner"><div class="bk-top"><div>'
+    '<span class="bk-part">Part I</span><span class="bk-ch">Chapter 1 of 14</span></div>'
+    '<div class="bk-actions"><a href="docs.html" class="bk-pill-link">All</a>'
+    '<a href="journey.html#doc-one" class="bk-pill-link">Journey</a>'
+    '<a href="data/docs/one.md" download class="bk-pill-link">md</a></div></div>'
+    '<p class="bk-desc">The money &amp; model <em>constitution</em>.</p>'
+    '<div class="bk-meta"><span><b>27,349</b> words (~124 min read)</span><span>&middot;</span><span><b>135</b> sections</span>'
+    '<span>&middot;</span><span><b>90</b> tables</span></div>'
+    '<div class="bk-prevnext"><a href="doc-two.html">Next</a></div></div>'
+    '<div class="doc"><article><h1 id="t">One</h1><h2 id="a">A</h2></article></div></main>'
+    '<small class="mm-built">Private. Built 2026-10-07 from commit febb685.</small></body></html>'
+)
+SPEC_DOC = (
+    '<html><body><main><div class="bk-banner"><div class="bk-top"><span class="bk-part">Part III</span><span class="bk-ch">Chapter 2 of 14</span>'
+    '<div class="bk-actions"><a href="guides/Spec.html" target="_blank">Open standalone</a></div></div>'
+    '<p class="bk-desc">Design note.</p><div class="bk-meta"><span><b>Interactive HTML Spec</b> &middot; Synchronized</span></div></div>'
+    '<div class="doc"><article><h1>Spec</h1></article></div></main></body></html>'
+)
+APP_DOC = BANNER_DOC.replace("27,349", "1,000").replace("~124", "~5").replace("Built 2026-10-07 from commit febb685", "Added 2026-11-14 on commit aaca7f1")
+BOOK_NAV = {
+    "parts": {"strategy": "Part I", "m2c": "Part III", "appendix": "Appendix", "empty": "Unused part"},
+    "wings": [{"id": "book", "title": "THE BOOK", "items": [
+        {"id": "docs", "title": "Library", "url": "docs.html"},
+        {"id": "doc-one", "title": "One", "url": "doc-one.html", "part": "strategy", "chapter": 1, "blurb": "Short blurb"},
+        {"id": "doc-spec", "title": "Spec", "url": "doc-spec.html", "part": "m2c", "chapter": 2},
+        {"id": "doc-app", "title": "Appendix thing", "url": "doc-app.html", "part": "appendix", "chapter": "A"},
+        {"id": "doc-gone", "title": "Gone", "url": "doc-gone.html", "part": "m2c", "chapter": 3},
+    ]}],
+}
+
+
+class BookTests(unittest.TestCase):
+    """data/index/book.json (P05): one row per chapter, read from the chapter's own banner."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self._tmp.name)
+        (self.root / "content").mkdir()
+        (self.root / "content" / "nav.json").write_text(json.dumps(BOOK_NAV), encoding="utf-8")
+        (self.root / "doc-one.html").write_bytes(BANNER_DOC.replace("><", ">\r\n<").encode("utf-8"))   # CRLF on purpose
+        (self.root / "doc-spec.html").write_text(SPEC_DOC, encoding="utf-8")
+        (self.root / "doc-app.html").write_text(APP_DOC, encoding="utf-8")
+        self.warnings: list[str] = []
+        self.book = json.loads(bi.build(self.root, self.warnings.append, census={})["data/index/book.json"])
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def row(self, cid):
+        return next(c for c in self.book["chapters"] if c["id"] == cid)
+
+    def test_counts_and_text_come_from_the_banner(self):
+        c = self.row("doc-one")
+        self.assertEqual((c["words"], c["minutes"], c["sections"], c["tables"]), (27349, 124, 135, 90))
+        self.assertEqual(c["desc"], "The money & model constitution.")
+        self.assertEqual((c["label"], c["partTitle"], c["blurb"]), ("Ch. 1", "Part I", "Short blurb"))
+
+    def test_built_stamp_download_and_journey_links(self):
+        c = self.row("doc-one")
+        self.assertEqual((c["built"], c["commit"]), ("2026-10-07", "febb685"))
+        self.assertEqual((c["md"], c["journey"]), ("data/docs/one.md", "journey.html#doc-one"))
+        a = self.row("doc-app")
+        self.assertEqual((a["built"], a["commit"], a["label"]), ("2026-11-14", "aaca7f1", "App. A"))   # "Added ... on commit ..." is read too
+
+    def test_a_chapter_without_counts_has_none_not_zero(self):
+        c = self.row("doc-spec")
+        self.assertEqual((c["words"], c["minutes"], c["sections"], c["tables"]), (None, None, None, None))
+        self.assertIn("Interactive HTML Spec", c["meta"])
+        self.assertEqual(c["standalone"], "guides/Spec.html")
+        self.assertEqual(c["built"], "")
+
+    def test_only_chapter_items_in_nav_order_and_a_missing_file_warns(self):
+        self.assertEqual([c["id"] for c in self.book["chapters"]], ["doc-one", "doc-spec", "doc-app"])   # docs.html is not a chapter
+        self.assertTrue(any("doc-gone.html" in w for w in self.warnings))
+
+    def test_parts_follow_nav_and_empty_parts_are_dropped(self):
+        self.assertEqual([(p["id"], p["chapters"]) for p in self.book["parts"]],
+                         [("strategy", ["doc-one"]), ("m2c", ["doc-spec"]), ("appendix", ["doc-app"])])
+
+    def test_totals_skip_chapters_without_counts(self):
+        t = self.book["totals"]
+        self.assertEqual((t["chapters"], t["appendices"], t["withCounts"]), (2, 1, 2))
+        self.assertEqual((t["words"], t["minutes"], t["sections"], t["tables"]), (28349, 129, 270, 180))
+
+    def test_banner_in_the_page_body_is_not_confused_by_later_markup(self):
+        facts = bi.parse_banner('<div class="bk-banner"><p class="bk-desc">First</p></div><p class="bk-desc">Second</p>')
+        self.assertEqual(facts["desc"], "First")
+        self.assertEqual(bi.parse_banner("<p>no banner</p>")["desc"], "")
+
+    def test_book_json_is_part_of_check(self):
+        (self.root / "data").mkdir(exist_ok=True)
+        (self.root / "data" / "census.json").write_text("{}", encoding="utf-8")
+        bi.write_all(self.root, lambda m: None)
+        self.assertTrue((self.root / "data" / "index" / "book.json").is_file())
+        self.assertEqual(bi.check_all(self.root, lambda m: None), [])
+        (self.root / "doc-one.html").write_text(BANNER_DOC.replace("27,349", "30,000"), encoding="utf-8")
+        self.assertIn("stale: data/index/book.json", bi.check_all(self.root, lambda m: None))
+
+
 if __name__ == "__main__":
     unittest.main()

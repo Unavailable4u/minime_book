@@ -15,7 +15,9 @@
       "icon": "start",
       "items": [
         { "id": "index", "title": "Overview", "url": "index.html", "layout": "reader",
-          "blurb": "What MiniMe is and where everything lives", "keywords": "home overview start readme kpi dashboard" }
+          "blurb": "What MiniMe is and where everything lives", "keywords": "home overview start readme kpi dashboard" },
+        { "id": "glossary", "title": "Glossary", "url": "glossary.html", "layout": "reader",
+          "blurb": "The named terms of the book, defined once", "keywords": "glossary terms definitions vocabulary words meaning" }
       ]
     },
     {
@@ -62,7 +64,7 @@
       "open": false,
       "items": [
         { "id": "docs", "title": "Library", "url": "docs.html", "layout": "reader",
-          "blurb": "All chapters of the MiniMe book", "keywords": "docs book chapters guides library reading contents" },
+          "blurb": "All chapters of the MiniMe book", "keywords": "docs book chapters guides library reading contents paths progress continue" },
         { "id": "doc-rulebook", "title": "Financial & Model Strategy Rulebook", "url": "doc-rulebook.html", "layout": "reader", "part": "strategy", "chapter": 1,
           "blurb": "Pricing tiers, model routing, budget, hiring and equity", "keywords": "rulebook pricing tiers basic moderate ultimate models groq gemini deepseek anthropic openai budget hiring equity" },
         { "id": "doc-tech-roadmap", "title": "Technical Implementation Roadmap", "url": "doc-tech-roadmap.html", "layout": "reader", "part": "strategy", "chapter": 2,

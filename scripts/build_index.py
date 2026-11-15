@@ -6,13 +6,15 @@ Standard library only. Output is deterministic (sorted keys, no timestamps), so
 
 Inputs
   content/nav.json         pages (wings -> items) and optional chapter order
-  doc-*.html               chapter headings (h2/h3 that carry an id)
+  doc-*.html               chapter headings (h2/h3 that carry an id) and each chapter's banner (description, counts)
   content/glossary.json    optional; list of terms or {"terms": [...]}
   data/census.json         files, functions, classes, routes
 
 Outputs (all under data/index/)
   search.json              {"pages": [...], "headings": [...], "terms": [...]}
                            a page may carry "label" ("Ch. 4 · Title") and "part"
+  book.json                {"parts": [...], "chapters": [...], "totals": {...}}: one row per chapter, read from the
+                           chapter's own banner (.bk-desc, .bk-meta) and "Built ..." stamp, so counts never drift (P05)
   paths.json               {"paths": [...]}
   routes.json              {"routes": [{method, route, handler, file, line}]}
   symbols.json             manifest of the shards below
@@ -122,6 +124,154 @@ def parse_chapter(html: str) -> _Headings:
     p.feed(html)
     p.close()
     return p
+
+
+# ---------------------------------------------------------------- chapter banner
+_VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
+_BANNER_KEYS = ("bk-part", "bk-ch", "bk-desc", "bk-meta")
+
+
+class _Banner(HTMLParser):
+    """Reads the first .bk-banner of a chapter: part, chapter chip, description, meta line and the action links."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.text: dict[str, str] = {}
+        self.links: list[dict] = []
+        self._depth = 0
+        self._in_banner = 0              # depth at which .bk-banner started (0 = not inside)
+        self._done = False
+        self._cap: tuple[str, int] | None = None
+        self._parts: list[str] = []
+        self._skip = 0
+
+    def handle_starttag(self, tag, attrs):
+        if self._done:
+            return
+        if tag in ("script", "style"):
+            self._skip += 1
+            return
+        if self._skip or tag in _VOID:
+            if tag == "a" and self._in_banner:
+                self._link(attrs)
+            return
+        self._depth += 1
+        a = dict(attrs)
+        classes = (a.get("class") or "").split()
+        if not self._in_banner:
+            if "bk-banner" in classes:
+                self._in_banner = self._depth
+            return
+        if self._cap is None:
+            for key in _BANNER_KEYS:
+                if key in classes and key not in self.text:
+                    self._cap, self._parts = (key, self._depth), []
+                    break
+        if tag == "a":
+            self._link(attrs)
+
+    def _link(self, attrs) -> None:
+        a = dict(attrs)
+        if a.get("href"):
+            self.links.append({"href": a["href"], "download": "download" in a})
+
+    def handle_endtag(self, tag):
+        if self._done:
+            return
+        if tag in ("script", "style"):
+            self._skip = max(0, self._skip - 1)
+            return
+        if self._skip or tag in _VOID:
+            return
+        if self._cap is not None and self._depth == self._cap[1]:
+            self.text[self._cap[0]] = " ".join("".join(self._parts).split())
+            self._cap = None
+        if self._in_banner and self._depth == self._in_banner:
+            self._done = True
+        self._depth = max(0, self._depth - 1)
+
+    def handle_data(self, data):
+        if self._cap is not None and not self._skip:
+            self._parts.append(data)
+
+
+_BUILT_RE = re.compile(r"(?:Built|Added)\s+(\d{4}-\d{2}-\d{2})\s+(?:from|on)\s+commit\s+([0-9a-f]{7,40})", re.I)
+
+
+def _num(rx: str, text: str) -> int | None:
+    m = re.search(rx, text, re.I)
+    return int(m.group(1).replace(",", "")) if m else None
+
+
+def parse_banner(html: str) -> dict:
+    """Facts from one chapter page. Missing facts are None, never guessed (the two HTML design specs have no counts)."""
+    p = _Banner()
+    p.feed(html)
+    p.close()
+    meta = p.text.get("bk-meta", "")
+    built = _BUILT_RE.search(re.sub(r"<[^>]+>", " ", "".join(re.findall(r'class="mm-built"[^>]*>(.*?)</small>', html, re.S))))
+    md = next((l["href"] for l in p.links if l["download"]), "")
+    journey = next((l["href"] for l in p.links if l["href"].startswith("journey.html")), "")
+    standalone = next((l["href"] for l in p.links if l["href"].startswith("guides/")), "")
+    counted = _num(r"([\d,]+)\s+words", meta) is not None
+    return {
+        "desc": p.text.get("bk-desc", ""),
+        "words": _num(r"([\d,]+)\s+words", meta),
+        "minutes": _num(r"~\s*([\d,]+)\s*min", meta),
+        "sections": _num(r"([\d,]+)\s+sections", meta),
+        "tables": _num(r"([\d,]+)\s+tables", meta),
+        "meta": "" if counted else meta,        # e.g. "Interactive HTML Spec ..." for a chapter that has no counts
+        "built": built.group(1) if built else "",
+        "commit": built.group(2) if built else "",
+        "md": md,
+        "journey": journey,
+        "standalone": standalone,
+    }
+
+
+def collect_book(root: Path, nav: dict, warn=None) -> dict:
+    """The library's data: the book's chapters in nav order, grouped by part, with live counts from each chapter page."""
+    warn = warn or (lambda m: None)
+    parts_names = nav.get("parts") if isinstance(nav.get("parts"), dict) else {}
+    chapters: list[dict] = []
+    for w in _wing_list(nav.get("wings")):
+        for it in w.get("items") or []:
+            if not isinstance(it, dict) or it.get("chapter") is None or not it.get("url"):
+                continue
+            f = root / it["url"]
+            if not f.is_file():
+                warn(f"book.json: {it['url']} is listed in nav.json but does not exist")
+                continue
+            facts = parse_banner(read_lf(f))
+            if not facts["desc"]:
+                warn(f"book.json: {it['url']} has no chapter banner description")
+            part = it.get("part") or ""
+            prefix = "App." if part == "appendix" else "Ch."
+            chapters.append({
+                "id": it.get("id") or slug(it["url"]),
+                "url": it["url"],
+                "title": it.get("title") or "",
+                "chapter": it["chapter"],
+                "label": f"{prefix} {it['chapter']}",
+                "part": part,
+                "partTitle": parts_names.get(part, part),
+                "blurb": it.get("blurb") or "",
+                **facts,
+            })
+    part_ids = list(parts_names) + sorted({c["part"] for c in chapters if c["part"] and c["part"] not in parts_names})
+    parts = [{"id": pid, "title": parts_names.get(pid, pid), "chapters": [c["id"] for c in chapters if c["part"] == pid]}
+             for pid in part_ids]
+    parts = [p for p in parts if p["chapters"]]
+
+    def total(key: str) -> int:
+        return sum(c[key] or 0 for c in chapters)
+    totals = {
+        "chapters": sum(1 for c in chapters if isinstance(c["chapter"], int)),
+        "appendices": sum(1 for c in chapters if not isinstance(c["chapter"], int)),
+        "words": total("words"), "minutes": total("minutes"), "sections": total("sections"), "tables": total("tables"),
+        "withCounts": sum(1 for c in chapters if c["words"] is not None),
+    }
+    return {"parts": parts, "chapters": chapters, "totals": totals}
 
 
 # ------------------------------------------------------------------------ nav
@@ -362,6 +512,7 @@ def build(root: Path, warn=None, census: dict | None = None) -> dict[str, str]:
         "headings": collect_headings(root, nav),
         "terms": collect_terms(root),
     })
+    out[f"{INDEX_DIR}/book.json"] = dumps(collect_book(root, nav, warn))
     out[f"{INDEX_DIR}/paths.json"] = dumps({"paths": collect_paths(census)})
     out[f"{INDEX_DIR}/routes.json"] = dumps({"routes": collect_routes(census)})
 
