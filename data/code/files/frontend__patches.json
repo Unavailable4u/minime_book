@@ -1,0 +1,1 @@
+{"files":[{"binary":false,"blank":0,"code":24,"comment":0,"ext":"patch","git":{"added":24,"commits":1,"dates":["2026-08-14"],"deleted":0,"first":"2026-08-14","last":"2026-08-14"},"lang":"other","lines":24,"path":"frontend/patches/react-window+2.3.0.patch","size":27090,"test":false}],"schema":1,"shard":"frontend__patches"}

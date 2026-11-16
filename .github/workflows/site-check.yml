@@ -14,6 +14,8 @@
 #     python scripts/test_library.py
 #     python scripts/test_overview.py
 #     python scripts/test_codemod_shell.py
+#     python scripts/build_code.py --check
+#     python scripts/test_build_code.py
 name: Site check
 on:
   pull_request:
@@ -40,6 +42,8 @@ jobs:
         run: python3 scripts/check_site.py
       - name: Search index is current
         run: python3 scripts/build_index.py --check
+      - name: Code data (data/code) is current
+        run: python3 scripts/build_code.py --check
       - name: Unit tests
         run: |
           python3 scripts/test_check_site.py
@@ -51,3 +55,4 @@ jobs:
           python3 scripts/test_library.py
           python3 scripts/test_overview.py
           python3 scripts/test_codemod_shell.py
+          python3 scripts/test_build_code.py

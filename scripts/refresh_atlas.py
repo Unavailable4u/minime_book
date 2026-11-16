@@ -32,6 +32,9 @@ was originally built from -- that is how every renderer below was validated):
                             refresh_graph.py writes the "graph" half of the same file; each script keeps the other's half.
     data/index/*.json       the command-palette search index (scripts/build_index.py: pages, book headings,
                             files, routes, functions). It follows the census, so it is rebuilt here too.
+    data/code/              the sharded code data the Explorer reads (P10, scripts/build_code.py): tree.json, files/<shard>.json
+                            (every file with its functions and classes), imports.json (resolved imports and who imports a
+                            file) and callers/<shard>.json (who calls a function). It follows the census, so it is rebuilt here too.
 
 What it deliberately does NOT touch, because the census cannot supply it:
 
@@ -655,6 +658,15 @@ def build_index_module():
     return build_index
 
 
+def build_code_module():
+    """scripts/build_code.py (P10). Imported by path, like build_index.py."""
+    here = str(Path(__file__).resolve().parent)
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    import build_code
+    return build_code
+
+
 def read_lf(path):
     """Read a text file as LF, remembering whether it used CRLF (Windows checkouts with autocrlf)."""
     raw = Path(path).read_bytes().decode("utf-8")
@@ -665,9 +677,42 @@ def to_native(text, crlf):
     return text.replace("\n", "\r\n") if crlf else text
 
 
+KNOWN_CENSUS_VERSIONS = (1, 2)          # script_version of MiniMe's scripts/codebase_census.py; a v1 census is still accepted
+HEAD_FULL = re.compile(r"[0-9a-f]{40}")
+
+
+def census_v2_problems(c):
+    """A census that says it is v2 must carry what P10 relies on: unique "<path>::<qual>" keys, a hash on every symbol,
+    and the full commit id."""
+    out = []
+    head, full = c.get("git", {}).get("head", ""), c.get("git", {}).get("head_full", "")
+    if head and not HEAD_FULL.fullmatch(full or ""):
+        out.append("a v2 census must record the full 40-character git.head_full (permalinks need it); is MiniMe's scripts/codebase_census.py the v2 one?")
+    dup, nohash = [], 0
+    for f in c.get("files", []):
+        seen = set()
+        for x in G(f, "functions") + G(f, "classes"):
+            q = x.get("qual") or x.get("name")
+            if q in seen:
+                dup.append(f"{f['path']}::{q}")
+            seen.add(q)
+            if not x.get("hash"):
+                nohash += 1
+    if dup:
+        out.append(f"{len(dup)} symbol key(s) are not unique in a v2 census (first: {dup[0]}); the Explorer joins on <path>::<qual>")
+    if nohash:
+        out.append(f"{nohash} symbol(s) in a v2 census have no hash; symbol-level staleness needs it on every function and class")
+    return out
+
+
 def census_problems(c):
     """Reasons a freshly generated census should not replace a good one."""
     out = []
+    version = c.get("meta", {}).get("script_version", 1)
+    if version not in KNOWN_CENSUS_VERSIONS:
+        out.append(f"the census says script_version {version}; this Atlas understands {', '.join(map(str, KNOWN_CENSUS_VERSIONS))}. Update scripts/build_code.py and scripts/refresh_atlas.py before using it")
+    elif version >= 2:
+        out.extend(census_v2_problems(c))
     if c["meta"].get("js_parser") != "tree-sitter":
         out.append("JavaScript was parsed with the heuristic fallback, so function counts would differ. Fix: pip install tree-sitter tree-sitter-javascript")
     if any("build" not in s for s in c.get("docker_compose", [])) or any("steps" not in j for w in c.get("ci", {}).values() for j in w.get("jobs", [])):
@@ -710,13 +755,17 @@ def main(argv=None):
     census = json.loads(cpath.read_text(encoding="utf-8"))
     changes = refresh_all(root, census)
     index = build_index_module()           # the palette's search index follows the census (and the chapters/nav)
+    code = build_code_module()             # so does the sharded code data the Explorer reads (data/code/)
     if args.check:
         for p in sorted(changes):
             print("out of date:", p.relative_to(root))
         stale_index = index.check_all(root, census=census)
         for problem in stale_index:
             print("out of date:", problem)
-        n = len(changes) + len(stale_index)
+        stale_code = code.check_all(root, census=census)
+        for problem in stale_code:
+            print("out of date:", "data/code", problem)
+        n = len(changes) + len(stale_index) + len(stale_code)
         print("everything is in sync with data/census.json" if not n else f"{n} file(s) out of date; run: python scripts/refresh_atlas.py")
         return 1 if n else 0
     for p, text in changes.items():
@@ -726,7 +775,10 @@ def main(argv=None):
     wrote_index = index.write_all(root, census=census)
     for rel in wrote_index:
         print("updated:", rel)
-    if not changes and not wrote_index:
+    wrote_code = code.write_all(root, census=census)
+    for rel in wrote_code:
+        print("updated:", rel)
+    if not changes and not wrote_index and not wrote_code:
         print("already up to date")
     g = census["git"]
     print(f"census: {census['meta']['generated'][:10]}, commit {g['head']}, parser {census['meta']['js_parser']}" + (f", WARNING: {g['dirty_files']} uncommitted file(s) when it was generated" if g["dirty_files"] else ""))

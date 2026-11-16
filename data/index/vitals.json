@@ -42,12 +42,12 @@
         "code": 1685
       },
       {
-        "area": "daemon",
-        "code": 1203
+        "area": "scripts",
+        "code": 1566
       },
       {
-        "area": "scripts",
-        "code": 840
+        "area": "daemon",
+        "code": 1203
       }
     ],
     "branch": "main",
@@ -93,7 +93,7 @@
         "path": "backend/api/server.py"
       }
     ],
-    "commit": "94af156",
+    "commit": "3727ae3",
     "complex": [
       {
         "cc": 235,
@@ -136,36 +136,36 @@
         "path": "frontend/app/components/ManageWorkspaceModal.jsx"
       },
       {
+        "cc": 110,
+        "name": "analyze_py",
+        "path": "scripts/codebase_census.py"
+      },
+      {
         "cc": 100,
         "name": "editorReducer",
         "path": "frontend/app/lib/workbench/editorStore.js"
-      },
-      {
-        "cc": 92,
-        "name": "analyze_py",
-        "path": "scripts/codebase_census.py"
       }
     ],
     "dirty_files": 0,
     "docstrings": {
-      "documented": 3015,
-      "python_functions": 16255
+      "documented": 3023,
+      "python_functions": 16304
     },
-    "generated": "2026-11-15",
+    "generated": "2026-11-17",
     "kpis": {
-      "code_lines": 243011,
-      "commits": 580,
-      "files": 1185,
-      "functions": 17941,
+      "code_lines": 243737,
+      "commits": 581,
+      "files": 1186,
+      "functions": 17990,
       "routes": 184,
       "source_files": 532,
-      "test_files": 489,
-      "tests_written": 8615,
-      "total_lines": 376781
+      "test_files": 490,
+      "tests_written": 8629,
+      "total_lines": 377639
     },
     "languages": [
       {
-        "code": 152251,
+        "code": 152977,
         "lang": "python"
       },
       {
@@ -254,8 +254,8 @@
         "month": "2026-10"
       },
       {
-        "added": 53647,
-        "commits": 8,
+        "added": 54519,
+        "commits": 9,
         "month": "2026-11"
       }
     ],
@@ -331,9 +331,9 @@
         "functions": 157
       },
       "tooling": {
-        "code": 2955,
-        "files": 19,
-        "functions": 74
+        "code": 3681,
+        "files": 20,
+        "functions": 123
       }
     }
   },

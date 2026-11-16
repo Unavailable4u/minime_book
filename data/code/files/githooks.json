@@ -1,0 +1,1 @@
+{"files":[{"binary":false,"blank":5,"code":27,"comment":0,"git":{"added":32,"commits":1,"dates":["2026-08-05"],"deleted":0,"first":"2026-08-05","last":"2026-08-05"},"lang":"other","lines":32,"path":".githooks/pre-commit","size":1321,"test":false}],"schema":1,"shard":"githooks"}

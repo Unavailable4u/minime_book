@@ -35,7 +35,7 @@ jobs:
         run: python3 scripts/refresh_atlas.py
       - name: Commit refreshed pages
         run: |
-          if git diff --quiet; then
+          if [ -z "$(git status --porcelain)" ]; then
             echo "Pages already match data/census.json; nothing to commit."
             exit 0
           fi

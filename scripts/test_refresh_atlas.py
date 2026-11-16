@@ -237,6 +237,53 @@ class CensusValidation(unittest.TestCase):
         self.assertTrue(any("pyyaml" in p for p in problems))
         self.assertTrue(any("uncommitted" in p for p in problems))
 
+    # ---- P10: census script_version 1 and 2
+    def good_v2(self):
+        c = json.loads(read(ROOT / "data" / "census.json"))
+        c["meta"]["script_version"] = 2
+        c["git"]["head_full"] = "a" * 40
+        for f in c["files"]:
+            seen = {}
+            # the v2 key rule: later definitions of the same qual become qual~2, qual~3 ... in source order
+            for x in sorted(ra.G(f, "functions") + ra.G(f, "classes"), key=lambda s: s.get("start", 0)):
+                q = x.get("qual") or x["name"]
+                seen[q] = seen.get(q, 0) + 1
+                x["qual"] = q if seen[q] == 1 else f"{q}~{seen[q]}"
+                x["hash"] = "0123456789"
+        return c
+
+    def test_a_v1_census_is_accepted(self):
+        c = json.loads(read(ROOT / "data" / "census.json"))
+        c["meta"]["script_version"] = 1
+        self.assertEqual([], [p for p in ra.census_problems(c) if "uncommitted" not in p])
+        del c["meta"]["script_version"]                      # the oldest censuses did not say
+        self.assertEqual([], [p for p in ra.census_problems(c) if "uncommitted" not in p])
+
+    def test_a_good_v2_census_is_accepted(self):
+        self.assertEqual([], [p for p in ra.census_problems(self.good_v2()) if "uncommitted" not in p])
+
+    def test_a_v2_census_needs_the_full_commit_id(self):
+        c = self.good_v2()
+        c["git"]["head_full"] = c["git"]["head"]
+        self.assertTrue(any("head_full" in p for p in ra.census_problems(c)))
+        del c["git"]["head_full"]
+        self.assertTrue(any("head_full" in p for p in ra.census_problems(c)))
+
+    def test_a_v2_census_needs_unique_keys_and_a_hash_on_every_symbol(self):
+        c = self.good_v2()
+        f = next(f for f in c["files"] if len(ra.G(f, "functions")) >= 2)
+        f["functions"][1]["qual"] = f["functions"][0]["qual"]
+        f["functions"][0].pop("hash")
+        problems = ra.census_problems(c)
+        self.assertTrue(any("not unique" in p and f["path"] in p for p in problems), problems)
+        self.assertTrue(any("no hash" in p for p in problems), problems)
+
+    def test_an_unknown_script_version_is_refused(self):
+        c = self.good_v2()
+        c["meta"]["script_version"] = 3
+        problems = ra.census_problems(c)
+        self.assertEqual(1, len([p for p in problems if "script_version 3" in p]))
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

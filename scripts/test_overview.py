@@ -139,7 +139,7 @@ class PureHelpers(unittest.TestCase):
             self.assertTrue(c["why"], f'{c["id"]} needs a "why this matters" line in content/overview/vitals.json')
             self.assertTrue(c["label"] and c["label"] != c["id"], c["id"])
         by = {c["id"]: c for c in cards}
-        self.assertEqual("94af156", by["files"]["source"]["commit"])
+        self.assertEqual(v["census"]["commit"], by["files"]["source"]["commit"])
         self.assertEqual(v["graph"]["commit"], by["nodes"]["source"]["commit"])
         self.assertIn(" %", by["docstrings"]["display"])
         self.assertEqual(len(v["census"]["months"]), len(by["commits"]["spark"]["values"]))
@@ -164,7 +164,7 @@ class PureHelpers(unittest.TestCase):
         eo = next(r for r in rows if r["id"] == "eo")
         self.assertEqual("Ch. 4", eo["chapter"]["label"])
         self.assertTrue(eo["chapter"]["url"].startswith("doc-minime-feature-guide.html#"))
-        self.assertTrue(all(k["url"].startswith("https://github.com/Unavailable4u/MiniMe/blob/94af156/") for k in eo["keyFiles"]))
+        self.assertTrue(all(k["url"].startswith(f"https://github.com/Unavailable4u/MiniMe/blob/{v['commit']}/") for k in eo["keyFiles"]))
         self.assertEqual(["System map", "Agents & roles"], [p["title"] for p in eo["pages"]][:2])
 
     def test_a_subsystem_with_no_counts_is_a_row_of_zeros_not_a_crash(self):
