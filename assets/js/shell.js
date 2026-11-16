@@ -12,7 +12,8 @@
    Keys handled here: [ and Ctrl/Cmd+B (sidebar), ] (fires minime:toc-toggle for P04), Esc (closes drawers).
    Keys handled by palette.js: Ctrl/Cmd+K, t, ?, g + o/e/b/s.
 
-   Chapter pages (a .bk-banner or a .doc article inside <main>) also load reader.js (P04) on demand: see loadReader().
+   Chapter pages (a .bk-banner or a .doc article inside <main>) also load reader.js (P04) on demand, and figures.js (P06) after it:
+   see loadReader().
 
    Events on document:
      minime:sidebar      detail = "open" | "collapsed" | "drawer-open" | "drawer-closed"
@@ -354,7 +355,15 @@ async function load() {
    the chapter simply stays as it was. */
 function loadReader() {
   if (root.dataset.layout === "bare" || !document.querySelector("main .bk-banner, main .doc article")) return;
-  import("./reader.js").then((m) => m.initReader({ navReady })).catch((err) => console.warn("[atlas reader]", err));
+  const opts = { navReady };
+  // The figure layer (P06) needs the reader's heading ids, so it starts after the reader has finished. A failing reader
+  // is only logged: the chapter is still readable, and the figures are inserted after whatever headings it has.
+  import("./reader.js")
+    .then((m) => m.initReader(opts))
+    .catch((err) => console.warn("[atlas reader]", err))
+    .then(() => import("./figures.js"))
+    .then((m) => m.initFigures({ navReady }))
+    .catch((err) => console.warn("[atlas figures]", err));
 }
 
 function boot() {

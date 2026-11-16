@@ -1,0 +1,88 @@
+{
+  "figures": [
+    {
+      "id": "system-architecture",
+      "after": "1-what-minime-is",
+      "place": "end",
+      "type": "archify",
+      "src": "architecture/system.html",
+      "size": [
+        1790,
+        676
+      ],
+      "wide": true,
+      "caption": "System architecture: from the browser down to the data layer.",
+      "alt": "Layered diagram of the whole system. Users reach the Next.js frontend, which calls the FastAPI server and its 12 routers over HTTPS and WebSocket; the server uses the EO orchestration layer, 73 agent modules, LLM providers, Postgres, Redis and Upstash Vector, with an optional local daemon and external MCP servers."
+    },
+    {
+      "id": "task-run-lifecycle",
+      "after": "3-4-agent-execution-and-live-progress",
+      "place": "end",
+      "type": "archify",
+      "src": "architecture/taskrun-lifecycle.html",
+      "size": [
+        1200,
+        620
+      ],
+      "wide": true,
+      "caption": "The states one agent task moves through inside a single request.",
+      "alt": "State diagram of a task run: Queued, SGA Relay, Tier Routed, Running and Delivered in a row, with side exits to Awaiting Confirm, which ends as Denied or Expired after 15 minutes, and to Failed, which the fixer pool can retry."
+    },
+    {
+      "id": "workspace-lifecycle",
+      "after": "4-1-workspace-lifecycle",
+      "place": "end",
+      "type": "archify",
+      "src": "architecture/workspace-lifecycle.html",
+      "size": [
+        1200,
+        620
+      ],
+      "wide": true,
+      "caption": "The workspace stage lifecycle and its multi-member promotion gate.",
+      "alt": "State diagram of a workspace stage: Research, Plan, Build, Test and Growth in order, a Promotion Vote gate that needs a majority in multi-member workspaces, a path back to Build when regressions are found, and an Archived end state the owner can choose."
+    },
+    {
+      "id": "task-pipeline",
+      "after": "5-1-general-routing",
+      "place": "end",
+      "type": "archify",
+      "src": "architecture/task-pipeline.html",
+      "size": [
+        1211,
+        794
+      ],
+      "wide": true,
+      "caption": "The task execution pipeline, from POST /api/task to a delivered reply.",
+      "alt": "Five-lane flow from the frontend through the SGA relay and classification, EO routing and the gatekeeper to agents and delivery. The relay classifies tier 0 to 3, the router builds the execution graph, the executor resolves a role, results are persisted and pushed back; the tier 3 no-hires branch is a dead end."
+    },
+    {
+      "id": "approval-gate",
+      "after": "19-2-approval-gates",
+      "place": "end",
+      "type": "archify",
+      "src": "architecture/daemon-approval.html",
+      "size": [
+        1313,
+        786
+      ],
+      "wide": true,
+      "caption": "The propose, confirm or deny gate every mutating local or MCP action passes through.",
+      "alt": "Flow of one approval: a mutating call is proposed and stored as a pending action with a 15-minute expiry, the user confirms or denies, and only a confirmed action executes on the daemon or MCP server and pushes a result event; denied or expired actions never execute."
+    },
+    {
+      "id": "api-surface",
+      "after": "25-source-map",
+      "place": "start",
+      "type": "archify",
+      "src": "architecture/api-surface.html",
+      "size": [
+        1370,
+        908
+      ],
+      "wide": true,
+      "caption": "The backend API surface: server.py and its 12 routers, 162 endpoints in all.",
+      "alt": "Map of the backend routes: a thin server.py hub with CORS, lifespan and exception handling, connected to 12 router files such as workspace_data with 28 routes, notebooks with 23 and tasks with 21, plus the WebSocket to the local daemon."
+    }
+  ]
+}

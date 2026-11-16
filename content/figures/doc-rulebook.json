@@ -1,0 +1,14 @@
+{
+  "figures": [
+    {
+      "id": "pricing-tiers",
+      "after": "7-1-the-plan-table-authoritative",
+      "place": "end",
+      "type": "svg",
+      "src": "content/figures/svg/pricing-tiers.svg",
+      "wide": true,
+      "caption": "The four plans side by side: price, and which token pools each one gets.",
+      "alt": "Four plan cards, Free at $0, Basic at $9, Moderate at $29 and Ultimate at $79 a month, above a grid of monthly allowances. Standard tokens grow from 300 thousand to 6 million; Advanced, Expert and Brain token pools appear only in the higher plans; totals run from 0.3 million to 9.85 million tokens."
+    }
+  ]
+}

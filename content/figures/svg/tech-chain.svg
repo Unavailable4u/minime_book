@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 482">
+<defs><marker id="tc-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="tc-head" d="M0 0L10 5L0 10z"/></marker></defs>
+<style>
+.tc-box{fill:var(--panel);stroke:var(--line-strong);stroke-width:1.5}
+.tc-gate{stroke:var(--gate);stroke-dasharray:6 4;stroke-width:2}
+.tc-pill{fill:var(--panel-2);stroke:var(--line);stroke-width:1}
+.tc-flow{fill:none;stroke:var(--flow);stroke-width:2}
+.tc-head{fill:var(--flow)}
+.tc-label{fill:var(--ink-dim);font-size:12px;font-weight:700;letter-spacing:.08em}
+.tc-title{fill:var(--ink);font-size:16px;font-weight:700}
+.tc-sub{fill:var(--ink);font-size:13px}
+.tc-when{fill:var(--ink-dim);font-size:12px}
+.tc-pn{fill:var(--ink);font-size:13px;font-weight:700}
+.tc-pd{fill:var(--ink-dim);font-size:11.5px}
+.tc-rule{stroke:var(--line);stroke-width:1}
+</style>
+<text x="0" y="16" class="tc-label">BUSINESS TRACK (unchanged)</text>
+<path class="tc-pill" d="M8 26h160a8 8 0 0 1 8 8v36a8 8 0 0 1 -8 8h-160a8 8 0 0 1 -8 -8v-36a8 8 0 0 1 8 -8z"/>
+<text x="88.0" y="47" class="tc-pn" text-anchor="middle">Phase 0</text>
+<text x="88.0" y="66" class="tc-pd" text-anchor="middle">Foundation</text>
+<path class="tc-flow" marker-end="url(#tc-arrow)" d="M178 52h14"/>
+<path class="tc-pill" d="M204 26h160a8 8 0 0 1 8 8v36a8 8 0 0 1 -8 8h-160a8 8 0 0 1 -8 -8v-36a8 8 0 0 1 8 -8z"/>
+<text x="284.0" y="47" class="tc-pn" text-anchor="middle">Phase 1</text>
+<text x="284.0" y="66" class="tc-pd" text-anchor="middle">Pilot</text>
+<path class="tc-flow" marker-end="url(#tc-arrow)" d="M374 52h14"/>
+<path class="tc-pill" d="M400 26h160a8 8 0 0 1 8 8v36a8 8 0 0 1 -8 8h-160a8 8 0 0 1 -8 -8v-36a8 8 0 0 1 8 -8z"/>
+<text x="480.0" y="47" class="tc-pn" text-anchor="middle">Phase 2</text>
+<text x="480.0" y="66" class="tc-pd" text-anchor="middle">Real launch, Basic live</text>
+<path class="tc-flow" marker-end="url(#tc-arrow)" d="M570 52h14"/>
+<path class="tc-pill" d="M596 26h160a8 8 0 0 1 8 8v36a8 8 0 0 1 -8 8h-160a8 8 0 0 1 -8 -8v-36a8 8 0 0 1 8 -8z"/>
+<text x="676.0" y="47" class="tc-pn" text-anchor="middle">Phase 3a</text>
+<text x="676.0" y="66" class="tc-pd" text-anchor="middle">Moderate, demand-gated</text>
+<path class="tc-flow" marker-end="url(#tc-arrow)" d="M766 52h14"/>
+<path class="tc-pill" d="M792 26h160a8 8 0 0 1 8 8v36a8 8 0 0 1 -8 8h-160a8 8 0 0 1 -8 -8v-36a8 8 0 0 1 8 -8z"/>
+<text x="872.0" y="47" class="tc-pn" text-anchor="middle">Phase 3b</text>
+<text x="872.0" y="66" class="tc-pd" text-anchor="middle">Ultimate, demand-gated</text>
+<text x="0" y="118" class="tc-label">TECHNICAL TRACK (this document)</text>
+<path class="tc-box" d="M10 146h140a10 10 0 0 1 10 10v100a10 10 0 0 1 -10 10h-140a10 10 0 0 1 -10 -10v-100a10 10 0 0 1 10 -10z"/>
+<text x="80.0" y="174" class="tc-title" text-anchor="middle">Tech-A</text>
+<text x="80.0" y="196" class="tc-sub" text-anchor="middle">Instrumentation</text>
+<text x="80.0" y="213" class="tc-sub" text-anchor="middle">and baseline</text>
+<text x="80.0" y="254" class="tc-when" text-anchor="middle">Phase 0, now</text>
+<path class="tc-flow" marker-end="url(#tc-arrow)" d="M162 206.0h34"/>
+<path class="tc-box" d="M210 146h140a10 10 0 0 1 10 10v100a10 10 0 0 1 -10 10h-140a10 10 0 0 1 -10 -10v-100a10 10 0 0 1 10 -10z"/>
+<text x="280.0" y="174" class="tc-title" text-anchor="middle">Tech-B</text>
+<text x="280.0" y="196" class="tc-sub" text-anchor="middle">Harden Basic</text>
+<text x="280.0" y="213" class="tc-sub" text-anchor="middle">for real users</text>
+<text x="280.0" y="254" class="tc-when" text-anchor="middle">Phase 0 → 2</text>
+<path class="tc-flow" marker-end="url(#tc-arrow)" d="M362 206.0h34"/>
+<path class="tc-box tc-gate" d="M410 146h140a10 10 0 0 1 10 10v100a10 10 0 0 1 -10 10h-140a10 10 0 0 1 -10 -10v-100a10 10 0 0 1 10 -10z"/>
+<text x="480.0" y="174" class="tc-title" text-anchor="middle">Deferred window</text>
+<text x="480.0" y="196" class="tc-sub" text-anchor="middle">no new tech work;</text>
+<text x="480.0" y="213" class="tc-sub" text-anchor="middle">Basic runs live and</text>
+<text x="480.0" y="230" class="tc-sub" text-anchor="middle">collects real data</text>
+<text x="480.0" y="254" class="tc-when" text-anchor="middle">Phase 2, live</text>
+<path class="tc-flow" marker-end="url(#tc-arrow)" d="M562 206.0h34"/>
+<path class="tc-box" d="M610 146h140a10 10 0 0 1 10 10v100a10 10 0 0 1 -10 10h-140a10 10 0 0 1 -10 -10v-100a10 10 0 0 1 10 -10z"/>
+<text x="680.0" y="174" class="tc-title" text-anchor="middle">Tech-C</text>
+<text x="680.0" y="196" class="tc-sub" text-anchor="middle">Moderate</text>
+<text x="680.0" y="213" class="tc-sub" text-anchor="middle">scaffolding</text>
+<text x="680.0" y="254" class="tc-when" text-anchor="middle">End of Phase 2 → 3a</text>
+<path class="tc-flow" marker-end="url(#tc-arrow)" d="M762 206.0h34"/>
+<path class="tc-box" d="M810 146h140a10 10 0 0 1 10 10v100a10 10 0 0 1 -10 10h-140a10 10 0 0 1 -10 -10v-100a10 10 0 0 1 10 -10z"/>
+<text x="880.0" y="174" class="tc-title" text-anchor="middle">Tech-D</text>
+<text x="880.0" y="196" class="tc-sub" text-anchor="middle">Brain prototype</text>
+<text x="880.0" y="213" class="tc-sub" text-anchor="middle">(internal only)</text>
+<text x="880.0" y="254" class="tc-when" text-anchor="middle">Tail of Phase 2</text>
+<path class="tc-box" d="M10 326h140a10 10 0 0 1 10 10v100a10 10 0 0 1 -10 10h-140a10 10 0 0 1 -10 -10v-100a10 10 0 0 1 10 -10z"/>
+<text x="80.0" y="354" class="tc-title" text-anchor="middle">Tech-E</text>
+<text x="80.0" y="376" class="tc-sub" text-anchor="middle">Brain integration</text>
+<text x="80.0" y="393" class="tc-sub" text-anchor="middle">into Moderate</text>
+<text x="80.0" y="434" class="tc-when" text-anchor="middle">Phase 3a</text>
+<path class="tc-flow" marker-end="url(#tc-arrow)" d="M162 386.0h34"/>
+<path class="tc-box" d="M210 326h140a10 10 0 0 1 10 10v100a10 10 0 0 1 -10 10h-140a10 10 0 0 1 -10 -10v-100a10 10 0 0 1 10 -10z"/>
+<text x="280.0" y="354" class="tc-title" text-anchor="middle">Tech-F</text>
+<text x="280.0" y="376" class="tc-sub" text-anchor="middle">Monitor v2</text>
+<text x="280.0" y="393" class="tc-sub" text-anchor="middle">(closed loop)</text>
+<text x="280.0" y="434" class="tc-when" text-anchor="middle">Phase 3a, after E</text>
+<path class="tc-flow" marker-end="url(#tc-arrow)" d="M362 386.0h34"/>
+<path class="tc-box" d="M410 326h140a10 10 0 0 1 10 10v100a10 10 0 0 1 -10 10h-140a10 10 0 0 1 -10 -10v-100a10 10 0 0 1 10 -10z"/>
+<text x="480.0" y="354" class="tc-title" text-anchor="middle">Tech-G</text>
+<text x="480.0" y="376" class="tc-sub" text-anchor="middle">Ultimate’s</text>
+<text x="480.0" y="393" class="tc-sub" text-anchor="middle">Brain tier</text>
+<text x="480.0" y="434" class="tc-when" text-anchor="middle">Phase 3b</text>
+<path class="tc-flow" marker-end="url(#tc-arrow)" d="M562 386.0h34"/>
+<path class="tc-box tc-gate" d="M610 326h140a10 10 0 0 1 10 10v100a10 10 0 0 1 -10 10h-140a10 10 0 0 1 -10 -10v-100a10 10 0 0 1 10 -10z"/>
+<text x="680.0" y="354" class="tc-title" text-anchor="middle">Tech-H</text>
+<text x="680.0" y="376" class="tc-sub" text-anchor="middle">Code-authoring</text>
+<text x="680.0" y="393" class="tc-sub" text-anchor="middle">(gated, no fixed date)</text>
+<text x="680.0" y="434" class="tc-when" text-anchor="middle">Unscheduled</text>
+<path class="tc-flow" marker-end="url(#tc-arrow)" d="M880.0 268V296.0H80.0V322"/>
+<text x="0" y="472" class="tc-when">Dashed outline: a deliberate gap, or a gated phase with no fixed date.  Source: Technical Roadmap 1 and 10.</text>
+</svg>

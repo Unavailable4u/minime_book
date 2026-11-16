@@ -1,0 +1,78 @@
+/* MiniMe Atlas 2 - figure layer (P06). Loaded by assets/js/figures.js, after reader.css.
+
+   Builds on the P01 figure-frame (.mm-figure, .mm-figure__canvas, .mm-figure__caption, .mm-figure__num in components.css).
+   Every rule belongs to a figure (.fg) or to the viewer (.mm-lb), so nothing on a page changes until a figure exists.
+   Tokens only (tokens.css); raw colours appear only inside @media print, where the page is forced to white paper.
+
+   Size: a figure fills the ~72ch text column; `wide` figures use the whole ~100ch track (--rd-measure / --rd-wide from reader.css).
+   An archify preview is an iframe whose height is worked out from the diagram's own SVG size, so the page does not jump
+   when it loads:  height = (frame width - 16px padding) * (svg height / svg width) + --fig-pad. */
+
+/* ============================================================ 1. frame */
+.mm-figure.fg { position: relative; margin: var(--space-6) auto; max-width: 100%; overflow: hidden; }
+html[data-reader] .doc article > .mm-figure.fg:not(.fg--wide) { max-width: var(--rd-measure); }
+html[data-reader] .doc article > .mm-figure.fg { margin-block: var(--space-6); }
+.fg .mm-figure__canvas { position: relative; padding: var(--space-4); }
+
+.fg__svg { margin: 0 auto; color: var(--ink); font-family: var(--font-ui); }
+.fg__svg > svg { display: block; width: 100%; height: auto; max-height: 85vh; margin: 0 auto; overflow: visible; }
+.fg__wait { margin: 0; padding: var(--space-6) 0; text-align: center; color: var(--ink-dim); font-size: var(--fs-sm); }
+.fg__fail { padding: var(--space-4); border: 1px dashed var(--line-strong); border-radius: var(--radius-2); color: var(--ink-dim); font-size: var(--fs-sm); }
+.fg__failmsg { margin: 0 0 var(--space-2); color: var(--ink); }
+.fg__fail pre { margin: var(--space-2) 0 0; max-height: 16rem; overflow: auto; white-space: pre-wrap; }
+
+/* archify preview */
+.fg--archify .fg__canvas { padding: var(--space-3); }
+.fg__frame { --fig-pad: 24px; container-type: inline-size; width: 100%; aspect-ratio: var(--fig-w) / var(--fig-h); overflow: hidden;
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--panel); }
+.fg__iframe { display: block; width: 100%; height: 100%; border: 0; border-radius: 0; background: transparent; pointer-events: none; }   /* the old chapter CSS gives every iframe a border and a white background */
+@supports (width: 1cqw) {
+  .fg__frame { aspect-ratio: auto; }
+  .fg__iframe { height: calc((100cqw - 16px) * var(--fig-r) + var(--fig-pad)); }
+}
+.fg__hit { position: absolute; inset: var(--space-3); padding: 0; border: 0; border-radius: var(--radius-2); background: transparent; cursor: zoom-in; }
+.fg__hit:hover { box-shadow: inset 0 0 0 2px var(--line-strong); }
+.fg__print { display: none; }
+
+/* ============================================================ 2. caption bar */
+.fg .mm-figure__caption { flex-wrap: wrap; align-items: center; row-gap: var(--space-2); }
+.fg .mm-figure__num { align-self: baseline; }
+.fg__text { flex: 1 1 14rem; min-width: 0; align-self: baseline; color: var(--ink); font-family: var(--font-ui); line-height: var(--lh-ui); }
+.fg__tools { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-left: auto; }
+.fg__tool.mm-btn { min-height: 30px; padding: 0 var(--space-3); font-size: var(--fs-xs); font-family: var(--font-ui); }
+.fg__tool:focus-visible, .fg__hit:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+html[data-reader] .doc article a.fg__tool { color: var(--ink); text-decoration: none; }   /* beats the reader's brand-coloured, underlined article links */
+.fg__tool[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+/* ============================================================ 3. the viewer (Expand) */
+html.mm-lb-open { overflow: hidden; }
+.mm-lb { position: fixed; inset: 0; z-index: 1050; display: flex; flex-direction: column;   /* above the old mobile .toc drawer (1003), below the command palette (1100) */
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--bg); color: var(--ink); font-family: var(--font-ui); }
+.mm-lb__bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); padding: var(--space-2) max(var(--space-4), env(safe-area-inset-left, 0px)) var(--space-2) max(var(--space-4), env(safe-area-inset-right, 0px));
+  border-bottom: 1px solid var(--line); background: var(--panel); }
+.mm-lb__title { flex: 1 1 16rem; min-width: 0; display: flex; gap: var(--space-3); align-items: baseline; font-size: var(--fs-sm); }
+.mm-lb__title b { flex: none; font-family: var(--font-mono); }
+.mm-lb__title span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-dim); }
+.mm-lb__tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-left: auto; }
+.mm-lb__b { min-height: 34px; }
+.mm-lb__b.mm-btn--icon { width: 34px; }
+.mm-lb__zoom { min-width: 3.4em; text-align: center; font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-dim); }
+.mm-lb__b:focus-visible, .mm-lb__stage:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.mm-lb__stage { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; touch-action: none; cursor: grab; outline-offset: -3px;
+  background-color: var(--bg); background-image: radial-gradient(var(--line) 1px, transparent 1.2px); background-size: 18px 18px; }
+.mm-lb__stage.is-drag { cursor: grabbing; }
+.mm-lb__content { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; user-select: none; -webkit-user-select: none; }
+.mm-lb__content > svg { display: block; }
+.mm-lb__iframe { display: block; border: 0; border-radius: 0; background: transparent; pointer-events: none; }
+.mm-lb__hint { margin: 0; padding: var(--space-2) var(--space-4); border-top: 1px solid var(--line); background: var(--panel); color: var(--ink-dim); font-size: var(--fs-xs); text-align: center; }
+@media (max-width: 640px) { .mm-lb__hint { display: none; } .mm-lb__title span { white-space: normal; } }
+
+/* ============================================================ 4. print: a page cannot hold a live diagram */
+@media print {
+  .fg__tools, .fg__hit, .mm-lb { display: none !important; }
+  .fg__frame { display: none; }
+  .fg__print { display: block; margin: 0; padding: var(--space-3) var(--space-4); border: 1px dashed #666; color: #000; font-size: 9pt; word-break: break-all; }
+  .mm-figure.fg { border-color: #999; background: #fff; }
+  .fg .mm-figure__canvas { background-image: none; }
+}

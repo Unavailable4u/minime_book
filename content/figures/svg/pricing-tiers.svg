@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 484">
+<style>
+.pt-card{fill:var(--panel);stroke:var(--line-strong);stroke-width:1.5}
+.pt-free{stroke:var(--line-strong)}
+.pt-basic{stroke:var(--flow)}
+.pt-mod{stroke:var(--graph)}
+.pt-ult{stroke:var(--brand);stroke-width:2.5}
+.pt-stripe{fill:var(--panel-2);fill-opacity:.7}
+.pt-total{fill:none;stroke:var(--line-strong);stroke-width:1}
+.pt-name{fill:var(--ink);font-size:17px;font-weight:700}
+.pt-usd{fill:var(--ink);font-size:24px;font-weight:700}
+.pt-bdt{fill:var(--ink-dim);font-size:13px}
+.pt-label{fill:var(--ink);font-size:14px}
+.pt-val{fill:var(--ink);font-size:14px}
+.pt-bold{font-weight:700}
+.pt-dim{fill:var(--ink-dim)}
+.pt-note{fill:var(--ink-dim);font-size:12.5px}
+</style>
+<path class="pt-stripe" d="M20 126h880a4 4 0 0 1 4 4v26a4 4 0 0 1 -4 4h-880a4 4 0 0 1 -4 -4v-26a4 4 0 0 1 4 -4z"/>
+<path class="pt-stripe" d="M20 194h880a4 4 0 0 1 4 4v26a4 4 0 0 1 -4 4h-880a4 4 0 0 1 -4 -4v-26a4 4 0 0 1 4 -4z"/>
+<path class="pt-stripe" d="M20 262h880a4 4 0 0 1 4 4v26a4 4 0 0 1 -4 4h-880a4 4 0 0 1 -4 -4v-26a4 4 0 0 1 4 -4z"/>
+<path class="pt-stripe" d="M20 330h880a4 4 0 0 1 4 4v26a4 4 0 0 1 -4 4h-880a4 4 0 0 1 -4 -4v-26a4 4 0 0 1 4 -4z"/>
+<path class="pt-stripe" d="M20 398h880a4 4 0 0 1 4 4v26a4 4 0 0 1 -4 4h-880a4 4 0 0 1 -4 -4v-26a4 4 0 0 1 4 -4z"/>
+<path class="pt-total" d="M20 296h880a4 4 0 0 1 4 4v26a4 4 0 0 1 -4 4h-880a4 4 0 0 1 -4 -4v-26a4 4 0 0 1 4 -4z"/>
+<path class="pt-card pt-free" d="M280 16h130a10 10 0 0 1 10 10v76a10 10 0 0 1 -10 10h-130a10 10 0 0 1 -10 -10v-76a10 10 0 0 1 10 -10z"/>
+<text x="345.0" y="42" class="pt-name" text-anchor="middle">Free</text>
+<text x="345.0" y="76" class="pt-usd" text-anchor="middle">$0 / mo</text>
+<text x="345.0" y="98" class="pt-bdt" text-anchor="middle">BDT 0</text>
+<path class="pt-card pt-basic" d="M440 16h130a10 10 0 0 1 10 10v76a10 10 0 0 1 -10 10h-130a10 10 0 0 1 -10 -10v-76a10 10 0 0 1 10 -10z"/>
+<text x="505.0" y="42" class="pt-name" text-anchor="middle">Basic</text>
+<text x="505.0" y="76" class="pt-usd" text-anchor="middle">$9 / mo</text>
+<text x="505.0" y="98" class="pt-bdt" text-anchor="middle">BDT 899</text>
+<path class="pt-card pt-mod" d="M600 16h130a10 10 0 0 1 10 10v76a10 10 0 0 1 -10 10h-130a10 10 0 0 1 -10 -10v-76a10 10 0 0 1 10 -10z"/>
+<text x="665.0" y="42" class="pt-name" text-anchor="middle">Moderate</text>
+<text x="665.0" y="76" class="pt-usd" text-anchor="middle">$29 / mo</text>
+<text x="665.0" y="98" class="pt-bdt" text-anchor="middle">BDT 2,999</text>
+<path class="pt-card pt-ult" d="M760 16h130a10 10 0 0 1 10 10v76a10 10 0 0 1 -10 10h-130a10 10 0 0 1 -10 -10v-76a10 10 0 0 1 10 -10z"/>
+<text x="825.0" y="42" class="pt-name" text-anchor="middle">Ultimate</text>
+<text x="825.0" y="76" class="pt-usd" text-anchor="middle">$79 / mo</text>
+<text x="825.0" y="98" class="pt-bdt" text-anchor="middle">BDT 8,499</text>
+<text x="24" y="70" class="pt-label pt-bold">Plan</text>
+<text x="24" y="92" class="pt-bdt">price per month, USD and local rails</text>
+<text x="24" y="148" class="pt-label">Standard tokens / month</text>
+<text x="345.0" y="148" class="pt-val" text-anchor="middle">300K</text>
+<text x="505.0" y="148" class="pt-val" text-anchor="middle">4.0M</text>
+<text x="665.0" y="148" class="pt-val" text-anchor="middle">5.0M</text>
+<text x="825.0" y="148" class="pt-val" text-anchor="middle">6.0M</text>
+<text x="24" y="182" class="pt-label">Advanced tokens / month</text>
+<text x="345.0" y="182" class="pt-val pt-dim" text-anchor="middle">—</text>
+<text x="505.0" y="182" class="pt-val pt-dim" text-anchor="middle">—</text>
+<text x="665.0" y="182" class="pt-val" text-anchor="middle">1.2M</text>
+<text x="825.0" y="182" class="pt-val" text-anchor="middle">3.0M</text>
+<text x="24" y="216" class="pt-label">Expert tokens / month</text>
+<text x="345.0" y="216" class="pt-val pt-dim" text-anchor="middle">—</text>
+<text x="505.0" y="216" class="pt-val pt-dim" text-anchor="middle">—</text>
+<text x="665.0" y="216" class="pt-val pt-dim" text-anchor="middle">—</text>
+<text x="825.0" y="216" class="pt-val" text-anchor="middle">0.4M</text>
+<text x="24" y="250" class="pt-label">Brain tokens, batch</text>
+<text x="345.0" y="250" class="pt-val pt-dim" text-anchor="middle">—</text>
+<text x="505.0" y="250" class="pt-val pt-dim" text-anchor="middle">—</text>
+<text x="665.0" y="250" class="pt-val" text-anchor="middle">0.15M</text>
+<text x="825.0" y="250" class="pt-val" text-anchor="middle">0.2M</text>
+<text x="24" y="284" class="pt-label">Brain tokens, real-time</text>
+<text x="345.0" y="284" class="pt-val pt-dim" text-anchor="middle">—</text>
+<text x="505.0" y="284" class="pt-val pt-dim" text-anchor="middle">—</text>
+<text x="665.0" y="284" class="pt-val pt-dim" text-anchor="middle">—</text>
+<text x="825.0" y="284" class="pt-val" text-anchor="middle">0.25M</text>
+<text x="24" y="318" class="pt-label pt-bold">Total tokens / month</text>
+<text x="345.0" y="318" class="pt-val pt-bold" text-anchor="middle">0.3M</text>
+<text x="505.0" y="318" class="pt-val pt-bold" text-anchor="middle">4.0M</text>
+<text x="665.0" y="318" class="pt-val pt-bold" text-anchor="middle">6.35M</text>
+<text x="825.0" y="318" class="pt-val pt-bold" text-anchor="middle">9.85M</text>
+<text x="24" y="352" class="pt-label">Web searches / month</text>
+<text x="345.0" y="352" class="pt-val" text-anchor="middle">8</text>
+<text x="505.0" y="352" class="pt-val" text-anchor="middle">50</text>
+<text x="665.0" y="352" class="pt-val" text-anchor="middle">150</text>
+<text x="825.0" y="352" class="pt-val" text-anchor="middle">300</text>
+<text x="24" y="386" class="pt-label">Generated images / month</text>
+<text x="345.0" y="386" class="pt-val" text-anchor="middle">2</text>
+<text x="505.0" y="386" class="pt-val" text-anchor="middle">8</text>
+<text x="665.0" y="386" class="pt-val" text-anchor="middle">20</text>
+<text x="825.0" y="386" class="pt-val" text-anchor="middle">40</text>
+<text x="24" y="420" class="pt-label">Deep mode</text>
+<text x="345.0" y="420" class="pt-val pt-dim" text-anchor="middle">—</text>
+<text x="505.0" y="420" class="pt-val pt-dim" text-anchor="middle">—</text>
+<text x="665.0" y="420" class="pt-val" text-anchor="middle">batch Brain</text>
+<text x="825.0" y="420" class="pt-val" text-anchor="middle">real-time + batch</text>
+<text x="24" y="460" class="pt-note">Annual price is 10× monthly (two months free). Advanced, Expert and Brain tokens are metered in their own pools,</text>
+<text x="24" y="478" class="pt-note">separate from Standard, so Standard quota cannot be spent on frontier models.  Source: Rulebook 7.1.</text>
+</svg>

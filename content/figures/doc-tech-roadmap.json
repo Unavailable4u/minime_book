@@ -1,0 +1,14 @@
+{
+  "figures": [
+    {
+      "id": "tech-chain",
+      "after": "1-the-two-track-view",
+      "place": "end",
+      "type": "svg",
+      "src": "content/figures/svg/tech-chain.svg",
+      "wide": true,
+      "caption": "The business phases on top and the eight technical phases, Tech-A to Tech-H, below them.",
+      "alt": "A strip of five business phases, Phase 0 to Phase 3b, above the technical chain: Tech-A, Tech-B, a dashed deferred window with no new tech work, then Tech-C to Tech-G, and Tech-H last, drawn dashed because it is gated with no fixed date."
+    }
+  ]
+}
