@@ -338,9 +338,9 @@
     }
   },
   "graph": {
-    "commit": "94af156",
-    "communities": 806,
-    "date": "2026-11-15",
+    "commit": "3727ae3",
+    "communities": 779,
+    "date": "2026-11-17",
     "hubs": [
       {
         "label": "write()",
@@ -393,7 +393,7 @@
         "path": "backend/memory/bus.py"
       }
     ],
-    "links": 64321,
-    "nodes": 26597
+    "links": 64457,
+    "nodes": 26659
   }
 }
