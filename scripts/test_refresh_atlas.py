@@ -26,7 +26,7 @@ _spec = importlib.util.spec_from_file_location("refresh_atlas", ROOT / "scripts"
 ra = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ra)
 
-FILES = [f"{name}.html" for name in ra.PAGES] + ["data/census.json", "data/summary.md", "data/index/stats.json"]
+FILES = [f"{name}.html" for name in ra.PAGES] + ["data/census.json", "data/summary.md", "data/index/stats.json", "data/index/vitals.json", "content/subsystems.json"]
 
 
 def read(p):
@@ -43,7 +43,8 @@ class RepoState(unittest.TestCase):
 class OnACopy(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp())
-        (self.tmp / "data" / "index").mkdir(parents=True)
+        for d in ("data/index", "content"):
+            (self.tmp / d).mkdir(parents=True)
         for rel in FILES:
             shutil.copy(ROOT / rel, self.tmp / rel)
         self.census = json.loads(read(self.tmp / "data" / "census.json"))
@@ -81,24 +82,68 @@ class OnACopy(unittest.TestCase):
         self.assertEqual(0, ra.main(["--root", str(self.tmp)]))
         self.assertEqual(0, ra.main(["--root", str(self.tmp), "--check"]))
 
-    def test_snapshot_label_and_counts_follow_the_census(self):
+    def test_vitals_census_half_follows_the_census(self):
+        """index.html is a shell since P07: the numbers it shows are data/index/vitals.json "census"."""
         self.newer_census()
-        self.refresh()
-        index = read(self.tmp / "index.html")
-        self.assertIn("Built 2099-01-02 from commit abc1234.", index)
-        self.assertIn(f'<div class="k">{ra.fmt(len(self.census["git"]["commits"]))}</div><div class="l">commits</div>', index)
+        self.assertIn(self.tmp / "data" / "index" / "vitals.json", self.refresh())
+        c = json.loads(read(self.tmp / "data" / "index" / "vitals.json"))["census"]
+        self.assertEqual("abc1234", c["commit"])
+        self.assertEqual("2099-01-02", c["generated"])
+        self.assertEqual(len(self.census["git"]["commits"]), c["kpis"]["commits"])
+        self.assertEqual({"commits": 1, "added": 5, "month": "2099-01"}, next(m for m in c["months"] if m["month"] == "2099-01"))
+        self.assertEqual(self.census["totals"]["code"], c["kpis"]["code_lines"])
         self.assertIn("2099-01-02", read(self.tmp / "history.html"))
 
-    def test_graphify_derived_content_is_preserved(self):
-        before = {n: read(self.tmp / f"{n}.html") for n in ("index", "api", "explore")}
+    def test_index_html_is_not_a_generated_page_any_more(self):
+        self.assertNotIn("index", ra.PAGES)
+        self.assertFalse(hasattr(ra, "refresh_index"))
+        before = read(ROOT / "index.html")
         self.newer_census()
         self.refresh()
-        index = read(self.tmp / "index.html")
-        for label in ("graph nodes", "graph links", "guides"):
-            pat = r'<div class="k">([^<]*)</div><div class="l">' + label + "</div>"
-            self.assertEqual(re.search(pat, before["index"]).group(1), re.search(pat, index).group(1), label)
-        a, b = ra.find_card(before["index"], "Graph hubs"), ra.find_card(index, "Graph hubs")
-        self.assertEqual(before["index"][a[0]:a[1]], index[b[0]:b[1]], "Graph hubs card must be untouched")
+        self.assertEqual(before, read(ROOT / "index.html"))
+
+    def test_every_file_lands_in_one_subsystem_and_the_rest_in_other(self):
+        c = ra.census_vitals(self.census, ra.load_subsystems(self.tmp))
+        total = {k: sum(r[k] for r in c["subsystems"].values()) for k in ("files", "code", "functions")}
+        self.assertEqual({"files": c["kpis"]["files"], "code": c["kpis"]["code_lines"], "functions": c["kpis"]["functions"]}, total)
+        # the longest match wins: a more specific prefix takes its files away from a shorter one
+        spec = {"subsystems": [{"id": "all", "match": ["backend/"]}, {"id": "tests", "match": ["backend/tests/"]}]}
+        counts = ra.subsystem_counts(self.census, spec)
+        n_tests = sum(1 for f in self.census["files"] if not f.get("binary") and f["path"].startswith("backend/tests/"))
+        n_back = sum(1 for f in self.census["files"] if not f.get("binary") and f["path"].startswith("backend/"))
+        self.assertEqual(n_tests, counts["tests"]["files"])
+        self.assertEqual(n_back - n_tests, counts["all"]["files"])
+        self.assertEqual({}, ra.subsystem_counts(self.census, None), "no spec: nothing to count, not a crash")
+
+    def test_an_exact_file_match_beats_its_folder(self):
+        spec = {"subsystems": [{"id": "dir", "match": ["scripts/"]}, {"id": "one", "match": ["scripts/refresh_atlas.py"]}]}
+        counts = ra.subsystem_counts({"files": [{"path": "scripts/refresh_atlas.py", "code": 7, "functions": []},
+                                                {"path": "scripts/other.py", "code": 3, "functions": []},
+                                                {"path": "README.md", "code": 1, "functions": []}]}, spec)
+        self.assertEqual({"files": 1, "code": 7, "functions": 0}, counts["one"])
+        self.assertEqual({"files": 1, "code": 3, "functions": 0}, counts["dir"])
+        self.assertEqual({"files": 1, "code": 1, "functions": 0}, counts["other"])
+
+    def test_graph_half_of_vitals_is_carried_over_untouched(self):
+        graph = json.loads(read(self.tmp / "data" / "index" / "vitals.json"))["graph"]
+        self.newer_census()
+        self.refresh()
+        self.assertEqual(graph, json.loads(read(self.tmp / "data" / "index" / "vitals.json"))["graph"])
+
+    def test_vitals_are_rebuilt_when_missing_or_not_json_and_a_graph_half_is_not_invented(self):
+        vp = self.tmp / "data" / "index" / "vitals.json"
+        vp.write_text("{not json", encoding="utf-8")
+        self.assertEqual(0, ra.main(["--root", str(self.tmp)]))
+        d = json.loads(read(vp))
+        self.assertEqual({"census"}, set(d), "a refresh of the census must never make up a graph")
+        vp.unlink()
+        self.assertEqual(0, ra.main(["--root", str(self.tmp)]))
+        self.assertEqual({"census"}, set(json.loads(read(vp))))
+
+    def test_graphify_derived_content_is_preserved(self):
+        before = {n: read(self.tmp / f"{n}.html") for n in ("api", "explore")}
+        self.newer_census()
+        self.refresh()
         a, b = ra.find_card(before["api"], "Frontend files that call"), ra.find_card(read(self.tmp / "api.html"), "Frontend files that call")
         self.assertEqual(before["api"][a[0]:a[1]], read(self.tmp / "api.html")[b[0]:b[1]])
         self.assertEqual(ra.read_literal(before["explore"], ",DC="), ra.read_literal(read(self.tmp / "explore.html"), ",DC="), "doc sections must be untouched")
@@ -138,13 +183,13 @@ class OnACopy(unittest.TestCase):
     def test_crlf_pages_are_not_seen_as_stale_and_stay_crlf(self):
         """A Windows checkout (core.autocrlf) has CRLF files. In-sync pages must not look changed, and
         pages that do change must keep CRLF rather than silently becoming LF."""
-        for rel in ("code.html", "infra.html"):
+        for rel in ("code.html", "infra.html", "data/index/vitals.json"):
             p = self.tmp / rel
             p.write_bytes(read(p).replace("\n", "\r\n").encode("utf-8"))
         self.assertEqual({}, ra.refresh_all(self.tmp, self.census), "CRLF alone must not count as out of date")
         self.newer_census()
         changes = ra.refresh_all(self.tmp, self.census)
-        for rel in ("code.html", "infra.html"):
+        for rel in ("code.html", "infra.html", "data/index/vitals.json"):
             raw = changes[self.tmp / rel].encode("utf-8")
             self.assertEqual(raw.count(b"\r\n"), raw.count(b"\n"), f"{rel}: a bare LF was introduced")
 

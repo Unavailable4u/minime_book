@@ -1,0 +1,399 @@
+{
+  "census": {
+    "areas": [
+      {
+        "area": "backend/tests",
+        "code": 57895
+      },
+      {
+        "area": "frontend/app",
+        "code": 44946
+      },
+      {
+        "area": "m2c/tests",
+        "code": 26383
+      },
+      {
+        "area": "backend/eo",
+        "code": 18602
+      },
+      {
+        "area": "m2c/src",
+        "code": 18043
+      },
+      {
+        "area": "backend/agents",
+        "code": 11636
+      },
+      {
+        "area": "backend/codeagent",
+        "code": 6299
+      },
+      {
+        "area": "backend/api",
+        "code": 4804
+      },
+      {
+        "area": "backend/utils",
+        "code": 2429
+      },
+      {
+        "area": "backend/scripts",
+        "code": 1685
+      },
+      {
+        "area": "daemon",
+        "code": 1203
+      },
+      {
+        "area": "scripts",
+        "code": 840
+      }
+    ],
+    "branch": "main",
+    "changed": [
+      {
+        "commits": 58,
+        "path": "frontend/app/context/SessionContext.jsx"
+      },
+      {
+        "commits": 56,
+        "path": "frontend/app/components/tabs/NotebooksTab.jsx"
+      },
+      {
+        "commits": 54,
+        "path": "frontend/app/components/WorkspaceChatPanel.jsx"
+      },
+      {
+        "commits": 50,
+        "path": "backend/utils/llm_client.py"
+      },
+      {
+        "commits": 44,
+        "path": "frontend/app/components/tabs/BuildTab.jsx"
+      },
+      {
+        "commits": 41,
+        "path": "backend/agents/hardware_speccer.py"
+      },
+      {
+        "commits": 38,
+        "path": "frontend/app/components/tabs/PlanTab.jsx"
+      },
+      {
+        "commits": 36,
+        "path": "frontend/app/components/tabs/ResearchTab.jsx"
+      },
+      {
+        "commits": 35,
+        "path": "backend/api/task_runner.py"
+      },
+      {
+        "commits": 33,
+        "path": "backend/api/server.py"
+      }
+    ],
+    "commit": "94af156",
+    "complex": [
+      {
+        "cc": 235,
+        "name": "WorkspaceChatPanel",
+        "path": "frontend/app/components/WorkspaceChatPanel.jsx"
+      },
+      {
+        "cc": 229,
+        "name": "WorkbenchBody",
+        "path": "frontend/app/components/workbench/EditorWorkbench.jsx"
+      },
+      {
+        "cc": 213,
+        "name": "SessionProvider",
+        "path": "frontend/app/context/SessionContext.jsx"
+      },
+      {
+        "cc": 165,
+        "name": "Explorer",
+        "path": "frontend/app/components/workbench/Explorer.jsx"
+      },
+      {
+        "cc": 165,
+        "name": "WorkspaceDockProvider",
+        "path": "frontend/app/context/WorkspaceDockContext.jsx"
+      },
+      {
+        "cc": 132,
+        "name": "StudyView",
+        "path": "frontend/app/components/tabs/NotebooksTab.jsx"
+      },
+      {
+        "cc": 122,
+        "name": "LandingPage",
+        "path": "frontend/app/components/LandingPage.jsx"
+      },
+      {
+        "cc": 112,
+        "name": "ManageWorkspaceModal",
+        "path": "frontend/app/components/ManageWorkspaceModal.jsx"
+      },
+      {
+        "cc": 100,
+        "name": "editorReducer",
+        "path": "frontend/app/lib/workbench/editorStore.js"
+      },
+      {
+        "cc": 92,
+        "name": "analyze_py",
+        "path": "scripts/codebase_census.py"
+      }
+    ],
+    "dirty_files": 0,
+    "docstrings": {
+      "documented": 3015,
+      "python_functions": 16255
+    },
+    "generated": "2026-11-15",
+    "kpis": {
+      "code_lines": 243011,
+      "commits": 580,
+      "files": 1185,
+      "functions": 17941,
+      "routes": 184,
+      "source_files": 532,
+      "test_files": 489,
+      "tests_written": 8615,
+      "total_lines": 376781
+    },
+    "languages": [
+      {
+        "code": 152251,
+        "lang": "python"
+      },
+      {
+        "code": 45358,
+        "lang": "javascript"
+      },
+      {
+        "code": 2870,
+        "lang": "sql"
+      },
+      {
+        "code": 452,
+        "lang": "css"
+      },
+      {
+        "code": 209,
+        "lang": "shell"
+      }
+    ],
+    "largest": [
+      {
+        "code": 2667,
+        "path": "frontend/app/components/tabs/NotebooksTab.jsx"
+      },
+      {
+        "code": 1651,
+        "path": "frontend/app/components/workbench/EditorWorkbench.jsx"
+      },
+      {
+        "code": 1545,
+        "path": "frontend/app/components/WorkspaceChatPanel.jsx"
+      },
+      {
+        "code": 1532,
+        "path": "frontend/app/components/tabs/BuildTab.jsx"
+      },
+      {
+        "code": 1473,
+        "path": "frontend/app/context/SessionContext.jsx"
+      },
+      {
+        "code": 1425,
+        "path": "backend/utils/llm_client.py"
+      },
+      {
+        "code": 1389,
+        "path": "backend/agents/hardware_speccer.py"
+      },
+      {
+        "code": 1344,
+        "path": "frontend/app/components/tabs/GrowthTab.jsx"
+      },
+      {
+        "code": 1190,
+        "path": "frontend/app/components/tabs/TestTab.jsx"
+      },
+      {
+        "code": 1158,
+        "path": "backend/eo/registry.py"
+      }
+    ],
+    "months": [
+      {
+        "added": 1271,
+        "commits": 18,
+        "month": "2026-06"
+      },
+      {
+        "added": 99967,
+        "commits": 132,
+        "month": "2026-07"
+      },
+      {
+        "added": 238324,
+        "commits": 283,
+        "month": "2026-08"
+      },
+      {
+        "added": 209467,
+        "commits": 96,
+        "month": "2026-09"
+      },
+      {
+        "added": 144431,
+        "commits": 43,
+        "month": "2026-10"
+      },
+      {
+        "added": 53647,
+        "commits": 8,
+        "month": "2026-11"
+      }
+    ],
+    "subsystems": {
+      "agents": {
+        "code": 13693,
+        "files": 77,
+        "functions": 464
+      },
+      "api": {
+        "code": 4804,
+        "files": 23,
+        "functions": 284
+      },
+      "backend-tests": {
+        "code": 58024,
+        "files": 307,
+        "functions": 8278
+      },
+      "backend-tools": {
+        "code": 14979,
+        "files": 35,
+        "functions": 90
+      },
+      "codeagent": {
+        "code": 6299,
+        "files": 20,
+        "functions": 651
+      },
+      "daemon": {
+        "code": 2181,
+        "files": 16,
+        "functions": 194
+      },
+      "eo": {
+        "code": 18638,
+        "files": 113,
+        "functions": 993
+      },
+      "frontend": {
+        "code": 59844,
+        "files": 250,
+        "functions": 1679
+      },
+      "m2c": {
+        "code": 20214,
+        "files": 94,
+        "functions": 1196
+      },
+      "m2c-tests": {
+        "code": 26383,
+        "files": 118,
+        "functions": 3845
+      },
+      "migrations": {
+        "code": 2157,
+        "files": 15,
+        "functions": 0
+      },
+      "other": {
+        "code": 6614,
+        "files": 42,
+        "functions": 1
+      },
+      "protocol": {
+        "code": 3054,
+        "files": 37,
+        "functions": 35
+      },
+      "services": {
+        "code": 3172,
+        "files": 19,
+        "functions": 157
+      },
+      "tooling": {
+        "code": 2955,
+        "files": 19,
+        "functions": 74
+      }
+    }
+  },
+  "graph": {
+    "commit": "94af156",
+    "communities": 806,
+    "date": "2026-11-15",
+    "hubs": [
+      {
+        "label": "write()",
+        "links": 364,
+        "path": "backend/memory/bus.py"
+      },
+      {
+        "label": "read()",
+        "links": 303,
+        "path": "backend/memory/bus.py"
+      },
+      {
+        "label": "Chat",
+        "links": 183,
+        "path": "m2c/tests/tui/tui_rig.py"
+      },
+      {
+        "label": "eo/__init__.py",
+        "links": 179,
+        "path": "backend/eo/__init__.py"
+      },
+      {
+        "label": "call()",
+        "links": 178,
+        "path": "m2c/tests/tools/tools_fixtures.py"
+      },
+      {
+        "label": "go()",
+        "links": 170,
+        "path": "backend/tests/unit/loop_testkit.py"
+      },
+      {
+        "label": "Rig",
+        "links": 166,
+        "path": "m2c/tests/tui/tui_rig.py"
+      },
+      {
+        "label": "llm_client.py",
+        "links": 163,
+        "path": "backend/utils/llm_client.py"
+      },
+      {
+        "label": "run_async()",
+        "links": 152,
+        "path": "m2c/tests/link/link_fakes.py"
+      },
+      {
+        "label": "bus.py",
+        "links": 151,
+        "path": "backend/memory/bus.py"
+      }
+    ],
+    "links": 64321,
+    "nodes": 26597
+  }
+}

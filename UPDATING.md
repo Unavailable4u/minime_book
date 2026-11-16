@@ -53,6 +53,7 @@ The GitHub Action (`refresh-atlas.yml`) still runs when `data/census.json` is pu
 ## How the graph-driven numbers are worked out
 
 * **Counts**: nodes, links and communities in `graph.json`.
+* **Overview numbers (`data/index/vitals.json`)**: `index.html` is a shell that `assets/js/overview.js` fills from this file, so no script edits the page itself. `refresh_atlas.py` writes the `census` half (KPIs, languages, commits per month, directory-table counts) and `refresh_graph.py` writes the `graph` half (nodes, links, communities, hubs). Each keeps the other's half as it is. The page shows both halves with the commit and day they were measured at, and turns amber when they disagree. The hand-written parts are in `content/overview/`, the directory table in `content/subsystems.json` and the request walk-through in `content/system/request-path.json`; `check_site.py` checks every link and code reference in them.
 * **Graph hubs**: the 10 nodes with the most links that belong to a source file (library nodes such as `json` or `os` have no file and are skipped).
 * **Folder matrix and "Strongest cross-folder links"**: links counted from the folder of the source node to the folder of the target node, tests excluded. A folder is `backend/eo`, `frontend/app/components` and so on. The 14 busiest folders get a row and a column.
 * **Communities, named**: the 40 largest, each named after its dominant folder and most common files (Graphify's own labels are not useful).

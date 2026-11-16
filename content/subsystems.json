@@ -1,0 +1,315 @@
+{
+  "version": 1,
+  "subsystems": [
+    {
+      "id": "eo",
+      "name": "Orchestrator",
+      "folder": "backend/eo",
+      "match": [
+        "backend/eo/"
+      ],
+      "product": "minime",
+      "what": "Runs a task: the fast relay, the inspector that classifies a request, the router and dispatcher, the gatekeeper loop, the executor and the role registry.",
+      "chapter": "doc-minime-feature-guide#5-the-agent-system",
+      "pages": [
+        "architecture",
+        "agents"
+      ],
+      "key_files": [
+        {
+          "path": "backend/eo/inspector.py",
+          "qual": "classify"
+        },
+        {
+          "path": "backend/eo/executor.py",
+          "qual": "execute_graph"
+        },
+        {
+          "path": "backend/eo/registry.py",
+          "qual": "resolve_role"
+        }
+      ]
+    },
+    {
+      "id": "agents",
+      "name": "Agent modules",
+      "folder": "backend/agents",
+      "match": [
+        "backend/agents/"
+      ],
+      "product": "minime",
+      "what": "The workers a role resolves to: one module per specialised job, plus a generic worker for roles that have no module of their own.",
+      "chapter": "doc-minime-feature-guide#12-role-library",
+      "pages": [
+        "agents"
+      ],
+      "key_files": [
+        {
+          "path": "backend/agents/generic_worker.py",
+          "qual": "run"
+        },
+        {
+          "path": "backend/agents/academic_search.py"
+        }
+      ]
+    },
+    {
+      "id": "api",
+      "name": "API",
+      "folder": "backend/api",
+      "match": [
+        "backend/api/"
+      ],
+      "product": "minime",
+      "what": "The HTTP and WebSocket edge: JWT-checked routes, and the task runner that starts the pipeline.",
+      "chapter": "doc-minime-feature-guide#3-chat",
+      "pages": [
+        "api",
+        "architecture"
+      ],
+      "key_files": [
+        {
+          "path": "backend/api/routes/tasks.py",
+          "qual": "post_task"
+        },
+        {
+          "path": "backend/api/task_runner.py",
+          "qual": "run_task"
+        },
+        {
+          "path": "backend/api/server.py"
+        }
+      ]
+    },
+    {
+      "id": "services",
+      "name": "Shared services",
+      "folder": "backend/memory, relay, utils, graph, config",
+      "match": [
+        "backend/memory/",
+        "backend/relay/",
+        "backend/utils/",
+        "backend/graph/",
+        "backend/config/"
+      ],
+      "product": "minime",
+      "what": "What every stage leans on: the namespaced JSON bus, the realtime emitter, the model-provider client and its rate ledger.",
+      "chapter": "doc-minime-feature-guide#16-knowledge-graph-and-structured-data",
+      "pages": [
+        "data",
+        "infra"
+      ],
+      "key_files": [
+        {
+          "path": "backend/memory/bus.py",
+          "qual": "write"
+        },
+        {
+          "path": "backend/relay/emitter.py",
+          "qual": "emit_event"
+        },
+        {
+          "path": "backend/utils/llm_client.py",
+          "qual": "generate_text"
+        },
+        {
+          "path": "backend/utils/rate_ledger.py",
+          "qual": "can_proceed"
+        }
+      ]
+    },
+    {
+      "id": "codeagent",
+      "name": "Code agent (server side)",
+      "folder": "backend/codeagent",
+      "match": [
+        "backend/codeagent/"
+      ],
+      "product": "m2c",
+      "what": "The MiniMe server's half of M2C: the agent loop, the tool-call broker and the WebSocket the M2C client connects to.",
+      "chapter": "doc-m2c-feature-guide#5-agent-loop-and-tools",
+      "pages": [
+        "api"
+      ],
+      "key_files": [
+        {
+          "path": "backend/codeagent/loop.py"
+        },
+        {
+          "path": "backend/codeagent/broker.py"
+        },
+        {
+          "path": "backend/codeagent/ws.py"
+        }
+      ]
+    },
+    {
+      "id": "migrations",
+      "name": "Database migrations",
+      "folder": "backend/migrations",
+      "match": [
+        "backend/migrations/"
+      ],
+      "product": "minime",
+      "what": "The SQL that builds the Postgres schema, in order.",
+      "chapter": "doc-minime-feature-guide#16-knowledge-graph-and-structured-data",
+      "pages": [
+        "data"
+      ],
+      "key_files": []
+    },
+    {
+      "id": "backend-tools",
+      "name": "Backend scripts and evals",
+      "folder": "backend/scripts, backend/evals",
+      "match": [
+        "backend/scripts/",
+        "backend/evals/"
+      ],
+      "product": "minime",
+      "what": "One-off scripts and the model evaluation harness. Not part of a request.",
+      "chapter": "",
+      "pages": [],
+      "key_files": []
+    },
+    {
+      "id": "backend-tests",
+      "name": "Backend tests",
+      "folder": "backend/tests",
+      "match": [
+        "backend/tests/"
+      ],
+      "product": "minime",
+      "what": "The backend test suite: unit, integration, static and canary checks.",
+      "chapter": "",
+      "pages": [
+        "tests",
+        "health"
+      ],
+      "key_files": []
+    },
+    {
+      "id": "frontend",
+      "name": "Web app",
+      "folder": "frontend",
+      "match": [
+        "frontend/"
+      ],
+      "product": "minime",
+      "what": "The Next.js browser app: chat, workspaces, the eight stage tabs, notebooks and the code workbench.",
+      "chapter": "doc-minime-feature-guide#2-the-main-user-experience",
+      "pages": [
+        "explore",
+        "map"
+      ],
+      "key_files": [
+        {
+          "path": "frontend/app/components/WorkspaceChatPanel.jsx",
+          "qual": "WorkspaceChatPanel"
+        }
+      ]
+    },
+    {
+      "id": "daemon",
+      "name": "Local daemon",
+      "folder": "daemon",
+      "match": [
+        "daemon/"
+      ],
+      "product": "minime",
+      "what": "A small program on your machine that lets the web workspace read and write your files, with an approval step before it writes.",
+      "chapter": "doc-minime-feature-guide#19-security-and-trust-features",
+      "pages": [
+        "architecture"
+      ],
+      "key_files": [
+        {
+          "path": "daemon/minime_daemon.py"
+        },
+        {
+          "path": "daemon/tools.py",
+          "qual": "write_file"
+        },
+        {
+          "path": "daemon/README.md"
+        }
+      ]
+    },
+    {
+      "id": "m2c",
+      "name": "M2C client",
+      "folder": "m2c/src",
+      "match": [
+        "m2c/src/"
+      ],
+      "product": "m2c",
+      "what": "The coding agent that runs on your machine: terminal UI, local policy and sandbox, tools, checkpoints and the link to the MiniMe server. Early: it can so far check your machine and sign in.",
+      "chapter": "doc-m2c-feature-guide#6-safety-and-trust",
+      "pages": [],
+      "key_files": [
+        {
+          "path": "m2c/src/m2c/runner.py"
+        },
+        {
+          "path": "m2c/src/m2c/link/client.py"
+        },
+        {
+          "path": "m2c/src/m2c/policy/shellparse.py"
+        }
+      ]
+    },
+    {
+      "id": "m2c-tests",
+      "name": "M2C tests",
+      "folder": "m2c/tests",
+      "match": [
+        "m2c/tests/"
+      ],
+      "product": "m2c",
+      "what": "Tests for the client. Some contain deliberately fake secrets to prove that secrets are never stored or sent.",
+      "chapter": "",
+      "pages": [
+        "tests"
+      ],
+      "key_files": []
+    },
+    {
+      "id": "protocol",
+      "name": "Protocol",
+      "folder": "protocol",
+      "match": [
+        "protocol/"
+      ],
+      "product": "m2c",
+      "what": "The JSON-schema contract between the M2C client and the MiniMe server, with example messages and the validator that checks both.",
+      "chapter": "doc-m2c-feature-guide#5-agent-loop-and-tools",
+      "pages": [],
+      "key_files": [
+        {
+          "path": "protocol/README.md"
+        },
+        {
+          "path": "protocol/validate.py"
+        }
+      ]
+    },
+    {
+      "id": "tooling",
+      "name": "Repo tooling and docs",
+      "folder": "scripts, .github, .githooks, docs",
+      "match": [
+        "scripts/",
+        ".github/",
+        ".githooks/",
+        "docs/"
+      ],
+      "product": "tooling",
+      "what": "Repository-wide scripts, CI workflows, the secret-scanning hook and the architecture decision records.",
+      "chapter": "",
+      "pages": [
+        "decisions"
+      ],
+      "key_files": []
+    }
+  ]
+}

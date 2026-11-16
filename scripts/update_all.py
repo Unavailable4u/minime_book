@@ -19,6 +19,7 @@ What it runs, in order, stopping at the first problem:
     1. checks MiniMe is a clean checkout and graphify-out/graph.json was built at its current commit
     2. refresh_atlas.py --census-from <MiniMe>   new census, then every census-driven page and the search index
     3. refresh_graph.py --minime <MiniMe>        every Graphify-driven part (graph, hubs, Explore edges, API callers)
+                                                 (the Overview, index.html, is a shell: both scripts write its numbers to data/index/vitals.json)
     4. both scripts with --check (refresh_atlas.py --check covers the search index too), and the unit tests,
        to prove nothing is left stale
     5. with --push: git add, commit and push
@@ -103,6 +104,7 @@ def main(argv=None):
     run(PY, "scripts/test_reader.py")
     run(PY, "scripts/test_library.py")
     run(PY, "scripts/test_figures.py")
+    run(PY, "scripts/test_overview.py")
 
     print("\n== Result ==")
     run("git", "status", "--short")

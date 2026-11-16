@@ -1,0 +1,149 @@
+/* MiniMe Atlas 2 - Overview (P07). Loaded by index.html after tokens/base/components/shell.css; drawn by assets/js/overview.js.
+   Tokens only (tokens.css): no raw colours, so both themes work. The meaning of colour is the Atlas's own:
+   cyan = data flow, amber = gates and warnings, crimson = brand, green = fresh, violet = relations. */
+
+.ov { max-width: 1240px; margin: 0 auto; padding: var(--space-6) var(--space-4) var(--space-8); }
+.ov h1 { margin: 0 0 var(--space-3); font-size: var(--fs-3xl); line-height: var(--lh-tight); letter-spacing: -0.02em; }
+.ov h2 { margin: var(--space-7) 0 var(--space-3); padding-bottom: var(--space-2); border-bottom: 1px solid var(--line); font-size: var(--fs-xl); line-height: var(--lh-tight); }
+.ov h3 { margin: 0 0 var(--space-2); font-size: var(--fs-lg); line-height: 1.3; }
+.ov p { margin: 0 0 var(--space-3); }
+.ov code { font-family: var(--font-mono); font-variant-ligatures: none; font-size: 0.9em; }
+.ov :not(pre) > code { padding: 0.08em 0.38em; background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-1); overflow-wrap: anywhere; }
+.ov a { color: var(--brand); text-underline-offset: 0.18em; }
+.ov a:focus-visible, .ov button:focus-visible, .ov summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ov [hidden] { display: none; }
+.ov-sub { max-width: 70ch; color: var(--ink-dim); }
+.ov-empty { padding: var(--space-4) var(--space-5); color: var(--ink-dim); border: 1px dashed var(--line-strong); border-radius: var(--radius-3); }
+.ov-draft { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); color: var(--ink-dim); font-size: var(--fs-sm); }
+
+.ov-section { margin: 0; }
+
+/* ------------------------------------------------------------ hero */
+.ov-hero { margin: 0; }
+.ov-lede { max-width: 68ch; margin-bottom: var(--space-4); font-size: var(--fs-md); line-height: 1.6; }
+.ov-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0 0 var(--space-4); padding: 0; list-style: none; }
+.ov-chips li { margin: 0; }
+.ov-chips a { display: inline-block; padding: 0.3rem 0.85rem; color: var(--ink); text-decoration: none; background: var(--panel); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); font-size: var(--fs-sm); }
+.ov-chips a:hover { border-color: var(--brand); }
+.ov-start { margin: 0; padding: var(--space-3) var(--space-4); color: var(--ink-dim); font-size: var(--fs-sm); background: var(--panel); border: 1px solid var(--brand); border-radius: var(--radius-3); }
+.ov-start b { color: var(--ink); }
+
+/* ------------------------------------------------------------ freshness: do census, graph, notes and docs describe the same commit? */
+.ov-fresh { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin: var(--space-5) 0 0; padding: var(--space-3) var(--space-4);
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-3); }
+.ov-fresh[data-state="stale"] { border-color: var(--gate); }
+.ov-fresh__list { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin: 0; padding: 0; list-style: none; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+.ov-fresh__list li { margin: 0; }
+.ov-fresh__i { color: var(--ink-dim); }
+.ov-fresh__i--ok { color: var(--ink); }
+.ov-fresh__i--stale { color: var(--gate); font-weight: 600; }
+.ov-fresh__why { flex-basis: 100%; margin: 0; color: var(--gate); font-size: var(--fs-sm); }
+
+/* ------------------------------------------------------------ abstract */
+.ov-abstract { max-width: 72ch; padding: var(--space-2) 0 var(--space-2) var(--space-5); border-left: 3px solid var(--line-strong); }
+.ov-abstract p { margin: 0; font-family: var(--font-prose); font-size: var(--fs-prose); line-height: var(--lh-prose); hyphens: auto; }
+
+/* ------------------------------------------------------------ the four products */
+.ov-products { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); }
+.ov-product { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); font-size: var(--fs-sm); }
+.ov-product .mm-card__title { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0; font-size: var(--fs-lg); }
+.ov-product p { margin: 0; color: var(--ink-dim); }
+.ov-product__m { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); align-items: baseline; }
+.ov-product__m > span { flex: none; min-width: 3rem; color: var(--ink-dim); font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.04em; }
+.ov-product__go { margin-top: auto !important; padding-top: var(--space-2); }
+
+/* ------------------------------------------------------------ anatomy of a request */
+.ov-strip { margin: 0 0 var(--space-4); }
+.ov-strip li { margin: 0; }
+.ov-strip__b { padding: 0.2rem 0.1rem; color: inherit; background: none; border: 0; font: inherit; text-align: left; cursor: pointer; }
+.ov-strip__b:hover { text-decoration: underline; text-underline-offset: 3px; }
+.ov-step { display: flex; flex-direction: column; gap: var(--space-3); border-left: 4px solid var(--flow); }
+.ov-step--gate { border-left-color: var(--gate); }
+.ov-step__t { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0; }
+.ov-step__n { color: var(--ink-dim); font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 600; }
+.ov-step__what { max-width: 70ch; margin: 0; }
+.ov-step__code { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.ov-step__code li { margin: 0; }
+.ov-step__code a { display: inline-block; padding: 0.15rem 0.5rem; text-decoration: none; background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-2); }
+.ov-step__code a:hover { border-color: var(--flow); }
+.ov-step__code code { background: none; border: 0; padding: 0; }
+.ov-step__more { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin: 0; font-size: var(--fs-sm); }
+.ov-step__nav { display: flex; gap: var(--space-2); margin-top: auto; }
+.ov-step__nav .mm-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+/* ------------------------------------------------------------ reading paths */
+.ov-paths { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); }
+.ov-path { padding: var(--space-4); }
+.ov-path__b { color: var(--ink-dim); font-size: var(--fs-sm); }
+.ov-path__steps { margin: 0; padding: 0; list-style: none; font-size: var(--fs-sm); }
+.ov-path__steps li { display: flex; align-items: baseline; gap: var(--space-2); margin: 0; padding: var(--space-1) 0; border-top: 1px solid var(--line); }
+.ov-path__steps a { min-width: 0; overflow-wrap: anywhere; }
+.ov-path__k { flex: none; min-width: 3.2rem; color: var(--brand); font-size: var(--fs-xs); font-weight: 700; }
+.ov-path__k--code { color: var(--flow); font-family: var(--font-mono); }
+
+/* ------------------------------------------------------------ vital signs */
+.ov-vitals { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 14.5rem), 1fr)); }
+.ov-vital { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); color: inherit; text-decoration: none; transition: border-color var(--dur-1) var(--ease); }
+.ov-vital--link:hover, .ov-vital--link:focus-visible { border-color: var(--brand); }
+.ov-vital .mm-kpi__source { margin: 0; margin-top: auto; padding-top: var(--space-2); font-variant-numeric: tabular-nums; }
+.ov-vital__why { margin: 0; color: var(--ink-dim); font-size: var(--fs-sm); line-height: 1.5; }
+.ov-spark { width: 100%; max-width: 8rem; height: 1.5rem; }
+.ov-spark polyline { stroke: var(--flow); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+
+/* ------------------------------------------------------------ directory table */
+.ov-dir .mm-tablewrap { max-height: none; }
+.ov-dir__t { min-width: 76rem; }
+.ov-dir__t th[scope="row"] { text-align: left; white-space: normal; min-width: 11rem; }
+.ov-dir__t th[scope="row"] b { display: block; }
+.ov-dir__f { display: block; margin-top: var(--space-1); font-weight: 400; }
+.ov-dir__t .ov-dir__what { white-space: normal; min-width: 18rem; max-width: 28rem; color: var(--ink-dim); }
+.ov-dir__t .ov-dir__pages, .ov-dir__t .ov-dir__keys { white-space: normal; }
+.ov-dir__pages a, .ov-dir__keys a { display: block; }
+.ov-dir__t .ov-dir__keys { min-width: 16rem; }
+.ov-dir__keys code { white-space: nowrap; overflow-wrap: normal; }   /* one label per line, never broken inside a file name */
+.ov-dir__cap { padding: var(--space-2) var(--space-3); color: var(--ink-dim); font-size: var(--fs-xs); text-align: left; caption-side: bottom; }
+.ov-dir__total th, .ov-dir__total td { font-weight: 700; background: var(--panel-2); }
+
+/* ------------------------------------------------------------ details: the cards the old Overview had */
+.ov-details { margin-top: var(--space-7); border: 1px solid var(--line); border-radius: var(--radius-3); background: var(--panel); }
+.ov-details > summary { padding: var(--space-3) var(--space-4); font-weight: 600; cursor: pointer; }
+.ov-details[open] > summary { border-bottom: 1px solid var(--line); }
+.ov-cards { display: grid; gap: var(--space-4); padding: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr)); }
+.ov-card { padding: var(--space-4); background: var(--bg); box-shadow: none; min-width: 0; }
+.ov-card .mm-kpi__source { margin-top: var(--space-3); }
+.ov-bar { display: grid; grid-template-columns: minmax(6rem, 11rem) 1fr auto; align-items: center; gap: var(--space-2); margin: var(--space-1) 0; font-size: var(--fs-sm); }
+.ov-bar__l { min-width: 0; overflow: hidden; color: var(--ink-dim); text-overflow: ellipsis; white-space: nowrap; text-decoration: none; }
+a.ov-bar__l:hover { color: var(--ink); text-decoration: underline; }
+.ov-bar__i { display: block; height: 0.55rem; border-radius: var(--radius-pill); background: var(--brand); }
+.ov-bar__v { min-width: 3.5rem; font-style: normal; font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+.ov-lang { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-5); }
+.ov-pie { flex: none; width: 9rem; height: 9rem; border-radius: 50%; }
+.ov-legend { margin: 0; padding: 0; list-style: none; font-size: var(--fs-sm); }
+.ov-legend li { display: flex; align-items: center; gap: var(--space-2); margin: 0; }
+.ov-legend i { flex: none; width: 0.65rem; height: 0.65rem; border-radius: var(--radius-1); }
+.ov-months { display: block; width: 100%; height: auto; max-height: 9rem; }
+.ov-months__bar { fill: var(--brand); }
+.ov-months__m { fill: var(--ink-dim); font-size: 13px; }
+.ov-months__v { fill: var(--ink); font-size: 13px; }
+
+/* ------------------------------------------------------------ how this Atlas stays true */
+.ov-true { max-width: 72ch; padding-left: var(--space-5); }
+.ov-true li { margin-bottom: var(--space-2); }
+
+@media (max-width: 40rem) {
+  .ov { padding-inline: var(--space-3); }
+  .ov h1 { font-size: var(--fs-2xl); }
+  .ov-bar { grid-template-columns: 1fr auto; }
+  .ov-bar__l { grid-column: 1 / -1; }
+  .ov-step__nav .mm-btn { flex: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ov-vital { transition: none; }
+}
+
+@media print {
+  .ov-step__nav, .ov-strip { display: none; }
+  .ov-details > summary { display: none; }
+  .ov-details { border: 0; }
+}

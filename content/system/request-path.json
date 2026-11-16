@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "intro": "One chat message, traced through the code that handles it. Each step names the real functions, so you can open them at the exact commit this Atlas indexed.",
+  "needs_review": true,
+  "review_note": "Drafted from the task-pipeline and task-sequence diagrams and the code behind them. Read each step against the book, then remove this line.",
+  "steps": [
+    {
+      "id": "browser",
+      "title": "The browser sends it",
+      "what": "You type in the workspace chat. The browser posts the message to the API with your JWT. The route checks who you are before anything else happens.",
+      "code": [
+        {
+          "path": "frontend/app/components/WorkspaceChatPanel.jsx",
+          "qual": "WorkspaceChatPanel"
+        },
+        {
+          "path": "backend/api/routes/tasks.py",
+          "qual": "post_task"
+        },
+        {
+          "path": "backend/api/server.py"
+        }
+      ],
+      "chapter": "doc-minime-feature-guide#3-chat",
+      "diagram": "architecture/task-sequence.html"
+    },
+    {
+      "id": "fast-path",
+      "title": "A fast model gets the first try",
+      "what": "The task runner offers the request to the SGA relay first. It tries a fast model, then parallel models, and gives up after about three seconds. If the answer is confident enough it is returned here and nothing else runs.",
+      "code": [
+        {
+          "path": "backend/api/task_runner.py",
+          "qual": "run_task"
+        },
+        {
+          "path": "backend/api/task_runner.py",
+          "qual": "_try_cache_and_sga"
+        },
+        {
+          "path": "backend/eo/sga.py",
+          "qual": "attempt"
+        }
+      ],
+      "chapter": "doc-minime-feature-guide#5-the-agent-system",
+      "diagram": "architecture/task-pipeline.html"
+    },
+    {
+      "id": "classify",
+      "title": "The inspector classifies it and a plan is drawn",
+      "what": "If the fast path was not enough, the inspector decides how big the request is (a tier from 0 to 3) and what kind of task it is. The router turns that into a graph of roles, and the dispatcher picks the next step.",
+      "code": [
+        {
+          "path": "backend/eo/inspector.py",
+          "qual": "classify"
+        },
+        {
+          "path": "backend/eo/router.py",
+          "qual": "build_execution_graph"
+        },
+        {
+          "path": "backend/eo/dispatcher.py",
+          "qual": "next_step"
+        }
+      ],
+      "chapter": "doc-minime-feature-guide#5-the-agent-system",
+      "diagram": "architecture/task-pipeline.html"
+    },
+    {
+      "id": "gatekeeper",
+      "title": "A gatekeeper can stop or redo it",
+      "gate": true,
+      "what": "Larger runs are wrapped in a loop with a gatekeeper. It can let the run continue, stop it, or send the whole plan or a single stage back to the router for another attempt before any agent runs.",
+      "code": [
+        {
+          "path": "backend/eo/loop_controller.py",
+          "qual": "run_with_looping"
+        },
+        {
+          "path": "backend/eo/loop_controller.py",
+          "qual": "_run_gatekeeper"
+        }
+      ],
+      "chapter": "doc-minime-feature-guide#5-the-agent-system",
+      "diagram": "architecture/task-pipeline.html"
+    },
+    {
+      "id": "execute",
+      "title": "A role becomes an agent module and calls a model",
+      "what": "The executor walks the graph. For each role the registry finds a dedicated agent module, or the generic worker. The agent calls a model provider; before it does, the rate ledger checks there is room, and a 429 from a provider falls back to another one inside the same call.",
+      "code": [
+        {
+          "path": "backend/eo/executor.py",
+          "qual": "execute_graph"
+        },
+        {
+          "path": "backend/eo/registry.py",
+          "qual": "resolve_role"
+        },
+        {
+          "path": "backend/agents/generic_worker.py",
+          "qual": "run"
+        },
+        {
+          "path": "backend/utils/rate_ledger.py",
+          "qual": "can_proceed"
+        },
+        {
+          "path": "backend/utils/llm_client.py",
+          "qual": "generate_text"
+        }
+      ],
+      "chapter": "doc-minime-feature-guide#12-role-library",
+      "diagram": "architecture/task-sequence.html"
+    },
+    {
+      "id": "deliver",
+      "title": "The result is stored and pushed back",
+      "what": "The result is written twice, as rows in Postgres and as keys on the namespaced JSON bus. Then one event is pushed over the WebSocket relay. There is no separate HTTP response that carries the final answer.",
+      "code": [
+        {
+          "path": "backend/memory/bus.py",
+          "qual": "write"
+        },
+        {
+          "path": "backend/eo/conversation_memory.py",
+          "qual": "append_turn"
+        },
+        {
+          "path": "backend/relay/emitter.py",
+          "qual": "emit_event"
+        }
+      ],
+      "chapter": "doc-minime-feature-guide#3-chat",
+      "diagram": "architecture/task-sequence.html"
+    }
+  ]
+}

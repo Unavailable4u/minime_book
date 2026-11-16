@@ -20,7 +20,9 @@ What it refreshes, and where each number comes from:
                         file-to-file link counted from graph.json, not just the top 14 per file)
     graph.html          node/link/community counts, the folder-to-folder matrix, "Strongest cross-folder
                         links", the "Communities, named" table (largest 40), and the Built stamp
-    index.html          "graph nodes" and "graph links" KPIs, "Graph hubs (most connections)"
+    data/index/vitals.json   the "graph" half: nodes, links, communities, the commit and day of the graph, and the
+                        ten hubs (most connections). index.html draws it (assets/js/overview.js, P07); the "census"
+                        half of the same file belongs to refresh_atlas.py and is carried over untouched
     explore.html        the per-file "Links out / Links in" edges (top 14 each way, weight = number of
                         graph links between the two files)
     api.html            the per-route "Frontend callers" column, the "called by the frontend" KPI and
@@ -125,20 +127,16 @@ def folder_stats(g):
     return pairs, nodes
 
 
-# ---------------------------------------------------------------------------- index
-def hubs_card(g):
+# --------------------------------------------------------------------------- vitals
+def graph_hubs(g):
+    """The HUBS files-or-functions with the most graph connections, concept nodes (no source file) left out."""
     rows = sorted(((v, g.N[i]) for i, v in g.degree.items() if g.N[i]["source_file"]), key=lambda r: (-r[0], r[1]["label"]))[:HUBS]
-    items = [(f"{n['label']}  {base(n['source_file'])}",) * 2 + (v,) for v, n in rows]
-    return ra.bars_card("Graph hubs (most connections)", items)
+    return [{"label": n["label"], "path": n["source_file"], "links": v} for v, n in rows]
 
 
-def refresh_index(html, g):
-    for label, value in (("graph nodes", len(g.nodes)), ("graph links", len(g.links))):
-        pat = re.compile(r'(<div class="k">)[^<]*(</div><div class="l">' + re.escape(label) + r"</div>)")
-        html, n = pat.subn(lambda m: m.group(1) + fmt(value) + m.group(2), html)
-        if n != 1:
-            raise ValueError(f"index KPI card {label!r}: expected 1 match, got {n}")
-    return ra.replace_card(html, "Graph hubs", hubs_card(g))
+def graph_vitals(g):
+    """The "graph" half of data/index/vitals.json. The commit is the short form, like the census's."""
+    return {"commit": g.commit[:7], "date": g.date, "nodes": len(g.nodes), "links": len(g.links), "communities": g.communities, "hubs": graph_hubs(g)}
 
 
 # ---------------------------------------------------------------------- graph page
@@ -391,7 +389,6 @@ def refresh_all(root, g, minime):
         if new != old:
             changes[path] = ra.to_native(new, crlf).encode("utf-8")
 
-    page("index.html", refresh_index, g)
     page("graph.html", refresh_graph_page, g)
     page("explore.html", refresh_explore, g)
     explore = root / "explore.html"
@@ -405,6 +402,11 @@ def refresh_all(root, g, minime):
         new = update_summary(old, g)
         if new != old:
             changes[sp] = ra.to_native(new, crlf).encode("utf-8")
+    vp = root / ra.VITALS_REL                                      # P07: the Overview's graph numbers; the census half is kept as it is
+    new = ra.vitals_text(ra.read_vitals(root), graph=graph_vitals(g))
+    old, crlf = ra.read_lf(vp) if vp.exists() else (None, False)
+    if new != old:
+        changes[vp] = ra.to_native(new, crlf).encode("utf-8")
     target = root / "graph-viewer.html"
     data = viewer_html(viewer_data(g, explore_html)).encode("utf-8")
     if not target.exists() or target.read_bytes() != data:
@@ -458,6 +460,7 @@ def main(argv=None):
         print("graph-derived parts are in sync with the graph" if not changes else f"{len(changes)} file(s) out of date; run: python scripts/refresh_graph.py")
         return 1 if changes else 0
     for p, data in changes.items():
+        p.parent.mkdir(parents=True, exist_ok=True)
         p.write_bytes(data)
         print("updated:", p.relative_to(root))
     if not changes:

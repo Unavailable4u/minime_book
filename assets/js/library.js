@@ -380,7 +380,7 @@ async function boot() {
   renderPaths();
 }
 
-if (typeof document !== "undefined") {
+if (typeof document !== "undefined" && document.getElementById("lib-parts")) {   // overview.js (P07) imports this file for its helpers: only the library page boots it
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, { once: true });
   else boot();
 }

@@ -21,7 +21,7 @@ rg = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(rg)
 ra = rg.ra
 
-PAGES = ["index.html", "graph.html", "explore.html", "api.html", "graph-viewer.html", "data/summary.md"]
+PAGES = ["graph.html", "explore.html", "api.html", "graph-viewer.html", "data/summary.md", "data/index/vitals.json"]
 COMMIT = "a" * 40
 
 
@@ -33,7 +33,7 @@ class Fixture(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp())
         self.book, self.minime = self.tmp / "book", self.tmp / "MiniMe"
-        (self.book / "data").mkdir(parents=True)
+        (self.book / "data" / "index").mkdir(parents=True)
         for rel in PAGES:
             shutil.copy(ROOT / rel, self.book / rel)
         (self.minime / "graphify-out").mkdir(parents=True)
@@ -76,15 +76,30 @@ class Refresh(Fixture):
         self.apply()
         self.assertEqual({}, rg.refresh_all(self.book, self.graph(), self.minime))
 
-    def test_index_counts_and_hubs_ignore_concept_nodes(self):
+    def test_vitals_graph_half_counts_and_hubs_ignore_concept_nodes(self):
         self.apply()
-        html = read(self.book / "index.html")
-        self.assertIn('<div class="k">5</div><div class="l">graph nodes</div>', html)
-        self.assertIn('<div class="k">5</div><div class="l">graph links</div>', html)
-        hubs = ra.find_card(html, "Graph hubs")
-        text = html[hubs[0]:hubs[1]]
-        self.assertNotIn(">json  ", text)                        # concept nodes have no file
-        self.assertRegex(text, r"ag_fn\(\)  [^<]+</span><i[^>]*></i><em>4</em>")
+        g = json.loads(read(self.book / "data" / "index" / "vitals.json"))["graph"]
+        self.assertEqual({"commit": "aaaaaaa", "date": self.graph().date, "nodes": 5, "links": 5, "communities": 2}, {k: g[k] for k in g if k != "hubs"})
+        self.assertNotIn("json", [h["label"] for h in g["hubs"]])          # concept nodes have no file
+        top = g["hubs"][0]
+        self.assertEqual({"label": "ag_fn()", "path": self.ag, "links": 4}, top)
+        self.assertTrue(all({"label", "path", "links"} == set(h) for h in g["hubs"]))
+        self.assertEqual(sorted((h["links"] for h in g["hubs"]), reverse=True), [h["links"] for h in g["hubs"]])
+
+    def test_the_census_half_of_vitals_is_carried_over_untouched(self):
+        vp = self.book / "data" / "index" / "vitals.json"
+        before = json.loads(read(vp))["census"]
+        self.apply()
+        self.assertEqual(before, json.loads(read(vp))["census"])
+
+    def test_vitals_are_created_when_missing_and_hold_only_the_graph_then(self):
+        vp = self.book / "data" / "index" / "vitals.json"
+        vp.unlink()
+        self.apply()
+        self.assertEqual({"graph"}, set(json.loads(read(vp))))
+
+    def test_index_html_is_not_touched_by_the_graph_refresh(self):
+        self.assertNotIn(self.book / "index.html", rg.refresh_all(self.book, self.graph(), self.minime))
 
     def test_graph_page_matrix_pairs_and_communities(self):
         self.apply()

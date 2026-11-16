@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "vitals": {
+    "files": {
+      "label": "Files",
+      "why": "Everything that is tracked in git and is not a binary: code, tests, docs and configuration.",
+      "href": "explore.html"
+    },
+    "code_lines": {
+      "label": "Lines of code",
+      "why": "Without comments and blank lines. Tests are a large share of it, so read this next to the directory table.",
+      "href": "history.html"
+    },
+    "functions": {
+      "label": "Functions and methods",
+      "why": "How many named pieces of behaviour there are to understand. Most have no description yet.",
+      "href": "functions.html"
+    },
+    "docstrings": {
+      "label": "Python functions with a docstring",
+      "why": "What can be explained from the code alone. The rest needs a written note; JavaScript is not counted.",
+      "href": "explore.html"
+    },
+    "routes": {
+      "label": "API routes",
+      "why": "Everything the outside world can ask the backend to do.",
+      "href": "api.html"
+    },
+    "commits": {
+      "label": "Commits",
+      "why": "How much the code has moved. The sparkline is per month.",
+      "href": "history.html"
+    },
+    "tests_written": {
+      "label": "Tests written",
+      "why": "Functions named test_* in test files. A count of tests, not of how much of the code they cover.",
+      "href": "tests.html"
+    },
+    "nodes": {
+      "label": "Graph nodes",
+      "why": "Files, functions and concepts in the Graphify graph, the map used to find what is connected to what.",
+      "href": "graph.html"
+    },
+    "links": {
+      "label": "Graph links",
+      "why": "Relations between those nodes. Dense areas are where a change is most likely to reach other code.",
+      "href": "graph.html"
+    }
+  }
+}

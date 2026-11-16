@@ -1,95 +1,63 @@
-<!doctype html><html lang="en" data-layout="reader"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Overview · MiniMe Atlas</title>
+<!doctype html>
+<html lang="en" data-layout="reader">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Overview · MiniMe Atlas</title>
 <script src="assets/js/theme.js"></script>
 <script data-mm="prepaint">(function(d,w){var r=d.documentElement,s=null,v=w.innerWidth;try{s=localStorage.getItem("minime_sidebar")}catch(e){}if(/[?&]legacy=1(&|$)/.test(w.location.search))return;r.dataset.sidebar=v<=760?"drawer":s==="open"||s==="collapsed"?s:r.dataset.layout==="workbench"||v<1100?"collapsed":"open"})(document,window)</script>
 <link rel="preload" href="assets/fonts/sora-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<style>:root{--bg:#0a0a0c;--p:#121216;--p2:#17171d;--ln:#26262e;--tx:#f2f1ed;--dim:#a8a6a0;--r:#ff2052;--v:#a78bfa;--a:#f59e0b;--g:#34d399;--m:#f06cb4}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 Sora,Inter,system-ui,sans-serif;display:flex;min-height:100vh}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background-image:linear-gradient(rgba(255,32,82,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,32,82,.12) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent);mask-image:radial-gradient(ellipse 80% 50% at 60% 0,#000,transparent)}
-nav{overflow-y:auto;position:sticky;top:0;height:100vh;width:210px;flex:none;padding:22px 14px;border-right:1px solid var(--ln);background:rgba(10,10,12,.9);z-index:2}
-nav .logo{font-weight:700;font-size:18px;margin:0 8px 18px}nav .logo b{color:var(--r)}nav a{display:block;padding:8px 12px;border-radius:9px;color:var(--dim);text-decoration:none;margin:2px 0}
-nav a:hover{background:var(--p2);color:var(--tx)}nav a.on{background:rgba(255,32,82,.14);color:#fff;box-shadow:inset 2px 0 var(--r)}.nv{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:#6d6b66;margin:16px 10px 4px}nav small{display:block;margin:18px 8px 0;color:#6d6b66;font-size:12px}
-main{flex:1;min-width:0;padding:34px 40px 80px;position:relative;z-index:1;max-width:1500px}
-h1{font-size:30px;margin:0 0 4px;letter-spacing:-.02em}h2{font-size:20px;margin:34px 0 12px}h3{font-size:16px;margin:22px 0 8px}.sub{color:var(--dim);margin:0 0 24px}
-.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
-.card{background:var(--p);border:1px solid var(--ln);border-radius:14px;padding:16px 18px}.card.h:hover{border-color:var(--r);transform:translateY(-2px);transition:.15s}
-.k{font-size:30px;font-weight:700;letter-spacing:-.02em;color:#fff}.k small{font-size:13px;color:var(--dim);font-weight:400}.l{color:var(--dim);font-size:13px}
-.bar{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:13px}.bar span:first-child{width:170px;flex:none;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bar i{display:block;height:9px;border-radius:5px;background:linear-gradient(90deg,var(--r),var(--m))}.bar em{font-style:normal;color:var(--tx);min-width:60px}
-a{color:#ff7a96}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:7px 10px;border-bottom:1px solid var(--ln);text-align:left;vertical-align:top}
-th{position:sticky;top:0;background:var(--p2);cursor:pointer;color:var(--dim);font-weight:600}td.n{text-align:right;font-variant-numeric:tabular-nums}tr:hover td{background:rgba(255,255,255,.03)}
-.tw{overflow-x:auto;border:1px solid var(--ln);border-radius:12px;margin:12px 0}input[type=search],input[type=text]{background:var(--p);border:1px solid var(--ln);color:var(--tx);border-radius:10px;padding:9px 13px;width:320px;max-width:100%;font:inherit}
-button{background:var(--p2);color:var(--tx);border:1px solid var(--ln);border-radius:9px;padding:7px 14px;cursor:pointer;font:inherit}button:hover{border-color:var(--r)}
-.chip{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;border:1px solid var(--ln);color:var(--dim);cursor:pointer;user-select:none}
-.chip.done{color:#0a0a0c;background:var(--g);border-color:var(--g)}.chip.prog{color:#0a0a0c;background:var(--a);border-color:var(--a)}.chip.plan{color:var(--v);border-color:var(--v)}
-.lane{margin:26px 0}.lane h2{display:flex;gap:12px;align-items:center}.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}.cards .card{font-size:13px}.cards .card b{display:block;margin-bottom:6px;font-size:14px}
-.doc{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:40px}.doc article{min-width:0;max-width:880px}.toc{position:sticky;top:20px;align-self:start;max-height:90vh;overflow:auto;font-size:13px;border-left:1px solid var(--ln);padding-left:14px}
-.toc a{display:block;color:var(--dim);text-decoration:none;padding:2px 0}.toc a:hover{color:#fff}.toc .t3{padding-left:12px;font-size:12px}
-article h1,article h2{border-bottom:1px solid var(--ln);padding-bottom:6px}pre{background:var(--p);border:1px solid var(--ln);border-radius:10px;padding:12px;overflow:auto;font-size:12.5px}
-code{background:var(--p2);padding:1px 6px;border-radius:5px;font-size:.9em;color:#ffb3c2}pre code{background:none;padding:0;color:inherit}blockquote{margin:12px 0;padding:6px 16px;border-left:3px solid var(--r);color:var(--dim);background:var(--p)}
-iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}.pie{width:150px;height:150px;border-radius:50%}.row{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
-.lg div{font-size:13px;color:var(--dim)}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px}.pill{font-size:11px;color:var(--dim);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;display:inline-block}
-.thumb{height:210px;overflow:hidden;border-radius:10px;border:1px solid var(--ln);position:relative;background:#fff}.thumb iframe{width:1280px;height:840px;transform:scale(.3);transform-origin:0 0;border:0;pointer-events:none}
-.card,.grid>*,.g2>*{min-width:0}.card{overflow-wrap:anywhere}td,th{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}.stack>.card{margin:0 0 14px}#tm .lf{white-space:nowrap;text-overflow:ellipsis}main{overflow-x:clip}@media(max-width:900px){nav{display:none}main{padding:20px}.doc{grid-template-columns:1fr}.toc{display:none}}</style><style id="atlas-mobile-css">
-.m-topbar{display:none}
-.m-backdrop{display:none}
-.nav-mclose,.toc-mhdr{display:none}
-.nav-qjump{display:flex;justify-content:space-between;align-items:center;width:calc(100% - 12px);margin:0 6px 12px;padding:7px 10px;border-radius:9px;background:var(--p2);border:1px solid var(--ln);color:var(--dim);font-size:12px;cursor:pointer}
-.nav-qjump:hover{border-color:var(--r);color:#fff}
-.nav-qjump kbd{font-size:10px;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--ln);color:var(--dim)}
-.nav-sub{padding-left:20px!important;font-size:12.5px!important;color:#8e8c86!important}
-.nav-sub:hover{color:#fff!important}
-.svg-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.m-btt{position:fixed;right:18px;bottom:18px;width:38px;height:38px;border-radius:50%;background:var(--r);color:#fff;border:0;font-weight:700;font-size:16px;cursor:pointer;z-index:90;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 6px 18px rgba(0,0,0,.45)}
-.m-btt.vis{opacity:1;pointer-events:auto}
-.cmd-modal{position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:8vh 14px 20px}
-.cmd-modal.open{display:flex}
-.cmd-box{width:100%;max-width:640px;background:var(--p);border:1px solid var(--ln);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.65)}
-.cmd-top{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ln);background:var(--p2)}
-.cmd-top input{flex:1;background:transparent;border:0;color:var(--tx);font:inherit;font-size:14.5px;outline:none;width:auto}
-.cmd-esc{padding:3px 8px;font-size:11px;border-radius:6px}
-.cmd-list{max-height:62vh;overflow-y:auto;padding:6px}
-.cmd-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;text-decoration:none;color:var(--tx);font-size:13.5px}
-.cmd-item:hover{background:rgba(255,32,82,.14);color:#fff}
-.cmd-item small{display:block;font-size:11px;color:var(--dim)}
-@media(max-width:900px){
-  body{display:block;padding-top:54px}
-  .m-topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;position:fixed;top:0;left:0;right:0;height:54px;padding:0 12px;background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--ln);z-index:1001}
-  .m-brand{font-weight:700;font-size:15px;color:var(--tx);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .m-brand b{color:var(--r)}
-  .m-brand small{font-weight:400;color:var(--dim);font-size:13px}
-  .m-right{display:flex;gap:6px;align-items:center;flex:none}
-  .m-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);color:var(--tx);font-size:12.5px;cursor:pointer}
-  .m-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);z-index:1002}
-  body.nav-open .m-backdrop,body.toc-open .m-backdrop{display:block}
-  nav{display:block!important;position:fixed!important;top:0!important;left:0!important;bottom:0!important;height:100dvh!important;width:270px!important;max-width:84vw!important;background:#0e0e13!important;z-index:1003!important;transform:translateX(-105%);transition:transform .22s ease;box-shadow:12px 0 36px rgba(0,0,0,.6)}
-  body.nav-open nav{transform:translateX(0)}
-  nav .logo{display:flex;justify-content:space-between;align-items:center}
-  .nav-mclose{display:inline-block;padding:3px 8px;font-size:11.5px;border-radius:6px;background:var(--p2);border:1px solid var(--ln);color:var(--dim)}
-  .toc{display:block!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;height:100dvh!important;max-height:100dvh!important;width:290px!important;max-width:86vw!important;background:#101016!important;border-left:1px solid var(--ln)!important;padding:16px!important;z-index:1003!important;transform:translateX(105%);transition:transform .22s ease;box-shadow:-12px 0 36px rgba(0,0,0,.6)}
-  body.toc-open .toc{transform:translateX(0)}
-  .toc-mhdr{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--ln)}
-  .toc-mclose{padding:3px 8px;font-size:11.5px;border-radius:6px}
-  main{padding:18px 14px 64px!important;max-width:100%!important}
-  h1{font-size:24px}h2{font-size:18px}
-  .g2,.parts,.bk-grid,.bk-footer-grid,.cards{grid-template-columns:1fr!important}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
-  .bar{flex-wrap:wrap;gap:6px}.bar span:first-child{width:100%}
-  .svg-scroll svg{min-width:680px}
-  .ex #res{max-height:38vh}
-  #tm{height:62vh!important;min-height:380px!important}
-  .split{grid-template-columns:1fr!important}
-  .board{grid-template-columns:repeat(4,minmax(250px,82vw))!important;overflow-x:auto;padding-bottom:8px}
-  .cal{min-width:560px}
-}
-@media(max-width:480px){
-  .m-btn span{display:none}
-  .grid{grid-template-columns:1fr 1fr}
-  .k{font-size:24px}
-  input[type=search],input[type=text]{width:100%!important}
-}
-</style>
 <link rel="stylesheet" href="assets/css/tokens.css">
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/components.css">
 <link rel="stylesheet" href="assets/css/shell.css">
-</head><body data-page="index"><main><h1>MiniMe Atlas</h1><p class="sub">Snapshot of your working copy on 2026-11-15, branch main. No uncommitted files at the time.</p><div class="card" style="margin-bottom:18px;border-color:#ff2052"><b>Start here:</b> <a href="roadmap.html">Roadmap</a> (everything on one page) · <a href="todo.html">Team to-do</a> (shared live) · <a href="decisions.html">Decisions</a> · <a href="consistency.html">Where your documents disagree</a> · <a href="build.html">Build trackers</a> · <a href="explore.html">Search the codebase</a></div><div class="grid"><div class="card"><div class="k">1,185</div><div class="l">files</div></div><div class="card"><div class="k">376,781</div><div class="l">total lines</div></div><div class="card"><div class="k">243,011</div><div class="l">lines of code</div></div><div class="card"><div class="k">17,941</div><div class="l">functions & methods</div></div><div class="card"><div class="k">184</div><div class="l">API routes</div></div><div class="card"><div class="k">580</div><div class="l">commits</div></div><div class="card"><div class="k">8,615</div><div class="l">tests written</div></div><div class="card"><div class="k">26,597</div><div class="l">graph nodes</div></div><div class="card"><div class="k">64,321</div><div class="l">graph links</div></div><div class="card"><div class="k">532</div><div class="l">source files</div></div><div class="card"><div class="k">489</div><div class="l">test files</div></div><div class="card"><div class="k">11</div><div class="l">guides</div></div></div><div class="grid g2"><div class="card"><h3>Code by language <span class="l" style="font-weight:400">(generated HTML, JSON and docs excluded)</span></h3><div class="row"><div class="pie" style="background:conic-gradient(#ff2052 0.0% 75.7%,#a78bfa 75.7% 98.2%,#f59e0b 98.2% 99.7%,#34d399 99.7% 99.9%,#f06cb4 99.9% 100.0%)"></div><div class="lg"><div><i style="background:#ff2052"></i>python <b>152,251</b></div><div><i style="background:#a78bfa"></i>javascript <b>45,358</b></div><div><i style="background:#f59e0b"></i>sql <b>2,870</b></div><div><i style="background:#34d399"></i>css <b>452</b></div><div><i style="background:#f06cb4"></i>shell <b>209</b></div></div></div></div><div class="card"><h3>Commits per month</h3><svg viewBox="0 0 408 104" width="100%" height="110"><rect x="8" y="82" width="52" height="4" rx="4" fill="#ff2052"/><text x="34" y="101" font-size="13" fill="#a8a6a0" text-anchor="middle">26-06</text><text x="34" y="77" font-size="13" fill="#f2f1ed" text-anchor="middle">18</text><rect x="76" y="59" width="52" height="27" rx="4" fill="#ff2052"/><text x="102" y="101" font-size="13" fill="#a8a6a0" text-anchor="middle">26-07</text><text x="102" y="54" font-size="13" fill="#f2f1ed" text-anchor="middle">132</text><rect x="144" y="28" width="52" height="58" rx="4" fill="#ff2052"/><text x="170" y="101" font-size="13" fill="#a8a6a0" text-anchor="middle">26-08</text><text x="170" y="23" font-size="13" fill="#f2f1ed" text-anchor="middle">283</text><rect x="212" y="66" width="52" height="20" rx="4" fill="#ff2052"/><text x="238" y="101" font-size="13" fill="#a8a6a0" text-anchor="middle">26-09</text><text x="238" y="61" font-size="13" fill="#f2f1ed" text-anchor="middle">96</text><rect x="280" y="77" width="52" height="9" rx="4" fill="#ff2052"/><text x="306" y="101" font-size="13" fill="#a8a6a0" text-anchor="middle">26-10</text><text x="306" y="72" font-size="13" fill="#f2f1ed" text-anchor="middle">43</text><rect x="348" y="82" width="52" height="4" rx="4" fill="#ff2052"/><text x="374" y="101" font-size="13" fill="#a8a6a0" text-anchor="middle">26-11</text><text x="374" y="77" font-size="13" fill="#f2f1ed" text-anchor="middle">8</text></svg></div><div class="card"><h3>Code lines by area</h3><div class="bar"><span title="backend/tests">backend/tests</span><i style="width:55.0%"></i><em>57,895</em></div><div class="bar"><span title="frontend/app">frontend/app</span><i style="width:42.7%"></i><em>44,946</em></div><div class="bar"><span title="m2c/tests">m2c/tests</span><i style="width:25.1%"></i><em>26,383</em></div><div class="bar"><span title="backend/eo">backend/eo</span><i style="width:17.7%"></i><em>18,602</em></div><div class="bar"><span title="m2c/src">m2c/src</span><i style="width:17.1%"></i><em>18,043</em></div><div class="bar"><span title="backend/agents">backend/agents</span><i style="width:11.1%"></i><em>11,636</em></div><div class="bar"><span title="backend/codeagent">backend/codeagent</span><i style="width:6.0%"></i><em>6,299</em></div><div class="bar"><span title="backend/api">backend/api</span><i style="width:4.6%"></i><em>4,804</em></div><div class="bar"><span title="backend/utils">backend/utils</span><i style="width:2.3%"></i><em>2,429</em></div><div class="bar"><span title="backend/scripts">backend/scripts</span><i style="width:1.6%"></i><em>1,685</em></div><div class="bar"><span title="daemon">daemon</span><i style="width:1.1%"></i><em>1,203</em></div><div class="bar"><span title="scripts">scripts</span><i style="width:1.1%"></i><em>840</em></div></div><div class="card"><h3>Largest files (code lines)</h3><div class="bar"><span title="NotebooksTab.jsx">NotebooksTab.jsx</span><i style="width:55.0%"></i><em>2,667</em></div><div class="bar"><span title="EditorWorkbench.jsx">EditorWorkbench.jsx</span><i style="width:34.0%"></i><em>1,651</em></div><div class="bar"><span title="WorkspaceChatPanel.jsx">WorkspaceChatPanel.jsx</span><i style="width:31.9%"></i><em>1,545</em></div><div class="bar"><span title="BuildTab.jsx">BuildTab.jsx</span><i style="width:31.6%"></i><em>1,532</em></div><div class="bar"><span title="SessionContext.jsx">SessionContext.jsx</span><i style="width:30.4%"></i><em>1,473</em></div><div class="bar"><span title="llm_client.py">llm_client.py</span><i style="width:29.4%"></i><em>1,425</em></div><div class="bar"><span title="hardware_speccer.py">hardware_speccer.py</span><i style="width:28.6%"></i><em>1,389</em></div><div class="bar"><span title="GrowthTab.jsx">GrowthTab.jsx</span><i style="width:27.7%"></i><em>1,344</em></div><div class="bar"><span title="TestTab.jsx">TestTab.jsx</span><i style="width:24.5%"></i><em>1,190</em></div><div class="bar"><span title="registry.py">registry.py</span><i style="width:23.9%"></i><em>1,158</em></div></div><div class="card"><h3>Most-changed files (commits)</h3><div class="bar"><span title="SessionContext.jsx">SessionContext.jsx</span><i style="width:55.0%"></i><em>58</em></div><div class="bar"><span title="NotebooksTab.jsx">NotebooksTab.jsx</span><i style="width:53.1%"></i><em>56</em></div><div class="bar"><span title="WorkspaceChatPanel.jsx">WorkspaceChatPanel.jsx</span><i style="width:51.2%"></i><em>54</em></div><div class="bar"><span title="llm_client.py">llm_client.py</span><i style="width:47.4%"></i><em>50</em></div><div class="bar"><span title="BuildTab.jsx">BuildTab.jsx</span><i style="width:41.7%"></i><em>44</em></div><div class="bar"><span title="hardware_speccer.py">hardware_speccer.py</span><i style="width:38.9%"></i><em>41</em></div><div class="bar"><span title="PlanTab.jsx">PlanTab.jsx</span><i style="width:36.0%"></i><em>38</em></div><div class="bar"><span title="ResearchTab.jsx">ResearchTab.jsx</span><i style="width:34.1%"></i><em>36</em></div><div class="bar"><span title="task_runner.py">task_runner.py</span><i style="width:33.2%"></i><em>35</em></div><div class="bar"><span title="server.py">server.py</span><i style="width:31.3%"></i><em>33</em></div></div><div class="card"><h3>Most complex functions</h3><div class="bar"><span title="WorkspaceChatPanel  WorkspaceChatPanel.jsx">WorkspaceChatPanel  WorkspaceChatPanel.jsx</span><i style="width:55.0%"></i><em>235</em></div><div class="bar"><span title="WorkbenchBody  EditorWorkbench.jsx">WorkbenchBody  EditorWorkbench.jsx</span><i style="width:53.6%"></i><em>229</em></div><div class="bar"><span title="SessionProvider  SessionContext.jsx">SessionProvider  SessionContext.jsx</span><i style="width:49.9%"></i><em>213</em></div><div class="bar"><span title="Explorer  Explorer.jsx">Explorer  Explorer.jsx</span><i style="width:38.6%"></i><em>165</em></div><div class="bar"><span title="WorkspaceDockProvider  WorkspaceDockContext.jsx">WorkspaceDockProvider  WorkspaceDockContext.jsx</span><i style="width:38.6%"></i><em>165</em></div><div class="bar"><span title="StudyView  NotebooksTab.jsx">StudyView  NotebooksTab.jsx</span><i style="width:30.9%"></i><em>132</em></div><div class="bar"><span title="LandingPage  LandingPage.jsx">LandingPage  LandingPage.jsx</span><i style="width:28.6%"></i><em>122</em></div><div class="bar"><span title="ManageWorkspaceModal  ManageWorkspaceModal.jsx">ManageWorkspaceModal  ManageWorkspaceModal.jsx</span><i style="width:26.2%"></i><em>112</em></div><div class="bar"><span title="editorReducer  editorStore.js">editorReducer  editorStore.js</span><i style="width:23.4%"></i><em>100</em></div><div class="bar"><span title="analyze_py  codebase_census.py">analyze_py  codebase_census.py</span><i style="width:21.5%"></i><em>92</em></div></div><div class="card"><h3>Graph hubs (most connections)</h3><div class="bar"><span title="write()  bus.py">write()  bus.py</span><i style="width:55.0%"></i><em>364</em></div><div class="bar"><span title="read()  bus.py">read()  bus.py</span><i style="width:45.8%"></i><em>303</em></div><div class="bar"><span title="Chat  tui_rig.py">Chat  tui_rig.py</span><i style="width:27.7%"></i><em>183</em></div><div class="bar"><span title="eo/__init__.py  __init__.py">eo/__init__.py  __init__.py</span><i style="width:27.0%"></i><em>179</em></div><div class="bar"><span title="call()  tools_fixtures.py">call()  tools_fixtures.py</span><i style="width:26.9%"></i><em>178</em></div><div class="bar"><span title="go()  loop_testkit.py">go()  loop_testkit.py</span><i style="width:25.7%"></i><em>170</em></div><div class="bar"><span title="Rig  tui_rig.py">Rig  tui_rig.py</span><i style="width:25.1%"></i><em>166</em></div><div class="bar"><span title="llm_client.py  llm_client.py">llm_client.py  llm_client.py</span><i style="width:24.6%"></i><em>163</em></div><div class="bar"><span title="run_async()  link_fakes.py">run_async()  link_fakes.py</span><i style="width:23.0%"></i><em>152</em></div><div class="bar"><span title="bus.py  bus.py">bus.py  bus.py</span><i style="width:22.8%"></i><em>151</em></div></div><div class="card"><h3>Where to go next</h3><p><a href="journey.html">Journey</a>: every plan and its status.<br><a href="architecture.html">Architecture</a>: your 8 system diagrams.<br><a href="docs.html">Docs</a>: every guide, readable.<br><a href="data.html">Data model</a>: database tables.</p></div></div></main><small class="mm-built">Private. Built 2026-11-15 from commit 94af156.</small><script></script><script type="module" src="assets/js/shell.js"></script></body></html>
+<link rel="stylesheet" href="assets/css/overview.css">
+</head>
+<body data-page="index"><main>
+<div class="ov">
+  <header class="ov-hero" data-fragment="hero"></header>
+
+  <section class="ov-fresh" id="ov-fresh" aria-label="Which commit each source describes" aria-live="polite"></section>
+
+  <section class="ov-section" data-fragment="abstract"></section>
+
+  <section class="ov-section" id="anatomy" aria-labelledby="anatomy-h">
+    <h2 id="anatomy-h">Anatomy of a request</h2>
+    <div id="ov-steps"><p class="ov-empty">Loading the request path…</p></div>
+  </section>
+
+  <section class="ov-section" data-fragment="products"></section>
+
+  <section class="ov-section" id="paths" aria-labelledby="paths-h">
+    <h2 id="paths-h">Reading paths</h2>
+    <p class="ov-sub">Pick what you want to understand. Each path is an ordered list of book sections and code files.</p>
+    <div class="ov-paths" id="ov-paths"><p class="ov-empty">Loading the reading paths…</p></div>
+  </section>
+
+  <section class="ov-section" id="vitals" aria-labelledby="vitals-h">
+    <h2 id="vitals-h">Vital signs</h2>
+    <p class="ov-sub">Each number says what it measures and which commit and day it was measured at. Click one to go to the page that explains it.</p>
+    <div class="ov-vitals" id="ov-vitals"><p class="ov-empty">Loading the numbers…</p></div>
+  </section>
+
+  <section class="ov-section ov-dir" id="directory" aria-labelledby="directory-h">
+    <h2 id="directory-h">Directory</h2>
+    <p class="ov-sub">Every part of the repository, what it does, where the book describes it, which Atlas pages show it and the files to open first.</p>
+    <div id="ov-dir"><p class="ov-empty">Loading the directory…</p></div>
+  </section>
+
+  <details class="ov-details" id="ov-details">
+    <summary>Details: charts and lists from the previous Overview</summary>
+    <div class="ov-cards" id="ov-details-body"><p class="ov-empty">Loading…</p></div>
+  </details>
+
+  <section class="ov-section" data-fragment="stays-true"></section>
+
+  <noscript><p class="ov-empty">This page is drawn by JavaScript from the files in <code>data/index/</code> and <code>content/</code>. Without it you can still use the <a href="docs.html">Library</a>, the <a href="explore.html">Explorer</a> and the pages in the sidebar.</p></noscript>
+</div>
+</main>
+<script type="module" src="assets/js/overview.js"></script>
+<script type="module" src="assets/js/shell.js"></script>
+</body>
+</html>

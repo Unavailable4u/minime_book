@@ -334,6 +334,91 @@ class GlossaryAndPaths(SiteCase):
         self.assertEqual([], bad)
 
 
+class OverviewContent(SiteCase):
+    """content/subsystems.json, content/system/request-path.json, content/overview/vitals.json and index.html's data-fragment names (P07)."""
+
+    NAV = json.dumps({"wings": [{"id": "w", "title": "W", "items": [
+        {"id": "index", "title": "Overview", "url": "index.html"},
+        {"id": "docs", "title": "Library", "url": "docs.html"},
+        {"id": "doc-a", "title": "A", "url": "doc-a.html", "chapter": 1}]}]})
+    CENSUS = json.dumps({"files": [{"path": "backend/x.py", "functions": [{"name": "run", "qual": "Agent.run"}], "classes": [{"name": "Agent", "qual": "Agent"}]},
+                                   {"path": "daemon/d.py", "functions": []}]})
+    GOOD_SUB = {"id": "eo", "name": "Orchestrator", "what": "Runs tasks.", "match": ["backend/"], "chapter": "doc-a#intro", "pages": ["docs"],
+                "key_files": [{"path": "backend/x.py", "qual": "Agent.run"}, {"path": "backend/x.py"}]}
+    GOOD_STEP = {"id": "s1", "title": "T", "what": "W", "chapter": "doc-a#intro", "diagram": "doc-a.html#intro", "gate": False, "code": [{"path": "backend/x.py", "qual": "Agent"}]}
+
+    def run_site(self, subsystems=None, request=None, vitals=None, index=None, fragments=()):
+        f = {"docs.html": page("Library - MiniMe Atlas"), "doc-a.html": page("A - MiniMe Atlas", "<h2 id='intro'>Intro</h2>"),
+             "content/nav.json": self.NAV, "data/census.json": self.CENSUS}
+        if subsystems is not None:
+            f["content/subsystems.json"] = json.dumps({"subsystems": subsystems})
+        if request is not None:
+            f["content/system/request-path.json"] = json.dumps({"steps": request})
+        if vitals is not None:
+            f["content/overview/vitals.json"] = json.dumps({"vitals": vitals})
+        if index is not None:
+            f["index.html"] = page("Overview - MiniMe Atlas", index)
+        for name in fragments:
+            f[f"content/overview/{name}.html"] = "<p>x</p>"
+        return self.site(f).check()
+
+    def errors(self, r):
+        return [(f.code, f.detail) for f in r.findings if f.level == "ERROR" and f.code.startswith("overview-")]
+
+    def test_good_content_passes(self):
+        r = self.run_site([self.GOOD_SUB], [self.GOOD_STEP], {"files": {"label": "Files", "href": "docs.html"}},
+                          index='<div data-fragment="hero"></div><div data-fragment="abstract"></div>', fragments=("hero", "abstract"))
+        self.assertEqual([], self.codes(r, "ERROR"))
+
+    def test_subsystem_entries_need_an_id_a_name_text_and_a_match(self):
+        bad = [{"name": "No id", "what": "w", "match": ["backend/"]},
+               {"id": "other", "name": "Reserved", "what": "w", "match": ["daemon/"]},
+               {"id": "Bad Id!", "name": "n", "what": "w", "match": ["daemon/"]},
+               {"id": "a", "what": "no name", "match": ["daemon/d.py"]},
+               {"id": "b", "name": "n", "what": " ", "match": ["backend/x.py"]},
+               {"id": "c", "name": "n", "what": "w", "match": []},
+               "nonsense"]
+        r = self.run_site(bad)
+        self.assertEqual(["overview-bad-entry"] * 7, sorted(c for c, _ in self.errors(r)))
+
+    def test_two_subsystems_with_one_id_or_one_match_are_errors(self):
+        r = self.run_site([self.GOOD_SUB, dict(self.GOOD_SUB, name="Again")])
+        self.assertEqual(["overview-bad-entry"] * 1, [c for c, d in self.errors(r) if d == "eo"])
+        r = self.run_site([self.GOOD_SUB, {"id": "two", "name": "Two", "what": "w", "match": ["backend/"]}])
+        self.assertEqual([("overview-bad-entry", "two|backend/")], self.errors(r))
+
+    def test_a_match_that_no_census_file_has_is_an_error_but_without_a_census_it_is_not_judged(self):
+        r = self.run_site([dict(self.GOOD_SUB, match=["backend/", "gone/", "backend/gone.py"])])
+        self.assertEqual([("overview-bad-target", "eo|gone/"), ("overview-bad-target", "eo|backend/gone.py")], self.errors(r))
+
+    def test_subsystem_targets_that_do_not_exist_are_errors(self):
+        sub = dict(self.GOOD_SUB, chapter="doc-zzz#x", pages=["docs", "doc-a", "ghost"],
+                   key_files=[{"path": "backend/gone.py"}, {"path": "backend/x.py", "qual": "Agent.missing"}, {"qual": "no path"}, "nonsense"])
+        r = self.run_site([sub])
+        self.assertEqual(["overview-bad-target"] * 7, sorted(c for c, _ in self.errors(r)))
+        self.assertIn(("overview-bad-target", "eo|doc-a"), self.errors(r), "a chapter is not an Atlas page: the page would silently vanish from the table")
+
+    def test_request_path_steps_are_checked(self):
+        bad = [dict(self.GOOD_STEP, id="a", title=""), dict(self.GOOD_STEP, id="b", gate="yes"), dict(self.GOOD_STEP, id="s1"),
+               dict(self.GOOD_STEP, id="c", chapter="doc-a#nope", diagram="gone.html", code=[{"path": "backend/gone.py"}]), {"title": "no id"}]
+        r = self.run_site(None, [self.GOOD_STEP] + bad)
+        codes = sorted(c for c, _ in self.errors(r))
+        self.assertEqual(["overview-bad-entry"] * 4 + ["overview-bad-target"] * 3, codes)
+
+    def test_overview_vitals_copy_needs_a_label_and_a_link_that_exists(self):
+        r = self.run_site(vitals={"files": {"label": "Files", "href": "gone.html"}, "routes": {"why": "no label"}, "ok": {"label": "OK", "href": "https://example.com/x"}})
+        self.assertEqual([("overview-bad-entry", "routes"), ("overview-bad-target", "files|gone.html")], sorted(self.errors(r)),
+                         "an https:// link is not looked up as a file")
+
+    def test_a_data_fragment_without_its_file_is_an_error(self):
+        r = self.run_site(index='<div data-fragment="hero"></div><div data-fragment="ghost"></div>', fragments=("hero",))
+        self.assertEqual([("overview-bad-target", "ghost")], self.errors(r))
+
+    def test_the_committed_overview_content_is_clean(self):
+        report = cs.run_checks(ROOT, allow=cs.load_allow(cs.DEFAULT_ALLOW))
+        self.assertEqual([], [str(f) for f in report.findings if f.code.startswith("overview-")])
+
+
 class AllowList(SiteCase):
     FILES = {"index.html": page(body='<a href="nope.html">x</a><a href="e.html#abc.py">y</a>'), "e.html": page("E - X")}
 
