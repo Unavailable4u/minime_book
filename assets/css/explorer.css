@@ -119,6 +119,28 @@ kbd { font-family: var(--font-mono); font-size: var(--fs-xs); padding: 0.05rem 0
 .ex-sym__go { display: flex; gap: var(--space-3); margin: var(--space-1) 0 0; font-size: var(--fs-xs); }
 .ex-sym__more { margin-bottom: var(--space-4); }
 
+/* ------------------------------------------------------------ symbol panel (P14c) */
+.ex-symp { margin: 0 0 var(--space-5); padding: var(--space-4); background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--flow); border-radius: var(--radius-3); }
+.ex-symp__title { margin: 0; font-family: var(--font-mono); font-size: var(--fs-md); overflow-wrap: anywhere; }
+.ex-symp__where { font-size: var(--fs-xs); font-weight: 400; color: var(--ink-dim); }
+.ex-symp__sig { margin: var(--space-2) 0; padding: var(--space-2) var(--space-3); background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-2); font-family: var(--font-mono); font-size: var(--fs-sm); font-variant-ligatures: none; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ex-symp__badges { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); margin: 0 0 var(--space-2); }
+.ex-symp__deco { font-size: var(--fs-xs); color: var(--gate); }
+.ex-symp__sum { margin: 0 0 var(--space-2); max-width: 80ch; }
+.ex-symp__details { margin: 0 0 var(--space-2); max-width: 80ch; color: var(--ink-dim); font-size: var(--fs-sm); }
+.ex-symp__sec { margin: var(--space-4) 0 0; }
+.ex-symp__sec h4 { margin: 0 0 var(--space-1); font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-dim); }
+.ex-symp__sec p { margin: 0; }
+.ex-symp__list { margin: 0; padding: 0; list-style: none; font-size: var(--fs-sm); }
+.ex-symp__list li { padding: 0.15rem 0; overflow-wrap: anywhere; }
+.ex-symp__ref { font-family: var(--font-mono); font-size: var(--fs-xs); }
+.ex-symp__params td:first-child { white-space: nowrap; }
+.ex-symp__params td:nth-child(2), .ex-symp__params td:nth-child(3) { font-family: var(--font-mono); font-size: var(--fs-xs); }
+.ex-symp__rest { margin-top: var(--space-2); }
+.ex-symp__rest .ex-chips { margin-top: var(--space-2); }
+.ex-symp .ex-go { margin: var(--space-2) 0 0; }
+.ex-symp .ex-link[hidden] { display: none; }
+
 /* ------------------------------------------------------------ inspector */
 .ex-insp__title { margin: 0 0 var(--space-3); font-size: var(--fs-md); }
 .ex-insp__sec { margin: 0 0 var(--space-4); }
@@ -152,6 +174,23 @@ kbd { font-family: var(--font-mono); font-size: var(--fs-xs); padding: 0.05rem 0
 .ex-line__t { flex: 1 0 auto; min-height: 1.6em; padding: 0 var(--space-4) 0 var(--space-3); white-space: pre; color: var(--ink); }
 .ex-line.is-sel .ex-line__t { background: color-mix(in srgb, var(--brand) 14%, transparent); box-shadow: inset 3px 0 0 var(--brand); }
 .ex-line.is-sel .ex-line__n { color: var(--brand); font-weight: 700; }
+/* A `hidden` element must stay hidden even though .mm-btn / .ex-check set display (fixes "Show 0 more lines" on files that are fully drawn). */
+.ex-src__more[hidden], .ex-src .ex-check[hidden], .ex-src__go [hidden] { display: none; }
+/* Syntax colours (P14b). highlight.js class names, coloured from the Atlas tokens so Dark and Paper both work; only under .is-hl,
+   which source.js sets once the colours have arrived and the "Syntax colours" box is ticked. Colour is never the only carrier:
+   keywords are semi-bold and comments italic. */
+.ex-code { --hl-keyword: var(--graph); --hl-string: var(--ok); --hl-number: var(--gate); --hl-fn: var(--flow); --hl-type: var(--pink); --hl-meta: var(--gate); --hl-comment: var(--ink-dim); }
+.ex-code.is-hl .hljs-keyword, .ex-code.is-hl .hljs-selector-tag, .ex-code.is-hl .hljs-doctag, .ex-code.is-hl .hljs-meta .hljs-keyword { color: var(--hl-keyword); font-weight: 600; }
+.ex-code.is-hl .hljs-string, .ex-code.is-hl .hljs-regexp, .ex-code.is-hl .hljs-template-tag, .ex-code.is-hl .hljs-addition, .ex-code.is-hl .hljs-meta .hljs-string { color: var(--hl-string); }
+.ex-code.is-hl .hljs-number, .ex-code.is-hl .hljs-literal, .ex-code.is-hl .hljs-symbol, .ex-code.is-hl .hljs-bullet { color: var(--hl-number); }
+.ex-code.is-hl .hljs-title, .ex-code.is-hl .hljs-title.function_, .ex-code.is-hl .hljs-section, .ex-code.is-hl .hljs-attr, .ex-code.is-hl .hljs-attribute, .ex-code.is-hl .hljs-selector-id, .ex-code.is-hl .hljs-selector-class { color: var(--hl-fn); }
+.ex-code.is-hl .hljs-title.class_, .ex-code.is-hl .hljs-title.class_.inherited__, .ex-code.is-hl .hljs-type, .ex-code.is-hl .hljs-built_in, .ex-code.is-hl .hljs-name, .ex-code.is-hl .hljs-tag, .ex-code.is-hl .hljs-variable.language_ { color: var(--hl-type); }
+.ex-code.is-hl .hljs-meta { color: var(--hl-meta); }
+.ex-code.is-hl .hljs-comment, .ex-code.is-hl .hljs-quote { color: var(--hl-comment); font-style: italic; }
+.ex-code.is-hl .hljs-deletion { color: var(--brand); text-decoration: line-through; }
+.ex-code.is-hl .hljs-emphasis { font-style: italic; }
+.ex-code.is-hl .hljs-strong { font-weight: 700; }
+.ex-code.is-hl .hljs-subst, .ex-code.is-hl .hljs-params, .ex-code.is-hl .hljs-punctuation, .ex-code.is-hl .hljs-operator { color: var(--ink); font-weight: 400; font-style: normal; }
 .ex-code.is-wrap .ex-line { min-width: 0; }
 .ex-code.is-wrap .ex-line__t { flex: 1 1 0; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 

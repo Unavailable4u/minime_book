@@ -19,7 +19,7 @@ SRC_LINES[11] = "\treturn '&amp;'";
 export function writeFixture(dir, { big = false, drift = false } = {}) {
   const W = (rel, o) => { const p = path.join(dir, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, JSON.stringify(o)); };
   const recs = [
-    { path: "backend/agents/a.py", functions: [fn("run", 10, 20, { doc1: "Run it." }), fn("Agent.step", 30, 40), fn("_clean_query", 120, 141)], classes: [{ qual: "Agent", name: "Agent", start: 25, end: 50, loc: 26, bases: ["Base"], hash: "h_Agent" }],
+    { path: "backend/agents/a.py", functions: [fn("run", 10, 20, { doc1: "Run it.", raises: ["ValueError"], decorators: ["cached"], calls: [["route", "backend/api/b.py::route"], ["Agent", "backend/agents/a.py::Agent"], ["print", null], ["os.path.join", null], ["print", null], ["gone", "gone/x.py::f"]] }), fn("Agent.step", 30, 40), fn("_clean_query", 120, 141)], classes: [{ qual: "Agent", name: "Agent", start: 25, end: 50, loc: 26, bases: ["Base"], hash: "h_Agent" }],
       module_doc: "Agents.\n\nMore.", git: { commits: 5, first: "2026-01-02", last: "2026-10-05", dates: ["2026-01-02", "2026-03-04", "2026-03-09", "2026-10-05", "2026-10-05"], added: 100, deleted: 20 }, exports: ["run"], size: 900, comment: 3, blank: 4 },
     { path: "backend/api/b.py", functions: [fn("route", 1, 5)], classes: [], git: { commits: 0 } },
     { path: "README.md", functions: [], classes: [] },
@@ -35,7 +35,7 @@ export function writeFixture(dir, { big = false, drift = false } = {}) {
   W("data/code/files/s0.json", { files: recs });
   W("data/code/imports.json", { imports: { "backend/api/b.py": ["backend/agents/a.py", "nowhere.py"] }, imported_by: { "backend/agents/a.py": ["backend/api/b.py"] }, external: { "backend/agents/a.py": ["httpx"] } });
   W("data/index/notes.json", { totals: { files: 3, noted: 1 }, folders: { "backend/agents": { files: 1, noted: 1, stale: 0 }, backend: { files: 2, noted: 1, stale: 0 } }, files: { "backend/agents/a.py": { status: "fresh", tier: 1 } } });
-  W("data/notes/backend__agents__a.py.json", { summary: "Agent module.", purpose: "p", written: "2026-10-20", commit: "abcdef123", blob: drift ? "c".repeat(40) : BLOB, symbols: [{ qual: "run", summary: "Runs the agent.", hash: "h_run" }, { qual: "Agent.step", summary: "Steps.", hash: "OLD" }], blocks: [{ lines: "10-20", title: "Run", text: "x" }] });
+  W("data/notes/backend__agents__a.py.json", { summary: "Agent module.", purpose: "p", written: "2026-10-20", commit: "abcdef123", blob: drift ? "c".repeat(40) : BLOB, symbols: [{ qual: "run", summary: "Runs the agent.", details: "Longer text about run.", params: [{ name: "x", desc: "the input value" }, { name: "extra", desc: "only the note knows" }], returns: "the result text", raises: ["KeyError when missing"], side_effects: ["writes a log"], confidence: "medium", evidence: ["12-14", "bad", "18"], hash: "h_run" }, { qual: "Agent.step", summary: "Steps.", hash: "OLD" }], blocks: [{ lines: "10-20", title: "Run", text: "x" }] });
   W("content/config.json", { github: { repo: "Unavailable4u/MiniMe" }, editor: { scheme: "vscode" }, embedSource: true });
   W("data/src/manifest.json", { schema: 1, commit: drift ? "d".repeat(40) : COMMIT, files: { "backend/agents/a.py": BLOB, ...(big ? { "backend/api/b.py": BLOB } : {}) } });
   fs.mkdirSync(path.join(dir, "data/src/backend/agents"), { recursive: true });
@@ -44,6 +44,7 @@ export function writeFixture(dir, { big = false, drift = false } = {}) {
     fs.mkdirSync(path.join(dir, "data/src/backend/api"), { recursive: true });
     fs.writeFileSync(path.join(dir, "data/src/backend/api/b.py.txt"), `${Array.from({ length: 2500 }, (_, i) => `row ${i + 1}`).join("\n")}\n`);
   }
+  W("data/code/callers/s0.json", { schema: 2, shard: "s0", callers: { "backend/agents/a.py::run": ["backend/api/b.py::route", "backend/agents/a.py::Agent.step", "backend/api/b.py::f1", "backend/api/b.py::f2"], "backend/agents/a.py::Agent": ["backend/api/b.py::route"], "backend/api/b.py::route": ["backend/agents/a.py::run"] } });
   W("data/graph/file-links.json", { paths: ["backend/agents/a.py", "backend/api/b.py"], links: [[[1, 4]], [[0, 4]]], commit: "abc", date: "2026-11-01" });
 }
 

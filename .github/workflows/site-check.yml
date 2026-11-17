@@ -22,6 +22,8 @@
 #     python scripts/refresh_source.py --check
 #     python scripts/test_refresh_source.py
 #     python scripts/test_links.py
+#     python scripts/vendor_highlight.py --check
+#     python scripts/test_vendor_highlight.py
 name: Site check
 on:
   pull_request:
@@ -54,6 +56,8 @@ jobs:
         run: python3 scripts/notes.py validate
       - name: Embedded source (data/src) matches its manifest and the census commit
         run: python3 scripts/refresh_source.py --check
+      - name: Vendored highlight.js (assets/vendor/highlight) is the pinned version
+        run: python3 scripts/vendor_highlight.py --check
       - name: Unit tests
         run: |
           python3 scripts/test_check_site.py
@@ -70,3 +74,4 @@ jobs:
           python3 scripts/test_notes.py
           python3 scripts/test_refresh_source.py
           python3 scripts/test_links.py
+          python3 scripts/test_vendor_highlight.py

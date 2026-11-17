@@ -9,17 +9,24 @@
    GitHub / VS Code buttons plus what the census knows about the file or symbol, so it is never an empty tab.
 
    Lines are drawn 1,000 at a time ("Show more lines"); the biggest embedded file has about 5,500. Text goes in with textContent only.
-   Syntax colours arrive in P14b, the symbol panel in P14c, the walkthrough margin cards in P14d. */
+   Syntax colours (P14b): the plain text is shown at once; assets/js/explorer/highlight.js then loads the vendored highlight.js
+   in the background and the lines are re-drawn as coloured segments (still text nodes, never HTML). A "Syntax colours" checkbox
+   turns them off (remembered). If the engine is missing or the file is not code, nothing changes and no checkbox appears.
+   The symbol panel arrives in P14c, the walkthrough margin cards in P14d. */
 import { h, num, copyText, toast } from "./dom.js";
 import { buildRoute } from "./router.js";
 import { getText, splitLines, clampRange, parseGoto, sourceNotices, signature } from "./model.js";
 import { codeLinks } from "../links.js";
+import { highlightLines } from "./highlight.js";
 
 const CHUNK = 1000;
 const KEY_WRAP = "minime_ex_wrap";
+const KEY_HL = "minime_ex_hl";
 
 const readWrap = () => { try { return localStorage.getItem(KEY_WRAP) === "1"; } catch { return false; } };
 const saveWrap = (on) => { try { localStorage.setItem(KEY_WRAP, on ? "1" : "0"); } catch { /* private mode: not remembered */ } };
+const readHl = () => { try { return localStorage.getItem(KEY_HL) !== "0"; } catch { return true; } };   // on unless the reader turned it off
+const saveHl = (on) => { try { localStorage.setItem(KEY_HL, on ? "1" : "0"); } catch { /* private mode: not remembered */ } };
 
 /* ------------------------------------------------------------------ buttons */
 function linkButtons(file, linkOpts, range) {
@@ -52,6 +59,8 @@ export function createSource({ file, text, range, qual, linkOpts, notices = [], 
   const info = h("p", { class: "ex-src__info", "aria-live": "polite" });
   const gotoInput = h("input", { type: "text", class: "ex-q ex-src__goto", placeholder: "Go to line", "aria-label": "Go to line or line range", inputmode: "numeric", autocomplete: "off", size: "10" });
   const wrapBox = h("input", { type: "checkbox" });
+  const hlBox = h("input", { type: "checkbox" });
+  const hlLabel = h("label", { class: "ex-check", hidden: true }, hlBox, " Syntax colours");   // shown once colours exist for this file
   const copyBtn = h("button", { type: "button", class: "mm-btn" }, "Copy");
   const linkBtn = h("button", { type: "button", class: "mm-btn" }, "Copy link");
   const buttons = linkButtons(file, linkOpts, sel);
@@ -60,15 +69,18 @@ export function createSource({ file, text, range, qual, linkOpts, notices = [], 
     const r = parseGoto(gotoInput.value, total);
     if (!r) { toast(`Enter a line from 1 to ${num(total)}, or a range like 120-141`); return; }
     choose(r, true);
-  } }, gotoInput, h("label", { class: "ex-check" }, wrapBox, " Wrap lines"), copyBtn, linkBtn);
+  } }, gotoInput, h("label", { class: "ex-check" }, wrapBox, " Wrap lines"), hlLabel, copyBtn, linkBtn);
 
   const code = h("div", { class: "ex-code", role: "region", "aria-label": `Source of ${file.name}`, tabindex: "0" });
   const more = h("button", { type: "button", class: "mm-btn ex-src__more", hidden: true });
   root.append(form, info, buttons.el, code, more);
 
+  let tokens = null;                               // per-line coloured segments from highlight.js, once they have arrived
+  const textKids = (n) => (tokens ? tokens[n - 1].map((seg) => (seg.c ? h("span", { class: seg.c }, seg.t) : seg.t)) : [lines[n - 1]]);
+
   const lineEl = (n) => h("div", { class: "ex-line", id: `ex-L${n}` },
     h("a", { class: "ex-line__n", href: buildRoute({ view: "file", path: file.path, start: n, tab: "source" }), "aria-label": `Line ${n}`, dataset: { n } }, String(n)),
-    h("span", { class: "ex-line__t" }, lines[n - 1]));
+    h("span", { class: "ex-line__t" }, textKids(n)));
 
   function draw(upTo) {
     const to = Math.min(total, Math.max(upTo, drawn));
@@ -122,6 +134,9 @@ export function createSource({ file, text, range, qual, linkOpts, notices = [], 
   more.addEventListener("click", () => { draw(drawn + CHUNK); paint(); });
 
   const setWrap = (on) => { code.classList.toggle("is-wrap", on); };
+  const setHl = (on) => { code.classList.toggle("is-hl", !!tokens && on); };
+  hlBox.checked = readHl();
+  hlBox.addEventListener("change", () => { setHl(hlBox.checked); saveHl(hlBox.checked); });
   wrapBox.checked = readWrap();
   setWrap(wrapBox.checked);
   wrapBox.addEventListener("change", () => { setWrap(wrapBox.checked); saveWrap(wrapBox.checked); });
@@ -137,7 +152,18 @@ export function createSource({ file, text, range, qual, linkOpts, notices = [], 
 
   draw(Math.max(CHUNK, sel ? sel.end + 200 : 0));
   paint();
-  return { el: root, reveal() { if (sel && els[sel.start]) els[sel.start].scrollIntoView({ block: "center" }); }, selection: () => sel };
+  /* Colours arrive after the plain text: swap the content of the lines already drawn (the text itself never changes). */
+  function setTokens(result) {
+    if (!result || result.lines.length !== total) return;
+    tokens = result.lines;
+    for (let n = 1; n <= drawn; n++) els[n].lastChild.replaceChildren(...textKids(n));
+    code.dataset.lang = result.lang;
+    hlLabel.hidden = false;
+    hlLabel.title = `Coloured as ${result.lang} (highlight.js)`;
+    setHl(hlBox.checked);
+  }
+
+  return { el: root, lines, setTokens, reveal() { if (sel && els[sel.start]) els[sel.start].scrollIntoView({ block: "center" }); }, selection: () => sel };
 }
 
 /* ------------------------------------------------------------------ when there is no source to show */
@@ -180,5 +206,6 @@ export function renderSource(panel, ctx) {
     const view = createSource({ file, text, range: start ? { start, end } : null, qual, linkOpts, notices, onRange });
     panel.replaceChildren(view.el);
     view.reveal();
+    highlightLines(view.lines, file.path).then((result) => view.setTokens(result));   // colours are an extra: a null answer leaves the plain text
   }).catch((e) => fallback(panel, { ...where, reason: `The source could not be loaded (${e.message}).` }));
 }

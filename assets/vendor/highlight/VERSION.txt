@@ -1,0 +1,18 @@
+highlight.js 11.11.1
+source https://registry.npmjs.org/@highlightjs/cdn-assets/-/cdn-assets-11.11.1.tgz
+integrity sha512-VEPdHzwelZ12hEX18BHduqxMZGolcUsrbeokHYxOUIm8X2+M7nx5QPtPeQgRxR9XjhdLv4/7DD5BWOlSrJ3k7Q==
+core.min.js sha256 bfcca5550cb9d62482162e1d1fb90c822d2d35036b556544817441b795b7103c (LF)
+languages/bash.min.js sha256 d2290ecb0b7d522df0d91d54ee216c673e0c504decd48ef15197b3cab5cb7474 (LF)
+languages/css.min.js sha256 8024c97edb80335f7aded04543de058770eab34939b9b2db8334fb8aa16f0e45 (LF)
+languages/dockerfile.min.js sha256 bd40da2c7d1b727dcd4e76f197f176e3d45ed61d167ef5d82a1f15e38a929de5 (LF)
+languages/ini.min.js sha256 a309557ec2ffe81630e3fbe94237d870b3db28275513303ea8d9e3a6863ad04e (LF)
+languages/javascript.min.js sha256 d893654be08f10fe656739ec83cf2cdeb7ea82a26b332b9fea88d4d215c00d89 (LF)
+languages/json.min.js sha256 7dd0922802ac593d34da3466175377c9efb4612ee2ea97ddafa1fce618a510d9 (LF)
+languages/markdown.min.js sha256 e8f544abc25490c51ff4bea5687a02ef4a65f1edc83dd208b6664d2672b3e3d5 (LF)
+languages/powershell.min.js sha256 3d145a6083b7fcb2c0dc03323e975eb7cec499a1bce78e7e0013ac6a1cc39670 (LF)
+languages/python.min.js sha256 4112a5c44dc7a4c56a772347bd318f246aa1ea51e0d6cb6aba78b25c3e60d524 (LF)
+languages/sql.min.js sha256 eadde8cadf1c469031abc0c6afd9767dfa8aacf9a7f9ab739ee6edfe635e300e (LF)
+languages/typescript.min.js sha256 60f542a05921072df100b34ea9a20a765617c518f8ac11d1c2c238ae11d83fcc (LF)
+languages/xml.min.js sha256 2d843265c0bdd3e50f107e6473196b5f525c0ea68de83c40f9f30ffbbea6896f (LF)
+languages/yaml.min.js sha256 3d227e0d347021b99da5c7b8de86ec8ce647f2f15d3b97100b34f9d2507ec2e7 (LF)
+Written by scripts/vendor_highlight.py; do not edit by hand.

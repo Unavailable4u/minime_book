@@ -2,11 +2,11 @@
    route names. Three views share the page: the start page (#/), a folder (#/d/<folder>) and a file (#/f/<path>[::qual][@lines]).
 
    The data is sharded, so a file page loads exactly two small files: its shard (symbols, git dates) and its note, if it has one.
-   The Source tab (P14a) loads the embedded copy of the file, data/src/<path>.txt, only when it is opened. The symbol panel and the
-   walkthrough margin cards arrive with the next P14 patches; assets/js/links.js builds the raw / GitHub / VS Code links. */
+   The Source tab (P14a) loads the embedded copy of the file, data/src/<path>.txt, only when it is opened. The symbol panel (P14c: signature, parameters, calls and called-by, from the file's record, its note
+   and callers/<shard>.json) is loaded when the address names a symbol; the walkthrough margin cards arrive with the next P14 patches; assets/js/links.js builds the raw / GitHub / VS Code links. */
 import { h } from "./dom.js";
 import { parseRoute, buildRoute } from "./router.js";
-import { loadCore, loadRecord, loadRecords, loadNote, symbolRows, allFiles, noteStatus } from "./model.js";
+import { loadCore, loadRecord, loadRecords, loadNote, loadCallers, symbolRows, allFiles, noteStatus } from "./model.js";
 import { createTree } from "./tree.js";
 import { renderHome, renderDir, renderFile } from "./fileview.js";
 import { renderInspector, renderHelp } from "./inspector.js";
@@ -78,12 +78,13 @@ async function route() {
     main.replaceChildren(h("p", { class: "ex-dim" }, `Loading ${file.name}…`));
     let rec = null;
     let note = null;
-    try { [rec, note] = await Promise.all([loadRecord(core, file), noteStatus(core.notes, file.path) === "none" ? null : loadNote(file.path)]); }
+    let callers = null;
+    try { [rec, note, callers] = await Promise.all([loadRecord(core, file), noteStatus(core.notes, file.path) === "none" ? null : loadNote(file.path), r.qual ? loadCallers(core, file).catch(() => null) : null]); }
     catch (e) { if (my === seq) { fail(main, `Could not load the data of ${file.path}: ${e.message}`); } return; }
     if (my !== seq) return;                                     // the reader has already moved on
     const rows = rec ? symbolRows(rec, note) : [];
     renderFile(main, core, file, rec, note, {
-      rows, tab: r.tab, qual: r.qual, start: r.start, end: r.end, linkOpts,
+      rows, tab: r.tab, qual: r.qual, start: r.start, end: r.end, linkOpts, callers,
       // Picking lines on the Source tab rewrites the address in place: no new history entry, no page rebuild.
       onRange: (sel) => { try { history.replaceState(null, "", buildRoute({ view: "file", path: file.path, start: sel ? sel.start : null, end: sel ? sel.end : null, tab: "source" })); } catch { /* the address just stays as it was */ } },
       setTab: (t) => go({ ...r, qual: "", start: null, end: null, tab: t }),

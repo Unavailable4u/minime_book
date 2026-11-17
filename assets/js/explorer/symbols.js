@@ -88,14 +88,14 @@ export function createSymbols({ rows, showPath, linkOpts, selected, onOpen }) {
     setRows(rs) { S.rows = rs; paint(); },
     focusFilter() { q.focus(); },
     /* Bring the row of `qual` into view (and past the page limit when it is further down). */
-    reveal(qual) {
+    reveal(qual, scroll = true) {
       selected = qual;
       let out = filterSymbols(S.rows, S).slice().sort(SORTS[S.sort].cmp);
       const at = out.findIndex((r) => r.qual === qual);
       if (at >= S.shown) S.shown = Math.ceil((at + 1) / PAGE) * PAGE;
       paint();
       const el = [...list.children].find((li) => li.dataset && li.dataset.qual === qual);
-      if (el) { el.scrollIntoView({ block: "center" }); el.classList.add("is-selected"); }
+      if (el) { if (scroll) el.scrollIntoView({ block: "center" }); el.classList.add("is-selected"); }
     },
   };
 }

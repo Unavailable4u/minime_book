@@ -282,6 +282,79 @@ export async function loadCore() {
 }
 
 /* file-links.json stores paths once and refers to them by position: turn it into path -> [{ path, n }]. */
+/* ------------------------------------------------------------------ symbol detail (P14c) */
+/* "backend/api/deps.py::Cls.method" -> { path, qual }. The path never contains "::", the qualified name may not either, so the first one splits. */
+export function splitKey(key) {
+  const s = String(key || "");
+  const i = s.indexOf("::");
+  return i < 0 ? { path: s, qual: "" } : { path: s.slice(0, i), qual: s.slice(i + 2) };
+}
+
+const asList = (x) => (Array.isArray(x) ? x : x == null || x === "" ? [] : [x]);
+const text = (x) => (x == null ? "" : typeof x === "string" ? x : x.text || x.desc || x.name || "");
+
+/* Everything the symbol panel shows about one symbol, from the three sources and with the source of each fact kept apart:
+     sym      the census record of the symbol (function or class) from the file's shard; the facts: params, returns, raises, calls
+     row      the symbolRows() row of it: note, freshness, chosen description
+     callers  callers/<shard>.json "callers" map ("path::qual" -> ["path::qual", ...]), or null when that file is not there
+     isTest   (path) -> boolean, to put callers from tests in a group of their own
+   Params and raises are the census's (exact, from the code) joined with the note's descriptions by name; a parameter only the note
+   knows (JavaScript has none in the census) is kept. `calls` is null when the census has no call data for this symbol (JavaScript, a
+   v1 census); `calledBy` is null when the callers file is missing. Both are static and best effort: a call through a variable, a
+   decorator or a framework (a FastAPI route) is not seen, and the panel says so. */
+export function symbolDetail({ sym, row, callers = null, isTest = () => false, rec = null }) {
+  const note = (row && row.note) || null;
+  const isClass = (row && row.kind === "class") || (sym && sym.kind === "class");
+  const noteParams = new Map(asList(note && note.params).map((p) => [p && p.name, p]));
+  const params = (sym.params || []).map((p) => ({ name: p.name, annotation: p.annotation || "", default: p.default == null ? "" : String(p.default), desc: text(noteParams.get(p.name) && noteParams.get(p.name).desc) }));
+  const known = new Set(params.map((p) => p.name));
+  for (const p of asList(note && note.params)) if (p && p.name && !known.has(p.name)) params.push({ name: p.name, annotation: "", default: "", desc: text(p.desc), noteOnly: true });
+
+  const raises = [];
+  const seen = new Set();
+  for (const r of [...asList(sym.raises), ...asList(note && note.raises)]) { const t = text(r); if (t && !seen.has(t)) { seen.add(t); raises.push(t); } }
+
+  let calls = null;
+  if (!isClass && Array.isArray(sym.calls)) {
+    const byKey = new Map();
+    for (const c of sym.calls) {
+      const name = Array.isArray(c) ? c[0] : c && c.name;
+      const key = Array.isArray(c) ? c[1] : c && c.key;
+      if (!name) continue;
+      const id = `${name}|${key || ""}`;
+      if (!byKey.has(id)) byKey.set(id, { name, target: key ? splitKey(key) : null });
+    }
+    calls = [...byKey.values()];
+    calls.sort((a, b) => (b.target ? 1 : 0) - (a.target ? 1 : 0) || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+  }
+
+  let calledBy = null;
+  if (callers) {
+    const me = `${row ? row.path : ""}::${sym.qual}`;
+    calledBy = asList(callers[me]).map(splitKey).filter((k) => k.path && k.qual).map((k) => ({ ...k, test: !!isTest(k.path) }));
+    calledBy.sort((a, b) => (a.test ? 1 : 0) - (b.test ? 1 : 0) || (a.path < b.path ? -1 : a.path > b.path ? 1 : 0) || (a.qual < b.qual ? -1 : 1));
+  }
+
+  const methods = isClass && rec ? (rec.functions || []).filter((f) => f.qual.startsWith(`${sym.qual}.`) && !f.qual.slice(sym.qual.length + 1).includes(".")).map((f) => ({ qual: f.qual, name: f.name, start: f.start, end: f.end })) : [];
+  const evidence = asList(note && note.evidence).map((e) => /^(\d+)(?:\s*[-–]\s*(\d+))?$/.exec(String(e).trim())).filter(Boolean).map((m) => ({ start: Number(m[1]), end: m[2] ? Number(m[2]) : Number(m[1]) }));
+
+  return {
+    qual: sym.qual, kind: isClass ? "class" : (row && row.kind) || sym.kind || "function", sig: row ? row.sig : signature(sym), start: sym.start, end: sym.end,
+    summary: (row && row.desc) || "", from: row ? row.from : "none", details: text(note && note.details), fresh: row ? row.fresh : "none", confidence: (note && note.confidence) || "",
+    params, returns: { type: sym.returns || "", desc: text(note && note.returns) }, raises, sideEffects: asList(note && note.side_effects).map(text).filter(Boolean),
+    decorators: sym.decorators || [], visibility: sym.visibility || "", async: !!sym.async, bases: sym.bases || [], loc: sym.loc || 0, cc: sym.cc == null ? null : sym.cc,
+    calls, calledBy, methods, evidence, hasNote: !!note,
+  };
+}
+
+/* callers/<shard>.json of the shard a file lives in; null when the file is not there (an older Atlas) or the file is JavaScript only. */
+export async function loadCallers(core, file) {
+  const name = core.tree.shards[file.shard];
+  if (name == null) return null;
+  const doc = await optional(`${CODE}/callers/${name}.json`);
+  return doc && doc.callers && typeof doc.callers === "object" ? doc.callers : null;
+}
+
 export function indexFileLinks(doc) {
   if (!doc || !Array.isArray(doc.paths) || !Array.isArray(doc.links)) return null;
   const out = new Map();

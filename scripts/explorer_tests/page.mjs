@@ -2,7 +2,7 @@
 // model.js caches fetched JSON for the life of the page, so every scenario runs in its own Node process:  node page.mjs [normal|degraded|broken|scale]
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-const SCENARIOS = ["normal", "degraded", "broken", "scale", "source", "nomanifest", "fetchfail", "drift"];
+const SCENARIOS = ["normal", "degraded", "broken", "scale", "source", "nomanifest", "fetchfail", "drift", "symbol", "nocallers"];
 const which = process.argv[2];
 if (!which) {
   let bad = 0;
@@ -94,6 +94,56 @@ if (which === "scale") {
   await P.nav("#/f/backend/api/b.py@1500?tab=source"); ok(P.doc.querySelectorAll(".ex-line").length === 1700 && P.doc.getElementById("ex-L1500").classList.contains("is-sel"), `a range past the first chunk draws up to it (${P.doc.querySelectorAll(".ex-line").length})`);
   allErrors.push(...P.errors);
 }
+if (which === "symbol") {                       // P14c: the symbol panel
+  const P = await boot({ hash: "#/f/backend/agents/a.py::run@10-20?tab=symbols" });
+  const { doc, w, wait, nav, text, errors } = P;
+  const panel = () => doc.querySelector(".ex-symp");
+  const sec = (name) => [...doc.querySelectorAll(".ex-symp__sec")].find((x) => x.querySelector("h4")?.textContent.startsWith(name));
+  ok(!!panel() && panel().querySelector(".ex-symp__title").textContent.startsWith("run"), "a symbol route shows the symbol panel");
+  ok(panel().querySelector(".ex-symp__sig").textContent === "run(x: int) -> str", `signature is the census one (${panel().querySelector(".ex-symp__sig").textContent})`);
+  ok(text("ex-main").includes("Runs the agent.") && text("ex-main").includes("Longer text about run."), "note summary and details");
+  ok(!!panel().querySelector(".mm-badge--ai") && !!panel().querySelector(".mm-badge--ok") && text("ex-main").includes("medium confidence"), "AI-written, fresh and confidence badges");
+  ok(text("ex-main").includes("@cached"), "decorator shown");
+  const rows = [...sec("Parameters").querySelectorAll("tbody tr")].map((r) => [...r.children].map((c) => c.textContent.replace(/\s+/g, " ").trim()));
+  ok(rows.length === 2 && rows[0][0] === "x" && rows[0][1] === "int" && rows[0][3] === "the input value", `parameters table joins census and note (${JSON.stringify(rows[0])})`);
+  ok(rows[1][0].startsWith("extra") && rows[1][0].includes("note") && rows[1][3] === "only the note knows", "a parameter only the note knows is kept and marked");
+  ok(sec("Returns").textContent.includes("str") && sec("Returns").textContent.includes("the result text"), "returns: type and note text");
+  ok(sec("Raises").textContent.includes("ValueError") && sec("Raises").textContent.includes("KeyError when missing"), "raises: census and note");
+  ok(sec("Side effects").textContent.includes("writes a log"), "side effects");
+  const ev = [...sec("Evidence").querySelectorAll("a")].map((a) => a.getAttribute("href"));
+  ok(ev.join() === "#/f/backend/agents/a.py::run@12-14?tab=source,#/f/backend/agents/a.py::run@18?tab=source", `evidence links into the Source tab (${ev})`);
+  const calls = sec("Calls");
+  ok(calls.querySelector("h4").textContent === "Calls (5)", `calls counted without duplicates (${calls.querySelector("h4").textContent})`);
+  const refs = [...calls.querySelectorAll("a.ex-symp__ref")].map((a) => [a.textContent, a.getAttribute("href")]);
+  ok(refs.length === 2 && refs[0][0] === "Agent" && refs[1][1] === "#/f/backend/api/b.py::route?tab=symbols" && refs[1][0] === "backend/api/b.py::route", `resolved calls are links, other files show their path (${JSON.stringify(refs)})`);
+  ok(calls.textContent.includes("gone/x.py::f") && !calls.querySelector('a[href*="gone"]'), "a call into a file the census does not have is plain text, not a dead link");
+  ok(calls.querySelector("details").textContent.includes("print") && calls.querySelector("details").textContent.includes("os.path.join"), "unresolved names are tucked away in a details element");
+  const by = sec("Called by");
+  ok(by.querySelector("h4").textContent === "Called by (4)" && [...by.querySelectorAll("ul")[0].querySelectorAll("li")].map((l) => l.textContent).join() === "Agent.step", "callers: code first");
+  ok(by.querySelector("details")?.textContent.includes("3 from tests") && by.querySelector("details a")?.getAttribute("href").startsWith("#/f/backend/api/b.py::"), "callers from tests are grouped and linked");
+  ok(doc.querySelectorAll(".ex-sym__row.is-selected").length === 1, "the list below still marks the row");
+  ok(doc.querySelectorAll(".ex-symp__sec h4").length >= 7 && !/null|undefined/.test(text("ex-main")), `no stray null/undefined text (${(text("ex-main").match(/.{0,30}(null|undefined).{0,30}/) || [])[0]})`);
+  const view = panel().querySelector(".ex-go a").getAttribute("href");
+  ok(view === "#/f/backend/agents/a.py::run@10-20?tab=source", `View source keeps the symbol and its lines (${view})`);
+  panel().querySelector('a.ex-symp__ref[href*="b.py"]').click(); await wait(200);
+  ok(w.location.hash === "#/f/backend/api/b.py::route?tab=symbols" || w.location.hash.startsWith("#/f/backend/api/b.py::route"), `clicking a call opens that symbol (${w.location.hash})`);
+  ok(panel()?.querySelector(".ex-symp__title").textContent.startsWith("route"), "its panel is shown");
+  ok(text("ex-main").includes("No description yet") && sec("Called by").textContent.includes("1") , "a symbol without a note says so and still shows facts");
+  await nav("#/f/backend/agents/a.py::Agent@25-50?tab=symbols");
+  ok(panel().querySelector(".ex-pill").textContent === "class" && text("ex-main").includes("Inherits from") && !!sec("Methods (1)") && !sec("Calls"), "class panel: bases, methods, no calls");
+  ok(sec("Called by")?.querySelector("h4").textContent === "Called by (1)", "class: constructor callers");
+  await nav("#/f/backend/agents/a.py::nothing?tab=symbols");
+  ok(!panel() && text("ex-main").includes("no function or class named nothing"), "an unknown symbol says so instead of an empty panel");
+  await nav("#/f/backend/agents/a.py?tab=symbols"); ok(!panel(), "no panel without a symbol in the route");
+  done(errors);
+}
+if (which === "nocallers") {                    // an Atlas without data/code/callers/
+  const P = await boot({ hash: "#/f/backend/agents/a.py::run@10-20?tab=symbols", omit: ["data/code/callers/s0.json"] });
+  const { doc, text, errors } = P;
+  ok(!!doc.querySelector(".ex-symp") && text("ex-main").includes("Caller data is not in this Atlas"), "missing callers file: the panel still opens and says why there are no callers");
+  ok(text("ex-main").includes("Calls (5)"), "calls come from the census and still show");
+  done(errors);
+}
 if (which === "source") {
   const P = await boot({ hash: "#/f/backend/agents/a.py?tab=source" });
   const { doc, w, wait, nav, key, text, errors } = P;
@@ -110,6 +160,16 @@ if (which === "source") {
   ok(doc.querySelector("#ex-L7 .ex-line__n").textContent === "7" && doc.querySelector("#ex-L7 .ex-line__t").textContent === "line 7", "line number and text");
   ok(doc.querySelector("#ex-L10 .ex-line__t").textContent === "def run(x):  # <b>not html</b>" && !doc.querySelector(".ex-code b"), "code is shown as text, never parsed as markup");
   ok(doc.querySelector("#ex-L11 .ex-line__t").textContent === "" && doc.querySelector("#ex-L12 .ex-line__t").textContent === "\treturn '&amp;'", "blank lines, tabs and entities are kept");
+  /* P14b: the colours arrive after the plain text (boot waits long enough for the import of the vendored engine) */
+  ok(doc.querySelector(".ex-code")?.classList.contains("is-hl") && doc.querySelector(".ex-code").dataset.lang === "python", "syntax colours are on and the file is read as python");
+  ok(doc.querySelector("#ex-L10 .hljs-keyword")?.textContent === "def" && doc.querySelector("#ex-L10 .hljs-comment")?.textContent.startsWith("# <b>not html"), "keyword and comment are coloured spans");
+  ok(!doc.querySelector(".ex-code b") && doc.querySelector("#ex-L10 .ex-line__t").textContent === "def run(x):  # <b>not html</b>", "colours change no text and add no markup");
+  ok(doc.querySelectorAll(".ex-line").length === 150 && doc.querySelector("#ex-L12 .ex-line__t").textContent === "\treturn '&amp;'", "every line is still there after the colours");
+  ok(doc.querySelector(".ex-src__more").hidden === true, "no 'Show more lines' button when the whole file is drawn");
+  const hlBox = [...doc.querySelectorAll(".ex-src__tools label")].find((l) => /Syntax colours/.test(l.textContent))?.querySelector("input");
+  ok(!!hlBox && hlBox.checked && !hlBox.closest("label").hidden, "a Syntax colours checkbox appears, ticked");
+  hlBox.checked = false; hlBox.dispatchEvent(new w.Event("change")); ok(!doc.querySelector(".ex-code").classList.contains("is-hl") && w.localStorage.getItem("minime_ex_hl") === "0", "unticking turns the colours off and remembers it");
+  hlBox.checked = true; hlBox.dispatchEvent(new w.Event("change")); ok(doc.querySelector(".ex-code").classList.contains("is-hl") && w.localStorage.getItem("minime_ex_hl") === "1", "ticking turns them back on");
   ok(doc.querySelector("#ex-L5 .ex-line__n").getAttribute("href") === "#/f/backend/agents/a.py@5?tab=source" && doc.querySelector("#ex-L5 .ex-line__n").getAttribute("aria-label") === "Line 5", "a line number is a real link with a label");
   ok(text("ex-main").includes("150 lines") && sel().length === 0, "no selection without a range");
   ok(!doc.querySelector("#ex-main .ex-callout--warn"), "no warning when the copy and the census agree");

@@ -112,4 +112,56 @@ t("model: sourceNotices", () => {
   assert.deepEqual(M.sourceNotices({ path: "x.py", note: { blob: A }, srcFiles: {} }), [], "no copy of the file: nothing to compare");
   assert.deepEqual(M.sourceNotices({ path: "x.py", note: {}, srcFiles: { "x.py": B }, copyCommit: "", censusCommit: A }), [], "missing facts never warn");
 });
+
+/* ---- P14c: symbol detail */
+t("model: splitKey", () => {
+  assert.deepEqual(M.splitKey("a/b.py::C.m"), { path: "a/b.py", qual: "C.m" });
+  assert.deepEqual(M.splitKey("a/b.py"), { path: "a/b.py", qual: "" });
+  assert.deepEqual(M.splitKey(""), { path: "", qual: "" });
+});
+const sd = (over = {}) => {
+  const sym = { qual: "run", name: "run", start: 10, end: 20, loc: 11, cc: 3, params: [{ name: "x", annotation: "int", default: "1" }, { name: "y" }], returns: "str", raises: ["ValueError"], decorators: ["cached"], visibility: "public",
+    calls: [["route", "b.py::route"], ["print", null], ["os.path.join", null], ["print", null], ["route", "b.py::route"], ["Agent", "a.py::Agent"]], ...over.sym };
+  const note = over.note === null ? null : { summary: "Runs it.", details: "More.", params: [{ name: "x", desc: "input" }, { name: "z", desc: "note only" }], returns: "the text", raises: ["ValueError", "KeyError when missing"], side_effects: ["writes a log", ""], confidence: "high", evidence: ["12-14", "18", "nonsense"], hash: "h", ...over.note };
+  const rec = { path: "a.py", functions: [sym, { qual: "Agent.step", name: "step", start: 30, end: 40 }, { qual: "Agent.step.inner", name: "inner", start: 32, end: 33 }, { qual: "Other.m", name: "m", start: 60, end: 61 }], classes: [{ qual: "Agent", name: "Agent", start: 25, end: 50, loc: 26, bases: ["Base"], hash: "h2" }] };
+  const rows = M.symbolRows({ ...rec, functions: rec.functions.map((f) => ({ ...f, hash: "h" })) }, note ? { symbols: [{ qual: "run", ...note }, { qual: "Agent", summary: "An agent." }] } : null);
+  return { sym, rec, row: rows.find((r) => r.qual === (over.qual || "run")), rows };
+};
+t("model: symbolDetail joins census facts with note descriptions", () => {
+  const { sym, row } = sd();
+  const d = M.symbolDetail({ sym, row });
+  assert.deepEqual(d.params.map((p) => [p.name, p.annotation, p.default, p.desc, !!p.noteOnly]), [["x", "int", "1", "input", false], ["y", "", "", "", false], ["z", "", "", "note only", true]]);
+  assert.deepEqual(d.returns, { type: "str", desc: "the text" });
+  assert.deepEqual(d.raises, ["ValueError", "KeyError when missing"], "census and note joined, no duplicates");
+  assert.deepEqual(d.sideEffects, ["writes a log"]);
+  assert.deepEqual([d.summary, d.from, d.details, d.fresh, d.confidence, d.hasNote, d.kind, d.sig], ["Runs it.", "note", "More.", "fresh", "high", true, "function", "run(x: int = 1, y) -> str"]);
+  assert.deepEqual(d.evidence, [{ start: 12, end: 14 }, { start: 18, end: 18 }], "only well-formed line ranges");
+  assert.deepEqual(d.decorators, ["cached"]);
+});
+t("model: symbolDetail calls: de-duplicated, resolved first, then by name", () => {
+  const { sym, row } = sd();
+  const d = M.symbolDetail({ sym, row });
+  assert.deepEqual(d.calls.map((c) => [c.name, c.target ? `${c.target.path}::${c.target.qual}` : null]), [["Agent", "a.py::Agent"], ["route", "b.py::route"], ["os.path.join", null], ["print", null]]);
+});
+t("model: symbolDetail without a note or call data", () => {
+  const { sym, row } = sd({ note: null, sym: { calls: undefined, raises: undefined, returns: undefined, params: undefined } });
+  const d = M.symbolDetail({ sym, row });
+  assert.deepEqual([d.hasNote, d.fresh, d.summary, d.calls, d.calledBy, d.params, d.raises, d.returns, d.sideEffects, d.evidence], [false, "none", "", null, null, [], [], { type: "", desc: "" }, [], []]);
+  assert.equal(M.symbolDetail({ sym: { ...sym, calls: [] }, row }).calls.length, 0, "an empty list is 'calls nothing', not 'no data'");
+});
+t("model: symbolDetail calledBy: tests last, sorted, keyed by this file's path", () => {
+  const { sym, row } = sd();
+  const callers = { "a.py::run": ["tests/t.py::test_x", "z.py::b", "a.py::a", "bad", "z.py::a"], "other.py::run": ["no.py::x"] };
+  const d = M.symbolDetail({ sym, row, callers, isTest: (p) => p.startsWith("tests/") });
+  assert.deepEqual(d.calledBy.map((c) => `${c.path}::${c.qual}${c.test ? " (test)" : ""}`), ["a.py::a", "z.py::a", "z.py::b", "tests/t.py::test_x (test)"]);
+  assert.deepEqual(M.symbolDetail({ sym, row, callers: {} }).calledBy, [], "a callers file without this symbol: no callers");
+});
+t("model: symbolDetail of a class: methods are direct children only, no calls", () => {
+  const { rec, row } = sd({ qual: "Agent" });
+  const cls = { ...rec.classes[0], kind: "class" };
+  const d = M.symbolDetail({ sym: cls, row, rec, callers: { "a.py::Agent": ["x.py::f"] } });
+  assert.deepEqual([d.kind, d.calls, d.bases, d.summary], ["class", null, ["Base"], "An agent."]);
+  assert.deepEqual(d.methods.map((m) => m.qual), ["Agent.step"]);
+  assert.equal(d.calledBy.length, 1, "a constructor call is a caller of the class");
+});
 console.log(`${n} passed`);

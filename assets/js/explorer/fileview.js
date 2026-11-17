@@ -6,6 +6,7 @@ import { buildRoute } from "./router.js";
 import { coverage, noteStatus, notePrompt, allFiles } from "./model.js";
 import { createSymbols } from "./symbols.js";
 import { renderSource } from "./source.js";
+import { renderSymbolPanel } from "./symbol.js";
 import { codeLinks } from "../links.js";
 
 /* ------------------------------------------------------------------ pieces */
@@ -170,7 +171,7 @@ function explain(file, rec, note) {
   return out;
 }
 
-export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTab, linkOpts, openFile, start, end, onRange }) {
+export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTab, linkOpts, openFile, start, end, onRange, callers = null }) {
   const status = noteStatus(core.notes, file.path);
   const entry = core.notes && core.notes.files && core.notes.files[file.path];
   const badges = h("p", { class: "ex-badges" }, h("span", { class: "ex-pill" }, file.lang || "file"), file.test ? h("span", { class: "ex-pill" }, "test") : null,
@@ -208,8 +209,16 @@ export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTa
   if (active === "explain") panel.append(explain(file, rec, note));
   else if (active === "source") renderSource(panel, { core, file, rec, note, qual, start, end, linkOpts, onRange });
   else {
+    // A named symbol gets its panel (signature, parameters, calls, called by) above the list; the list keeps it highlighted.
+    const row = qual ? syms.find((r) => r.qual === qual) : null;
+    const sym = row && rec ? [...(rec.functions || []), ...(rec.classes || [])].find((s) => s.qual === qual) : null;
+    if (qual && !sym) panel.append(h("p", { class: "ex-callout ex-callout--warn" }, `This file has no function or class named ${qual} in the census. It may have been renamed or removed since.`));
+    if (sym) {
+      const isTest = (p) => { const f = core.tree.files.get(p); return !!(f && f.test); };
+      panel.append(renderSymbolPanel({ file, files: core.tree.files, linkOpts, openSymbol: (path, q) => openFile({ path, qual: q }) }, { sym: row.kind === "class" ? { ...sym, kind: "class" } : sym, row, callers, isTest, rec }));
+    }
     const t = createSymbols({ rows: syms, showPath: false, linkOpts, selected: qual, onOpen: (r) => openFile(r) });
     panel.append(t.el);
-    if (qual) t.reveal(qual);
+    if (qual) t.reveal(qual, !sym);
   }
 }
