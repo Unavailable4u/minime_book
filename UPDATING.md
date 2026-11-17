@@ -53,7 +53,7 @@ python scripts/notes.py status                                   # how much is c
 python scripts/notes.py todo --tier 1 --limit 15 --minime ../MiniMe
 ```
 
-`todo` writes two files into `MiniMe/graphify-out/atlas-notes/`: `_SCHEMA.md` (the exact format and rules) and `_todo.json` (the next batch: files, and for each the symbols that need a note, with their line numbers, hash, signature and the file's blob id). A batch stops at 15 files or about 200 symbols, whichever comes first (`--limit`, `--max-symbols`), most-connected files first. `--tier 2` or `--tier 3` includes the deeper tiers after the earlier ones are done.
+`todo` writes two files into `MiniMe/graphify-out/atlas-notes/`: `_SCHEMA.md` (the exact format and rules) and `_todo.json` (the next batch: files, and for each the symbols that need a note, with their line numbers, hash, signature and the file's blob id). A batch stops at 15 files or 80 symbols, whichever comes first (`--limit`, `--max-symbols`), most-connected files first. Keep batches small: given about 200 symbols at once, Copilot writes a script that fills a template instead of writing each entry, and `validate` flags that as placeholder text. `--tier 2` or `--tier 3` includes the deeper tiers after the earlier ones are done.
 
 Open MiniMe in VS Code, switch Copilot to **Agent** mode and paste prompt **A** (new notes) or **B** (refresh stale ones). `todo` tells you which: its list shows `new`, `changed` or `fix` per file. When Copilot is done:
 
@@ -79,7 +79,8 @@ Write "atlas notes" for the next batch of files. Do NOT modify any source file, 
 6. If the entry has "write_blocks": true, also write "blocks": 4-10 contiguous line ranges that walk a newcomer through the file in reading order, each with "lines" (like "58-82"), "anchor" (the exact first line of the block, without leading spaces), "title" and 1-3 sentences of "text".
 7. Be truthful. Describe only what the code does. If a reason, a caller or a behaviour is not visible in the code, put it in "unknowns" instead of guessing, and use confidence "low" when unsure.
 8. Never include secrets, tokens, passwords or values from .env files.
-9. When done, run: python -c "import json,glob;[json.load(open(f,encoding='utf-8')) for f in glob.glob('graphify-out/atlas-notes/*.json')];print('all valid JSON')"
+9. Write every entry yourself, from the code you read. Do NOT generate the notes with a script or a template, and do not reuse the same wording across entries. If you cannot say something useful about a parameter or a return value, leave that field out instead of writing a placeholder such as "value used by the symbol".
+10. When done, run: python -c "import json,glob;[json.load(open(f,encoding='utf-8')) for f in glob.glob('graphify-out/atlas-notes/*.json')];print('all valid JSON')"
    then print: files written, symbols written, files skipped and why.
 Do not ask me questions unless something blocks you.
 ```
@@ -96,7 +97,8 @@ Refresh the stale "atlas notes". Do NOT modify any source file, do not commit or
 5. Re-read the note's "summary", "purpose", "how_it_works", "gotchas" and "unknowns" against the changed code, and correct only what is now wrong.
 6. If the entry has "write_blocks": true, check every block: its "lines" must still cover the code that starts at its "anchor" line. Fix the line ranges and text, add a block for new code, delete a block whose code is gone.
 7. Follow the rules in _SCHEMA.md: be truthful (put what you cannot see in the code into "unknowns"), never include secrets, plain English.
-8. When done, run: python -c "import json,glob;[json.load(open(f,encoding='utf-8')) for f in glob.glob('graphify-out/atlas-notes/*.json')];print('all valid JSON')"
+8. Write every changed entry yourself, from the code you read. Do NOT generate it with a script or a template, and never write placeholder text.
+9. When done, run: python -c "import json,glob;[json.load(open(f,encoding='utf-8')) for f in glob.glob('graphify-out/atlas-notes/*.json')];print('all valid JSON')"
    then print: files updated, symbols rewritten, symbols removed.
 Do not ask me questions unless something blocks you.
 ```

@@ -403,9 +403,22 @@ def _ranges(p: Problems, where: str, v) -> None:
         p.errors.append(f"{where}: must be a list of line ranges like \"80-82\"")
         return
     for i, x in enumerate(v):
-        m = RANGE.match(x) if isinstance(x, str) else None
+        m = RANGE.match(x.strip()) if isinstance(x, str) else None      # a stray space ("12-14 ") is harmless; repair_note trims it
         if not m or (m.group(2) and int(m.group(2)) < int(m.group(1))):
             p.errors.append(f"{where}[{i}]: {x!r} is not a line range like \"80-82\" or \"80\"")
+
+
+PLACEHOLDER_EXAMPLE = '"value used by the symbol", "Defines or implements ...", "Implementation behavior is visible in the cited source range."'
+FILLER_RES = (re.compile(r"^defines or implements\b", re.I), re.compile(r"^value used by the symbol\.?$", re.I),
+              re.compile(r"^implementation behaviou?r is visible in the cited source range\.?$", re.I),
+              re.compile(r"^value or side effect described by the implementation\.?$", re.I))
+
+
+def _is_filler(s: dict) -> bool:
+    """True when a symbol entry holds boilerplate that says nothing about the code (what a script writes when it fills a template)."""
+    texts = [s.get("summary"), s.get("details"), s.get("returns")] + [pr.get("desc") for pr in s.get("params", []) if isinstance(pr, dict)] \
+        if isinstance(s.get("params", []), list) else [s.get("summary"), s.get("details"), s.get("returns")]
+    return any(isinstance(t, str) and any(rx.match(t.strip()) for rx in FILLER_RES) for t in texts)
 
 
 def validate_note(note, filename: str | None = None, ctx: Ctx | None = None) -> Problems:
@@ -513,6 +526,10 @@ def validate_note(note, filename: str | None = None, ctx: Ctx | None = None) -> 
         if "evidence" in s:
             _ranges(p, f"{w}.evidence", s["evidence"])
 
+    filler = sum(1 for s in symbols if isinstance(s, dict) and _is_filler(s))
+    if filler:
+        p.warnings.append(f"{filler} of {len(symbols)} symbol(s) carry placeholder text ({PLACEHOLDER_EXAMPLE}): it looks filled from a template, "
+                          "not written from the code. Rewrite those entries (or leave the field out) before publishing")
     if ctx and isinstance(path, str) and not known_file:
         (p.errors if at_census else p.warnings).append(
             f"{path} is not in the census" + ("" if at_census else " (the file was deleted or moved; the note is orphaned)"))
@@ -606,6 +623,8 @@ def repair_note(note: dict, ctx: Ctx, prev: dict | None = None) -> dict:
     if prev and prev.get("blob") == n.get("blob"):
         prev_syms = {s["qual"]: s for s in prev.get("symbols", []) if isinstance(s, dict) and "qual" in s}
     for s in n.get("symbols", []):
+        if isinstance(s.get("evidence"), list):
+            s["evidence"] = [x.strip() if isinstance(x, str) else x for x in s["evidence"]]
         cs = table.get(s["qual"])
         ch = cs[0].get("hash") if cs else None
         if not s.get("hash"):
@@ -827,6 +846,9 @@ You write one JSON file per source file into this folder (`graphify-out/atlas-no
   Never invent a `qual` that is not listed there. Only the symbols listed need an entry; leave the others out.
 * `blocks` (tier 1 only): 4-10 contiguous line ranges that walk a newcomer through the file in reading order.
   `anchor` is the exact first line of the block (leading spaces removed).
+* **Write every entry yourself, from the code.** Do not generate notes with a script or a template and do not paste the same
+  wording into many entries. Placeholder text such as "value used by the symbol" or "Defines or implements ..." is flagged and
+  must be rewritten. If you cannot say something useful about a parameter or a return value, leave that field out.
 * **Be truthful.** Describe only what the code does. If a reason, a behaviour or a caller is not visible in the code,
   put it in `unknowns` instead of guessing. Use `"confidence": "low"` when you are unsure. Every symbol needs
   `evidence`: the line ranges you relied on.
@@ -853,7 +875,7 @@ def schema_markdown() -> str:
     return text
 
 
-def build_todo(ctx: Ctx, notes: dict[str, dict], tier_max: int = 1, limit: int = 20, head: str = "", max_symbols: int = 200) -> dict:
+def build_todo(ctx: Ctx, notes: dict[str, dict], tier_max: int = 1, limit: int = 20, head: str = "", max_symbols: int = 80) -> dict:
     """The next batch of files that need a note (missing, or stale), tiers 1..tier_max, most connected first.
 
     A batch stops at `limit` files or when adding the next file would pass `max_symbols` symbols (a file is never split, and
@@ -955,7 +977,7 @@ def main(argv: list[str] | None = None) -> int:
     add_minime(sp)
     sp.add_argument("--tier", type=int, default=1, help="include tiers 1..N (default 1)")
     sp.add_argument("--limit", type=int, default=20, help="files per batch (default 20)")
-    sp.add_argument("--max-symbols", type=int, default=200, help="stop the batch before it passes this many symbols (default 200)")
+    sp.add_argument("--max-symbols", type=int, default=80, help="stop the batch before it passes this many symbols (default 80: more and Copilot starts generating instead of writing)")
     sp = sub.add_parser("validate", help="check notes against the schema and the census")
     add_minime(sp)
     sp.add_argument("--dir", default=None, help="a folder of notes (default: data/notes, or MiniMe's atlas-notes with --minime)")

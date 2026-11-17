@@ -297,6 +297,44 @@ class FreshnessTests(unittest.TestCase):
         self.assertEqual(notes.evaluate_note({**n, "commit": C2}, ctx)["blob"], "changed")
 
 
+class FillerAndWhitespaceTests(unittest.TestCase):
+    """What Copilot really wrote: evidence like "215-228 " and template text on every symbol."""
+
+    def setUp(self):
+        self.ctx = make_ctx([rec("backend/core/a.py", funcs=[sym("f", 10, 20, H("1"))])], blobs={"backend/core/a.py": B1})
+
+    def test_a_space_around_an_evidence_range_is_harmless_but_a_bad_range_is_still_an_error(self):
+        ok = notes.validate_note(good_note(symbols=[nsym("f", 10, 20, H("1"), evidence=["12-14 ", " 15"])]), None, self.ctx)
+        self.assertEqual((ok.errors, ok.warnings), ([], []))
+        bad = notes.validate_note(good_note(symbols=[nsym("f", 10, 20, H("1"), evidence=["14-12 ", "abc "])]), None, self.ctx)
+        self.assertEqual(len(bad.errors), 2)
+
+    def test_repair_trims_evidence_and_still_moves_it_with_a_shifted_symbol(self):
+        n = notes.repair_note(good_note(symbols=[nsym("f", 5, 15, H("1"), evidence=["6-8 ", "15 "])]), self.ctx)
+        self.assertEqual(n["symbols"][0]["evidence"], ["11-13", "20"])
+
+    def test_placeholder_text_is_a_warning_naming_how_many_symbols_have_it(self):
+        s1 = nsym("f", 10, 20, H("1"), summary="Defines or implements f.", params=[{"name": "x", "desc": "value used by the symbol"}])
+        p = notes.validate_note(good_note(symbols=[s1]), None, self.ctx)
+        self.assertEqual(p.errors, [])
+        self.assertEqual(len(p.warnings), 1)
+        self.assertIn("1 of 1 symbol(s) carry placeholder text", p.warnings[0])
+
+    def test_each_kind_of_filler_is_caught_and_real_text_is_not(self):
+        for field, val in (("summary", "Defines or implements f."), ("details", "Implementation behavior is visible in the cited source range."),
+                           ("returns", "value or side effect described by the implementation")):
+            p = notes.validate_note(good_note(symbols=[nsym("f", 10, 20, H("1"), **{field: val})]), None, self.ctx)
+            self.assertEqual(len(p.warnings), 1, field)
+        real = nsym("f", 10, 20, H("1"), summary="Returns the cached prompt for a role.", details="Reads Redis once.",
+                    params=[{"name": "role", "desc": "canonical role name"}], returns="str")
+        p = notes.validate_note(good_note(symbols=[real]), None, self.ctx)
+        self.assertEqual((p.errors, p.warnings), ([], []))
+
+    def test_a_malformed_params_value_does_not_crash_the_filler_check(self):
+        p = notes.validate_note(good_note(symbols=[nsym("f", 10, 20, H("1"), params="x")]), None, self.ctx)
+        self.assertTrue(any("params" in e for e in p.errors))
+
+
 class RepairTests(unittest.TestCase):
     def ctx(self, blob=B1, f=(10, 20, H("1"))):
         return make_ctx([rec("backend/core/a.py", funcs=[sym("f", f[0], f[1], f[2])])], blobs={"backend/core/a.py": blob})
@@ -456,6 +494,12 @@ class IngestTests(unittest.TestCase):
         idx = json.loads((self.root / "data" / "index" / "notes.json").read_text(encoding="utf-8"))
         self.assertEqual((idx["commit"], idx["totals"]["noted"], idx["files"]["backend/core/a.py"]["status"]), (C1, 1, "fresh"))
         self.assertFalse((self.root / "data" / "notes" / "_todo.json").exists())
+
+    def test_ingest_accepts_trailing_spaces_in_evidence_and_stores_them_trimmed(self):
+        self.put(good_note(symbols=[nsym("f", 10, 30, evidence=["12-14 ", "20 "])]))
+        self.assertEqual(self.run_ingest(), 0)
+        self.assertEqual(self.data()["symbols"][0]["evidence"], ["12-14", "20"])
+        self.assertEqual(self.run_ingest(check=True), 0)
 
     def test_ingest_is_idempotent_and_check_agrees(self):
         self.put(good_note(symbols=[nsym("f", 10, 30)]))
