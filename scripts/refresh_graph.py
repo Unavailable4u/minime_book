@@ -34,6 +34,8 @@ What it refreshes, and where each number comes from:
     data/graph/folders.json  (P08) cross-folder link counts and node counts at the finer folder level the live topology
                         diagram on index.html uses (frontend/app/<x>, m2c/src/m2c/<part>, protocol/v1 ...). The diagram
                         reads it for edge widths; which folders form which box is in content/topology.json
+    data/graph/file-links.json  (P13) the strongest file-to-file graph links of every file, for the Explorer's "Graph neighbours"
+                        panel. Paths are stored once and the links refer to them by position, so the file stays small.
 
 Safety: the graph must have been built at the same commit as data/census.json (and at the
 current MiniMe HEAD), otherwise the pages would mix two different versions of the code. Pass
@@ -169,6 +171,38 @@ def folders_json(g):
     top = json.dumps(head, indent=2, ensure_ascii=False)
     body = ",\n".join("    " + json.dumps(r, ensure_ascii=False) for r in rows)
     return top[:-2] + ',\n  "pairs": [' + ("\n" + body + "\n  " if rows else "") + "]\n}\n"
+
+
+# ----------------------------------------------------------------- file-links.json
+FILELINKS_REL = "data/graph/file-links.json"
+FILELINKS_TOP = 12                    # neighbours kept per file (the Explorer shows a short list, strongest first)
+
+
+def file_links_json(g):
+    """data/graph/file-links.json (P13): for each file the FILELINKS_TOP files it shares the most graph links with, in either
+    direction (links inside one file and links to concept nodes are not file pairs). `paths` lists every file that has a
+    neighbour, sorted; line i of `links` belongs to paths[i] and holds [[index into paths, link count], ...], strongest first
+    (ties by path). Test files are kept: a test file's page shows what it is connected to like any other. Deterministic."""
+    counts = collections.Counter()
+    for a, b in g.links:
+        pa, pb = g.file_of[a], g.file_of[b]
+        if pa and pb and pa != pb:
+            counts[tuple(sorted((pa, pb)))] += 1
+    near = collections.defaultdict(list)
+    for (a, b), v in counts.items():
+        near[a].append((b, v))
+        near[b].append((a, v))
+    paths = sorted(near)
+    pos = {p: i for i, p in enumerate(paths)}
+    rows = []
+    for p in paths:
+        top = sorted(near[p], key=lambda r: (-r[1], r[0]))[:FILELINKS_TOP]
+        rows.append(json.dumps([[pos[q], v] for q, v in top], separators=(",", ":")))
+    head = {"version": 1, "source": "graphify", "commit": g.commit[:7], "date": g.date, "top": FILELINKS_TOP}
+    top = json.dumps(head, indent=2, ensure_ascii=False)[:-2]
+    plist = ",\n".join("    " + json.dumps(p, ensure_ascii=False) for p in paths)
+    llist = ",\n".join("    " + r for r in rows)
+    return (top + ',\n  "paths": [' + ("\n" + plist + "\n  " if paths else "") + '],\n  "links": [' + ("\n" + llist + "\n  " if rows else "") + "]\n}\n")
 
 
 # ---------------------------------------------------------------------- graph page
@@ -444,6 +478,11 @@ def refresh_all(root, g, minime):
     old, crlf = ra.read_lf(fp) if fp.exists() else (None, False)
     if new != old:
         changes[fp] = ra.to_native(new, crlf).encode("utf-8")
+    lp = root / FILELINKS_REL                                      # P13: the Explorer's graph neighbours
+    new = file_links_json(g)
+    old, crlf = ra.read_lf(lp) if lp.exists() else (None, False)
+    if new != old:
+        changes[lp] = ra.to_native(new, crlf).encode("utf-8")
     target = root / "graph-viewer.html"
     data = viewer_html(viewer_data(g, explore_html)).encode("utf-8")
     if not target.exists() or target.read_bytes() != data:

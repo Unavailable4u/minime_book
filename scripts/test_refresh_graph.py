@@ -154,6 +154,69 @@ class FoldersJson(Fixture):
         return rg.Graph(path, repo_prefix=str(self.minime))
 
 
+class FileLinksJson(Fixture):
+    """data/graph/file-links.json (P13): the strongest file-to-file graph links of each file, for the Explorer."""
+    REL = "data/graph/file-links.json"
+
+    def doc(self, g=None):
+        return json.loads(rg.file_links_json(g or self.graph()))
+
+    def pairs(self, doc):
+        """{(path, other path): count} read back from the compact index form."""
+        return {(doc["paths"][i], doc["paths"][j]): n for i, row in enumerate(doc["links"]) for j, n in row}
+
+    def test_links_are_file_pairs_counted_in_both_directions_with_concepts_and_self_links_left_out(self):
+        doc = self.doc()
+        test = "backend/tests/test_x.py"
+        self.assertEqual(["version", "source", "commit", "date", "top", "paths", "links"], list(doc))
+        self.assertEqual((1, "graphify", COMMIT[:7], rg.FILELINKS_TOP), (doc["version"], doc["source"], doc["commit"], doc["top"]))
+        self.assertEqual(sorted([self.ag, self.eo, test]), doc["paths"])
+        want = {(self.ag, self.eo): 2, (self.eo, self.ag): 2, (self.ag, test): 1, (test, self.ag): 1}
+        self.assertEqual(want, self.pairs(doc), "a1-e1 and a1-e2 make 2; the concept node 'json' and the two links inside one file make none; tests stay in")
+
+    def test_every_path_has_one_line_of_links_and_the_strongest_neighbour_comes_first(self):
+        doc = self.doc()
+        self.assertEqual(len(doc["paths"]), len(doc["links"]))
+        row = doc["links"][doc["paths"].index(self.ag)]
+        self.assertEqual([[doc["paths"].index(self.eo), 2], [doc["paths"].index("backend/tests/test_x.py"), 1]], row)
+
+    def test_only_the_strongest_neighbours_are_kept_and_ties_are_broken_by_path(self):
+        node = lambda i, f: {"id": i, "label": i + "()", "source_file": f, "community": 0, "file_type": "code"}
+        hub = "backend/eo/hub.py"
+        names = [f"backend/eo/f{i:02d}.py" for i in range(rg.FILELINKS_TOP + 3)]
+        nodes = [node("h", hub)] + [node(f"n{i}", n) for i, n in enumerate(names)]
+        links = [("h", f"n{i}") for i in range(len(names))] + [("h", "n0")]            # n0 has two links to the hub: it wins, the rest tie
+        path = self.tmp / "wide.json"
+        path.write_text(json.dumps({"directed": False, "nodes": nodes, "links": [{"source": s, "target": t} for s, t in links], "built_at_commit": COMMIT}), encoding="utf-8")
+        doc = self.doc(rg.Graph(path, repo_prefix=str(self.minime)))
+        row = doc["links"][doc["paths"].index(hub)]
+        got = [doc["paths"][j] for j, _ in row]
+        self.assertEqual(rg.FILELINKS_TOP, len(row))
+        self.assertEqual(names[0], got[0])
+        self.assertEqual(names[1:rg.FILELINKS_TOP], got[1:], "equal counts are ordered by path")
+        self.assertEqual(2, row[0][1])
+
+    def test_the_file_has_one_path_and_one_row_per_line_and_ends_with_a_newline(self):
+        self.apply()
+        raw = read(self.book / self.REL)
+        self.assertTrue(raw.endswith("}\n"))
+        self.assertNotIn("\r", raw)
+        self.assertEqual(3, len([ln for ln in raw.splitlines() if ln.startswith('    "')]))
+        self.assertEqual(3, len([ln for ln in raw.splitlines() if ln.startswith("    [[")]))
+        self.assertEqual(raw, rg.file_links_json(self.graph()))
+
+    def test_a_graph_without_file_links_gives_empty_lists_and_a_second_run_changes_nothing(self):
+        node = {"id": "a", "label": "a()", "source_file": self.eo, "community": 0, "file_type": "code"}
+        path = self.tmp / "one.json"
+        path.write_text(json.dumps({"directed": False, "nodes": [node], "links": [], "built_at_commit": COMMIT}), encoding="utf-8")
+        doc = self.doc(rg.Graph(path, repo_prefix=str(self.minime)))
+        self.assertEqual(([], []), (doc["paths"], doc["links"]))
+        self.apply()
+        first = (self.book / self.REL).read_bytes()
+        self.apply()
+        self.assertEqual(first, (self.book / self.REL).read_bytes())
+
+
 class Refresh(Fixture):
     def test_refresh_is_idempotent(self):
         self.apply()

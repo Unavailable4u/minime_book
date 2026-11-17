@@ -35,6 +35,8 @@
       "icon": "code",
       "open": false,
       "items": [
+        { "id": "explorer", "title": "Explorer", "url": "explorer.html", "layout": "workbench", "count_from": "files",
+          "blurb": "Folders, files and functions, each with what it does", "keywords": "explorer tree files functions symbols source notes code browse" },
         { "id": "explore", "title": "Explore", "url": "explore.html", "layout": "workbench",
           "blurb": "Search files, functions, routes and guides", "keywords": "explore search graph files functions routes" },
         { "id": "code", "title": "Files", "url": "code.html", "layout": "workbench", "count_from": "files",

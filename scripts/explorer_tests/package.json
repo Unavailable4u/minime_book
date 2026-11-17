@@ -1,0 +1,9 @@
+{
+  "name": "explorer-tests",
+  "private": true,
+  "type": "module",
+  "description": "Test helpers for explorer.html (P13). Only the page tests need jsdom: npm install --prefix scripts/explorer_tests jsdom",
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  }
+}

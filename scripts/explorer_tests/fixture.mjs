@@ -1,0 +1,76 @@
+// Synthetic census (same shapes as data/code/*.json, data/index/notes.json, data/graph/file-links.json) and a jsdom page loader.
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const FIELDS = ["name", "lang", "lines", "code", "functions", "classes", "commits", "last", "flags", "shard"];
+const fn = (q, s, e, x = {}) => ({ qual: q, name: q.split(".").pop(), start: s, end: e, loc: e - s + 1, cc: 3, doc1: "", params: [{ name: "x", annotation: "int", default: null }], returns: "str", hash: `h_${q}`, kind: q.includes(".") ? "method" : "function", visibility: "public", ...x });
+
+export function writeFixture(dir, { big = false } = {}) {
+  const W = (rel, o) => { const p = path.join(dir, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, JSON.stringify(o)); };
+  const recs = [
+    { path: "backend/agents/a.py", functions: [fn("run", 10, 20, { doc1: "Run it." }), fn("Agent.step", 30, 40), fn("_clean_query", 120, 141)], classes: [{ qual: "Agent", name: "Agent", start: 25, end: 50, loc: 26, bases: ["Base"], hash: "h_Agent" }],
+      module_doc: "Agents.\n\nMore.", git: { commits: 5, first: "2026-01-02", last: "2026-10-05", dates: ["2026-01-02", "2026-03-04", "2026-03-09", "2026-10-05", "2026-10-05"], added: 100, deleted: 20 }, exports: ["run"], size: 900, comment: 3, blank: 4 },
+    { path: "backend/api/b.py", functions: [fn("route", 1, 5)], classes: [], git: { commits: 0 } },
+    { path: "README.md", functions: [], classes: [] },
+  ];
+  const many = [];
+  if (big) for (let i = 0; i < 500; i++) many.push(fn(`f${i}`, i * 3 + 1, i * 3 + 2));
+  recs[1].functions.push(...many);
+  const dirs = [{ name: "backend", n: { files: 2, lines: 100, code: 80, functions: 4, classes: 1 }, files: [], dirs: [
+    { name: "agents", n: { files: 1, lines: 60, code: 50, functions: 3, classes: 1 }, files: [["a.py", "py", 60, 50, 3, 1, 5, "2026-10-05", "", 0]], dirs: [] },
+    { name: "api", n: { files: 1, lines: 40, code: 30, functions: 1, classes: 0 }, files: [["b.py", "py", 40, 30, 1, 0, 0, "", "t", 0]], dirs: [] }] }];
+  if (big) dirs.push({ name: "bulk", n: { files: 1200, lines: 1, code: 1, functions: 0, classes: 0 }, dirs: [], files: Array.from({ length: 1200 }, (_, i) => [`m${String(i).padStart(4, "0")}.py`, "py", 1, 1, 0, 0, 0, "", "", 0]) });
+  W("data/code/tree.json", { file_fields: FIELDS, shards: ["s0"], commit: "a1389bfdeadbeef", generated: "2026-11-01", root: { files: [["README.md", "md", 10, 8, 0, 0, 1, "2026-01-01", "", 0]], dirs } });
+  W("data/code/files/s0.json", { files: recs });
+  W("data/code/imports.json", { imports: { "backend/api/b.py": ["backend/agents/a.py", "nowhere.py"] }, imported_by: { "backend/agents/a.py": ["backend/api/b.py"] }, external: { "backend/agents/a.py": ["httpx"] } });
+  W("data/index/notes.json", { totals: { files: 3, noted: 1 }, folders: { "backend/agents": { files: 1, noted: 1, stale: 0 }, backend: { files: 2, noted: 1, stale: 0 } }, files: { "backend/agents/a.py": { status: "fresh", tier: 1 } } });
+  W("data/notes/backend__agents__a.py.json", { summary: "Agent module.", purpose: "p", written: "2026-10-20", commit: "abcdef123", symbols: [{ qual: "run", summary: "Runs the agent.", hash: "h_run" }, { qual: "Agent.step", summary: "Steps.", hash: "OLD" }], blocks: [{ lines: "10-20", title: "Run", text: "x" }] });
+  W("data/graph/file-links.json", { paths: ["backend/agents/a.py", "backend/api/b.py"], links: [[[1, 4]], [[0, 4]]], commit: "abc", date: "2026-11-01" });
+}
+
+export async function jsdomOrSkip() {
+  try { return (await import("jsdom")).JSDOM; } catch { console.log("SKIP: jsdom is not installed (npm install --prefix scripts/explorer_tests jsdom)"); process.exit(77); }
+}
+
+/* Load explorer.html (scripts stripped) in jsdom, serve data/ from a temp fixture, and import the real main.js. `omit` = data paths that answer 404. */
+export async function boot({ hash = "", omit = [], big = false } = {}) {
+  const JSDOM = await jsdomOrSkip();
+  const data = fs.mkdtempSync(path.join(os.tmpdir(), "explorer-"));
+  writeFixture(data, { big });
+  const html = fs.readFileSync(path.join(ROOT, "explorer.html"), "utf8").replace(/<script[\s\S]*?<\/script>/g, "");
+  const dom = new JSDOM(html, { url: `http://localhost:8000/explorer.html${hash}`, pretendToBeVisual: true });
+  const w = dom.window;
+  const set = (k, v) => Object.defineProperty(globalThis, k, { value: v, configurable: true, writable: true });
+  for (const k of ["document", "location", "localStorage", "Node", "HTMLElement", "requestAnimationFrame", "cancelAnimationFrame"]) set(k, w[k]);
+  set("window", w); set("navigator", w.navigator);
+  w.scrollTo = () => {}; w.HTMLElement.prototype.scrollIntoView = () => {};
+  const errors = [];
+  w.addEventListener("error", (e) => errors.push(e.message));
+  process.on("unhandledRejection", (e) => errors.push(`rejection: ${e}`));
+  const rootPath = pathToFileURL(ROOT).pathname.replace(/\/?$/, "/");
+  globalThis.fetch = async (u) => {
+    const rel = decodeURIComponent(new URL(String(u)).pathname).slice(rootPath.length);
+    const f = path.join(data, rel);
+    return !omit.includes(rel) && fs.existsSync(f) ? { ok: true, status: 200, json: async () => JSON.parse(fs.readFileSync(f, "utf8")) } : { ok: false, status: 404, json: async () => ({}) };
+  };
+  await import(`${pathToFileURL(path.join(ROOT, "assets/js/explorer/main.js")).href}?${Math.random()}`);
+  const wait = (ms = 80) => new Promise((r) => setTimeout(r, ms));
+  await wait(200);
+  const doc = w.document;
+  return {
+    w, doc, errors, wait,
+    nav: async (h) => { w.location.hash = h; await wait(150); },
+    key: (el, k, o = {}) => el.dispatchEvent(new w.KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true, ...o })),
+    text: (id) => doc.getElementById(id).textContent.replace(/\s+/g, " "),
+    rows: () => [...doc.querySelectorAll(".ex-row")].map((r) => r.textContent.replace(/[▾▸]/g, "").trim()),
+  };
+}
+
+export function makeOk() {
+  const S = { fails: 0, n: 0 };
+  const ok = (c, m) => { S.n++; if (!c) { S.fails++; console.log(`FAIL: ${m}`); } else console.log(`ok: ${m}`); };
+  return { ok, done: (errors = []) => { if (errors.length) { S.fails++; console.log("page errors:", errors); } console.log(`${S.n - S.fails}/${S.n} passed`); process.exit(S.fails ? 1 : 0); } };
+}
