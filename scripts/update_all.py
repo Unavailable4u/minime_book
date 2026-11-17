@@ -21,9 +21,12 @@ What it runs, in order, stopping at the first problem:
                                                  the sharded code data the Explorer reads (data/code/)
     3. refresh_graph.py --minime <MiniMe>        every Graphify-driven part (graph, hubs, Explore edges, API callers)
                                                  (the Overview, index.html, is a shell: both scripts write its numbers to data/index/vitals.json)
-    4. both scripts with --check (refresh_atlas.py --check covers the search index and data/code too), and the unit tests,
-       to prove nothing is left stale
-    5. with --push: git add, commit and push
+    4. notes.py ingest --minime <MiniMe>         the AI-written notes (MiniMe/graphify-out/atlas-notes, see UPDATING.md "Step 2b"):
+                                                 validate, copy into data/notes/, fill symbol hashes, write data/index/notes.json.
+                                                 A malformed note stops here; warnings and stale notes never do
+    5. both scripts with --check (refresh_atlas.py --check covers the search index and data/code too), notes.py ingest --check
+       and notes.py validate, and the unit tests, to prove nothing is left stale
+    6. with --push: git add, commit and push
 
 Standard library only (the census itself needs tree-sitter and PyYAML, see --install-deps).
 """
@@ -95,9 +98,14 @@ def main(argv=None):
     graph = [PY, "scripts/refresh_graph.py", "--minime", minime]
     run(*(graph + (["--allow-stale-graph"] if args.allow_stale_graph else [])))
 
+    notes = [PY, "scripts/notes.py", "ingest", "--minime", minime]
+    run(*notes)
+
     print("\n== Verifying nothing is stale ==")
     run(PY, "scripts/refresh_atlas.py", "--check")
     run(*(graph + ["--check"] + (["--allow-stale-graph"] if args.allow_stale_graph else [])))
+    run(*(notes + ["--check"]))
+    run(PY, "scripts/notes.py", "validate")
     run(PY, "scripts/test_refresh_atlas.py")
     run(PY, "scripts/test_refresh_graph.py")
     run(PY, "scripts/test_build_index.py")
@@ -108,6 +116,7 @@ def main(argv=None):
     run(PY, "scripts/test_overview.py")
     run(PY, "scripts/test_build_code.py")
     run(PY, "scripts/test_topology.py")
+    run(PY, "scripts/test_notes.py")
 
     print("\n== Result ==")
     run("git", "status", "--short")

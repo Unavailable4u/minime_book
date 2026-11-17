@@ -1,13 +1,14 @@
-# Updating the whole Atlas (census + graph) in one command
+# Updating the whole Atlas (census + graph + notes) in one command
 
-The Atlas has two kinds of generated content:
+The Atlas has three kinds of generated content:
 
 | From | Refreshed by | Pages |
 |---|---|---|
 | `data/census.json` (MiniMe's `scripts/codebase_census.py`) | `scripts/refresh_atlas.py` | Overview, Files, Functions, History, Map, API, Agents, Infra, Explore, `data/summary.md`, the search index (`data/index/*.json`) |
 | The Graphify graph (`MiniMe/graphify-out/`) | `scripts/refresh_graph.py` | Graph and its viewer, Overview graph numbers and hubs, Explore connections, API "Frontend callers", `data/summary.md` graph line |
+| AI-written notes (`MiniMe/graphify-out/atlas-notes/`, written by Copilot: what each file and function is for) | `scripts/notes.py ingest` | `data/notes/` and `data/index/notes.json` (coverage and freshness; read by the Explorer and Coverage pages when they land) |
 
-`scripts/update_all.py` runs both, then proves nothing is stale and runs the tests.
+`scripts/update_all.py` runs all three, then proves nothing is stale and runs the tests. The notes are the only part a person has to drive: Copilot writes them in batches (Step 2b below), and everything else about them is automatic.
 
 ## The routine
 
@@ -40,13 +41,82 @@ python scripts/update_all.py --push
 
 MiniMe is expected next to this repo in a folder named `MiniMe`. Otherwise add `--minime "E:\python workplace\code\MiniMe"`.
 
+## Step 2b: AI-written notes (Copilot, run in batches)
+
+The census gives facts (names, lines, signatures, a hash of each function's code). The **notes** add meaning: what a file is for, what each important function does, and what to watch out for. Copilot writes one JSON file per source file into `MiniMe/graphify-out/atlas-notes/` (ignored by MiniMe's git, so it never makes MiniMe "dirty"). `notes.py` decides which files are worth a note, hands Copilot a batch, checks what comes back, and later tells you which notes went **stale** because the code changed. Only the notes whose code changed are ever rewritten.
+
+Do steps 1-3 first, so the census and the graph describe MiniMe's current commit. Then, in a loop:
+
+```powershell
+cd path\to\minime_book
+python scripts/notes.py status                                   # how much is covered, by tier
+python scripts/notes.py todo --tier 1 --limit 15 --minime ../MiniMe
+```
+
+`todo` writes two files into `MiniMe/graphify-out/atlas-notes/`: `_SCHEMA.md` (the exact format and rules) and `_todo.json` (the next batch: files, and for each the symbols that need a note, with their line numbers, hash, signature and the file's blob id). A batch stops at 15 files or about 200 symbols, whichever comes first (`--limit`, `--max-symbols`), most-connected files first. `--tier 2` or `--tier 3` includes the deeper tiers after the earlier ones are done.
+
+Open MiniMe in VS Code, switch Copilot to **Agent** mode and paste prompt **A** (new notes) or **B** (refresh stale ones). `todo` tells you which: its list shows `new`, `changed` or `fix` per file. When Copilot is done:
+
+```powershell
+python scripts/notes.py ingest --minime ../MiniMe
+python scripts/notes.py status
+```
+
+`ingest` checks every note (a malformed one is reported and stops it; add `--skip-invalid` to take the rest), copies the good ones into `data/notes/`, fills in the symbol hashes, and writes `data/index/notes.json`. Run `todo` again for the next batch. When you have done enough for today, run `python scripts/update_all.py` (it ingests too), and publish.
+
+Do not commit in MiniMe between `todo` and `ingest`: the notes record the commit they were written against, and a different commit makes them stale at once (`todo` warns when MiniMe has moved on from the census).
+
+**Prompt A: write a batch of new notes**
+
+```
+Write "atlas notes" for the next batch of files. Do NOT modify any source file, do not commit or push.
+
+1. Run `git status` and `git log -1 --oneline`. If there are uncommitted changes to tracked files, stop and tell me.
+2. Read graphify-out/atlas-notes/_SCHEMA.md (the exact format and rules) and graphify-out/atlas-notes/_todo.json (the batch). Process every entry of "files", in order, and no other file.
+3. For each entry: read the WHOLE source file, then write graphify-out/atlas-notes/<note_file> (schema version 1).
+4. Copy "path", "tier", "blob" and "commit" from the entry exactly as given. Never compute or guess them. Set "written" to today's date (YYYY-MM-DD).
+5. Write one "symbols" entry for EVERY symbol listed in the entry. Use its "qual", "start", "end" and "hash" exactly as given, and add: "summary" (<= 140 characters, what it is FOR), "params" (name + one-line meaning), "returns", "raises", "side_effects" (I/O, database writes, network, LLM calls, file system, subprocess), "confidence" (high, medium or low) and "evidence" (the line ranges you relied on). Do not add symbols that are not listed.
+6. If the entry has "write_blocks": true, also write "blocks": 4-10 contiguous line ranges that walk a newcomer through the file in reading order, each with "lines" (like "58-82"), "anchor" (the exact first line of the block, without leading spaces), "title" and 1-3 sentences of "text".
+7. Be truthful. Describe only what the code does. If a reason, a caller or a behaviour is not visible in the code, put it in "unknowns" instead of guessing, and use confidence "low" when unsure.
+8. Never include secrets, tokens, passwords or values from .env files.
+9. When done, run: python -c "import json,glob;[json.load(open(f,encoding='utf-8')) for f in glob.glob('graphify-out/atlas-notes/*.json')];print('all valid JSON')"
+   then print: files written, symbols written, files skipped and why.
+Do not ask me questions unless something blocks you.
+```
+
+**Prompt B: after a code change, refresh only what is stale**
+
+```
+Refresh the stale "atlas notes". Do NOT modify any source file, do not commit or push.
+
+1. Run `git status` and `git log -1 --oneline`. If there are uncommitted changes to tracked files, stop and tell me.
+2. Read graphify-out/atlas-notes/_SCHEMA.md and graphify-out/atlas-notes/_todo.json. For each entry of "files", open the existing note graphify-out/atlas-notes/<note_file> and update it in place.
+3. Copy "tier", "blob" and "commit" from the entry. Set "written" to today's date.
+4. Touch only what the entry lists. For each item in the entry's "symbols": re-read that code, rewrite its entry (summary, params, returns, raises, side_effects, confidence, evidence), and set "qual", "start", "end" and "hash" from the entry; add the entry if it is new. Delete the entries named in "removed". Leave every other symbol exactly as it is.
+5. Re-read the note's "summary", "purpose", "how_it_works", "gotchas" and "unknowns" against the changed code, and correct only what is now wrong.
+6. If the entry has "write_blocks": true, check every block: its "lines" must still cover the code that starts at its "anchor" line. Fix the line ranges and text, add a block for new code, delete a block whose code is gone.
+7. Follow the rules in _SCHEMA.md: be truthful (put what you cannot see in the code into "unknowns"), never include secrets, plain English.
+8. When done, run: python -c "import json,glob;[json.load(open(f,encoding='utf-8')) for f in glob.glob('graphify-out/atlas-notes/*.json')];print('all valid JSON')"
+   then print: files updated, symbols rewritten, symbols removed.
+Do not ask me questions unless something blocks you.
+```
+
+**How the notes stay honest and cheap**
+
+* **Tiers** (`content/notes-tiers.json`, editable; `python scripts/notes.py tiers` shows the effect, `tiers <path>` explains one file): T1 = full note with a walkthrough of the file (the most-connected files in the graph, route files, the orchestrator core, the code agent, the daemon, the M2C core); T2 = file note plus the larger or public functions; T3 = file note plus public functions (frontend, migrations, scripts); T4 = tests and fixtures, a one-line summary only; T0 = no note (binary files, Markdown, `protocol/v1/*.json`, which the Protocol page will render directly). A function with none of the traits listed for its tier gets no note: the site shows its census facts instead.
+* **Freshness** is judged from git objects, never from the working tree (so Windows line endings cannot cause false alarms). A note records the blob id of its file; a different blob means **stale**. Each symbol records the hash of its code: a different hash means that function changed, a missing symbol is **broken**. `ingest` fills hashes from the census, and moves the line numbers of unchanged symbols to where they now are, so a note is not stale just because code above it grew.
+* **Errors block, warnings do not.** Blocking: malformed JSON, wrong types, text that looks like a secret, or a symbol that does not exist although the note was written at the census commit (a hallucination). Warnings: unknown keys, over-long text, a symbol that vanished from newer code, a note for a deleted file (`ingest --prune-orphans` removes those).
+* Notes are **AI-written** and the site will say so. Copilot is told to put anything it cannot see in the code into `unknowns`, and to cite the lines it relied on; spot-check the first few batches.
+* `ingest` never deletes notes by itself. On a machine without MiniMe's `atlas-notes` folder it just rebuilds `data/index/notes.json` from `data/notes/`. A note in MiniMe that is older than the committed copy is skipped.
+
 ## What `update_all.py` checks and does
 
 1. MiniMe has no uncommitted or untracked files, and `graphify-out/graph.json` was built at MiniMe's current commit. If not, it stops and tells you which step to redo. This stops the site from mixing two versions of the code.
 2. `refresh_atlas.py --census-from <MiniMe>`: new census, then every census-driven page and the search index.
 3. `refresh_graph.py --minime <MiniMe>`: every Graphify-driven part.
-4. Both scripts with `--check` (the first also proves the search index is current), then the unit tests, including the index builder, the palette and the chapter reader.
-5. With `--push`: `git add -A`, commit, `git pull --rebase`, `git push`.
+4. `notes.py ingest --minime <MiniMe>`: validates the notes Copilot wrote, copies them into `data/notes/`, rewrites `data/index/notes.json`. A malformed note stops it; stale or missing notes only show in the coverage numbers.
+5. Both scripts with `--check` (the first also proves the search index is current), `notes.py ingest --check` and `notes.py validate`, then the unit tests, including the index builder, the palette, the chapter reader and the notes pipeline.
+6. With `--push`: `git add -A`, commit, `git pull --rebase`, `git push`.
 
 The GitHub Action (`refresh-atlas.yml`) still runs when `data/census.json` is pushed. After this routine it finds nothing to change, so it commits nothing.
 
@@ -88,6 +158,9 @@ Tests, Health, Data model, Tables, Roadmap, Finance, Decisions and the document 
 | `Not replacing data/census.json, the new census is not trustworthy` | Follow the `pip install` line it prints. |
 | `search index is stale` / `missing: data/index/...` | Run `python scripts/build_index.py` (you edited `nav.json`, a chapter or the glossary). |
 | `glossary-bad-see` / `path-bad-target` from `check_site.py` | A glossary term or reading-path step points at a chapter, heading id, file or symbol that is gone (a chapter was rebuilt, or MiniMe moved a file). `python scripts/list_headings.py <chapter>` lists the current heading ids; fix the target in `content/glossary.json` or `content/reading-paths.json`. |
+| `note file(s) are malformed, nothing was ingested` | `ingest` printed which file and why. Fix or delete that file in `MiniMe/graphify-out/atlas-notes/` (or run Prompt A/B again for it), or use `--skip-invalid`. |
+| `error: ... symbol X: not in the census` | Copilot invented a function name (or used a `qual` that was not in `_todo.json`). Fix the note or have Copilot redo that file. |
+| `MiniMe is at X but the census is from Y` (from `notes.py todo`) | MiniMe moved on after the census. Run `python scripts/update_all.py` first, so lines, hashes and blob ids match what Copilot will read. |
 | `git push` rejected | Branch protection or a new remote commit. Run `git pull --rebase`, then `git push`. |
 
-Single steps: `python scripts/build_index.py --check`, `python scripts/refresh_atlas.py --check` and `python scripts/refresh_graph.py --minime ../MiniMe --check` change nothing and exit 1 if a page is out of date.
+Single steps: `python scripts/build_index.py --check`, `python scripts/refresh_atlas.py --check`, `python scripts/refresh_graph.py --minime ../MiniMe --check` and `python scripts/notes.py ingest --minime ../MiniMe --check` change nothing and exit 1 if something is out of date.

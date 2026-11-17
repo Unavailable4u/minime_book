@@ -1,0 +1,46 @@
+{
+  "_help": [
+    "Which files get an AI-written note, and how deep. Edit freely; run `python scripts/notes.py tiers` to see the effect.",
+    "Tiers: 0 = no note at all, 1 = full note with walkthrough blocks, 2 = file note + the symbols below, 3 = file note + public symbols, 4 = one-line summary only (only asked for with --tier 4).",
+    "Rules are tried in order and the first one that matches a file wins. A rule matches when ANY of these is true:",
+    "  globs        a glob matches the repo-relative path (** crosses folders, * does not, {a,b} alternatives; a glob without a / is matched against the file name at any depth)",
+    "  test         true: the census marks the file as a test file",
+    "  binary       true: the census marks the file as binary",
+    "  route_files  true: the file defines an API route (census routes[].file)",
+    "  hubs         N: the N most connected files in the graph among the files no earlier rule claimed (needs graphify-out/graph.json)",
+    "  languages    optional list that must also match (AND), e.g. [\"python\"]",
+    "symbols: which functions and classes of a file of that tier get their own entry. A symbol qualifies when ANY listed trait is true.",
+    "  min_loc / min_cc: at least that many lines / that cyclomatic complexity; decorated: has decorators; public: not _private and not __dunder__; exported: JavaScript export."
+  ],
+  "schema": 1,
+  "rules": [
+    { "tier": 0, "why": "binary file", "binary": true },
+    { "tier": 0, "why": "protocol schema (the Protocol page renders these directly)", "globs": ["protocol/v1/**"] },
+    { "tier": 0, "why": "not source code", "globs": ["*.md", "*.mp3", "*.zip", "*.png", "*.jpg", "*.jpeg", "*.svg", "*.patch", ".coverage"] },
+    { "tier": 4, "why": "test or fixture", "test": true, "globs": ["**/tests/**", "**/__tests__/**", "**/fixtures/**", "**/test_*.py", "**/conftest.py", "*.test.js", "*.spec.js", "*.jsonl", "package-lock.json", "*.lock"] },
+    { "tier": 1, "why": "most connected files in the graph", "hubs": 30 },
+    { "tier": 1, "why": "defines API routes", "route_files": true },
+    { "tier": 1, "why": "core: API server, orchestrator, memory, device daemon, M2C core, code agent", "globs": [
+        "backend/api/server.py", "backend/api/deps.py", "backend/api/middleware.py", "backend/api/task_runner.py", "backend/api/stream_tickets.py",
+        "backend/eo/{registry,router,dispatcher,executor,loop_controller,loop_v4,capabilities,credits,plans,usage_ledger,db,knowledge_graph,graph_edges,laya_gate,laya_routing,run_guard,injection_guard,output_guard}.py",
+        "backend/memory/**", "backend/utils/llm_client.py",
+        "backend/codeagent/**",
+        "daemon/*.py",
+        "m2c/src/m2c/runner.py", "m2c/src/m2c/{policy,sandbox,trust,tools,link}/**",
+        "protocol/validate.py"
+    ] },
+    { "tier": 2, "why": "agents, rest of the orchestrator, the M2C client, backend helpers", "globs": [
+        "backend/agents/**", "backend/eo/**", "m2c/src/**", "backend/utils/**", "backend/relay/**", "backend/graph/**", "backend/config/**", "backend/api/**"
+    ] },
+    { "tier": 3, "why": "frontend, migrations, scripts, CI", "globs": [
+        "frontend/**", "backend/migrations/**", "backend/scripts/**", "scripts/**", ".github/**", "protocol/*.py"
+    ] }
+  ],
+  "default": { "tier": 3, "languages": ["python", "javascript", "sql", "shell"], "other": 0 },
+  "symbols": {
+    "skip_kinds": ["nested"],
+    "1": { "min_loc": 6, "min_cc": 3, "decorated": true },
+    "2": { "min_loc": 12, "min_cc": 6, "decorated": true, "public": true },
+    "3": { "public": true, "exported": true }
+  }
+}

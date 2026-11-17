@@ -1,0 +1,25 @@
+diff --git a/content/topology.json b/content/topology.json
+index 39b2c3f..ffb20fd 100644
+--- a/content/topology.json
++++ b/content/topology.json
+@@ -376,7 +376,6 @@
+     {
+       "from": "m2c",
+       "to": "protocol",
+-      "declared": true,
+       "label": "speaks",
+       "from_child": "m2c-protocol"
+     },
+diff --git a/scripts/test_topology.py b/scripts/test_topology.py
+index b8874cf..3b87f93 100644
+--- a/scripts/test_topology.py
++++ b/scripts/test_topology.py
+@@ -395,6 +395,8 @@ class FoldersFile(unittest.TestCase):
+ 
+     def test_most_solid_edges_of_the_layout_have_graph_links(self):
+         spec, d = load("content/topology.json"), load("data/graph/folders.json")
++        if d["source"] == "seed":
++            self.skipTest("data/graph/folders.json is still the seed table: run scripts/update_all.py to get the real link counts")
+         top = [n for n in spec["nodes"] if not n.get("parent")]
+         owner = lambda f: max(((len(x), n["id"]) for n in top for x in n["folders"] if f == x or f.startswith(x + "/")), default=(0, None))[1]
+         linked = {tuple(sorted((owner(a), owner(b)))) for a, b, _ in d["pairs"] if owner(a) and owner(b) and owner(a) != owner(b)}

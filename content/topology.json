@@ -371,13 +371,11 @@
     {
       "from": "codeagent",
       "to": "protocol",
-      "declared": true,
       "label": "validates messages"
     },
     {
       "from": "m2c",
       "to": "protocol",
-      "declared": true,
       "label": "speaks",
       "from_child": "m2c-protocol"
     },
