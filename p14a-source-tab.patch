@@ -1,0 +1,620 @@
+diff --git a/assets/css/explorer.css b/assets/css/explorer.css
+index fea55a1..95bcc6f 100644
+--- a/assets/css/explorer.css
++++ b/assets/css/explorer.css
+@@ -136,6 +136,25 @@ kbd { font-family: var(--font-mono); font-size: var(--fs-xs); padding: 0.05rem 0
+ .ex-toast { position: fixed; z-index: var(--z-toast); left: 50%; bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 1rem); padding: var(--space-2) var(--space-4); background: var(--panel-2); color: var(--ink); border: 1px solid var(--line-strong); border-radius: var(--radius-2); box-shadow: var(--shadow-2); font-size: var(--fs-sm); opacity: 0; pointer-events: none; transition: opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease); }
+ .ex-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+ 
++/* ------------------------------------------------------------ source tab (P14a) */
++.ex-src__tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin: 0 0 var(--space-2); }
++.ex-src__tools .mm-btn, .ex-src__go .mm-btn { min-height: 32px; font-size: var(--fs-sm); }
++.ex-src__goto { flex: 0 1 9rem; }
++.ex-src__info { margin: 0 0 var(--space-2); color: var(--ink-dim); font-size: var(--fs-xs); font-family: var(--font-mono); overflow-wrap: anywhere; }
++.ex-src__h { margin: var(--space-4) 0 var(--space-1); font-family: var(--font-mono); font-size: var(--fs-sm); }
++.ex-src__more { margin: var(--space-3) 0 var(--space-4); }
++.ex-code { max-height: calc(100dvh - var(--topbar-h) - 9rem); min-height: 12rem; overflow: auto; padding: var(--space-2) 0; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-3); font-family: var(--font-mono); font-size: var(--fs-xs); line-height: 1.6; tab-size: 4; font-variant-ligatures: none; }
++.ex-code:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
++.ex-line { display: flex; min-width: max-content; scroll-margin: 6rem 0; }
++.ex-line__n { position: sticky; left: 0; flex: none; box-sizing: content-box; width: 5ch; padding: 0 var(--space-3); text-align: right; color: var(--ink-dim); background: var(--panel); border-right: 1px solid var(--line); text-decoration: none; font-variant-numeric: tabular-nums; user-select: none; }
++.ex-line__n:hover, .ex-line__n:focus-visible { color: var(--ink); background: var(--panel-2); }
++.ex-line__n:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
++.ex-line__t { flex: 1 0 auto; min-height: 1.6em; padding: 0 var(--space-4) 0 var(--space-3); white-space: pre; color: var(--ink); }
++.ex-line.is-sel .ex-line__t { background: color-mix(in srgb, var(--brand) 14%, transparent); box-shadow: inset 3px 0 0 var(--brand); }
++.ex-line.is-sel .ex-line__n { color: var(--brand); font-weight: 700; }
++.ex-code.is-wrap .ex-line { min-width: 0; }
++.ex-code.is-wrap .ex-line__t { flex: 1 1 0; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
++
+ /* ------------------------------------------------------------ narrower screens */
+ @media (max-width: 1199px) {
+   .ex { grid-template-columns: var(--ex-tw) 6px minmax(0, 1fr); grid-template-areas: "tree bar main" "tree bar insp"; }
+diff --git a/assets/js/explorer/fileview.js b/assets/js/explorer/fileview.js
+index a279f0d..d2f39d6 100644
+--- a/assets/js/explorer/fileview.js
++++ b/assets/js/explorer/fileview.js
+@@ -5,6 +5,7 @@ import { h, num, day, copyText, toast } from "./dom.js";
+ import { buildRoute } from "./router.js";
+ import { coverage, noteStatus, notePrompt, allFiles } from "./model.js";
+ import { createSymbols } from "./symbols.js";
++import { renderSource } from "./source.js";
+ import { codeLinks } from "../links.js";
+ 
+ /* ------------------------------------------------------------------ pieces */
+@@ -156,7 +157,7 @@ function explain(file, rec, note) {
+       section("Concepts", note.concepts && note.concepts.length ? h("p", { class: "ex-chips" }, note.concepts.map((c) => h("code", null, c))) : null));
+     const blocks = (note.blocks || []).map((b) => {
+       const m = /^(\d+)(?:-(\d+))?$/.exec(String(b.lines || ""));
+-      const href = m ? buildRoute({ view: "file", path: file.path, start: Number(m[1]), end: m[2] ? Number(m[2]) : null }) : null;
++      const href = m ? buildRoute({ view: "file", path: file.path, start: Number(m[1]), end: m[2] ? Number(m[2]) : null, tab: "source" }) : null;
+       return h("li", null, href ? h("a", { href }, `lines ${b.lines}`) : `lines ${b.lines}`, " ", h("b", null, b.title || ""), b.text ? h("span", { class: "ex-dim" }, ` ${b.text}`) : null);
+     });
+     put(section("Walkthrough", blocks.length ? h("ol", { class: "ex-blocks" }, blocks) : null));
+@@ -169,7 +170,7 @@ function explain(file, rec, note) {
+   return out;
+ }
+ 
+-export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTab, linkOpts, openFile, start, end }) {
++export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTab, linkOpts, openFile, start, end, onRange }) {
+   const status = noteStatus(core.notes, file.path);
+   const entry = core.notes && core.notes.files && core.notes.files[file.path];
+   const badges = h("p", { class: "ex-badges" }, h("span", { class: "ex-pill" }, file.lang || "file"), file.test ? h("span", { class: "ex-pill" }, "test") : null,
+@@ -198,11 +199,14 @@ export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTa
+   ]), codeButtons(file, linkOpts, start, end));
+ 
+   const syms = rows || [];
+-  const active = tab === "symbols" || qual ? "symbols" : "explain";
+-  host.append(tabs([["explain", "Explain"], ["symbols", `Symbols (${num(syms.length)})`]], active, setTab));
++  const items = [["explain", "Explain"], ...(file.binary ? [] : [["source", "Source"]]), ["symbols", `Symbols (${num(syms.length)})`]];
++  // An explicit tab wins; otherwise a symbol opens the Symbols tab and a bare line range opens the Source tab.
++  const active = items.some((x) => x[0] === tab) ? tab : qual ? "symbols" : start ? "source" : "explain";
++  host.append(tabs(items, active, setTab));
+   const panel = h("div", { class: "ex-panel", id: "ex-panel", role: "tabpanel", "aria-labelledby": `ex-tab-${active}` });
+   host.append(panel);
+   if (active === "explain") panel.append(explain(file, rec, note));
++  else if (active === "source") renderSource(panel, { core, file, rec, note, qual, start, end, linkOpts, onRange });
+   else {
+     const t = createSymbols({ rows: syms, showPath: false, linkOpts, selected: qual, onOpen: (r) => openFile(r) });
+     panel.append(t.el);
+diff --git a/assets/js/explorer/main.js b/assets/js/explorer/main.js
+index 3bb271b..a7bbdbd 100644
+--- a/assets/js/explorer/main.js
++++ b/assets/js/explorer/main.js
+@@ -2,8 +2,8 @@
+    route names. Three views share the page: the start page (#/), a folder (#/d/<folder>) and a file (#/f/<path>[::qual][@lines]).
+ 
+    The data is sharded, so a file page loads exactly two small files: its shard (symbols, git dates) and its note, if it has one.
+-   Source text, the symbol panel and the walkthrough blocks arrive with P14; until then a file page links to the raw copy, GitHub and
+-   VS Code (assets/js/links.js builds all three). */
++   The Source tab (P14a) loads the embedded copy of the file, data/src/<path>.txt, only when it is opened. The symbol panel and the
++   walkthrough margin cards arrive with the next P14 patches; assets/js/links.js builds the raw / GitHub / VS Code links. */
+ import { h } from "./dom.js";
+ import { parseRoute, buildRoute } from "./router.js";
+ import { loadCore, loadRecord, loadRecords, loadNote, symbolRows, allFiles, noteStatus } from "./model.js";
+@@ -84,6 +84,8 @@ async function route() {
+     const rows = rec ? symbolRows(rec, note) : [];
+     renderFile(main, core, file, rec, note, {
+       rows, tab: r.tab, qual: r.qual, start: r.start, end: r.end, linkOpts,
++      // Picking lines on the Source tab rewrites the address in place: no new history entry, no page rebuild.
++      onRange: (sel) => { try { history.replaceState(null, "", buildRoute({ view: "file", path: file.path, start: sel ? sel.start : null, end: sel ? sel.end : null, tab: "source" })); } catch { /* the address just stays as it was */ } },
+       setTab: (t) => go({ ...r, qual: "", start: null, end: null, tab: t }),
+       openFile: (s) => go({ view: "file", path: s.path, qual: s.qual, start: s.start, end: s.end, tab: "symbols" }),
+     });
+diff --git a/assets/js/explorer/model.js b/assets/js/explorer/model.js
+index 37c3db8..491045d 100644
+--- a/assets/js/explorer/model.js
++++ b/assets/js/explorer/model.js
+@@ -169,6 +169,47 @@ export function filterSymbols(rows, { q = "", kind = "all", noteOnly = false, hi
+   });
+ }
+ 
++/* ------------------------------------------------------------------ source text (P14a) */
++/* The copy under data/src/ is the committed LF text; CRLF is tolerated anyway. The newline that ends the file does not start a line. */
++export function splitLines(text) {
++  const lines = String(text == null ? "" : text).replace(/\r\n?/g, "\n").split("\n");
++  if (lines.length > 1 && lines[lines.length - 1] === "") lines.pop();
++  return lines;
++}
++
++/* A line range that is inside the file: { start, end } with 1 <= start <= end <= total, or null when there is none to show. */
++export function clampRange(start, end, total) {
++  if (!Number.isInteger(start) || start < 1 || !(total >= 1)) return null;
++  const s = Math.min(start, total);
++  const e = Number.isInteger(end) ? Math.min(Math.max(end, s), total) : s;
++  return { start: s, end: e };
++}
++
++/* What a reader types in "Go to line": "120", "120-141", "120:141" or "120 141". null when it is not a line or a range. */
++export function parseGoto(input, total) {
++  const m = /^\s*(\d+)(?:\s*[-:–,\s]\s*(\d+))?\s*$/.exec(String(input || ""));
++  return m ? clampRange(Number(m[1]), m[2] ? Number(m[2]) : null, total) : null;
++}
++
++const sameCommit = (a, b) => { const x = String(a || "").toLowerCase(); const y = String(b || "").toLowerCase(); return x.length >= 7 && y.length >= 7 && (x.startsWith(y) || y.startsWith(x)); };
++
++/* Reasons to read the line numbers on the Source tab with care. Each is { level: "warn", text }.
++     copyCommit    commit the embedded source was copied from (data/src/manifest.json)
++     censusCommit  commit the census, and so every line number in the Symbols tab, belongs to
++     note          the AI note of the file, if any; its `blob` is the git blob it was written against
++     srcFiles      "files" of the manifest: path -> blob id of the embedded copy */
++export function sourceNotices({ path, note, srcFiles, copyCommit, censusCommit }) {
++  const out = [];
++  if (copyCommit && censusCommit && !sameCommit(copyCommit, censusCommit)) {
++    out.push({ level: "warn", text: `This source is the copy of commit ${String(copyCommit).slice(0, 7)}, but the census is from ${String(censusCommit).slice(0, 7)}. Line numbers in the Symbols tab may be off.` });
++  }
++  const blob = srcFiles && Object.prototype.hasOwnProperty.call(srcFiles, path) ? srcFiles[path] : "";
++  if (note && note.blob && blob && note.blob !== blob) {
++    out.push({ level: "warn", text: "The AI note was written against a different version of this file than the copy shown here. Its line numbers and walkthrough may not match." });
++  }
++  return out;
++}
++
+ /* ------------------------------------------------------------------ churn */
+ const monthIndex = (iso) => { const m = /^(\d{4})-(\d{2})/.exec(iso || ""); return m ? Number(m[1]) * 12 + Number(m[2]) - 1 : null; };
+ 
+@@ -217,6 +258,19 @@ export function getJSON(rel) {
+   return cache.get(rel);
+ }
+ 
++/* Plain text (the embedded source files). Only the last few are kept: they can be 240 KB each. */
++const TEXT_KEEP = 6;
++const textCache = new Map();
++
++export function getText(rel) {
++  if (textCache.has(rel)) { const p = textCache.get(rel); textCache.delete(rel); textCache.set(rel, p); return p; }
++  const p = fetch(new URL(rel, BASE)).then((r) => { if (!r.ok) throw new Error(`${rel}: ${r.status}`); return r.text(); });
++  textCache.set(rel, p);
++  p.catch(() => textCache.delete(rel));
++  while (textCache.size > TEXT_KEEP) textCache.delete(textCache.keys().next().value);
++  return p;
++}
++
+ const optional = (rel) => getJSON(rel).catch(() => null);
+ 
+ /* The small files every view needs. tree.json is required (the page says so when it is missing); the others are optional. */
+diff --git a/assets/js/explorer/router.js b/assets/js/explorer/router.js
+index 26b2519..462944e 100644
+--- a/assets/js/explorer/router.js
++++ b/assets/js/explorer/router.js
+@@ -8,7 +8,7 @@
+    folder, so it comes back as view "auto" and the page decides from the file index. */
+ import { cleanPath } from "../links.js";
+ 
+-export const TABS = ["explain", "symbols"];
++export const TABS = ["explain", "source", "symbols"];
+ 
+ const encPath = (p) => p.split("/").map(encodeURIComponent).join("/");
+ 
+diff --git a/assets/js/explorer/source.js b/assets/js/explorer/source.js
+new file mode 100644
+index 0000000..53c84d3
+--- /dev/null
++++ b/assets/js/explorer/source.js
+@@ -0,0 +1,184 @@
++/* MiniMe Atlas 2 - Explorer Source tab (P14a). The real code of a file, from the copy that scripts/refresh_source.py made under data/src/.
++
++   renderSource(panel, ctx) fills the tab panel. What it shows:
++     - the file with line numbers, the selected lines marked, and the selection kept in the address (#/f/<path>@120-141?tab=source)
++     - how to change the selection: click a line number, Shift+click for a range, "Go to line", Esc clears it
++     - Raw source / GitHub / VS Code buttons for the selected lines (assets/js/links.js builds them)
++     - a warning when the line numbers can not be trusted (copy and census from different commits, note written for another version)
++   When the file has no embedded copy (not in the manifest, embedSource off, or the fetch fails) the tab says so and still gives the
++   GitHub / VS Code buttons plus what the census knows about the file or symbol, so it is never an empty tab.
++
++   Lines are drawn 1,000 at a time ("Show more lines"); the biggest embedded file has about 5,500. Text goes in with textContent only.
++   Syntax colours arrive in P14b, the symbol panel in P14c, the walkthrough margin cards in P14d. */
++import { h, num, copyText, toast } from "./dom.js";
++import { buildRoute } from "./router.js";
++import { getText, splitLines, clampRange, parseGoto, sourceNotices, signature } from "./model.js";
++import { codeLinks } from "../links.js";
++
++const CHUNK = 1000;
++const KEY_WRAP = "minime_ex_wrap";
++
++const readWrap = () => { try { return localStorage.getItem(KEY_WRAP) === "1"; } catch { return false; } };
++const saveWrap = (on) => { try { localStorage.setItem(KEY_WRAP, on ? "1" : "0"); } catch { /* private mode: not remembered */ } };
++
++/* ------------------------------------------------------------------ buttons */
++function linkButtons(file, linkOpts, range) {
++  const wrap = h("p", { class: "ex-go ex-src__go" });
++  const a = (label, extra) => { const el = h("a", { class: "mm-btn", rel: "noopener", ...extra }, label); wrap.append(el); return el; };
++  const raw = a("Raw source", { target: "_blank" });
++  const gh = a("GitHub", { target: "_blank" });
++  const vs = a("VS Code");
++  const update = (r) => {
++    const l = codeLinks({ path: file.path, start: r ? r.start : null, end: r ? r.end : null }, linkOpts || {});
++    for (const [el, href] of [[raw, l.src], [gh, l.github], [vs, l.vscode]]) { if (href) el.setAttribute("href", href); else el.removeAttribute("href"); el.hidden = !href; }
++  };
++  update(range);
++  return { el: wrap, update, any: () => !raw.hidden || !gh.hidden || !vs.hidden };
++}
++
++/* ------------------------------------------------------------------ the viewer */
++/* ctx.range = { start, end } or null; ctx.onRange(range|null) is told when the reader changes the selection. */
++export function createSource({ file, text, range, qual, linkOpts, notices = [], onRange }) {
++  const lines = splitLines(text);
++  const total = lines.length;
++  let sel = range ? clampRange(range.start, range.end, total) : null;
++  let anchor = sel ? sel.start : null;
++  let drawn = 0;
++  const els = [];                                  // els[n] = the element of line n; kept here because the view is built before it is in the page
++
++  const root = h("div", { class: "ex-src" });
++  notices.forEach((n) => root.append(h("p", { class: "ex-callout ex-callout--warn" }, n.text)));
++
++  const info = h("p", { class: "ex-src__info", "aria-live": "polite" });
++  const gotoInput = h("input", { type: "text", class: "ex-q ex-src__goto", placeholder: "Go to line", "aria-label": "Go to line or line range", inputmode: "numeric", autocomplete: "off", size: "10" });
++  const wrapBox = h("input", { type: "checkbox" });
++  const copyBtn = h("button", { type: "button", class: "mm-btn" }, "Copy");
++  const linkBtn = h("button", { type: "button", class: "mm-btn" }, "Copy link");
++  const buttons = linkButtons(file, linkOpts, sel);
++  const form = h("form", { class: "ex-src__tools", role: "search", onsubmit: (e) => {
++    e.preventDefault();
++    const r = parseGoto(gotoInput.value, total);
++    if (!r) { toast(`Enter a line from 1 to ${num(total)}, or a range like 120-141`); return; }
++    choose(r, true);
++  } }, gotoInput, h("label", { class: "ex-check" }, wrapBox, " Wrap lines"), copyBtn, linkBtn);
++
++  const code = h("div", { class: "ex-code", role: "region", "aria-label": `Source of ${file.name}`, tabindex: "0" });
++  const more = h("button", { type: "button", class: "mm-btn ex-src__more", hidden: true });
++  root.append(form, info, buttons.el, code, more);
++
++  const lineEl = (n) => h("div", { class: "ex-line", id: `ex-L${n}` },
++    h("a", { class: "ex-line__n", href: buildRoute({ view: "file", path: file.path, start: n, tab: "source" }), "aria-label": `Line ${n}`, dataset: { n } }, String(n)),
++    h("span", { class: "ex-line__t" }, lines[n - 1]));
++
++  function draw(upTo) {
++    const to = Math.min(total, Math.max(upTo, drawn));
++    if (to <= drawn) return;
++    const frag = document.createDocumentFragment();
++    for (let n = drawn + 1; n <= to; n++) { els[n] = lineEl(n); frag.append(els[n]); }
++    code.append(frag);
++    drawn = to;
++    more.hidden = drawn >= total;
++    more.textContent = `Show ${num(Math.min(CHUNK, total - drawn))} more lines (${num(total - drawn)} not shown)`;
++  }
++
++  let marked = [];
++  function paint() {
++    marked.forEach((el) => el.classList.remove("is-sel"));
++    marked = [];
++    if (sel) {
++      for (let n = sel.start; n <= Math.min(sel.end, drawn); n++) {
++        els[n].classList.add("is-sel");
++        marked.push(els[n]);
++      }
++    }
++    const what = [`${num(total)} line${total === 1 ? "" : "s"}`];
++    if (sel) what.push(sel.end > sel.start ? `lines ${num(sel.start)}–${num(sel.end)} selected` : `line ${num(sel.start)} selected`);
++    if (qual && sel) what.push(qual);
++    info.textContent = what.join(" · ");
++    copyBtn.textContent = sel ? (sel.end > sel.start ? "Copy lines" : "Copy line") : "Copy file";
++    buttons.update(sel);
++  }
++
++  function choose(r, scroll) {
++    sel = r;
++    anchor = r ? r.start : null;
++    if (r) draw(r.end + 200);
++    paint();
++    if (r && scroll && els[r.start]) els[r.start].scrollIntoView({ block: "center" });
++    if (onRange) onRange(sel);
++  }
++
++  /* A click on a line number: select that line; Shift+click extends from the line clicked before; clicking the only selected line clears. */
++  code.addEventListener("click", (e) => {
++    const a = e.target.closest && e.target.closest("a.ex-line__n");
++    if (!a || !code.contains(a)) return;
++    e.preventDefault();
++    const n = Number(a.dataset.n);
++    if (e.shiftKey && anchor != null) choose(clampRange(Math.min(anchor, n), Math.max(anchor, n), total), false);
++    else if (sel && sel.start === n && sel.end === n) choose(null, false);
++    else { choose(clampRange(n, n, total), false); anchor = n; }
++  });
++  code.addEventListener("keydown", (e) => { if (e.key === "Escape" && sel) { e.preventDefault(); choose(null, false); } });
++  more.addEventListener("click", () => { draw(drawn + CHUNK); paint(); });
++
++  const setWrap = (on) => { code.classList.toggle("is-wrap", on); };
++  wrapBox.checked = readWrap();
++  setWrap(wrapBox.checked);
++  wrapBox.addEventListener("change", () => { setWrap(wrapBox.checked); saveWrap(wrapBox.checked); });
++
++  copyBtn.addEventListener("click", async () => {
++    const part = sel ? lines.slice(sel.start - 1, sel.end) : lines;
++    toast((await copyText(part.join("\n"))) ? `Copied ${num(part.length)} line${part.length === 1 ? "" : "s"}` : "Could not copy");
++  });
++  linkBtn.addEventListener("click", async () => {
++    const hash = buildRoute({ view: "file", path: file.path, start: sel ? sel.start : null, end: sel ? sel.end : null, tab: "source" });
++    toast((await copyText(`${location.href.split("#")[0]}${hash}`)) ? "Link copied" : "Could not copy");
++  });
++
++  draw(Math.max(CHUNK, sel ? sel.end + 200 : 0));
++  paint();
++  return { el: root, reveal() { if (sel && els[sel.start]) els[sel.start].scrollIntoView({ block: "center" }); }, selection: () => sel };
++}
++
++/* ------------------------------------------------------------------ when there is no source to show */
++function symbolOf(rec, qual) {
++  if (!rec || !qual) return null;
++  const f = (rec.functions || []).find((s) => s.qual === qual);
++  if (f) return { ...f, kind: f.kind || "function" };
++  const c = (rec.classes || []).find((s) => s.qual === qual);
++  return c ? { ...c, kind: "class" } : null;
++}
++
++function fallback(panel, { reason, file, rec, qual, start, end, linkOpts }) {
++  panel.replaceChildren(h("p", { class: "ex-callout" }, reason));
++  const btns = linkButtons(file, linkOpts, clampRange(start, end, Number.MAX_SAFE_INTEGER));
++  if (btns.any()) panel.append(btns.el);
++  else panel.append(h("p", { class: "ex-dim" }, "No link can be made yet: the commit is unknown and no local MiniMe folder is set (link icon in the top bar)."));
++  const sym = symbolOf(rec, qual);
++  if (sym) {
++    panel.append(h("h3", { class: "ex-src__h" }, `${sym.qual}${sym.start ? ` · lines ${sym.start}–${sym.end}` : ""}`), h("pre", { class: "ex-pre" }, signature(sym)));
++    if (sym.doc1) panel.append(h("p", null, sym.doc1, " ", h("span", { class: "ex-from" }, "docstring")));
++  } else if (rec && rec.module_doc) {
++    panel.append(h("h3", { class: "ex-src__h" }, "Module docstring"), h("pre", { class: "ex-pre" }, rec.module_doc));
++  }
++}
++
++/* ------------------------------------------------------------------ the tab */
++/* ctx: { core, file, rec, note, qual, start, end, linkOpts, onRange } */
++export function renderSource(panel, ctx) {
++  const { core, file, rec, note, qual, start, end, linkOpts = {}, onRange } = ctx;
++  const where = { file, rec, qual, start, end, linkOpts };
++  if (file.binary) { fallback(panel, { ...where, reason: "This is a binary file, so there is no source text to show." }); return; }
++  const src = codeLinks({ path: file.path }, linkOpts).src;
++  if (!src) {
++    fallback(panel, { ...where, reason: linkOpts.srcFiles ? "This file is not in the embedded source copy (it may be too large, listed in data/src-denylist.txt, or refused by the secret scan)." : "This Atlas was built without an embedded copy of the source (data/src/manifest.json is missing or embedSource is off)." });
++    return;
++  }
++  panel.replaceChildren(h("p", { class: "ex-dim" }, `Loading the source of ${file.name}…`));
++  getText(src).then((text) => {
++    const notices = sourceNotices({ path: file.path, note, srcFiles: linkOpts.srcFiles, copyCommit: linkOpts.commit, censusCommit: core && core.tree && core.tree.commit });
++    const view = createSource({ file, text, range: start ? { start, end } : null, qual, linkOpts, notices, onRange });
++    panel.replaceChildren(view.el);
++    view.reveal();
++  }).catch((e) => fallback(panel, { ...where, reason: `The source could not be loaded (${e.message}).` }));
++}
+diff --git a/assets/js/explorer/symbols.js b/assets/js/explorer/symbols.js
+index bf67f13..4fc3826 100644
+--- a/assets/js/explorer/symbols.js
++++ b/assets/js/explorer/symbols.js
+@@ -52,6 +52,7 @@ export function createSymbols({ rows, showPath, linkOpts, selected, onOpen }) {
+     meta.append(`lines ${r.start}–${r.end} · ${num(r.loc)} loc`, r.cc != null ? ` · cc ${r.cc}` : "", r.visibility === "private" ? " · private" : "");
+     li.append(meta);
+     const go = h("p", { class: "ex-sym__go" });
++    go.append(h("a", { class: "ex-sym__view", href: buildRoute({ view: "file", path: r.path, qual: r.qual, start: r.start, end: r.end, tab: "source" }) }, "View source"));
+     if (l.src) go.append(h("a", { href: l.src, target: "_blank", rel: "noopener" }, "Raw source"));
+     if (l.github) go.append(h("a", { href: l.github, target: "_blank", rel: "noopener" }, "GitHub"));
+     if (l.vscode) go.append(h("a", { href: l.vscode }, "VS Code"));
+diff --git a/scripts/explorer_tests/fixture.mjs b/scripts/explorer_tests/fixture.mjs
+index 2d90691..f39b75f 100644
+--- a/scripts/explorer_tests/fixture.mjs
++++ b/scripts/explorer_tests/fixture.mjs
+@@ -8,7 +8,15 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
+ const FIELDS = ["name", "lang", "lines", "code", "functions", "classes", "commits", "last", "flags", "shard"];
+ const fn = (q, s, e, x = {}) => ({ qual: q, name: q.split(".").pop(), start: s, end: e, loc: e - s + 1, cc: 3, doc1: "", params: [{ name: "x", annotation: "int", default: null }], returns: "str", hash: `h_${q}`, kind: q.includes(".") ? "method" : "function", visibility: "public", ...x });
+ 
+-export function writeFixture(dir, { big = false } = {}) {
++export const COMMIT = `a1389bfdeadbeef${"0".repeat(25)}`;     // 40 hex characters, starts with the census commit of the fixture
++export const BLOB = "b".repeat(40);
++/* The embedded copy of backend/agents/a.py: 150 lines, line N reads "line N", with a few awkward ones. */
++export const SRC_LINES = Array.from({ length: 150 }, (_, i) => `line ${i + 1}`);
++SRC_LINES[9] = "def run(x):  # <b>not html</b>";
++SRC_LINES[10] = "";
++SRC_LINES[11] = "\treturn '&amp;'";
++
++export function writeFixture(dir, { big = false, drift = false } = {}) {
+   const W = (rel, o) => { const p = path.join(dir, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, JSON.stringify(o)); };
+   const recs = [
+     { path: "backend/agents/a.py", functions: [fn("run", 10, 20, { doc1: "Run it." }), fn("Agent.step", 30, 40), fn("_clean_query", 120, 141)], classes: [{ qual: "Agent", name: "Agent", start: 25, end: 50, loc: 26, bases: ["Base"], hash: "h_Agent" }],
+@@ -27,7 +35,15 @@ export function writeFixture(dir, { big = false } = {}) {
+   W("data/code/files/s0.json", { files: recs });
+   W("data/code/imports.json", { imports: { "backend/api/b.py": ["backend/agents/a.py", "nowhere.py"] }, imported_by: { "backend/agents/a.py": ["backend/api/b.py"] }, external: { "backend/agents/a.py": ["httpx"] } });
+   W("data/index/notes.json", { totals: { files: 3, noted: 1 }, folders: { "backend/agents": { files: 1, noted: 1, stale: 0 }, backend: { files: 2, noted: 1, stale: 0 } }, files: { "backend/agents/a.py": { status: "fresh", tier: 1 } } });
+-  W("data/notes/backend__agents__a.py.json", { summary: "Agent module.", purpose: "p", written: "2026-10-20", commit: "abcdef123", symbols: [{ qual: "run", summary: "Runs the agent.", hash: "h_run" }, { qual: "Agent.step", summary: "Steps.", hash: "OLD" }], blocks: [{ lines: "10-20", title: "Run", text: "x" }] });
++  W("data/notes/backend__agents__a.py.json", { summary: "Agent module.", purpose: "p", written: "2026-10-20", commit: "abcdef123", blob: drift ? "c".repeat(40) : BLOB, symbols: [{ qual: "run", summary: "Runs the agent.", hash: "h_run" }, { qual: "Agent.step", summary: "Steps.", hash: "OLD" }], blocks: [{ lines: "10-20", title: "Run", text: "x" }] });
++  W("content/config.json", { github: { repo: "Unavailable4u/MiniMe" }, editor: { scheme: "vscode" }, embedSource: true });
++  W("data/src/manifest.json", { schema: 1, commit: drift ? "d".repeat(40) : COMMIT, files: { "backend/agents/a.py": BLOB, ...(big ? { "backend/api/b.py": BLOB } : {}) } });
++  fs.mkdirSync(path.join(dir, "data/src/backend/agents"), { recursive: true });
++  fs.writeFileSync(path.join(dir, "data/src/backend/agents/a.py.txt"), `${SRC_LINES.join("\n")}\n`);
++  if (big) {                                         // a 2,500-line file: the viewer draws 1,000 lines at a time
++    fs.mkdirSync(path.join(dir, "data/src/backend/api"), { recursive: true });
++    fs.writeFileSync(path.join(dir, "data/src/backend/api/b.py.txt"), `${Array.from({ length: 2500 }, (_, i) => `row ${i + 1}`).join("\n")}\n`);
++  }
+   W("data/graph/file-links.json", { paths: ["backend/agents/a.py", "backend/api/b.py"], links: [[[1, 4]], [[0, 4]]], commit: "abc", date: "2026-11-01" });
+ }
+ 
+@@ -36,15 +52,15 @@ export async function jsdomOrSkip() {
+ }
+ 
+ /* Load explorer.html (scripts stripped) in jsdom, serve data/ from a temp fixture, and import the real main.js. `omit` = data paths that answer 404. */
+-export async function boot({ hash = "", omit = [], big = false } = {}) {
++export async function boot({ hash = "", omit = [], big = false, drift = false } = {}) {
+   const JSDOM = await jsdomOrSkip();
+   const data = fs.mkdtempSync(path.join(os.tmpdir(), "explorer-"));
+-  writeFixture(data, { big });
++  writeFixture(data, { big, drift });
+   const html = fs.readFileSync(path.join(ROOT, "explorer.html"), "utf8").replace(/<script[\s\S]*?<\/script>/g, "");
+   const dom = new JSDOM(html, { url: `http://localhost:8000/explorer.html${hash}`, pretendToBeVisual: true });
+   const w = dom.window;
+   const set = (k, v) => Object.defineProperty(globalThis, k, { value: v, configurable: true, writable: true });
+-  for (const k of ["document", "location", "localStorage", "Node", "HTMLElement", "requestAnimationFrame", "cancelAnimationFrame"]) set(k, w[k]);
++  for (const k of ["document", "location", "history", "localStorage", "Node", "HTMLElement", "requestAnimationFrame", "cancelAnimationFrame"]) set(k, w[k]);
+   set("window", w); set("navigator", w.navigator);
+   w.scrollTo = () => {}; w.HTMLElement.prototype.scrollIntoView = () => {};
+   const errors = [];
+@@ -54,7 +70,7 @@ export async function boot({ hash = "", omit = [], big = false } = {}) {
+   globalThis.fetch = async (u) => {
+     const rel = decodeURIComponent(new URL(String(u)).pathname).slice(rootPath.length);
+     const f = path.join(data, rel);
+-    return !omit.includes(rel) && fs.existsSync(f) ? { ok: true, status: 200, json: async () => JSON.parse(fs.readFileSync(f, "utf8")) } : { ok: false, status: 404, json: async () => ({}) };
++    return !omit.includes(rel) && fs.existsSync(f) ? { ok: true, status: 200, json: async () => JSON.parse(fs.readFileSync(f, "utf8")), text: async () => fs.readFileSync(f, "utf8") } : { ok: false, status: 404, json: async () => ({}), text: async () => "" };
+   };
+   await import(`${pathToFileURL(path.join(ROOT, "assets/js/explorer/main.js")).href}?${Math.random()}`);
+   const wait = (ms = 80) => new Promise((r) => setTimeout(r, ms));
+diff --git a/scripts/explorer_tests/page.mjs b/scripts/explorer_tests/page.mjs
+index 86abcfe..6bb9f89 100644
+--- a/scripts/explorer_tests/page.mjs
++++ b/scripts/explorer_tests/page.mjs
+@@ -2,7 +2,7 @@
+ // model.js caches fetched JSON for the life of the page, so every scenario runs in its own Node process:  node page.mjs [normal|degraded|broken|scale]
+ import { spawnSync } from "node:child_process";
+ import { fileURLToPath } from "node:url";
+-const SCENARIOS = ["normal", "degraded", "broken", "scale"];
++const SCENARIOS = ["normal", "degraded", "broken", "scale", "source", "nomanifest", "fetchfail", "drift"];
+ const which = process.argv[2];
+ if (!which) {
+   let bad = 0;
+@@ -87,6 +87,99 @@ if (which === "scale") {
+   ok(P.doc.querySelectorAll(".ex-sym__row").length === 200, "symbols table draws 200 rows first");
+   P.doc.querySelector(".ex-sym__more").click(); ok(P.doc.querySelectorAll(".ex-sym__row").length === 400, "Show more adds 200");
+   await P.nav("#/f/backend/api/b.py::f499@1498-1499"); ok(P.doc.querySelectorAll(".ex-sym__row.is-selected").length === 1, "deep link to a symbol past the first page reveals it");
++  await P.nav("#/f/backend/api/b.py?tab=source");
++  ok(P.doc.querySelectorAll(".ex-line").length === 1000 && !P.doc.querySelector(".ex-src__more").hidden, "a 2,500-line file is drawn 1,000 lines at a time");
++  P.doc.querySelector(".ex-src__more").click(); ok(P.doc.querySelectorAll(".ex-line").length === 2000, "Show more adds 1,000 lines");
++  await P.nav("#/f/backend/api/b.py@2400-2410?tab=source"); ok(P.doc.querySelectorAll(".ex-line").length === 2500 && P.doc.querySelector(".ex-src__more").hidden && P.doc.querySelectorAll(".ex-line.is-sel").length === 11, "a range far down is drawn and marked, nothing is left hidden");
++  await P.nav("#/f/backend/api/b.py@1500?tab=source"); ok(P.doc.querySelectorAll(".ex-line").length === 1700 && P.doc.getElementById("ex-L1500").classList.contains("is-sel"), `a range past the first chunk draws up to it (${P.doc.querySelectorAll(".ex-line").length})`);
+   allErrors.push(...P.errors);
+ }
++if (which === "source") {
++  const P = await boot({ hash: "#/f/backend/agents/a.py?tab=source" });
++  const { doc, w, wait, nav, key, text, errors } = P;
++  const tabSel = () => doc.querySelector('[role="tab"][aria-selected="true"]')?.id;
++  const lines = () => doc.querySelectorAll(".ex-line");
++  const sel = () => [...doc.querySelectorAll(".ex-line.is-sel")].map((e) => e.id);
++  const click = (n, o = {}) => doc.querySelector(`#ex-L${n} .ex-line__n`).dispatchEvent(new w.MouseEvent("click", { bubbles: true, cancelable: true, ...o }));
++  const info = () => text("ex-main").match(/\d[\d,]* lines?( ·[^A-Z]*?)?(?= Raw source| Copy|$)/)?.[0];
++  const btn = (re) => [...doc.querySelectorAll("#ex-main button")].find((b) => re.test(b.textContent));
++  let copied = ""; Object.defineProperty(w.navigator, "clipboard", { value: { writeText: async (t) => { copied = t; } }, configurable: true });
++
++  ok(tabSel() === "ex-tab-source", "?tab=source opens the Source tab");
++  ok(lines().length === 150, `every line of a short file is drawn (${lines().length})`);
++  ok(doc.querySelector("#ex-L7 .ex-line__n").textContent === "7" && doc.querySelector("#ex-L7 .ex-line__t").textContent === "line 7", "line number and text");
++  ok(doc.querySelector("#ex-L10 .ex-line__t").textContent === "def run(x):  # <b>not html</b>" && !doc.querySelector(".ex-code b"), "code is shown as text, never parsed as markup");
++  ok(doc.querySelector("#ex-L11 .ex-line__t").textContent === "" && doc.querySelector("#ex-L12 .ex-line__t").textContent === "\treturn '&amp;'", "blank lines, tabs and entities are kept");
++  ok(doc.querySelector("#ex-L5 .ex-line__n").getAttribute("href") === "#/f/backend/agents/a.py@5?tab=source" && doc.querySelector("#ex-L5 .ex-line__n").getAttribute("aria-label") === "Line 5", "a line number is a real link with a label");
++  ok(text("ex-main").includes("150 lines") && sel().length === 0, "no selection without a range");
++  ok(!doc.querySelector("#ex-main .ex-callout--warn"), "no warning when the copy and the census agree");
++  ok(!/null|undefined/.test(text("ex-main")), "no stray null/undefined text");
++  const gh = () => doc.querySelector(".ex-src__go a[target=_blank]:nth-of-type(2)")?.getAttribute("href") || "";
++  ok(/\/blob\/a1389bfdeadbeef0+\/backend\/agents\/a\.py$/.test(gh()), `GitHub button without a selection (${gh()})`);
++
++  click(20); await wait(20);
++  ok(w.location.hash === "#/f/backend/agents/a.py@20?tab=source", `a click selects a line and rewrites the address (${w.location.hash})`);
++  ok(sel().join() === "ex-L20" && text("ex-main").includes("line 20 selected"), "one line is marked");
++  ok(gh().endsWith("#L20"), `GitHub button follows the selection (${gh()})`);
++  ok(!!btn(/^Copy line$/), "copy button says Copy line");
++  click(25, { shiftKey: true }); await wait(20);
++  ok(w.location.hash === "#/f/backend/agents/a.py@20-25?tab=source" && sel().length === 6, `Shift+click extends the range (${w.location.hash}, ${sel().length} marked)`);
++  ok(gh().endsWith("#L20-L25"), "GitHub range");
++  btn(/^Copy lines$/).click(); await wait(20); ok(copied === ["line 20", "line 21", "line 22", "line 23", "line 24", "line 25"].join("\n"), "Copy lines copies exactly the selected lines");
++  key(doc.querySelector(".ex-code"), "Escape"); await wait(20);
++  ok(sel().length === 0 && w.location.hash === "#/f/backend/agents/a.py?tab=source", `Esc clears the selection and the range in the address (${w.location.hash})`);
++  click(30); click(30); ok(sel().length === 0, "clicking the only selected line clears it");
++  btn(/^Copy file$/).click(); await wait(20); ok(copied.split("\n").length === 150 && copied.startsWith("def") === false && copied.startsWith("line 1\n"), "Copy file copies all 150 lines without a trailing blank");
++
++  const go = (v) => { const i = doc.querySelector(".ex-src__goto"); i.value = v; i.form.dispatchEvent(new w.Event("submit", { bubbles: true, cancelable: true })); };
++  go("100-105"); await wait(20); ok(sel().length === 6 && w.location.hash.endsWith("@100-105?tab=source"), `Go to line takes a range (${w.location.hash})`);
++  go("77"); await wait(20); ok(sel().join() === "ex-L77", "Go to line takes one line");
++  go("999x"); await wait(20); ok(sel().join() === "ex-L77" && text("ex-toast").includes("Enter a line"), "a bad entry changes nothing and says why");
++  btn(/Copy link/).click(); await wait(20); ok(copied.endsWith("explorer.html#/f/backend/agents/a.py@77?tab=source"), `Copy link (${copied})`);
++  const wrap = doc.querySelector(".ex-src__tools input[type=checkbox]"); wrap.checked = true; wrap.dispatchEvent(new w.Event("change"));
++  ok(doc.querySelector(".ex-code").classList.contains("is-wrap") && w.localStorage.getItem("minime_ex_wrap") === "1", "wrap toggle works and is remembered");
++
++  await nav("#/f/backend/agents/a.py@120-141?tab=source");
++  ok(tabSel() === "ex-tab-source" && sel().length === 22 && sel()[0] === "ex-L120", "a deep link marks its lines");
++  await nav("#/f/backend/agents/a.py@10-20");
++  ok(tabSel() === "ex-tab-source" && sel().length === 11, "a bare line range opens the Source tab");
++  await nav("#/f/backend/agents/a.py::_clean_query@120-141");
++  ok(tabSel() === "ex-tab-symbols", "a symbol route still opens the Symbols tab");
++  const view = [...doc.querySelectorAll(".ex-sym__view")].find((a) => a.getAttribute("href").includes("_clean_query"));
++  ok(view?.getAttribute("href") === "#/f/backend/agents/a.py::_clean_query@120-141?tab=source", "each symbol row links to its source");
++  view.click(); await wait(200);
++  ok(tabSel() === "ex-tab-source" && sel().length === 22 && text("ex-main").includes("_clean_query"), "View source opens the lines of the symbol and names it");
++  await nav("#/f/backend/agents/a.py");
++  ok(tabSel() === "ex-tab-explain", "no hint: Explain is still the default");
++  ok(doc.querySelector(".ex-blocks a")?.getAttribute("href") === "#/f/backend/agents/a.py@10-20?tab=source", "walkthrough blocks link to their lines in the Source tab");
++  await nav("#/f/README.md?tab=source");
++  ok(tabSel() === "ex-tab-source" && text("ex-main").includes("not in the embedded source copy"), "a file with no embedded copy says so");
++  allErrors.push(...errors);
++}
++
++if (which === "nomanifest") {
++  const P = await boot({ hash: "#/f/backend/agents/a.py::_clean_query@120-141?tab=source", omit: ["data/src/manifest.json"] });
++  const t = P.text("ex-main");
++  ok(t.includes("built without an embedded copy") && !P.doc.querySelector(".ex-line"), "no manifest: the tab explains and draws no code");
++  ok(t.includes("No link can be made yet"), "and says why there is no GitHub / VS Code button");
++  ok(t.includes("_clean_query(x: int) -> str") && t.includes("lines 120–141"), "the census signature and lines stand in for the code");
++  await P.nav("#/f/backend/agents/a.py?tab=source"); ok(P.text("ex-main").includes("Module docstring") && P.text("ex-main").includes("Agents."), "without a symbol it shows the module docstring");
++  allErrors.push(...P.errors);
++}
++
++if (which === "fetchfail") {
++  const P = await boot({ hash: "#/f/backend/agents/a.py@10-20?tab=source", omit: ["data/src/backend/agents/a.py.txt"] });
++  ok(P.text("ex-main").includes("could not be loaded") && !P.doc.querySelector(".ex-line"), "a failed fetch is explained, not a blank tab");
++  ok([...P.doc.querySelectorAll(".ex-src__go a")].some((a) => (a.getAttribute("href") || "").endsWith("#L10-L20")), "GitHub still opens the exact lines");
++  allErrors.push(...P.errors);
++}
++
++if (which === "drift") {
++  const P = await boot({ hash: "#/f/backend/agents/a.py?tab=source", drift: true });
++  const warn = [...P.doc.querySelectorAll("#ex-main .ex-callout--warn")].map((e) => e.textContent);
++  ok(warn.length === 2 && warn[0].includes("ddddddd") && warn[0].includes("a1389bf"), `copy/census commit mismatch is named (${warn[0]})`);
++  ok(warn[1].includes("different version of this file"), "note written for another blob is flagged");
++  allErrors.push(...P.errors);
++}
++
+ done(allErrors);
+diff --git a/scripts/explorer_tests/pure.mjs b/scripts/explorer_tests/pure.mjs
+index 88b877c..5837729 100644
+--- a/scripts/explorer_tests/pure.mjs
++++ b/scripts/explorer_tests/pure.mjs
+@@ -20,7 +20,13 @@ t("router: round trip with spaces, tab, method qual", () => {
+ t("router: folder ignores qual and lines", () => assert.equal(buildRoute({ view: "dir", path: "backend", qual: "x", start: 1 }), "#/d/backend"));
+ t("router: legacy links.js form is view auto", () => { const r = parseRoute("#/backend/a.py@10-20"); assert.deepEqual([r.view, r.path, r.start, r.end], ["auto", "backend/a.py", 10, 20]); });
+ t("router: bad input falls back to home, never throws", () => { for (const h of ["#/f/%E0%A4%A", "#/f/", "#/f/::x", "#/f/a.py@0", "#/f/a.py@9-3"]) parseRoute(h); assert.equal(parseRoute("#/f/%E0%A4%A").view, "home"); assert.equal(parseRoute("#/f/a.py@0").start, null); assert.equal(parseRoute("#/f/a.py@9-3").end, 9); });
+-t("router: unknown tab is dropped", () => assert.equal(parseRoute("#/f/a.py?tab=source").tab, ""));
++t("router: unknown tab is dropped", () => assert.equal(parseRoute("#/f/a.py?tab=nope").tab, ""));
++t("router: source tab with symbol and lines round trips", () => {
++  const r = parseRoute("#/f/a/b.py::A.m@3-9?tab=source");
++  assert.deepEqual([r.view, r.path, r.qual, r.start, r.end, r.tab], ["file", "a/b.py", "A.m", 3, 9, "source"]);
++  assert.equal(buildRoute(r), "#/f/a/b.py::A.m@3-9?tab=source");
++  assert.equal(buildRoute({ view: "file", path: "a/b.py", start: 7, tab: "source" }), "#/f/a/b.py@7?tab=source");
++});
+ 
+ const raw = { file_fields: ["name", "lang", "lines", "code", "functions", "classes", "commits", "last", "flags", "shard"], shards: ["s0"], root: { files: [["R.md", "md", 5, 4, 0, 0, 1, "", "", 0]], dirs: [{ name: "b", n: { files: 3, lines: 19, code: 17, functions: 2, classes: 0 }, files: [["z.py", "py", 9, 8, 1, 0, 2, "", "t", 0], ["a.py", "py", 9, 8, 1, 0, 2, "", "", 0]], dirs: [{ name: "c", files: [["d.py", "py", 1, 1, 0, 0, 0, "", "", 0]], dirs: [] }] }] } };
+ const tree = M.buildTree(raw);
+@@ -77,4 +83,33 @@ t("model: indexFileLinks", () => {
+   assert.deepEqual(m.map.get("a"), [{ path: "b", n: 3 }]); assert.deepEqual(m.map.get("b"), []);
+ });
+ t("model: noteFileName and notePrompt", () => { assert.equal(M.noteFileName("a/b.py"), "a__b.py.json"); const p = M.notePrompt("a/b.py"); assert.ok(p.includes("a__b.py.json") && p.includes("git hash-object a/b.py")); });
++t("model: splitLines drops the final newline, keeps blank lines, tolerates CRLF", () => {
++  assert.deepEqual(M.splitLines("a\nb\n"), ["a", "b"]);
++  assert.deepEqual(M.splitLines("a\n\nb"), ["a", "", "b"]);
++  assert.deepEqual(M.splitLines("a\r\nb\r\n"), ["a", "b"]);
++  assert.deepEqual(M.splitLines(""), [""]);
++  assert.deepEqual(M.splitLines(null), [""]);
++});
++t("model: clampRange", () => {
++  assert.deepEqual(M.clampRange(5, 9, 100), { start: 5, end: 9 });
++  assert.deepEqual(M.clampRange(5, null, 100), { start: 5, end: 5 });
++  assert.deepEqual(M.clampRange(5, 2, 100), { start: 5, end: 5 });
++  assert.deepEqual(M.clampRange(90, 500, 100), { start: 90, end: 100 });
++  assert.deepEqual(M.clampRange(500, 600, 100), { start: 100, end: 100 });
++  assert.equal(M.clampRange(0, 3, 100), null); assert.equal(M.clampRange(null, 3, 100), null); assert.equal(M.clampRange(3, 4, 0), null);
++});
++t("model: parseGoto", () => {
++  assert.deepEqual(M.parseGoto("120", 500), { start: 120, end: 120 });
++  for (const x of ["120-141", " 120 : 141 ", "120,141", "120 141", "120–141"]) assert.deepEqual(M.parseGoto(x, 500), { start: 120, end: 141 }, x);
++  assert.deepEqual(M.parseGoto("900", 500), { start: 500, end: 500 });
++  for (const x of ["", "abc", "12a", "-5", "1-2-3"]) assert.equal(M.parseGoto(x, 500), null, x);
++});
++t("model: sourceNotices", () => {
++  const A = "a".repeat(40); const B = "b".repeat(40);
++  assert.deepEqual(M.sourceNotices({ path: "x.py", note: { blob: A }, srcFiles: { "x.py": A }, copyCommit: A, censusCommit: A.slice(0, 7) }), []);
++  assert.equal(M.sourceNotices({ path: "x.py", copyCommit: A, censusCommit: B }).length, 1);
++  assert.equal(M.sourceNotices({ path: "x.py", note: { blob: A }, srcFiles: { "x.py": B } }).length, 1);
++  assert.deepEqual(M.sourceNotices({ path: "x.py", note: { blob: A }, srcFiles: {} }), [], "no copy of the file: nothing to compare");
++  assert.deepEqual(M.sourceNotices({ path: "x.py", note: {}, srcFiles: { "x.py": B }, copyCommit: "", censusCommit: A }), [], "missing facts never warn");
++});
+ console.log(`${n} passed`);
