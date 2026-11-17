@@ -1,0 +1,489 @@
+/* App-wide type system — three fonts total, shared with the landing
+   page's own font-loading (LandingPage.jsx): Sora for headings/
+   buttons/nav labels, Inter for body text/paragraphs/form labels,
+   JetBrains Mono for stats/timestamps/code/small uppercase tags.
+   Replaces the previous eight-font mix (Rajdhani, Syne, Share Tech
+   Mono, Sora, Inter, IBM Plex Mono, plus the JetBrains Mono/Inter
+   pair that had been added additively for the auth screen). */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------
+   App theme — previously a standalone cyan/magenta "cyberpunk"
+   palette with its own hex values, independent of the --neutral-*
+   scale below (the "multi theme" this app used to run: two color
+   systems active side by side). These --cyber-* custom properties
+   are kept only because every app-only component (ChatSidebar,
+   modals, tabs, notebooks, etc. — everything except the landing
+   page and login screen, which own their own fully self-contained
+   palettes) already references them; retargeting the *values* here
+   is enough to reskin the whole app in one place without touching
+   every consuming file.
+
+   Every neutral-toned entry now aliases straight into --neutral-*
+   below, so the app runs a single consistent dark theme. --cyber-
+   magenta/-amber/-violet/-lime are kept as muted, non-glowing accent
+   colors for the handful of places that use color for meaning (danger
+   actions, batch color-coding, status accents in the stage tabs) —
+   this is data categorization, not "the theme," so it isn't collapsed
+   into gray.
+----------------------------------------------------------------*/
+:root {
+  --cyber-bg: var(--neutral-950);
+  --cyber-panel: var(--neutral-900);
+  --cyber-border: var(--neutral-800);
+  --cyber-text: var(--neutral-100);
+  --cyber-dim: var(--neutral-500);
+
+  /* Primary accent — brand crimson (#FF2052), used for buttons, active
+     states, and links everywhere in the app. */
+  --cyber-cyan: #FF2052;
+  /* Danger / destructive accent — unified with the same brand crimson. */
+  --cyber-magenta: #FF2052;
+  /* Status/category accents — were referenced by ChatSidebar.jsx and
+     several stage tabs but never actually defined, so they silently
+     fell back to inherited text color. Defined here as muted,
+     non-neon tones. */
+  --cyber-amber: #f59e0b;
+  --cyber-violet: #a78bfa;
+  --cyber-lime: #34d399;
+
+  /* Was a colored neon blur (0 0 12px rgba(34,211,238,0.35)); now a
+     plain subtle ring so buttons/inputs still get a visible focus/
+     active cue without the glow-in-the-dark look. */
+  --cyber-glow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* ---------------------------------------------------------------
+   Theme tokens — one variable per Tailwind `neutral-*` shade that was
+   previously hard-coded as a literal utility class (bg-neutral-900,
+   text-neutral-300, etc.) across every component. Components use
+   Tailwind's arbitrary-value syntax against these vars instead, e.g.
+   `bg-[var(--neutral-900)]` in place of `bg-neutral-900`.
+
+   Single dark theme only — no [data-theme] switching.
+----------------------------------------------------------------*/
+:root {
+  --neutral-100: #f5f5f5;
+  --neutral-200: #e5e5e5;
+  --neutral-300: #d4d4d4;
+  --neutral-400: #a3a3a3;
+  --neutral-500: #737373;
+  --neutral-600: #525252;
+  --neutral-700: #404040;
+  --neutral-800: #262626;
+  --neutral-900: #171717;
+  --neutral-950: #0a0a0a;
+
+  --neutral-950-a50: rgba(10, 10, 10, 0.5);
+  --neutral-900-a50: rgba(23, 23, 23, 0.5);
+  --neutral-800-a70: rgba(38, 38, 38, 0.7);
+
+  /* Accent — was a plain white/near-black pair (the literal
+     "bg-neutral-100 text-neutral-900" primary-button pattern). Every
+     primary button in the app (bg-[var(--accent)] text-[var(--accent-text)])
+     reads off just these two variables, so retargeting them here reskins
+     every button in one place without touching individual components.
+     Retargeted to the app's existing --cyber-violet accent (already used
+     for the Research/Test/Growth tab action buttons) so "primary action"
+     is one consistent cyber-violet color everywhere instead of white.
+     Text stays near-black (not white) for contrast — --cyber-violet is a
+     light-toned purple, and dark text against it is the same pairing
+     those existing buttons already use (text-black). */
+  --accent: #FF2052;
+  --accent-text: #ffffff;
+}
+
+/* ---------------------------------------------------------------
+   Density tokens — Comfortable (default) vs Compact, toggled via a
+   `data-density` attribute on <html> (see hooks/useDensity.js). Cards
+   (RoleCard, TemplateCard) and message bubbles reference these instead
+   of hard-coded padding/gap/leading utilities so one toggle reflows all
+   three at once. Comfortable values match what was previously
+   hard-coded (p-3/space-y-2/leading-relaxed, px-3 py-2 bubbles).
+----------------------------------------------------------------*/
+:root,
+[data-density="comfortable"] {
+  --density-card-padding: 0.75rem;
+  --density-card-gap: 0.5rem;
+  --density-line-height: 1.625;
+  --density-bubble-padding-x: 0.75rem;
+  --density-bubble-padding-y: 0.5rem;
+}
+
+[data-density="compact"] {
+  --density-card-padding: 0.5rem;
+  --density-card-gap: 0.25rem;
+  --density-line-height: 1.375;
+  --density-bubble-padding-x: 0.625rem;
+  --density-bubble-padding-y: 0.25rem;
+}
+
+/* ---------------------------------------------------------------
+   Viewport tokens — mobile/tablet/desktop, toggled via a
+   `data-viewport` attribute on <html> (see hooks/useViewport.js).
+   Phase 0 only: this defines the switch and a starter set of
+   `--viewport-*` variables for later cosmetic-only forks (spacing,
+   touch targets, hiding a column — see the file header comment in
+   useViewport.js for the cosmetic-vs-structural split). Desktop
+   values match what's already hard-coded today, so nothing consumes
+   these yet and there is zero visual change until a component opts
+   in. Structural forks (a genuinely different component tree, e.g.
+   AppShell's nav) don't use these tokens at all — they call
+   useViewport() in JS and render components/mobile/* instead.
+----------------------------------------------------------------*/
+:root,
+[data-viewport="desktop"] {
+  --viewport-content-padding: 1.5rem;
+  --viewport-touch-target: 2.25rem;
+  --viewport-nav-gap: 0.5rem;
+}
+
+[data-viewport="tablet"] {
+  --viewport-content-padding: 1rem;
+  --viewport-touch-target: 2.5rem;
+  --viewport-nav-gap: 0.375rem;
+}
+
+[data-viewport="mobile"] {
+  --viewport-content-padding: 0.75rem;
+  --viewport-touch-target: 2.75rem;
+  --viewport-nav-gap: 0.25rem;
+}
+
+/* Phase 1: mobile/AppShell.jsx's horizontally-scrolling tab strip — the
+   scroll itself is the point (that's how you reach tabs 4-12), but a
+   visible horizontal scrollbar under a short nav row reads as a broken
+   layout rather than "swipe me", so it's hidden here the same way the
+   default vertical scrollbar is re-themed just above instead of just
+   left at the browser default. */
+[data-viewport="mobile"] .mobile-tab-scroll {
+  scrollbar-width: none;
+}
+[data-viewport="mobile"] .mobile-tab-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------------------------------------------------------------
+   Row actions in sidebars/drawers (project rows, chat rows) —
+   hover-reveal on a mouse, always visible and finger-sized on touch.
+
+   These rows carry small icon buttons ("+", the "⋮" menu) that used to
+   be `opacity-0 group-hover:opacity-100`. A touch screen has no hover
+   state, so on a phone or tablet those buttons never appeared at all.
+   They're CSS classes rather than per-component `isMobile` branches
+   because the fix is purely cosmetic (see components/mobile/README.md)
+   and because "touch" isn't the same axis as "narrow": a landscape
+   tablet is touch-only at a desktop width, and BuildTab/GrowthTab have
+   no mobile fork to branch in at all. Both signals count as touch here:
+     - the input itself: `hover: none` / `pointer: coarse` (real phones,
+       tablets, and devtools device emulation), and
+     - `data-viewport="mobile"` (a narrow desktop window, or
+       ?forceViewport=mobile) — same bar the existing `isMobile`
+       branches in PlanTab/ResearchTab/TestTab already use.
+   A touchscreen laptop whose primary input is still a mouse reports
+   `hover: hover`, so it correctly keeps the desktop behavior.
+
+   .row-reveal   — put on the button. Hidden until the parent `.group`
+                   row is hovered or focused (or the button's own menu
+                   is open); always visible on touch.
+   .touch-target — put on an icon-only button. On touch: 40px hit area
+                   (the size TestTab's drawer header already used) and
+                   an 18px glyph. The negative block margin lets the hit
+                   area reach into the row's own padding, so rows stay
+                   ~40px tall instead of growing by 16px per button.
+   .touch-row    — put on a row's main tap area / a menu item. On touch:
+                   at least 40px tall.
+   .touch-input  — put on small inline text inputs (rename fields). On
+                   touch: 16px, because iOS Safari zooms the whole page
+                   on focus of anything smaller.
+   None of these change anything on a mouse-driven desktop. */
+.row-reveal {
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.group:hover .row-reveal,
+.group:focus-within .row-reveal,
+.row-reveal:focus-visible,
+.row-reveal[aria-expanded="true"] {
+  opacity: 1;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .row-reveal {
+    opacity: 1;
+  }
+  .touch-target {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    margin-block: -0.5rem;
+  }
+  .touch-target > svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+  .touch-row {
+    min-height: 2.5rem;
+  }
+  .touch-input {
+    font-size: 1rem;
+  }
+}
+
+/* Same rules, keyed off the app's own viewport switch — kept as a
+   separate block (rather than folded into the media query above)
+   because a media query and an attribute selector can't share one
+   selector list. Keep the two blocks in sync. */
+[data-viewport="mobile"] .row-reveal {
+  opacity: 1;
+}
+[data-viewport="mobile"] .touch-target {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  margin-block: -0.5rem;
+}
+[data-viewport="mobile"] .touch-target > svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+[data-viewport="mobile"] .touch-row {
+  min-height: 2.5rem;
+}
+[data-viewport="mobile"] .touch-input {
+  font-size: 1rem;
+}
+
+/* NEW — mobile height fix: h-screen alone (height:100vh) is Tailwind's
+   utility for a fixed-viewport-height shell (see AppShell.jsx's outer
+   div), but 100vh on a mobile browser is measured against the LARGEST
+   viewport the browser chrome allows (address bar collapsed) — taller
+   than what's actually on screen the moment a page loads, which pushed
+   real content (the composer, tab bodies) below the visible fold and
+   forced an extra scroll to reach it. This class layers two
+   progressively more accurate fallbacks on top of h-screen's 100vh,
+   each only applying if the browser understands it (an unsupported
+   value leaves the previous declaration in the cascade untouched — the
+   standard progressive-enhancement pattern for a new CSS unit):
+     1. 100dvh — the *dynamic* viewport height, i.e. the real visible
+        area right now, which updates live as the address bar shows/
+        hides. Supported in every current mobile browser engine.
+     2. var(--app-vvh, 100dvh) — AppShell.jsx additionally mirrors
+        window.visualViewport's height (which also shrinks when the
+        on-screen keyboard opens, catching the one case dvh support has
+        historically been shakiest on — older iOS Safari) into
+        --app-vvh on mount/resize/scroll. Falls back to 100dvh itself
+        until that effect has run (SSR, or a browser with no
+        visualViewport at all), so there's never a moment with no
+        height rule in effect. */
+.app-shell-viewport {
+  height: 100vh;
+  height: 100dvh;
+  height: var(--app-vvh, 100dvh);
+}
+
+/* ---------------------------------------------------------------
+   Base page styling
+----------------------------------------------------------------*/
+html, body {
+  height: 100%;
+}
+
+/* Flat, consistent dark background for the whole app — no image, no
+   gradient overlay. (The landing page and login screen each carry
+   their own fully self-contained styling and are unaffected by this:
+   both paint their own opaque, full-viewport background over this.) */
+body {
+  background-color:#151515;
+  color: var(--neutral-100);
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6,
+button, .font-display {
+  font-family: 'Sora', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ---------------------------------------------------------------
+   Code output syntax highlighting — fenced ```code blocks in agent/
+   chat output (Markdown.jsx) previously rendered as flat, single-color
+   text on a black background (no token coloring at all). These classes
+   are applied by app/lib/highlightCode.js's tokenizer to give fenced
+   code blocks VS Code "Dark+" style coloring instead. Inline `code`
+   spans and the plain-text fallback are unaffected.
+----------------------------------------------------------------*/
+.tok-comment  { color: #6a9955; font-style: italic; }
+.tok-string   { color: #ce9178; }
+.tok-number   { color: #b5cea8; }
+.tok-keyword  { color: #c586c0; } /* control flow: if/else/for/return/import... */
+.tok-decl     { color: #569cd6; } /* declarations: const/let/function/class/def... */
+.tok-const    { color: #569cd6; } /* true/false/null/None/undefined... */
+.tok-func     { color: #dcdcaa; } /* identifier immediately followed by ( */
+.tok-type     { color: #4ec9b0; } /* PascalCase identifiers */
+.tok-prop     { color: #9cdcfe; } /* JSON object keys */
+
+/* ---------------------------------------------------------------
+   Scrollbars — default browser scrollbars break the theme instantly
+----------------------------------------------------------------*/
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--neutral-600) var(--neutral-900);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: var(--neutral-900);
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--neutral-700);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--neutral-500);
+}
+
+/* ---------------------------------------------------------------
+   Reusable component classes — drop these on existing elements
+   instead of hand-writing the same Tailwind utility strings everywhere.
+----------------------------------------------------------------*/
+
+/* Card / panel surface — chat window, sidebars, provider cards, etc. */
+.cyber-panel {
+  background-color: var(--cyber-panel);
+  border: 1px solid var(--cyber-border);
+  border-radius: 0.5rem;
+}
+
+/* Primary action button */
+.cyber-btn {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  background-color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.cyber-btn:hover {
+  background-color: #e0134a;
+  border-color: #e0134a;
+}
+.cyber-btn:active {
+  background-color: #b80f3a;
+  border-color: #b80f3a;
+}
+.cyber-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Secondary / warning variant — unified with the same crimson fill */
+.cyber-btn-magenta {
+  color: var(--accent-text);
+  border-color: var(--accent);
+  background-color: var(--accent);
+}
+.cyber-btn-magenta:hover {
+  background-color: #e0134a;
+  border-color: #e0134a;
+}
+
+/* Chat input / text areas */
+.cyber-input {
+  background-color: var(--cyber-bg);
+  border: 1px solid var(--cyber-border);
+  border-radius: 0.5rem;
+  color: var(--cyber-text);
+  font-family: 'Inter', sans-serif;
+  padding: 0.75rem 1rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.cyber-input:focus {
+  outline: none;
+  border-color: var(--neutral-600);
+  box-shadow: var(--cyber-glow);
+}
+.cyber-input::placeholder {
+  color: var(--cyber-dim);
+}
+
+/* Faint grid texture — use sparingly, e.g. on the chat background layer
+   only, not stacked on every panel or it turns into visual noise. */
+.cyber-grid-bg {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Was a neon text-shadow glow; flattened to a plain accent color so it
+   still stands out from body copy without the cyberpunk look. */
+.cyber-glow-text {
+  color: var(--cyber-cyan);
+}
+
+/* Bug audit #7 follow-up — workflow checklist diagrams (MermaidDiagram.jsx's
+   completedSteps/currentStepId props). Strikethrough + dimming for done
+   steps, paired with the checkmark-prefixed label MermaidDiagram.jsx
+   already injects into the text node itself (don't rely on color/opacity
+   alone as the only "done" signal — guide refinement #4). SVG <text>
+   supports text-decoration directly in all current browsers, no custom
+   line-drawing needed. */
+.step-done text,
+.step-done .nodeLabel {
+  text-decoration: line-through;
+}
+.step-done {
+  opacity: 0.45;
+}
+/* "Next thing to do" highlight (guide refinement #3) — covers the common
+   flowchart node shapes mermaid emits (rect for steps, polygon for
+   decision diamonds, circle/ellipse for start/end nodes) so the outline
+   shows up regardless of which shape a given step happens to render as. */
+.step-current rect,
+.step-current polygon,
+.step-current circle,
+.step-current ellipse {
+  stroke: var(--cyber-cyan);
+  stroke-width: 3px;
+}
+
+/* ---------------------------------------------------------------
+   Auth screen entrance transition — LoginScreen.jsx applies this via
+   `key={mode}` on its card wrapper, so it re-plays on every sign-in /
+   sign-up toggle instead of just on first mount.
+----------------------------------------------------------------*/
+@keyframes authFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.auth-fade-in {
+  animation: authFadeIn 0.35s ease both;
+}

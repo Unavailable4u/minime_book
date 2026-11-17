@@ -1,0 +1,429 @@
+"""
+eo/semantic_cache.py — Semantic Cache (blueprint §16.2), context-aware
+and scope-aware.
+
+Two independent fixes bundled together:
+  1. Trust model (see prior revision): a hit is only replayed blindly
+     if the context fingerprint is unchanged; otherwise it's verified
+     against current context before replay, and invalidate_cache() lets
+     a correction purge stale entries proactively instead of waiting on
+     TTL.
+  2. Scoping: `app_slug` alone conflated two unrelated concepts —
+     build/research pipeline projects (app_slug) and notebook/workspace
+     ids (workspace_id, from eo/chat_workspace.py). A cached answer
+     scoped to one must never leak into, or be purged by, the other.
+     Callers now pass an explicit (scope_type, scope_id) pair instead
+     of a bare app_slug.
+  3. Patch B7 — deterministic/generative split: not every cacheable
+     call site wants the same thing from a "hit". A datasheet lookup
+     or a spec calculation has exactly one correct answer, so replaying
+     it verbatim is correct, not stale — that's CACHE_CLASS_DETERMINISTIC,
+     and it keeps using check_cache()/write_cache() exactly as before.
+     Advice, brainstorming, plans, and explanations are different: the
+     "correct" answer isn't unique, and replaying the same paragraph
+     verbatim on a repeat ask reads as frozen/unhelpful even when
+     nothing is factually wrong with it. That's CACHE_CLASS_GENERATIVE —
+     call sites never get the literal old answer back for replay; they
+     call get_cached_reference() instead, which hands back the prior
+     answer as *reference material* to feed into a fresh generation
+     (see task_runner.py / loop_v4.py call sites for the prompt-side
+     half of this). classify_cache_class() is a cheap keyword heuristic,
+     not a model call — the whole point of SGA's fast path is to stay
+     fast, so classification can't itself cost a network round trip.
+  4. Patch B8 — system_version fingerprint tag: context_fingerprint
+     (above) only tracks *conversation* content, so it has nothing to
+     say about a cached answer going stale because the code around it
+     changed — a prompt rewrite, an agent behavior change, or a model
+     swap. Without a separate signal, a popular query just keeps
+     matching on similarity + TTL and gets served forever, even after
+     the prompt that originally produced it has been improved. Every
+     write_cache() call now stamps the entry with the current
+     SYSTEM_VERSION; check_cache() and get_cached_reference() both
+     reject any entry whose stored system_version doesn't match the
+     running one, no verify-call attempted — a version bump is a
+     deliberate "treat everything before this as stale" signal, not
+     something worth spending an LLM call to double-check. Bump
+     SYSTEM_VERSION (env var SGA_SYSTEM_VERSION, or the default below)
+     whenever a prompt/agent/model change is meaningful enough that old
+     answers shouldn't be trusted or replayed anymore.
+  5. Perf audit follow-up (#4) — REFERENCE_BLOCK_TEMPLATE /
+     format_reference_block(): the instruction GENERATIVE call sites
+     wrap around a get_cached_reference() hit used to be open-ended
+     ("build on it, refine it, or diverge... as this new ask calls
+     for"), which had no ceiling — a repeat-ish ask that needed no real
+     change still paid for a full free rewrite. Bounded now: reuse-as-is
+     is the cheap default, a genuine change is scoped to the part that
+     needs it, and a full rewrite remains available as the model's own
+     fallback rather than its default. Prompt-only — see
+     format_reference_block()'s own docstring, further down, for the
+     full reasoning and the two call sites that share it.
+"""
+import hashlib
+import os
+import sys
+import time
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from eo import laya_gate
+from memory.bus import vector_index
+from relay.emitter import emit_event  # NEW — CO4 patch 3
+from utils.llm_client import embed_text
+
+SIMILARITY_THRESHOLD = 0.93
+INVALIDATION_THRESHOLD = 0.90
+CACHE_TTL_SECONDS = 60 * 60 * 48
+
+# Patch B8 — bump this (or set SGA_SYSTEM_VERSION in the environment)
+# whenever a prompt, agent, or model change is meaningful enough that
+# cache entries written under the old behavior shouldn't be replayed
+# or reused as reference material anymore. Any string works; it's an
+# opaque tag, not a parsed version number. See module docstring
+# point 4 for the full reasoning.
+SYSTEM_VERSION = os.environ.get("SGA_SYSTEM_VERSION", "1")
+
+# Patch B7 — see module docstring point 3.
+CACHE_CLASS_DETERMINISTIC = "deterministic"
+CACHE_CLASS_GENERATIVE = "generative"
+
+# Keyword heuristic for classify_cache_class(). Deliberately conservative:
+# anything not clearly a lookup/calculation/correctness-check defaults to
+# GENERATIVE (see classify_cache_class()'s docstring for why the default
+# leans that way).
+_DETERMINISTIC_SIGNALS = (
+    "calculate", "compute", "convert", "look up", "lookup", "datasheet",
+    "spec sheet", "specification", "checksum", "hash of", "what is the value of",
+    "what's the value of", "how many", "how much is", "resistor value",
+    "voltage", "wattage", "tolerance rating", "is this code correct",
+    "check this code", "does this compile", "syntax error", "unit test",
+    "what is the boiling point", "what is the melting point", "molecular weight",
+    "exchange rate", "square root of", "sum of", "average of",
+)
+
+# Laya migration audit (2026-09-27): was a 2-model Groq chain
+# (openai/gpt-oss-120b -> qwen/qwen3.6-27b) asked for exactly one word,
+# YES or NO -- see git history on this block for the max_tokens story.
+# This is a pure binary decision over (question, cached answer, current
+# context): a textbook Laya `noul` question, one local forward pass, no
+# provider/key rotation. See eo/laya_gate.py for the shared loader.
+_VERIFY_QUESTION = {
+    "still_accurate": {
+        "type": "noul",
+        "instructions": (
+            "Is the cached answer still accurate given the current "
+            "conversation context? Answer NO if the context contradicts "
+            "it, corrects it, makes it outdated, or you are not "
+            "confident it still holds."
+        ),
+        "criteria": {
+            "false": "the cached answer is stale -- the current context "
+                     "contradicts, corrects, or supersedes it, or it's "
+                     "not clearly still accurate",
+            "true": "the cached answer is still accurate and nothing in "
+                    "the current context contradicts or supersedes it",
+        },
+        "labels": {"false": "NO", "true": "YES"},
+    },
+}
+
+# The old prompt's "when in doubt, say NO" was a plea to an LLM that had
+# no real notion of its own confidence. With Laya it becomes an actual
+# number: require clearly-more-likely-than-not before trusting a cache
+# hit, not just a bare >0.5 coin flip. 0.65 is a STARTING GUESS -- Laya's
+# released checkpoints reportedly run over-confident (see
+# eo/laya_gate.py), so tune it on labeled hit/stale examples from real
+# traffic. A fresh answer is always safer than a stale one, so this
+# leans conservative.
+_STILL_ACCURATE_THRESHOLD = 0.65
+
+# Laya's English checkpoint reads only ~300 tokens (~1,000-1,200 chars)
+# for the WHOLE state (see eo/laya_gate.py) -- passing the three fields
+# raw would let a long cached answer silently crowd out the current
+# context, which is the field that decides whether the answer is stale.
+# So each field gets its own character budget (total ~1,000): the
+# question's opening, both ends of the cached answer, and the TAIL of the
+# context (the most recent turns are what can contradict the answer).
+_Q_CHARS = 200
+_ANSWER_CHARS = 350
+_CONTEXT_CHARS = 450
+
+
+def _verify_still_accurate(task_text: str, cached_answer: str, context_text: str) -> bool:
+    """"When in doubt, say NO" -- a fresh answer is always safer than a
+    stale one, so any failure at all (Laya package missing, checkpoint
+    not loaded, unexpected result shape, or -- belt and suspenders --
+    an exception laya_gate.predict()'s own internal try/except didn't
+    anticipate) returns False, exactly like the old chain's bare
+    `except Exception: return False` did, rather than failing open to
+    "still accurate"."""
+    state = {
+        "original_question": laya_gate.clip(task_text, _Q_CHARS, "head"),
+        "cached_answer": laya_gate.clip(cached_answer, _ANSWER_CHARS, "both"),
+        "current_context": laya_gate.clip(context_text or "(none)", _CONTEXT_CHARS, "tail"),
+    }
+    try:
+        result = laya_gate.predict(state, _VERIFY_QUESTION,
+                                    site="semantic_cache._verify_still_accurate")
+        if result is None:
+            return False
+        return result["answers"]["still_accurate"]["noul"] >= _STILL_ACCURATE_THRESHOLD
+    except Exception:
+        return False
+
+
+def _scope_filter(scope_type: str, scope_id: str) -> str:
+    """scope_type is 'app' or 'workspace' (or None for legacy/global
+    callers not yet migrated). Each gets its own metadata field so an
+    app-scoped entry and a workspace-scoped entry can never collide or
+    be purged by the other, even if their ids happened to be equal by
+    coincidence."""
+    if scope_type and scope_id:
+        return f"{scope_type} = '{scope_id}'"
+    return "project = 'global'"  # legacy bucket — unmigrated callers only
+
+
+def _scope_metadata(scope_type: str, scope_id: str) -> dict:
+    if scope_type and scope_id:
+        return {scope_type: scope_id}
+    return {"project": "global"}
+
+
+def classify_cache_class(task_text: str) -> str:
+    """Patch B7 — cheap, deterministic (pun intended) keyword split used
+    at each cacheable call site to decide which cache behavior applies.
+    Not a model call: SGA's whole premise is a fast pre-Inspector path,
+    so classification has to be ~free.
+
+    Errs toward CACHE_CLASS_GENERATIVE when unsure — worst case for a
+    false "generative" is a lookup gets regenerated instead of replayed
+    (slower, but still correct); worst case for a false "deterministic"
+    is an opinion/plan/explanation gets woodenly replayed verbatim on a
+    repeat ask, which is exactly the staleness this patch exists to fix.
+    """
+    lowered = (task_text or "").lower()
+    if any(signal in lowered for signal in _DETERMINISTIC_SIGNALS):
+        return CACHE_CLASS_DETERMINISTIC
+    return CACHE_CLASS_GENERATIVE
+
+
+def _fingerprint(context_text: str) -> str:
+    normalized = (context_text or "").strip()
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+
+def check_cache(task_text: str, app_slug: str = None, workspace_id: str = None,
+                 context_text: str = "", session_id: str = None) -> dict | None:
+    """Pass EXACTLY ONE of app_slug/workspace_id for a real scope, or
+    neither for the legacy global bucket (existing callers not yet
+    migrated keep working, just without scoping — same as before).
+
+    session_id: NEW — CO4 patch 3, optional. Purely for the "cache_hit"
+    event emitted below on an actual hit — emit_event() is already a
+    documented no-op when session_id is None (see relay/emitter.py), so
+    every existing caller that doesn't pass this (eo/loop_v4.py's CLI
+    path never has a real session_id at all) keeps behaving exactly as
+    before.
+
+    Patch B7: this function is the DETERMINISTIC path only — call sites
+    route here after classify_cache_class() (or their own judgment)
+    says CACHE_CLASS_DETERMINISTIC. It only ever matches entries stored
+    with cache_class == deterministic (or written before this patch,
+    which default to deterministic — see write_cache()), so a
+    generative entry can never accidentally get replayed verbatim
+    through this path. GENERATIVE call sites use get_cached_reference()
+    instead, further down.
+    """
+    scope_type = "app" if app_slug else ("workspace" if workspace_id else None)
+    scope_id = app_slug or workspace_id
+
+    try:
+        vector = embed_text(task_text)
+    except Exception:
+        return None
+
+    index = vector_index()
+    results = index.query(vector=vector, top_k=1, include_metadata=True,
+                          filter=_scope_filter(scope_type, scope_id))
+    if not results:
+        return None
+
+    top = results[0]
+    if top.score < SIMILARITY_THRESHOLD:
+        return None
+
+    meta = top.metadata or {}
+    if time.time() - meta.get("_cached_at", 0) > CACHE_TTL_SECONDS:
+        return None
+
+    # Patch B8 — an entry written under a since-superseded prompt/agent/
+    # model is stale regardless of similarity or TTL. No verify-call
+    # fallback here: a version bump is a deliberate "don't trust this"
+    # signal, not something to spend an LLM call second-guessing.
+    # Entries written before this patch have no system_version field at
+    # all and are treated as stale too, same as an explicit mismatch.
+    if meta.get("system_version") != SYSTEM_VERSION:
+        return None
+
+    if meta.get("cache_class", CACHE_CLASS_DETERMINISTIC) != CACHE_CLASS_DETERMINISTIC:
+        return None  # generative entry — never replayed verbatim (Patch B7)
+
+    answer = meta.get("answer")
+    if not answer:
+        return None
+
+    stored_fingerprint = meta.get("context_fingerprint", "")
+    current_fingerprint = _fingerprint(context_text)
+    if stored_fingerprint and stored_fingerprint == current_fingerprint:
+        emit_event("cache_hit", session_id=session_id, agent="semantic_cache",
+                   payload={"verified": False, "similarity": top.score})
+        return answer
+
+    if _verify_still_accurate(task_text, answer, context_text):
+        emit_event("cache_hit", session_id=session_id, agent="semantic_cache",
+                   payload={"verified": True, "similarity": top.score})
+        return answer
+    return None
+
+
+def write_cache(task_text: str, answer: str, app_slug: str = None, workspace_id: str = None,
+                 context_text: str = "", cache_class: str = CACHE_CLASS_DETERMINISTIC) -> None:
+    """cache_class: NEW — Patch B7. Tags the entry so a later check_cache()
+    (deterministic replay) or get_cached_reference() (generative
+    reference-only reuse) knows how it's allowed to be reused. Defaults
+    to CACHE_CLASS_DETERMINISTIC so any caller not yet migrated keeps
+    today's replay behavior unchanged."""
+    scope_type = "app" if app_slug else ("workspace" if workspace_id else None)
+    scope_id = app_slug or workspace_id
+
+    try:
+        vector = embed_text(task_text)
+    except Exception:
+        return
+    index = vector_index()
+    metadata = {
+        "answer": answer,
+        "_cached_at": time.time(),
+        "context_fingerprint": _fingerprint(context_text),
+        "cache_class": cache_class,
+        "system_version": SYSTEM_VERSION,  # Patch B8
+    }
+    metadata.update(_scope_metadata(scope_type, scope_id))
+    index.upsert(vectors=[{
+        "id": f"semcache_{hash(task_text)}",
+        "vector": vector,
+        "metadata": metadata,
+    }])
+
+
+def get_cached_reference(task_text: str, app_slug: str = None, workspace_id: str = None) -> str | None:
+    """Patch B7 — GENERATIVE call sites only. Finds a semantically similar
+    prior answer to hand back as *reference context* for a fresh
+    generation. This is deliberately NOT check_cache(): there's no
+    fingerprint/context-verify short-circuit and no cache_hit event,
+    because reusing an old answer as an input to a new one isn't a
+    "hit" in the replay sense — it's raw material. Matches entries of
+    either cache_class (a deterministic answer is still fine background
+    material for a generative follow-up); the asymmetry that matters is
+    the other direction, enforced in check_cache().
+    """
+    scope_type = "app" if app_slug else ("workspace" if workspace_id else None)
+    scope_id = app_slug or workspace_id
+
+    try:
+        vector = embed_text(task_text)
+    except Exception:
+        return None
+
+    index = vector_index()
+    results = index.query(vector=vector, top_k=1, include_metadata=True,
+                          filter=_scope_filter(scope_type, scope_id))
+    if not results:
+        return None
+
+    top = results[0]
+    if top.score < SIMILARITY_THRESHOLD:
+        return None
+
+    meta = top.metadata or {}
+    if time.time() - meta.get("_cached_at", 0) > CACHE_TTL_SECONDS:
+        return None
+
+    # Patch B8 — same reasoning as check_cache(): reference material
+    # written under a superseded prompt/agent/model isn't safe to feed
+    # into a fresh generation as "here's roughly what we said before".
+    if meta.get("system_version") != SYSTEM_VERSION:
+        return None
+
+    return meta.get("answer") or None
+
+
+# Perf audit follow-up (#4) — the instruction wrapped around a reference
+# answer at each GENERATIVE call site (api/task_runner.py, eo/loop_v4.py;
+# see get_cached_reference()'s own docstring above for why the wrap
+# happens at the call site rather than in this function). Used to be
+# open-ended: "build on it, refine it, or diverge from it as this new
+# ask calls for; don't just repeat it verbatim" set no ceiling at all,
+# so a repeat-ish ask that needed no real change still paid for a full
+# free rewrite — sometimes landing on something worse than the answer
+# already sitting in the cache.
+#
+# Bounded now, in the same spirit as _VERIFY_SYSTEM_PROMPT above (a
+# plain instruction the model itself acts on — nothing downstream
+# parses or branches on which option it took, so this needs no new
+# code, just this wording): reuse-as-is is offered first as the cheap
+# default; a genuine change is scoped to "just the part that needs it"
+# rather than a full rewrite by default; a full rewrite is still
+# available, but only as the model's own fallback when the new ask
+# genuinely calls for a different approach — not the path of least
+# resistance it was before.
+REFERENCE_BLOCK_TEMPLATE = (
+    "\n\n(Reference — your previous answer to a similar ask, given as a "
+    "starting point rather than something to regenerate from scratch. If it "
+    "still fully answers this new ask, say so briefly and reuse it as-is — "
+    "don't rewrite something that's already right. If only part of it needs "
+    "to change, revise just that part and leave the rest as it was. Only "
+    "write a full new answer if this ask genuinely calls for a different "
+    "approach or framing than the one below.)\n{reference_answer}"
+)
+
+
+def format_reference_block(reference_answer: str) -> str:
+    """Formats get_cached_reference()'s return value into the bounded
+    instruction block both generative call sites append to their
+    fresh-generation prompt — a single source of truth for text that
+    used to be duplicated verbatim in api/task_runner.py and
+    eo/loop_v4.py (see REFERENCE_BLOCK_TEMPLATE above for the wording
+    itself). Returns "" on a falsy reference_answer, so a caller can do
+    `task_text + format_reference_block(reference_answer)` unconditionally
+    instead of guarding the call itself."""
+    if not reference_answer:
+        return ""
+    return REFERENCE_BLOCK_TEMPLATE.format(reference_answer=reference_answer)
+
+
+def invalidate_cache(text: str, app_slug: str = None, workspace_id: str = None) -> int:
+    """Proactively purges near-matching cache entries within the given
+    scope. Pass workspace_id when the correction/fact came from a
+    notebook (the common case for note_candidates.py/workspace_facts.py
+    callers), app_slug for a build/research pipeline correction. If
+    neither is given, purges from the global bucket only — deliberately
+    NOT a cross-scope wildcard, so a workspace correction can never
+    reach into an unrelated app's cached answers or vice versa."""
+    scope_type = "app" if app_slug else ("workspace" if workspace_id else None)
+    scope_id = app_slug or workspace_id
+
+    try:
+        vector = embed_text(text)
+    except Exception as exc:
+        print(f"  [semantic_cache] invalidate_cache embedding failed, skipped: {exc}")
+        return 0
+    index = vector_index()
+    try:
+        results = index.query(vector=vector, top_k=10, include_metadata=True,
+                              filter=_scope_filter(scope_type, scope_id))
+        stale_ids = [r.id for r in results if r.score >= INVALIDATION_THRESHOLD]
+        if stale_ids:
+            index.delete(ids=stale_ids)
+        return len(stale_ids)
+    except Exception as exc:
+        print(f"  [semantic_cache] invalidate_cache query/delete failed, skipped: {exc}")
+        return 0

@@ -1,0 +1,184 @@
+"""
+agents/deploy_config_writer.py — Part 7 §7.4, step 1 of the propose/apply
+split. Decides WHICH free host fits this project and WHAT the deploy
+config file should contain. Does not touch the filesystem itself; it only
+outputs a plan that agents/deploy_agent.py then writes to disk
+deterministically -- the exact same split structure_architect.py/
+file_manager.py already proved out (structure_architect.py proposes a
+JSON plan, file_manager.py executes it; this pair mirrors that shape one
+stage later in the pipeline, for deployment instead of file layout).
+
+Deliberately its own REAL_ACTION_ROLES module rather than a generic_worker
+role, even though it's pure reasoning with no real action of its own: it
+needs the project's actual on-disk file tree and language/stack signal
+(module_specs), and agents/generic_worker.py's run() has no filesystem
+access and no bus-key reads beyond input_keys/task_text -- the identical
+reason structure_architect.py itself is a dedicated module and not
+generic_worker, despite also never writing to disk.
+
+Runs after file_manager.py, once code actually exists on disk to inspect
+-- see eo/structure.py's STRUCTURE_TEMPLATES["coding"] placement.
+
+Place this file at: agents/deploy_config_writer.py
+"""
+
+import json
+import os
+import sys
+
+from dotenv import load_dotenv
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from memory.bus import KEYS, get_current_app_slug, read, write
+from relay.emitter import EventType, emit_event
+from utils.llm_client import generate_text
+
+load_dotenv()
+
+# FALLBACK_CHAIN: last-resort static chain, used ONLY if
+# eo/dynamic_chain.py's build_fallback_chain() below comes back empty
+# (every registered account excluded/cooling down at once -- should be
+# very rare). This used to be the ONLY chain this module ever tried --
+# its hardcoded CEREBRAS_API_KEY_1 third step was one of the six agents
+# in Patch 8.1's audit quietly sharing that single unmonitored,
+# un-fallback-able account with idea_planner.py/dataset_analyst.py/
+# output_organizer.py/responder.py/prompt_writer_lean.py/
+# reviewer_fixer_lean.py -- a cooldown on that one key took out every
+# one of their Cerebras fallback steps simultaneously. Same fix as
+# agents/hardware_speccer.py / agents/architecture_diagrammer.py: see
+# run_deploy_config_writer() below, which now builds a live, quota-
+# ranked, multi-provider chain instead.
+FALLBACK_CHAIN = [
+    {"provider": "groq", "model": "openai/gpt-oss-120b", "key_env": "GROQ_API_KEY"},
+    {"provider": "groq", "model": "qwen/qwen3.6-27b", "key_env": "GROQ_API_KEY"},
+    # OR-3c (reliability_overhaul_plan.md): Cerebras retired to a paid
+    # tier (see OR-2's .env.example note) -- was CEREBRAS_API_KEY_1,
+    # "openrouter/free" now (not a pinned model slug -- see
+    # utils/llm_client.py's OPENROUTER_BASE_URL comment). Note this one
+    # is NOT a rarely-hit last resort like idea_planner.py/report_writer.py:
+    # no key in eo/registry.py's AGENT_CAPABILITIES is tagged with the
+    # "deploy_config_writer" role, so
+    # build_fallback_chain("deploy_config_writer") below always returns
+    # empty and FALLBACK_CHAIN is the ONLY chain this file ever actually
+    # uses -- this step carried real, regular Cerebras traffic, not
+    # occasional overflow.
+    {"provider": "openrouter", "model": "openrouter/free", "key_env": "OPENROUTER_API_KEY_1"},
+]
+
+APPS_ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "apps")
+
+DEPLOY_CONFIG_PLAN_KEY = "deploy_config_plan"
+
+SYSTEM_PROMPT = """You are the deployment config writer for an autonomous coding
+pipeline. You decide WHICH free hosting platform fits a finished project and WHAT
+its deploy config file should contain -- you never deploy anything yourself, only
+propose a plan the deterministic writer executes.
+
+You will be given the project's current file tree and the module specs for this
+cycle (language/stack signal).
+
+Pick exactly ONE platform that fits what you see:
+- "render" (render.yaml) -- general-purpose backend/full-stack services
+- "fly" (fly.toml) -- general-purpose, Dockerfile-friendly services
+- "github_pages" (a GitHub Actions workflow YAML) -- static output only
+  (plain HTML/CSS/JS, or a static site generator's build output)
+- "vercel" (vercel.json) -- frontend-only projects (React/Next/Vite/etc.)
+
+Respond with ONLY valid JSON, no markdown fences, no explanation, in exactly this
+shape:
+{
+  "platform": "render",
+  "config_filename": "render.yaml",
+  "config_content": "...",
+  "reason": "..."
+}
+config_content must be the COMPLETE, real content of that config file for this
+specific project (not a placeholder) -- reference the actual entry point / build
+command you can infer from the file tree and module specs. Never propose whether
+to deploy, only how; the decision to actually go live belongs to the user.
+"""
+
+
+def _get_project_tree(app_dir: str) -> list:
+    # Deliberately mirrors structure_architect.py's own _get_project_tree()
+    # exactly (same logic, same shape) rather than importing a private,
+    # underscore-prefixed helper across a module boundary -- this codebase
+    # has no shared-util module for this, and neither module treats the
+    # other's internals as a public dependency.
+    if not os.path.isdir(app_dir):
+        return []
+    tree = []
+    for root, _, files in os.walk(app_dir):
+        for fname in files:
+            full = os.path.join(root, fname)
+            rel = os.path.relpath(full, app_dir)
+            tree.append(rel)
+    return sorted(tree)
+
+
+def _strip_fences(text: str) -> str:
+    text = text.strip()
+    if text.startswith("```"):
+        text = text.split("```")[1]
+        text = text.removeprefix("json")
+    return text.strip()
+
+
+def run_deploy_config_writer(session_id: str = None, tier: int = None,
+                              task_text: str = None, domain: str = None) -> dict:
+    app_slug = get_current_app_slug()
+    app_dir = os.path.join(APPS_ROOT, app_slug) if app_slug else None
+    project_tree = _get_project_tree(app_dir) if app_dir else []
+    module_specs = read(KEYS["module_specs"], default={})
+
+    user_prompt = (
+        "Current project file tree:\n" + json.dumps(project_tree, indent=2)
+        + "\n\nThis cycle's module_specs (language/stack signal):\n"
+        + json.dumps(module_specs, indent=2)
+    )
+    if task_text:
+        user_prompt += f"\n\nOriginal task: {task_text}"
+
+    # Patch 8.3: deferred import -- see eo/dynamic_chain.py's module
+    # docstring for why this can't be a module-level import (eo.registry
+    # imports this module at load time; eo.dynamic_chain imports
+    # eo.registry at ITS module level). Quota-ranked, cooldown-aware,
+    # spread across providers -- replaces the old static CHAIN's single
+    # shared Cerebras key with no fallback.
+    from eo.dynamic_chain import build_fallback_chain
+    chain = build_fallback_chain("deploy_config_writer") or FALLBACK_CHAIN
+
+    raw = generate_text(SYSTEM_PROMPT, user_prompt, chain, agent_name="Deploy Config Writer",
+                         session_id=session_id, tier=tier, domain=domain)
+    cleaned = _strip_fences(raw)
+
+    try:
+        plan = json.loads(cleaned)
+    except json.JSONDecodeError:
+        # Fail safe, same spirit as structure_architect.py's own fallback:
+        # deploy_agent.py still needs something valid to write, even if
+        # the model's output didn't parse. Render.yaml is the most
+        # general-purpose of the four options, so it's the safest guess.
+        # W8.5: `fallback: True` is how api/routes/deploy.py tells this
+        # placeholder apart from a real proposal -- it is NOT routed
+        # into the Keep/Undo review (a one-line comment file the person
+        # could mistakenly Keep as their deploy config). The other keys
+        # are unchanged, so deploy_agent.write_deploy_config() and the
+        # Tasks-tab Deploy card read it exactly as before.
+        plan = {
+            "platform": "render",
+            "config_filename": "render.yaml",
+            "config_content": "# fallback: deploy config writer output was not valid JSON\n",
+            "reason": "fallback: could not parse a real proposal",
+            "fallback": True,
+        }
+
+    write(DEPLOY_CONFIG_PLAN_KEY, plan)
+    emit_event(EventType.DEPLOY_CONFIG_PROPOSED, session_id, agent="deploy_config_writer",
+               payload={"platform": plan.get("platform"), "config_filename": plan.get("config_filename")})
+    return plan
+
+
+if __name__ == "__main__":
+    result = run_deploy_config_writer()
+    print(json.dumps(result, indent=2))

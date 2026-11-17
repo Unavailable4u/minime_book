@@ -9,7 +9,7 @@
    open | collapsed | drawer); this file only keeps that state, it never decides it differently:
    pickSidebar() below is the same rule as the snippet, and scripts/test_codemod_shell.py checks that.
 
-   Keys handled here: [ and Ctrl/Cmd+B (sidebar), ] (fires minime:toc-toggle for P04), Esc (closes drawers).
+   Keys handled here: [ and Ctrl/Cmd+B (sidebar), ] (fires minime:toc-toggle for P04), Esc (closes drawers and the code-links popover).
    Keys handled by palette.js: Ctrl/Cmd+K, t, ?, g + o/e/b/s.
 
    Chapter pages (a .bk-banner or a .doc article inside <main>) also load reader.js (P04) on demand, and figures.js (P06) after it:
@@ -19,7 +19,8 @@
      minime:sidebar      detail = "open" | "collapsed" | "drawer-open" | "drawer-closed"
      minime:toc-toggle   fired by "]"   (P04 listens and toggles "On this page")
      minime:palette      detail = "open" | "close"   (from palette.js; the mobile drawer closes on "open")
-     minime:theme        detail = "dark" | "paper"   (from theme.js) */
+     minime:theme        detail = "dark" | "paper"   (from theme.js)
+     minime:links        detail = { root, scheme }   (the code-links popover saved new settings, P12; see links.js) */
 
 import { initPalette, openPalette, toggleTheme } from "./palette.js";
 
@@ -75,6 +76,7 @@ const ICONS = {
   book: svg('<path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4z"/><path d="M5 16a4 4 0 0 1 4-4h10"/>'),
   project: svg('<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 10v10"/>'),
   back: svg('<path d="M15 6l-6 6 6 6"/>'),
+  link: svg('<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>'),
 };
 
 const isTyping = (t) => !!t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable);
@@ -144,6 +146,7 @@ function closeTransient() {
   if (document.body.classList.contains("toc-open")) { setToc(false); closed = true; }
   if (drawerOpen()) { setDrawer(false); closed = true; }
   if (S.sb && S.sb.classList.contains("is-peek")) { S.sb.classList.remove("is-peek"); closed = true; }
+  if (closeLinksPop(true)) closed = true;
   return closed;
 }
 
@@ -242,7 +245,110 @@ function buildTop() {
     chip,
     el("button", { class: "mm-top__k", type: "button", title: "Search the Atlas (Ctrl+K)", onclick: () => openPalette() },
       el("span", { html: ICONS.search }), el("span", { class: "mm-top__k-t" }, "Search"), el("kbd", {}, "Ctrl K")),
+    el("button", { class: "mm-ib mm-top__links", type: "button", "aria-haspopup": "dialog", "aria-expanded": "false", "aria-label": "Code link settings",
+      title: "Code link settings: where your MiniMe folder is, and which editor to open", html: ICONS.link, onclick: () => openLinksPop() }),
     theme);
+}
+
+/* ------------------------------------------------------------------ code-link settings (P12)
+   The small dialog behind the link icon in the top bar. It stores two things in this browser only (links.js, KEY_LINKS):
+   the folder your MiniMe working copy lives in, and which editor the "VS Code" buttons open. links.js is fetched the first
+   time the dialog opens, so pages that never use it do not pay for it. Everything else about links lives in links.js. */
+let linksMod = null;
+let linksBusy = false;
+const loadLinks = () => (linksMod || (linksMod = import("./links.js")));
+
+function closeLinksPop(refocus = false) {
+  const pop = document.getElementById("mm-links-pop");
+  if (!pop) return false;
+  pop.remove();
+  const b = document.querySelector(".mm-top__links");
+  if (b) { b.setAttribute("aria-expanded", "false"); if (refocus) b.focus({ preventScroll: true }); }
+  return true;
+}
+
+async function openLinksPop() {
+  if (closeLinksPop()) return;                                    // the icon toggles
+  if (linksBusy) return;
+  const btn = document.querySelector(".mm-top__links");
+  if (!btn) return;
+  linksBusy = true;
+  let L, opts;
+  try {
+    L = await loadLinks();
+    opts = await L.loadLinkOptions();                             // never rejects: a missing manifest only means fewer buttons
+  } catch (err) {
+    console.warn("[atlas links]", err);
+    linksBusy = false;
+    return;
+  }
+  linksBusy = false;
+  if (document.getElementById("mm-links-pop")) return;
+  btn.setAttribute("aria-expanded", "true");
+
+  const saved = L.readSettings();
+  const input = el("input", { class: "mm-pop__in", id: "mm-links-root", type: "text", value: saved.root, spellcheck: "false", autocomplete: "off",
+    autocapitalize: "off", placeholder: "E:\\python workplace\\code\\MiniMe", "aria-describedby": "mm-links-prev" });
+  const select = el("select", { class: "mm-pop__in", id: "mm-links-scheme" },
+    el("option", { value: "" }, `Site default (${opts.siteScheme === "vscode-insiders" ? "VS Code Insiders" : "VS Code"})`),
+    ...L.SCHEMES.map((s) => el("option", { value: s }, s === "vscode" ? "VS Code" : "VS Code Insiders")));
+  select.value = saved.scheme;
+  const prev = el("p", { class: "mm-pop__prev", id: "mm-links-prev", "aria-live": "polite" });
+  const status = el("p", { class: "mm-pop__status", role: "status" });
+
+  const effectiveScheme = () => select.value || opts.siteScheme;
+  const refreshPreview = () => {
+    const v = input.value.trim();
+    prev.replaceChildren();
+    if (!v) { prev.append("No folder set, so the VS Code buttons are hidden."); return; }
+    const url = L.vscodeUrl(v, "README.md", 1, effectiveScheme());
+    if (!url) { prev.append("That is not an absolute folder path (for example E:\\code\\MiniMe or /home/me/MiniMe)."); prev.classList.add("is-bad"); return; }
+    prev.classList.remove("is-bad");
+    prev.append("README.md opens as ", el("code", {}, url));
+  };
+  input.addEventListener("input", () => { status.textContent = ""; refreshPreview(); });
+  select.addEventListener("change", () => { status.textContent = ""; refreshPreview(); });
+
+  const tidy = (v) => v.trim().replace(/^["']+|["']+$/g, "").trim();          // "Copy as path" adds quotes; links.js copes, but do not show them back
+  const save = (e) => {
+    e.preventDefault();
+    const v = tidy(input.value);
+    if (v && !L.normalizeRoot(v)) { prev.classList.add("is-bad"); input.focus(); return; }
+    input.value = v;
+    const ok = L.saveSettings({ root: v, scheme: select.value });
+    status.textContent = ok ? "Saved in this browser." : "Could not save (private mode?). The setting lasts until you close the tab.";
+    document.dispatchEvent(new CustomEvent("minime:links", { detail: { root: v, scheme: select.value } }));
+  };
+  const clear = () => {
+    input.value = "";
+    select.value = "";
+    L.saveSettings({});
+    refreshPreview();
+    status.textContent = "Cleared.";
+    document.dispatchEvent(new CustomEvent("minime:links", { detail: { root: "", scheme: "" } }));
+  };
+
+  const commit = opts.commit ? opts.commit.slice(0, 7) : "";
+  const note = commit
+    ? el("p", { class: "mm-pop__note" }, "GitHub links and the embedded source are for MiniMe commit ", el("code", {}, commit),
+        ", the snapshot this Atlas describes. VS Code opens your working copy, so its line numbers can differ if your checkout has moved on.")
+    : el("p", { class: "mm-pop__note" }, "No embedded source yet: run ", el("code", {}, "python scripts/refresh_source.py"), " (or update_all.py) to add the in-site source and GitHub links.");
+
+  const pop = el("form", { class: "mm-pop", id: "mm-links-pop", role: "dialog", "aria-label": "Code link settings", onsubmit: save },
+    el("h2", { class: "mm-pop__h" }, "Code links"),
+    el("p", { class: "mm-pop__lead" }, "Where the Source, GitHub and VS Code buttons should go. Kept in this browser only."),
+    el("label", { class: "mm-pop__l", for: "mm-links-root" }, "Your MiniMe folder"),
+    input, prev,
+    el("label", { class: "mm-pop__l", for: "mm-links-scheme" }, "Editor"),
+    select, note,
+    el("div", { class: "mm-pop__row" },
+      el("button", { class: "mm-pop__b mm-pop__b--go", type: "submit" }, "Save"),
+      el("button", { class: "mm-pop__b", type: "button", onclick: clear }, "Clear"),
+      el("button", { class: "mm-pop__b", type: "button", onclick: () => closeLinksPop(true) }, "Close"),
+      status));
+  document.body.append(pop);
+  refreshPreview();
+  input.focus({ preventScroll: true });
 }
 
 /* ------------------------------------------------------------------ what atlas-ui.js used to do */
@@ -301,6 +407,7 @@ function mount(data) {
 
   const keep = S.scroller ? S.scroller.scrollTop : Number(session.get(KEY_SCROLL) || 0);
   document.querySelectorAll(".mm-sb, .mm-top, .mm-scrim, .mm-skipnav").forEach((n) => n.remove());
+  closeLinksPop();
 
   const main = document.querySelector("main");
   if (main && !main.id) main.id = "mm-main";
@@ -382,6 +489,7 @@ function boot() {
     document.addEventListener("click", (e) => {
       if (S.sb && S.sb.classList.contains("is-peek") && !e.target.closest(".mm-sb")) S.sb.classList.remove("is-peek");
       if (mode() === "drawer" && drawerOpen() && e.target.closest(".mm-sb a")) setDrawer(false);
+      if (!e.target.closest(".mm-pop, .mm-top__links")) closeLinksPop();
     });
     // the palette closes the mobile drawer when it opens, so the two never stack
     document.addEventListener("minime:palette", (e) => { if (e.detail === "open" && drawerOpen()) setDrawer(false); });

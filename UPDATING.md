@@ -1,14 +1,15 @@
-# Updating the whole Atlas (census + graph + notes) in one command
+# Updating the whole Atlas (census + graph + notes + source) in one command
 
-The Atlas has three kinds of generated content:
+The Atlas has four kinds of generated content:
 
 | From | Refreshed by | Pages |
 |---|---|---|
 | `data/census.json` (MiniMe's `scripts/codebase_census.py`) | `scripts/refresh_atlas.py` | Overview, Files, Functions, History, Map, API, Agents, Infra, Explore, `data/summary.md`, the search index (`data/index/*.json`) |
 | The Graphify graph (`MiniMe/graphify-out/`) | `scripts/refresh_graph.py` | Graph and its viewer, Overview graph numbers and hubs, Explore connections, API "Frontend callers", `data/summary.md` graph line |
 | AI-written notes (`MiniMe/graphify-out/atlas-notes/`, written by Copilot: what each file and function is for) | `scripts/notes.py ingest` | `data/notes/` and `data/index/notes.json` (coverage and freshness; read by the Explorer and Coverage pages when they land) |
+| MiniMe's source code, as committed at the census commit | `scripts/refresh_source.py` | `data/src/<path>.txt` and `data/src/manifest.json` (the Explorer's Source tab shows the real lines next to the explanations; see "Embedded source" below) |
 
-`scripts/update_all.py` runs all three, then proves nothing is stale and runs the tests. The notes are the only part a person has to drive: Copilot writes them in batches (Step 2b below), and everything else about them is automatic.
+`scripts/update_all.py` runs all four, then proves nothing is stale and runs the tests. The notes are the only part a person has to drive: Copilot writes them in batches (Step 2b below), and everything else about them is automatic.
 
 ## The routine
 
@@ -117,10 +118,23 @@ Do not ask me questions unless something blocks you.
 2. `refresh_atlas.py --census-from <MiniMe>`: new census, then every census-driven page and the search index.
 3. `refresh_graph.py --minime <MiniMe>`: every Graphify-driven part.
 4. `notes.py ingest --minime <MiniMe>`: validates the notes Copilot wrote, copies them into `data/notes/`, rewrites `data/index/notes.json`. A malformed note stops it; stale or missing notes only show in the coverage numbers.
-5. Both scripts with `--check` (the first also proves the search index is current), `notes.py ingest --check` and `notes.py validate`, then the unit tests, including the index builder, the palette, the chapter reader and the notes pipeline.
-6. With `--push`: `git add -A`, commit, `git pull --rebase`, `git push`.
+5. `refresh_source.py --minime <MiniMe>`: copies MiniMe's source into `data/src/` (see "Embedded source"). A file that fails the secret scan is not copied and is printed as `REFUSED`; that never stops the run. Skipped with `--no-embed-source`, or when `content/config.json` has `"embedSource": false`.
+6. Both scripts with `--check` (the first also proves the search index is current), `notes.py ingest --check`, `notes.py validate` and `refresh_source.py --check`, then the unit tests, including the index builder, the palette, the chapter reader, the notes pipeline and the source copier.
+7. With `--push`: `git add -A`, commit, `git pull --rebase`, `git push`.
 
 The GitHub Action (`refresh-atlas.yml`) still runs when `data/census.json` is pushed. After this routine it finds nothing to change, so it commits nothing.
+
+## Embedded source and code links (P12)
+
+The Explorer shows an explanation next to the real code, and every symbol has three ways to reach it: **Source** (the in-site viewer, the main path), **GitHub** (a permalink at the census commit, so the lines match what was audited) and **VS Code** (your working copy, opened with a `vscode://` link).
+
+* **`python scripts/refresh_source.py --minime ../MiniMe`** copies every tracked text file of MiniMe at the **census commit** into `data/src/<path>.txt`, and writes `data/src/manifest.json` (path to git blob id, the commit, what was skipped and why). It reads from **git objects** (`git ls-tree`, `git cat-file`), never from the working tree, so Windows line endings and uncommitted edits cannot leak in, and each copy's blob id equals the one in a note. Only changed files are rewritten; files that left the commit are deleted. `--check` changes nothing and exits 1 if `data/src` is out of date; without a MiniMe checkout, `--check` only proves `data/src` matches its own manifest and the census commit (that is what CI runs). `update_all.py` runs it for you.
+* **Not copied:** anything in `data/src-denylist.txt` (lockfiles, `*.jsonl` fixtures, MiniMe's committed runtime data under `backend/data/`, `.coverage`, minified files), files over 300 KB, binary or non-UTF-8 files, symlinks, submodules, a real `.env` (not `.env.example`), `*.pem`, `*.key`, `*.p12`, `*.pfx`, and any file that fails the secret scan. The manifest lists each skipped file with its reason, so the Explorer can say why a file has no source. Edit the deny list freely: changing it makes the next run judge every file again.
+* **Secret scan:** uses `gitleaks` with MiniMe's own `.gitleaks.toml` when `gitleaks` is on your `PATH`, otherwise a built-in regex check (private-key blocks, AWS, GitHub, Slack and `sk-` keys, JWTs, long `api_key = "..."` assignments). It judges **content**, never file names. A hit in a normal folder **refuses** the file (printed as `REFUSED (not copied): path: rule (line N)`; the secret itself is never printed or stored). A hit under `tests/` or `fixtures/` is only a warning and the file is still copied (`m2c/tests/secret_handling/` holds deliberately fake secrets). A refusal means a secret may be committed in MiniMe: look at that file in MiniMe, not here. `--strict` makes the exit code 1 when anything was refused.
+* **`data/src` is committed** (about 19 MB, about 1,150 files, loaded one at a time so no page gets heavier) and `.gitattributes` marks it `-text`, so git never converts its line endings. Vercel serves it as `text/plain`.
+* **Turning it off:** `"embedSource": false` in `content/config.json` hides the Source button, and `update_all.py --no-embed-source` skips the copy. The GitHub repo and the default editor are in the same file.
+* **VS Code links** need to know where MiniMe lives on *your* machine. Click the link icon in the top bar, type the folder (`E:\python workplace\code\MiniMe`; quotes from "Copy as path" are fine) and choose VS Code or Insiders. It is saved in this browser only. The popover shows the exact URL it will open. Those links open your working copy, so their line numbers can differ from the audited commit if your checkout has moved on; GitHub and Source always match the audited commit.
+* The logic for all of this is one module, `assets/js/links.js` (`codeLinks({path, start, end, commit}, opts)`); the Explorer and the chapter code links import it. Tests: `python scripts/test_refresh_source.py` and `python scripts/test_links.py`.
 
 ## How the graph-driven numbers are worked out
 
@@ -164,5 +178,9 @@ Tests, Health, Data model, Tables, Roadmap, Finance, Decisions and the document 
 | `error: ... symbol X: not in the census` | Copilot invented a function name (or used a `qual` that was not in `_todo.json`). Fix the note or have Copilot redo that file. |
 | `MiniMe is at X but the census is from Y` (from `notes.py todo`) | MiniMe moved on after the census. Run `python scripts/update_all.py` first, so lines, hashes and blob ids match what Copilot will read. |
 | `git push` rejected | Branch protection or a new remote commit. Run `git pull --rebase`, then `git push`. |
+| `REFUSED (not copied): path: ...` from `refresh_source.py` | The secret scan found something that looks like a credential in a MiniMe file outside `tests/`, so that file is not in `data/src`. Check it in MiniMe; if it is a false positive, add an allow-list rule to MiniMe's `.gitleaks.toml` (the scan reads it when `gitleaks` is installed) or fix the pattern. |
+| `source: data/src is out of date` | Run `python scripts/refresh_source.py --minime ../MiniMe` (or `update_all.py`). In CI this means `data/src` was not committed together with the census it belongs to. |
+| `MiniMe has no commit abc1234 (the census commit)` | Your MiniMe checkout does not contain the commit the census was built from. `git fetch` in MiniMe, or refresh the census from this checkout. |
+| The VS Code button is missing | Set your MiniMe folder with the link icon in the top bar. |
 
 Single steps: `python scripts/build_index.py --check`, `python scripts/refresh_atlas.py --check`, `python scripts/refresh_graph.py --minime ../MiniMe --check` and `python scripts/notes.py ingest --minime ../MiniMe --check` change nothing and exit 1 if something is out of date.

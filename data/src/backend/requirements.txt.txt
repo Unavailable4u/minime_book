@@ -1,0 +1,217 @@
+# B1 wrap-up: test-infra deps from requirements-test.txt.append (pytest,
+# pytest-mock, vcrpy) are merged in below at their pinned versions - that
+# staging file has been removed, this is now the single source of truth.
+aiohappyeyeballs==2.7.1
+aiohttp==3.14.1
+aiosignal==1.4.0
+annotated-doc==0.0.4
+annotated-types==0.7.0
+anyio==4.14.1
+attrs==26.1.0
+av==18.0.0
+babel==2.18.0
+bracex==3.0
+certifi==2026.6.17
+cffi==2.0.0
+charset-normalizer==3.4.7
+# Pinned to 8.2.0, not 8.4.2: guardrails-ai (0.6.8 and every later release,
+# confirmed against each version's own PyPI metadata) caps click<=8.2.0.
+# Nothing in this repo imports click directly -- grep turns up no
+# `import click` anywhere under backend/ -- it's only a transitive dep of
+# other packages here, so downgrading it carries no app-code risk.
+click==8.2.0
+colorama==0.4.6
+courlan==1.4.0
+cryptography==49.0.0
+ctranslate2==4.8.1
+dateparser==1.4.1
+decorator==5.3.1
+defusedxml==0.7.1
+distro==1.9.0
+dockerfile-parse==2.0.1
+e2b==2.30.0
+e2b-code-interpreter==2.8.1
+edge-tts==7.2.8
+et_xmlfile==2.0.0
+fastapi==0.139.0
+faster-whisper==1.2.1
+filelock==3.29.7
+flatbuffers==25.12.19
+frozenlist==1.8.0
+fsspec==2026.6.0
+google-auth==2.55.1
+# Output validation (D3 Part 1) — guards LLM-produced structured output
+# (code_writers.py module maps, task_runner.py final answer, eo/result_render.py
+# artifact payloads) before it's trusted downstream.
+# Pinned to 0.10.2, not 0.6.6: 0.6.6 caps lxml<5.0.0, which conflicts with
+# this repo's lxml==6.1.1 pin above. 0.10.2 (current latest) relaxes that to
+# lxml<7.0.0,>=4.9.3, which lxml==6.1.1 satisfies — confirmed against the
+# package's own PyPI release metadata, same kind of check as the numpy/scipy
+# notes above.
+guardrails-ai==0.10.2
+groq==1.5.0
+h11==0.16.0
+h2==4.3.0
+hf-xet==1.5.1
+hpack==4.2.0
+htmldate==1.10.0
+httpcore==1.0.9
+httpx==0.28.1
+# Pinned to 1.13.0, not 1.23.0: 1.14.0+ requires typer>=0.20.0 and 1.17.0+
+# also requires click>=8.4.0 (confirmed against each version's own PyPI
+# metadata) -- both directly deadlock with guardrails-ai's typer<0.20 and
+# click<=8.2.0 ceilings above; no single typer/click pair satisfies both
+# sides. 1.13.0 pins typer with no version constraint at all and has no
+# click dependency, sidestepping both conflicts.
+huggingface_hub==1.13.0
+hyperframe==6.1.0
+idna==3.18
+ImageIO==2.37.3
+imageio-ffmpeg==0.6.0
+iniconfig==2.3.0
+jiter==0.16.0
+joblib==1.5.3
+# S04b -- the device socket (codeagent/ws.py) validates every message with
+# protocol/validate.py at runtime, and that imports jsonschema (with referencing).
+# A backend install used to get jsonschema only transitively (guardrails-ai
+# 0.10.2 needs jsonschema>=4.22,<5, litellm needs it too), which is not a
+# guarantee anyone controls; it is now named here, at the SAME pins as
+# protocol/requirements.txt (tests/static/test_protocol_runtime.py fails if the
+# two files drift). jsonschema-specifications, referencing and rpds-py (below)
+# are its own required dependencies, pinned for the same reason. 4.26.0 is inside
+# guardrails-ai's <5 ceiling.
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+jusText==3.0.2
+# Laya migration audit (2026-09-27) — eo/laya_gate.py, replacing the
+# Groq round trips in eo/output_guard.py, eo/injection_guard.py,
+# eo/semantic_cache.py, eo/device_archetype.py. Pulls in torch>=2.14 and
+# transformers>=5.0 as transitive deps (both new to this file) — no GPU
+# wheel is selected by backend.Dockerfile's plain python:3.12-slim base,
+# so this installs the CPU build of torch, noticeably larger than this
+# file's other dependencies; the checkpoint itself downloads from
+# Hugging Face on first laya.load() call unless baked into the image
+# (see eo/laya_gate.py's own docstring). huggingface_hub==1.13.0 above
+# (pinned for guardrails-ai/typer, not this) already satisfies Laya's
+# own huggingface_hub 1.x floor, so no new pin conflict there.
+laya==0.3.20
+langfuse==4.14.3
+lxml==6.1.1
+lxml_html_clean==0.4.5
+markdown-it-py==4.2.0
+mdurl==0.1.2
+moviepy==2.2.1
+multidict==6.7.1
+narwhals==2.23.0
+ndg-httpsclient==0.5.1
+# Pinned to 2.4.6, not 2.5.1: numpy 2.5.0+ dropped Python 3.11 support
+# (requires_python >=3.12 on every 2.5.x wheel on PyPI, confirmed against
+# the package's own release metadata). ci.yml pins actions/setup-python
+# to "3.11" for the test/lint/promptfoo jobs, so 2.5.1 has no installable
+# wheel there -- `pip install -r requirements.txt` fails immediately with
+# "No matching distribution found for numpy==2.5.1", before pytest/ruff/
+# the promptfoo eval ever run. 2.4.6 is the newest 2.4.x release, still
+# supports 3.11, and is the smallest change that unblocks CI without
+# touching the Python version pin (which may have its own reasons to
+# stay on 3.11 -- not investigated here, out of scope for this fix).
+numpy==2.4.6
+onnxruntime==1.27.0
+openai==2.44.0
+openpyxl==3.1.5
+packaging==26.2
+pdfminer.six==20251230
+pdfplumber==0.11.9
+pillow==11.3.0
+pluggy==1.6.0
+# PII redaction (D3 Part 1) — scrubs ingested source text (pdf_ingestor.py,
+# voice_ingestor.py) before it reaches source_ingestor.write_ingested_source(),
+# i.e. before it's embedded into Upstash Vector or written to the knowledge graph.
+# presidio-analyzer requires a spaCy model downloaded separately (not pip-installable
+# as a normal dependency) — see backend/eo/README-guardrails-presidio.md.
+# Pinned to 2.2.362, not 2.2.360: 2.2.360 (and every release through 2.2.363)
+# caps cryptography below this repo's cryptography==49.0.0 pin (confirmed
+# against each version's own PyPI metadata) -- 2.2.364 re-adds a cap too
+# (<49.0.0). 2.2.362 is the newest release with no upper bound on
+# cryptography at all, so it doesn't fight the existing pin.
+presidio-analyzer==2.2.362
+presidio-anonymizer==2.2.362
+proglog==0.1.12
+propcache==0.5.2
+protobuf==7.35.1
+psycopg[binary,pool]==3.3.5
+pusher==3.3.4
+pyasn1==0.6.3
+pyasn1_modules==0.4.2
+pycparser==3.0
+pydantic==2.13.4
+pydantic_core==2.46.4
+Pygments==2.20.0
+PyJWT==2.13.0
+PyNaCl==1.6.2
+pyOpenSSL==26.3.0
+pypdfium2==5.11.0
+pytest==9.1.1
+# B9 integration pass: eo/mcp_registry.py's mcp_server_status() is async
+# (live MCP status check), so eo/capabilities.py's thin wrapper (B0) is
+# async too, and tests/unit/test_eo_capabilities.py already marks its two
+# mcp_server_status tests with @pytest.mark.asyncio (correctly) -- but no
+# patch in B0-B8 added the plugin that mark needs, so those two tests
+# failed to collect at all ("async def functions are not natively
+# supported") under `pytest tests/unit tests/integration`, exactly the
+# CI invocation this file's own header comment calls out. Default strict
+# mode is fine here since both async tests are already explicitly marked.
+pytest-asyncio==1.4.0
+pytest-mock==3.15.1
+python-dateutil==2.9.0.post0
+python-docx==1.2.0
+python-dotenv==1.2.2
+python-multipart==0.0.32
+python-pptx==1.0.2
+pytz==2026.2
+PyYAML==6.0.3
+# S04b: jsonschema's own dependency, see the jsonschema note above.
+referencing==0.37.0
+regex==2026.7.10
+reportlab==5.0.0
+requests==2.34.2
+# Pinned to 14.3.4, not 15.0.0: e2b==2.30.0 requires rich>=14.0.0 and
+# guardrails-ai==0.10.2 requires rich<15.0.0,>=13.6.0 (both confirmed against
+# each package's own PyPI metadata) -- the only version satisfying both
+# constraints is the 14.x line, and 14.3.4 is the newest release in it.
+rich==14.3.4
+# S04b: jsonschema's own dependency (via referencing), see the jsonschema note above.
+rpds-py==2026.9.1
+scikit-learn==1.9.0
+# Same issue and same fix as the numpy pin above: scipy 1.18.0's own
+# PyPI wheel metadata requires_python >=3.12 (confirmed directly, not
+# guessed), no wheel installable under ci.yml's pinned Python 3.11.
+# 1.17.1 is the newest 1.17.x release, still supports 3.11.
+scipy==1.17.1
+sentry-sdk==2.19.2
+setuptools==83.0.0
+six==1.17.0
+sniffio==1.3.1
+starlette==1.3.1
+tabulate==0.10.0
+tenacity==9.1.4
+threadpoolctl==3.6.0
+tld==0.13.2
+tokenizers==0.23.1
+tqdm==4.68.3
+trafilatura==2.1.0
+typing-inspection==0.4.2
+typing_extensions==4.16.0
+tzdata==2026.3
+tzlocal==5.4.4
+upstash-redis==1.7.0
+upstash-vector==0.8.0
+urllib3==2.7.0
+uvicorn==0.50.0
+vcrpy==8.3.0
+wcmatch==10.2.1
+websockets==16.0
+wrapt==2.3.0
+xlsxwriter==3.2.9
+yarl==1.24.2
+youtube-transcript-api==1.2.4
+yt-dlp==2026.7.4

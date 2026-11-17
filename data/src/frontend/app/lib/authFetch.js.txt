@@ -1,0 +1,108 @@
+// frontend/app/lib/authFetch.js
+//
+// BUGFIX (sign-out -> sign-in 401 storm): previously this exact function
+// was defined three times — inline in SessionContext.jsx, ChatListContext.jsx,
+// and WorkspacesContext.jsx — each reading `supabase.auth.getSession()` fresh
+// on every call. That part was already correct (no stale-token closures, no
+// axios-defaults-style caching). The actual bug is a documented Supabase
+// footgun: getSession() "loads values directly from the storage attached to
+// the client" and does NOT validate them — it can return a token that looks
+// present but that the backend legitimately rejects, which is exactly the
+// window right after a sign-out -> sign-in transition (a fresh SIGNED_IN
+// event has just fired and this component's mount effect fires its
+// bootstrap fetches in the same tick). The backend then correctly 401s with
+// "Invalid token", and — because none of the three call sites ever retried —
+// the sidebar/batches/workspaces just silently stayed empty.
+//
+// Fix: keep authHeaders() doing a live lookup (unchanged behavior/signature,
+// still no unnecessary round trip on the common path), but wrap the fetch
+// itself in authedFetch(), which retries exactly once — after forcing a
+// real, server-validated supabase.auth.refreshSession() — whenever the
+// first attempt comes back 401. A second 401 after a genuine refresh means
+// the user really is signed out (or the refresh token itself is dead), and
+// is returned as-is for the caller's existing error handling to deal with.
+//
+// Pulled into its own module (rather than staying duplicated, or living in
+// any one of the three context files) specifically so it has NO dependency
+// on SessionContext/ChatListContext/WorkspacesContext — those three have a
+// real circularity constraint on each other (see WorkspacesContext.jsx's
+// and ChatListContext.jsx's own header comments on why they sit ABOVE
+// SessionProvider), so a shared helper any of them can import safely has to
+// live below all three, next to the supabaseClient.js singleton itself.
+import { supabase } from "./supabaseClient";
+
+// BUGFIX (401 storm survives its own retry): SessionContext,
+// WorkspacesContext, and ChatListContext each fire their bootstrap
+// fetch independently, so a sign-out -> sign-in transition can put all
+// three through authedFetch()'s 401 branch at nearly the same instant.
+// Without this, each one calls supabase.auth.refreshSession()
+// separately -- three redundant network round trips racing each other
+// instead of one. Defense-in-depth alongside AppShell.jsx's single
+// pre-fan-out getUser() call: that fixes the common case at the
+// source, this closes the gap for any other/future caller that hits a
+// 401 the same way.
+let inFlightRefresh = null;
+function refreshOnce() {
+  if (!inFlightRefresh) {
+    inFlightRefresh = supabase.auth
+      .refreshSession()
+      .finally(() => { inFlightRefresh = null; });
+  }
+  return inFlightRefresh;
+}
+
+export async function authHeaders(opts = {}) {
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+  const headers = {};
+  if (opts.json) headers["Content-Type"] = "application/json";
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  return headers;
+}
+
+// Drop-in replacement for `fetch(url, init)` everywhere `init.headers` was
+// built from authHeaders(). Same return shape (a Response), so existing
+// `res.ok`/`res.json()` call sites don't need to change at all — only the
+// function name at the call site does.
+export async function authedFetch(url, init = {}) {
+  let res = await fetch(url, init);
+
+  // BUGFIX (mount-burst 503s never retried): api/server.py's
+  // DatabaseUnavailable/AgentPoolSaturated handlers return 503 + a
+  // Retry-After header specifically so a client can recover from a
+  // transient pool-capacity hit (exactly what a cold-start burst of
+  // mount-time fetches can trigger) — see _database_unavailable_handler's
+  // own comment there ("a 503 + Retry-After the client can act on").
+  // Nothing on the frontend ever honored that contract: a request that
+  // lost the race for a DB connection just surfaced "temporarily at
+  // capacity" straight to the caller with no retry, unlike a 401, which
+  // already got one. One bounded retry here closes that gap — capped at
+  // 5s regardless of what Retry-After asks for, so a misbehaving backend
+  // can't stall the UI indefinitely.
+  if (res.status === 503) {
+    const retryAfterMs = Math.min(
+      (parseInt(res.headers.get("Retry-After"), 10) || 1) * 1000,
+      5000,
+    );
+    await new Promise((resolve) => setTimeout(resolve, retryAfterMs));
+    res = await fetch(url, init);
+  }
+
+  if (res.status !== 401) return res;
+
+  // getSession() above already returned *a* token, so a 401 here means
+  // the backend didn't accept it -- force a real refresh (a network round
+  // trip to Supabase, not a storage read) rather than assuming the user
+  // is actually signed out.
+  let refreshed;
+  try {
+    refreshed = await refreshOnce();
+  } catch {
+    return res; // refresh itself threw (e.g. no session at all) -- surface the original 401
+  }
+  const newToken = refreshed?.data?.session?.access_token;
+  if (refreshed?.error || !newToken) return res; // genuinely signed out / dead refresh token -- surface the original 401
+
+  const retryHeaders = { ...(init.headers || {}), Authorization: `Bearer ${newToken}` };
+  return fetch(url, { ...init, headers: retryHeaders });
+}

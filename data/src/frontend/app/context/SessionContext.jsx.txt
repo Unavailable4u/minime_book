@@ -1,0 +1,2719 @@
+"use client";
+import { createContext, useContext, useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { getPusherClient, onPusherConnectionChange } from "../lib/pusherClient";
+import { authHeaders, authedFetch } from "../lib/authFetch";   // BUGFIX — moved out of this file, see re-export comment below
+import { requestStreamTicket, buildWsUrl } from "../lib/streamTicket";   // single-use ticket for the /ws socket instead of ?token=<jwt>
+import { useUsageStats } from "./UsageStatsContext";   // NEW — Item 2 concern split, slice 2: usageStats/usageHistory/combinedUsageHistory/handleUsageEvent now live there
+import { useWorkspaces } from "./WorkspacesContext";   // NEW — Item 2 concern split, slice 3: workspaces/fetchWorkspaces now live there
+import { useChatList } from "./ChatListContext";   // NEW — Item 2 concern split, slice 4: chats/refreshChatList now live there (see that file's header comment for what's still deliberately NOT moved: messages/sessionId/live-run state)
+// useAuth import REMOVED — its only use here (the notification-bell
+// per-user Pusher channel) moved to NotificationsContext.jsx.
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const ACTIVE_CHAT_KEY = "minime_active_chat_id";   // NEW — persists which chat to reopen on refresh
+
+// Part 8.2/8.9: replaces the old static `x-api-key` header everywhere in
+// this file. The backend's require_auth() (api/server.py) now verifies a
+// real per-user Supabase JWT via `Authorization: Bearer <token>`, not a
+// shared secret — every fetch() call below was updated to call this
+// instead of sending a static shared API key. Pulls the current
+// access_token fresh on every call rather than caching it, since
+// supabase-js's client already keeps the in-memory session current
+// (including silent refresh) — reading it live here means a call made
+// right after a token refresh never races against a stale cached value.
+//
+// MOVED — now defined once in lib/authFetch.js (was duplicated here,
+// ChatListContext.jsx, and WorkspacesContext.jsx). Re-exported under the
+// same name so the dozen components that already do
+// `import { authHeaders } from "../context/SessionContext"` don't need to
+// change. See that file's header comment for authedFetch(), the 401-retry
+// wrapper added alongside it as part of the sign-out -> sign-in auth-storm
+// fix — fetchBatches() below is the one call site in this file that's part
+// of the mount-time bootstrap trio (with fetchWorkspaces/refreshChatList
+// in the other two split contexts) that actually hit that bug, so it's the
+// one switched to authedFetch(); every other fetch() in this file still
+// builds its headers from authHeaders() the same as before.
+export { authHeaders };
+
+const SessionContext = createContext(null);
+
+export function useSession() {
+  const ctx = useContext(SessionContext);
+  if (!ctx) throw new Error("useSession() must be used inside <SessionProvider>");
+  return ctx;
+}
+
+export function SessionProvider({ children }) {
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [batches, setBatches] = useState([]);              // NEW — §4/§5: memory_batch groups, parallel to `chats`
+  // workspaces state MOVED — now in WorkspacesContext.jsx (Item 2 concern
+  // split, slice 3). Consumed here via the hook: this component still
+  // reads `workspaces` (getWorkspaceIdForChat, below) and still calls
+  // `fetchWorkspaces()` (mount effect, below) — see that file's header
+  // comment for why the ~25 workspace CRUD functions stayed here instead
+  // of moving too.
+  const { workspaces, fetchWorkspaces } = useWorkspaces();
+  // chats state MOVED — now in ChatListContext.jsx (Item 2 concern split,
+  // slice 4). Consumed here via the hook: this component still reads
+  // `chats` (removeWorkspaceChat's fallback, below) and still calls
+  // `refreshChatList()` (mount effect + most chat-lifecycle functions
+  // below) — see that file's header comment for why switchChat/
+  // createNewChat/etc. and `messages`/`sessionId` stayed here instead of
+  // moving too.
+  const { chats, refreshChatList } = useChatList();
+  const [sessionId, setSessionId] = useState(null);        // CHANGED — no longer random-on-mount; this IS chat_id
+  const [liveDecision, setLiveDecision] = useState(null);
+  // CHANGE — Part 18: liveLanes (object keyed by module name) replaced
+  // with liveSteps (an ordered array). Two reasons, both found reading
+  // eo/executor.py directly:
+  //   1. agent_start/agent_done are keyed by the RESOLVED MODULE name
+  //      (e.g. "generic_worker"), not the role. Multiple hired roles
+  //      routinely share the same module, so an object keyed by module
+  //      name silently overwrote one role's lane with another's.
+  //   2. Object state also meant a finished message could never show
+  //      its own trace afterward — liveLanes just got reset to {} on
+  //      the next sendTask() and was never attached to the message.
+  // Array order is safe to rely on here because eo/executor.py's
+  // execute_graph() is a strictly sequential `while` loop (confirmed
+  // reading it directly) — no two agent_start events are ever "in
+  // flight" at once, so "operate on the most recently pushed entry" is
+  // always correct and never ambiguous.
+  const [liveSteps, setLiveSteps] = useState([]);
+  const stepsRef = useRef([]);           // NEW — Part 18: mirrors liveSteps synchronously
+  const stepSeq = useRef(0);             // NEW — Part 18: unique id per step, for React keys
+  // Bug fix: agent_done/agent_token_chunk/error used to always target
+  // "whichever step is structurally last in stepsRef.current" — correct
+  // ONLY when steps never nest. That broke the moment a role that spawns
+  // its OWN sub-agent events (agents/code_writers.py's per-worker "Code
+  // Writer N — module" events, agents/reviewer.py's per-worker "Reviewer
+  // N" events) ran: eo/executor.py's outer agent_start for "implementer"
+  // pushes a step, then code_writers.py pushes+closes 3 more nested steps
+  // WHILE "implementer" is still open, then executor.py's own agent_done
+  // for "implementer" arrives last — but by then "array's last element"
+  // is the 3rd nested worker's (already-closed) step, so agent_done
+  // overwrites THAT instead of the "implementer" step it actually
+  // belongs to, leaving "implementer" stuck on status "running" forever
+  // (same for "verifier" wrapping reviewer.py's nested Reviewer N steps).
+  // Fix: nesting is a call stack, not a flat sequence — track which step
+  // ids are still open (LIFO), and match every agent_done/token_chunk/
+  // error to the MOST RECENTLY OPENED step that hasn't closed yet (the
+  // top of the stack), by id, not by array position.
+  const openStepStack = useRef([]);      // NEW — bug fix
+  // NEW — captures the new "agent_requested_role" event (an agent asked
+  // eo/executor.py to insert a missing prerequisite role and retry — see
+  // eo/errors.py). Kept separate from routeTrace since it's a distinct
+  // kind of edge (a runtime request, not a dispatcher routing decision),
+  // but RoutingTraceGraph.jsx merges both into one picture.
+  const [roleRequests, setRoleRequests] = useState([]);
+  const roleRequestsRef = useRef([]);
+  // NEW — Part 21: mirror routeTrace/dependencyMap/structurePlan the
+  // same way stepsRef mirrors liveSteps, so they survive into the
+  // per-message snapshot instead of being wiped by the next run's
+  // setRouteTrace([]) / setDependencyMap({}) / setStructurePlan(null).
+  const routeTraceRef = useRef([]);
+  const dependencyMapRef = useRef({});
+  const structurePlanRef = useRef(null);
+  // usageStats/usageHistory/combinedUsageHistory/latestByProviderRef
+  // MOVED — now in UsageStatsContext.jsx (Item 2 concern split, slice 2).
+  const [routeTrace, setRouteTrace] = useState([]);
+  const [macroLoopDecisions, setMacroLoopDecisions] = useState([]);
+  const [dependencyMap, setDependencyMap] = useState({});
+  const [structurePlan, setStructurePlan] = useState(null);
+  const [mode, setMode] = useState("auto");
+  const [pusherConnected, setPusherConnected] = useState(false); // NEW — Settings tab diagnostic, §6
+  // notifications/unreadCount MOVED — now in NotificationsContext.jsx (Item 2
+  // concern split, slice 1). See that file's header comment for why.
+  const [activeMessageIndex, setActiveMessageIndex] = useState(null); // NEW — Part 21: shared scroll-sync index between Chat and Working panels
+  // NEW — Part 2 §2.5: gates whether sendTask() calls /api/task directly
+  // (today's exact one-click behavior, default) or /api/task/preview
+  // first so a human can review/edit the staffed hires before anything
+  // dispatches. Per-session, not persisted — a deliberate minority-case
+  // toggle per the design doc, not a global setting.
+  const [reviewBeforeDispatch, setReviewBeforeDispatch] = useState(false);
+  // NEW — Part 2 §2.5: non-null exactly when a preview_task() call
+  // returned "preview_ready" and is awaiting HireReviewScreen's
+  // confirm/cancel. Holds everything confirmHireReview()/
+  // cancelHireReview() need without re-deriving them: the original
+  // task text, the decision object (handed back to /api/task/confirm
+  // unmodified), and the hires list to render.
+  const [pendingHireReview, setPendingHireReview] = useState(null);
+  // NEW — Part 2 §2.4/§2.7: non-null exactly when the live run is
+  // currently paused at a human-in-the-loop checkpoint. Holds the role
+  // name so AgentStepList.jsx/RoutingTraceGraph.jsx know which step to
+  // decorate with the "awaiting_approval" status/actions — the actual
+  // full output is already sitting on that step from its own agent_done
+  // event, this is just the "and now it's paused" flag layered on top.
+  const [pausedApproval, setPausedApproval] = useState(null);
+  // NEW — Part 2 §2.4/§2.7: {taskText, sessionId} for the run currently
+  // paused, so resumeRun() can finalize the assistant message once the
+  // human's decision lets the run actually finish. Distinct from
+  // pausedApproval (which role is paused) since this survives across
+  // possibly several consecutive pauses in the same run.
+  const [pausedRun, setPausedRun] = useState(null);
+
+  // NEW — Workflow Templates fix: a template run's {running, result,
+  // chatId} keyed by template_id, kept HERE rather than as local state
+  // inside WorkflowTemplatesTab/TemplateCard. AppShell fully unmounts
+  // the inactive tab's component tree on every tab switch (`<Active />`
+  // swaps component identity), so any state that needs to survive a
+  // tab switch — same requirement `loading`/`messages` already have for
+  // the Chat tab — has to live in SessionProvider, above that boundary,
+  // not in the tab component itself. Deliberately does NOT touch
+  // `sessionId`/`messages` — a template run happens in its own
+  // background chat and must not hijack whatever chat is currently open
+  // in the Chat tab.
+  const [templateRuns, setTemplateRuns] = useState({});
+
+  // --- On-mount fetch of the chat list + the two additive fetches used
+  // to live in a `useEffect(() => { refreshChatList(); fetchBatches();
+  // fetchWorkspaces(); }, [])` right here. REMOVED as part of perf audit
+  // §2.3 step B: SessionProvider always renders WorkspaceDockBridge ->
+  // WorkspaceDockProvider -> AppShellBody as its only child (confirmed —
+  // SessionProvider has exactly one call site, AppShell.jsx, and nothing
+  // conditionally skips this subtree), and AppShellBody's OWN mount
+  // effect (see that file, the one that resolves which chat to
+  // restore/create) already calls this exact same trio — refreshChatList()
+  // first, then fetchBatches()/fetchWorkspaces() fired without awaiting
+  // (non-blocking, same "additive UI, don't block chat restore on it"
+  // reasoning noted there). Both effects have `[]` deps, so both fired
+  // on every single page load: GET /api/chats, and whatever
+  // fetchBatches()/fetchWorkspaces() hit, were each going out TWICE for
+  // no reason — one set from this effect, a second identical set from
+  // AppShellBody's. That's not a sequencing problem (the two fire-and-
+  // forget calls were already non-blocking, correctly, before this fix)
+  // it's pure duplicate network traffic left behind by the "Item 2
+  // remaining piece, live-run-state slice, step 1" move that relocated
+  // the chat-restore decision to AppShellBody but didn't remove the now-
+  // redundant fetch trio here. refreshChatList/fetchBatches/fetchWorkspaces
+  // themselves are UNCHANGED and stay defined here — plenty of other
+  // functions in this file still call refreshChatList() directly, same
+  // as before; only this specific redundant mount-time call site is gone.
+
+  // handleUsageEvent (Part 17 usage-tracking, plus its 3e "usage-event
+  // ownership" extraction) MOVED — now defined in UsageStatsContext.jsx
+  // (Item 2 concern split, slice 2). Consumed here via the hook so the
+  // two call sites below (usage_update/quota_alert, inside this
+  // component's own session-${sessionId} handler) don't have to change.
+  const { handleUsageEvent } = useUsageStats();
+
+  // --- Pusher subscription: identical to today's page.js effect, just
+  // living up here instead of inside the page that used to render
+  // everything. This is the fix described in §1 — this effect now only
+  // ever mounts/unmounts with the whole app, never with a tab switch.
+  // Note: sessionId now changes value on switchChat()/createNewChat()
+  // (it used to only be set once), so this effect — keyed on
+  // [sessionId] — correctly unsubscribes from the old chat's channel
+  // and subscribes to the new one automatically whenever you switch.
+  useEffect(() => {
+    if (!sessionId) return;   // NEW — nothing to subscribe to until the first chat is loaded/created
+    const pusher = getPusherClient();
+    if (!pusher) {
+      console.warn("Pusher env vars not set — live agent events disabled.");
+      return;
+    }
+    const channelName = `session-${sessionId.replace(/[^A-Za-z0-9_=@,.;-]/g, "-")}`;
+    const channel = pusher.subscribe(channelName);
+    // NEW — Bug 7 fix (0b), second half. Counterpart to backend/relay/
+    // emitter.py's emit_event()/emit_user_event()/emit_workspace_event(),
+    // which now stamp `truncated: true` onto an event's envelope
+    // whenever _fit_event_to_pusher_cap() had to shrink it because the
+    // serialized payload blew past Pusher's ~10KB cap. When that flag is
+    // set, `payload.summary` on the agent_done that triggers this is
+    // the shrunk stand-in, not the real result -- this re-fetches the
+    // real one from backend/api/routes/tasks.py's new
+    // GET /api/task/{session_id}/step/{role}/full route (that route
+    // reuses memory/bus.py's read_stage_output_text(), the same shared
+    // helper get_tasks() already relies on for reading a role's stored
+    // output regardless of its two legitimate storage shapes) and swaps
+    // it into that step in place.
+    //
+    // 404 means the role's output genuinely isn't on the bus yet (still
+    // running under some other path, or never ran) -- the route's own
+    // docstring says to keep the shrunk summary rather than blank the
+    // step out in that case, so this just no-ops and leaves `updated`
+    // (set by the agent_done branch below, before this is called) alone.
+    const refetchFullStep = async (sid, role, stepId) => {
+      try {
+        const res = await authedFetch(
+          `${API_URL}/api/task/${sid}/step/${encodeURIComponent(role)}/full`,
+          { headers: await authHeaders() }
+        );
+        if (!res.ok) return;
+        const { text } = await res.json();
+        const refetched = stepsRef.current.map((s) =>
+          s.id === stepId ? { ...s, summary: text } : s
+        );
+        stepsRef.current = refetched;
+        setLiveSteps(refetched);
+      } catch (err) {
+        // Never let a re-fetch failure surface as a run-breaking error --
+        // same "degrade, don't propagate" rule emitter.py's own docstring
+        // states for the emit side of this fix. Worst case, the step just
+        // keeps showing the shrunk summary it already had.
+        console.warn("[Bug 7 / 0b] full-step re-fetch failed, keeping shrunk summary:", err);
+      }
+    };
+    channel.bind_global((eventType, data) => {
+      // NEW — Phase 8 (Working Panel transparency) step 8.1: log the
+      // RAW envelope (relay/emitter.py's Part 6.3 shape: {type,
+      // session_id, agent, path, timestamp, payload}) for the four
+      // event types AgentStepList.jsx will need to render richer step
+      // rows from, ahead of writing any of 8.2-8.5. `data` here, not
+      // the destructured `agent`/`payload` below, so nothing this repo
+      // already throws away (notably `path`) is hidden from the log.
+      //
+      // FINDINGS (confirmed by reading the emitting code directly,
+      // eo/executor.py + relay/emitter.py + eo/dispatcher.py +
+      // eo/loop_v4.py, not by guessing from the frontend side — this
+      // console.log is here to CONFIRM those reads against real traffic,
+      // not to discover the shape from scratch):
+      //   - agent_start payload today is ONLY {label: role}
+      //     (eo/executor.py's `payload={"label": role}`). No source/
+      //     secondary-data scope, no key_overrides, nothing about what
+      //     the agent was actually given -- 8.3 ("what it was given")
+      //     has NO existing field to read yet; that step needs a real
+      //     eo/executor.py payload addition, not just a frontend change.
+      //   - Every event's top-level `path` (e.g. "adaptive"/"direct"/
+      //     "fixed"/"instant") is the SAME for every step in one run --
+      //     it's the run's pipeline path, set once by eo/loop_v4.py's
+      //     routing_decision, not decided per-step. eo/structure.py's
+      //     PATH_TO_TIER maps it to the numeric tier (0-3). This IS
+      //     already on every agent_start/agent_done envelope today --
+      //     SessionContext.jsx's handler below just doesn't read `path`
+      //     off `data` yet, only `agent`/`payload`. 8.2 ("tier per
+      //     step") can get tier for free from this, no backend change
+      //     needed, by threading `data.path` into the step object here.
+      //   - agent_done payload is {summary, duration_ms, image?}
+      //     (eo/executor.py). No chained-call info on it.
+      //   - dispatch_event (agent: "dispatcher") fires payload
+      //     {destination, reason} AFTER a role finishes and the
+      //     Dispatcher picks the next hop (eo/dispatcher.py's
+      //     _log_route()) -- this is the closest existing thing to
+      //     "what it called out to" (8.4), but `reason` is a short
+      //     internal code today ("escalate"/"recheck"/etc, see
+      //     eo/dispatcher.py's next_step()), not a human sentence, and
+      //     it isn't role-scoped the way agent_start/agent_done are --
+      //     it has to be correlated to the preceding step by arrival
+      //     order. WorkspaceChatPanel/SessionContext already collects
+      //     these into `routeTrace`, just not merged onto `liveSteps`
+      //     entries yet.
+      //   - routing_decision's payload IS the full Inspector/Panel
+      //     `decision` dict (eo/loop_v4.py's `_get_decision()`) --
+      //     `tier`, `domain`, `confidence`, `suggested_agents`, and a
+      //     `reasoning` string ("classification failed, defaulting to
+      //     tier 3 (safest)" being the one confirmed literal value in
+      //     this codebase; the Panel/Inspector supply their own text
+      //     the rest of the time). This is RUN-level, fired once before
+      //     any agent_start, already captured as `liveDecision`/
+      //     `m.data.decision` and rendered by RoutingTraceCard.jsx --
+      //     8.5's "one-line routing why" per STEP most likely means
+      //     reusing this same `reasoning` string on every step's row
+      //     (it doesn't vary per step either), not a new per-step why.
+      // No behavior change in this step — every existing branch below
+      // is untouched; this only adds visibility for 8.2-8.5 to build on.
+      if (["routing_decision", "agent_start", "agent_done", "dispatch_event"].includes(eventType)) {
+        console.log("[Phase 8 / 8.1 payload check]", eventType, data);
+      }
+      const { agent, payload } = data;
+      if (eventType === "routing_decision") {
+        setLiveDecision(payload);
+        return;
+      }
+      if (eventType === "usage_update") {
+        handleUsageEvent(eventType, payload);
+        return;
+      }
+      if (eventType === "dispatch_event") {
+        const nextRouteTrace = [...routeTraceRef.current, { destination: payload?.destination, reason: payload?.reason }];
+        routeTraceRef.current = nextRouteTrace;
+        setRouteTrace(nextRouteTrace);
+        // NEW — Phase 8 step 8.4 ("chained calls"). eo/dispatcher.py's
+        // _log_route() (called from next_step()) always fires this
+        // AFTER the step (or, for a concurrent group, every member of
+        // the group) it's deciding about has already emitted its own
+        // agent_done, and BEFORE the next step's agent_start -- see
+        // eo/executor.py's main loop and _run_concurrent_group(), both
+        // of which call next_step() only once results[role] is written.
+        // That ordering means the last entry currently in
+        // stepsRef.current is always the step this exact decision was
+        // made about, so it's safe to just tag the array's last item —
+        // no id/role matching needed, same "trust arrival order" shape
+        // the openStepStack LIFO logic above already relies on for
+        // nested chained calls within a single step. destination is
+        // null on a normal run's final step (dispatcher.py's
+        // _log_route() no-ops rather than emitting when destination is
+        // None) so most runs' last row simply never gets tagged --
+        // expected, not a bug.
+        if (payload?.destination && stepsRef.current.length > 0) {
+          const lastIdx = stepsRef.current.length - 1;
+          const updated = stepsRef.current.map((s, i) =>
+            i === lastIdx ? { ...s, calledOutTo: { destination: payload.destination, reason: payload.reason } } : s
+          );
+          stepsRef.current = updated;
+          setLiveSteps(updated);
+        }
+        return;
+      }
+      if (eventType === "macro_loop_decision") {
+        setMacroLoopDecisions((prev) => [
+          ...prev,
+          { action: payload?.decision, loop: payload?.loop, cause: payload?.cause },
+        ]);
+        return;
+      }
+      if (eventType === "dependency_map") {
+        dependencyMapRef.current = payload?.map || {};
+        setDependencyMap(dependencyMapRef.current);
+        return;
+      }
+      if (eventType === "structure_plan") {
+        structurePlanRef.current = payload?.mermaid || null;
+        setStructurePlan(structurePlanRef.current);
+        return;
+      }
+      if (eventType === "quota_alert") {
+        handleUsageEvent(eventType, payload);
+        return;
+      }
+      if (eventType === "agent_requested_role") {
+        // NEW — see eo/executor.py's MissingDependencyError handling.
+        const next = [...roleRequestsRef.current, {
+          requestingAgent: agent, requestedRole: payload?.requested_role, label: payload?.label,
+        }];
+        roleRequestsRef.current = next;
+        setRoleRequests(next);
+        return;
+      }
+      // CHANGE — Part 18: agent_start/agent_token_chunk/agent_done/error
+      // now push/update against liveSteps (array), not a lanes object.
+      if (eventType === "agent_start") {
+        const step = {
+          id: stepSeq.current++,
+          agent,                                   // resolved module name (executor.py's current_name)
+          role: payload?.label || agent,            // actual role — payload.label per executor.py's emit_event() call
+          // NEW — Phase 8 step 8.2: `path` is the run's pipeline path
+          // ("instant"/"direct"/"fixed"/"adaptive"), sitting on every
+          // event envelope already (relay/emitter.py's Part 6.3 shape)
+          // but never read off `data` here before 8.1's payload-check
+          // pass confirmed it. Same value for every step in a run (set
+          // once, at routing_decision time) — stored per-step anyway so
+          // AgentStepList.jsx doesn't need to reach outside `steps` to
+          // label each row, and so a finished message's persisted
+          // snapshot (this same object, see `steps: stepsRef.current`
+          // below) carries its own tier without depending on that run's
+          // liveDecision still being in memory.
+          path: data.path || null,
+          // NEW — Phase 8 step 8.3: eo/executor.py now reports which
+          // earlier roles' results were already on the memory bus for
+          // this step to draw on (see that file's agent_start comment
+          // for why this, not a source/secondary-data scope, is the
+          // honest equivalent inside the staffed-task pipeline —
+          // Notebooks generate's actual source scoping is a separate,
+          // step-less code path this panel never renders anyway).
+          // Defaults to [] for any event from a not-yet-updated backend
+          // (older payload shape, or agent_start events this build
+          // doesn't handle specially, e.g. instant/direct's own
+          // entrypoints which never had role_names[:idx] to report).
+          givenRoles: payload?.given_roles || [],
+          text: "",
+          summary: null,
+          image: null,
+          durationMs: null,
+          status: "running",
+        };
+        stepsRef.current = [...stepsRef.current, step];
+        openStepStack.current = [...openStepStack.current, step.id];   // NEW — bug fix
+        setLiveSteps(stepsRef.current);
+        return;
+      }
+      if (eventType === "agent_token_chunk") {
+        // §1: not every agent is confirmed to emit this. Steps that
+        // never receive a chunk simply fall back to agent_done's
+        // summary below.
+        if (openStepStack.current.length === 0) return;
+        const targetId = openStepStack.current[openStepStack.current.length - 1];   // NEW — bug fix
+        const updated = stepsRef.current.map((s) =>
+          s.id === targetId ? { ...s, text: s.text + (payload?.text || "") } : s
+        );
+        stepsRef.current = updated;
+        setLiveSteps(updated);
+        return;
+      }
+      if (eventType === "agent_done") {
+        if (openStepStack.current.length === 0) return;
+        const targetId = openStepStack.current[openStepStack.current.length - 1];   // NEW — bug fix
+        openStepStack.current = openStepStack.current.slice(0, -1);                 // NEW — bug fix: pop
+        const updated = stepsRef.current.map((s) =>
+          s.id === targetId
+            ? { ...s, status: "done", summary: payload?.summary, durationMs: payload?.duration_ms, image: payload?.image || null }
+            : s
+        );
+        stepsRef.current = updated;
+        setLiveSteps(updated);
+        // NEW — Bug 7 fix (0b), second half: `data.truncated` is the
+        // envelope-level flag relay/emitter.py's emit_event() now stamps
+        // when this agent_done had to be shrunk to fit Pusher's cap --
+        // `role` (payload.label || agent) matches the same string the
+        // agent_start branch above stored as this step's `role`, which
+        // is also the exact key backend/relay writes stage output under
+        // (`stage_output:{session_id}:{role}`), so it's what the re-fetch
+        // route needs. Fired after the setLiveSteps above so the step
+        // shows the shrunk-but-present summary immediately and gets
+        // swapped to the real one once the re-fetch resolves, rather
+        // than the row sitting blank while the request is in flight.
+        if (data.truncated && data.session_id) {
+          const role = payload?.label || agent;
+          refetchFullStep(data.session_id, role, targetId);
+        }
+        return;
+      }
+      if (eventType === "error") {
+        if (openStepStack.current.length === 0) return;
+        const targetId = openStepStack.current[openStepStack.current.length - 1];   // NEW — bug fix
+        openStepStack.current = openStepStack.current.slice(0, -1);                 // NEW — bug fix: pop
+        const updated = stepsRef.current.map((s) =>
+          s.id === targetId ? { ...s, status: "error", summary: payload?.message } : s
+        );
+        stepsRef.current = updated;
+        setLiveSteps(updated);
+        return;
+      }
+      // NEW — Part 2 §2.4/§2.7: eo/executor.py emits this AFTER the
+      // role's own normal agent_done (which already closed its step with
+      // status "done" and the full output). This just overlays the
+      // paused flag on that same step — found by role name, most recent
+      // match, since a role can in principle run more than once in a
+      // session (recheck/escalate) and it's the LATEST run of it that's
+      // actually paused.
+      if (eventType === "awaiting_approval") {
+        const roleName = payload?.role || payload?.label || agent;
+        const idx = [...stepsRef.current].map((s) => s.role).lastIndexOf(roleName);
+        if (idx !== -1) {
+          const updated = stepsRef.current.map((s, i) => (i === idx ? { ...s, status: "awaiting_approval" } : s));
+          stepsRef.current = updated;
+          setLiveSteps(updated);
+        }
+        setPausedApproval({ role: roleName });
+        return;
+      }
+    });
+    return () => {
+      pusher.unsubscribe(channelName);
+    };
+  }, [sessionId]);
+
+  // NEW — Data Layer §9c: per-workspace "an upload's Source Manager +
+  // Backlink Detector pass is still running server-side" flag.
+  // NotebooksGeneratePicker's Generate button reads this (via
+  // processingWorkspaces below) so it doesn't dispatch a generate call
+  // against a packet (eo/source_index.py:get_packet()) that's mid-write
+  // right after a fresh upload.
+  //
+  // A Set of workspace ids, not a boolean, since more than one
+  // workspace's uploads can be in flight in the same tab (e.g. two
+  // Notebooks open in two WorkspaceDock panes), and a per-workspace
+  // count (processingCountsRef, the actual source of truth — the Set
+  // in state is just its rendered projection) since a single workspace
+  // can itself have more than one upload in flight at once (a
+  // multi-file drop in IngestionDropzone.jsx) — only clear a workspace
+  // out of the Set once every one of its in-flight uploads has
+  // settled.
+  //
+  // Entered in markSourceProcessingStarted() at ingest call-start —
+  // there's no separate "upload accepted" server event, just the
+  // eventual notify() completion, so call-start is the only "something
+  // is now in flight" signal the client has. Cleared two ways, both
+  // wired below: (1) this call's own settle, in *_wrapped's finally
+  // block just past this effect — a guarantee independent of whether
+  // any WebSocket message ever arrives; (2) this session's
+  // "upload_processed"/"backlinks_updated" push below, which is what
+  // lets §2d's future parallel-fan-out uploads (server processing that
+  // outlives this request) and cross-tab updates (the same workspace
+  // open in a second tab) clear the flag too, not just this exact
+  // call's own request/response. Both paths funnel through the same
+  // decrement-and-floor-at-zero helper, so whichever fires first wins
+  // and the other is a safe no-op.
+  const [processingWorkspaces, setProcessingWorkspaces] = useState(() => new Set());
+  const processingCountsRef = useRef({});   // wsId -> in-flight count
+
+  // NEW — Overlap/Live-Viz guide §6/§8: gold-highlight for whichever
+  // topic-tree node a topic_added/topic_merged/connection_added event
+  // just touched. One flat Set shared across every open workspace --
+  // node ids already embed their own workspace_id (`node:{ws}:{id}`,
+  // same convention KnowledgeGraphView.jsx's graphNodes build), so
+  // there's no cross-workspace collision to worry about. Consumed by
+  // NotebooksTab.jsx's BacklinksView -> KnowledgeGraphView's
+  // `pulsingIds` prop.
+  const [topicPulsingIds, setTopicPulsingIds] = useState(() => new Set());
+  // Step 2.3a (perf audit item #2, first useCallback batch): wrapped so
+  // this stops being a new function reference on every render, which is
+  // required for the useMemo'd `value` (step 2.2) to actually start
+  // holding a stable reference for consumers that only use this field.
+  // No deps needed -- setTopicPulsingIds (useState setter) is stable
+  // across renders by React's own contract, and nothing else outside
+  // this function's own scope is referenced.
+  const pulseTopicNode = useCallback((id) => {
+    if (!id) return;
+    setTopicPulsingIds((prev) => new Set(prev).add(id));
+    setTimeout(() => {
+      setTopicPulsingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }, 1800);
+  }, []);
+
+  // _syncProcessingWorkspaces reads/writes processingCountsRef.current
+  // (a ref, not state) and calls the stable setProcessingWorkspaces
+  // setter -- refs are stable by identity across renders too, so this
+  // needs no deps either.
+  const _syncProcessingWorkspaces = useCallback(() => {
+    setProcessingWorkspaces(
+      new Set(Object.keys(processingCountsRef.current).filter((k) => processingCountsRef.current[k] > 0))
+    );
+  }, []);
+
+  // Depend on _syncProcessingWorkspaces itself, now that it's a stable
+  // useCallback reference rather than a fresh function every render --
+  // if it weren't wrapped above, listing it here would defeat the
+  // point (the dep would change every render, invalidating this memo
+  // right along with it).
+  const markSourceProcessingStarted = useCallback((wsId) => {
+    if (!wsId) return;
+    processingCountsRef.current[wsId] = (processingCountsRef.current[wsId] || 0) + 1;
+    _syncProcessingWorkspaces();
+  }, [_syncProcessingWorkspaces]);
+
+  const markSourceProcessingSettled = useCallback((wsId) => {
+    if (!wsId || !processingCountsRef.current[wsId]) return;   // already at 0 (or never started) — the other clear path already handled it
+    processingCountsRef.current[wsId] = Math.max(0, processingCountsRef.current[wsId] - 1);
+    _syncProcessingWorkspaces();
+  }, [_syncProcessingWorkspaces]);
+
+  // NEW — Data Layer §9c: the frontend's first consumer of §9b's real
+  // /ws/{session_id} push transport. Deliberately a plain WebSocket,
+  // not routed through getPusherClient() above — see eo/notify.py's
+  // own "ASSUMPTION FLAGGED" docstring note on why this channel is its
+  // own thing rather than a wrapper around the existing Pusher
+  // transport that effect already uses.
+  //
+  // Kept intentionally simpler than that Pusher effect: no
+  // reconnect-with-backoff here, since the one thing riding this
+  // socket today (clearing processingWorkspaces on
+  // upload_processed/backlinks_updated) already degrades safely if a
+  // message is missed — markSourceProcessingSettled() also fires from
+  // *_wrapped's own finally block below regardless of whether this
+  // socket ever delivers. A real reconnect strategy is the natural
+  // next piece once something riding this channel needs a delivery
+  // guarantee this tab's own request/response can't already provide
+  // (§9d's chat proactive suggestions will likely be the first).
+  useEffect(() => {
+    if (!sessionId) return;
+    let socket = null;
+    let cancelled = false;
+    (async () => {
+      // The browser WebSocket API can't send an Authorization header,
+      // and putting the access token in the URL leaks it into access
+      // logs and proxies. So: mint a short-lived, single-use ticket
+      // first (normal Authorization header) and connect with
+      // `?ticket=...` -- see lib/streamTicket.js. Every connect mints
+      // its own; if a reconnect strategy is added here later it must
+      // mint a fresh ticket per attempt, since a ticket is spent on use.
+      const ticket = await requestStreamTicket({
+        apiUrl: API_URL,
+        kind: "ws",
+        sessionId,
+        fetchFn: authedFetch,
+        getHeaders: authHeaders,
+      });
+      if (!ticket || cancelled) return;   // not signed in yet, or effect already torn down while we were awaiting the ticket
+      const ws = new WebSocket(buildWsUrl(API_URL, sessionId, ticket));
+      ws.onmessage = (evt) => {
+        let event;
+        try {
+          event = JSON.parse(evt.data);
+        } catch {
+          return;   // not JSON — not one of eo/notify.py's events, ignore rather than throw
+        }
+        if (event.kind === "upload_processed" || event.kind === "backlinks_updated") {
+          markSourceProcessingSettled(event.payload?.workspace_id);
+        }
+        // NEW — Overlap/Live-Viz guide §6/§8: same socket, same
+        // event.kind dispatch, three additional kinds. Node id built
+        // the same `node:{workspace_id}:{topic_id}` way the new
+        // /topics/graph endpoint (api/server.py) already builds edge
+        // endpoints, so it lines up with what KnowledgeGraphView's
+        // graphNodes map keys its own ids by.
+        const wsId = event.payload?.workspace_id;
+        if (wsId && event.kind === "topic_added") {
+          pulseTopicNode(`node:${wsId}:${event.payload.topic_id}`);
+        } else if (wsId && event.kind === "topic_merged") {
+          // The merged-away topic never gets its own node (see
+          // source_manager.py's comment: a "duplicate" fold is an
+          // instances-append on the TARGET, not a new /topics/<id>) --
+          // pulse target_topic_id, not topic_id.
+          pulseTopicNode(`node:${wsId}:${event.payload.target_topic_id}`);
+        } else if (wsId && event.kind === "connection_added") {
+          // Both endpoints of a new connection are worth calling out,
+          // not just one.
+          pulseTopicNode(`node:${wsId}:${event.payload.from_topic}`);
+          pulseTopicNode(`node:${wsId}:${event.payload.to_topic}`);
+        }
+      };
+      if (cancelled) {
+        ws.close();   // getSession() resolved after unmount/sessionId-change beat us here
+        return;
+      }
+      socket = ws;
+    })();
+    return () => {
+      cancelled = true;
+      socket?.close();
+    };
+  }, [sessionId]);
+
+  // NEW — §2.5: pusherConnected now reflects the shared client's actual
+  // connection state (bound once, independent of sessionId/user), rather
+  // than each channel effect optimistically flipping it on construction
+  // and tearing it down again on every switchChat(). Runs once for the
+  // life of the app.
+  useEffect(() => {
+    const unsubscribe = onPusherConnectionChange((state) => {
+      setPusherConnected(state === "connected");
+    });
+    return unsubscribe;
+  }, []);
+
+  // The user-{id} Pusher subscription that used to live here (Part
+  // 8.4/8.9) — filling notifications/unreadCount and defining
+  // markNotificationsRead — MOVED to NotificationsContext.jsx (Item 2
+  // concern split, slice 1). NotificationBell.jsx now reads it via
+  // useNotifications() instead of useSession().
+
+  // --- NEW: chat list + switching / creating / renaming / deleting /
+  // linking chats. sessionId and chat_id are the same string everywhere
+  // (see eo/chat_store.py's docstring), so these just move sessionId
+  // around and keep the persisted chat store + local state in sync.
+  // refreshChatList MOVED — now defined in ChatListContext.jsx (Item 2
+  // concern split, slice 4), consumed above via useChatList(). Every call
+  // site below is unchanged (still `await refreshChatList()`/
+  // `refreshChatList` in a dep array) since the hook returns a reference
+  // with the same name and shape (mostly — see that file's own comment on
+  // it now returning the fetched array/`null` instead of nothing).
+
+  // switchChat/createNewChat used to be defined here (Step 2.3i). REMOVED
+  // — wiring check turned up that they'd become dead code: never exposed
+  // in this file's `value` object below, and their only two former
+  // internal callers are both gone (the old on-mount effect that called
+  // them was removed in perf audit §2.3 step B; removeWorkspaceChat's
+  // fallback that called them moved to ManageWorkspaceModal.jsx, see
+  // that function's own comment). Every real caller in the app —
+  // AppShell.jsx, ChatSidebar.jsx, ManageWorkspaceModal.jsx, and the tab
+  // files — already gets switchChat/createNewChat from
+  // useWorkspaceDockActions() (WorkspaceDockContext.jsx's own separate
+  // implementation), so nothing downstream of SessionContext's copy was
+  // ever running. Removing outright rather than leaving in place, since
+  // two same-named, unsynced implementations sitting in the codebase —
+  // one live, one dead — is exactly the kind of thing that causes real
+  // bugs if anyone ever wires the dead one back up by mistake.
+
+  // NEW — step 3e prereq: pure lookup, no state mutation. Same check
+  // ChatTab.jsx already did inline to find its activeWorkspace. Exposed
+  // here (rather than left duplicated) so WorkspaceDockContext's
+  // switchChat/createNewChat/etc. can resolve "which dock key does this
+  // chatId belong to" without importing this file or duplicating the
+  // `workspaces` state itself — it's passed down as a callback prop
+  // instead (see AppShell.jsx's WorkspaceDockBridge).
+  const getWorkspaceIdForChat = useCallback((chatId) => {
+    const ws = (workspaces || []).find(
+      (w) => Array.isArray(w.chat_ids) && w.chat_ids.includes(chatId)
+    );
+    return ws?.id ?? null;
+  }, [workspaces]);
+
+  // NEW — §4: loads memory_batch groups so the sidebar can render batch
+  // sections and the Working Panel can show "sharing memory with..."
+  // for the active chat. §5 adds create/rename/unlink/delete on top of
+  // this same `batches` state.
+  // NEW — §6: repurposes the old LinkChatsModal save flow. Creates a
+  // real batch (mutual membership) instead of the old one-directional
+  // linkChats() call — see ChatSidebar.jsx's LinkChatsModal.
+  // Step 2.3b: fetchBatches moved ABOVE createBatch (previously
+  // createBatch, at the top of this file's source order, called
+  // fetchBatches, which was declared further down -- fine when both
+  // were hoisted `function` declarations, but a real bug waiting to
+  // happen once both become `const ... = useCallback(...)`: unlike
+  // functions, `const` bindings are NOT hoisted, so createBatch's
+  // dependency array would try to read `fetchBatches` before its own
+  // const initializer has run and throw a ReferenceError (temporal
+  // dead zone) the first time this component renders. Every batch
+  // from here on checks this same thing before converting: does this
+  // function call another function converted in this same batch (or
+  // an earlier one), and if so, is that dependency's const
+  // declaration actually above this one in source order?
+  const fetchBatches = useCallback(async () => {
+    // BUGFIX — this used to be a plain fetch() with no res.ok check, unlike
+    // its two mount-time siblings (fetchWorkspaces in WorkspacesContext.jsx,
+    // refreshChatList in ChatListContext.jsx), which both already guard
+    // against a non-array error body. A 401 here (e.g. the sign-out ->
+    // sign-in "Invalid token" storm — see lib/authFetch.js) meant
+    // `setBatches({detail: "Invalid token"})`, handing every consumer of
+    // `batches` a non-array and crashing the first .map()/.filter() over it.
+    // authedFetch() also gives this one real retry against a freshly
+    // refreshed token before it gets treated as a genuine failure.
+    const res = await authedFetch(`${API_URL}/api/batches`, {
+      headers: await authHeaders(),
+    });
+    const body = await res.json();
+    if (!res.ok || !Array.isArray(body)) {
+      console.error("Failed to load batches:", res.status, body);
+      setBatches([]);
+      return;
+    }
+    setBatches(body);
+  }, []);
+
+  const createBatch = useCallback(async (name, memberChatIds) => {
+    await authedFetch(`${API_URL}/api/batches`, {
+      method: "POST",
+      headers: await authHeaders({ json: true }),
+      body: JSON.stringify({ name, member_chat_ids: memberChatIds }),
+    });
+    await fetchBatches();
+    await refreshChatList();
+  }, [fetchBatches, refreshChatList]);
+  // NEW — §9.2: live estimate for the create-batch modal. Not stored in
+// context state — it's ephemeral per-modal-open, computed fresh each
+// time the checkbox selection changes.
+  const estimateBatch = useCallback(async (chatIds) => {
+    const res = await authedFetch(`${API_URL}/api/batches/estimate`, {
+      method: "POST",
+      headers: await authHeaders({ json: true }),
+      body: JSON.stringify({ chat_ids: chatIds }),
+    });
+    return res.json();
+  }, []);
+  // NEW — §7: workspaces ("Projects" in the UI). Mirrors the batch functions
+// above 1:1, with one thing to keep straight: workspaces store members as
+// `chat_ids` (see eo/chat_workspace.py), batches use `member_chat_ids` —
+// don't cross the two up when reading a response.
+// fetchWorkspaces itself MOVED — now defined in WorkspacesContext.jsx
+// (Item 2 concern split, slice 3) and consumed above via useWorkspaces().
+// Every function below that calls fetchWorkspaces() is calling that
+// hoisted one — same referentially-stable useCallback as before, so none
+// of their dependency arrays needed to change.
+
+  const createWorkspace = useCallback(async (name, stage) => {
+  // NEW — item #10 / B0: optional stage lets a caller (e.g. a stage
+  // tab's own "New project" button) create a workspace that natively
+  // belongs to that tab. Omitted = old behavior (backend defaults to
+  // "note"), so existing Chat/Notebooks callers are unaffected.
+  const res = await authedFetch(`${API_URL}/api/workspaces`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify(stage ? { name, stage } : { name }),
+  });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  const workspace = await res.json();
+  await fetchWorkspaces();
+  return workspace;
+  }, [fetchWorkspaces]);
+
+// createWorkspaceWithChats used to live here (right after createWorkspace)
+// but its useCallback dep array needs addWorkspaceChat, which isn't
+// declared until below — same TDZ hazard as the openScopedSubChat/sendTask
+// case in 2.3k. Moved to right after addWorkspaceChat's own declaration.
+
+  const renameWorkspace = useCallback(async (wsId, name) => {
+  await authedFetch(`${API_URL}/api/workspaces/${wsId}/rename`, {
+    method: "PATCH",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ name }),
+  });
+  await fetchWorkspaces();
+  }, [fetchWorkspaces]);
+
+// Step 2.3c (perf audit item #2, third useCallback batch): continuing
+// the same "workspaces" bucket started in 2.3b. Same ordering check as
+// before -- fetchWorkspaces/refreshChatList are already `const ...
+// useCallback` and declared above (lines 769/842), so referencing them
+// here is safe with no hoisting concern.
+//
+// UPDATE — Item 2 step 5 prerequisite: removeWorkspaceChat (below) used
+// to also close over `chats`/`sessionId` and call this file's own
+// switchChat()/createNewChat() to avoid stranding the user on a deleted
+// chat. That fallback moved to its only caller (ManageWorkspaceModal.jsx,
+// which calls the dock's switchChat/createNewChat instead — see that
+// function's own comment), so removeWorkspaceChat's dependency array is
+// back down to just fetchWorkspaces/refreshChatList, same as its
+// neighbors in this batch.
+const addWorkspaceChat = useCallback(async (wsId, chatId) => {
+  await authedFetch(`${API_URL}/api/workspaces/${wsId}/chats`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ chat_id: chatId }),
+  });
+  await fetchWorkspaces();
+  await refreshChatList(); // membership changes linked_chat_ids server-side (chat_workspace.py's _sync)
+}, [fetchWorkspaces, refreshChatList]);
+
+// Step 2.3l (perf audit item #2, twelfth useCallback batch): relocated
+// here (was right after createWorkspace, before addWorkspaceChat existed
+// in scope) so its dep array can safely reference addWorkspaceChat.
+const createWorkspaceWithChats = useCallback(async (name, chatIds = [], stage) => {
+  const workspace = await createWorkspace(name, stage);
+  for (const chatId of chatIds) {
+    await addWorkspaceChat(workspace.id, chatId);
+  }
+  return workspace;
+}, [createWorkspace, addWorkspaceChat]);
+
+// CHANGED — Item 2 step 5 prerequisite: this used to fall back to this
+// file's own switchChat()/createNewChat() to avoid stranding the user on
+// a just-deleted chat. Those are gone now (dock-only, see
+// WorkspaceDockContext.jsx). ManageWorkspaceModal.jsx — the only caller —
+// already sits inside WorkspaceDockProvider and already calls
+// useWorkspaceDockActions() for a different fix (bug #1), so that
+// fallback moved there instead: it now calls the dock's switchChat/
+// createNewChat itself, after this function's DELETE resolves. This
+// function's job shrinks to exactly what it does — hit the endpoint,
+// keep `workspaces`/`chats` in sync — and nothing else.
+const removeWorkspaceChat = useCallback(async (wsId, chatId, deleteChat = false) => {
+  await authedFetch(
+    `${API_URL}/api/workspaces/${wsId}/chats/${chatId}?delete_chat=${deleteChat}`,
+    { method: "DELETE", headers: await authHeaders() }
+  );
+  await fetchWorkspaces();
+  await refreshChatList();
+}, [fetchWorkspaces, refreshChatList]);
+
+const deleteWorkspace = useCallback(async (wsId) => {
+  await authedFetch(`${API_URL}/api/workspaces/${wsId}`, {
+    method: "DELETE",
+    headers: await authHeaders(),
+  });
+  await fetchWorkspaces();
+  await refreshChatList();
+}, [fetchWorkspaces, refreshChatList]);
+
+// NEW — §8: advances a workspace along the fixed stage sequence
+// (note -> research -> plan -> build -> test -> growth). Defaults to
+// the next stage when toStage is omitted, but callers can explicitly
+// choose a later stage in the same sequence. Throws on failure (unlike
+// the other CRUD functions above, which silently no-op) because a
+// rejected promote -- wrong stage order, no edit access -- is
+// something the calling button needs to surface, same reasoning already
+// used for the Part 8.9 membership functions below.
+//
+// NEW — §2.6 step 4: mode is "complete" (default, unchanged behavior —
+// workspace leaves the old tab) or "partial" (workspace becomes active
+// in to_stage's tab while staying active in every tab it already was).
+// Just threads the choice through to the backend, which already
+// supports both (see chat_workspace.promote()) — no other client-side
+// logic needed here.
+const promoteWorkspace = useCallback(async (wsId, toStage = null, mode = "complete") => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/promote`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ to_stage: toStage, mode }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.detail || `${res.status} ${res.statusText}`);
+  }
+  await fetchWorkspaces();
+  return res.json();
+}, [fetchWorkspaces]);
+
+// --- NEW — Part 8.9: workspace membership, ownership transitions, voting,
+// and attribution. Mirrors eo/chat_workspace.py's role model 1:1 (viewer <
+// editor < moderator < partner <= owner). Unlike the workspace CRUD
+// functions above, these throw on a non-2xx response instead of silently
+// no-op'ing: permission edges here are common and expected, and the
+// caller (the modal) needs the server's actual detail message to show.
+// Members/votes are intentionally NOT stored in `workspaces` state —
+// fetched fresh by whichever modal is open, same ephemeral-per-modal
+// treatment as estimateBatch() above.
+
+// NEW — Part 8.7: per-workspace backup/restore, using the existing
+// GET/POST /api/workspaces/{id}/export|import routes. Same throw-on-
+// non-2xx convention as the membership functions below, since
+// ManageWorkspaceModal needs a real error message to show on failure.
+
+const exportWorkspace = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/export`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Export failed (${res.status})`);
+  }
+  return res.json(); // the manifest itself — caller decides what to do with it (e.g. trigger a download)
+}, []);
+
+const importWorkspace = useCallback(async (wsId, manifest) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/import`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ manifest }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Import failed (${res.status})`);
+  }
+  await fetchWorkspaces();
+  await refreshChatList();
+  return res.json();
+}, [fetchWorkspaces, refreshChatList]);
+
+// Step 2.3d (perf audit item #2, fourth useCallback batch): Part 8.9's
+// membership functions. All five are call-site-isolated -- none of them
+// are called by any other function in this file (confirmed via grep),
+// so there's no ordering/hoisting concern to check here, unlike the
+// last two batches. Four of the five (fetchWorkspaceMembers,
+// addWorkspaceMember, updateWorkspaceMemberRole, removeWorkspaceMember)
+// close over nothing but their own arguments, so they get `[]`.
+// leaveWorkspaceMembership is the odd one out -- it calls
+// fetchWorkspaces/refreshChatList on success, so it depends on those two.
+const fetchWorkspaceMembers = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/members`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to load members (${res.status})`);
+  }
+  return res.json();
+}, []);
+
+const addWorkspaceMember = useCallback(async (wsId, email, role = "viewer") => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/members`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ email, role }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to add member (${res.status})`);
+  }
+  return res.json();
+}, []);
+
+const updateWorkspaceMemberRole = useCallback(async (wsId, targetUserId, role) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/members/${targetUserId}`, {
+    method: "PATCH",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ role }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to update role (${res.status})`);
+  }
+  return res.json();
+}, []);
+
+const removeWorkspaceMember = useCallback(async (wsId, targetUserId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/members/${targetUserId}`, {
+    method: "DELETE",
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to remove member (${res.status})`);
+  }
+  return res.json();
+}, []);
+
+const leaveWorkspaceMembership = useCallback(async (wsId, successorId = null) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/leave`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ successor_id: successorId }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to leave project (${res.status})`);
+  }
+  await fetchWorkspaces();
+  await refreshChatList();
+}, [fetchWorkspaces, refreshChatList]);
+
+// Step 2.3e (perf audit item #2, fifth useCallback batch): finishing
+// off Part 8.9 -- ownership, voting, and attribution settings. Same
+// call-site check as 2.3d: none of these five are called by any other
+// function in this file (confirmed via grep), only from modal
+// components elsewhere in the tree. fetchWorkspaceVotes and
+// setMemberAttributionGrant close over nothing, so `[]`; the other
+// three call fetchWorkspaces() on success, so they depend on it.
+const forceRemoveOwner = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/owner/remove`, {
+    method: "POST",
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to remove owner (${res.status})`);
+  }
+  const updated = await res.json();
+  await fetchWorkspaces();
+  return updated;
+}, [fetchWorkspaces]);
+
+const fetchWorkspaceVotes = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/votes`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to load vote status (${res.status})`);
+  }
+  return res.json();
+}, []);
+
+const castWorkspaceVote = useCallback(async (wsId, voteTarget = null) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/votes`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ vote_target: voteTarget }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to cast vote (${res.status})`);
+  }
+  const result = await res.json();
+  await fetchWorkspaces(); // a vote may have just resolved ownership — owner_id can change
+  return result;
+}, [fetchWorkspaces]);
+
+const setWorkspaceAttribution = useCallback(async (wsId, show) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/attribution`, {
+    method: "PATCH",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ show }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to update attribution setting (${res.status})`);
+  }
+  const updated = await res.json();
+  await fetchWorkspaces();
+  return updated;
+}, [fetchWorkspaces]);
+
+const setMemberAttributionGrant = useCallback(async (wsId, targetUserId, canToggle) => {
+  const res = await authedFetch(
+    `${API_URL}/api/workspaces/${wsId}/members/${targetUserId}/attribution-grant`,
+    {
+      method: "PATCH",
+      headers: await authHeaders({ json: true }),
+      body: JSON.stringify({ can_toggle: canToggle }),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to update attribution grant (${res.status})`);
+  }
+  return res.json();
+}, []);
+
+// --- NEW — §4.7: Notebooks tab. A "notebook" is a workspace (§4.3), so
+// these all just parameterize the existing /api/workspaces/{ws_id}/...
+// surface — no new container concept, matching the domain doc's own
+// framing of notebook == workspace_id.
+
+// Step 2.3f (perf audit item #2, sixth useCallback batch): the
+// Notebooks-tab / graph / extraction-table functions. All six are
+// call-site-isolated and close over nothing but their own arguments
+// (fetchSimulationResults's `sessionId` param shadows the outer
+// session-id state, so it's not a real closure either) -- so every one
+// of these gets `[]`.
+//
+// Side note, not part of this batch's scope: renameWorkspaceNode
+// doesn't appear in the `value` object or its dependency array at all
+// (confirmed via grep -- fetchWorkspaceNodes/deleteWorkspaceNode/
+// fetchGraphEdges/buildExtractionTable/fetchSimulationResults are all
+// there, this one isn't). Either it's dead code or something consumes
+// it a different way I haven't found -- flagging in case it's meant to
+// be exposed and just got missed, not fixing it here since it's outside
+// what this useCallback pass is meant to touch.
+const fetchWorkspaceNodes = useCallback(async (wsId, nodeType) => {
+  const qs = nodeType ? `?node_type=${encodeURIComponent(nodeType)}` : "";
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/nodes${qs}`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) return [];
+  return res.json();
+}, []);
+
+// NEW — §2 fix: deletes a single ingested source/node. Caller is
+// responsible for refetching the node list afterward (same pattern
+// ingestFile()'s callers already follow via onIngested), since the
+// delete endpoint itself only returns {status, id}, not a fresh list.
+const deleteWorkspaceNode = useCallback(async (wsId, nodeId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/nodes/${nodeId}`, {
+    method: "DELETE",
+    headers: await authHeaders(),
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || `${res.status} ${res.statusText}`);
+  return res.json();
+}, []);
+
+const renameWorkspaceNode = useCallback(async (wsId, nodeId, title) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/nodes/${nodeId}/rename`, {
+    method: "PATCH",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ title }),
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || `${res.status} ${res.statusText}`);
+  return res.json();
+}, []);
+
+const fetchGraphEdges = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/graph/edges?workspace_id=${encodeURIComponent(wsId)}`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) return [];
+  return res.json();
+}, []);
+
+// §3.5 — auto-generates a structured table from a workspace's own
+// ingested nodes (agents/note_table_builder.py), instead of the user
+// manually pasting a chat run's markdown table output. Throws on
+// non-2xx so the caller can surface the server's actual error message
+// (e.g. "no ingested sources with content found") rather than silently
+// returning nothing.
+const buildExtractionTable = useCallback(async (wsId, fieldNames, { nodeType, expanded } = {}) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/table`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({
+      field_names: fieldNames,
+      node_type: nodeType || null,
+      expanded: !!expanded,
+    }),
+  });
+  if (!res.ok) {
+    let detail = `Request failed (${res.status})`;
+    try {
+      const body = await res.json();
+      detail = body.detail || detail;
+    } catch {}
+    throw new Error(detail);
+  }
+  return res.json();
+}, []);
+
+// Test tab / "simulate" domain — reads back whatever persona roles +
+// simulation_synthesizer already wrote to the memory bus for a given
+// (finished or in-progress) simulate-domain chat run. Read-only despite
+// being a POST, same shape as buildExtractionTable above; see
+// api/server.py's get_simulation_results() docstring for why this reads
+// the bus instead of wrapping review_aggregator.py.
+const fetchSimulationResults = useCallback(async (wsId, sessionId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/simulate`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ session_id: sessionId }),
+  });
+  if (!res.ok) {
+    let detail = `Request failed (${res.status})`;
+    try {
+      const body = await res.json();
+      detail = body.detail || detail;
+    } catch {}
+    throw new Error(detail);
+  }
+  return res.json();
+}, []);
+
+// Test tab / `personas` sub-tab — thin client for the same Role Library
+// store the Role Library panel already reads/writes via GET/PUT/PATCH
+// /api/roles (eo/registry.py's list_role_metadata/update_role_prompt/
+// set_role_pinned). No new backend surface: `personas` just calls these
+// three and filters the result to the "simulate" domain's own role list
+// client-side, same "reuse, don't rebuild" reasoning the /simulate
+// endpoint itself used for stage_output reads.
+
+// Step 2.3g (perf audit item #2, seventh useCallback batch): the Role
+// Library thin-client trio for the Test tab's `personas` sub-tab. All
+// three are call-site-isolated, close over nothing but their own
+// arguments, so `[]` across the board.
+//
+// Deliberately NOT touching the five ingest* functions right after this
+// (ingestClip, ingestVideoUrl, ingestFile, ingestPdfFile, and a fifth) —
+// the comment already on them says they're meant to stay plain,
+// unbound functions that IngestionDropzone.jsx/lib/ingestDispatch.js
+// call directly by name, with the *_wrapped versions further down being
+// the ones that actually go through the context/useCallback treatment.
+// Converting the plain ones here would fight that existing design, not
+// help it, so this batch stops before them.
+const fetchRoles = useCallback(async () => {
+  const res = await authedFetch(`${API_URL}/api/roles`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    let detail = `Request failed (${res.status})`;
+    try {
+      const body = await res.json();
+      detail = body.detail || detail;
+    } catch {}
+    throw new Error(detail);
+  }
+  return res.json();
+}, []);
+
+const updateRolePrompt = useCallback(async (roleName, brief) => {
+  const res = await authedFetch(`${API_URL}/api/roles/${encodeURIComponent(roleName)}`, {
+    method: "PUT",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ brief }),
+  });
+  if (!res.ok) {
+    let detail = `Request failed (${res.status})`;
+    try {
+      const body = await res.json();
+      detail = body.detail || detail;
+    } catch {}
+    throw new Error(detail);
+  }
+  return res.json();
+}, []);
+
+const setRolePinned = useCallback(async (roleName, pinned) => {
+  const res = await authedFetch(`${API_URL}/api/roles/${encodeURIComponent(roleName)}/pin`, {
+    method: "PATCH",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ pinned }),
+  });
+  if (!res.ok) {
+    let detail = `Request failed (${res.status})`;
+    try {
+      const body = await res.json();
+      detail = body.detail || detail;
+    } catch {}
+    throw new Error(detail);
+  }
+  return res.json();
+}, []);
+
+// Capture — one function per ingestor family (§4.2), all landing through
+// write_ingested_source() server-side into the exact same node shape, so
+// IngestionDropzone.jsx can treat every one of these identically: call,
+// await {node_ids, title}, done.
+//
+// CHANGED — bug audit §3 ("stuck Ingesting…"): each ingestor now takes an
+// optional AbortSignal so a caller can bound how long it's willing to
+// wait on a single request (see IngestionDropzone.jsx's withTimeout()).
+// A plain `await fetch(...)` has no timeout of its own -- if the backend
+// pipeline (OCR/parse -> chunk -> embed -> summarize) runs long, the
+// request just sits open indefinitely from the browser's point of view,
+// which is what reads as a progress row stuck on "Ingesting…" forever.
+//
+// CHANGED — Data Layer §9c: each ingestor now also takes an optional
+// trailing `sessionId`, threaded straight into the request as
+// `session_id` (api/server.py's five upload endpoints forward it to
+// process_upload(), which passes it to eo/notify.py's notify() —
+// without it, §9b's WebSocket push has no session_id to fire on and
+// silently no-ops for every upload). These five functions stay plain,
+// unbound module functions -- IngestionDropzone.jsx and
+// lib/ingestDispatch.js still call them directly by name with the same
+// (wsId, file/url, signal) shape they always have. It's the *_wrapped
+// versions below, built inside SessionProvider and exported under
+// these same five names in the context value, that supply sessionId —
+// see that section's comment for why binding it there instead of here
+// keeps every existing call site untouched.
+
+async function ingestClip(wsId, url, signal, sessionId) {
+  const res = await authedFetch(`${API_URL}/api/notes/clip`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ url, workspace_id: wsId, session_id: sessionId || null }),
+    signal,
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || `${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+async function ingestVideoUrl(wsId, url, signal, sessionId) {
+  const res = await authedFetch(`${API_URL}/api/notes/video`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ url, workspace_id: wsId, session_id: sessionId || null }),
+    signal,
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || `${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+async function ingestFile(wsId, file, signal, sessionId) {
+  const form = new FormData();
+  form.append("workspace_id", wsId);
+  form.append("file", file);
+  if (sessionId) form.append("session_id", sessionId);
+  const res = await authedFetch(`${API_URL}/api/notes/import`, {
+    method: "POST",
+    headers: await authHeaders(),
+    body: form,
+    signal,
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || `${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+async function ingestPdfFile(wsId, file, signal, sessionId) {
+  const form = new FormData();
+  form.append("workspace_id", wsId);
+  form.append("file", file);
+  if (sessionId) form.append("session_id", sessionId);
+  const res = await authedFetch(`${API_URL}/api/notes/pdf`, {
+    method: "POST",
+    headers: await authHeaders(),
+    body: form,
+    signal,
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || `${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+async function ingestVoiceFile(wsId, file, signal, sessionId) {
+  const form = new FormData();
+  form.append("workspace_id", wsId);
+  form.append("file", file);
+  if (sessionId) form.append("session_id", sessionId);
+  const res = await authedFetch(`${API_URL}/api/notes/voice`, {
+    method: "POST",
+    headers: await authHeaders(),
+    body: form,
+    signal,
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || `${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+// Organize — on-demand rescans (§4.3), same "candidate, not auto-applied"
+// posture as note-candidates below.
+
+const detectBacklinks = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/backlinks/detect`, {
+    method: "POST",
+    headers: await authHeaders(),
+  });
+  return res.json();
+}, []);
+
+// NEW — Notebooks integration guide §6.6/§7 (Phase 3): short
+// agent-written blurbs written by agents/concept_linker.py, read by
+// KnowledgeGraphView.jsx's node-click rationale panel. Read-only on
+// the frontend by design -- there's no corresponding save function
+// here on purpose, matching api/server.py's GET-only route.
+const fetchNodeSummaries = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/graph/node_summaries`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) return {};
+  return res.json();
+}, []);
+
+// NEW — Backlinks-as-topic-tree: eo/secondary_data.py's {topics,
+// connections} document, re-projected server-side into the same
+// {nodes, edges} shape fetchWorkspaceNodes()/fetchGraphEdges() already
+// return, so KnowledgeGraphView.jsx needs no new fetch-shape handling.
+// Read-only, same "no corresponding save function" posture as
+// fetchNodeSummaries above -- this store's only write path is
+// apply_patch() (source_manager.py / backlink_detector.py), never a
+// direct frontend call.
+const fetchTopicsGraph = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/topics/graph`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) return { nodes: [], edges: [] };
+  return res.json();
+}, []);
+
+// Silent note-taking agent candidates (§4.6) — never auto-committed;
+// accept/reject here is the review step Definition-of-Done #6 requires.
+
+const fetchNoteCandidates = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/notes/candidates`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) return [];
+  return res.json();
+}, []);
+
+// FIX — bug audit §9 (candidates accept/reject write path): both of
+// these used to take a plain list `index`. Switched to `candidate_id`
+// to match eo/note_candidates.py's accept_candidate/reject_candidate —
+// see that module's docstring for why an index isn't safe once two
+// users can be reviewing the same pending list at once.
+const acceptNoteCandidate = useCallback(async (wsId, candidateId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/notes/candidates/${candidateId}/accept`, {
+    method: "POST",
+    headers: await authHeaders(),
+  });
+  return res.json();
+}, []);
+
+const rejectNoteCandidate = useCallback(async (wsId, candidateId) => {
+  await authedFetch(`${API_URL}/api/workspaces/${wsId}/notes/candidates/${candidateId}`, {
+    method: "DELETE",
+    headers: await authHeaders(),
+  });
+}, []);
+
+// Workspace facts (eo/workspace_facts.py, Part 0 §0.3) — durable
+// brand_voice/target_user/tech_stack/custom facts for a workspace, plus
+// the agent-proposed candidates queue. Same accept/reject shape as the
+// note candidates just above (workspace_facts.py's accept_candidate/
+// reject_candidate now take a stable candidate_id, not a list index —
+// see bug audit §9).
+
+const fetchWorkspaceFacts = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/facts`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) return { brand_voice: "", target_user: "", tech_stack: [], custom: {} };
+  return res.json();
+}, []);
+
+const saveWorkspaceFacts = useCallback(async (wsId, facts) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/facts`, {
+    method: "PUT",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify(facts),
+  });
+  return res.json();
+}, []);
+
+const fetchFactCandidates = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/facts/candidates`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) return [];
+  return res.json();
+}, []);
+
+const acceptFactCandidate = useCallback(async (wsId, candidateId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/facts/candidates/${candidateId}/accept`, {
+    method: "POST",
+    headers: await authHeaders(),
+  });
+  return res.json();
+}, []);
+
+const rejectFactCandidate = useCallback(async (wsId, candidateId) => {
+  await authedFetch(`${API_URL}/api/workspaces/${wsId}/facts/candidates/${candidateId}`, {
+    method: "DELETE",
+    headers: await authHeaders(),
+  });
+}, []);
+
+// Corrections + Patch Review (Data Layer architecture §8c) — §8a's
+// Corrections tab posts a plain-language correction here; the server
+// runs agents/correction_locator.py (§8b) and either queues a
+// candidate for Patch Review below or returns a reason there was
+// nothing to locate. Same accept/reject shape as every other
+// candidate store above — a candidate_id, never a list index.
+
+const submitCorrection = useCallback(async (wsId, { text, scopeNodeId }) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/corrections`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ text, scope_node_id: scopeNodeId ?? null }),
+  });
+  return res.json();
+}, []);
+
+const fetchPatchCandidates = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/corrections/candidates`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) return [];
+  return res.json();
+}, []);
+
+const acceptPatchCandidate = useCallback(async (wsId, candidateId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/corrections/candidates/${candidateId}/accept`, {
+    method: "POST",
+    headers: await authHeaders(),
+  });
+  return res.json();
+}, []);
+
+const rejectPatchCandidate = useCallback(async (wsId, candidateId) => {
+  await authedFetch(`${API_URL}/api/workspaces/${wsId}/corrections/candidates/${candidateId}`, {
+    method: "DELETE",
+    headers: await authHeaders(),
+  });
+}, []);
+
+// Generic paste-panel content (eo/panel_content.py) — backs Mind Map,
+// Study (flashcards/quiz/study guide), and the other "paste the chat's
+// output into a box" panels in NotebooksTab.jsx. Same fetch/save shape
+// as workspace facts above; panelKey must be one of
+// eo/panel_content.py's VALID_PANEL_KEYS (e.g. "mindmap",
+// "study_flashcards", "study_quiz", "study_guide", "prd", ...).
+
+const fetchPanelContent = useCallback(async (wsId, panelKey) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/panels/${panelKey}`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) return { workspace_id: wsId, panel_key: panelKey, content: "", updated_at: null, updated_by: null };
+  return res.json();
+}, []);
+
+// NEW — bug audit §8 ("unread/new content" dots): backs the GET
+// /api/workspaces/{ws_id}/panels route (api/server.py's
+// list_workspace_panel_content → eo/panel_content.py's list_content),
+// which already existed and already returns { panel_key: {..., updated_at} }
+// for every saved panel in one round trip — it just had no frontend
+// caller yet. Deliberately not merged into fetchPanelContent itself:
+// that one's callers (MindMapView, WorkflowsView, StudyView) want a
+// single panel's `content` to render; this one's caller
+// (NotebooksTab's loadNotebookData) only wants the updated_at map to
+// diff against a last-viewed mark, and fetching all of them via N
+// single-panel calls just to read a timestamp would be wasteful.
+const fetchPanelContentList = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/panels`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) return {};
+  return res.json();
+}, []);
+
+const savePanelContent = useCallback(async (wsId, panelKey, content) => {
+  // CHANGED — bug audit §9 trace: this used to call res.json() straight
+  // through with no res.ok check, so a failed save (e.g. an unknown
+  // panel_key -- see StudyView's study_guide fix, the same class of bug
+  // this would have hidden) still resolved normally and let the caller
+  // show "Saved." Throwing here means StudyView's handleLoad() (and any
+  // other caller) needs a try/catch around this call the same way it
+  // already has one around synthesizePodcast/buildVideoOverview -- not
+  // silently succeeding is the point.
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/panels/${panelKey}`, {
+    method: "PUT",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ content }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.detail || `Failed to save panel "${panelKey}"`);
+  return data;
+}, []);
+
+// Notebooks "Generate" command (Notebooks integration guide §4, §6) —
+// the picker/chip-confirmation flow's single dispatch call. `targets` is
+// a list of panel_key strings (see api/server.py's
+// NOTEBOOKS_GENERATE_TARGETS); `scope` is optional — omitted/empty means
+// "whole notebook," same convention as everywhere else this guide
+// touches. Returns { branches: [{panel_key, status, result|error}] } —
+// a per-target result list, not one shared payload, so a partial
+// failure (e.g. Backlinks' concept pass erroring) doesn't take down
+// Flashcards' result in the same response.
+const generateNotebooks = useCallback(async (wsId, targets, scope) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/notebooks/generate`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ targets, scope: scope || null }),
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || `${res.status} ${res.statusText}`);
+  return res.json();
+}, []);
+
+// Notebooks Chat-First refinement, Phase 2 step 2.5 — thin client over
+// POST /api/workspaces/{ws_id}/notebooks/classify-intent. Log-only for
+// now: WorkspaceChatPanel.jsx's send path calls this alongside sendTask()
+// but doesn't branch on the result yet (that's step 2.6). Returns the
+// backend's normalized shape straight through:
+//   { tool_calls: [{name, arguments}], ambiguous, content, error }
+// The endpoint itself never 500s on a classification failure (see
+// utils/llm_client.py's classify_tool_intent() docstring) -- it always
+// comes back 200 with an `error` string set instead -- but this wrapper
+// still guards the fetch itself (network failure, auth failure, etc.)
+// the same way, so a broken classification call can never throw into
+// the caller's await and interrupt the real send path.
+const classifyIntent = useCallback(async (wsId, message) => {
+  try {
+    const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/notebooks/classify-intent`, {
+      method: "POST",
+      headers: await authHeaders({ json: true }),
+      body: JSON.stringify({ message }),
+    });
+    if (!res.ok) {
+      return { tool_calls: [], ambiguous: false, content: null, error: `${res.status} ${res.statusText}` };
+    }
+    return res.json();
+  } catch (err) {
+    return { tool_calls: [], ambiguous: false, content: null, error: String(err.message || err) };
+  }
+}, []);
+
+// NEW — Notebooks Chat-First refinement, Phase 6 step 6.8. Thin client
+// over the SAME PUT /api/workspaces/{ws_id}/progress route step 6.5's
+// manual-override board already uses (see api/server.py's
+// put_workspace_progress()) — "mark X as done" from chat is just
+// another caller of that one endpoint, status="done", no notes. No
+// new backend route needed: reusing the manual-override path is
+// exactly what makes this low-stakes/reversible (guide's step 6.8
+// decision — no confirmation needed), since it's the same one-field
+// PUT a person could already do by hand from the board.
+const markTopicDone = useCallback(async (wsId, topicId) => {
+  const res = await authedFetch(
+    `${API_URL}/api/workspaces/${wsId}/progress?topic_id=${encodeURIComponent(topicId)}`,
+    {
+      method: "PUT",
+      headers: await authHeaders({ json: true }),
+      body: JSON.stringify({ status: "done" }),
+    }
+  );
+  if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || `${res.status} ${res.statusText}`);
+  return res.json();
+}, []);
+
+// NEW — Notebooks Chat-First refinement, Phase 6 step 6.9. Read side for
+// the Not Started/Ongoing/Done board view: thin client over GET
+// /api/workspaces/{ws_id}/progress. Omitting topicId returns the whole
+// {topic_id: record} map for the workspace in one call — study_progress.
+// get_progress()'s "no topic_id" branch, exactly what the board needs to
+// render every touched topic at once. Passing topicId narrows to a
+// single record (unused by the board itself today, kept for parity with
+// the route's other callers). Fails soft to an empty map/`null` rather
+// than throwing, since a board render shouldn't hard-fail a whole
+// notebook load over one flaky request — same posture fetchTopicsGraph()
+// above already takes.
+const fetchWorkspaceProgress = useCallback(async (wsId, topicId) => {
+  const qs = topicId ? `?topic_id=${encodeURIComponent(topicId)}` : "";
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/progress${qs}`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) return topicId ? null : {};
+  return res.json();
+}, []);
+
+// NEW — step 6.9. General manual override for the board — same PUT
+// markTopicDone() above already calls, just not hardcoded to
+// status="done": lets a person drag/click a topic into any column
+// (Not Started/Ongoing/Done), or edit its notes, straight from the
+// board. `status`/`notes` are both optional and independent, mirroring
+// set_progress()'s own merge-update semantics — pass only what changed.
+const setWorkspaceProgress = useCallback(async (wsId, topicId, { status, notes } = {}) => {
+  const res = await authedFetch(
+    `${API_URL}/api/workspaces/${wsId}/progress?topic_id=${encodeURIComponent(topicId)}`,
+    {
+      method: "PUT",
+      headers: await authHeaders({ json: true }),
+      body: JSON.stringify({ status, notes }),
+    }
+  );
+  if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || `${res.status} ${res.statusText}`);
+  return res.json();
+}, []);
+
+// Per-topic workflow, triggered by a Mind Map node click (step 4) — thin
+// client over POST /api/workspaces/{ws_id}/topics/workflow (step 2).
+// Deliberately separate from generateNotebooks() above: that one dispatches
+// against NOTEBOOKS_GENERATE_TARGETS panel_keys and returns a per-target
+// branch list persisted server-side; this always addresses exactly one
+// topic label, is never persisted, and returns the single
+// {title, description, steps, mermaid} dict straight through for the
+// caller (DiagramsView, step 8) to hold in its own per-topic state.
+// `sourceNodeIds` is optional — omitted/empty means "search the whole
+// notebook's topics," same convention generateNotebooks' `scope` uses.
+const generateTopicWorkflow = useCallback(async (wsId, topicLabel, sourceNodeIds) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/topics/workflow`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ topic_label: topicLabel, source_node_ids: sourceNodeIds || null }),
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || `${res.status} ${res.statusText}`);
+  return res.json();
+}, []);
+
+// Device spec (Blueprint sub-tab: Parts/Wiring/Mech/Instructions) --
+// agents/hardware_speccer.py's output, persisted as four keys under
+// eo/workspace_facts.py's per-workspace `custom` dict rather than through
+// eo/panel_content.py -- panel_content is for opaque pasted text (one
+// `content` string), and Blueprint has real structure plus (for
+// Instructions) per-step mutation, which that shape doesn't fit. See
+// api/server.py's GET/PATCH .../device-spec... routes.
+
+const fetchDeviceSpec = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/device-spec`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    return {
+      parts: [],
+      wiring: { nodes: [], edges: [] },
+      mech: { enclosure: { w: 0, h: 0, d: 0 }, placements: [] },
+      instructions: { phases: [] },
+    };
+  }
+  return res.json();
+}, []);
+
+// PartsTable.jsx's "Refresh prices" button. Unlike fetchPanelContent's
+// no-args-needed GET, this one has to send the CURRENT parts list in the
+// body -- api/server.py's refresh-prices endpoint re-prices exactly the
+// parts it's handed rather than re-reading a stored spec, so BlueprintView
+// must pass spec.parts through here, not just a workspace id.
+const refreshPartPrices = useCallback(async (wsId, parts) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/parts/refresh-prices`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ parts, force_refresh: true }),
+  });
+  if (!res.ok) return { parts };  // degrade to the unchanged list rather than throwing
+  const data = await res.json();
+  return data.parts;
+}, []);
+
+const toggleInstructionStep = useCallback(async (wsId, stepId, done) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/device-spec/instructions/steps/${stepId}`, {
+    method: "PATCH",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ done }),
+  });
+  return res.json();
+}, []);
+
+// Note clustering (agents/note_clusterer.py, Part 4 §4.3) — deterministic
+// KMeans over each node's existing embedding, proposed as accept/reject
+// candidates (never auto-applied). Unlike facts/notes candidates,
+// note_clusterer.py's candidates are keyed by candidate_id, not list
+// index, and propose_clusters() is an explicit rescan (like backlink
+// detection), not a passive fetch — see NotebooksTab.jsx's "Detect
+// clusters" button.
+
+const proposeClusters = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/clusters/propose`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+  });
+  const data = await res.json();
+  return data.candidates;
+}, []);
+
+const fetchClusterCandidates = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/clusters/candidates`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) return [];
+  return res.json();
+}, []);
+
+const acceptClusterCandidate = useCallback(async (wsId, candidateId) => {
+  const res = await authedFetch(
+    `${API_URL}/api/workspaces/${wsId}/clusters/candidates/${encodeURIComponent(candidateId)}/accept`,
+    { method: "POST", headers: await authHeaders({ json: true }) }
+  );
+  return res.json(); // { edges_created: [...] }
+}, []);
+
+const rejectClusterCandidate = useCallback(async (wsId, candidateId) => {
+  await authedFetch(
+    `${API_URL}/api/workspaces/${wsId}/clusters/candidates/${encodeURIComponent(candidateId)}`,
+    { method: "DELETE", headers: await authHeaders() }
+  );
+}, []);
+
+// §4.7 — "click a mind-map node, open a scoped sub-chat": creates a new
+// chat, folds it into this notebook's workspace (so it shares memory
+// with the rest of the notebook and shows up under it in the sidebar),
+// then dispatches taskText as its first message. Returns the new
+// chat_id so the caller (NotebooksTab) can hand off to AppShell's
+// openChat() to actually land on it.
+// NEW — Part 4 §4.4: podcast synthesis (agents/tts_synthesizer.py). Unlike
+// every other helper in this file, POST /api/notes/podcast/synthesize
+// returns a FileResponse (raw mp3 bytes), not JSON — so this reads the
+// response as a blob and hands back an object URL for an <audio> element,
+// rather than calling res.json() like gradeQuiz() etc. below. The call is
+// synchronous server-side (no job/poll pattern — synthesize_podcast()
+// blocks on edge-tts for the whole script), so callers should show a
+// loading state for the duration of this await rather than expecting a
+// fast round trip.
+const synthesizePodcast = useCallback(async (scriptText, title) => {
+  const res = await authedFetch(`${API_URL}/api/notes/podcast/synthesize`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ script_text: scriptText, title: title || "podcast" }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Podcast synthesis failed (${res.status})`);
+  }
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
+}, []);
+
+// NEW — Part 4 §4.4: Video Overview (agents/video_overview_builder.py).
+// Same raw-file-response shape as synthesizePodcast() above (blob → object
+// URL, not JSON), and the same synchronous-server-side caveat — moviepy's
+// write_videofile() blocks for the whole render, so callers should show a
+// loading state for the duration of this await. Requires podcastTitle to
+// match a title already used in a prior synthesizePodcast() call for this
+// notebook: the backend locates that mp3 on disk by slugified filename
+// rather than re-synthesizing it, and 404s with a clear message if it
+// isn't there yet.
+const buildVideoOverview = useCallback(async (slideText, podcastTitle, title) => {
+  const res = await authedFetch(`${API_URL}/api/notes/video-overview/build`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({
+      slide_text: slideText,
+      podcast_title: podcastTitle || "podcast",
+      title: title || "video_overview",
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Video overview build failed (${res.status})`);
+  }
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
+}, []);
+
+// NEW — Frontend paste-box patch (patch 4), step 2: thin GET wrappers
+// over the two new backend routes (api/routes/notebooks.py's
+// notebooks_podcast_audio()/notebooks_video_overview_video()) that
+// serve back whatever's currently saved under the "podcast"/
+// "video_overview" panel_content rows -- the panel_content-backed
+// counterpart synthesizePodcast()/buildVideoOverview() above never had,
+// since those two call the older, disconnected /api/notes/... routes
+// that return the freshly-built file directly instead of reading it
+// back from a saved panel. Same blob → object URL pattern as those two
+// (the browser <audio>/<video> tags below need a URL, not raw bytes),
+// just a GET with no body instead of a POST that also triggers
+// generation -- StudyView's rewired handleSynthesize()/handleBuildVideo()
+// call generateNotebooks() first (so scope.script_text/scope.slide_text
+// actually reach _generate_podcast()/_generate_video_overview()), then
+// call one of these to fetch the resulting media once it's saved.
+const fetchPodcastAudioUrl = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/notebooks/podcast/audio`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Couldn't fetch podcast audio (${res.status})`);
+  }
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
+}, []);
+
+const fetchVideoOverviewUrl = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/notebooks/video_overview/video`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Couldn't fetch video overview (${res.status})`);
+  }
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
+}, []);
+
+// NEW — Patch 5 (Presentation rehearsal reachability patch), step 2: same
+// blob → object URL wrapper as fetchPodcastAudioUrl/fetchVideoOverviewUrl
+// above, over the new GET .../notebooks/presentation_rehearsal/audio
+// route (step 1). presentation_rehearsal has had a working generation
+// target and manifest/chat-tool entry since Phase 5 steps 5.10/5.11, but
+// no way for the UI to read the audio back until this route existed.
+const fetchRehearsalAudioUrl = useCallback(async (wsId) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/notebooks/presentation_rehearsal/audio`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Couldn't fetch rehearsal audio (${res.status})`);
+  }
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
+}, []);
+
+const gradeQuiz = useCallback(async (quizText, answers) => {
+  const res = await authedFetch(`${API_URL}/api/notes/study/quiz/grade`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ quiz_text: quizText, answers }),
+  });
+  return res.json();
+}, []);
+
+// CHANGED — step 6.7 gap fix: threads an optional `topicId` through to
+// the request body as `topic_id`, matching RecordQuizAttemptRequest's
+// field of the same name (api/server.py) that record_quiz_attempt_endpoint
+// already reads to bump study_progress on a passing score (step 6.7).
+// Until this patch, nothing in the frontend ever populated that field —
+// the backend hook existed but no caller could reach it. `topicId` is
+// optional and simply omitted from the body (not sent as null/undefined)
+// when the caller doesn't have one, same "only send what you know"
+// posture as RecordQuizAttemptRequest.topic_id's own doc comment.
+//
+// NOTE: today's only call site (NotebooksTab.jsx's whole-notebook Quiz
+// tab, `scopeAllowed: "whole"` per notebookCapabilities.js) has no topic
+// to pass and deliberately isn't changed to invent one here. This plumbing
+// is what a future topic-scoped quiz launch (e.g. Phase 6's Not Started/
+// Ongoing/Done board, or promoting `study_quiz` to a topic-scoped
+// capability) will call into once it exists.
+const recordQuizAttempt = useCallback(async (wsId, quizNodeId, quizText, answers, topicId) => {
+  const body = { workspace_id: wsId, quiz_node_id: quizNodeId, quiz_text: quizText, answers };
+  if (topicId) body.topic_id = topicId;
+  const res = await authedFetch(`${API_URL}/api/notes/study/quiz/attempts`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify(body),
+  });
+  return res.json();
+}, []);
+
+const fetchMissedQuestions = useCallback(async (wsId, quizNodeId) => {
+  const res = await authedFetch(
+    `${API_URL}/api/notes/study/quiz/missed?workspace_id=${encodeURIComponent(wsId)}&quiz_node_id=${encodeURIComponent(quizNodeId)}`,
+    { headers: await authHeaders() }
+  );
+  if (!res.ok) return [];
+  return res.json();
+}, []);
+
+// NEW — Part 8.6: audit log reads. Throws (rather than the silent
+// empty-array pattern used by e.g. fetchClusterCandidates) because a 403
+// here means "you're not owner/partner" — a real, distinct state the UI
+// needs to show, not "there's nothing to show yet."
+const fetchWorkspaceAudit = useCallback(async (wsId, limit = 100) => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/audit?limit=${limit}`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to load audit log (${res.status})`);
+  }
+  return res.json();
+}, []);
+
+// Step 2.3j (perf audit item #2, tenth useCallback batch): the rest of
+// the chat-creation cluster. fetchMyAudit/createChatSilently/
+// persistMessageTo close over nothing but their own arguments -- `[]`
+// for all three. createWorkspaceChat depends on fetchWorkspaces/
+// refreshChatList (both already stable). openScopedSubChat calls
+// createWorkspaceChat (converting right here, so include it) and
+// sendTask -- sendTask is still a plain `function` declaration further
+// down the file (not converted in this batch; it's sendTask()'s own
+// turn next, and it's big enough to deserve a dedicated pass rather
+// than getting bundled in here). Referencing sendTask before its own
+// declaration is safe here specifically because it's still a `function`
+// (fully hoisted, unlike the `const switchChat` case from 2.3i) --
+// but per the same correctness-first rule from 2.3b/2.3c, it still goes
+// in the dep array so this doesn't silently stale-close over whatever
+// sendTask reference existed at mount.
+const fetchMyAudit = useCallback(async (limit = 100) => {
+  const res = await authedFetch(`${API_URL}/api/audit/me?limit=${limit}`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to load your activity (${res.status})`);
+  }
+  return res.json();
+}, []);
+
+// Was: createNewChat() then addWorkspaceChat() — two round trips where the
+// second one always immediately followed the first. Swapped for the
+// one-step backend endpoint built for exactly this (api/server.py's
+// POST /api/workspaces/{ws_id}/chats/create). Same local-state side effects
+// as createNewChat() (sessionId, ACTIVE_CHAT_KEY, messages) plus the
+// workspace-list refresh addWorkspaceChat used to do, just in one fetch.
+const createWorkspaceChat = useCallback(async (wsId, title = "New Chat") => {
+  const res = await authedFetch(`${API_URL}/api/workspaces/${wsId}/chats/create`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({ title }),
+  });
+  if (!res.ok) throw new Error("Failed to create workspace chat");
+  const chat = await res.json();
+  setSessionId(chat.id);
+  localStorage.setItem(ACTIVE_CHAT_KEY, chat.id);
+  setMessages([]);
+  await fetchWorkspaces();   // membership changed server-side
+  await refreshChatList();
+  return chat.id;
+}, [fetchWorkspaces, refreshChatList]);
+
+// openScopedSubChat used to live here (right after createWorkspaceChat) but
+// its useCallback dep array needs `sendTask`, which — now that sendTask is
+// a `const … = useCallback(...)` (converted in 2.3k) instead of the old
+// hoisted `function sendTask` — is NOT hoisted. Declaring it here would
+// read `sendTask` out of its temporal dead zone and throw on first render,
+// the same class of bug 2.3i's switchChat/createNewChat crash was. Moved
+// below sendTask's own declaration instead; see the note there.
+
+  // NEW — §5: manage-batch modal actions (rename / unlink members /
+  // delete the whole batch). All three touch batch membership, which
+  // also changes linked_chat_ids server-side (see eo/memory_batch.py),
+  // so each refreshes both `batches` and `chats` the same way §3/§4's
+  // create flow already does.
+
+  // Step 2.3i (perf audit item #2, ninth useCallback batch): batch
+  // management (renameBatch/unlinkBatchMembers/deleteBatch) here, plus
+  // persistMessage below. switchChat/createNewChat are also part of
+  // this batch but got MOVED up near refreshChatList (right after line
+  // 774) instead of staying in their original textual position --
+  // see the comment there for why. Leaving them declared here would
+  // have been a real crash, not just a missed-optimization note like
+  // the last few batches flagged: removeWorkspaceChat's dependency
+  // array (2.3c, line 919, evaluated synchronously during render, not
+  // deferred like a useEffect) already references switchChat and
+  // createNewChat. If those stayed `const`-declared down here at their
+  // original spot -- after removeWorkspaceChat -- render would hit a
+  // genuine temporal-dead-zone ReferenceError the first time through,
+  // not the "safe because it's called later, from an event handler"
+  // pattern every previous batch's ordering check has been able to
+  // rely on. Moving the declaration earlier is the actual fix; a
+  // comment explaining why it'd be fine (which is what I almost wrote
+  // here) would have been wrong.
+  const renameBatch = useCallback(async (batchId, name) => {
+    await authedFetch(`${API_URL}/api/batches/${batchId}/rename`, {
+      method: "PATCH",
+      headers: await authHeaders({ json: true }),
+      body: JSON.stringify({ name }),
+    });
+    await fetchBatches();
+  }, [fetchBatches]);
+
+  const unlinkBatchMembers = useCallback(async (batchId, chatIds) => {
+    await authedFetch(`${API_URL}/api/batches/${batchId}/unlink`, {
+      method: "POST",
+      headers: await authHeaders({ json: true }),
+      body: JSON.stringify({ chat_ids: chatIds }),
+    });
+    await fetchBatches();
+    await refreshChatList();
+  }, [fetchBatches, refreshChatList]);
+
+  const deleteBatch = useCallback(async (batchId) => {
+    await authedFetch(`${API_URL}/api/batches/${batchId}`, {
+      method: "DELETE",
+      headers: await authHeaders(),
+    });
+    await fetchBatches();
+    await refreshChatList();
+  }, [fetchBatches, refreshChatList]);
+
+  // (switchChat and createNewChat used to be declared here -- moved up
+  // near refreshChatList; see the note on renameBatch above for why.)
+
+  const persistMessage = useCallback(async (message) => {
+    // Fire-and-forget-ish: don't block the UI on this, but don't swallow
+    // errors silently either — a failed save here is exactly the "lost
+    // my chat" bug again, just moved one layer down.
+    try {
+      await authedFetch(`${API_URL}/api/chats/${sessionId}/messages`, {
+        method: "POST",
+        headers: await authHeaders({ json: true }),
+        body: JSON.stringify({ message }),
+      });
+    } catch (err) {
+      console.error("Failed to persist message:", err);
+    }
+  }, [sessionId]);
+
+  // NEW — Workflow Templates fix. createNewChat()/persistMessage() above
+  // both act on the CURRENTLY ACTIVE chat (they read/write `sessionId`),
+  // which is exactly right for the Chat tab's own compose bar but wrong
+  // here — running a template must not silently swap out whatever chat
+  // the person currently has open. These two are the same two API calls,
+  // parameterized by an explicit chatId instead of the active sessionId.
+  const createChatSilently = useCallback(async (title) => {
+    const res = await authedFetch(`${API_URL}/api/chats`, {
+      method: "POST",
+      headers: await authHeaders({ json: true }),
+      body: JSON.stringify({ title: title || "New Chat" }),
+    });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const chat = await res.json();
+    return chat.id;
+  }, []);
+
+  const persistMessageTo = useCallback(async (chatId, message) => {
+    try {
+      await authedFetch(`${API_URL}/api/chats/${chatId}/messages`, {
+        method: "POST",
+        headers: await authHeaders({ json: true }),
+        body: JSON.stringify({ message }),
+      });
+    } catch (err) {
+      console.error("Failed to persist message:", err);
+    }
+  }, []);
+
+  // NEW — Workflow Templates fix. Mirrors sendTask()'s dispatch +
+  // persistence shape, but:
+  //   1. State lives in `templateRuns` (this provider), not inside the
+  //      tab component — see that state's own comment above for why.
+  //   2. Creates its OWN chat via createChatSilently() instead of
+  //      reusing `sessionId`/persistMessage(), and never calls
+  //      setSessionId/setMessages — so a template run always becomes a
+  //      real, findable entry in the chat sidebar (fixes "I can't find
+  //      it anywhere"), without ever touching whatever chat is
+  //      currently open in the Chat tab.
+  //   3. Passes that new chat's id as `session_id` on
+  //      /api/task/from-template, so the backend's Pusher events and
+  //      any approval_roles pause land on the same channel/session the
+  //      chat now represents, exactly like a normal /api/task run.
+  //   4. Stores the resulting chatId in templateRuns so the UI can
+  //      offer a real "Open chat" action instead of an inert session_id
+  //      string.
+  const runTemplate = useCallback(async (templateId, taskText) => {
+    setTemplateRuns((prev) => ({
+      ...prev,
+      [templateId]: { running: true, result: null, chatId: prev[templateId]?.chatId ?? null },
+    }));
+
+    let chatId;
+    try {
+      chatId = await createChatSilently(taskText.trim().slice(0, 60) || "Template run");
+    } catch (err) {
+      setTemplateRuns((prev) => ({
+        ...prev,
+        [templateId]: { running: false, result: { status: "error", message: `Couldn't create chat: ${err.message || err}` }, chatId: null },
+      }));
+      return;
+    }
+
+    await persistMessageTo(chatId, { role: "user", text: taskText });
+    await refreshChatList();   // shows up in the sidebar right away, not just once the run finishes
+
+    try {
+      const res = await authedFetch(`${API_URL}/api/task/from-template`, {
+        method: "POST",
+        headers: await authHeaders({ json: true }),
+        body: JSON.stringify({ template_id: templateId, task_text: taskText, session_id: chatId }),
+      });
+      const data = await res.json();
+      const assistantMessage = { role: "assistant", data, task: taskText };
+      await persistMessageTo(chatId, assistantMessage);
+      setTemplateRuns((prev) => ({ ...prev, [templateId]: { running: false, result: data, chatId } }));
+    } catch (err) {
+      const errData = { status: "error", message: String(err) };
+      await persistMessageTo(chatId, { role: "assistant", data: errData, task: taskText });
+      setTemplateRuns((prev) => ({ ...prev, [templateId]: { running: false, result: errData, chatId } }));
+    }
+    await refreshChatList();
+  }, [createChatSilently, persistMessageTo, refreshChatList]);
+
+  // Part 2 §2.5 — pulled out of sendTask() so confirmHireReview() (below)
+  // can reset the exact same live-run state a normal dispatch does; a
+  // confirmed hire review is starting a real run just as much as a
+  // one-click sendTask() call is.
+  const _resetLiveRunState = useCallback(() => {
+    setLiveDecision(null);
+    stepsRef.current = [];
+    setLiveSteps([]);
+    openStepStack.current = [];
+    roleRequestsRef.current = [];
+    setRoleRequests([]);
+    routeTraceRef.current = [];
+    setRouteTrace([]);
+    dependencyMapRef.current = {};
+    setDependencyMap({});
+    structurePlanRef.current = null;
+    setStructurePlan(null);
+    setMacroLoopDecisions([]);
+  }, []);
+
+  // Part 2 §2.5 — same reasoning as the Part 18/21 comments this
+  // replaces: snapshot from the refs (not the stale-closure state vars)
+  // so the message carries its own self-contained Working Panel section,
+  // whether it came from sendTask()'s direct path or confirmHireReview()'s
+  // post-review dispatch.
+  // `elapsedMs` — NEW: per-leg reply time, deliberately not a
+  // cross-pause running total. Each caller below captures its own
+  // `legStartedAt` right before the fetch that produces THIS message
+  // (see sendTask/resumeRun/confirmHireReview) and passes the resulting
+  // duration straight through here. A paused -> resumed run is two legs,
+  // two independent timings (matches ThinkingElapsed's own
+  // reset-per-run behavior: fresh clock every time `loading` starts a
+  // new run) — no accumulator, no persisted "total time across the
+  // whole conversation" to keep in sync. Mirrors
+  // WorkspaceDockContext.jsx's buildAssistantMessage.
+  const _buildAssistantMessage = useCallback((taskText, data, elapsedMs = null) => {
+    return {
+      role: "assistant",
+      data,
+      task: taskText,
+      steps: stepsRef.current,
+      routeTrace: routeTraceRef.current,
+      roleRequests: roleRequestsRef.current,
+      dependencyMap: dependencyMapRef.current,
+      structurePlan: structurePlanRef.current,
+      elapsedMs, // NEW — ms from this leg's fetch firing to its response landing
+    };
+  }, []);
+
+  // topicId (NEW — Step 6.11.c) is optional and, for now, purely passed
+  // through to the server for logging — see api/server.py's post_task().
+  // 6.11.f is what makes the backend actually act on it. Every existing
+  // call site (dock.sendTask, PlanTab's WireframesPanel, etc.) keeps
+  // working unchanged since this param defaults to null.
+  // scope (NEW — task 13e) is likewise optional and passed through
+  // unchanged to POST /api/task's `scope` field (already consulted
+  // server-side as of 13d, only web_researcher's dispatch branch reads
+  // it). Every existing call site keeps working unchanged since this
+  // param defaults to null.
+  // sessionOverride (FIX — dispatched-task-lands-in-wrong-chat bug):
+  // setSessionId() inside createWorkspaceChat() is an async state update
+  // — it does NOT change the `sessionId` this very closure captured at
+  // its last render. openScopedSubChat() used to call
+  // sendTask(taskText, topicId, scope) right after createWorkspaceChat()
+  // resolved, so the POST below fired with the STALE sessionId (null, or
+  // whatever chat was previously active) instead of the chat.id that was
+  // just created and switched into — the task genuinely ran on the
+  // backend, but against a session the visible (just-created) chat had
+  // no knowledge of, so its Chat Box/Working Panel stayed empty forever.
+  // Passing the known-correct id explicitly, rather than trusting
+  // `sessionId` state to have propagated, closes that race. Optional and
+  // defaults to null so every other call site (which already has a
+  // correctly up-to-date `sessionId` by the time it calls sendTask)
+  // behaves exactly as before.
+  // appSlugOverride (BUG FIX — PlanTab's "Start Building this" silently
+  // un-scoped): TaskRequest.app_slug (backend/api/routes/tasks.py) was
+  // never forwarded from this function at all, so PlanTab's
+  // StartBuildingPanel — the one caller that actually needs a SPECIFIC
+  // app_slug, the one handoff_packager.py already scoped and wrote real
+  // files under — had no way to reach it. Without it, task_runner.py's
+  // set_app_slug() fell back to its throwaway
+  // f"{slugify(task_text)}_{session_id[:8]}" namespace, unrelated to the
+  // app handoff_packager prepared, so "Start building this" silently
+  // built into a fresh, empty app dir instead of resuming the handed-off
+  // one. Optional and defaults to null so every other call site behaves
+  // exactly as before.
+  const sendTask = useCallback(async (taskText, topicId = null, scope = null, sessionOverride = null, appSlugOverride = null) => {
+    const effectiveSessionId = sessionOverride || sessionId;   // FIX — see param doc above
+    const userMessage = { role: "user", text: taskText };   // CHANGED — named so it can be persisted below
+    setMessages((prev) => [...prev, userMessage]);
+    persistMessageTo(effectiveSessionId, userMessage);   // FIX — was persistMessage(userMessage),
+    // which reads the same stale `sessionId` state as the request body
+    // did (see param doc above) — a message persisted against the wrong
+    // chat is just as invisible as a task dispatched against it.
+    setLoading(true);
+    _resetLiveRunState();
+    const legStartedAt = Date.now(); // NEW — this leg's clock; same moment `loading` flips true, so it lines up with ThinkingElapsed's own start
+
+    // Part 2 §2.5: reviewBeforeDispatch is off by default (today's exact
+    // one-click behavior, unchanged) — most tasks should stay one-click,
+    // this is only for the minority of cases a user has explicitly opted
+    // into reviewing hires first.
+    if (reviewBeforeDispatch) {
+      try {
+        const res = await authedFetch(`${API_URL}/api/task/preview`, {
+          method: "POST",
+          headers: await authHeaders({ json: true }),
+          body: JSON.stringify({ task_text: taskText, session_id: effectiveSessionId, mode }),
+        });
+        const data = await res.json();
+        if (data.status === "preview_ready") {
+          // Nothing has run yet — stash it and hand off to
+          // HireReviewScreen via confirmHireReview()/cancelHireReview().
+          // loading stays true: the run genuinely hasn't finished, it's
+          // just paused on a human decision instead of agent work.
+          setPendingHireReview({
+            taskText,
+            sessionId: data.session_id,
+            decision: data.decision,
+            hires: data.result?.hires || [],
+          });
+          setLoading(false);
+          return;
+        }
+        // Every other status (cache/sga/tier-0/1/needs_*/hires-empty
+        // tier-2/3) is a genuinely finished response, identical in shape
+        // to what /api/task would have returned — handle it exactly like
+        // the non-preview path below.
+        const assistantMessage = _buildAssistantMessage(taskText, data, Date.now() - legStartedAt);
+        setMessages((prev) => [...prev, assistantMessage]);
+        persistMessageTo(effectiveSessionId, assistantMessage);   // FIX — see param doc above
+        setLoading(false);
+      } catch (err) {
+        const assistantMessage = _buildAssistantMessage(taskText, { status: "error", message: String(err) }, Date.now() - legStartedAt);
+        setMessages((prev) => [...prev, assistantMessage]);
+        persistMessageTo(effectiveSessionId, assistantMessage);   // FIX — see param doc above
+        setLoading(false);
+      }
+      return;
+    }
+
+    try {
+      const res = await authedFetch(`${API_URL}/api/task`, {
+        method: "POST",
+        headers: await authHeaders({ json: true }),
+        body: JSON.stringify({
+          task_text: taskText,
+          session_id: effectiveSessionId,
+          mode,
+          ...(topicId ? { topic_id: topicId } : {}),   // NEW — Step 6.11.c
+          ...(scope ? { scope } : {}),   // NEW — task 13e
+          ...(appSlugOverride ? { app_slug: appSlugOverride } : {}),   // BUG FIX — see param doc above
+        }),
+      });
+      const data = await res.json();
+      // Part 2 §2.4/§2.7: post_task() blocks synchronously until either
+      // finished or paused at an approval_roles checkpoint, so a
+      // "paused" status can come back on this very first response.
+      // The Pusher awaiting_approval event has already updated liveSteps
+      // by the time this resolves — just remember what's needed to
+      // finalize the message once resumeRun() eventually finishes it,
+      // and leave `loading` true (the run genuinely isn't done).
+      if (data.status === "paused") {
+        setPausedRun({ taskText, sessionId: data.session_id || effectiveSessionId });
+        return;
+      }
+      const assistantMessage = _buildAssistantMessage(taskText, data, Date.now() - legStartedAt);
+      setMessages((prev) => [...prev, assistantMessage]);
+      persistMessageTo(effectiveSessionId, assistantMessage);   // FIX — see param doc above
+      setLoading(false);
+    } catch (err) {
+      const assistantMessage = _buildAssistantMessage(taskText, { status: "error", message: String(err) }, Date.now() - legStartedAt);
+      setMessages((prev) => [...prev, assistantMessage]);
+      persistMessageTo(effectiveSessionId, assistantMessage);   // FIX — see param doc above
+      setLoading(false);
+    }
+  }, [sessionId, mode, reviewBeforeDispatch, persistMessageTo, _resetLiveRunState, _buildAssistantMessage]);
+
+  // CHANGED — step 6.11.b: topicId is a new optional 3rd param, threaded
+  // down from NotebooksTab.jsx's WorkflowCard "Work through" button via
+  // onOpenSubChat -> handleOpenSubChat. It's accepted and logged here only
+  // — sendTask(taskText) above is untouched, so nothing about today's
+  // dispatch behavior changes. Step 6.11.c is what actually adds topic_id
+  // to sendTask's POST body / the TaskRequest model server-side; until
+  // that lands this value goes nowhere past this console.debug.
+  // (Relocated here in 2.3k, right after sendTask's own declaration — see
+  // the note left in its old spot near createWorkspaceChat for why.)
+  const openScopedSubChat = useCallback(async (wsId, taskText, topicId = null, scope = null, appSlug = null) => {
+    // Step 6.11.c: topicId now actually reaches sendTask() and rides the
+    // /api/task POST body as topic_id. The server still only logs it
+    // (see api/server.py's post_task()) — 6.11.f is what makes routing
+    // consult it — so this is still safe to land ahead of that.
+    // scope (NEW — task 13e): same pass-through shape as topicId above,
+    // rides the POST body as `scope`. Used by ResearchTab.jsx's Sources
+    // sub-tab to steer the Panel toward web_researcher with a domain
+    // scope instead of academic_search — see that file for the phrasing
+    // this pairs with.
+    // appSlug (BUG FIX — PlanTab's "Start Building this" silently
+    // un-scoped): same pass-through shape as topicId/scope above, rides
+    // sendTask()'s own new appSlugOverride param through to the POST
+    // body as `app_slug` — see sendTask's own comment for the bug this
+    // closes. PlanTab's StartBuildingPanel is the only caller that
+    // passes this today; every other call site keeps passing neither and
+    // behaves exactly as before.
+    // FIX — dispatched-task-lands-in-wrong-chat bug: sendTask() used to
+    // be called bare here, which meant it read `sessionId` from state —
+    // but createWorkspaceChat()'s setSessionId(chat.id) hadn't actually
+    // propagated to this closure yet (React state updates are async, and
+    // this async function body doesn't re-render mid-flight). The task
+    // dispatched against a STALE session_id while the UI switched into
+    // (and the sidebar showed) the real new `chatId` — so the run
+    // genuinely executed on the backend, but its Chat Box/Working Panel
+    // stayed empty forever, because they were watching the wrong chat.
+    // Passing chatId through explicitly closes that race.
+    const chatId = await createWorkspaceChat(wsId);
+    await sendTask(taskText, topicId, scope, chatId, appSlug);
+    return chatId;
+  }, [createWorkspaceChat, sendTask]);
+
+  // Part 2 §2.4/§2.7 — resolves the checkpoint AgentStepList.jsx's
+  // approval actions raised. `decision` is {action: "approve"|"edit"|
+  // "reject_redo", text?}, passed straight through to POST /api/resume.
+  // A "paused" result means the run hit ANOTHER approval_roles role
+  // further down the pipeline — the Pusher awaiting_approval event for
+  // that new role has already updated liveSteps/pausedApproval, so this
+  // just leaves `loading`/`pausedRun` as they are and returns. Anything
+  // else (finished or errored) finalizes the message exactly like
+  // sendTask()'s own direct-dispatch path.
+  const resumeRun = useCallback(async (decision) => {
+    if (!pausedRun) return;
+    const legStartedAt = Date.now(); // NEW — a resume is its own leg, timed independently of whatever the original paused run took
+    try {
+      const res = await authedFetch(`${API_URL}/api/resume`, {
+        method: "POST",
+        headers: await authHeaders({ json: true }),
+        body: JSON.stringify({ session_id: pausedRun.sessionId, ...decision }),
+      });
+      const data = await res.json();
+      setPausedApproval(null);
+      if (data.status === "paused") return;
+      const assistantMessage = _buildAssistantMessage(pausedRun.taskText, data, Date.now() - legStartedAt);
+      setMessages((prev) => [...prev, assistantMessage]);
+      persistMessage(assistantMessage);
+      setLoading(false);
+      setPausedRun(null);
+    } catch (err) {
+      const assistantMessage = _buildAssistantMessage(pausedRun.taskText, { status: "error", message: String(err) }, Date.now() - legStartedAt);
+      setMessages((prev) => [...prev, assistantMessage]);
+      persistMessage(assistantMessage);
+      setPausedApproval(null);
+      setLoading(false);
+      setPausedRun(null);
+    }
+  }, [pausedRun, persistMessage, _buildAssistantMessage]);
+
+  // Part 2 §2.5 — HireReviewScreen's "Confirm & Run" calls this with its
+  // edited hires array ({role, agent_key, brief, update_library}[]).
+  // Dispatches straight through /api/task/confirm — no second
+  // staff_task() call — then finishes the run exactly like sendTask()'s
+  // direct path (same message shape, same live-state reset).
+  const confirmHireReview = useCallback(async (editedHires) => {
+    if (!pendingHireReview) return;
+    const { taskText, sessionId: reviewSessionId, decision } = pendingHireReview;
+    setLoading(true);
+    _resetLiveRunState();
+    const legStartedAt = Date.now(); // NEW — same per-leg timing as sendTask/resumeRun
+    try {
+      const res = await authedFetch(`${API_URL}/api/task/confirm`, {
+        method: "POST",
+        headers: await authHeaders({ json: true }),
+        body: JSON.stringify({
+          task_text: taskText,
+          decision,
+          hires: editedHires,
+          session_id: reviewSessionId,
+          mode,
+        }),
+      });
+      const data = await res.json();
+      const assistantMessage = _buildAssistantMessage(taskText, data, Date.now() - legStartedAt);
+      setMessages((prev) => [...prev, assistantMessage]);
+      persistMessage(assistantMessage);
+    } catch (err) {
+      const assistantMessage = _buildAssistantMessage(taskText, { status: "error", message: String(err) }, Date.now() - legStartedAt);
+      setMessages((prev) => [...prev, assistantMessage]);
+      persistMessage(assistantMessage);
+    } finally {
+      setLoading(false);
+      setPendingHireReview(null);
+    }
+  }, [pendingHireReview, mode, _resetLiveRunState, _buildAssistantMessage, persistMessage]);
+
+  // Part 2 §2.5 — HireReviewScreen's "Cancel". Nothing was ever
+  // dispatched (preview_task() stopped before execute_graph()/
+  // run_with_looping()), so there's no run to tear down — just drop the
+  // pending review. The user's message stays in the transcript with no
+  // assistant reply, the same way a "needs_app"/"needs_directed_task_type"
+  // response leaves an unanswered turn today.
+  const cancelHireReview = useCallback(() => {
+    setPendingHireReview(null);
+  }, []);
+
+  const registerProject = useCallback(async () => {
+    const path = prompt("Full path to the project folder:");
+    const name = prompt("Display name for this project:");
+    if (!path || !name) return;
+    try {
+      const res = await authedFetch(`${API_URL}/api/projects`, {
+        method: "POST",
+        headers: await authHeaders({ json: true }),
+        body: JSON.stringify({ path, display_name: name }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(`Registration failed: ${data.detail || res.status}`);
+        return;
+      }
+      alert(`Registered as '${data.unique_name}' -> ${data.root_path}`);
+    } catch (err) {
+      alert(`Registration failed: ${String(err)}`);
+    }
+  }, []);
+
+  // NEW — Data Layer §9c: binds sessionId (this component's own state,
+  // not available to the plain module functions above) onto each of
+  // the five ingestors, plus the processingWorkspaces start/settle
+  // pair from the WS effect above — so IngestionDropzone.jsx and
+  // lib/ingestDispatch.js, which both call these by name with the
+  // existing (wsId, file/url, signal) shape, get both §9c behaviors
+  // "for free" the next time they run, with no call-site changes.
+  // Exported below under the SAME five names the module functions
+  // have, replacing them in the context value — nothing outside this
+  // file should ever import the raw module functions directly.
+  // Step 2.3h (perf audit item #2, eighth useCallback batch): the
+  // *_wrapped ingest functions -- these are what actually goes into the
+  // context value, so getting their deps right matters more than most.
+  // Each closes over `sessionId` (state) and calls
+  // markSourceProcessingStarted/markSourceProcessingSettled (already
+  // useCallback'd, stable references) plus its own plain-function
+  // counterpart (ingestClip, ingestVideoUrl, etc. -- deliberately left
+  // as plain `function` declarations in 2.3g, so still a new reference
+  // every render). Same correctness-first call as removeWorkspaceChat
+  // back in 2.3c: the plain ingest function goes in the dep array even
+  // though it means these five won't stabilize until that plain
+  // function itself is wrapped -- which, per that same 2.3g note, isn't
+  // happening, since IngestionDropzone.jsx/lib/ingestDispatch.js need
+  // it to stay a plain, directly-importable function. So these five
+  // will keep getting new references every render until that tension
+  // is resolved by a bigger design change, not a mechanical wrap here.
+  const ingestClipWrapped = useCallback(async (wsId, url, signal) => {
+    markSourceProcessingStarted(wsId);
+    try {
+      return await ingestClip(wsId, url, signal, sessionId);
+    } finally {
+      markSourceProcessingSettled(wsId);
+    }
+  }, [markSourceProcessingStarted, markSourceProcessingSettled, sessionId, ingestClip]);
+
+  const ingestVideoUrlWrapped = useCallback(async (wsId, url, signal) => {
+    markSourceProcessingStarted(wsId);
+    try {
+      return await ingestVideoUrl(wsId, url, signal, sessionId);
+    } finally {
+      markSourceProcessingSettled(wsId);
+    }
+  }, [markSourceProcessingStarted, markSourceProcessingSettled, sessionId, ingestVideoUrl]);
+
+  const ingestFileWrapped = useCallback(async (wsId, file, signal) => {
+    markSourceProcessingStarted(wsId);
+    try {
+      return await ingestFile(wsId, file, signal, sessionId);
+    } finally {
+      markSourceProcessingSettled(wsId);
+    }
+  }, [markSourceProcessingStarted, markSourceProcessingSettled, sessionId, ingestFile]);
+
+  const ingestPdfFileWrapped = useCallback(async (wsId, file, signal) => {
+    markSourceProcessingStarted(wsId);
+    try {
+      return await ingestPdfFile(wsId, file, signal, sessionId);
+    } finally {
+      markSourceProcessingSettled(wsId);
+    }
+  }, [markSourceProcessingStarted, markSourceProcessingSettled, sessionId, ingestPdfFile]);
+
+  const ingestVoiceFileWrapped = useCallback(async (wsId, file, signal) => {
+    markSourceProcessingStarted(wsId);
+    try {
+      return await ingestVoiceFile(wsId, file, signal, sessionId);
+    } finally {
+      markSourceProcessingSettled(wsId);
+    }
+  }, [markSourceProcessingStarted, markSourceProcessingSettled, sessionId, ingestVoiceFile]);
+
+  // Step 2.2 (perf audit item #2): value was previously a plain object
+  // literal, rebuilt fresh on every render with a brand-new reference
+  // every time -- so every useSession() consumer re-rendered on ANY
+  // state change anywhere in this provider, not just the fields it
+  // actually uses. useMemo alone does NOT fully fix that yet: most of
+  // the ~100 functions below aren't wrapped in useCallback, so their
+  // references are still new every render, which still invalidates
+  // this memo every render. That's the deliberate next step (2.3,
+  // batched) -- this step lands the memo boilerplate and the complete,
+  // accurate dependency list first, so each useCallback added in 2.3
+  // starts paying off immediately with no further change needed here.
+  const value = useMemo(() => ({
+  sessionId, API_URL,
+  messages, loading,
+  // chats/refreshChatList REMOVED from this value — now served by
+  // useChatList() (ChatListContext.jsx), not useSession(). See that
+  // file's header comment for why this stayed a "state-only" slice like
+  // WorkspacesContext.jsx, and SessionContext.jsx's own top-of-file
+  // comment for why the functions that read/call them (switchChat,
+  // createNewChat, removeWorkspaceChat, etc.) stayed here regardless.
+  getWorkspaceIdForChat,   // NEW — step 3e prereq: threaded into WorkspaceDockProvider as props
+  batches, fetchBatches,
+  createBatch, estimateBatch,
+  renameBatch, unlinkBatchMembers, deleteBatch,
+  // workspaces/fetchWorkspaces REMOVED from this value — now served by
+  // useWorkspaces() (WorkspacesContext.jsx), not useSession(). The CRUD
+  // functions below still live here (see WorkspacesContext.jsx's header
+  // comment on why) and are unaffected.
+  createWorkspace, createWorkspaceWithChats, renameWorkspace,
+  addWorkspaceChat, createWorkspaceChat, removeWorkspaceChat, deleteWorkspace, promoteWorkspace,   // NEW — §7 / §8
+  // NEW — Part 8.9: workspace membership, ownership, voting, attribution
+  fetchWorkspaceMembers, addWorkspaceMember, updateWorkspaceMemberRole,
+  removeWorkspaceMember, leaveWorkspaceMembership, forceRemoveOwner,
+  fetchWorkspaceVotes, castWorkspaceVote,
+  setWorkspaceAttribution, setMemberAttributionGrant,
+  liveDecision, liveSteps, routeTrace, dependencyMap, structurePlan,
+  // usageStats/usageHistory/combinedUsageHistory/handleUsageEvent REMOVED
+  // — now served by useUsageStats() (UsageStatsContext.jsx), not
+  // useSession(). WorkspaceDockBridge (AppShell.jsx) reads
+  // handleUsageEvent from there directly instead of getting it forwarded
+  // through here.
+  macroLoopDecisions,
+  roleRequests,
+  mode, setMode,
+  pusherConnected,
+  fetchTopicsGraph, topicPulsingIds,   // NEW — Backlinks-as-topic-tree
+  // notifications/unreadCount/markNotificationsRead REMOVED — now served
+  // by useNotifications() (NotificationsContext.jsx), not useSession().
+  exportWorkspace, importWorkspace,                       // NEW — Part 8.7
+  activeMessageIndex, setActiveMessageIndex,
+  sendTask, registerProject,
+  // NEW — Part 2 §2.5: manual role editing before dispatch
+  reviewBeforeDispatch, setReviewBeforeDispatch,
+  pendingHireReview, confirmHireReview, cancelHireReview,
+  // NEW — Part 2 §2.4/§2.7: human-in-the-loop checkpoints
+  pausedApproval, resumeRun,
+  // NEW — Workflow Templates fix: survives tab switches, see
+  // templateRuns' own comment above.
+  templateRuns, runTemplate,
+  // NEW — §4.7: Notebooks tab
+  // BUGFIX — wiring check: renameWorkspaceNode was defined above (node
+  // rename PATCH call) but never threaded into this value object, even
+  // though NotebooksTab.jsx destructures it straight from useSession()
+  // and calls it in onRenameNode — every node rename in the Notebooks
+  // tab was hitting `undefined(...)` and throwing. Added alongside its
+  // sibling deleteWorkspaceNode, same as it's defined right next to it
+  // above.
+  fetchWorkspaceNodes, deleteWorkspaceNode, renameWorkspaceNode, fetchGraphEdges, buildExtractionTable,
+  fetchSimulationResults,   // NEW — Test tab: reads simulate-domain stage_output back off the bus
+  fetchRoles, updateRolePrompt, setRolePinned,   // NEW — Test tab `personas`: thin client over the Role Library store
+  ingestClip: ingestClipWrapped, ingestVideoUrl: ingestVideoUrlWrapped,
+  ingestFile: ingestFileWrapped, ingestPdfFile: ingestPdfFileWrapped, ingestVoiceFile: ingestVoiceFileWrapped,
+  processingWorkspaces,   // NEW — §9c: Set of workspace ids with an upload still processing server-side
+  detectBacklinks,
+  fetchNodeSummaries,   // NEW — Notebooks integration guide §6.6: Backlinks concept-graph node-click rationale
+  fetchNoteCandidates, acceptNoteCandidate, rejectNoteCandidate,
+  fetchWorkspaceFacts, saveWorkspaceFacts, fetchFactCandidates, acceptFactCandidate, rejectFactCandidate,
+  submitCorrection, fetchPatchCandidates, acceptPatchCandidate, rejectPatchCandidate,
+  fetchPanelContent, savePanelContent, fetchPanelContentList,   // NEW — generic paste-panel persistence (eo/panel_content.py); fetchPanelContentList added for §8 unread dots
+  generateNotebooks,   // NEW — Notebooks integration guide §4/§6: the picker/chip-confirmation "Generate" command
+  generateTopicWorkflow,   // NEW — step 4: Mind Map node click -> single per-topic workflow (see step 2's endpoint)
+  classifyIntent,   // NEW — Notebooks Chat-First refinement Phase 2 step 2.5: log-only tool-calling classification
+  markTopicDone,   // NEW — Notebooks Chat-First refinement Phase 6 step 6.8: "mark X as done" chat tool
+  fetchWorkspaceProgress, setWorkspaceProgress,   // NEW — Phase 6 step 6.9: Not Started/Ongoing/Done board view
+  fetchDeviceSpec, refreshPartPrices, toggleInstructionStep, // NEW — Blueprint (Plan sub-tab)
+  proposeClusters, fetchClusterCandidates, acceptClusterCandidate, rejectClusterCandidate,
+  openScopedSubChat,
+  gradeQuiz, recordQuizAttempt, fetchMissedQuestions,
+  synthesizePodcast,   // NEW — Part 4 §4.4: podcast synthesis
+  buildVideoOverview,   // NEW — Part 4 §4.4: video overview (narrated slideshow)
+  fetchPodcastAudioUrl, fetchVideoOverviewUrl,   // NEW — Frontend paste-box patch (patch 4): read back saved panel_content media
+  fetchRehearsalAudioUrl,   // NEW — Patch 5 (Presentation rehearsal reachability patch): same, for presentation_rehearsal
+  fetchWorkspaceAudit, fetchMyAudit,   // NEW — Part 8.6: audit log
+  }), [
+    sessionId, API_URL, messages, loading,
+    getWorkspaceIdForChat, batches, fetchBatches, createBatch, estimateBatch,
+    renameBatch, unlinkBatchMembers, deleteBatch, createWorkspace,
+    createWorkspaceWithChats, renameWorkspace, addWorkspaceChat, createWorkspaceChat, removeWorkspaceChat, deleteWorkspace,
+    promoteWorkspace, fetchWorkspaceMembers, addWorkspaceMember, updateWorkspaceMemberRole, removeWorkspaceMember, leaveWorkspaceMembership,
+    forceRemoveOwner, fetchWorkspaceVotes, castWorkspaceVote, setWorkspaceAttribution, setMemberAttributionGrant, liveDecision,
+    liveSteps, routeTrace, dependencyMap,
+    structurePlan, macroLoopDecisions, roleRequests, mode, setMode,
+    pusherConnected, fetchTopicsGraph, topicPulsingIds,
+    exportWorkspace, importWorkspace, activeMessageIndex, setActiveMessageIndex, sendTask, registerProject,
+    reviewBeforeDispatch, setReviewBeforeDispatch, pendingHireReview, confirmHireReview, cancelHireReview, pausedApproval,
+    resumeRun, templateRuns, runTemplate, fetchWorkspaceNodes, deleteWorkspaceNode, renameWorkspaceNode, fetchGraphEdges,
+    buildExtractionTable, fetchSimulationResults, fetchRoles, updateRolePrompt, setRolePinned, ingestClipWrapped,
+    ingestVideoUrlWrapped, ingestFileWrapped, ingestPdfFileWrapped, ingestVoiceFileWrapped, processingWorkspaces, detectBacklinks,
+    fetchNodeSummaries, fetchNoteCandidates, acceptNoteCandidate, rejectNoteCandidate, fetchWorkspaceFacts, saveWorkspaceFacts,
+    fetchFactCandidates, acceptFactCandidate, rejectFactCandidate, submitCorrection, fetchPatchCandidates, acceptPatchCandidate,
+    rejectPatchCandidate, fetchPanelContent, savePanelContent, fetchPanelContentList, generateNotebooks, generateTopicWorkflow,
+    classifyIntent, markTopicDone, fetchWorkspaceProgress, setWorkspaceProgress, fetchDeviceSpec, refreshPartPrices,
+    toggleInstructionStep, proposeClusters, fetchClusterCandidates, acceptClusterCandidate, rejectClusterCandidate, openScopedSubChat,
+    gradeQuiz, recordQuizAttempt, fetchMissedQuestions, synthesizePodcast, buildVideoOverview, fetchWorkspaceAudit,
+    fetchMyAudit, fetchPodcastAudioUrl, fetchVideoOverviewUrl, fetchRehearsalAudioUrl,
+  ]);
+  return (
+    <SessionContext.Provider value={value}>
+      {children}
+    </SessionContext.Provider>
+  );
+}

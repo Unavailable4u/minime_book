@@ -1,0 +1,2601 @@
+"use client";
+import { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import { useSession } from "../context/SessionContext";
+import { useWorkspaceDock, useWorkspaceDockActions, useLastActiveChatId } from "../context/WorkspaceDockContext";
+import MessageRow from "./MessageRow"; // Perf audit #3 step 3 — extracted from messages.map() below
+import { List, useDynamicRowHeight } from "react-window"; // Perf audit #3 step 5d — react-window is v2 (see package.json), a
+// ground-up rewrite: no VariableSizeList/FixedSizeList split, no itemSize/
+// estimatedItemSize/outerRef/resetAfterIndex/scrollToItem. One `List`
+// component instead, sized automatically off its own parent via an
+// internal ResizeObserver — step 5c's manual containerSize tracking was
+// dead from the moment this landed and has been removed (step 9 cleanup).
+import GenerationNotificationRow from "./notebooks/GenerationNotificationRow";   // NEW — Phase 4 step 4.6
+import WorkingPanel from "./WorkingPanel";
+import { useViewport } from "../hooks/useViewport";   // NEW — Phase 1 (mobile shell)
+import WorkingPanelDrawer from "./mobile/WorkingPanelDrawer";   // NEW — Phase 1
+import { OPEN_WORKING_PANEL_EVENT } from "./mobile/events";   // NEW — Phase 1
+import HireReviewScreen from "./HireReviewScreen";
+import ConfirmDialog from "./ConfirmDialog";
+// CHANGED — dock-controls simplification: PanelLeftOpen/PanelLeftClose are
+// gone along with the Chat Box's own collapse button and collapsed rail
+// (the section header itself is the control now, see the stacked headers
+// below). ChevronUp/ChevronDown are what those headers show instead, and
+// X is the single "close the whole dock" button that replaces the old
+// trio of per-half collapse buttons.
+import { Sparkles, Feather, Zap, Brain, Flame, ChevronDown, ChevronUp, ClipboardCheck, PanelRightOpen, PanelRightClose, X, MessageSquare, Paperclip, Loader2, CheckCircle2, XCircle, AlertTriangle, Send, Square, Play } from "lucide-react";   // CHANGED — Send added for the compact icon-only composer below; Square/Play added for the merged send/pause/resume composer button
+import { ingestFileByExtension } from "../lib/ingestDispatch";
+// NEW — W5.1b: createProposal, subscribeToProposalEvents. NEW — W5.4:
+// resolveProposal/ProposalStaleError (the card's own Keep all/Reject —
+// the same POST .../code/proposals/{id}/resolve round trip
+// ReviewPanel.jsx's Done button makes) and listProposals (the "one
+// active proposal per file" pre-check below).
+import {
+  createProposal as createCodeProposal,
+  listProposals,
+  ProposalStaleError,
+  resolveProposal,
+  subscribeToProposalEvents,
+} from "../lib/workbench/codeProposals";
+// NEW — W5.4: keepAllDecisions()/rejectAllDecisions() stand in for a
+// per-hunk review nobody opened, the same shortcut PendingTray.jsx
+// (EditorWorkbench.jsx) uses for its own Keep all/Reject buttons.
+import { deletedPathsToKeep, keepAllDecisions, rejectAllDecisions } from "../lib/workbench/reviewMode";
+import { describeElement } from "../lib/workbench/elementRef"; // W6.5 — pure helpers, not a codeContext import
+import { parseFreeText, TARGETS } from "./notebooks/NotebooksGeneratePicker";
+import AssistantAvatar from "./AssistantAvatar";   // NEW — animated brand-mark for the "Working…" row below
+
+// NEW — §6: this component is the composition that used to live directly
+// inside ChatTab.jsx (chat box + resizable/collapsible WorkingPanel dock).
+// It's been pulled out so it can be embedded as a docked panel inside
+// Notebooks/Research/etc (§6.2) as well as rendered standalone by the
+// (now thin) ChatTab.jsx wrapper — same underlying chat, since both read
+// the single active chat off SessionContext (messages/sessionId are
+// global, not per-embed — a workspace only ever has one chat "in focus"
+// at a time, matching §0's model).
+//
+// `collapsed`/`onToggleCollapse` are a NEW top-level pair, distinct from
+// the WorkingPanel's own internal collapse state below — this is for the
+// *whole panel* (chat + WorkingPanel together) when it's docked inside a
+// domain tab and the user wants to fold it away entirely, same pattern as
+// the left ChatSidebar's collapse. The standalone ChatTab wrapper doesn't
+// pass these, so it always renders expanded, unchanged from today.
+//
+// Step 3d of the §2.6 build order: `workspaceId`/`chatId` are NEW,
+// OPTIONAL props. Neither is passed by any of the 7 current call sites
+// (Chat/Notebooks/Research/Plan/Build/Test/Growth tabs) — that rewiring is
+// 3e, one tab at a time. Until a caller passes one, this component is
+// byte-for-byte the same as before: it reads messages/sessionId/loading/
+// etc. off useSession(), exactly like today.
+//
+// DUAL MODE: `useWorkspaceDock(workspaceId, chatId)` is called
+// unconditionally (hooks can't be conditional) and resolves to a null key
+// when neither prop is passed — safe, since the hook already returns inert
+// no-op fields for a null key. `usingDock` below is the single switch that
+// picks dock state/actions vs. SessionContext's, field by field. Once 3e
+// starts passing a real workspaceId into a given call site, that one
+// instance flips to the dock; every other still-unwired call site keeps
+// behaving exactly as it does today. No cutover moment where every tab
+// switches at once.
+//
+// `mode`/`reviewBeforeDispatch`: SessionContext's sendTask() reads its own
+// `mode` state from closure (no param), while the dock's sendTask(key,
+// text, {mode, reviewBeforeDispatch}) takes them as call-site args (see
+// WorkspaceDockContext.jsx's note on this same question). Sharing one
+// global mode toggle across what could be several simultaneously-open dock
+// panels (the whole point of partial promotion) would be wrong, so in dock
+// mode these are local state on THIS component instance — not read from
+// SessionContext, not stored on the dock. In legacy mode they still come
+// straight from SessionContext, unchanged.
+//
+// CHANGED — Item 2 remaining piece, live-run-state slice, step 4: the
+// merged messages/loading/mode/etc. variables below no longer read from
+// `legacy` (SessionContext) at all — audited every path that reaches
+// them (the compose form, MessageBubble list, handleChatScroll,
+// dispatchText/sendTask) and confirmed every one of those only renders
+// or fires from inside the `if (!usingDock) return <placeholder>`
+// branch below, so the `usingDock ? dock… : legacy…` reads were dead in
+// the same way WorkingPanel.jsx's were (Item 2 step 3) — the
+// `!usingDock` case (TestTab/BuildTab/ResearchTab/PlanTab with nothing
+// selected, or ChatTab's brief bootstrap gap) shows an explicit
+// placeholder instead, never the real chat UI, so there was nothing
+// left for those particular legacy values to feed. This does NOT make
+// `legacy` fully dead in this file: `ingestFile`/`ingestPdfFile`/
+// `ingestVoiceFile`/`generateNotebooks`/`classifyIntent`/
+// `markTopicDone` above are still read unconditionally off
+// `useSession()` (no dock equivalent — see line ~136), and
+// SessionContext.jsx itself still owns the real global Chat-tab
+// conversation `standalone` mode ultimately resolves into a dock key
+// for. Full `SessionContext.jsx` cleanup is Item 2 steps 5-6, once
+// nothing reachable still depends on its dead state.
+const MODES = [
+  { id: "auto", label: "Auto", icon: Sparkles, hint: "Let the Inspector decide" },
+  { id: "simple", label: "Simple", icon: Feather, hint: "Cheapest capable tier only" },
+  { id: "fast", label: "Fast", icon: Zap, hint: "Favor speed over headcount" },
+  { id: "expert", label: "Expert", icon: Brain, hint: "Allow the full staffed ceiling" },
+  { id: "beast", label: "Beast", icon: Flame, hint: "Force the full pipeline, skip SGA/cache" },
+];
+
+const WORKING_PANEL_KEY = "minime_working_panel_collapsed";
+const WORKING_PANEL_WIDTH_KEY = "minime_working_panel_width";
+const WORKING_PANEL_DEFAULT_WIDTH = 420;
+const WORKING_PANEL_MIN_WIDTH = 280;
+const WORKING_PANEL_MAX_WIDTH = 720;
+
+// NEW — CO4 patch 1: a second, independent collapse, scoped to just the
+// "Chat Box" half of the split (as opposed to `collapsed`/`onToggleCollapse`
+// above, which folds the *whole* docked panel — chat + Working Panel
+// together — away entirely, see the DUAL MODE header comment). This one
+// mirrors WORKING_PANEL_KEY's own pattern (persisted rail toggle) but for
+// the opposite side of the split, so a user can tuck the conversation away
+// and leave the Working Panel visible on its own, or vice versa.
+const CHAT_BOX_KEY = "minime_chat_box_collapsed";
+
+// NEW — stacked (top/bottom) layout: used instead of the width constants
+// above when a caller passes `stacked` (every domain-tab dock — Build/
+// Plan/Research/Test/Notebooks/Growth — see each tab's WorkspaceChatPanel
+// call site). The standalone Chat tab never passes `stacked`, so it keeps
+// the original side-by-side layout and these are unused there.
+const WORKING_PANEL_HEIGHT_KEY = "minime_working_panel_height";
+const WORKING_PANEL_DEFAULT_HEIGHT = 320;
+const WORKING_PANEL_MIN_HEIGHT = 160;
+const WORKING_PANEL_MAX_HEIGHT = 640;
+
+// NEW — split auto-collapse. The drag handle between the two stacked
+// halves stays exactly as it was, but releasing it with either half
+// squeezed below this share of the dock's own height now folds that half
+// away instead of leaving a sliver too short to read anything in. Phrased
+// as a share rather than a pixel floor on purpose: a 1400px-tall dock and
+// a 600px one should give way at the same *visual* proportion, and the
+// existing WORKING_PANEL_MIN_HEIGHT (160px) is meaningless as a threshold
+// in a dock that's only 500px tall to begin with.
+const SPLIT_MIN_SHARE = 0.25;
+
+// NEW — Data Layer §4b: every chat-tab surface embeds this one component
+// (see the header comment above), so the attach affordance below —
+// paperclip button + hidden file input + a small inline progress pill
+// row, all pointed at agents/source_manager.py's process_upload() via
+// the exact same ingestFile/ingestPdfFile/ingestVoiceFile helpers
+// IngestionDropzone.jsx already uses (factored into lib/ingestDispatch.js
+// so both share one dispatch table) — lands on all 7 tabs
+// (Chat/Notebooks/Research/Plan/Build/Test/Growth) in this one patch.
+// Deliberately file-only, no URL field here: pasting a web/YouTube link
+// still belongs to Notebooks' own Sources panel (IngestionDropzone), which
+// is the dedicated place for that and already has one. This is purely
+// "I have a file open, let me drop it into the conversation" — the
+// chat-composer equivalent of a Slack/ChatGPT attach button, not a second
+// Sources UI. Ingestion here never turns into a chat turn/sendTask() call
+// — it's the same "hires Source Manager, which hires Backlink Detector"
+// path §4a describes, independent of whatever's typed in the textarea.
+const ATTACH_DONE_AUTOCLEAR_MS = 3000;
+
+// Perf audit #3 step 8 fix — hoisted to module scope, deliberately outside
+// WorkspaceChatPanel. react-window v2 wraps whatever you pass as
+// `rowComponent` in its own React.memo, keyed off that function's identity
+// (see node_modules/react-window/dist/react-window.js — `useMemo(() =>
+// memo(rowComponent, arePropsEqual), [rowComponent])`). Step 5b/7's `Row`
+// was defined *inside* WorkspaceChatPanel's render body, so it was a brand
+// new function on every render — meaning react-window's memo wrapper was
+// also brand new every render, which React treats as an entirely
+// different component type. Net effect: every currently-visible message
+// row fully unmounted and remounted (not just re-rendered) on every
+// keystroke in the composer, every mode-menu toggle, etc — exactly the
+// "mounting/rendering every message on unrelated re-renders" step 8's own
+// checklist says to rule out via the Profiler, and it would not have
+// passed. Data that used to come from closing over the parent's render
+// scope (messages, messageRefs, the two callbacks) now arrives via
+// `rowProps` instead — react-window's built-in, documented way to feed a
+// stable row component fresh data without recreating the component itself
+// (see the <List rowProps={...}> call site below).
+//
+// Not wiring up a ResizeObserver/data-react-window-index here: List
+// itself already does this automatically for every rendered row once
+// `rowHeight` is a DynamicRowHeight object (same source file, the effect
+// right after the row-rendering loop) — that was redundant, and has been
+// removed from this component's Row-equivalent.
+//
+// Perf audit #3 step 9 cleanup: no longer threads `messageRefs` through.
+// That was the old DOM-node-per-row wiring cross-panel scroll sync used
+// to read (`messageRefs.current[i]`) before virtualization — step 7
+// replaced it with `handleRowsRendered`/`onRowsRendered`, which reports
+// the live visible-row range directly instead of scanning DOM refs. Once
+// step 7 landed, nothing read `messageRefs.current` for its original
+// purpose anymore, so it — and the ref-setting div wrapper in
+// MessageRow.jsx — were dead weight kept alive only by being passed
+// through. Removed here, and MessageRow's ref prop dropped to match.
+function VirtualMessageRow({
+  index,
+  style,
+  messages,
+  onSelect,
+  onNavigateSubTab,
+  onSendCommand,
+  onResume,
+  pausedActive,
+  onReviewProposal, // NEW — W5.4
+  onKeepProposal, // NEW — W5.4
+  onRejectProposal, // NEW — W5.4
+}) {
+  // NEW — CO3 patch 3: only the single most-recent message can be the
+  // "live" pause — everything earlier in the thread is history, even
+  // if it also happens to carry status:"paused" from a prior run.
+  const isActivePause = pausedActive && index === messages.length - 1;
+  return (
+    <div style={style}>
+      <MessageRow
+        message={messages[index]}
+        index={index}
+        onSelect={onSelect}
+        onNavigateSubTab={onNavigateSubTab}
+        onSendCommand={onSendCommand}
+        onResume={onResume}
+        isActivePause={isActivePause}
+        onReviewProposal={onReviewProposal}
+        onKeepProposal={onKeepProposal}
+        onRejectProposal={onRejectProposal}
+      />
+    </div>
+  );
+}
+
+function clampWorkingPanelWidth(w) {
+  return Math.min(WORKING_PANEL_MAX_WIDTH, Math.max(WORKING_PANEL_MIN_WIDTH, w));
+}
+
+function clampWorkingPanelHeight(h) {
+  return Math.min(WORKING_PANEL_MAX_HEIGHT, Math.max(WORKING_PANEL_MIN_HEIGHT, h));
+}
+
+// NEW — one-line echo of WorkingPanel/AgentStepList's live feed, for the
+// "Working…" row below. Deliberately thin: just the LAST step (same
+// "sequential execution -> last entry is the currently-running one"
+// assumption AgentStepList.jsx's own header comment documents), a role
+// name with underscores swapped for spaces, no icons/colors/durations —
+// those stay AgentStepList's job. decisionEvents is only consulted when
+// there's no step yet at all (e.g. a cache-tier hit never runs a single
+// agent — see AgentStepList.jsx's own comment on that same case), so a
+// near-instant reply still shows something truer than a generic
+// "Thinking…" for the one frame it's visible.
+function currentWorkLabel(liveSteps, decisionEvents) {
+  const lastStep = liveSteps && liveSteps.length > 0 ? liveSteps[liveSteps.length - 1] : null;
+  if (lastStep) {
+    const role = lastStep.role ? lastStep.role.replace(/_/g, " ") : "agent";
+    if (lastStep.status === "awaiting_approval") return `Awaiting approval on ${role}`;
+    if (lastStep.status === "error") return `${role} hit an error`;
+    if (lastStep.status === "done") return `${role} done`;
+    return `Running ${role}…`;
+  }
+  const lastDecision =
+    decisionEvents && decisionEvents.length > 0 ? decisionEvents[decisionEvents.length - 1] : null;
+  if (lastDecision?.type === "cache_hit") return "Serving from cache…";
+  if (lastDecision?.type === "worker_pool_selection") return "Selecting worker pool…";
+  return "Thinking…";
+}
+
+// NEW — merged send/pause/resume composer control, the chatbox
+// counterpart of WorkingPanel.jsx's own PauseResumeButton (same
+// "fire-and-forget, disable while pending" shape — a pause/resume
+// request can't itself know the exact moment the run reacts, only
+// that it asked; `loading`/`paused` flipping is what actually swaps
+// this button's icon back, same as that component's own comment
+// explains). Lives here (rather than a third copy of the same
+// three-icon-state logic pasted into both the compact and the
+// full-width composer below) so the composer always shows exactly one
+// of: Send (idle, enabled once there's a draft), Stop-a-running-run
+// (loading, not paused — mirrors Claude's own chatbox: the send icon
+// is replaced by a stop/pause affordance the moment a run is in
+// flight, instead of just disabling into a dead button with nothing
+// the person can do about it), or Resume (loading AND paused — same
+// quick "approve, resume as-is" call the Working Panel's own button
+// and the pause/approval card make).
+//
+// `compact` picks which of the two existing composer's visual shells
+// this renders inside (icon-only pill vs. the wider desktop form's
+// bigger tap target) — the state logic itself doesn't change either
+// way.
+function ChatSendButton({ compact, loading, paused, disabledSend, onPauseRequest, onResume }) {
+  const [pending, setPending] = useState(false);
+
+  async function handlePauseOrResume() {
+    setPending(true);
+    try {
+      await (paused ? onResume({ action: "approve" }) : onPauseRequest());
+    } finally {
+      // Same "leave it true briefly, the icon swap comes from
+      // loading/paused catching up, not from this flag" reasoning as
+      // WorkingPanel.jsx's PauseResumeButton.
+      setPending(false);
+    }
+  }
+
+  const compactClass =
+    "flex items-center justify-center p-1.5 rounded-md bg-[var(--accent)] text-[var(--accent-text)] disabled:opacity-50 transition-colors";
+  const fullClass =
+    "flex items-center justify-center bg-[var(--accent)] text-[var(--accent-text)] rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 self-end min-w-[64px]";
+
+  if (loading) {
+    const label = paused ? "Resume the run" : "Stop generating";
+    return (
+      <button
+        type="button"
+        onClick={handlePauseOrResume}
+        disabled={pending}
+        title={label}
+        aria-label={label}
+        className={compact ? compactClass : fullClass}
+      >
+        {pending ? (
+          <Loader2 size={compact ? 15 : 16} className="animate-spin" />
+        ) : paused ? (
+          <Play size={compact ? 15 : 16} />
+        ) : (
+          <Square size={compact ? 15 : 16} fill="currentColor" />
+        )}
+      </button>
+    );
+  }
+
+  return (
+    <button
+      type="submit"
+      disabled={disabledSend}
+      title="Send"
+      aria-label="Send"
+      className={compact ? compactClass : fullClass}
+    >
+      {compact ? <Send size={15} /> : "Send"}
+    </button>
+  );
+}
+
+// NEW — elapsed-time readout for the "Working…" row. Purely local:
+// starts its own clock the moment it mounts (which is the moment
+// `loading` flips true, since the parent only renders this while
+// `loading` is true — see the render site below) and clears on
+// unmount. No server round trip either way, just a 1s setInterval —
+// same reasoning as currentWorkLabel above for why this doesn't add
+// latency or request volume.
+function ThinkingElapsed() {
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    const startedAt = Date.now();
+    const id = setInterval(() => {
+      setSeconds(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return <span className="tabular-nums">{seconds}s</span>;
+}
+
+// W8.4: how a pre-fill request combines with the composer's current
+// draft. An empty draft just takes the text; a draft that already
+// contains it (a second click on the same step) is left alone; anything
+// else keeps what the person typed and appends the starter text after a
+// blank line.
+function mergeDraftPrefill(prev, incoming) {
+  if (!prev || !prev.trim()) return incoming;
+  if (prev.includes(incoming)) return prev;
+  return `${prev.replace(/\s+$/, "")}\n\n${incoming}`;
+}
+
+// NEW — Notebooks Chat-First refinement, Phase 2 step 2.6a (scope
+// resolution). `activeContext` is the caller's best guess at "what the
+// person is currently looking at" -- { type: "topic", id, label } or
+// { type: "source", id, label } -- fed from whichever sub-tab/view last
+// had something clicked (see NotebooksTab.jsx). Optional and null by
+// default: a standalone Chat tab, or a Notebooks session where nothing's
+// been clicked yet, simply has no default to fall back to, same as
+// today (see tryHandleClassifiedToolCall's scope resolution below).
+// NEW — W4.2 (Build Workbench plan). `codeRefs`/`codeChips`/
+// `onClearCodeRefs` are the code-context equivalent of `activeContext`
+// just above: plain data + a ready-made element, not a dependency on
+// lib/workbench/codeContext.js or components/workbench/ContextChips.jsx
+// — this file stays usable by every non-Build tab exactly as before.
+// `codeRefs === null` (the default, every existing call site) means
+// "this panel isn't code-context-aware" and the Ask|Edit strip below
+// the message list doesn't render at all. BuildTab.jsx's own
+// CodeAwareChatPanel wrapper is what supplies real values: `codeRefs`
+// from useCodeContext().refs, `codeChips` as a `<ContextChips/>`
+// element (rendered here, but built there — see that wrapper's own
+// comment for why it can't be built in this file), and
+// `onClearCodeRefs` as that same store's clearRefs().
+// NEW — W5.3: `onReviewProposal(proposal)` — the proposals list's own
+// "Review" button, one per pending entry in `codeProposals` (below).
+// Same "plain callback, not a codeContext.js import" shape as
+// `onClearCodeRefs` — CodeAwareChatPanel is what turns a click into
+// codeContext.js's requestReview(proposal.id) plus switching the Build
+// tab to its Editor sub-tab (and, on the mobile overlay instance,
+// closing the chat dock), neither of which this file knows how to do.
+// NEW — W6.2: `pendingChatMode`/`onConsumeChatMode` are Console tab's
+// "Fix with AI" (ConsolePanel.jsx) asking this panel to switch its
+// Ask|Edit toggle — same "plain prop, not a lib/workbench import" shape
+// as every other codeContext-adjacent prop above; CodeAwareChatPanel is
+// what forwards codeContext.js's own pendingChatMode/clearChatMode
+// under these names. `pendingChatMode === null` (the default, every
+// non-Build call site) means nothing to apply.
+// NEW — W8.4: `pendingDraft`/`onConsumeDraft`, the same shape again, for
+// an Instructions step's "Work on this" — text to pre-fill the composer
+// with. Merged into the draft rather than replacing it (see
+// mergeDraftPrefill below), never sent on its own. `pendingDraft ===
+// null` (the default, every non-Build call site) means nothing to apply.
+export default function WorkspaceChatPanel({
+  collapsed = false,
+  onToggleCollapse = null,
+  workspaceId = null,
+  chatId = null,
+  onNavigateSubTab = null,
+  stacked = false,
+  hideAttach = false,
+  activeContext = null,
+  standalone = false,
+  codeRefs = null,
+  codeChips = null,
+  onClearCodeRefs = null,
+  onReviewProposal = null,
+  pendingChatMode = null,
+  onConsumeChatMode = null,
+  pendingDraft = null,
+  onConsumeDraft = null,
+}) {
+  const legacy = useSession();
+  const { ingestFile, ingestPdfFile, ingestVoiceFile, generateNotebooks, classifyIntent, markTopicDone, API_URL } = legacy;   // NEW — Data Layer §4b; generateNotebooks NEW — chat audit bug #1; classifyIntent NEW — Phase 2 step 2.5; markTopicDone NEW — Phase 6 step 6.8; API_URL NEW — W5.1b, for codeProposals.js's plain fetch() calls
+  const dock = useWorkspaceDock(workspaceId, chatId);
+  const usingDock = dock.key != null;
+  const { createWorkspaceChat, loadOlderMessages } = useWorkspaceDockActions();
+  const globalActiveChatId = useLastActiveChatId();
+
+  // CHANGED — chat-gating, take 2. Was `!dock.state.sessionId` — but a
+  // dock's sessionId is whatever this workspace's chat last resolved to
+  // in THIS in-memory store, which can go stale: switch to another
+  // project's chat, then come back to this one by clicking the project
+  // row alone (not one of its chat rows), and this dock's sessionId is
+  // still sitting on the old value even though nothing about it is
+  // "open" anymore — no visible cue anywhere would say which chat this
+  // panel is about. `globalActiveChatId` is the single "last active
+  // chat" NotebooksTab's own sidebar already highlights a chat row
+  // against (`chat.id === activeChatId`) — comparing this dock's
+  // sessionId to THAT, not just checking it's non-null, means the gate
+  // agrees with the exact same "selected" the sidebar shows.
+  const needsChatFirst = usingDock && !!workspaceId && (!dock.state.sessionId || dock.state.sessionId !== globalActiveChatId);
+  // Distinguishes the two reasons needsChatFirst can be true, purely for
+  // copy/button-label purposes below — both still gate the same way.
+  // `!dock.state.sessionId` (this dock has never resolved to a chat at
+  // all, in this store) is the "genuinely no chat yet" case; a present-
+  // but-mismatched sessionId means a chat exists, it's just not the one
+  // currently active — "Create first chat" would be misleading there.
+  const needsBrandNewChat = needsChatFirst && !dock.state.sessionId;
+  const [creatingChat, setCreatingChat] = useState(false);
+  const [createChatError, setCreateChatError] = useState(null);
+  async function handleCreateFirstChat() {
+    setCreatingChat(true);
+    setCreateChatError(null);
+    try {
+      await createWorkspaceChat(workspaceId);
+    } catch (err) {
+      // Bug fix: this previously had no catch, so a failed request here
+      // (backend unreachable, CORS misconfigured, network drop, etc.)
+      // surfaced as an unhandled promise rejection / crash overlay
+      // instead of a message the user can actually act on.
+      setCreateChatError(
+        err instanceof TypeError
+          ? "Couldn't reach the server — check that it's running and try again."
+          : err.message || "Couldn't create the chat — try again."
+      );
+    } finally {
+      setCreatingChat(false);
+    }
+  }
+
+  // Local to this component instance — only meaningful in dock mode. See
+  // header comment for why these can't come from SessionContext OR the
+  // dock store.
+  const [dockMode, setDockMode] = useState("auto");
+  const [dockReviewBeforeDispatch, setDockReviewBeforeDispatch] = useState(false);
+
+  const messages = dock.state.messages;
+  const loading = dock.state.loading;
+  // NEW — thinking-row status label: the SAME liveSteps/decisionEvents
+  // WorkingPanel.jsx already renders in full, off the SAME dock.state
+  // (populated by the session-${sessionId} Pusher subscription that
+  // lives in WorkspaceDockContext.jsx at the dock level, not inside
+  // WorkingPanel itself — so these are already up to date here whether
+  // or not WorkingPanel is even mounted/expanded). Reading them a
+  // second time, in one more place, is a render-only operation: no new
+  // subscription, no new request, no added latency or server load.
+  const liveSteps = dock.state.liveSteps;
+  const decisionEvents = dock.state.decisionEvents;
+  // NEW — merged send/pause/resume composer button. Same "awaiting an
+  // approval checkpoint OR a manual pause_requested flag" test as
+  // WorkingPanel.jsx's own PauseResumeButton — see that component's
+  // comment for why both have to be checked (a manual pause never sets
+  // any step's status, so checking liveSteps alone would miss it).
+  const pausedRun = dock.state.pausedRun;
+  const isRunPaused = liveSteps.some((s) => s.status === "awaiting_approval") || !!pausedRun;
+  const requestPause = dock.requestPause;
+  const resumeRun = dock.resumeRun;
+  const hasMoreOlder = dock.state.hasMoreOlder;   // NEW — perf audit item #3
+  const loadingOlder = dock.state.loadingOlder;   // NEW — perf audit item #3
+  const mode = dockMode;
+  const setMode = setDockMode;
+  const activeMessageIndex = dock.state.activeMessageIndex;
+  // BUGFIX (Maximum update depth exceeded / react-window useVirtualizer
+  // setIndices crash, scroll-triggered instance): the "Fix (render-loop,
+  // take 2)" comment below only closed HALF the loop. setActiveMessageIndex
+  // still depended on the primitive dock.state.activeMessageIndex — which
+  // is the exact value this same callback writes — so its identity was
+  // still recreated on every scroll-driven index change, which cascaded
+  // into handleRowsRendered and rowProps (both depend on
+  // setActiveMessageIndex) getting new identities on every scroll tick
+  // too. List's own onRowsRendered effect depends on that callback
+  // reference (see node_modules/react-window's List.tsx), so a
+  // continuous scroll gesture — rapid, real startIndex changes — kept
+  // re-triggering that effect on top of the real changes, and each
+  // recreation also invalidated every row's memo via rowProps, undoing
+  // the step-8 fix's whole point. A ref lets these callbacks read the
+  // latest activeMessageIndex for their equality checks without needing
+  // to be recreated when it changes — same "depend on values you SET,
+  // read values you only need to COMPARE against via a ref" fix as
+  // setActiveMessageIndex's own comment already half-applies below.
+  const activeMessageIndexRef = useRef(activeMessageIndex);
+  useEffect(() => {
+    activeMessageIndexRef.current = activeMessageIndex;
+  }, [activeMessageIndex]);
+  // Fix (render-loop, take 2): the first fix's `[dock]` dependency was
+  // itself the bug — useWorkspaceDock() returns a brand-new object literal
+  // on every render (only its individual fields, like setDockState, are
+  // internally memoized). Depending on the whole `dock` object meant this
+  // callback was STILL recreated every render, which meant rowProps below
+  // was still unstable, which is exactly what keeps react-window's
+  // internal setIndices effect retriggering. Depending on the specific
+  // stable field (dock.setDockState) and reading the current value via
+  // activeMessageIndexRef (rather than depending on the primitive
+  // dock.state.activeMessageIndex, which this same callback writes —
+  // see the fuller BUGFIX comment above activeMessageIndexRef's
+  // declaration) makes this callback's identity fully stable across
+  // renders, closing the cycle completely rather than just narrowing it.
+  const setActiveMessageIndex = useCallback(
+    (i) => {
+      if (i === activeMessageIndexRef.current) return;
+      dock.setDockState({ activeMessageIndex: i });
+    },
+    [dock.setDockState]
+  );
+  const reviewBeforeDispatch = dockReviewBeforeDispatch;   // Part 2 §2.5
+  const setReviewBeforeDispatch = setDockReviewBeforeDispatch;   // Part 2 §2.5
+  const pendingHireReview = dock.state.pendingHireReview;   // Part 2 §2.5
+  const confirmHireReview = dock.confirmHireReview;   // Part 2 §2.5
+  const cancelHireReview = dock.cancelHireReview;   // Part 2 §2.5
+  // NEW — Phase 4 step 4.5: no legacy-mode equivalent (SessionContext.jsx
+  // never grows this field — it's Notebooks Chat-First-only).
+  const generationNotifications = dock.state.generationNotifications;
+
+  // Fix (render-loop, take 2): same class of bug as setActiveMessageIndex
+  // above — must depend on dock.sendTask (stable) specifically, never on
+  // `dock` itself (a fresh object every render).
+  // CHANGED — W4.2: takes an optional second `extra` object, merged
+  // into the options dock.sendTask already forwards to the store's own
+  // sendTask() (mode/reviewBeforeDispatch unchanged for every existing
+  // caller, which all still call `sendTask(text)` with nothing in the
+  // second slot). sendCodeChatMessage below is the one caller that
+  // passes `{ codeRefs, displayText }` — see WorkspaceDockContext.jsx's
+  // own sendTask() for what those two do to the persisted message.
+  const sendTask = useCallback(
+    (taskText, extra) => dock.sendTask(taskText, { mode, reviewBeforeDispatch, ...extra }),
+    [dock.sendTask, mode, reviewBeforeDispatch]
+  );
+
+  const textareaRef = useRef(null);
+  const chatContainerRef = useRef(null);
+  // Perf audit #3 step 5d — imperative handle for the List below. react-window
+  // v2 exposes { element, scrollToRow } here instead of v1's scrollToItem/
+  // resetAfterIndex. Step 6 wires this up for real (see the scrollToRow
+  // effect below, which replaced the old bottomRef.scrollIntoView() call).
+  const listRef = useRef(null);
+  // Perf audit item #3: { prevLength, index } captured right before a
+  // "load older messages" fetch fires, consumed by the two effects near
+  // scrollToRow below once the prepend actually lands. null whenever no
+  // load-older is in flight/pending — that's also the signal the normal
+  // bottom-follow effect checks to decide whether it's safe to run.
+  const prependAnchorRef = useRef(null);
+  const isSyncingRef = useRef(false); // shared lock, passed to WorkingPanel's scroll handler too
+  // Perf audit #3 step 8 fix — step 5a's plan (a hand-rolled heightCache
+  // ref + a manual resetAfterIndex call) was written against react-window
+  // v1 and never actually got finished for v2: nothing anywhere wrote
+  // into heightCache, so getItemSize always fell through to
+  // ESTIMATED_ROW_HEIGHT — every row was silently pinned at 88px forever,
+  // and v2 doesn't even have a resetAfterIndex to call once a real
+  // measurement came in. This would have failed step 8's stress test the
+  // moment a Mermaid diagram or code block finished its async render and
+  // grew taller than the estimate: react-window would still think the row
+  // is 88px, so the row below it would start overlapping the bottom of
+  // the diagram instead of being pushed down.
+  //
+  // v2 ships a built-in answer to exactly this — useDynamicRowHeight —
+  // instead of hand-rolling the cache/invalidation dance ourselves.
+  // `key: dock.state.sessionId` clears its measured-height map whenever
+  // the active chat changes, so heights measured in one chat can't leak
+  // into a different one when this same panel instance gets reused
+  // across chats (see the Row component below for why keying by row
+  // index rather than message id is fine here).
+  const ESTIMATED_ROW_HEIGHT = 104; // rough single-paragraph-message guess (88px) + the pb-4 (16px) inter-message gap in MessageRow; only used before a row's first real measurement
+  const dynamicRowHeight = useDynamicRowHeight({
+    defaultRowHeight: ESTIMATED_ROW_HEIGHT,
+    key: dock.state.sessionId,
+  });
+
+  // Perf audit #3 step 9 cleanup: step 5c's containerSize state + the
+  // ResizeObserver effect that fed it are gone. They were written when
+  // VariableSizeList's explicit height/width props were still the plan;
+  // once step 5d landed on react-window v2's `List` (which sizes itself
+  // off its own parent via its own internal ResizeObserver — see the
+  // import comment above), nothing in this file ever read containerSize
+  // again. Confirmed via search before removing.
+
+  const [viewport] = useViewport();   // NEW — Phase 1 (mobile shell)
+  const [modeOpen, setModeOpen] = useState(false);
+  // NEW — W4.2: "Ask | Edit", the code-context mode toggle -- unrelated
+  // to `mode`/`MODES`/`modeOpen` above (that trio is the tier picker,
+  // Auto/Simple/Fast/Expert/Beast). Only ever shown when `codeRefs`
+  // isn't null (see the composer JSX below).
+  // CHANGED — W5.1b: "Edit" is no longer a disabled stub — see
+  // sendCodeEditProposal below and the toggle's own JSX further down
+  // for what flipping this to "edit" actually does now.
+  const [codeChatMode, setCodeChatMode] = useState("ask");
+  // W6.2: "Fix with AI" (ConsolePanel.jsx, via BuildTab.jsx's
+  // CodeAwareChatPanel) asking this panel to switch modes — see
+  // codeContext.js's own comment on why this has to arrive as a plain
+  // prop rather than this file reading useCodeContext() itself. Applied
+  // on every CHANGE of `pendingChatMode` (not just its first non-null
+  // value), same "a repeat request must still register" requirement
+  // codeContext.test.mjs's own SET_PENDING_CHAT_MODE tests enforce at
+  // the reducer level — clicking Fix with AI twice in a row, even
+  // requesting the SAME mode both times, must reset the toggle both
+  // times, in case the person had since flipped it to Edit themselves.
+  // `onConsumeChatMode` is called right after applying it so the same
+  // request can't reapply itself if this component re-renders for an
+  // unrelated reason.
+  useEffect(() => {
+    if (pendingChatMode == null) return;
+    setCodeChatMode(pendingChatMode);
+    onConsumeChatMode?.();
+  }, [pendingChatMode, onConsumeChatMode]);
+  // NEW — W5.1b: proposals created by THIS panel instance this
+  // session, newest first. CHANGED — W5.3: each "pending" entry now has
+  // a real Review button into ReviewPanel.jsx's Keep/Undo merge view
+  // (see the list's own JSX further down) — this used to be a plain
+  // read-only stand-in for that. Still local component state, not dock
+  // state or anything persisted: reloading the tab loses this list —
+  // W5.4's real cross-session pending tray is what GET
+  // .../code/proposals?status=pending will read from instead.
+  const [codeProposals, setCodeProposals] = useState([]);
+  const [codeProposalPending, setCodeProposalPending] = useState(false);
+  const [codeProposalError, setCodeProposalError] = useState(null);
+  // W5.5: {paths, run} awaiting confirmation that resolving this card's
+  // proposal will delete these paths — same shape and same reason as
+  // EditorWorkbench.jsx's own pendingProposalResolve (see that file's
+  // handleReviewDone for the fuller comment); this card is the third of
+  // resolveProposal()'s three "keep" callers that needs the same gate.
+  const [pendingProposalResolve, setPendingProposalResolve] = useState(null);
+  const [draft, setDraft] = useState("");
+  // NEW — W8.4: apply a pre-fill request from "Work on this" (see the
+  // prop's comment above). Merged, not replaced — whatever the person
+  // had already typed stays — and the textarea is focused so the next
+  // keystroke edits the starter text. `onConsumeDraft` clears the
+  // request right away so a re-render can't apply it twice. Both
+  // CodeAwareChatPanel instances BuildTab mounts (desktop dock + mobile
+  // overlay) apply it to their own draft; only one is visible.
+  useEffect(() => {
+    if (pendingDraft == null) return;
+    setDraft((prev) => mergeDraftPrefill(prev, pendingDraft));
+    onConsumeDraft?.();
+    // No cleanup on purpose: consuming the request re-runs this effect
+    // (pendingDraft goes back to null), which would cancel the focus
+    // before it fired. A ref that's gone by then is just a no-op.
+    requestAnimationFrame(() => textareaRef.current?.focus());
+  }, [pendingDraft, onConsumeDraft]);
+  const [workingPanelCollapsed, setWorkingPanelCollapsed] = useState(false);
+
+  // NEW — Phase 1 (mobile shell): lets mobile/AppShell.jsx's header
+  // button open this panel's own drawer without a prop connecting them
+  // (see mobile/events.js). Deliberately gated on `!stacked` — this is
+  // the one WorkspaceChatPanel instance rendered without `stacked`
+  // (the standalone Chat tab's dock; see that prop's own comment
+  // above), so it's the only one the mobile header actually has a
+  // button for today. The six `stacked` domain-tab docks stay mounted
+  // in the background too (AppShell's visitedTabs) and would otherwise
+  // each flip their own local workingPanelCollapsed in response to a
+  // button tap meant for Chat — silently changing what greets the
+  // person next time they open Research, say. Skipping the listener
+  // entirely for `stacked` instances avoids that.
+  useEffect(() => {
+    if (stacked) return;
+    function onOpen() {
+      setWorkingPanelCollapsed(false);
+    }
+    window.addEventListener(OPEN_WORKING_PANEL_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_WORKING_PANEL_EVENT, onOpen);
+  }, [stacked]);
+  const [chatBoxCollapsed, setChatBoxCollapsed] = useState(false); // NEW — CO4 patch 1
+  const [workingPanelWidth, setWorkingPanelWidth] = useState(WORKING_PANEL_DEFAULT_WIDTH);
+  const [workingPanelHeight, setWorkingPanelHeight] = useState(WORKING_PANEL_DEFAULT_HEIGHT); // NEW — stacked layout's counterpart to workingPanelWidth
+  const resizeCleanupRef = useRef(null); // holds the active mousemove/mouseup remover, if a drag is in progress
+  // NEW — split auto-collapse: points at the outer stacked container so a
+  // vertical drag can turn the pointer position into a *share* of the
+  // dock's real height (see SPLIT_MIN_SHARE). Measured once per drag
+  // rather than tracked continuously — the dock can't be resized by
+  // anything else while a drag is in progress.
+  const splitContainerRef = useRef(null);
+
+  // NEW — Data Layer §4b: attach button state. Same "own pushItem/
+  // settleItem, own mountedRef guard" shape as IngestionDropzone.jsx,
+  // scaled down to what a composer needs (no drag target, no url field).
+  const attachInputRef = useRef(null);
+  const [attachItems, setAttachItems] = useState([]);
+  const attachMountedRef = useRef(true);
+  useEffect(() => {
+    attachMountedRef.current = true;
+    return () => { attachMountedRef.current = false; };
+  }, []);
+
+  function pushAttachItem(name) {
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    setAttachItems((prev) => [{ id, name, status: "pending", message: "" }, ...prev]);
+    return id;
+  }
+
+  function settleAttachItem(id, status, message) {
+    if (!attachMountedRef.current) return;
+    setAttachItems((prev) => prev.map((it) => (it.id === id ? { ...it, status, message } : it)));
+    if (status === "done") {
+      setTimeout(() => {
+        if (!attachMountedRef.current) return;
+        setAttachItems((prev) => prev.filter((it) => it.id !== id));
+      }, ATTACH_DONE_AUTOCLEAR_MS);
+    }
+  }
+
+  // Same independent-per-file shape as IngestionDropzone.jsx's
+  // handleFiles() (a slow/stuck file shouldn't block the others), pointed
+  // at the identical process_upload()-backed endpoints via
+  // ingestFileByExtension() (lib/ingestDispatch.js) — §4b's whole point is
+  // "the same upload path, reachable from every chat tab now."
+  async function handleAttachFiles(fileList) {
+    if (!workspaceId) return;
+    await Promise.allSettled(
+      Array.from(fileList).map(async (file) => {
+        const id = pushAttachItem(file.name);
+        try {
+          const result = await ingestFileByExtension(
+            file, { ingestFile, ingestPdfFile, ingestVoiceFile }, workspaceId
+          );
+          settleAttachItem(id, "done", `${result.node_ids?.length || 0} node(s)`);
+        } catch (err) {
+          if (err?.isTimeout) {
+            settleAttachItem(id, "timeout", "Still working — check Sources in a bit");
+          } else {
+            settleAttachItem(id, "error", String(err.message || err));
+          }
+        }
+      })
+    );
+  }
+
+  useEffect(() => {
+    const savedWorkingCollapsed = localStorage.getItem(WORKING_PANEL_KEY) === "1";
+    // CHANGED — the Chat Box half only folds inside a `stacked` domain-tab
+    // dock. The standalone Chat tab must never restore a collapsed
+    // conversation, and CHAT_BOX_KEY is a single shared key, so without
+    // this gate a fold performed in (say) Research would silently follow
+    // the user over to the Chat tab.
+    const savedChatBoxCollapsed = stacked && localStorage.getItem(CHAT_BOX_KEY) === "1";
+    if (savedWorkingCollapsed && savedChatBoxCollapsed) {
+      // Recovery path for state written by the old independent-toggle UI:
+      // both halves collapsed rendered the dock as an empty strip with no
+      // way back in short of closing it. The new header controls can't
+      // reach that state, but persisted values from before this change
+      // still can, so normalize it on the way in rather than restoring it.
+      setWorkingPanelCollapsed(false);
+      setChatBoxCollapsed(false);
+      localStorage.setItem(WORKING_PANEL_KEY, "0");
+      localStorage.setItem(CHAT_BOX_KEY, "0");
+    } else {
+      setWorkingPanelCollapsed(savedWorkingCollapsed);
+      setChatBoxCollapsed(savedChatBoxCollapsed);
+    }
+    const savedWidth = parseInt(localStorage.getItem(WORKING_PANEL_WIDTH_KEY), 10);
+    if (!Number.isNaN(savedWidth)) setWorkingPanelWidth(clampWorkingPanelWidth(savedWidth));
+    const savedHeight = parseInt(localStorage.getItem(WORKING_PANEL_HEIGHT_KEY), 10);
+    if (!Number.isNaN(savedHeight)) setWorkingPanelHeight(clampWorkingPanelHeight(savedHeight));
+    // If the panel unmounts mid-drag (e.g. clicking another top-level tab
+    // without releasing the mouse), make sure the window listeners below
+    // don't leak.
+    return () => resizeCleanupRef.current?.();
+  }, [stacked]);   // CHANGED — the restore above now reads `stacked`; it's fixed per call site, so this still runs once in practice.
+  function toggleWorkingPanel() {
+    setWorkingPanelCollapsed((prev) => {
+      localStorage.setItem(WORKING_PANEL_KEY, !prev ? "1" : "0");
+      return !prev;
+    });
+  }
+  // CHANGED — CO4 patch 1's independent `toggleChatBox` is gone. The two
+  // halves are no longer toggled independently of each other: they're set
+  // together, as one split state, which is what makes "both collapsed"
+  // (an empty dock with no way back in) structurally unreachable instead
+  // of merely unlikely.
+  function setSplit(nextWorkingCollapsed, nextChatBoxCollapsed) {
+    setWorkingPanelCollapsed(nextWorkingCollapsed);
+    setChatBoxCollapsed(nextChatBoxCollapsed);
+    localStorage.setItem(WORKING_PANEL_KEY, nextWorkingCollapsed ? "1" : "0");
+    localStorage.setItem(CHAT_BOX_KEY, nextChatBoxCollapsed ? "1" : "0");
+  }
+
+  // NEW — the section-name boxes in the stacked dock's two headers are the
+  // controls now (they used to be inert labels sitting next to a collapse
+  // button each). One rule covers both:
+  //
+  //   both halves open      -> clicking a header folds THAT half away, and
+  //                            the other one takes the full height
+  //   this half on its own  -> clicking its header brings the other half
+  //                            back, without folding this one
+  //
+  // Which is to say: a header click toggles the *other* half's visibility.
+  // Neither header can produce an empty dock, and the single X button in
+  // the topmost header is the only way to close the dock entirely.
+  function handleChatBoxHeaderClick() {
+    if (workingPanelCollapsed) setSplit(false, false);
+    else setSplit(false, true);
+  }
+
+  function handleWorkingPanelHeaderClick() {
+    if (chatBoxCollapsed) setSplit(false, false);
+    else setSplit(true, false);
+  }
+
+  function persistWorkingPanelHeight(h) {
+    setWorkingPanelHeight(h);
+    localStorage.setItem(WORKING_PANEL_HEIGHT_KEY, String(h));
+  }
+
+  // Drag-to-resize — handle sits on the panel's left edge (it's docked
+  // to the right), so dragging left grows it and dragging right shrinks
+  // it. Width only hits localStorage once on mouseup, not on every
+  // mousemove, to avoid hammering it during the drag.
+  function startWorkingPanelResize(e) {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = workingPanelWidth;
+
+    function onMouseMove(ev) {
+      const deltaX = ev.clientX - startX;
+      setWorkingPanelWidth(clampWorkingPanelWidth(startWidth - deltaX));
+    }
+    function onMouseUp() {
+      cleanup();
+      setWorkingPanelWidth((w) => {
+        localStorage.setItem(WORKING_PANEL_WIDTH_KEY, String(w));
+        return w;
+      });
+    }
+    function cleanup() {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      resizeCleanupRef.current = null;
+    }
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    resizeCleanupRef.current = cleanup;
+  }
+
+  // NEW — stacked layout's counterpart to startWorkingPanelResize above.
+  // Handle sits on the Working Panel's bottom edge (it's docked to the
+  // top, Chat Box below it), so dragging down grows it and dragging up
+  // shrinks it — same "only hit localStorage on mouseup" throttling.
+  //
+  // CHANGED — split auto-collapse (SPLIT_MIN_SHARE). The drag itself is
+  // unchanged from the user's side; what's new is what happens on release.
+  // Two things had to give for that:
+  //   1. The fixed [MIN, MAX] pixel clamp is relaxed to the container's
+  //      own height *for the duration of the drag*. Otherwise the pointer
+  //      physically can't reach the 25% line in a dock shorter than
+  //      WORKING_PANEL_MIN_HEIGHT / 0.25 = 640px, and the threshold would
+  //      quietly never fire. The clamp is re-applied on release.
+  //   2. The live height is tracked in a plain local (`liveHeight`) rather
+  //      than read back out of a setState updater on mouseup. Deciding to
+  //      collapse is a side effect, and side effects inside a state
+  //      updater run twice under StrictMode.
+  function startWorkingPanelResizeVertical(e) {
+    e.preventDefault();
+    const startY = e.clientY;
+    const startHeight = workingPanelHeight;
+    const containerHeight = splitContainerRef.current?.getBoundingClientRect().height || 0;
+    const dragMin = containerHeight > 0 ? 0 : WORKING_PANEL_MIN_HEIGHT;
+    const dragMax = containerHeight > 0 ? containerHeight : WORKING_PANEL_MAX_HEIGHT;
+    let liveHeight = startHeight;
+
+    function onMouseMove(ev) {
+      const deltaY = ev.clientY - startY;
+      liveHeight = Math.min(dragMax, Math.max(dragMin, startHeight + deltaY));
+      setWorkingPanelHeight(liveHeight);
+    }
+    function onMouseUp() {
+      cleanup();
+      const floor = containerHeight * SPLIT_MIN_SHARE;
+      // On an auto-collapse the stored height reverts to where this drag
+      // started, not to the sliver it ended at — otherwise re-opening that
+      // half would bring it back a few pixels tall.
+      if (containerHeight > 0 && liveHeight < floor) {
+        persistWorkingPanelHeight(clampWorkingPanelHeight(startHeight));
+        setSplit(true, false);   // Working Panel squeezed too small -> fold it, Chat Box takes the height
+        return;
+      }
+      if (containerHeight > 0 && liveHeight > containerHeight - floor) {
+        persistWorkingPanelHeight(clampWorkingPanelHeight(startHeight));
+        setSplit(false, true);   // Chat Box squeezed too small -> fold it, Working Panel takes the height
+        return;
+      }
+      persistWorkingPanelHeight(clampWorkingPanelHeight(liveHeight));
+    }
+    function cleanup() {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      resizeCleanupRef.current = null;
+    }
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    resizeCleanupRef.current = cleanup;
+  }
+
+  // Perf audit #3 step 6 — bottomRef.scrollIntoView() replaced. That div
+  // no longer sits inside a real scroll container (step 5d moved scrolling
+  // onto List's own internal scrollport — see the comment above
+  // chatContainerRef's div), so scrollIntoView had nothing meaningful left
+  // to do. react-window v2's imperative API is scrollToRow({ index, align,
+  // behavior }), not v1's scrollToItem — matches the note already left on
+  // listRef's declaration above.
+  //
+  // Perf audit item #3, pagination follow-up: this used to key ONLY off
+  // messages.length, which broke the moment "load older messages" started
+  // prepending to the front of the array — a scroll-up load also changes
+  // messages.length, and this effect can't tell "grew at the bottom" (a
+  // new message arrived, scroll down) from "grew at the top" (older
+  // messages loaded, scroll position should NOT move) using length alone.
+  // prependAnchorRef (set by handleLoadOlder below, right before it calls
+  // the store's loadOlderMessages) is the signal: when it's non-null this
+  // render, a prepend is in flight/just landed, so this effect backs off
+  // and lets the anchor-restoring effect below handle scroll position
+  // instead. It's cleared there once consumed.
+  useEffect(() => {
+    if (messages.length === 0) return;
+    if (prependAnchorRef.current) return;
+    listRef.current?.scrollToRow({
+      index: messages.length - 1,
+      align: "end",
+      behavior: "smooth",
+    });
+  }, [messages.length, loading]);
+
+  // Perf audit item #3: after a "load older messages" prepend lands,
+  // jump back to the same message the person was looking at rather than
+  // letting the list silently re-anchor to whatever now sits at the old
+  // scroll offset (which, since everything shifted down by the number of
+  // newly-inserted rows, would visually yank the view further down the
+  // list than where they were reading). prependAnchorRef carries the
+  // pre-fetch { index, count } captured in handleLoadOlder; this effect
+  // only fires once new rows have actually landed (messages.length grew
+  // by that same count), then restores position and clears the anchor so
+  // the effect above resumes its normal bottom-follow behavior on the
+  // next genuinely-new message.
+  useEffect(() => {
+    const anchor = prependAnchorRef.current;
+    if (!anchor) return;
+    if (messages.length <= anchor.prevLength) return; // fetch still in flight
+    const insertedCount = messages.length - anchor.prevLength;
+    listRef.current?.scrollToRow({
+      index: anchor.index + insertedCount,
+      align: "start",
+    });
+    prependAnchorRef.current = null;
+  }, [messages.length]);
+
+  // Auto-grow the textarea as the person types multiple lines, capped so
+  // it doesn't swallow the whole viewport on a very long paste.
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 240)}px`;
+  }, [draft]);
+
+  const TARGETS_BY_KEY = Object.fromEntries(TARGETS.map((t) => [t.key, t]));
+
+  // NEW — Notebooks Chat-First refinement, Phase 2 step 2.6. Factored out
+  // of tryHandleGenerateIntent() below (byte-for-byte the same body it
+  // used to run inline) so both the legacy keyword-parser short-circuit
+  // AND the new real-tool-calling branch (tryHandleClassifiedToolCall(),
+  // further down) dispatch through the exact same generateNotebooks()
+  // call, Working Panel branch bookkeeping, and "jump to the tab that
+  // just got new content" behavior — one dispatch path, two different
+  // ways of deciding to take it.
+  //
+  // CHANGED — step 2.10. `sourceText` is the raw text that triggered
+  // this run (only ever passed by the two chat-intent callers below,
+  // never by NotebooksGeneratePicker's manual Generate button, which
+  // still only has the Working Panel above to watch). When present, this
+  // now ALSO pushes into the message thread: the user's own text
+  // (previously silently swallowed — see MessageBubble.jsx's own
+  // step-2.10 comment for why) plus a live "generation" message this
+  // function updates in place, by runId, as the run resolves. The
+  // existing notebooksGenerateRun dock-state write is untouched — that's
+  // what the Working Panel graph reads, and this is additive to it, not
+  // a replacement for it.
+  async function runGenerateTarget(key, scope, sourceText = null) {
+    const label = TARGETS_BY_KEY[key]?.label || key;
+    const runningBranch = { panel_key: key, status: "running", label, subTab: TARGETS_BY_KEY[key]?.subTab };
+    // Unique per call, not per key — re-running the same capability
+    // twice in one chat must update its OWN card, not the previous run's.
+    const runId = `gen-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    if (usingDock) {
+      dock.setDockState({ notebooksGenerateRun: { targets: [key], branches: [runningBranch] } });
+      if (sourceText) {
+        dock.setDockState((prev) => ({
+          messages: [
+            ...prev.messages,
+            { role: "user", text: sourceText },
+            { role: "generation", runId, branches: [runningBranch] },
+          ],
+        }));
+      }
+    }
+    try {
+      const { branches } = await generateNotebooks(workspaceId, [key], scope);
+      const withMeta = branches.map((b) => ({ ...b, label: TARGETS_BY_KEY[b.panel_key]?.label, subTab: TARGETS_BY_KEY[b.panel_key]?.subTab }));
+      if (usingDock) {
+        dock.setDockState({ notebooksGenerateRun: { targets: [key], branches: withMeta } });
+        if (sourceText) {
+          dock.setDockState((prev) => ({
+            messages: prev.messages.map((m) =>
+              m.role === "generation" && m.runId === runId ? { ...m, branches: withMeta } : m
+            ),
+          }));
+        }
+      }
+      // Jump straight to the tab that just got new content so the run
+      // doesn't feel like it vanished into the Working Panel — same
+      // "open the result" affordance BranchRow's own chevron gives in
+      // the picker popover.
+      const branch = branches.find((b) => b.panel_key === key);
+      if (branch?.status === "done" && TARGETS_BY_KEY[key]?.subTab) {
+        onNavigateSubTab?.(TARGETS_BY_KEY[key].subTab);
+      }
+    } catch (err) {
+      const errorBranch = { panel_key: key, status: "error", error: String(err.message || err), label, subTab: TARGETS_BY_KEY[key]?.subTab };
+      if (usingDock) {
+        dock.setDockState({ notebooksGenerateRun: { targets: [key], branches: [errorBranch] } });
+        if (sourceText) {
+          dock.setDockState((prev) => ({
+            messages: prev.messages.map((m) =>
+              m.role === "generation" && m.runId === runId ? { ...m, branches: [errorBranch] } : m
+            ),
+          }));
+        }
+      }
+    }
+    return true;
+  }
+
+  // NEW — Notebooks Chat-First refinement, Phase 6 step 6.8. The
+  // mark_topic_done counterpart to runGenerateTarget() above: same
+  // "push the user's text, then a live status message, update it in
+  // place by runId" shape, but there's no BranchRow/Working Panel
+  // bookkeeping to do here -- this isn't a generation, just a one-field
+  // progress-store write (see SessionContext.jsx's markTopicDone(),
+  // which reuses step 6.5's manual-override PUT route).
+  //
+  // No confirmation step before calling markTopicDone() -- this mirrors
+  // the guide's step 6.8 decision (low-stakes, reversible: a person can
+  // always re-open the board and flip it back, same as any other manual
+  // status edit). If that decision ever changes, this is the one place
+  // to add a confirm-first branch.
+  async function runMarkTopicDone(topicId, sourceText) {
+    const runId = `done-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    if (usingDock && sourceText) {
+      dock.setDockState((prev) => ({
+        messages: [
+          ...prev.messages,
+          { role: "user", text: sourceText },
+          { role: "progress_update", runId, status: "running" },
+        ],
+      }));
+    }
+    try {
+      await markTopicDone(workspaceId, topicId);
+      if (usingDock && sourceText) {
+        dock.setDockState((prev) => ({
+          messages: prev.messages.map((m) =>
+            m.role === "progress_update" && m.runId === runId
+              ? { ...m, status: "done", topicId }
+              : m
+          ),
+        }));
+      }
+    } catch (err) {
+      if (usingDock && sourceText) {
+        dock.setDockState((prev) => ({
+          messages: prev.messages.map((m) =>
+            m.role === "progress_update" && m.runId === runId
+              ? { ...m, status: "error", error: String(err.message || err) }
+              : m
+          ),
+        }));
+      }
+    }
+    return true;
+  }
+
+  // NEW — chat audit bug #1 fix. Per NotebooksGeneratePicker.jsx's own
+  // long-standing SCOPE NOTE: "typing 'make flashcards' into
+  // WorkspaceChatPanel should short-circuit the normal staffed-dispatcher
+  // send and land here instead." This reuses that component's exact
+  // free-text parser/keyword table (now exported) rather than a second
+  // copy, and only auto-runs on the SAME single-unambiguous-target case
+  // the picker's own free-text field already treats as safe to dispatch
+  // without a human reviewing chips first (guide §4.1's "accepting the
+  // misparse risk" is explicitly scoped to that one case, not to
+  // multi-target or scope-language sentences — those still deserve a
+  // chip row to look at, so they fall through to the picker/normal chat
+  // instead of silently running here).
+  //
+  // Only wired when this panel is embedded with a real workspaceId (i.e.
+  // docked inside Notebooks/Research/etc, per the constructor comment
+  // above) — a standalone Chat tab with no workspace has nothing for
+  // "generate a mind map" to mean, so it's left to fall through to the
+  // ordinary staffed dispatcher there, same as free text that doesn't
+  // match a target at all.
+  //
+  // CHANGED — step 2.6: this stays the FIRST thing checked, ahead of the
+  // new real-tool-calling branch below. It's a cheap synchronous keyword
+  // match (no network round trip) that's already shipped and proven —
+  // there's no reason to wait on an LLM call to catch a case this
+  // already catches for free, and keeping it first means step 2.6 can't
+  // regress anything this already handles.
+  async function tryHandleGenerateIntent(text) {
+    if (!workspaceId || !generateNotebooks) return false;
+    const { targetKeys, sourceNodeIds } = parseFreeText(text, []);
+    if (targetKeys.length !== 1 || sourceNodeIds.length > 0) return false;
+
+    // FIX — overlap-check finding (2026-08-02): this fast path predates
+    // topic_notes (scopeAllowed: "topic") and always dispatched with
+    // scope=null. That's correct for "whole"-scope targets, but for a
+    // "topic"-scope target it means _generate_topic_notes() on the
+    // server unconditionally raises "topic_notes requires scope.topic_id"
+    // -- so typing exactly the phrasing topic_notes's own manifest
+    // description recommends ("write a note on <topic>") always failed,
+    // short-circuiting past the scope-aware classifier below (which
+    // already knows how to resolve a topic from activeContext or the
+    // model's own arguments -- see tryHandleClassifiedToolCall's
+    // mark_topic_done/source_ids handling) before it ever got a turn.
+    // Same activeContext fallback as that branch, not a new rule: if a
+    // topic is in scope, dispatch with it; if not, don't guess -- fall
+    // through so the classifier (or, failing that, sendTask()) can
+    // still make sense of it.
+    const target = TARGETS_BY_KEY[targetKeys[0]];
+    if (target?.scopeAllowed === "topic") {
+      const topicId = activeContext?.type === "topic" ? activeContext.id : null;
+      if (!topicId) return false;
+      return runGenerateTarget(targetKeys[0], { topic_id: topicId }, text);
+    }
+
+    return runGenerateTarget(targetKeys[0], null, text);
+  }
+
+  // NEW — Notebooks Chat-First refinement, Phase 2 step 2.5. Fires the
+  // real tool-calling classification pass (POST .../notebooks/
+  // classify-intent, see SessionContext.jsx's classifyIntent()) for
+  // every outgoing message, purely so the result can be eyeballed in
+  // the console against real usage before step 2.6 wires up an actual
+  // branch. Deliberately:
+  //   - NOT awaited before sendTask()/tryHandleGenerateIntent() below —
+  //     classification is a side channel, not a gate, so it must add
+  //     zero latency to the real send path and must never be able to
+  //     block or fail it.
+  //   - gated on workspaceId, same as tryHandleGenerateIntent() above —
+  //     a standalone Chat tab with no workspace has nothing for the
+  //     classifier to run against either.
+  //   - console.log-only. No dispatch, no UI change, no state write.
+  //     Whether this message also matched tryHandleGenerateIntent()'s
+  //     keyword parser (and thus already short-circuited to
+  //     generateNotebooks() above) is irrelevant here — this call runs
+  //     unconditionally so the two approaches' outputs can be compared
+  //     side by side in the logs.
+  //
+  // CHANGED — step 2.6: this is now only the FLAG-OFF path (see
+  // handleSubmit below). When CHAT_TOOL_CALLING_ENABLED is on,
+  // tryHandleClassifiedToolCall() below does its own (awaited, gating)
+  // classifyIntent() call instead — calling it a second time here too
+  // would double up the LLM request for no reason. Body is otherwise
+  // unchanged from step 2.5.
+  function logClassifiedIntent(text) {
+    if (!workspaceId || !classifyIntent) return;
+    classifyIntent(workspaceId, text)
+      .then((result) => {
+        console.log("[chat classify-intent] (2.5, log-only)", { message: text, result });
+      })
+      .catch((err) => {
+        console.log("[chat classify-intent] (2.5, log-only) failed", { message: text, err });
+      });
+  }
+
+  // NEW — Notebooks Chat-First refinement, Phase 2 step 2.6. The actual
+  // "high-confidence tool call" branch: awaits the same classify-intent
+  // call step 2.5 only logged, and — only on a single, unambiguous,
+  // error-free tool call — dispatches it through runGenerateTarget(),
+  // same as the legacy keyword path above. Anything less clean
+  // (ambiguous, ".error" set, no tool call at all, or a tool name this
+  // build doesn't recognize) returns false so handleSubmit's existing
+  // fallback takes it to sendTask() — the ordinary staffed dispatcher —
+  // same as today (step 2.7's requirement, satisfied by this same
+  // "return false and let the caller fall through" shape).
+  //
+  // Tool names are "generate_" + the capability key (see
+  // utils/capability_tools.py's manifest_to_tools()), and TARGETS_BY_KEY
+  // is keyed by that same capability key — both frontend TARGETS and the
+  // backend CAPABILITIES_MANIFEST are hand-kept in sync on this exact
+  // key string (see notebookCapabilities.js's own header comment), so
+  // stripping the prefix and looking it up here is safe.
+  //
+  // scope mapping: most capabilities are still scopeAllowed "whole" (no
+  // args at all), but as of the Chat wiring patch (step 4), podcast/
+  // slide_deck/video_overview are "sources" -- so `arguments` can come
+  // back with a real source_ids list for those three, translated to
+  // source_node_ids below since manifest_to_tools() names the arg
+  // "source_ids" for the model but NOTEBOOKS_GENERATE_TARGETS' scope
+  // dict reads "source_node_ids" (see api/server.py's
+  // _generate_backlinks/_generate_workflows). The same three
+  // capabilities can also come back with script_text/slide_text
+  // (utils/capability_tools.py's `pastableTextFields`) when the model
+  // found a pasted script/slide outline in the message -- see the block
+  // below the source_ids translation for how those get folded into the
+  // same scope object api/routes/notebooks.py's _generate_video_overview()/
+  // _generate_podcast()/_generate_slide_deck() already know how to read
+  // (Video Overview reuse patch, step 2).
+  async function tryHandleClassifiedToolCall(text) {
+    if (!workspaceId || !generateNotebooks || !classifyIntent) return false;
+
+    const result = await classifyIntent(workspaceId, text);
+    console.log("[chat classify-intent] (2.6, dispatching)", { message: text, result });
+
+    if (result?.error || result?.ambiguous || !result?.tool_calls?.length) {
+      return false;
+    }
+
+    const call = result.tool_calls[0];
+
+    // NEW — Phase 6 step 6.8. mark_topic_done is a hand-written,
+    // non-generation tool (see utils/capability_tools.py's
+    // study_progress_tools()) — it isn't in TARGETS_BY_KEY at all, so
+    // it has to be checked ahead of the "generate_" lookup below rather
+    // than folded into it. Requires a topic_id from either the model's
+    // own arguments (it named the topic in the message text) or a
+    // topic-typed activeContext, same fallback order the source_ids ->
+    // activeContext resolution below uses. No topic to act on at all
+    // (neither the model nor the surrounding UI knows which one) falls
+    // through to sendTask() same as any other non-match — there's
+    // nothing safe to guess here.
+    if (call.name === "mark_topic_done") {
+      const topicId = call.arguments?.topic_id
+        || (activeContext?.type === "topic" ? activeContext.id : null);
+      if (!topicId) return false;
+      return runMarkTopicDone(topicId, text);
+    }
+
+    const key = call.name?.startsWith("generate_") ? call.name.slice("generate_".length) : null;
+    if (!key || !TARGETS_BY_KEY[key]) {
+      // Unknown/unrecognized tool name -- shouldn't happen since tools
+      // are built from the same manifest TARGETS_BY_KEY comes from, but
+      // never silently dispatch something we can't label or navigate
+      // for. Fall through to sendTask() same as any other non-match.
+      return false;
+    }
+
+    // NEW — step 2.6a: the model only returns source_ids when the
+    // message itself named/implied a specific source ("summarize the
+    // Chen paper"), so that branch is untouched and still wins outright.
+    // When it comes back empty -- the message didn't name anything --
+    // fall back to activeContext instead of going straight to null
+    // (whole-workspace). Only a source-typed activeContext can resolve
+    // to source_node_ids today, since NOTEBOOKS_GENERATE_TARGETS has no
+    // topic-scoped capability live yet (see the comment above); a
+    // topic-typed activeContext with nothing live to consume it still
+    // falls through to null rather than sending an argument no backend
+    // route reads.
+    const sourceScope = call.arguments?.source_ids?.length
+      ? { source_node_ids: call.arguments.source_ids }
+      : activeContext?.type === "source" && activeContext.id
+      ? { source_node_ids: [activeContext.id] }
+      : null;
+
+    // NEW — Chat wiring patch (step 4): same source_ids -> source_node_ids
+    // translation immediately above, now for the two pasted-text args
+    // utils/capability_tools.py's _parameters_for_scope() adds under a
+    // capability's `pastableTextFields` (currently podcast's script_text,
+    // slide_deck's slide_text, video_overview's both) -- these two DO
+    // pass straight through unrenamed, since api/routes/notebooks.py's
+    // _generate_video_overview()/_generate_podcast()/_generate_slide_deck()
+    // all read scope["script_text"]/scope["slide_text"] under those exact
+    // same names (see the Video Overview reuse patch, step 2). No
+    // activeContext fallback for either -- unlike source_ids, there's no
+    // "ambient" pasted script/slides sitting in UI state to fall back to;
+    // the model either found one in the message or it didn't, and
+    // omitting both here is exactly what tells the backend to generate
+    // that half instead of reusing anything, same as omitting scope
+    // entirely already does for a "whole" capability.
+    const scope = (sourceScope || call.arguments?.script_text || call.arguments?.slide_text)
+      ? {
+          ...(sourceScope || {}),
+          ...(call.arguments?.script_text ? { script_text: call.arguments.script_text } : {}),
+          ...(call.arguments?.slide_text ? { slide_text: call.arguments.slide_text } : {}),
+        }
+      : null;
+    return runGenerateTarget(key, scope, text);
+  }
+
+  // NEW — step 2.6 feature flag. Default OFF: classifyIntent() keeps
+  // running and logging (step 2.5, unchanged) either way, but nothing
+  // acts on its result — sendTask() still fires on every non-keyword-
+  // matched message — until this is explicitly turned on. Flip with
+  // NEXT_PUBLIC_CHAT_TOOL_CALLING_ENABLED=1 in the frontend env once
+  // step 2.4's findings hold up against real traffic, not just the
+  // canned test-harness messages.
+  const CHAT_TOOL_CALLING_ENABLED = process.env.NEXT_PUBLIC_CHAT_TOOL_CALLING_ENABLED === "1";
+
+  // NEW — Phase 3 step 3.3. Pulled out of handleSubmit below (byte-for-
+  // byte the same body it used to run inline on `draft`) so there are
+  // two callers of the SAME dispatch path instead of a second one:
+  // handleSubmit (typed input) and the affinity-suggestion card's
+  // Generate button (MessageBubble.jsx's AffinitySuggestionCard, via
+  // the onSendCommand prop below) both now funnel through here. This is
+  // exactly the guide's "a button that just re-sends the equivalent
+  // chat command — don't build a second execution path for this" —
+  // clicking Generate quiz behaves identically to a person typing
+  // "Generate quiz": same keyword short-circuit first
+  // (tryHandleGenerateIntent), same tool-calling classification fallback
+  // (tryHandleClassifiedToolCall), same sendTask() dispatcher as a last
+  // resort. Nothing about accepting a suggestion needs its own
+  // generateNotebooks() call.
+  // Fix (render-loop): wrapped in useCallback so this has a stable identity
+  // across renders — it's passed into rowProps below (onSendCommand), and an
+  // unstable rowProps object was part of the same chain that caused the
+  // "Maximum update depth exceeded" crash. See handleRowsRendered's comment
+  // for the full chain.
+  // NEW — W4.2 (Build Workbench plan), Ask mode. D2: a chip-bearing
+  // chat message stays on the SAME /api/task path every other chat
+  // message already goes through — a real code EDIT gets its own
+  // dedicated endpoint (W5.1), this doesn't. The model sees each ref's
+  // full snippet, prepended as fenced blocks ahead of what the person
+  // typed; the chat log and the persisted message do NOT — they keep
+  // only `{path, fromLine, toLine}` per ref (see
+  // WorkspaceDockContext.jsx's sendTask, `displayText`/`codeRefs`), so
+  // a long chat history never balloons with code that's still sitting
+  // right there in the file, and MessageBubble.jsx renders that
+  // trimmed list back out as small read-only chips on the sent
+  // message. A folder ref carries no snippet yet (W5.5 is what expands
+  // one server-side) — noted by name only, not faked with an empty
+  // fenced block.
+  const sendCodeChatMessage = useCallback(
+    (text) => {
+      const fenced = codeRefs
+        .map((ref) =>
+          ref.kind === "folder"
+            ? `(folder attached: ${ref.path}/)`
+            : // W6.2: a console/error-bridge ref has no real `path` when it
+              // couldn't be mapped to a project file (the common case ahead
+              // of W6.4/6.5's click-to-code work — see PreviewPane.jsx's
+              // own comment) — the fromLine/toLine on one of these are also
+              // not real line numbers (ConsolePanel.jsx repurposes them as
+              // a dedup key, see its own comment), so the `path#Lstart-Lend`
+              // header below would be actively misleading for this kind.
+              ref.kind === "error"
+            ? "```\n" + (ref.snippet || "") + "\n```"
+            : // W6.5: an element ref is a real code range (fenced exactly like
+              // a range chip) PLUS what that source rendered as — tag,
+              // classes, text, computed styles (elementRef.js) — as a plain
+              // line ahead of it. The code alone can't say what a
+              // `className` resolved to on screen.
+              (ref.kind === "element" && ref.element ? describeElement(ref.element) + "\n" : "") +
+              "```" + (ref.fromLine != null ? `${ref.path}#L${ref.fromLine}-L${ref.toLine}` : ref.path) + "\n" + (ref.snippet || "") + "\n```"
+        )
+        .join("\n\n");
+      const augmented = fenced ? `${fenced}\n\n${text}` : text;
+      const trimmedRefs = codeRefs.map((ref) => ({ path: ref.path, fromLine: ref.fromLine, toLine: ref.toLine }));
+      sendTask(augmented, { displayText: text, codeRefs: trimmedRefs });
+      onClearCodeRefs?.();
+    },
+    [codeRefs, sendTask, onClearCodeRefs]
+  );
+
+  // NEW — W5.1b (Build Workbench plan, step 197). D2/D3's real code
+  // EDIT path, as opposed to sendCodeChatMessage's Ask-mode chat
+  // message: calls eo/code_proposals.py's create_proposal() via
+  // POST .../code/proposals (see api/routes/code_edit.py) instead of
+  // sendTask()'s /api/task path — a proposal is its own resource with
+  // its own lifecycle, not a chat turn. The instruction's own text is
+  // NOT prefixed with fenced snippets the way sendCodeChatMessage's
+  // `augmented` text is — the backend already re-reads each ref's
+  // CURRENT file content itself (create_proposal()'s own
+  // workspace_code_files.get_file() call, ahead of generate_edit()),
+  // so sending the snippet twice would just be redundant bytes on the
+  // wire, not anything the server needs.
+  //
+  // W5.4 CHANGED: the returned proposal is still appended to
+  // codeProposals for this panel's own composer-tray list (below the
+  // Ask|Edit toggle), same as W5.1b/W5.3 — but it is ALSO now persisted
+  // as a `code_proposal` chat message (dock.persistMessage), with
+  // Review/Keep all/Reject of its own. That's new: this step's own
+  // W5.1b comment used to say a proposal "never touches the dock's
+  // chat/message state at all" — true until a scrollback-visible
+  // record of it became part of the spec. The tray
+  // (GET .../code/proposals?status=pending, EditorWorkbench.jsx's
+  // PendingTray.jsx) stays the actual source of truth per the plan's
+  // own line ("the proposal survives closing the tab") — this card is
+  // a convenience, which is also why it carries a full snapshot
+  // (original/proposed per file, same shape the proposal row itself
+  // already stores) rather than a trimmed reference the way an
+  // ordinary chat message's `codeRefs` are: it needs to render its own
+  // +/- badges without a second fetch, and a page reload only shows
+  // whatever was persisted at send time regardless (there's no
+  // update-message endpoint to keep it current — the live badge below
+  // only updates while this tab stays open, over Pusher).
+  const sendCodeEditProposal = useCallback(
+    async (text) => {
+      if (!workspaceId) return; // Edit mode is only ever shown inside a workspace's Build tab
+      setCodeProposalPending(true);
+      setCodeProposalError(null);
+      try {
+        // W5.4: "one active proposal per file" (plan §5 W5.4) — a
+        // pending proposal already covers one of these paths, so a
+        // second one here would leave two AI edits racing for the
+        // same file's base_version. W5.5 NOTE: a folder ref is still
+        // excluded from this pre-check — create_proposal() now expands
+        // it server-side (eo/code_proposals.py's _expand_refs()) into
+        // whatever files actually match, and the client has no cheap
+        // way to know that set ahead of the call. So this pre-check
+        // only catches a collision on an EXPLICIT file/range/element
+        // chip; a folder-ref edit that happens to overlap another
+        // pending proposal's files is still caught, just later and
+        // server-side, by resolve_proposal()'s own per-file
+        // base_version re-check (a 409 ProposalStaleError on whichever
+        // one resolves second) rather than up front here.
+        const targetPaths = codeRefs.filter((r) => r.kind !== "folder").map((r) => r.path);
+        if (targetPaths.length > 0) {
+          const targets = new Set(targetPaths);
+          const pending = await listProposals(API_URL, workspaceId, { status: "pending" });
+          const blockingFile = pending
+            .flatMap((p) => p.files || [])
+            .find((f) => targets.has(f.path));
+          if (blockingFile) {
+            throw new Error(`${blockingFile.path} already has a pending AI edit — review or resolve it first.`);
+          }
+        }
+
+        const proposal = await createCodeProposal(API_URL, workspaceId, {
+          instruction: text,
+          refs: codeRefs,
+          sessionId: dock.state.sessionId ?? null,
+        });
+        setCodeProposals((prev) => [proposal, ...prev]);
+        onClearCodeRefs?.();
+
+        if (usingDock) {
+          const cardMessage = {
+            role: "code_proposal",
+            proposalId: proposal.id,
+            instruction: proposal.instruction,
+            summary: proposal.summary,
+            status: proposal.status,
+            files: (proposal.files || []).map((f) => ({ path: f.path, op: f.op, original: f.original, proposed: f.proposed })),
+            refs: proposal.refs || [],
+          };
+          dock.setDockState((prev) => ({ messages: [...prev.messages, cardMessage] }));
+          dock.persistMessage(cardMessage);
+        }
+      } catch (err) {
+        // A 400 (bad request shape — see create_proposal()'s own
+        // ValueError cases), the one-active-proposal-per-file check
+        // above, or a network failure all land here; a GENERATION
+        // failure does NOT (create_proposal() still returns 200 with
+        // status: "failed" — see its own docstring) — that case still
+        // reaches the try block's happy path and renders as a failed
+        // entry, not this error banner.
+        setCodeProposalError(err.message || "Couldn't create the proposal — try again.");
+      } finally {
+        setCodeProposalPending(false);
+      }
+    },
+    [workspaceId, API_URL, codeRefs, dock.state.sessionId, dock.setDockState, dock.persistMessage, onClearCodeRefs, usingDock]
+  );
+
+  // NEW — W5.1b: live status updates for proposals THIS panel created —
+  // see codeProposals.js's subscribeToProposalEvents() own docstring
+  // for why this is the one case (another tab/session resolving the
+  // SAME proposal) this subscription actually changes anything for
+  // today; this tab's own create already has the row via
+  // sendCodeEditProposal's .then() above. Only subscribed while this
+  // is a code-context-aware panel with a real workspace behind it
+  // (codeRefs !== null, same gate the Ask|Edit strip itself uses) —
+  // every other WorkspaceChatPanel instance (Chat tab, Research, etc.)
+  // never had an Edit mode to react to in the first place.
+  //
+  // W5.4 CHANGED: also patches any persisted `code_proposal` chat
+  // messages' own live status badge — a proposal resolved from
+  // ANYWHERE (ReviewPanel.jsx's Done, PendingTray.jsx's Keep all/
+  // Reject, or this card's own buttons below, which already update
+  // optimistically) fires the exact same CODE_PROPOSAL_RESOLVED event,
+  // so this one subscription keeps the card honest regardless of where
+  // the resolve actually happened.
+  useEffect(() => {
+    if (codeRefs === null || !workspaceId) return;
+    return subscribeToProposalEvents(workspaceId, {
+      onResolved: ({ proposal_id, status }) => {
+        setCodeProposals((prev) =>
+          prev.map((p) => (p.id === proposal_id ? { ...p, status } : p))
+        );
+        if (usingDock) {
+          dock.setDockState((prev) => ({
+            messages: prev.messages.map((m) =>
+              m.role === "code_proposal" && m.proposalId === proposal_id ? { ...m, status } : m
+            ),
+          }));
+        }
+      },
+    });
+  }, [codeRefs, workspaceId, usingDock, dock.setDockState]);
+
+  // W5.4: the persisted `code_proposal` card's own Keep all / Reject —
+  // the same POST .../code/proposals/{id}/resolve round trip
+  // ReviewPanel.jsx's Done button makes (W5.3), just with
+  // reviewMode.js's keepAllDecisions()/rejectAllDecisions() standing in
+  // for a per-hunk review nobody opened. Works from the message itself
+  // rather than looking the proposal up in `codeProposals` — that
+  // local list only ever holds what THIS panel instance has created or
+  // heard resolved this session, while a persisted card can outlive it
+  // (a reload, a proposal made in another tab and only ever seen here
+  // as a resolved-status echo) — which is exactly why the card carries
+  // its own full files[] snapshot (see sendCodeEditProposal's header).
+  const handleResolveFromCard = useCallback(
+    async (message, mode) => {
+      const decisions = mode === "keep" ? keepAllDecisions(message) : rejectAllDecisions(message);
+      const run = async () => {
+        try {
+          const resolved = await resolveProposal(API_URL, workspaceId, message.proposalId, decisions);
+          setCodeProposals((prev) =>
+            prev.map((p) => (p.id === message.proposalId ? { ...p, status: resolved.status } : p))
+          );
+          if (usingDock) {
+            dock.setDockState((prev) => ({
+              messages: prev.messages.map((m) =>
+                m.role === "code_proposal" && m.proposalId === message.proposalId ? { ...m, status: resolved.status } : m
+              ),
+            }));
+          }
+        } catch (err) {
+          setCodeProposalError(
+            err instanceof ProposalStaleError
+              ? "This edit can no longer be applied — one of its files changed on the server since it was proposed."
+              : err.message || "Couldn't apply this edit."
+          );
+        }
+      };
+      // W5.5 — see EditorWorkbench.jsx's handleReviewDone for why a kept
+      // delete, specifically, needs an explicit confirm before this
+      // request goes out. rejectAllDecisions() never sends a "keep", so
+      // this is only ever reached on mode === "keep".
+      const deletePaths = deletedPathsToKeep(message.files || [], decisions);
+      if (deletePaths.length > 0) {
+        setPendingProposalResolve({ paths: deletePaths, run });
+      } else {
+        await run();
+      }
+    },
+    [API_URL, workspaceId, usingDock, dock.setDockState]
+  );
+  const handleKeepProposalCard = useCallback((message) => handleResolveFromCard(message, "keep"), [handleResolveFromCard]);
+  const handleRejectProposalCard = useCallback((message) => handleResolveFromCard(message, "reject"), [handleResolveFromCard]);
+
+  const dispatchText = useCallback(
+    (text) => {
+      // W4.2 / plan §7 gotcha 10: a chip-bearing send must bypass
+      // tryHandleGenerateIntent/tryHandleClassifiedToolCall entirely.
+      // Both exist to guess "generate notebooks vs plain chat" FROM
+      // THE TEXT ALONE — an instruction sent alongside an attached
+      // code selection has already been sorted into "do something with
+      // this code" by the person picking it, and running it through
+      // that same guesser risks a misread ("add a loading state to
+      // src/App.jsx L10-20" landing on "generate notebooks about
+      // App.jsx"). CHANGED — W5.1b: Edit mode is wired now, so a
+      // chip-bearing send branches on codeChatMode instead of always
+      // taking the Ask path — "Ask mode works end-to-end, Edit is a
+      // stub" (W4.2's own scope line) is what this step replaces.
+      if (codeRefs && codeRefs.length > 0) {
+        if (codeChatMode === "edit") {
+          sendCodeEditProposal(text);
+        } else {
+          sendCodeChatMessage(text);
+        }
+        return;
+      }
+      tryHandleGenerateIntent(text).then((handled) => {
+        if (handled) return;
+        if (CHAT_TOOL_CALLING_ENABLED) {
+          tryHandleClassifiedToolCall(text).then((toolHandled) => {
+            if (!toolHandled) sendTask(text);
+          });
+        } else {
+          logClassifiedIntent(text);
+          sendTask(text);
+        }
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- tryHandleGenerateIntent/tryHandleClassifiedToolCall/logClassifiedIntent are recreated every render themselves (not yet stabilized); depending on the now-stable `sendTask`/`codeRefs`/`sendCodeChatMessage`/`codeChatMode`/`sendCodeEditProposal` is what actually matters for rowProps below.
+    [sendTask, codeRefs, sendCodeChatMessage, codeChatMode, sendCodeEditProposal]
+  );
+
+  function handleSubmit(e) {
+    e?.preventDefault();
+    const text = draft.trim();
+    if (!text || loading) return;
+    setDraft("");
+    dispatchText(text);
+  }
+
+  // Enter sends; Shift+Enter (or Alt/Ctrl+Enter) inserts a real newline —
+  // same convention as Slack/Discord/ChatGPT, so multiline/indented input
+  // (e.g. pasted code, a numbered list) is actually usable here.
+  function handleKeyDown(e) {
+    if (e.key === "Enter" && !e.shiftKey && !e.altKey && !e.ctrlKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  }
+
+  // Perf audit #3 step 7 — cross-panel scroll sync, rewired for
+  // react-window v2. The old handleChatScroll (DOM-distance loop over
+  // messageRefs.current) is broken under virtualization: react-window
+  // only mounts on-screen rows, so anything scrolled out of view is
+  // `null` in messageRefs — the loop would silently skip most of a long
+  // chat and pick the wrong index (or none).
+  //
+  // v2's ListImperativeAPI has no "row index at scroll offset" query
+  // (just `element` + `scrollToRow`), but it doesn't need one:
+  // `onRowsRendered` already reports the live visible-row range on every
+  // scroll/resize with no DOM re-derivation required.
+  // `visibleRows.startIndex` (topmost row with any pixel on-screen) is a
+  // like-for-like swap for what handleChatScroll was approximating —
+  // in a top-to-bottom stack, "row whose top is closest to the
+  // container's top" and "topmost visible row" agree in effectively all
+  // cases. Same isSyncingRef guard as before, unchanged semantics.
+  // Perf audit item #3: fires the actual "load older messages on
+  // scroll-up" fetch. Captures the pre-fetch anchor (current earliest
+  // rendered row + current message count) BEFORE calling the store's
+  // loadOlderMessages, since that call resolves asynchronously and this
+  // component only sees the result once the dock state it's subscribed
+  // to updates — the two effects near listRef.scrollToRow above consume
+  // this anchor once messages.length actually grows.
+  const handleLoadOlder = useCallback(() => {
+    if (loadingOlder || !hasMoreOlder || !chatId) return;
+    prependAnchorRef.current = { prevLength: messages.length, index: activeMessageIndexRef.current ?? 0 };
+    loadOlderMessages(chatId);
+  }, [loadingOlder, hasMoreOlder, chatId, messages.length, loadOlderMessages]);
+
+  // visibleRows.startIndex <= 3 (not just === 0) so the fetch starts a
+  // little before the person hits the literal top row — same "prefetch
+  // just ahead of the edge" idea as overscanCount below, just applied to
+  // data-fetching instead of DOM mounting. loadingOlder/hasMoreOlder are
+  // also checked inside handleLoadOlder itself, so this can fire on every
+  // qualifying scroll event without needing its own separate guard here.
+  // BUGFIX (Maximum update depth exceeded / react-window useVirtualizer
+  // setIndices crash): this was a plain function, recreated on every render,
+  // passed straight into <List onRowsRendered={...}>. react-window
+  // re-invokes onRowsRendered whenever that reference changes (it's in the
+  // dependency array of its own internal effect) — not only when the
+  // visible range actually changes. It then called setActiveMessageIndex
+  // unconditionally, which wrote to dock state unconditionally, which
+  // re-rendered this component, which created a new handleRowsRendered
+  // reference, which react-window called again — an infinite loop. Wrapping
+  // this in useCallback (so its identity is stable across unrelated
+  // renders) plus the equality guard below (so it doesn't fire a state
+  // update when the index hasn't actually changed) closes the loop.
+  //
+  // BUGFIX follow-up (same crash, scroll-triggered instance): this still
+  // depended on the primitive `activeMessageIndex` directly for its own
+  // equality check, so its identity was still recreated on every
+  // scroll-driven index change — same residual gap as
+  // setActiveMessageIndex's own follow-up fix above. Reading
+  // activeMessageIndexRef.current instead (and dropping activeMessageIndex
+  // from the dependency array) makes this callback's identity fully
+  // stable, so a continuous scroll gesture no longer keeps re-triggering
+  // List's own onRowsRendered effect (which depends on this exact
+  // reference) on top of the real, already-legitimate index changes.
+  const handleRowsRendered = useCallback(
+    (visibleRows) => {
+      if (isSyncingRef.current) return;
+      if (visibleRows.startIndex !== activeMessageIndexRef.current) {
+        setActiveMessageIndex(visibleRows.startIndex);
+      }
+      if (visibleRows.startIndex <= 3) handleLoadOlder();
+    },
+    [setActiveMessageIndex, handleLoadOlder]
+  );
+
+  // Fix (render-loop): memoized so this object's identity only changes when
+  // one of its actual contents changes, instead of on every render — it's
+  // passed as <List rowProps={...}>, and an unstable rowProps object was
+  // part of the same instability that fed the crash above.
+  const rowProps = useMemo(
+    () => ({
+      messages,
+      onSelect: setActiveMessageIndex,
+      onNavigateSubTab,
+      onSendCommand: dispatchText,
+      onResume: dock.resumeRun,               // NEW — CO3 patch 3
+      pausedActive: !!dock.state.pausedRun,    // NEW — CO3 patch 3
+      onReviewProposal,                        // NEW — W5.4
+      onKeepProposal: handleKeepProposalCard,  // NEW — W5.4
+      onRejectProposal: handleRejectProposalCard, // NEW — W5.4
+    }),
+    [
+      messages,
+      setActiveMessageIndex,
+      onNavigateSubTab,
+      dispatchText,
+      dock.resumeRun,
+      dock.state.pausedRun,
+      onReviewProposal,
+      handleKeepProposalCard,
+      handleRejectProposalCard,
+    ]
+  );
+
+  // Perf audit #3 step 8 fix — Row now lives at module scope (see
+  // VirtualMessageRow above this component) instead of being redefined
+  // here on every render. Wiring its data through rowProps below, rather
+  // than closing over messages/setActiveMessageIndex/etc from this
+  // render's scope.
+
+  const activeMode = MODES.find((m) => m.id === mode) || MODES[0];
+  const ActiveIcon = activeMode.icon;
+
+  // NEW — compact composer: on a phone-width screen, and on every
+  // `stacked` domain-tab dock (Notebooks/Research/Plan/Build/Test/
+  // Growth — narrow even on desktop, since the Chat Box there shares
+  // its column with the Working Panel), the original composer's
+  // attach button + labeled mode dropdown + textarea + "Send" text
+  // button in one `flex gap-2` row left almost no width for the
+  // textarea itself. Below, those same controls move inside the
+  // textbox as icon-only buttons instead (see the composer form JSX)
+  // — same handlers, same state, just a denser layout. The standalone
+  // Chat tab on a real desktop viewport is unaffected and keeps the
+  // original spread-out row with labeled buttons.
+  const compactComposer = stacked || viewport === "mobile";
+
+  // NEW — the Chat Box half is only ever folded inside a `stacked`
+  // domain-tab dock. On the standalone Chat tab (the one call site that
+  // doesn't pass `stacked`) the conversation is the whole point of the
+  // screen, so it has no collapse affordance at all and this stays false
+  // regardless of what's sitting in CHAT_BOX_KEY.
+  const chatBoxFolded = stacked && chatBoxCollapsed;
+
+  // NEW — §6: whole-panel collapsed rail. Only reachable when a parent
+  // passes collapsed=true (i.e. when docked inside a domain tab) — the
+  // standalone ChatTab wrapper never does this, so nothing changes there.
+  // CHANGED — the domain tabs no longer pass collapsed=true at all: a
+  // closed dock is now represented by the floating chat bubble those tabs
+  // already had for narrow viewports, not by a reserved rail. This branch
+  // is kept as a safe fallback for any caller that still passes the prop.
+  if (collapsed) {
+    return stacked ? (
+      <div className="w-full h-10 flex flex-row items-center border-b border-[var(--neutral-800)] px-2">
+        <button
+          onClick={onToggleCollapse}
+          title="Show chat"
+          className="text-[var(--neutral-500)] hover:text-[var(--neutral-300)] p-1.5 rounded-md hover:bg-[var(--neutral-900)] transition-colors"
+        >
+          <MessageSquare size={16} />
+        </button>
+      </div>
+    ) : (
+      <div className="w-10 h-full flex flex-col items-center border-l border-[var(--neutral-800)] pt-2">
+        <button
+          onClick={onToggleCollapse}
+          title="Show chat"
+          className="text-[var(--neutral-500)] hover:text-[var(--neutral-300)] p-1.5 rounded-md hover:bg-[var(--neutral-900)] transition-colors"
+        >
+          <MessageSquare size={16} />
+        </button>
+      </div>
+    );
+  }
+
+  // NEW — Item 2 remaining piece, live-run-state slice, step 2: nothing
+  // resolved to a dock key (see this file's DUAL MODE comment up top for
+  // why that's a real, common state for TestTab/BuildTab/ResearchTab/
+  // PlanTab, not just a mount-time gap). `standalone` (only ChatTab.jsx
+  // passes it) distinguishes its transient "bootstrap hasn't resolved
+  // chatId yet" case, worth different copy than "nothing selected."
+  if (!usingDock) {
+    return (
+      <div
+        className={
+          stacked
+            ? "flex flex-col items-center justify-center h-full w-full text-center px-6 py-10"
+            : "hidden lg:flex flex-col items-center justify-center h-full w-full text-center px-6 py-10"
+        }
+      >
+        <MessageSquare size={28} className="text-[var(--neutral-700)] mb-3" />
+        <p className="text-sm text-[var(--neutral-400)]">
+          {standalone ? "Loading your chat…" : "Select a project to chat"}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={splitContainerRef} className={stacked ? "flex flex-col h-full w-full" : "flex h-full w-full"}>
+      {/* LEFT (or BOTTOM, when stacked) — Chat Box. `order-2` only takes
+          effect in stacked mode (flex-col), putting this below the
+          Working Panel without needing to reorder the JSX itself.
+          CHANGED — CO4 patch 1's slim collapsed rail is gone. A folded
+          Chat Box now renders nothing at all (display:none, so the draft
+          in the composer and the message list's scroll position both
+          survive the fold) — the Working Panel's own header is what
+          brings it back, see handleWorkingPanelHeaderClick. That's also
+          why the top border is dropped when the Working Panel is folded:
+          the Chat Box is the topmost thing in the dock at that point, and
+          a border-t there reads as a stray line under the tab chrome. */}
+      <div
+        className={
+          stacked
+            ? chatBoxFolded
+              ? "hidden"
+              : workingPanelCollapsed
+              ? "flex flex-col flex-1 min-h-0 order-2"
+              : "flex flex-col flex-1 min-h-0 order-2 border-t border-[var(--neutral-800)]"
+            : "flex flex-col flex-1 min-w-0 border-r border-[var(--neutral-800)]"
+        }
+      >
+        <div className="h-10 px-4 border-b border-[var(--neutral-800)] flex items-center justify-between">
+          {/* CHANGED — in a stacked dock this label is the control (see
+              handleChatBoxHeaderClick): it folds the Chat Box when both
+              halves are open, and restores the Working Panel when the
+              Chat Box is on its own. On the standalone Chat tab it stays
+              an inert label — that conversation never folds. */}
+          {stacked ? (
+            <button
+              type="button"
+              onClick={handleChatBoxHeaderClick}
+              title={workingPanelCollapsed ? "Show the Working Panel as well" : "Hide the Chat Box"}
+              className="flex items-center gap-1.5 text-xs font-medium text-[var(--neutral-400)] hover:text-[var(--neutral-200)] border border-[var(--neutral-800)] hover:border-[var(--neutral-600)] rounded-md px-2 py-1 transition-colors"
+            >
+              Chat Box
+              {workingPanelCollapsed ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            </button>
+          ) : (
+            <span className="text-xs font-medium text-[var(--neutral-400)]">Chat Box</span>
+          )}
+          <div className="flex items-center gap-3">
+            {/* Part 2 §2.5: per-session toggle, off by default — most
+                tasks should stay one-click. When on, sendTask() calls
+                /api/task/preview instead of /api/task and pauses on a
+                real hires list (tier 2/3 only) before dispatching. */}
+            <button
+              type="button"
+              onClick={() => setReviewBeforeDispatch((v) => !v)}
+              title="Review staffed roles before a run starts"
+              className={`flex items-center gap-1 text-xs px-2 py-1 rounded-md border transition-colors ${
+                reviewBeforeDispatch
+                  ? "border-[var(--neutral-500)] text-[var(--neutral-200)] bg-[var(--neutral-800-a70)]"
+                  : "border-[var(--neutral-800)] text-[var(--neutral-500)] hover:text-[var(--neutral-300)]"
+              }`}
+            >
+              <ClipboardCheck size={12} />
+              Review hires
+            </button>
+            {/* CHANGED — the single close-the-whole-dock button. It lives
+                in whichever header is currently topmost, so it only
+                appears here when the Working Panel (order-1) is folded
+                away; otherwise the Working Panel header carries it. Still
+                only rendered when a parent actually docked this component
+                — the standalone Chat tab has nothing to close itself
+                into, same as before. */}
+            {onToggleCollapse && (!stacked || workingPanelCollapsed) && (
+              <button
+                type="button"
+                onClick={onToggleCollapse}
+                title="Close chat"
+                className="text-[var(--neutral-500)] hover:text-[var(--neutral-300)]"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Perf audit #3 (message-list virtualization) — original pre-work
+            checklist, kept as a record of what had to keep working across
+            the whole migration. All four landed:
+              1. Auto-scroll to bottom on new message — now
+                 listRef.current?.scrollToRow(...) (step 6).
+              2. Cross-panel scroll sync with WorkingPanel — now driven by
+                 onRowsRendered/handleRowsRendered (step 7); the old
+                 messageRefs DOM-ref loop this replaced has been removed
+                 (step 9).
+              3. Message heights are NOT uniform — markdown, code blocks,
+                 and Mermaid diagrams (which render async and change
+                 height after mount) — handled by react-window v2's
+                 useDynamicRowHeight (step 8).
+              4. Tabs stay mounted (display:none) rather than unmounting
+                 (AppShell.jsx) — scroll position survives a tab switch
+                 since it lives in List's own scrollport, not this
+                 component's state. */}
+        <div
+          ref={chatContainerRef}
+          className="flex-1 min-h-0 flex flex-col px-4 py-6"
+        >
+          {/* Perf audit #3 step 5d — this div is now just a sized wrapper;
+              `overflow-y-auto`/`space-y-4` came off it because List owns
+              its own scrolling and absolutely-positions each row (a CSS
+              gap doesn't apply to that), and the scroll-sync callback
+              moved onto List itself below (`onRowsRendered`, wired in
+              step 7), since List's outer div is the real scroll container
+              now, not this wrapper. chatContainerRef stays attached here
+              rather than deleted — nothing in this file reads its
+              getBoundingClientRect() anymore post-step-7, but WorkingPanel
+              still gets `isSyncingRef` from this component and the two
+              panels' layout code elsewhere may still expect the ref to
+              exist; not worth chasing down as part of this substep. */}
+          {needsChatFirst ? (
+            <p className="text-[var(--neutral-500)] text-sm">
+              {needsBrandNewChat
+                ? "This project doesn't have a chat yet — create one below to start."
+                : "No chat selected — pick one from the sidebar, or start a new one below."}
+            </p>
+          ) : messages.length === 0 && (
+            <p className="text-[var(--neutral-500)] text-sm">
+              Send a task — the EO layer will classify it and route it through
+              the appropriate tier.
+            </p>
+          )}
+          {/* Perf audit #3, step 4 (design-only — no VariableSizeList yet,
+              that's step 5): row-height strategy for when MessageRow below
+              moves out of this plain .map() and into react-window.
+
+              Problem: messages aren't fixed-height (markdown, code blocks,
+              Mermaid diagrams — see step 2's checklist above), so this has
+              to be VariableSizeList, which needs a height *estimate* per
+              row up front and a way to correct that estimate after the
+              real content mounts.
+
+              Planned shape:
+                - heightCache = useRef({}) keyed by a stable message id
+                  (index is NOT stable enough here — react-window indices
+                  shift if messages are ever pruned/reordered, so this
+                  should be whatever stable id MessageRow/message objects
+                  already carry, falling back to index only if nothing
+                  else exists).
+                - MessageRow measures its own rendered height via
+                  ResizeObserver after mount (and on every subsequent
+                  resize — this is what catches a Mermaid diagram or
+                  syntax-highlighted code block finishing its async render
+                  and growing taller than the initial estimate).
+                - On a measured height that differs from what's cached,
+                  update heightCache.current[id] and call
+                  listRef.current.resetAfterIndex(i) so react-window
+                  re-lays-out from that row down instead of leaving stale
+                  offsets for every row below it.
+                - VariableSizeList's itemSize=(i) => heightCache.current[id
+                  for row i] ?? someReasonableDefaultEstimate.
+
+              Open questions to settle before step 5 writes any of this:
+                - Where does listRef live — created here and passed down,
+                  or does react-window's own ref suffice without a second
+                  wrapper?
+                - Does the ResizeObserver belong inside MessageRow itself
+                  (one observer per row) or should this component own a
+                  single observer and .observe() each row's node — the
+                  former is simpler per-row but is one observer per
+                  on-screen row at all times; the latter is more setup
+                  but only one observer total.
+                - Default/initial estimate: a flat guess (e.g. one line of
+                  text) will undercount code/Mermaid messages on first
+                  paint before ResizeObserver's first callback fires —
+                  worth a slightly taller default for messages known up
+                  front to contain a code block or diagram, if that's
+                  cheap to detect from the message content.
+
+              This comment is the pinned-down plan per the audit's own
+              guidance to design the height strategy before touching code,
+              since it's called out as the piece most likely to need
+              rework. Nothing below this comment changes yet. */}
+          {/* Perf audit #3 step 5d — the plain .map() is now react-window's
+              List, wrapping the Row function from step 5b. rowHeight was
+              step 5a's getItemSize (a hand-rolled, never-populated cache)
+              until the step 8 fix swapped it for dynamicRowHeight, v2's
+              own dynamic-height object — see that fix's comment above for
+              why. No width/height props — List fills this wrapper div on
+              its own. onScroll moves here since List's outer div (not the
+              wrapper above) is the actual scrollport now.
+
+              Smoke-test scope only (step 5e): a short chat should render
+              virtualized and scroll with mouse/trackpad. At this substep,
+              bottomRef auto-scroll and cross-panel sync were both expected
+              to be broken — not a regression from this substep, just not
+              fixed yet. Step 6 (listRef.scrollToRow, above) fixed
+              auto-scroll; step 7 (handleRowsRendered, above) fixed
+              cross-panel sync. */}
+          {/* Perf audit item #3: loadingOlder is set by the store while a
+              "load older messages" fetch (triggered from handleRowsRendered
+              near the top of this file) is in flight. This sits above
+              List's own scrollport rather than inside it, so it doesn't
+              consume a virtualized row index or interfere with
+              prependAnchorRef's position-restore effect above. */}
+          {loadingOlder && (
+            <div className="flex items-center justify-center gap-2 py-2 text-xs text-[var(--neutral-500)]">
+              <Loader2 size={12} className="animate-spin" />
+              Loading older messages…
+            </div>
+          )}
+          <List
+            listRef={listRef}
+            rowComponent={VirtualMessageRow}
+            rowCount={messages.length}
+            rowHeight={dynamicRowHeight}
+            rowProps={rowProps}
+            overscanCount={6}
+            onRowsRendered={handleRowsRendered}
+          />
+          {/* Gap fix: List rows are position:absolute, so a parent
+              `space-y-*`/gap utility is a no-op on them — the inter-message
+              gap instead lives on MessageRow's own wrapper div as
+              `pb-4` (matches the old space-y-4 amount), with
+              ESTIMATED_ROW_HEIGHT above bumped by the same 16px so the
+              pre-measurement estimate accounts for it too. */}
+          {loading && (
+            // CHANGED — was plain `animate-pulse` "Working…" text. The
+            // mark itself now draws-in/undraws in a loop
+            // (AssistantAvatar.jsx, `thinking` mode) — same "the logo
+            // is composing a reply" treatment Claude/other AI chat UIs
+            // use. The label is now a thin live echo of liveSteps/
+            // decisionEvents (currentWorkLabel above — same data
+            // WorkingPanel already shows in full, no new cost to read
+            // it here too), and an elapsed-time readout (ThinkingElapsed
+            // above, purely client-side) sits after it so a slow tier-3
+            // run never looks stuck with no feedback.
+            <div className="flex items-center gap-2 text-[var(--neutral-500)] text-sm">
+              <AssistantAvatar size={20} thinking />
+              <span>{currentWorkLabel(liveSteps, decisionEvents)}</span>
+              <span className="text-[var(--neutral-600)]">· <ThinkingElapsed /></span>
+            </div>
+          )}
+          {/* NEW — Phase 4 step 4.6: live feed of generationNotifications
+              (step 4.5's dock-state field, fed straight off the
+              session-${session_id} Pusher channel — no polling, updates
+              land here the moment eo/notify.py's _deliver() fires). Mounted
+              here rather than as its own "generation" message-role entry
+              like BranchRow's picker/chat-triggered runs (Phase 2 step
+              2.10): these events aren't tied to any one chat turn (a
+              proactive Phase-3 suggestion's generation has no preceding
+              user message), so they get their own small standalone area
+              instead of being spliced into the messages array.
+              onNavigate — step 4.7 — reuses the exact same
+              `onNavigateSubTab?.(subTab)` pass-through MessageBubble.jsx
+              already gives BranchRow above, so a "done" notification's
+              chevron opens the same sub-tab a BranchRow chevron would for
+              the same panel_key; only rendered once a "done" row's target
+              actually has a subTab (see GenerationNotificationRow's own
+              guard). */}
+          {generationNotifications.length > 0 && (
+            <div className="space-y-1.5">
+              {generationNotifications.map((n) => (
+                <GenerationNotificationRow
+                  key={`${n.workspaceId}:${n.panelKey}`}
+                  notification={n}
+                  onNavigate={(subTab) => onNavigateSubTab?.(subTab)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Part 2 §2.5: the review screen renders in place of the
+            compose bar while a preview is awaiting a decision — nothing
+            has dispatched yet, so there's nothing for the compose bar to
+            usefully do until Confirm/Cancel resolves it. */}
+        {needsChatFirst ? (
+          <div className="border-t border-[var(--neutral-800)] p-4 flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-xs text-[var(--neutral-500)]">
+                {needsBrandNewChat
+                  ? "Create a chat to start sending tasks, attaching files, or running Generate."
+                  : "Select a chat from the sidebar to continue — or start a new one."}
+              </p>
+              <button
+                onClick={handleCreateFirstChat}
+                disabled={creatingChat}
+                className="flex items-center gap-1.5 text-xs bg-[var(--accent)] text-[var(--accent-text)] rounded-lg px-3 py-1.5 font-medium disabled:opacity-50 shrink-0"
+              >
+                {creatingChat ? <Loader2 size={13} className="animate-spin" /> : <MessageSquare size={13} />}
+                {creatingChat ? "Creating…" : needsBrandNewChat ? "Create first chat" : "Start new chat"}
+              </button>
+            </div>
+            {createChatError && <p className="text-xs text-red-400">{createChatError}</p>}
+          </div>
+        ) : pendingHireReview ? (
+          <div className="border-t border-[var(--neutral-800)] p-4">
+            <HireReviewScreen
+              hires={pendingHireReview.hires}
+              onConfirm={confirmHireReview}
+              onCancel={cancelHireReview}
+            />
+          </div>
+        ) : (
+        <>
+        {/* NEW — W4.2: the code-context chip tray + Ask|Edit mode toggle,
+            "chips render above the composer" (plan §5 W4.2). `codeRefs`
+            null (every non-Build call site) renders nothing here at
+            all — see this component's own prop-block comment above.
+            `codeChips` is a ready-made element the caller built
+            (BuildTab.jsx's CodeAwareChatPanel passes a live
+            <ContextChips/>), not something this file constructs
+            itself, so it stays free of any lib/workbench import. */}
+        {codeRefs !== null && (
+          <div className="border-t border-[var(--neutral-800)] px-4 pt-3 flex flex-col gap-2">
+            <div className="flex items-center gap-0.5 self-start rounded-md border border-[var(--neutral-800)] bg-[var(--neutral-900)] p-0.5">
+              <button
+                type="button"
+                onClick={() => setCodeChatMode("ask")}
+                className={`rounded px-2 py-0.5 text-[11px] font-medium transition-colors ${
+                  codeChatMode === "ask"
+                    ? "bg-[var(--accent)] text-[var(--accent-text)]"
+                    : "text-[var(--neutral-400)] hover:text-[var(--neutral-200)]"
+                }`}
+              >
+                Ask
+              </button>
+              <button
+                type="button"
+                onClick={() => setCodeChatMode("edit")}
+                className={`rounded px-2 py-0.5 text-[11px] font-medium transition-colors ${
+                  codeChatMode === "edit"
+                    ? "bg-[var(--accent)] text-[var(--accent-text)]"
+                    : "text-[var(--neutral-400)] hover:text-[var(--neutral-200)]"
+                }`}
+              >
+                Edit
+              </button>
+            </div>
+            {codeChips}
+            {/* NEW — W5.3: every proposal THIS panel has created or heard
+                resolved (subscribeToProposalEvents' onResolved, above) —
+                a "pending" one gets a Review button into
+                ReviewPanel.jsx's Keep/Undo UI; anything else just shows
+                how it was left (matches reviewMode.js's own status
+                vocabulary, so a proposal resolved elsewhere while this
+                panel was closed reads the same way here as there).
+                W5.4: this list is session-local (cleared on reload) —
+                the persisted `code_proposal` message below in the
+                thread itself, and EditorWorkbench.jsx's cross-session
+                PendingTray.jsx, are what survive a reload; this stays
+                as a quick glance right above the composer. */}
+            {codeProposals.length > 0 && (
+              <ul className="flex flex-col gap-1 max-h-40 overflow-y-auto">
+                {codeProposals.map((p) => (
+                  <li
+                    key={p.id}
+                    className="flex items-center justify-between gap-2 rounded-md border border-[var(--neutral-800)] bg-[var(--neutral-900)] px-2 py-1.5 text-[11px]"
+                  >
+                    <span className="min-w-0 truncate text-[var(--neutral-300)]" title={p.instruction || undefined}>
+                      {p.summary || p.instruction || "AI edit"}
+                    </span>
+                    {p.status === "pending" ? (
+                      <button
+                        type="button"
+                        onClick={() => onReviewProposal?.(p)}
+                        className="shrink-0 rounded bg-[var(--accent)] text-[var(--accent-text)] px-2 py-0.5 font-medium hover:opacity-90"
+                      >
+                        Review
+                      </button>
+                    ) : (
+                      <span className="shrink-0 capitalize text-[var(--neutral-500)]">{p.status}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+        {/* NEW — Data Layer §4b: compact status pills for in-flight/just-
+            finished attachments, distinct from IngestionDropzone.jsx's
+            fuller progress list (this composer has no room for that, and
+            doesn't need drag-and-drop or a url field) — same status
+            vocabulary (pending/done/error/timeout) so it reads
+            consistently with Notebooks' Sources tab. */}
+        {attachItems.length > 0 && (
+          <div className="border-t border-[var(--neutral-800)] px-4 pt-3 flex flex-wrap gap-2">
+            {attachItems.map((it) => (
+              <span
+                key={it.id}
+                className={`flex items-center gap-1.5 text-[11px] rounded-full border px-2.5 py-1 ${
+                  it.status === "error"
+                    ? "border-red-900 text-red-400"
+                    : it.status === "timeout"
+                    ? "border-amber-900 text-amber-400"
+                    : it.status === "done"
+                    ? "border-green-900 text-green-400"
+                    : "border-[var(--neutral-800)] text-[var(--neutral-400)]"
+                }`}
+              >
+                {it.status === "pending" && <Loader2 size={11} className="animate-spin shrink-0" />}
+                {it.status === "done" && <CheckCircle2 size={11} className="shrink-0" />}
+                {it.status === "error" && <XCircle size={11} className="shrink-0" />}
+                {it.status === "timeout" && <AlertTriangle size={11} className="shrink-0" />}
+                <span className="truncate max-w-[10rem]">{it.name}</span>
+                <span className="text-[var(--neutral-600)]">
+                  {it.status === "pending" ? "ingesting…" : it.message}
+                </span>
+              </span>
+            ))}
+          </div>
+        )}
+        {/* NEW — Data Layer §4b: attach a file straight into this
+            workspace's sources — no separate Sources tab trip needed.
+            Disabled without a resolved workspaceId (no active chat yet)
+            since process_upload() has nothing to attach the source to. */}
+        {/* NEW — §9.1: Notebooks passes hideAttach to drop this affordance
+            there (IngestionDropzone.jsx already covers uploads for that
+            tab). Every other tab leaves hideAttach unset and is unaffected. */}
+        {/* Shared across both layouts below so the file input/handler
+            only exists once. */}
+        {(() => {
+          const attachInput = !hideAttach && (
+            <input
+              ref={attachInputRef}
+              id="workspace-chat-attach-files"
+              name="attachFiles"
+              type="file"
+              multiple
+              aria-label="Attach files"
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files?.length) handleAttachFiles(e.target.files);
+                e.target.value = "";   // allow re-selecting the same file twice in a row
+              }}
+            />
+          );
+
+          // The mode dropdown's option list is identical in both layouts —
+          // only the trigger button (labeled vs icon-only) and the panel's
+          // positioning/width differ, so the options themselves are built
+          // once here and reused below.
+          const modeOptions = MODES.map((m) => {
+            const Icon = m.icon;
+            return (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => {
+                  setMode(m.id);
+                  setModeOpen(false);
+                }}
+                className={`w-full flex items-start gap-2 px-3 py-2 text-left text-sm hover:bg-[var(--neutral-800)] transition-colors ${
+                  m.id === mode ? "bg-[var(--neutral-800-a70)]" : ""
+                }`}
+              >
+                <Icon size={15} className="mt-0.5 shrink-0" />
+                <span>
+                  <span className="block text-[var(--neutral-200)]">{m.label}</span>
+                  <span className="block text-[11px] text-[var(--neutral-500)]">{m.hint}</span>
+                </span>
+              </button>
+            );
+          });
+
+          if (compactComposer) {
+            // CHANGED — compact layout: attach/mode/send all become
+            // icon-only buttons living INSIDE the textbox's own border
+            // (a bordered wrapper around all four controls, textarea
+            // itself borderless/transparent) instead of a `flex gap-2`
+            // row of separately-bordered controls competing with the
+            // textarea for width. `pb-[env(safe-area-inset-bottom)]`
+            // keeps the send button clear of an iPhone's home-indicator
+            // now that layout.js's viewportFit:"cover" makes that inset
+            // meaningful.
+            return (
+              <form
+                onSubmit={handleSubmit}
+                className="border-t border-[var(--neutral-800)] p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
+              >
+                {attachInput}
+                <div className="flex items-end gap-1 bg-[var(--neutral-900)] border border-[var(--neutral-800)] rounded-lg focus-within:border-[var(--neutral-600)] transition-colors">
+                  <div className="flex items-center gap-0.5 pl-1 pb-1 shrink-0">
+                    {!hideAttach && (
+                      <button
+                        type="button"
+                        disabled={!workspaceId}
+                        onClick={() => attachInputRef.current?.click()}
+                        title={workspaceId ? "Attach a file (PDF, docs, slides, sheets, audio)" : "Open or start a chat to attach files"}
+                        className="flex items-center justify-center p-1.5 rounded-md text-[var(--neutral-400)] outline-none disabled:opacity-40 hover:bg-[var(--neutral-800)] hover:text-[var(--neutral-200)] transition-colors"
+                      >
+                        <Paperclip size={15} />
+                      </button>
+                    )}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => setModeOpen((o) => !o)}
+                        title={`Mode: ${activeMode.label} — ${activeMode.hint}`}
+                        className="flex items-center justify-center p-1.5 rounded-md text-[var(--neutral-400)] outline-none disabled:opacity-50 hover:bg-[var(--neutral-800)] hover:text-[var(--neutral-200)] transition-colors"
+                      >
+                        <ActiveIcon size={15} />
+                      </button>
+                      {modeOpen && (
+                        <div className="absolute bottom-full mb-2 left-0 w-56 max-w-[calc(100vw-2rem)] rounded-lg border border-[var(--neutral-800)] bg-[var(--neutral-900)] shadow-xl overflow-hidden z-10">
+                          {modeOptions}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <textarea
+                    id="chat-message-draft"
+                    name="chat-message-draft"
+                    ref={textareaRef}
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Describe a task…"
+                    disabled={loading}
+                    rows={1}
+                    className="flex-1 min-w-0 resize-none bg-transparent border-0 px-1.5 py-2.5 text-sm outline-none disabled:opacity-50 leading-relaxed"
+                  />
+
+                  <div className="pr-1 pb-1 shrink-0">
+                    <ChatSendButton
+                      compact
+                      loading={loading}
+                      paused={isRunPaused}
+                      disabledSend={loading || !draft.trim()}
+                      onPauseRequest={requestPause}
+                      onResume={resumeRun}
+                    />
+                  </div>
+                </div>
+              </form>
+            );
+          }
+
+          return (
+            <form onSubmit={handleSubmit} className="border-t border-[var(--neutral-800)] p-4 flex gap-2 items-end">
+              {!hideAttach && (
+                <>
+                  {attachInput}
+                  <button
+                    type="button"
+                    disabled={!workspaceId}
+                    onClick={() => attachInputRef.current?.click()}
+                    title={workspaceId ? "Attach a file (PDF, docs, slides, sheets, audio)" : "Open or start a chat to attach files"}
+                    className="flex items-center justify-center bg-[var(--neutral-900)] border border-[var(--neutral-800)] rounded-lg p-2 text-sm outline-none disabled:opacity-40 hover:border-[var(--neutral-600)] transition-colors shrink-0"
+                  >
+                    <Paperclip size={15} className="text-[var(--neutral-400)]" />
+                  </button>
+                </>
+              )}
+
+              {/* Mode picker — custom dropdown (not a native <select>) so each
+                  option can carry its own icon. */}
+              <div className="relative">
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => setModeOpen((o) => !o)}
+                  className="flex items-center gap-1.5 bg-[var(--neutral-900)] border border-[var(--neutral-800)] rounded-lg px-3 py-2 text-sm outline-none disabled:opacity-50 hover:border-[var(--neutral-600)] transition-colors"
+                >
+                  <ActiveIcon size={14} />
+                  {activeMode.label}
+                  <ChevronDown size={13} className={`transition-transform ${modeOpen ? "rotate-180" : ""}`} />
+                </button>
+                {modeOpen && (
+                  <div className="absolute bottom-full mb-2 left-0 w-56 rounded-lg border border-[var(--neutral-800)] bg-[var(--neutral-900)] shadow-xl overflow-hidden z-10">
+                    {modeOptions}
+                  </div>
+                )}
+              </div>
+
+              <textarea
+                id="chat-message-draft"
+                name="chat-message-draft"
+                ref={textareaRef}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Describe a task... (Shift+Enter for a new line)"
+                disabled={loading}
+                rows={1}
+                className="flex-1 resize-none bg-[var(--neutral-900)] border border-[var(--neutral-800)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--neutral-600)] disabled:opacity-50 leading-relaxed"
+              />
+              <ChatSendButton
+                loading={loading}
+                paused={isRunPaused}
+                disabledSend={loading || !draft.trim()}
+                onPauseRequest={requestPause}
+                onResume={resumeRun}
+              />
+            </form>
+          );
+        })()}
+        </>
+        )}
+      </div>
+
+      {/* RIGHT (or TOP, when stacked) — Working Panel: resizable when
+          open, collapses to a slim icon rail (rather than vanishing
+          entirely) so there's always a visible way back in.
+          CHANGED — `stacked` (passed by every domain-tab dock) swaps this
+          from a right-docked, fixed-WIDTH column (which needed extra
+          horizontal space beyond whatever the dock container was given,
+          forcing the page to scroll sideways once opened) to a
+          top-docked, fixed-HEIGHT row that's always full-width and never
+          asks for more width than its container already has. The
+          standalone Chat tab doesn't pass `stacked`, so it keeps the
+          original side-by-side layout, hidden below lg, unchanged. */}
+      {/* CHANGED — Phase 1 (mobile shell): the non-`stacked` branch used
+          to just be `hidden lg:flex` below 1024px, with no way back in
+          on either mobile or tablet — the collapsed-rail toggle inside
+          it was hidden along with everything else. On mobile
+          specifically that dead end is now replaced with a real drawer
+          (WorkingPanelDrawer.jsx), opened by mobile/AppShell.jsx's
+          header button via the listener above. Tablet keeps the
+          pre-existing `hidden lg:flex` behavior for now — same
+          "Phase 7, not this one" scoping as everywhere else in this
+          patch. `stacked` (the six domain-tab docks) is completely
+          unchanged. */}
+      {!stacked && viewport === "mobile" ? (
+        <WorkingPanelDrawer
+          open={!workingPanelCollapsed}
+          onClose={() => setWorkingPanelCollapsed(true)}
+        >
+          {/* isOpen — NEW, scroll-to-bottom-on-open fix: MobileDrawer never
+              unmounts WorkingPanel, it only slides it off-screen (see that
+              component's own docstring), so this is the only signal
+              WorkingPanel gets that the drawer was actually reopened.
+              Mirrors the same `!workingPanelCollapsed` value driving the
+              drawer's own `open` prop just above. */}
+          <WorkingPanel isSyncingRef={isSyncingRef} workspaceId={workspaceId} chatId={chatId} onNavigateSubTab={onNavigateSubTab} isOpen={!workingPanelCollapsed} />
+        </WorkingPanelDrawer>
+      ) : (
+      <div
+        className={
+          stacked
+            ? workingPanelCollapsed
+              ? "hidden"
+              : chatBoxFolded
+              ? "flex flex-col flex-1 min-h-0 order-1 w-full"
+              : "flex flex-col shrink-0 order-1 w-full"
+            : "hidden lg:flex shrink-0"
+        }
+      >
+        {workingPanelCollapsed ? (
+          stacked ? null : (
+            <div className="w-10 flex flex-col items-center border-l border-[var(--neutral-800)] pt-2">
+              <button
+                onClick={toggleWorkingPanel}
+                title="Show Working Panel"
+                className="text-[var(--neutral-500)] hover:text-[var(--neutral-300)] p-1.5 rounded-md hover:bg-[var(--neutral-900)] transition-colors"
+              >
+                <PanelRightOpen size={16} />
+              </button>
+            </div>
+          )
+        ) : stacked ? (
+          /* CHANGED — when the Chat Box is folded this half stops being a
+             fixed-height row and takes the dock's whole height instead
+             (flex-1), which is the "the other one covers the whole
+             section" half of the header behaviour. The drag handle goes
+             with it: there's no second pane left to resize against. */
+          <div
+            className={chatBoxFolded ? "flex flex-col w-full flex-1 min-h-0" : "flex flex-col w-full"}
+            style={chatBoxFolded ? undefined : { height: workingPanelHeight }}
+          >
+            <div className="flex-1 min-h-0 flex flex-col border-b border-[var(--neutral-800)]">
+              <div className="h-10 px-4 border-b border-[var(--neutral-800)] flex items-center justify-between">
+                {/* CHANGED — same control-as-label treatment as the Chat
+                    Box header above: folds the Working Panel when both
+                    halves are open, brings the Chat Box back when the
+                    Working Panel is on its own. */}
+                <button
+                  type="button"
+                  onClick={handleWorkingPanelHeaderClick}
+                  title={chatBoxFolded ? "Show the Chat Box as well" : "Hide the Working Panel"}
+                  className="flex items-center gap-1.5 text-xs font-medium text-[var(--neutral-400)] hover:text-[var(--neutral-200)] border border-[var(--neutral-800)] hover:border-[var(--neutral-600)] rounded-md px-2 py-1 transition-colors"
+                >
+                  Working Panel
+                  {chatBoxFolded ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
+                </button>
+                {/* CHANGED — the one close-the-whole-dock button, in the
+                    topmost header (this one, whenever the Working Panel
+                    is showing). Replaces the old three-button spread of
+                    "collapse chat" / "collapse working panel" / "collapse
+                    the lot". */}
+                {onToggleCollapse && (
+                  <button
+                    type="button"
+                    onClick={onToggleCollapse}
+                    title="Close chat"
+                    className="text-[var(--neutral-500)] hover:text-[var(--neutral-300)]"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+              <div className="flex-1 min-h-0">
+                <WorkingPanel isSyncingRef={isSyncingRef} workspaceId={workspaceId} chatId={chatId} onNavigateSubTab={onNavigateSubTab} />
+              </div>
+            </div>
+            {!chatBoxFolded && (
+              <div
+                onMouseDown={startWorkingPanelResizeVertical}
+                title="Drag to resize"
+                className="h-1.5 w-full shrink-0 cursor-row-resize hover:bg-[var(--neutral-700)] active:bg-[var(--neutral-600)] transition-colors"
+              />
+            )}
+          </div>
+        ) : (
+          <div className="flex" style={{ width: workingPanelWidth }}>
+            <div
+              onMouseDown={startWorkingPanelResize}
+              title="Drag to resize"
+              className="w-1.5 shrink-0 cursor-col-resize hover:bg-[var(--neutral-700)] active:bg-[var(--neutral-600)] transition-colors"
+            />
+            <div className="flex-1 min-w-0 flex flex-col border-l border-[var(--neutral-800)]">
+              <div className="h-10 px-4 border-b border-[var(--neutral-800)] flex items-center justify-between">
+                <span className="text-xs font-medium text-[var(--neutral-400)]">Working Panel</span>
+                <button
+                  onClick={toggleWorkingPanel}
+                  title="Collapse"
+                  className="text-[var(--neutral-500)] hover:text-[var(--neutral-300)]"
+                >
+                  <PanelRightClose size={14} />
+                </button>
+              </div>
+              <div className="flex-1 min-h-0">
+                <WorkingPanel isSyncingRef={isSyncingRef} workspaceId={workspaceId} chatId={chatId} onNavigateSubTab={onNavigateSubTab} />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      )}
+      {/* W5.5: keeping a proposal card that deletes a file is the one
+          resolve decision this client can't walk back — confirm by
+          name before the request goes out (deletedPathsToKeep()). */}
+      <ConfirmDialog
+        open={!!pendingProposalResolve}
+        title={
+          pendingProposalResolve?.paths.length === 1
+            ? `Delete "${pendingProposalResolve.paths[0].split("/").pop()}"?`
+            : `Delete ${pendingProposalResolve?.paths.length ?? 0} files?`
+        }
+        message={`Applying this edit will permanently delete:\n${(pendingProposalResolve?.paths || []).join("\n")}`}
+        confirmLabel="Delete"
+        onConfirm={() => {
+          const run = pendingProposalResolve?.run;
+          setPendingProposalResolve(null);
+          if (run) run();
+        }}
+        onCancel={() => setPendingProposalResolve(null)}
+      />
+    </div>
+  );
+}

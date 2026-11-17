@@ -1,0 +1,4 @@
+# data/src holds byte-exact copies of MiniMe's committed files (scripts/refresh_source.py). Their git blob ids must equal the
+# blob ids MiniMe has (the notes and the staleness checks compare them), so git must never convert their line endings,
+# even on Windows with core.autocrlf=true.
+data/src/** -text linguist-generated=true

@@ -1,0 +1,312 @@
+"""
+eo/result_render.py — bug fix follow-up.
+
+Turns ANY agent result shape in this codebase into readable markdown
+text, instead of the generic `str(result)` fallback that was printing
+raw Python dict reprs (e.g. "{'issues': [{'module': ...") into both the
+live agent-step panel and the final chat answer.
+
+Every REAL_ACTION_ROLES module has its own return shape:
+  - agents/generic_worker.py (writer/editor/researcher/... — every
+    reasoning-only role): {"role", "text", "next_destination"}
+  - agents/reviewer.py ("verifier" role): {"issues": [...], "summary",
+    "next_destination"}
+  - agents/fixer_pool.py ("fixer" role): {"fixed_code": {module: {...}},
+    "next_destination"}
+  - agents/code_writers.py ("implementer" role) / agents/test_writer.py
+    ("test_writer" role): a flat {module_name: code_string} dict, or
+    {module_name: {"language", "code"}}
+  - responder.py / prompt_writer_lean-backed tiers: plain str, or
+    {"code": ...} / {"answer": ...}
+  - agents/content_adapter_pool.py (Part 6 §6.2, "content_adapter_pool"
+    role): a flat {platform: content_string} dict.
+  - agents/content_calendar_builder's generic_worker output, parsed into
+    the structured Part 6 §6.4 shape: a list of
+    {"date", "platform", "content_ref"} dicts.
+
+Rather than teach every call site (eo/executor.py's _summarize(),
+api/task_runner.py's answer extraction, and — mirrored in JS —
+frontend/app/components/MessageBubble.jsx's answerTextOf()) each of
+these shapes separately (and inevitably drifting), this is the one
+place that knows all of them. Keep the JS mirror in sync if a new shape
+is added here.
+
+`role` (Part 6): threaded through from every call site below so the
+content_adapter_pool branch can be gated on WHICH role produced a flat
+{key: string} dict, not shape alone — a platform->content map and a
+code_writers-style {module: code} map are structurally identical, so
+shape alone can't tell them apart. Defaults to None (today's exact
+behavior for every caller that doesn't pass one): a flat string-map
+falls back to being read as code modules, same as before this role
+param existed.
+"""
+import json
+
+from eo.output_guard import validate_artifact_entry  # NEW — D3 Part 4
+
+
+def _render_code_modules(modules: dict) -> str:
+    """Renders a {module_name: code_str | {"language","code"}} dict as
+    one fenced code block per module, each labeled with its name."""
+    if not modules:
+        return "_(no modules)_"
+    parts = []
+    for name, entry in modules.items():
+        if isinstance(entry, dict):
+            lang = entry.get("language", "")
+            code = entry.get("code", "")
+        else:
+            lang, code = "", str(entry)
+        parts.append(f"**{name}**\n```{lang}\n{code}\n```")
+    return "\n\n".join(parts)
+
+
+def _looks_like_module_map(result: dict) -> bool:
+    """True for code_writers.py / test_writer.py's flat return shape —
+    every value is either a bare code string, or a {"language","code"}
+    dict. An empty dict also counts (test_writer returns {} when it
+    generated no tests), so this can't just check `bool(result)`."""
+    return all(
+        isinstance(v, str) or (isinstance(v, dict) and "code" in v)
+        for v in result.values()
+    )
+
+
+def _looks_like_platform_content_map(result: dict, role: str = None) -> bool:
+    """Part 6 §6.2 — agents/content_adapter_pool.py's flat
+    {platform: content} shape. Gated on role, not shape alone: without
+    checking which role actually produced it, this is indistinguishable
+    from _looks_like_module_map()'s {module: code} shape above, and a
+    set of platform variants would get mistakenly rendered as source
+    code."""
+    if role != "content_adapter_pool":
+        return False
+    if not result:
+        return False
+    return all(isinstance(v, str) for v in result.values())
+
+
+def _render_platform_content_map(result: dict) -> str:
+    """Text fallback for a platform->content map. The live agent-step
+    panel and the finished-message trace disclosure both render this as
+    an actual card grid client-side (frontend/app/components/
+    MessageBubble.jsx's PlatformVariantCards) rather than through this
+    function's markdown string — this exists so any OTHER caller of
+    render_agent_result() (a plain-text export, a log line, ...) still
+    gets something readable instead of a raw dict repr."""
+    parts = []
+    for platform, content in result.items():
+        label = platform.replace("_", " ")
+        parts.append(f"**{label}**\n\n{content}")
+    return "\n\n---\n\n".join(parts)
+
+
+def _looks_like_calendar_entries(result) -> bool:
+    """Part 6 §6.4 — content_calendar_builder's structured
+    {date, platform, content_ref} row list. Checked before
+    _looks_like_module_map() below: a list isn't a dict (module maps are
+    always dicts), so this never actually collides with it, but the
+    explicit check keeps that from being an incidental fact this module
+    quietly depends on."""
+    return (
+        isinstance(result, list)
+        and len(result) > 0
+        and all(
+            isinstance(row, dict)
+            and ("date" in row or "platform" in row or "content_ref" in row)
+            for row in result
+        )
+    )
+
+
+def _render_content_calendar(entries: list) -> str:
+    """Same date/platform/content markdown table shape
+    agents/exporter.py's _write_calendar_md() writer produces, so the
+    in-chat preview and the downloadable .md export always show
+    identical column order/labels."""
+    if not entries:
+        return "_(no calendar entries)_"
+
+    def esc(v) -> str:
+        s = str(v if v is not None else "").strip()
+        return s.replace("|", "\\|") if s else "—"
+
+    lines = ["| Date | Platform | Content |", "|------|----------|---------|"]
+    for row in entries:
+        lines.append(
+            f"| {esc(row.get('date'))} | {esc(row.get('platform'))} | "
+            f"{esc(row.get('content_ref'))} |"
+        )
+    return "\n".join(lines)
+
+
+def _render_extraction_table(result: dict) -> str:
+    """agents/extraction_table_builder.py's shape (Part 3 §3.5): one row
+    per paper, columns are Title/Year plus whatever's in field_names.
+    GFM pipe-table syntax -- frontend/app/components/Markdown.jsx already
+    has real styled table/thead/th/td components via remark-gfm, so this
+    renders as an actual table, not a second thing to build in React."""
+    papers = result.get("papers") or []
+    field_names = result.get("field_names") or []
+    if not papers:
+        return "_(no papers extracted)_"
+
+    def esc(v) -> str:
+        if v is None or v == "":
+            return "—"
+        return str(v).replace("|", "\\|").replace("\n", " ")
+
+    headers = ["Title", "Year"] + [f.replace("_", " ").title() for f in field_names]
+    lines = ["| " + " | ".join(headers) + " |", "|" + "|".join(["---"] * len(headers)) + "|"]
+    for p in papers:
+        row = [esc(p.get("title")), esc(p.get("year"))] + [esc(p.get(f)) for f in field_names]
+        lines.append("| " + " | ".join(row) + " |")
+    return "\n".join(lines)
+
+
+def render_agent_result(result, role: str = None, limit: int = 9000) -> str:
+    """Best-effort human-readable markdown for ANY agent result shape in
+    this codebase. Replaces the old str(result)-on-anything-unrecognized
+    fallback that printed raw Python dict reprs.
+
+    role: which role produced `result` (Part 6) — optional, defaults to
+    None. Only currently consulted by the content_adapter_pool branch
+    below; every other shape check is still purely structural and
+    unaffected by whether a caller passes this."""
+    if isinstance(result, str):
+        text = result
+    elif _looks_like_calendar_entries(result):
+        # Part 6 §6.4 — checked ahead of the dict-only branches below
+        # since this shape is a list, not a dict.
+        text = _render_content_calendar(result)
+    elif isinstance(result, dict):
+        if result.get("text"):
+            text = result["text"]
+        elif "issues" in result and isinstance(result.get("issues"), list):
+            # agents/reviewer.py's "verifier" shape.
+            lines = []
+            summary = (result.get("summary") or "").strip()
+            if summary:
+                lines.append(summary)
+            issues = result["issues"]
+            if issues:
+                lines.append("")
+                for issue in issues:
+                    sev = issue.get("severity", "")
+                    mod = issue.get("module", "")
+                    desc = issue.get("description", "")
+                    count = issue.get("flagged_by_count")
+                    tag = f" _(flagged by {count} reviewer{'s' if count != 1 else ''})_" if count else ""
+                    lines.append(f"- **[{sev}]** `{mod}`: {desc}{tag}")
+            elif not summary:
+                lines.append("No issues found.")
+            text = "\n".join(lines)
+        elif "fixed_code" in result and isinstance(result.get("fixed_code"), dict):
+            # agents/fixer_pool.py's "fixer" shape.
+            text = _render_code_modules(result["fixed_code"])
+        elif result.get("code"):
+            text = result["code"]
+        elif result.get("answer"):
+            text = str(result["answer"])
+        elif "papers" in result and isinstance(result.get("field_names"), list):
+            # agents/extraction_table_builder.py's shape (Part 3 §3.5) —
+            # checked via field_names specifically so this doesn't also
+            # catch agents/academic_search.py's {"papers", "edges_written"}
+            # shape, which has no field_names and reads better as its own
+            # summary line below.
+            text = _render_extraction_table(result)
+        elif _looks_like_platform_content_map(result, role):
+            # Part 6 §6.2 — checked ahead of _looks_like_module_map()
+            # below, which would otherwise also match this exact shape
+            # (a flat map of string values) and misrender it as code.
+            text = _render_platform_content_map(result)
+        elif _looks_like_module_map(result):
+            # agents/code_writers.py ("implementer") / agents/test_writer.py
+            # ("test_writer") flat {module: code} shape, including the
+            # legitimate empty-dict "no tests generated" case.
+            text = _render_code_modules(result)
+        elif isinstance(result.get("summary"), str) and result.get("summary"):
+            # Part 3's other real-action roles (academic_search,
+            # contradiction_prefilter, source_quality_flagger,
+            # citation_graph_builder, ...) all already produce a
+            # human-readable "summary" string for exactly this purpose —
+            # use it instead of falling through to a raw JSON dump.
+            text = result["summary"]
+        else:
+            # Genuinely unrecognized shape — still don't print a raw
+            # Python repr; pretty-printed JSON (double-quoted, indented)
+            # in a fenced block is at least readable and copy-pasteable.
+            try:
+                text = "```json\n" + json.dumps(result, indent=2, default=str) + "\n```"
+            except Exception:
+                text = str(result)
+    else:
+        text = str(result)
+
+    text = (text or "").strip()
+    # Bug fix 2026-08-12: `limit` exists to keep this string (plus the
+    # rest of the agent_done envelope) under Pusher's hard ~10KB-per-event
+    # cap -- but Pusher's cap is a BYTE limit, and this used to compare
+    # len(text) (a character count) against it directly. Pure-ASCII text
+    # has 1 byte per char, so the two numbers happened to match there --
+    # but hardware_speccer/assembler-style output is full of multi-byte
+    # UTF-8 symbols (Ω, µF, °C, →, ✓, ...), where a single character can
+    # be 2-3 bytes on the wire. A spec that measured under `limit`
+    # characters could still encode to well over 10240 bytes, so
+    # relay/emitter.py's client.trigger() call would still 413 even
+    # though this function's own truncation check had just "passed" it.
+    # Truncating on encoded bytes (not characters) is what the limit was
+    # actually meant to bound.
+    encoded = text.encode("utf-8")
+    if len(encoded) <= limit:
+        return text
+    # Slice on the byte boundary, then decode with errors="ignore" to
+    # drop any multi-byte character left dangling half-cut at the cut
+    # point, rather than raising or emitting invalid UTF-8.
+    truncated = encoded[:limit].decode("utf-8", errors="ignore")
+    return truncated + f"\n\n... [truncated, {len(encoded)} bytes total]"
+
+
+def collect_artifacts(role_outputs: dict) -> list:
+    """Phase CO, CO2 (Master Guide v2, §5) — pulls any {"artifacts": [...]}
+    a role's raw_output chose to attach (the same opt-in pattern
+    structure_architect.py already uses for its Mermaid string today,
+    just a dedicated field instead of embedding it in `text`) into one
+    flat list for the final chat response.
+
+    Each entry is expected to look like {"type": "html"|"svg"|"python"|
+    "react", "title": str, "code": str} — validated via eo/output_guard.py's
+    validate_artifact_entry() (D3 Part 4): skip anything that fails shape
+    validation (missing/empty "type" or "code", or a non-string "code"/
+    "title") rather than erroring the whole run over one malformed entry
+    from one role, tagged with which role produced it so a future caller
+    (e.g. CO4's Working Panel) can group by origin if it wants to.
+
+    No REAL_ACTION_ROLES module emits "artifacts" yet as of this patch —
+    this is the shared collection point CO2's follow-up patches
+    (Pyodide, Sandpack) and any role wired up after them will feed into,
+    the same "one place that knows the shape" reasoning this module's
+    own docstring already applies to every other result shape.
+    """
+    collected = []
+    if not role_outputs:
+        return collected
+    for role, raw_output in role_outputs.items():
+        if not isinstance(raw_output, dict):
+            continue
+        entries = raw_output.get("artifacts")
+        if not isinstance(entries, list):
+            continue
+        for entry in entries:
+            is_valid, reason = validate_artifact_entry(entry)
+            if not is_valid:
+                print(f"  [result_render] dropping malformed artifact entry "
+                      f"from role '{role}': {reason}")
+                continue
+            collected.append({
+                "type": entry["type"],
+                "title": entry.get("title", ""),
+                "code": entry["code"],
+                "role": role,
+            })
+    return collected

@@ -1,0 +1,239 @@
+"use client";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import MermaidDiagram from "./MermaidDiagram";
+import { tokenizeCode } from "../lib/highlightCode";
+
+// Shared markdown renderer for agent output (MessageBubble's ResultBody,
+// AgentStepList's step bodies). Custom-styled per element instead of
+// relying on @tailwindcss/typography, since this repo doesn't have that
+// plugin installed — keeps the dependency footprint to just
+// react-markdown + remark-gfm (tables, strikethrough, task lists).
+// §4.7 — a private URL scheme, not a real link: [[node_id]] markers (the
+// citation format the notes-domain Q&A/report/mapper roles are asked to
+// emit when grounding a claim in an ingested source) get rewritten to
+// this before ReactMarkdown ever sees them, purely so remark's normal
+// link-parsing machinery does the heavy lifting instead of a custom
+// inline-token plugin. The `a` renderer below intercepts this scheme and
+// never lets it reach an actual <a href>, so it can't navigate away or
+// leak into a real link's target.
+const NODE_CITE_SCHEME = "notecite://";
+
+// BUGFIX (PRD tab mermaid fallback): this used to run its [[id]] -> link
+// rewrite as one global regex over the *entire* raw markdown string,
+// before ReactMarkdown ever sees fence boundaries. That's fine for plain
+// prose, but "[[Label]]" is also legal Mermaid syntax -- a subroutine-
+// shape flowchart node, e.g. `A[[Init System]] --> B`. Any ```mermaid
+// block using that node shape got silently corrupted into
+// `A[Init System](notecite://Init%20System) --> B` before mermaid.render()
+// ever ran, which is exactly why the PRD tab's diagram would fail to
+// parse and MermaidDiagram.jsx would fall back to showing raw source
+// instead of rendering. Same risk for any other fenced block (```json,
+// ```python, etc.) that happens to contain a literal "[[...]]" substring.
+//
+// Fix: split on fenced code blocks first (``` ... ```, handling an
+// unterminated trailing fence defensively) and only apply the citation
+// rewrite to the prose segments in between. Fenced content is passed
+// through completely untouched, so Mermaid (and any other code block)
+// always gets exactly what the author/LLM wrote.
+const FENCE_SPLIT_RE = /(```[\s\S]*?```|```[\s\S]*$)/g;
+
+function rewriteCitationMarkers(text) {
+  const str = String(text);
+  return str
+    .split(FENCE_SPLIT_RE)
+    .map((chunk) =>
+      chunk.startsWith("```")
+        ? chunk
+        : chunk.replace(/\[\[([^\[\]]+)\]\]/g, (_, id) => `[${id}](${NODE_CITE_SCHEME}${encodeURIComponent(id)})`)
+    )
+    .join("");
+}
+
+export default function Markdown({ children, onCitationClick }) {
+  if (!children) return null;
+  return (
+    <div className="markdown-body text-sm leading-relaxed text-[var(--neutral-200)] space-y-3">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h1: (p) => <h1 className="text-lg font-semibold text-[var(--neutral-100)] mt-4 mb-2" {...p} />,
+          h2: (p) => <h2 className="text-base font-semibold text-[var(--neutral-100)] mt-4 mb-2" {...p} />,
+          h3: (p) => <h3 className="text-sm font-semibold text-[var(--neutral-200)] mt-3 mb-1.5" {...p} />,
+          p: (p) => <p className="text-[var(--neutral-300)]" {...p} />,
+          ul: (p) => <ul className="list-disc pl-5 space-y-1 text-[var(--neutral-300)]" {...p} />,
+          ol: (p) => <ol className="list-decimal pl-5 space-y-1 text-[var(--neutral-300)]" {...p} />,
+          li: (p) => <li className="marker:text-[var(--neutral-600)]" {...p} />,
+          a: ({ href, children: linkChildren, ...rest }) => {
+            if (href?.startsWith(NODE_CITE_SCHEME)) {
+              const nodeId = decodeURIComponent(href.slice(NODE_CITE_SCHEME.length));
+              // Styled as a small superscript-ish citation chip rather
+              // than a normal link -- distinct enough that it doesn't
+              // read as "click to leave the page," which is what a
+              // plain underlined link would otherwise imply.
+              return (
+                <button
+                  type="button"
+                  onClick={() => onCitationClick?.(nodeId)}
+                  title={`Jump to source: ${nodeId}`}
+                  className="inline-flex items-center px-1 rounded bg-blue-950/60 border border-blue-800/60 text-[0.75em] text-blue-300 hover:bg-blue-900/60 hover:text-blue-200 align-middle"
+                >
+                  {linkChildren}
+                </button>
+              );
+            }
+            return (
+              <a className="text-blue-400 underline underline-offset-2 hover:text-blue-300" href={href} target="_blank" rel="noreferrer" {...rest}>
+                {linkChildren}
+              </a>
+            );
+          },
+          blockquote: (p) => (
+            <blockquote className="border-l-2 border-[var(--neutral-700)] pl-3 text-[var(--neutral-400)] italic" {...p} />
+          ),
+          hr: () => <hr className="border-[var(--neutral-800)] my-3" />,
+          // Previously unstyled — react-markdown's default <img> has no
+          // size constraint or border, so an embedded image (e.g. Part 3
+          // §citation_graph_builder's SVG) could overflow the panel with
+          // no visual boundary. Matches the code/mermaid blocks' framing
+          // (rounded border, contained) for visual consistency.
+          // BUGFIX (Maximum update depth exceeded / useVirtualizer setIndices
+          // crash, same class as the ```mermaid fix below): an <img> with
+          // only max-width/h-auto has no height until it finishes loading --
+          // inside a virtualized row, that's the identical "row's measured
+          // height depends on the container width the virtualizer itself
+          // just set" feedback shape that caused the Mermaid loop. `aspect-
+          // ratio: 16/9` (a reasonable default for an unknown image) plus
+          // `object-fit: contain` reserves the row's height BEFORE the image
+          // loads, so there's nothing left for the virtualizer to remeasure
+          // once it does. Real intrinsic dimensions, if react-markdown ever
+          // passes them through as width/height attrs, still win via {...p}
+          // spread order (after the style default) -- this is only a
+          // fallback for the common no-dimensions case.
+          img: (p) => (
+            <img
+              className="max-w-full max-h-[480px] rounded-lg border border-[var(--neutral-800)] my-2"
+              style={{ aspectRatio: p.width && p.height ? `${p.width}/${p.height}` : "16/9", objectFit: "contain" }}
+              loading="lazy"
+              {...p}
+              alt={p.alt || ""}
+            />
+          ),
+          table: (p) => (
+            <div className="overflow-x-auto">
+              <table className="min-w-full border-collapse text-xs" {...p} />
+            </div>
+          ),
+          thead: (p) => <thead className="border-b border-[var(--neutral-700)]" {...p} />,
+          th: (p) => <th className="text-left px-2 py-1.5 font-medium text-[var(--neutral-300)]" {...p} />,
+          td: (p) => <td className="px-2 py-1.5 border-t border-[var(--neutral-800-a70)] text-[var(--neutral-400)]" {...p} />,
+          code: ({ className, children, ...rest }) => {
+            // BUGFIX (rendering audit): react-markdown v9+ stopped passing an
+            // `inline` prop to the `code` component entirely (see the
+            // project's changelog: "inline on code — create a plugin or use
+            // pre for the block"). This repo is on react-markdown ^10.1.0, so
+            // the old `if (inline)` check here was always false -- every
+            // single inline code span (e.g. a bare `variable_name` in the
+            // middle of a sentence) was falling through to the fenced-block
+            // branch below and rendering as its own full bordered box. That's
+            // exactly the kind of "sometimes breaks mid-paragraph" look
+            // reported for the Study section, since study_guide_writer's
+            // output is expected to contain inline code/terms.
+            //
+            // There's no prop-based signal anymore, so this falls back to
+            // the heuristic react-markdown's own maintainers point people
+            // to instead (see remarkjs/react-markdown#834): a fenced block
+            // gets a `language-xxx` className from remark when a language is
+            // given; a bare inline `code` span never does. This one known
+            // edge case -- a languageless fenced block (``` with no tag)
+            // gets misread as inline the same way it did upstream -- is the
+            // same tradeoff the library's own docs accept, and it's rare
+            // enough here that every fenced block this app actually cares
+            // about (```mermaid, ```json, ```python, etc.) always specifies
+            // a language and is unaffected.
+            const isInline = !/language-(\w+)/.test(className || "");
+            if (isInline) {
+              return (
+                <code className="bg-[var(--neutral-800)] rounded px-1 py-0.5 text-[0.85em] text-amber-300" {...rest}>
+                  {children}
+                </code>
+              );
+            }
+            // Language tag from the fenced block (```python -> "language-python"),
+            // shown as a small label above the block.
+            const lang = /language-(\w+)/.exec(className || "")?.[1];
+
+            // ```mermaid fences render as an actual diagram instead of
+            // raw Mermaid syntax as text — reuses the same renderer
+            // structure_architect's structure-plan views already use.
+            if (lang === "mermaid") {
+              const mermaidText = String(children).replace(/\n$/, "");
+              return (
+                <div className="rounded-lg border border-[var(--neutral-800)] bg-black/50 overflow-hidden my-2 p-3">
+                  {/* BUGFIX (Maximum update depth exceeded / react-window
+                      useVirtualizer setIndices crash) — this diagram lives
+                      inside WorkspaceChatPanel's virtualized message list,
+                      which measures each row's real DOM height via
+                      react-window v2's useDynamicRowHeight (a ResizeObserver
+                      under the hood, same mechanism as
+                      @tanstack/react-virtual's measureElement). Without
+                      showControls/maxHeight, MermaidDiagram renders its SVG
+                      unconstrained (mermaid's own max-width:100% scaling
+                      against a container whose width the virtualizer itself
+                      just set) -- the row's measured height can come out
+                      slightly different on each remeasure pass, so it never
+                      converges: measure -> setIndices -> row resizes ->
+                      measure again, forever. showControls + maxHeight caps
+                      the rendered SVG at a fixed pixel height with its own
+                      internal overflow-auto scroll, so the row's height is
+                      stable from the very first measurement and the
+                      virtualizer's remeasure loop has nothing left to chase.
+                      (MindMapView already passes these same props for
+                      exactly this reason -- this was just never wired up
+                      for the plain in-chat ```mermaid fence case.) */}
+                  <MermaidDiagram mermaidText={mermaidText} showControls maxHeight={480} exportFilename="diagram" />
+                </div>
+              );
+            }
+
+            // BUGFIX (code output audit): fenced blocks previously rendered
+            // {children} straight through — flat, single-color text on the
+            // bg-black/50 panel below, no token coloring at all. tokenizeCode
+            // (app/lib/highlightCode.js) splits the block into comment/
+            // string/number/keyword/decl/const/func/type tokens; each typed
+            // token gets its matching `.tok-<type>` class from globals.css
+            // (VS Code "Dark+" colors), and untyped tokens render as plain
+            // text exactly as before — so an unrecognized language still
+            // falls back to today's flat rendering instead of erroring.
+            const codeText = String(children).replace(/\n$/, "");
+            const tokens = tokenizeCode(codeText, lang);
+            return (
+              <div className="rounded-lg border border-[var(--neutral-800)] bg-black/50 overflow-hidden my-2">
+                {lang && (
+                  <div className="px-3 py-1 text-[10px] uppercase tracking-wide text-[var(--neutral-500)] border-b border-[var(--neutral-800)]">
+                    {lang}
+                  </div>
+                )}
+                <pre className="overflow-x-auto p-3 text-xs">
+                  <code className={className} {...rest}>
+                    {tokens.map((tok, i) =>
+                      tok.type ? (
+                        <span key={i} className={`tok-${tok.type}`}>
+                          {tok.text}
+                        </span>
+                      ) : (
+                        tok.text
+                      )
+                    )}
+                  </code>
+                </pre>
+              </div>
+            );
+          },
+        }}
+      >
+        {rewriteCitationMarkers(children)}
+      </ReactMarkdown>
+    </div>
+  );
+}

@@ -1,0 +1,31 @@
+# Files that are never copied into data/src (scripts/refresh_source.py). One glob per line; "#" starts a comment.
+# Same glob dialect as content/notes-tiers.json: `**` crosses folders, `*` and `?` do not, {a,b} is alternatives,
+# and a pattern without "/" matches the file name at any depth.
+#
+# Binary files, files over 300 KB, symlinks, submodules, real .env files and key files are refused by the script itself.
+# This list is for text files that are tracked in MiniMe but are not source code.
+
+# Lockfiles: huge, machine-written, nothing to explain
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+poetry.lock
+Pipfile.lock
+uv.lock
+Cargo.lock
+
+# Test fixtures and recorded sessions (one JSON object per line)
+*.jsonl
+
+# MiniMe's runtime data folder: chat transcripts, exports and graph caches that were committed by accident.
+# User content, not source (MiniMe's own .gitignore lists backend/data).
+backend/data/**
+
+# Coverage and other tool output
+**/.coverage
+**/*.bak.*
+
+# Minified bundles and source maps
+*.min.js
+*.min.css
+*.map

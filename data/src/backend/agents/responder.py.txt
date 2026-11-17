@@ -1,0 +1,219 @@
+"""
+agents/responder.py — Responder, Tier-0 execution agent (Part 2.3 of the
+v5 Master Blueprint).
+
+Not a classifier — the Inspector (eo/inspector.py) already decided this
+task is tier 0. This agent just answers it directly, once, no plan/spec/
+code/review pipeline involved.
+
+Provider substitution note (matches the one already made in
+eo/inspector.py and documented in utils/llm_client.py's own docstring):
+Gemini is not used anywhere in this codebase. Part 2.3 says "same key as
+the Inspector" — here that means the same dedicated Groq account
+(EO_INSPECTOR_GROQ_KEY_1), not a Gemini key. The reasoning the blueprint
+gave for sharing still applies: a tier-0 task is cheap and high-volume,
+and this account has zero production-agent traffic on it, so doubling up
+a classify-then-answer pair here is the right place to spend that
+account's quota.
+
+Per Part 5.1's engagement table, tier 0 touches NO Upstash Redis (DB1-3)
+and NO E2B — this function takes a string in, returns a string out, and
+writes nothing to memory. (eo/loop_v4.py's own DB5 routing-log writes,
+from Part 7, are a separate concern and happen regardless of tier.)
+
+Part 23 fix: this agent was never wired into the conversation-memory
+bridge at all — eo/executor.py's TASK_TEXT_ENTRYPOINTS dispatch case
+calls responder.run() with only task_text/key_override, no session_id,
+and this module's own run() signature had nowhere to put one even if it
+had been passed. That's why a tier-0 follow-up ("who is older between
+the two of us?") was answered with zero memory of the turn before it,
+even though eo/conversation_memory.py has existed since Part 23 —
+prompt_writer_lean.py and generic_worker.py were wired to it, this one
+was missed. Same fix as those two: accept session_id, prepend
+get_full_context() ahead of the task text sent to the model. Only the
+text sent to the LLM changes — the returned answer is unaffected.
+
+2026-08-12 fix: this agent's sole step read EO_INSPECTOR_GROQ_KEY_1 --
+the same account eo/inspector.py uses as ITS primary step -- but
+Inspector has 4 fallback steps behind that primary and Responder had
+none, so the exact same outage that Inspector shrugs off through its own
+fallback chain took Responder down completely. Tier 0 is registry-free by
+design (Part 5.1 — no Upstash, no memory.bus state), so this can't be
+wired to eo/registry.py's build_fallback_chain() the way the four
+registered tier-2/3 agents were; it needs its own hardcoded second-
+provider step instead, same fix as prompt_writer_lean.py and
+code_writer_lean.py and the same pattern reviewer_fixer_lean.py already
+uses. That step is appended after the key_override-built primary step
+below, so key_override still only ever changes the primary account, never
+the fallback.
+
+Patch 8.7 fix: the appended Cerebras step above pointed at
+CEREBRAS_API_KEY_1 -- confirmed by Patch 8.1's audit as the single most
+shared account in the whole roster, hardcoded as the SAME step in
+idea_planner.py, prompt_writer_lean.py, and reviewer_fixer_lean.py too
+(deploy_config_writer.py/dataset_analyst.py/output_organizer.py/
+report_writer.py also pointed at a shared Cerebras key, fixed separately
+in Patches 8.3-8.6 via the registry, which this agent explicitly can't
+use -- see the paragraph above). A cooldown on that one account was
+capable of taking out Responder at the exact same moment it took out
+three other agents. Moved to CEREBRAS_API_KEY_4 -- not shared as a
+single-call fallback point by any other agent in the roster -- so
+Responder's own outage domain is now genuinely independent of theirs.
+"""
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from eo import conversation_memory  # NEW — Part 23 fix
+from eo.user_profile import default_format_hint  # NEW — Patch B5
+from utils.llm_client import generate_text
+
+# Quota-reality fix, §4 (2026-07-30): GitHub Models retired in full --
+# its fallback step is removed here, not replaced.
+CHAIN = [
+    {"provider": "groq", "model": "openai/gpt-oss-120b", "key_env": "EO_INSPECTOR_GROQ_KEY_1"},
+    {"provider": "groq", "model": "qwen/qwen3.6-27b", "key_env": "EO_INSPECTOR_GROQ_KEY_1"},
+]
+
+SYSTEM_PROMPT = """You are a fast, direct assistant answering a single trivial \
+question or request inside a larger build system. You are not the build \
+system itself — you are only invoked when a task is simple enough that no \
+code needs to be written, planned, or reviewed. Answer directly and \
+concisely. If the task actually requires writing or editing code across \
+one or more files, say so plainly rather than guessing at a small answer, \
+since that means you were routed here in error.
+
+Format your answer in Markdown: use fenced code blocks with a language tag \
+for any code, use tables for tabular data, use headers/bullet lists to \
+structure longer answers, and use bold/italic sparingly for emphasis."""
+
+
+def run(task_text: str = None, key_override=None, session_id: str = None, path: str = None,
+        domain: str = None, owner_id: str = None) -> str:
+    """
+    Answers `task_text` directly. Unlike the other agents in this
+    codebase, this one takes its input as an argument rather than reading
+    it from memory.bus — tier 0 deliberately never touches Upstash (Part
+    5.1), so there is no shared memory state for it to read.
+
+    `task_text` defaults to None only so this still matches the registry's
+    no-arg-callable shape (eo/registry.py) when called incidentally with
+    no argument; a real tier-0 run must always pass the task text.
+
+    Migration Part 5 §2.3 addition — key_override, if given, is the
+    Panel's specific account choice for this hire (a "researcher" or
+    "writer" role, per ROLE_TO_AGENT, both of which resolve to this
+    module). Responder makes exactly ONE call, unlike the parallel-pool
+    agents — so a list here has no multi-worker meaning; the first entry
+    is used and the rest are ignored.
+
+    key_override: None (default) -> today's exact behavior,
+        EO_INSPECTOR_GROQ_KEY_1 as the primary key.
+    key_override: a single key_env string -> use that account as the
+        primary key instead.
+    key_override: a list of key_env strings -> use only the first entry
+        as the primary key (no parallel pool to spread the rest across).
+    The GitHub fallback step is unaffected either way.
+
+    session_id/path (Part 23 fix): session_id, if given, is used to pull
+    this session's recent conversation turns (eo/conversation_memory.py's
+    get_full_context()) and prepend them ahead of task_text in the text
+    actually sent to the model, so a tier-0 follow-up ("who's older
+    between the two of us?") can be answered from what was already said
+    in this session instead of in a vacuum. Only the text sent to the LLM
+    is changed — the raw task_text argument, and this session's stored
+    transcript, are untouched either way. path is forwarded to
+    generate_text() purely for usage-log labeling (same as every other
+    agent); it has no effect on the answer.
+
+    domain (Part 2 §2.6, cost-tracking gap): tier 0 has no Panel
+    classification step, so nothing upstream actually produces a domain
+    for this path today -- this param exists purely so session_id
+    tagging isn't the only thing forwarded, and so a future caller that
+    does have a domain doesn't need this signature touched again. Safe
+    to leave None, same as every other optional param here.
+
+    owner_id (Patch B5 — Output-Format Routing): if given, this is the
+    authenticated caller's account id, forwarded straight to
+    eo/user_profile.py's default_format_hint(). That function already
+    degrades to "" (this SYSTEM_PROMPT's own Markdown-formatting
+    paragraph, unchanged) whenever there's no owner_id, no stored
+    preference, or the stored preference isn't confident yet -- so
+    leaving this None is today's exact behavior for every existing
+    caller. Only ever adjusts the general-defaults formatting sentence
+    below; never surfaced to the user, never changes anything else
+    about the answer.
+    """
+    if not task_text:
+        raise ValueError(
+            "responder.run() needs task_text — tier 0 has no memory.bus "
+            "state to fall back on (Part 5.1)."
+        )
+
+    if key_override is None:
+        primary_key_env = "EO_INSPECTOR_GROQ_KEY_1"
+    elif isinstance(key_override, list):
+        primary_key_env = key_override[0]
+    else:
+        primary_key_env = key_override
+
+    # Quota-reality fix, §4 (2026-07-30): GitHub Models retired in full --
+    # its fallback step is removed here, not replaced.
+    #
+    # 2026-08-12 fix: that left primary_key_env as the only step, with no
+    # real fallback -- and by default primary_key_env is
+    # EO_INSPECTOR_GROQ_KEY_1, shared with eo/inspector.py's own primary
+    # step. A hardcoded, genuinely different provider is appended below
+    # (own account, own infrastructure) so an outage on the shared Groq
+    # account doesn't take Responder down the way it used to; key_override
+    # (above) only ever affects the primary step, same as before.
+    #
+    # Patch 8.7 fix: was CEREBRAS_API_KEY_1 -- the single most shared
+    # Cerebras account in the roster (see docstring above). Moved to its
+    # own dedicated CEREBRAS_API_KEY_4 so a cooldown on _1 (which still
+    # takes out idea_planner.py/prompt_writer_lean.py/
+    # reviewer_fixer_lean.py at once) doesn't also take Responder with it.
+    #
+    # OR-3c (reliability_overhaul_plan.md): Cerebras retired to a paid
+    # tier (see OR-2's .env.example note) -- was CEREBRAS_API_KEY_4,
+    # "openrouter/free" now (not a pinned model slug -- see
+    # utils/llm_client.py's OPENROUTER_BASE_URL comment). Responder is
+    # registry-free by design (Part 5.1 -- tier 0 never touches Upstash),
+    # so unlike the other OR-3c files this step was never gated behind
+    # build_fallback_chain() at all -- it's a real, regularly-reachable
+    # 3rd hop whenever the shared EO_INSPECTOR_GROQ_KEY_1 primary/2nd
+    # steps both fail, not an occasional-overflow last resort.
+    chain = [
+        {"provider": "groq", "model": "openai/gpt-oss-120b", "key_env": primary_key_env},
+        {"provider": "groq", "model": "qwen/qwen3.6-27b", "key_env": primary_key_env},
+        {"provider": "openrouter", "model": "openrouter/free", "key_env": "OPENROUTER_API_KEY_4"},
+    ]
+
+    conv_context = conversation_memory.get_full_context(session_id)   # NEW — Part 23 fix
+    user_content = task_text
+    if conv_context:
+        user_content = f"Recent conversation:\n{conv_context}\n\nTask: {task_text}"   # NEW — Part 23 fix
+
+    # NEW — Patch B5 (Output-Format Routing). Appended to SYSTEM_PROMPT's
+    # own Markdown-formatting paragraph rather than replacing it —
+    # default_format_hint() already degrades to "" for every caller that
+    # doesn't pass owner_id, so system_prompt is byte-for-byte SYSTEM_PROMPT
+    # (today's exact behavior) whenever this is a no-op.
+    system_prompt = SYSTEM_PROMPT + default_format_hint(owner_id)
+
+    answer = generate_text(
+        system_prompt=system_prompt,   # CHANGED — Patch B5, was SYSTEM_PROMPT
+        user_content=user_content,   # CHANGED — Part 23 fix, was task_text
+        chain=chain,
+        agent_name="Responder",
+        session_id=session_id,   # NEW — Part 23 fix
+        path=path,   # NEW — Part 23 fix
+        domain=domain,  # Migration Part 2 §2.6: cost-tracking gap
+    )
+    return answer.strip()
+
+
+if __name__ == "__main__":
+    import sys as _sys
+    text = " ".join(_sys.argv[1:]) or "What's the difference between a list and a tuple in Python?"
+    print(run(text))

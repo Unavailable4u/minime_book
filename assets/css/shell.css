@@ -196,6 +196,31 @@ html.mmp-open { overflow: hidden; }
 .mm-sb :focus-visible, .mm-top :focus-visible, .mm-btt:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .mm-sb :focus-visible { outline-offset: -2px; }
 
+/* code-link settings popover (assets/js/shell.js, P12): opens under the link icon in the top bar */
+.mm-pop { position: fixed; z-index: var(--z-popover); top: calc(var(--topbar-h) + var(--space-2) + env(safe-area-inset-top, 0px)); right: max(var(--space-3), env(safe-area-inset-right, 0px));
+  width: min(420px, calc(100vw - 2 * var(--space-3))); max-height: calc(100vh - var(--topbar-h) - var(--space-5)); overflow-y: auto; padding: var(--space-4);
+  background: var(--panel); color: var(--ink); border: 1px solid var(--line-strong); border-radius: var(--radius-3); box-shadow: var(--shadow-3); font-size: var(--fs-sm); }
+.mm-pop .mm-pop__h { margin: 0 0 var(--space-1); padding: 0; border: 0; font-size: var(--fs-md); color: var(--ink); }
+.mm-pop, .mm-pop * { box-sizing: border-box; }         /* base.css does not set it globally, and padding would push the box past a 360px screen */
+.mm-pop p { margin: 0; }
+.mm-pop .mm-pop__lead, .mm-pop .mm-pop__note { color: var(--ink-dim); font-size: var(--fs-xs); line-height: 1.5; }
+.mm-pop .mm-pop__note { margin-top: var(--space-3); }
+.mm-pop .mm-pop__l { display: block; margin: var(--space-3) 0 var(--space-1); font-size: var(--fs-xs); letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-dim); }
+.mm-pop .mm-pop__in { width: 100%; padding: var(--space-2) var(--space-3); background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-2);
+  font: inherit; font-family: var(--font-mono); font-size: max(16px, var(--fs-sm)); }   /* 16px+ stops iOS zooming the page */
+.mm-pop select.mm-pop__in { font-family: inherit; }
+.mm-pop .mm-pop__in:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; border-color: transparent; }
+.mm-pop .mm-pop__prev { margin-top: var(--space-1); min-height: 2.6em; font-size: var(--fs-xs); color: var(--ink-dim); overflow-wrap: anywhere; }
+.mm-pop .mm-pop__prev code, .mm-pop .mm-pop__note code { font-family: var(--font-mono); font-size: var(--fs-xs); padding: 0 var(--space-1); background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-1); color: var(--ink); }
+.mm-pop .mm-pop__prev.is-bad { color: var(--gate); }
+.mm-pop .mm-pop__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-4); }
+.mm-pop .mm-pop__b { padding: var(--space-1) var(--space-3); min-height: 32px; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-2); font: inherit; font-size: var(--fs-sm); cursor: pointer; }
+.mm-pop .mm-pop__b:hover { border-color: var(--brand); }
+.mm-pop .mm-pop__b--go { background: var(--brand); border-color: var(--brand); color: var(--on-brand); font-weight: 600; }
+.mm-pop .mm-pop__b:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.mm-pop .mm-pop__status { flex: 1 1 100%; min-height: 1.4em; font-size: var(--fs-xs); color: var(--ok); }
+@media (prefers-reduced-motion: no-preference) { .mm-pop { animation: mmp-in var(--dur-1) var(--ease); } }
+
 /* ============================================================ 6. narrow screens */
 @media (max-width: 1099px) { .mm-chip { display: none; } }
 @media (max-width: 900px) {

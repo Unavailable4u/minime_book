@@ -1,0 +1,460 @@
+"""
+api/server.py
+
+The thin HTTP layer in front of api/task_runner.py.
+
+Run locally:
+    pip install fastapi uvicorn
+    uvicorn api.server:app --reload --port 8000
+
+CORS is open to the Next.js dev server origin (localhost:3000) only —
+tighten this before deploying anywhere real.
+"""
+import asyncio
+import os
+import signal
+import sys
+
+# perf audit §4.6 / priority #9 (part 2): used at startup to size the
+# AnyIO thread limiter that backs Starlette's run_in_threadpool -- see
+# the _lifespan() hook and APP_THREAD_POOL_SIZE below.
+import anyio.to_thread
+
+# Windows-only: asyncio.create_subprocess_exec() (used by eo/mcp_client.py to
+# launch stdio-transport MCP servers) only works under the ProactorEventLoop.
+# uvicorn --reload runs this module in a fresh worker subprocess, so the
+# policy has to be set here, at true import time, rather than in whatever
+# script launches uvicorn -- setting it anywhere else runs in the wrong
+# process and silently doesn't take effect. No-op on every other OS.
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # fine if python-dotenv isn't installed; real env vars can be set directly instead
+
+# NEW — B4: Sentry. Errors + full performance tracing
+# (tracesSampleRate=1.0). Note this shares the free tier's separate
+# ~10k/month transaction quota (distinct from the ~5k/month error
+# quota) — at 1.0 every request across the agent roster is traced, so
+# watch usage and dial this down (e.g. 0.1) if the quota gets tight.
+# Silently a no-op if SENTRY_DSN isn't set, same convention as the
+# dotenv import above — local dev without a DSN configured shouldn't
+# fail loud.
+import sentry_sdk
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import asyncio  # NEW — Data Layer architecture §9b: capturing the running
+
+# event loop at startup for eo/ws_registry.py's thread-safe push
+from contextlib import asynccontextmanager  # NEW — §9b: lifespan startup hook
+
+from fastapi import (  # NEW — §9b
+    FastAPI,
+    Query,
+    Request,
+    WebSocket,
+    WebSocketDisconnect,
+)
+from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import JSONResponse
+
+# B6 — auth/JWT verification (SUPABASE_URL, require_auth,
+# _verify_supabase_jwt, _resolve_chat_or_404, etc.) moved to api/deps.py
+# so api/routes/* modules can import it without a circular import back
+# into this file. See api/deps.py's module docstring for why.
+from api.middleware import (
+    add_cors_and_error_middleware,
+    parse_allowed_origin_regex,
+    parse_allowed_origins,
+)
+from api.stream_tickets import KIND_WS, redeem_ticket
+from eo import mcp_client  # NEW — Patch A2: clean shutdown of any live MCP connections
+from eo import mcp_registry  # NEW — Patch A2: startup connect for configured MCP servers
+from eo import db  # NEW — startup DB pool warm-up, see _lifespan()
+from eo import laya_gate  # NEW — Laya migration: startup checkpoint preload, see _lifespan()
+from eo.db import DatabaseUnavailable  # NEW — perf audit §4.6 / #9 (part 2)
+from eo.agent_task_pool import AgentPoolSaturated, AgentTaskTimeout  # NEW — perf audit items #6/#7
+from utils.llm_client import request_shutdown  # NEW — Patch 6.2
+from api.routes.chats import router as chats_router
+from api.routes.code import router as code_router
+from api.routes.code_edit import router as code_edit_router  # NEW — W5.1: proposal routes
+from api.routes.deploy import router as deploy_router
+from api.routes.graph_and_notes import router as graph_and_notes_router
+
+# F2 Part 3 — local_workspace_data_router owns the HTTP surface over the
+# read-only list_dir/read_file tool calls (+ /local/status). A separate
+# router/file from local_workspace_router above (which is the websocket
+# route + registry) since this one follows the plain require_auth +
+# ws_id-ownership shape every other api/routes/*.py file uses, unlike
+# the websocket route's pairing-token auth.
+from api.routes.local_workspace import router as local_workspace_data_router
+from api.routes.mcp import router as mcp_router  # NEW — Patch A8: HTTP surface over A2's mcp_registry read functions
+from api.routes.notebooks import router as notebooks_router
+from api.routes.stream_ticket import router as stream_ticket_router  # POST /api/stream-ticket
+from api.routes.system import router as system_router
+
+# B6 — routers split out of this file. tasks_router owns /api/task*,
+# /api/resume, /api/roles*, /api/workflow-templates*, and (as of piece 6)
+# /api/tasks/{session_id} + /api/tasks/workspace/{ws_id} (piece 1, plus
+# the leftover pair folded in alongside piece 6); system_router owns
+# /api/health, /api/quota, /api/usage/history (piece 2); graph_and_notes_
+# router owns graph edges, node summaries, topics/graph, nodes, note
+# candidates, backlinks, and clusters (piece 6). This is also where
+# CO3's /api/task/{id}/pause and CO5's /api/task/{id}/stream will
+# register once built, inside tasks_router. deploy_router (piece 8, the
+# last piece of the B6 split) owns the deploy propose/write/go-live
+# trio and the two UptimeRobot monitoring routes. code_router (patch 8)
+# owns the Build tab's Code sub-tab file persistence -- list/get/write
+# per workspace file path, see api/routes/code.py's own docstring for
+# why it's a separate file rather than folded into workspace_data.py.
+from api.routes.tasks import router as tasks_router
+from api.routes.usage import router as usage_router  # NEW — S01: GET /api/usage
+from api.routes.devices import router as devices_router  # NEW — S03: device pairing (/v1/code/devices/*, /api/devices*)
+from api.routes.code_runs import router as code_runs_router  # NEW — S10: POST /v1/code/runs/{run_id}/grant
+from codeagent.ws import router as codeagent_ws_router  # NEW — S04: WS /v1/code/device
+from codeagent import run_handlers as codeagent_run_handlers  # NEW — S14: the device socket's message handlers
+from codeagent import wiring as codeagent_wiring  # NEW — S15: installs the agent loop (or hello.py's runner when M2C_LOOP=hello)
+from codeagent import broker as codeagent_broker  # NEW — S09: the server tool broker
+from api.routes.user_profile import router as user_profile_router  # NEW — Patch B6
+from api.routes.workspace_data import router as workspace_data_router
+from api.routes.workspaces import router as workspaces_router
+from eo import ws_registry  # NEW — §9b: per-session WebSocket connection registry
+
+# F2 Part 2 — local_workspace_router owns /ws/daemon/{workspace_id}, the
+# daemon's own websocket route. Included as a router (not a bare
+# @app.websocket like /ws/{session_id} below) purely so its handshake
+# logic lives in eo/local_workspace.py alongside the registry it shares
+# module state with, rather than split across two files.
+from eo.local_workspace import router as local_workspace_router
+
+# perf audit §4.6 / priority #9 (part 2): Starlette's run_in_threadpool
+# (what every sync `def` route below runs on) uses AnyIO's *default*
+# thread limiter if nothing configures it -- and that default is 40
+# tokens, a library constant nobody in this codebase chose (verified
+# against anyio's own source, _backends/_asyncio.py). Since this process
+# runs as a single uvicorn worker (see backend.Dockerfile — no
+# --workers), that unconfigured 40 was, in effect, this whole app's
+# real concurrency ceiling for every sync route, DB-bound or not.
+#
+# Set explicitly here instead, and default it to match eo/db.py's
+# DB_POOL_MAX (also 20 by default) rather than leaving the two to drift
+# independently: most sync routes touch the DB, so admitting more
+# concurrent requests than the DB pool can serve just moves the queue
+# from "waiting for a thread" to "waiting for a connection" (now
+# handled gracefully via DatabaseUnavailable/503 below, but still —
+# better to size the outer limit to match the inner one on purpose).
+# Raise both together if you have headroom on your Postgres/pooler
+# connection limit; see eo/db.py's own comment on DB_POOL_MAX.
+#
+# perf audit §4.6 / priority #9 (part 6): this limiter now serves fast
+# sync routes only. The five long-running agent-task routes in
+# api/routes/tasks.py (post_task, post_task_preview, post_task_confirm,
+# post_resume, post_task_from_template) dispatch through
+# eo/agent_task_pool.py's own dedicated executor instead of landing
+# here, so a handful of in-flight agent runs can no longer eat into
+# this budget. See that module's docstring for the reasoning and
+# AGENT_TASK_POOL_SIZE for its independent sizing knob.
+APP_THREAD_POOL_SIZE = int(os.getenv("APP_THREAD_POOL_SIZE", "20"))
+
+SENTRY_DSN = os.getenv("SENTRY_DSN")
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        environment=os.getenv("ENVIRONMENT", "development"),
+        integrations=[FastApiIntegration()],
+        traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
+    )
+
+# B6 — run_task/preview_task/confirm_task/run_task_from_template,
+# resume_graph, the eo.registry role-library functions, and the
+# eo.structure workflow-template functions moved to api/routes/tasks.py
+# along with the routes that used them. get_quota_snapshot/
+# get_usage_history/get_usage_history_scoped moved to api/routes/
+# system.py the same way. STRUCTURE_TEMPLATES moved to
+# api/routes/notebooks.py with /simulate (piece 7) — nothing left in
+# this file reads it directly anymore.
+# B6 piece 6 — graph_edges, note_candidates, list_nodes/delete_node/
+# rename_node, detect_backlinks/cleanup_for_removed_source, and
+# list_cluster_candidates/accept_cluster_candidate/reject_cluster_candidate
+# moved to api/routes/graph_and_notes.py with the routes that used them.
+#
+# B6 piece 7 — panel_content, chat_store, chat_workspace, quiz_progress,
+# study_progress, workspace_facts, propose_clusters, and every
+# agents.* generation/ingestion import below this comment (detect_facts,
+# generate_study_content, generate_podcast_script,
+# generate_rehearsal_script, generate_slide_deck, generate_mindmap,
+# generate_suggested_route, link_concepts, suggest_workflows,
+# build_topic_workflow, build_table, process_upload, IMPORTABLE_FORMATS,
+# synthesize_podcast, build_video_overview, export_artifact,
+# EXPORTABLE_FORMATS, markdown_text_to_artifact, FileResponse, json, re,
+# tempfile, manifest_to_tools/study_progress_tools, classify_tool_intent)
+# all moved to api/routes/notebooks.py with the routes that used them —
+# nothing left in this file needs any of them.
+#
+# B6 piece 8 (final piece) — DeployActionRequest/UptimeRobotKeyRequest/
+# UptimeRobotRegisterRequest, the deploy_config_writer/deploy_agent
+# imports, set_app_slug, and MissingDependencyError, along with the five
+# routes that used them (/api/deploy/{session_id}/propose|write|go-live,
+# /api/monitoring/{session_id}/uptimerobot-key|uptimerobot-register),
+# moved to api/routes/deploy.py. Nothing left in this file needs any of
+# them — this file is now app setup + the websocket endpoint only.
+
+def _handle_sigint(signum, frame):
+    # NEW — Patch 6.2: signal in-flight rate-limit retry waits (see
+    # utils/llm_client.py's _interruptible_sleep()) to stop instead of
+    # letting uvicorn's graceful shutdown wait out every retry sleep in
+    # the worker thread it can't otherwise interrupt.
+    print("[shutdown] SIGINT received -- signaling in-flight LLM retries to stop")
+    request_shutdown()
+    # Let uvicorn's own default handler still run afterward so it
+    # proceeds with its normal graceful-shutdown sequence once the
+    # in-flight request (now unblocked) returns.
+    signal.default_int_handler(signum, frame)
+
+
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    # perf audit §4.6 / priority #9 (part 2): current_default_thread_limiter()
+    # is a per-event-loop RunVar, so it can only be set once a loop is
+    # actually running -- this lifespan hook (which only executes after
+    # uvicorn's real event loop is up) is the right place, same reasoning
+    # as ws_registry.set_event_loop() just below needing the running loop.
+    anyio.to_thread.current_default_thread_limiter().total_tokens = APP_THREAD_POOL_SIZE
+    # NEW — Data Layer architecture §9b: eo/notify.py's notify() runs
+    # synchronously, often from Starlette's sync-endpoint threadpool
+    # (every agent call site — see agents/source_manager.py,
+    # agents/backlink_detector.py — is a plain `def`, not `async def`),
+    # so it needs a thread-safe way to reach the event loop that the
+    # WebSocket connections below actually live on. Capturing it here,
+    # once, at startup, is that hand-off point.
+    ws_registry.set_event_loop(asyncio.get_running_loop())
+    # NEW — Patch 6.2: register once the app actually starts serving
+    # (module import alone can happen under --reload's parent process
+    # too; this is the one place we know we're the live server).
+    signal.signal(signal.SIGINT, _handle_sigint)
+    # BUGFIX (mount-burst 503s): eo/db.py builds its Postgres pool
+    # lazily and non-blocking (open=True kicks off background connects
+    # but doesn't wait) -- so without this, "Application startup
+    # complete" fires before the DB is actually reachable, and the
+    # frontend's parallel mount-time fetches (chats/batches/workspaces)
+    # race the still-opening pool and lose, surfacing as a 503 that
+    # only clears once the pool finishes connecting a moment later.
+    # db.warm_pool() is a blocking psycopg_pool call, so it's run on a
+    # worker thread rather than the event loop.
+    await anyio.to_thread.run_sync(db.warm_pool)
+    # NEW — Laya migration audit (2026-09-27): load the Laya checkpoint
+    # once here (blocking -> worker thread, same as db.warm_pool above)
+    # so the first real request doesn't pay the multi-second load.
+    # preload() never raises: if Laya can't load, every Laya call site
+    # fails open to its own pre-Laya default (see eo/laya_gate.py) and
+    # the app still starts.
+    await anyio.to_thread.run_sync(laya_gate.preload)
+    # NEW — Patch A2: connect every `enabled` server in
+    # backend/config/mcp_servers.json exactly once, at real server
+    # startup (not on every --reload parent-process import, same
+    # reasoning as the signal.signal() call just above). A server that
+    # fails to connect (missing token, `npx` not on PATH, etc.) is
+    # logged and skipped by connect_configured_servers() itself -- this
+    # never blocks the rest of the app from starting.
+    await mcp_registry.connect_configured_servers()
+    yield
+    # NEW — Patch A2: mirror image of the connect above -- clean
+    # shutdown of every live MCP connection (closes stdio subprocesses,
+    # closes HTTP clients) on the same graceful-shutdown path uvicorn
+    # already drives this generator through. eo.mcp_client.shutdown_all()
+    # existed since Patch A1 but had no caller until now.
+    await mcp_client.shutdown_all()
+
+
+app = FastAPI(title="MiniMe v6 — EO layer API", lifespan=_lifespan)
+
+# NOTES_EXPORTS_DIR (Part 4 §4.4) used to live here -- moved to
+# api/routes/notebooks.py (B6 piece 7) along with every route that
+# read it. See that file's own copy of this same comment/definition.
+
+# Patch B07: ALLOWED_ORIGINS defaults to both http://localhost:3000 and
+# http://127.0.0.1:3000 (an explicit value replaces the defaults; items
+# are stripped, empty ones ignored). ALLOWED_ORIGIN_REGEX is an optional
+# DEV-ONLY extra for LAN testing. Credentials are never enabled, so "*"
+# can't be combined with them. All of this is in api/middleware.py.
+ALLOWED_ORIGINS = parse_allowed_origins(os.getenv("ALLOWED_ORIGINS"))
+ALLOWED_ORIGIN_REGEX = parse_allowed_origin_regex(os.getenv("ALLOWED_ORIGIN_REGEX"))
+# CORS + the unhandled-error net, installed together because their ORDER
+# matters: without the error middleware sitting just inside CORS, an
+# unhandled exception (any DB error, any bug) is answered by Starlette's
+# outermost layer with NO CORS headers, and the browser reports an
+# opaque "Failed to fetch" instead of the real 500. See api/middleware.py.
+add_cors_and_error_middleware(app, ALLOWED_ORIGINS, allowed_origin_regex=ALLOWED_ORIGIN_REGEX)
+
+
+# perf audit §4.6 / priority #9 (part 1): eo/db.py's cursor() now retries
+# briefly on its own before giving up, but once it does give up, this is
+# what turns that into a real HTTP response — a 503 + Retry-After the
+# client can act on — instead of an unhandled DatabaseUnavailable
+# bubbling up as a bare 500 with no indication the DB pool (not the
+# route itself) was the problem.
+@app.exception_handler(DatabaseUnavailable)
+async def _database_unavailable_handler(request: Request, exc: DatabaseUnavailable):
+    retry_after_seconds = max(1, round(exc.retry_after))
+    return JSONResponse(
+        status_code=503,
+        content={
+            "detail": "Database is temporarily at capacity. Please retry shortly.",
+        },
+        headers={"Retry-After": str(retry_after_seconds)},
+    )
+
+
+# Perf audit item #6/§3.2: mirrors the DatabaseUnavailable handler just
+# above — a 503 + Retry-After the client can act on, instead of an
+# unhandled AgentPoolSaturated bubbling up as a bare 500 with no
+# indication the agent-task queue (not the route itself) was the
+# problem.
+@app.exception_handler(AgentPoolSaturated)
+async def _agent_pool_saturated_handler(request: Request, exc: AgentPoolSaturated):
+    retry_after_seconds = max(1, round(exc.retry_after))
+    return JSONResponse(
+        status_code=503,
+        content={
+            "detail": "Agent task queue is temporarily at capacity. Please retry shortly.",
+        },
+        headers={"Retry-After": str(retry_after_seconds)},
+    )
+
+
+# Perf audit item #7/§3.4: a 504 (server-side wall-clock deadline hit,
+# distinct from a client-side request timeout) instead of the caller
+# hanging indefinitely behind a stuck LLM fallback chain. See
+# AgentTaskTimeout's own docstring — the underlying task keeps running
+# in the background; this only bounds how long the HTTP caller waits.
+#
+# CHANGED — 2026-09-27 deadline-resume fix: eo/agent_task_pool.py now
+# gives the orphaned thread a short grace window to reach a checkpoint
+# before this handler is even reached at all (see its own
+# AGENT_TASK_DEADLINE_GRACE_SECONDS comment) — the common case, this
+# whole handler is skipped and the real {"status": "paused", ...} body
+# goes out instead. Reaching this 504 at all now means that grace window
+# ALSO elapsed, so the wording below no longer claims the run was
+# "abandoned" (eo/executor.py's own `except RunStopped` checkpoints mean
+# it usually still lands a resumable pause moments later, even though
+# this particular request gave up first) — POST /api/resume with the
+# same session_id a little later is genuinely worth trying, not a dead
+# end.
+@app.exception_handler(AgentTaskTimeout)
+async def _agent_task_timeout_handler(request: Request, exc: AgentTaskTimeout):
+    return JSONResponse(
+        status_code=504,
+        content={
+            "detail": (
+                "This is taking longer than the server allows for a single request. "
+                "It's still running in the background — try Resume in a moment to "
+                "pick up where it left off."
+            ),
+        },
+    )
+
+# B6 — routers split out of this file (imported near the top of this
+# file, alongside the other imports). tasks_router owns /api/task*,
+# /api/resume, /api/roles*, /api/workflow-templates*, and (as of piece 6)
+# /api/tasks/{session_id} + /api/tasks/workspace/{ws_id} (piece 1, plus
+# the leftover pair folded in alongside piece 6); system_router owns
+# /api/health, /api/quota, /api/usage/history (piece 2); graph_and_notes_
+# router owns graph edges, node summaries, topics/graph, nodes, note
+# candidates, backlinks, and clusters (piece 6). This is also where
+# CO3's /api/task/{id}/pause and CO5's /api/task/{id}/stream will
+# register once built, inside tasks_router. deploy_router (piece 8, the
+# last piece of the B6 split) owns the deploy propose/write/go-live
+# trio and the two UptimeRobot monitoring routes. code_router (patch 8)
+# owns the Build tab's Code sub-tab file persistence -- list/get/write
+# per workspace file path, see api/routes/code.py's own docstring for
+# why it's a separate file rather than folded into workspace_data.py.
+app.include_router(tasks_router)
+app.include_router(stream_ticket_router)  # POST /api/stream-ticket (ws/sse auth tickets)
+app.include_router(system_router)
+app.include_router(chats_router)
+app.include_router(workspaces_router)
+app.include_router(workspace_data_router)
+app.include_router(graph_and_notes_router)
+app.include_router(notebooks_router)
+app.include_router(deploy_router)
+app.include_router(code_router)
+app.include_router(code_edit_router)  # W5.1: /api/workspaces/{ws_id}/code/proposals/*
+app.include_router(local_workspace_router)  # F2 Part 2: /ws/daemon/{workspace_id}
+app.include_router(local_workspace_data_router)  # F2 Part 3: /api/workspaces/{ws_id}/local/*
+app.include_router(mcp_router)  # Patch A8: /api/mcp/servers, /api/mcp/servers/{name}/status
+app.include_router(user_profile_router)  # NEW — Patch B6: /api/profile/*
+app.include_router(usage_router)  # NEW — S01: /api/usage
+app.include_router(devices_router)  # NEW — S03: /v1/code/devices/*, /api/devices*
+app.include_router(code_runs_router)  # NEW — S10: POST /v1/code/runs/{run_id}/grant (grant more credits)
+app.include_router(codeagent_ws_router)  # NEW — S04: WS /v1/code/device
+codeagent_run_handlers.install()  # NEW — S14: router + run handlers behind WS /v1/code/device (idempotent)
+codeagent_wiring.install()  # NEW — S15: the agent loop's turn runner + hooks for S14; M2C_LOOP=hello is the kill switch (idempotent)
+codeagent_broker.install()  # NEW — S09: tool_result/tool_stream/approval handlers + disconnect/cancel hooks (idempotent)
+
+
+# NEW — Data Layer architecture §9b: the real transport behind
+# eo/notify.py's notify() calls. A browser opens one of these per
+# session_id it cares about (the same id agents/source_manager.py and
+# agents/backlink_detector.py already pass to notify() — a chat/task
+# session, not a user) and eo/ws_registry.py fans events out to
+# whichever sockets are open for that session_id at the moment
+# notify() fires. §9c (Generate-button loading state) and §9d (chat
+# proactive suggestions) both consume this same socket — neither
+# needs a route of its own, just a new "kind" in eo/notify.py.
+@app.websocket("/ws/{session_id}")
+async def websocket_endpoint(websocket: WebSocket, session_id: str, ticket: str = Query(None)):
+    # The browser WebSocket API has no way to set Authorization on the
+    # handshake request the way require_auth()'s HTTP dependency
+    # expects, so credentials have to ride in the URL. That used to be
+    # the user's full access token (`?token=<jwt>`), which then lands in
+    # access logs and proxies. It is now a short-lived, single-use
+    # ticket the client mints first via POST /api/stream-ticket
+    # (kind="ws") using a normal Authorization header -- see
+    # api/stream_tickets.py. The ticket is bound to this session_id and
+    # redeemed atomically, so a logged URL is worthless. A raw access
+    # token here is rejected; there is no fallback.
+    # 4401 (a custom code in the reserved-for-app-use 4000-4999 range)
+    # mirrors HTTP 401 as closely as a WS close code allows.
+    if not ticket:
+        await websocket.close(code=4401)
+        return
+    # Blocking Redis round trip -- keep it off the event loop.
+    owner_id = await run_in_threadpool(redeem_ticket, ticket, KIND_WS, session_id)
+    if owner_id is None:
+        await websocket.close(code=4401)
+        return
+
+    await websocket.accept()
+    ws_registry.register(session_id, websocket)
+    try:
+        while True:
+            # Nothing meaningful is expected from the client on this
+            # socket — it exists to receive push events, not send
+            # them. Reading (and discarding) keeps the connection
+            # alive and is how Starlette surfaces a client-initiated
+            # disconnect (WebSocketDisconnect) instead of this loop
+            # spinning against an already-closed socket.
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        pass
+    finally:
+        ws_registry.unregister(session_id, websocket)
+
+
+# B6 — graph edges, node summaries, topics/graph, node get/rename/delete,
+# note-candidates, backlinks/detect, and clusters propose/candidates/
+# accept/reject moved to api/routes/graph_and_notes.py (piece 6), along
+# with the RenameNodeRequest/CreateEdgeRequest models they used. See
+# that file for the actual route code.
+#
+# B6 piece 7 — the Notebooks "Generate" command and its whole target
+# roster, classify-intent, per-topic workflow, data tables, the
+# "simulate" domain, the whole /api/notes/* family, and /api/capabilities
+# moved to api/routes/notebooks.py, along with every pydantic model and
+# helper (including _parse_marketplace_reviews) that only they used. See
+# that file for the actual route code.

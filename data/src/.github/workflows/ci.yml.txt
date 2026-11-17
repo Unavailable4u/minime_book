@@ -1,0 +1,677 @@
+# .github/workflows/ci.yml — Master Guide B3.
+#
+# Test + lint + secrets-scan. gitleaks/semgrep were folded in here from
+# security-scan.yml (B2), which is now deleted — this is the merge that
+# file's header comment flagged as pending.
+#
+# Lint rules are pinned explicitly in backend/pyproject.toml
+# ([tool.ruff.lint] select = E4/E7/E9/F) rather than left to ruff's
+# zero-config default, which as of ruff 0.16 enables nearly every rule
+# family (813 findings on this repo vs. 13 under the pinned selection,
+# measured 2026-08-25 on ruff 0.16.4). See backend/pyproject.toml's own
+# comment: this pin briefly slipped out of sync with this file during
+# a "B3" change and turned every push red until reverted here.
+name: CI
+on: [push, pull_request]
+
+permissions:
+  contents: read
+  security-events: write  # required for the semgrep SARIF upload step
+
+jobs:
+  test:
+    # Q01 -- one pytest run over tests/unit, tests/integration AND tests/static.
+    #
+    #   - The codeagent tests (tests/unit/test_codeagent_*.py, the run-manager,
+    #     router, loop, broker, wiring and socket tests, plus the *_pg files in
+    #     tests/integration) live in unit/ and integration/, so they were always
+    #     collected here. What was missing was tests/static (SQL-vs-grants, the
+    #     logging AST checks, the protocol-at-runtime test, the call-site
+    #     inventories): it is not in backend/pytest.ini's default testpaths, so
+    #     it only ever ran by hand. It needs no database and no network
+    #     (verified: 120 passed, 0 skipped, with no proxy and no DATABASE_URL).
+    #   - Python stays 3.11 here (the version this job always used; the floor
+    #     requirements.txt installs on, and backend/pyproject.toml's ruff
+    #     target). The m2c client is the package that is matrixed. Note that
+    #     backend.Dockerfile builds on python:3.12-slim, so the version the
+    #     backend ships on is not the one this job tests; adding "3.12" is a
+    #     one-line matrix change if that gap should be closed.
+    #   - Many codeagent test modules start with pytest.importorskip("jsonschema").
+    #     They run here only because requirements.txt pins jsonschema; if that pin
+    #     were ever dropped they would all skip and the job would stay green.
+    #     The skip gate below turns that into a failure. Its allow list (see
+    #     .github/scripts/skip-allowlist.txt) holds the two skips this runner
+    #     cannot avoid: the real-Postgres tests (no database service here) and
+    #     the FreeCAD tests (FreeCAD is not installed).
+    #   - permissions narrowed to contents: read for this job: nothing here
+    #     needs the workflow-level security-events: write.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with: { python-version: "3.11" }
+      - run: pip install -r requirements.txt
+      - name: Backend tests (unit, integration, static)
+        run: pytest tests/unit tests/integration tests/static -v -rs --junitxml="$RUNNER_TEMP/backend-junit.xml"
+      - name: Skip gate (backend)
+        # Runs even when the tests failed, so the skip list is in the log too.
+        if: ${{ !cancelled() }}
+        run: python ../.github/scripts/check_skips.py --scope backend "$RUNNER_TEMP/backend-junit.xml"
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with: { python-version: "3.11" }
+      - run: pip install ruff==0.17.1
+      - run: ruff check .
+  daemon-test:
+    # Was untested by CI entirely -- daemon/tests/ (test_config.py,
+    # test_path_guard.py) existed but nothing here ever ran it, which is
+    # how test_config.py's fixture silently fell out of sync with
+    # config.py's Part 2 additions (MINIME_BACKEND_WS_URL/
+    # MINIME_WORKSPACE_ID) without CI ever noticing.
+    #
+    # No working-directory override (unlike test/lint above): daemon's
+    # own test files import it as `from daemon.config import ...` /
+    # `from daemon.path_guard import ...`, i.e. as a package relative to
+    # the repo root, not from inside daemon/ itself -- so pytest needs
+    # to run from the repo root for those imports to resolve.
+    #
+    # timeout-minutes added for consistency with promptfoo's job below
+    # (a hung/runaway step here would otherwise only stop at the
+    # runner-wide default, same gap that job's own comment flagged).
+    # continue-on-error deliberately NOT added, unlike promptfoo: that
+    # job is non-blocking for a stated reason specific to it (external
+    # LLM-call flakiness that can't distinguish a real regression from
+    # infra/grading misconfiguration). daemon/tests is a small,
+    # deterministic unit-test suite same as the `test` job above -- a
+    # failure here means the code is actually broken, so it should keep
+    # blocking the build the same way `test` and `lint` do.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with: { python-version: "3.11" }
+      - run: pip install -r daemon/requirements.txt
+      - run: pytest daemon/tests -v
+  m2c-test:
+    # C01 -- the new top-level `m2c/` client package (src layout, Python
+    # >= 3.11, standard-library-only runtime, pytest as its one dev
+    # dependency). Placed right after `daemon-test`, which it is modeled on
+    # (same pinned actions, same Python 3.11 -- the package's own floor,
+    # decision D1 -- and same timeout), rather than at the end of the file:
+    # other patches append their own jobs there, and two hunks that both
+    # end at EOF cannot both be applied with `git apply`.
+    #
+    # One real difference from daemon-test: `working-directory: m2c`.
+    # daemon/ is imported as a package relative to the repo root; m2c/ is a
+    # proper installable package, so this job installs it
+    # (`pip install -e ".[dev]"`) and pytest imports it exactly as a user's
+    # install would. tests/conftest.py points M2C_HOME and HOME at a temp
+    # directory for every test, so nothing here touches the runner's real
+    # home.
+    #
+    # Still blocking (no continue-on-error), same reasoning as daemon-test: a
+    # deterministic unit-test suite, so a failure means the code is broken.
+    #
+    # Q01 -- what changed, and why (the paragraphs above are C01's, kept for
+    # the history of the job; where they say the runner needs no ripgrep or
+    # bubblewrap, or that `m2c doctor` is deliberately not run, Q01 reverses
+    # that, as explained below):
+    #
+    #   * Python matrix 3.11 (the package's floor, decision D1) and 3.14 (the
+    #     newest, what the maintainer's WSL runs). fail-fast is off so one
+    #     version's failure does not hide the other's result. NOTE: a matrix
+    #     renames the checks to "m2c-test (3.11)" / "m2c-test (3.14)"; a branch
+    #     protection rule that requires the old name "m2c-test" must be updated.
+    #
+    #   * ripgrep and bubblewrap are installed. The suite was NOT hermetic about
+    #     them after all: about 22 grep tests skip without a real `rg`, and the
+    #     real sandbox tests (C11a) skip without a working `bwrap`. A runner
+    #     that "needs no ripgrep" was a runner that quietly ran fewer tests.
+    #
+    #   * jsonschema (3 tests: tests/link/test_link_deps.py, test_link_requests.py,
+    #     tests/context/test_context_assemble.py) was never installed here, so
+    #     those tests were skipped on every run. It is installed from the pins
+    #     in protocol/requirements.txt (only the schema libraries, not the whole
+    #     file: that file also pins pytest 9.1.1, which would fight this
+    #     package's pytest 8.4.1).
+    #
+    #   * Skips are visible and bounded: pytest -rs prints each reason, and
+    #     .github/scripts/check_skips.py fails the job for any skip whose reason
+    #     is not in .github/scripts/skip-allowlist.txt.
+    #
+    #   * Can the hosted runner run the real sandbox tests? Unknown until the
+    #     first run, and it can change with the runner image. Ubuntu 24.04
+    #     restricts unprivileged user namespaces through AppArmor, which makes
+    #     bubblewrap fail with "setting up uid map: Permission denied". The
+    #     probe step tries bubblewrap as the tests will, lifts that restriction
+    #     with sysctl on this throw-away VM if needed, and only if bubblewrap
+    #     still cannot start sets M2C_CI_NO_USERNS=1, the one thing that lets the
+    #     allow list excuse the sandbox tests' skip. The probe never fails the
+    #     job by itself; it prints the image, the kernel and the outcome.
+    #
+    #   * `m2c doctor` now runs. Its exit status is 1 only for a HARD failure
+    #     (OS, Python, git, ripgrep, config directory), and every one of those is
+    #     under this job's control: Linux, the matrix Python, git preinstalled,
+    #     ripgrep installed above, a config directory in the runner's temp dir.
+    #     So a non-zero exit here is a real regression in doctor (or a broken
+    #     runner), not "which tools the image happens to ship", which is why it
+    #     is not allowed to fail silently (no `|| true`). bubblewrap is only a
+    #     WARN in doctor and only checks the program is on PATH; whether it can
+    #     actually start is the probe step's job, not doctor's.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.14"]
+    defaults:
+      run:
+        working-directory: m2c
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with: { python-version: "${{ matrix.python-version }}" }
+      - name: Install ripgrep and bubblewrap (the tests that use the real tools skip without them)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ripgrep bubblewrap
+          rg --version | head -n 1
+          bwrap --version
+      - name: Probe whether bubblewrap can start on this runner
+        run: |
+          . /etc/os-release
+          echo "runner image: ${PRETTY_NAME}; kernel: $(uname -r)"
+          probe() { bwrap --unshare-user --unshare-pid --unshare-net --ro-bind / / --proc /proc --dev /dev true; }
+          if probe; then
+            echo "bubblewrap user namespaces: available"
+            exit 0
+          fi
+          echo "::notice title=sandbox::bubblewrap could not start; trying to lift Ubuntu's AppArmor user-namespace restriction (this VM is discarded after the job)"
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          if probe; then
+            echo "bubblewrap user namespaces: available after lifting the AppArmor restriction"
+            exit 0
+          fi
+          echo "::warning title=sandbox::bubblewrap cannot create a user namespace on this runner: the real sandbox tests cannot run here, and the skip gate will allow exactly that skip"
+          echo "M2C_CI_NO_USERNS=1" >> "$GITHUB_ENV"
+      - run: pip install -e ".[dev]"
+      - name: Install the protocol schema libraries (jsonschema), pinned from protocol/requirements.txt
+        run: |
+          grep -E '^(jsonschema|jsonschema-specifications|referencing|rpds-py|attrs|typing_extensions)==' ../protocol/requirements.txt > "$RUNNER_TEMP/schema-requirements.txt"
+          cat "$RUNNER_TEMP/schema-requirements.txt"
+          pip install -r "$RUNNER_TEMP/schema-requirements.txt"
+      - name: Tests
+        run: pytest -v -rs --junitxml="$RUNNER_TEMP/m2c-junit.xml"
+      - name: Skip gate (m2c)
+        # Runs even when the tests failed, so the skip list is in the log too.
+        if: ${{ !cancelled() }}
+        run: python ../.github/scripts/check_skips.py --scope m2c "$RUNNER_TEMP/m2c-junit.xml"
+      - run: m2c --version
+      - name: m2c doctor
+        env:
+          M2C_HOME: ${{ runner.temp }}/m2c-home
+        run: m2c doctor
+  frontend-lint:
+    # Was entirely unwired: package.json's own "lint" script (`next lint`)
+    # existed but nothing in CI ever called it, and it wasn't even
+    # runnable as shipped -- this repo had no eslint/eslint-config-next in
+    # devDependencies and no .eslintrc, so `next lint` in a non-interactive
+    # CI shell would drop into its "how would you like to configure
+    # ESLint?" setup wizard and hang rather than fail cleanly. Fixed by
+    # adding eslint@8.57.1 + eslint-config-next@14.2.5 (matching this
+    # repo's next@14.2.5) as devDependencies and a checked-in
+    # .eslintrc.json (next/core-web-vitals) so `next lint` now runs
+    # non-interactively here exactly as it would locally.
+    #
+    # Blocking, like `test`/`lint`/`daemon-test`. This job used to carry
+    # continue-on-error: true because wiring lint in surfaced a backlog of
+    # react/no-unescaped-entities errors across a couple dozen
+    # components; that backlog has since been cleared (`next lint` now
+    # reports 0 errors). What remains is warnings only
+    # (react-hooks/exhaustive-deps, @next/next/no-img-element), and
+    # `next lint` exits 0 on warnings, so those stay visible in the log
+    # without failing the build. A new lint *error* now fails CI.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22.22.0"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: CI=true npm run lint
+  frontend-test:
+    # Was entirely unwired: frontend/ has ~38 node:test files
+    # (app/{components,hooks,lib/preview,lib/workbench}/__tests__/
+    # *.test.mjs) but package.json had no "test" script and no job here
+    # ran them, so a frontend regression could only be caught by hand.
+    # They need no browser or build step -- `node --test` runs them
+    # directly (see package.json's "test" script for the glob).
+    #
+    # Same install as frontend-lint (plain `npm ci`, postinstall
+    # included: patch-package + vendor-pyodide only copy local files, no
+    # network) and the same pinned Node/actions. Deliberately blocking
+    # (no continue-on-error), same reasoning as daemon-test: a small,
+    # deterministic unit-test suite, so a failure means the code is
+    # actually broken.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22.22.0"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm test
+  protocol:
+    # P00 (M2C Wave 1) -- the protocol / tool-schema contract (protocol/v1).
+    #
+    # Its own job, with its own pinned requirements file, on purpose:
+    # jsonschema is NOT in backend/requirements.txt, and backend/tests/
+    # conftest.py imports eo.registry at module scope (which needs the whole
+    # backend dependency set), so the contract test runs here with
+    # --noconftest instead. In the normal `test` job the same test file is
+    # collected too but skips itself (pytest.importorskip("jsonschema")).
+    #
+    # Step 1 (validate.py) checks the schemas, every golden transcript in
+    # protocol/fixtures, the invalid examples, and -- once WP C01 has created
+    # the m2c/ package -- that its synced copy of protocol/v1 is byte-identical
+    # (passes vacuously until then). Step 2 is the pytest suite built on the
+    # same functions. Blocking, like test/lint: a failure means the contract
+    # that client and server are built against is broken.
+    #
+    # Q01 -- two additions, and one finding:
+    #   * Finding: step 1 (`validate.py` with no flag) ALREADY runs the client-copy
+    #     comparison as its fourth check. But that check passes vacuously when
+    #     m2c/src/m2c/protocol/v1 does not exist ("not created yet: nothing to
+    #     compare"), which was right while C01 was in flight and is now a hole: a
+    #     deleted or moved copy would pass. The "Client copy" step below names the
+    #     check on its own line in the run log and refuses the vacuous pass.
+    #   * The contract test now writes a JUnit report and goes through the skip
+    #     gate with an EMPTY allow list for this scope: every test here must run.
+    #     (The contract test skips itself if the m2c/ package is missing, and
+    #     importorskips jsonschema; either would otherwise be a silent skip.)
+    #   * The skip gate has its own unit tests (.github/scripts/test_check_skips.py,
+    #     standard library + pytest). They run here, before the gate is used by
+    #     this job, because this job already has pytest and is the cheapest place.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with: { python-version: "3.11" }
+      - run: pip install -r protocol/requirements.txt
+      - run: python protocol/validate.py
+      - name: Client copy of the schemas exists and is current
+        run: |
+          if [ ! -d m2c/src/m2c/protocol/v1 ]; then
+            echo "::error title=protocol::m2c/src/m2c/protocol/v1 is missing; validate.py would pass vacuously. Run: python protocol/validate.py --sync-client"
+            exit 1
+          fi
+          python protocol/validate.py --check-client-copy
+      - name: Contract test
+        run: pytest tests/unit/test_protocol_contract.py --noconftest -v -rs --junitxml="$RUNNER_TEMP/protocol-junit.xml"
+        working-directory: backend
+      - name: Test the skip gate itself
+        run: python -m pytest .github/scripts -q
+      - name: Skip gate (protocol)
+        if: ${{ !cancelled() }}
+        run: python .github/scripts/check_skips.py --scope protocol "$RUNNER_TEMP/protocol-junit.xml"
+  canary:
+    # Q06 -- the "no content at rest" canary test (backend/tests/canary; its README says what it does).
+    #
+    # Its own job on purpose: it installs the m2c client next to the backend (the test runs the real device in the
+    # same process as the real server), which the `test` job does not, and Q01's edits to the other jobs stay
+    # untouched. Placed after `protocol` rather than at the end of the file: other patches append their own jobs
+    # there, and two hunks that both end at EOF cannot both be applied with `git apply`.
+    #
+    # Q06b -- how the two packages are installed, and why in two steps. backend/requirements.txt pins rich==14.3.4
+    # (guardrails-ai 0.10.2 needs rich below 15, e2b needs 14 or newer) while m2c/pyproject.toml pins rich==15.0.0 and
+    # prompt_toolkit==3.0.53 for the terminal UI, so `pip install -r requirements.txt -e ../m2c` ends in
+    # ResolutionImpossible. The pins differ for a real reason and aligning them is a separate decision. The canary
+    # test needs neither library (only m2c/tui/app.py imports them; the harness imports m2c.tui.session, which does
+    # not) and needs only websockets from m2c, which both packages pin to the same version. So: the backend first,
+    # then m2c with --no-deps, and no [dev] extra (it pins a different pytest as well). The m2c suite keeps its own
+    # job (`m2c-test`).
+    #
+    # Because of --no-deps, `pip check` can never be fully clean here: m2c's own rich==15.0.0 and prompt_toolkit
+    # requirements stay unmet on purpose. The pip check step tolerates exactly those two lines and fails on anything
+    # else (a drifted websockets, a new m2c runtime dependency, a broken backend pin), at install time with the
+    # offending lines in the log, not later as a confusing test failure. Its logic is tested in
+    # backend/tests/static/test_canary_ci_install.py.
+    #
+    # Two passes, both blocking, no continue-on-error (a security check that may be red is not a check):
+    #   1. fake-recorder mode, no database URL: the run store and ledger are in-memory twins and every SQL
+    #      statement and parameter they would send is scanned.
+    #   2. real-database mode against a throwaway Postgres service, MINIME_TEST_DATABASE_URL set: the unprivileged
+    #      app role runs the real store and ledger, and every table is scanned on the scan connection (the
+    #      service's superuser, because the app role is held back by row-level security).
+    # Each pass writes a JUnit report and goes through Q01's skip gate with the package's own allow list
+    # (backend/tests/canary/skip-allowlist.txt, one scope per mode, so a skip that belongs to the other mode is
+    # still a failure and a lost database URL cannot turn the real-database pass into a quiet no-op).
+    # The passwords below are for a database that exists only for this job's lifetime.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with: { python-version: "3.11" }
+      - name: Install the backend requirements
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Install the m2c client without its dependencies (its rich and prompt_toolkit pins cannot be resolved with the backend's)
+        working-directory: backend
+        run: pip install --no-deps -e ../m2c
+      - name: pip check (only m2c's own rich and prompt_toolkit lines are expected)
+        working-directory: backend
+        run: |
+          if out=$(python -m pip check 2>&1); then
+            echo "$out"
+            exit 0
+          fi
+          echo "$out"
+          unexpected=$(printf '%s\n' "$out" | grep -v -E '^m2c [^ ]+ (requires prompt-toolkit,|requires rich==|has requirement rich==)' || true)
+          if [ -z "$out" ] || [ -n "$unexpected" ]; then
+            echo "::error title=pip check::The installed packages are inconsistent beyond m2c's own rich and prompt_toolkit pins (the lines above). Fix the pin or the install; do not widen this check."
+            exit 1
+          fi
+          echo "pip check: only m2c's rich and prompt_toolkit requirements are unmet, as expected with --no-deps"
+      - name: Canary test, fake-recorder mode (no database)
+        working-directory: backend
+        run: pytest tests/canary -v -rs --junitxml="$RUNNER_TEMP/canary-fake-junit.xml"
+      - name: Skip gate (canary, fake-recorder mode)
+        if: ${{ !cancelled() }}
+        working-directory: backend
+        run: python ../.github/scripts/check_skips.py --scope canary-fake --allowlist tests/canary/skip-allowlist.txt "$RUNNER_TEMP/canary-fake-junit.xml"
+      - name: Scratch database (roles, auth stub, every migration in order)
+        run: |
+          psql -h localhost -U postgres -v ON_ERROR_STOP=1 -c "create database minime_canary" \
+            -c "create role minime_app login password 'canary-ci-only'"
+          psql -h localhost -U postgres -d minime_canary -v ON_ERROR_STOP=1 -q \
+            -c "create schema auth" -c "create table auth.users (id uuid primary key)"
+          for f in backend/migrations/*.sql; do psql -h localhost -U postgres -d minime_canary -v ON_ERROR_STOP=1 -q -f "$f"; done
+      - name: Canary test, real-database mode
+        working-directory: backend
+        env:
+          MINIME_TEST_DATABASE_URL: postgresql://minime_app:canary-ci-only@localhost:5432/minime_canary
+          MINIME_TEST_SCAN_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/minime_canary
+        run: pytest tests/canary -v -rs --junitxml="$RUNNER_TEMP/canary-real-junit.xml"
+      - name: Skip gate (canary, real-database mode)
+        if: ${{ !cancelled() }}
+        working-directory: backend
+        run: python ../.github/scripts/check_skips.py --scope canary-real --allowlist tests/canary/skip-allowlist.txt "$RUNNER_TEMP/canary-real-junit.xml"
+  secrets-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0  # gitleaks needs full history, not just the latest commit
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+      - run: pip install semgrep
+      # `semgrep ci` requires a Semgrep AppSec Platform login -- and per
+      # Semgrep's own CI env var docs, SEMGREP_RULES is *also* documented
+      # as "you must have a Semgrep AppSec Platform account to use this
+      # environment variable" (with an explicit caution against setting it
+      # without SEMGREP_APP_TOKEN). This job ran `semgrep ci` with
+      # SEMGREP_RULES set but no token anywhere -- an unsupported
+      # combination per Semgrep's own docs, and the most likely source of
+      # the "Semgrep OSS is reporting warnings/errors" banner on the
+      # Security tab's Code scanning page (semgrep.dev's own domain isn't
+      # reachable from this sandbox to confirm the exact failure text
+      # GitHub's runners would see, but the config mismatch itself is
+      # documented, not guessed). `semgrep scan` is Semgrep's own
+      # documented command for this case (community/OSS rules, no
+      # account) -- --config=auto is a flag understood the same way by
+      # both commands, so this doesn't change which rules run or what
+      # gets scanned, just drops the CI-auth machinery that was never
+      # going to work unauthenticated anyway. Add a SEMGREP_APP_TOKEN
+      # secret (and switch back to `semgrep ci`) later if/when premium
+      # rules or PR-comment integration are wanted.
+      - run: semgrep scan --config=auto --sarif --output=semgrep.sarif
+        continue-on-error: true  # upload the SARIF even if semgrep exits non-zero on findings
+      - id: upload-sarif  # named so dismiss-alerts below can read its sarif-id output
+        uses: github/codeql-action/upload-sarif@c4dd10e44af883a891fe31ced449bcb4a6728b9b # v3.37.6
+        with:
+          sarif_file: semgrep.sarif
+          wait-for-processing: true  # dismiss-alerts needs the upload fully processed before it queries the Alerts API
+      # Reads semgrep.sarif's own suppressions[] (set by `# nosemgrep: ...`
+      # comments -- either trailing or on the standalone line immediately
+      # above the flagged line) and dismisses any open Code Scanning alert
+      # that matches, on every run. This is what upload-sarif itself never
+      # did for third-party SARIF: without this step, a suppressed
+      # semgrep result still shows up as an open alert.
+      - if: github.ref == 'refs/heads/main'
+        uses: advanced-security/dismiss-alerts@a18f986bdb40edba0dd7a74382c15d4a3d50a1c8 # v2.0.3
+        with:
+          sarif-id: ${{ steps.upload-sarif.outputs.sarif-id }}
+          sarif-file: semgrep.sarif
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  promptfoo:
+    # D2 patch 6 — Role Library regression evals (backend/evals/promptfoo).
+    #
+    # Two runtimes this job needs that no other job here does yet:
+    #   - Node: promptfoo itself, plus the Node-side llm-rubric grading
+    #     call. Verified directly against the pinned version's own
+    #     installed package.json (backend/evals/promptfoo/package.json's
+    #     devDependencies: promptfoo 0.122.0) rather than trusting memory:
+    #     engines.node is ">=22.22.0". There is no separate ^20.20.0 path
+    #     for THIS version -- that floor may hold for some other promptfoo
+    #     release, but 0.122.0's own package.json only states the one
+    #     constraint. Pinned to the exact floor version below (not a
+    #     floating "22" tag) so a future runner-image default bump can't
+    #     silently drop under it.
+    #   - Python 3.11: role_provider.py is a promptfoo Python provider
+    #     that imports eo/agents/utils from backend/ -- same pin and same
+    #     requirements.txt install as the `test`/`lint` jobs above, so
+    #     imports resolve identically to what those jobs already verify.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    # First-pass tradeoff, called out rather than silently accepted: as
+    # configured today this can't tell "a role's prompt actually
+    # regressed" apart from "grading/chain infra was misconfigured" (a
+    # missing secret, an unreachable Upstash instance, etc.) -- both land
+    # as the same non-blocking red at the job level. Acceptable for a
+    # first pass per the agreed plan; revisit (e.g. a follow-up that
+    # greps the JSON output for the two error shapes role_provider.py and
+    # promptfoo's own OPENAI/GROQ-key errors produce, and only lets a
+    # real generation failure block the build) once there's enough real
+    # CI history to know how often that distinction actually matters.
+    defaults:
+      run:
+        working-directory: backend/evals/promptfoo
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with: { python-version: "3.11" }
+      - name: Install backend Python deps (role_provider.py imports eo/agents/utils)
+        working-directory: backend
+        run: pip install -r requirements.txt
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22.22.0"  # exact floor from promptfoo 0.122.0's own engines.node — see job comment above
+          cache: "npm"
+          cache-dependency-path: backend/evals/promptfoo/package-lock.json
+      - run: npm ci
+
+      # promptfooconfig.yaml's commandLineOptions.envPath (../../.env,
+      # i.e. backend/.env) is a deliberate local-dev convenience -- see
+      # that file's own comment and this repo's promptfoo README ("point
+      # this at your .env"). promptfoo 0.122.0's setupEnv() (dist/src/
+      # util-BY2oJymW.js) hard-throws "Environment file not found" when
+      # an explicit envPath doesn't exist on disk, rather than no-oping
+      # like the bare/no-path case does -- confirmed by reading that
+      # function's own source, not assumed. A CI checkout has no
+      # backend/.env by design (every var it would have loaded is
+      # exported directly in this step's `env:` block below instead), so
+      # eval:ci was crashing at env-file-load time before it ever got to
+      # run a case. Rather than removing envPath from the config (which
+      # would break the local-dev flow the README documents), create an
+      # empty file here just to satisfy setupEnv()'s existsSync check.
+      # Left empty on purpose: when the path exists, setupEnv() calls
+      # dotenv.config({ path, override: true }) -- confirmed against the
+      # same source that an empty file parses to zero keys, so
+      # override:true has nothing to override and every var exported
+      # below survives untouched (verified locally: pre-set env vars are
+      # unaffected by loading an empty file with override:true).
+      - name: Ensure promptfoo's configured env file exists (empty -- CI exports vars directly below)
+        working-directory: backend
+        run: touch .env
+
+      - name: Run Role Library promptfoo evals
+        run: npm run eval:ci
+        env:
+          # --- envPath is a local-only convenience, not usable here ---
+          # promptfooconfig.yaml's commandLineOptions.envPath points at
+          # ../../.env (backend/.env), which simply doesn't exist in a CI
+          # checkout. Rather than special-casing that config file for CI,
+          # every var it would have loaded is exported directly below
+          # instead. Confirmed non-conflicting by reading promptfoo's own
+          # setupEnv() (wraps `dotenv.config`, which no-ops harmlessly
+          # against a missing path and never overrides a var already set
+          # in the process env) -- so this doesn't need a placeholder
+          # backend/.env file or a config edit to coexist with envPath.
+
+          # --- CI-only key pool (patch 9) ---
+          # Was: this job exported the full production account pool
+          # (GROQ_API_KEY_6-14, GROQ_RESERVE_1/2, SGA_GROQ_1-3,
+          # CEREBRAS_API_KEY_1, MISTRAL_API_KEY, GEMINI_API_KEY_1) as
+          # job-level secrets, reasoned about in the comment that used to
+          # sit here as "same pool production uses, not CI-only reserved
+          # keys". Reversed that decision now that CI_* secrets actually
+          # exist (repo Settings -> Secrets and variables -> Actions):
+          # production-key reuse in CI was never actually required by
+          # anything below, and splitting the blast radius of a leaked
+          # CI credential from production quota/billing is worth the
+          # one-time setup cost.
+          #
+          # Only 2 CI-scoped Groq keys exist, nowhere near the ~20-account
+          # production pool _build_live_chain() ranks by quota when Redis
+          # IS reachable (see the UPSTASH comment below) -- with a fresh
+          # CI Upstash instance every account ties at 0% usage, so quota
+          # ranking among a pool where only 2 of ~20 key_envs actually
+          # have a CI credential is arbitrary, not deterministic. Rather
+          # than exporting these 2 keys into that pool under production
+          # key_env names (e.g. GROQ_API_KEY_6) and hoping quota ranking
+          # happens to pick one of them, tests/contradiction_detector.yaml
+          # now sets `provider_override: "groq"` on both cases -- see
+          # that file's patch 9 comment -- which makes role_provider.py
+          # skip chain-building entirely via PROVIDER_OVERRIDE_DEFAULTS
+          # (already in this file from patch 5's provider comparison),
+          # for a single deterministic step instead of a pool draw.
+          #
+          # Split by purpose rather than reusing one key for both calls
+          # promptfoo makes per case, so a grading call and a generation
+          # call in flight together don't compete for the same key's
+          # per-minute rate limit:
+          #   - CI_GROQ_API_KEY_1 grades (promptfooconfig.yaml's
+          #     defaultTest llm-rubric provider, Node-side, now reads
+          #     GROQ_API_KEY_GRADING -- see that file's patch 9 comment).
+          #   - CI_GROQ_API_KEY_2 generates (role_provider.py's
+          #     PROVIDER_OVERRIDE_DEFAULTS["groq"]["key_env"], still
+          #     "GROQ_API_KEY" -- unchanged name, just a CI-scoped value
+          #     now instead of a production one).
+          GROQ_API_KEY_GRADING: ${{ secrets.CI_GROQ_API_KEY_1 }}
+          GROQ_API_KEY: ${{ secrets.CI_GROQ_API_KEY_2 }}
+
+          # --- UPSTASH secrets: still not optional for this suite ---
+          # Unchanged reasoning from before (see the file history for
+          # the full version): the BRIEF lookup (_get_brief_live_or_seed())
+          # degrades fine to ROLE_PROMPTS_SEED with no reachable Redis,
+          # but real Upstash creds are still what let CI test against
+          # the actual live-hired brief instead of always falling back
+          # to seed. Chain-building itself no longer depends on these
+          # for contradiction_detector specifically now that its cases
+          # force provider_override -- but the brief lookup still does,
+          # and future case files that DON'T set provider_override will
+          # still need Redis reachable for anything beyond a seed-brief
+          # run. Now CI-scoped rather than production Upstash creds.
+          UPSTASH_REDIS_REST_URL: ${{ secrets.CI_UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.CI_UPSTASH_REDIS_REST_TOKEN }}
+
+          # --- per-test timeout (this patch's new addition) ---
+          # generate_text() can walk up to MAX_CHAIN_STEPS_CEILING (6)
+          # live chain steps before giving up on a single role_provider.py
+          # call. Verified PROMPTFOO_EVAL_TIMEOUT_MS against promptfoo
+          # 0.122.0's own installed source
+          # (node_modules/promptfoo/dist/src/evaluator-*.js:
+          # `context.options.timeoutMs || getEvalTimeoutMs()`, where
+          # getEvalTimeoutMs() reads exactly this env var) rather than
+          # guessing a config key from docs/memory -- it's real and
+          # currently supported in this pinned version. 120s/test leaves
+          # room for a multi-step chain walk without one hung case
+          # stalling the whole job. PROMPTFOO_MAX_EVAL_TIME_MS is the
+          # same package's whole-run cap (same source file), set here as
+          # a second backstop underneath this job's own timeout-minutes
+          # above.
+          PROMPTFOO_EVAL_TIMEOUT_MS: "120000"
+          PROMPTFOO_MAX_EVAL_TIME_MS: "600000"
+
+      # tests/output_organizer.yaml existed but, unlike
+      # tests/contradiction_detector.yaml above, was never wired into any
+      # CI step -- it runs under its own config
+      # (output_organizer.promptfooconfig.yaml, not promptfooconfig.yaml;
+      # see that file's own header comment for why the two configs are
+      # kept separate) via package.json's `eval:organizer` script.
+      # Same CI-scoped keys/timeouts as the eval:ci step above and for
+      # the same reasons (see that step's env comments) -- the grading
+      # side now has somewhere to land because output_organizer.
+      # promptfooconfig.yaml's own defaultTest mirrors promptfooconfig.
+      # yaml's GROQ_API_KEY_GRADING override (patch 9 there; mirrored
+      # here in this same patch).
+      - name: Run output_organizer promptfoo evals
+        run: npm run eval:organizer -- --no-cache --no-share
+        env:
+          GROQ_API_KEY_GRADING: ${{ secrets.CI_GROQ_API_KEY_1 }}
+          GROQ_API_KEY: ${{ secrets.CI_GROQ_API_KEY_2 }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.CI_UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.CI_UPSTASH_REDIS_REST_TOKEN }}
+          PROMPTFOO_EVAL_TIMEOUT_MS: "120000"
+          PROMPTFOO_MAX_EVAL_TIME_MS: "600000"

@@ -24,9 +24,13 @@ What it runs, in order, stopping at the first problem:
     4. notes.py ingest --minime <MiniMe>         the AI-written notes (MiniMe/graphify-out/atlas-notes, see UPDATING.md "Step 2b"):
                                                  validate, copy into data/notes/, fill symbol hashes, write data/index/notes.json.
                                                  A malformed note stops here; warnings and stale notes never do
-    5. both scripts with --check (refresh_atlas.py --check covers the search index and data/code too), notes.py ingest --check
-       and notes.py validate, and the unit tests, to prove nothing is left stale
-    6. with --push: git add, commit and push
+    5. refresh_source.py --minime <MiniMe>       the source code itself, copied into data/src/ at the census commit (read from git, not
+                                                 from the working tree) so the Explorer can show it next to the explanations.
+                                                 Secret-scanned; a file that fails is refused and listed. Skipped with --no-embed-source
+                                                 or when content/config.json says "embedSource": false
+    6. both scripts with --check (refresh_atlas.py --check covers the search index and data/code too), notes.py ingest --check,
+       notes.py validate and refresh_source.py --check, and the unit tests, to prove nothing is left stale
+    7. with --push: git add, commit and push
 
 Standard library only (the census itself needs tree-sitter and PyYAML, see --install-deps).
 """
@@ -79,6 +83,15 @@ def preflight(minime, allow_stale):
     return head
 
 
+def embed_source_enabled(root=ROOT):
+    """content/config.json `embedSource` (default true). Unreadable config counts as the default."""
+    try:
+        cfg = json.loads((Path(root) / "content" / "config.json").read_bytes().decode("utf-8-sig"))
+    except (OSError, ValueError):
+        return True
+    return not (isinstance(cfg, dict) and cfg.get("embedSource") is False)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--minime", default=str(ROOT.parent / "MiniMe"), help="the MiniMe checkout (default: ../MiniMe)")
@@ -86,6 +99,7 @@ def main(argv=None):
     ap.add_argument("--install-deps", action="store_true", help="pip install tree-sitter tree-sitter-javascript pyyaml first")
     ap.add_argument("--allow-stale-graph", action="store_true", help="accept a graph built at a different commit than MiniMe's HEAD")
     ap.add_argument("--force-census", action="store_true", help="pass --force to the census step (accept a census that failed validation)")
+    ap.add_argument("--no-embed-source", action="store_true", help="do not copy MiniMe's source into data/src (also off when content/config.json has embedSource false)")
     args = ap.parse_args(argv)
     minime = Path(args.minime).resolve()
 
@@ -101,11 +115,20 @@ def main(argv=None):
     notes = [PY, "scripts/notes.py", "ingest", "--minime", minime]
     run(*notes)
 
+    embed = embed_source_enabled() and not args.no_embed_source
+    source = [PY, "scripts/refresh_source.py", "--minime", minime]
+    if embed:
+        run(*source)                       # refused (secret-scan) files are printed as REFUSED; add --strict by hand to make them fatal
+    else:
+        print("\n(source embedding is off: data/src is not touched)")
+
     print("\n== Verifying nothing is stale ==")
     run(PY, "scripts/refresh_atlas.py", "--check")
     run(*(graph + ["--check"] + (["--allow-stale-graph"] if args.allow_stale_graph else [])))
     run(*(notes + ["--check"]))
     run(PY, "scripts/notes.py", "validate")
+    if embed:
+        run(*(source + ["--check"]))
     run(PY, "scripts/test_refresh_atlas.py")
     run(PY, "scripts/test_refresh_graph.py")
     run(PY, "scripts/test_build_index.py")
@@ -117,6 +140,8 @@ def main(argv=None):
     run(PY, "scripts/test_build_code.py")
     run(PY, "scripts/test_topology.py")
     run(PY, "scripts/test_notes.py")
+    run(PY, "scripts/test_refresh_source.py")
+    run(PY, "scripts/test_links.py")
 
     print("\n== Result ==")
     run("git", "status", "--short")

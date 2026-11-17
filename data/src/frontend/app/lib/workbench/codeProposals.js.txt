@@ -1,0 +1,253 @@
+// frontend/app/lib/workbench/codeProposals.js — W5.1b (Build Workbench
+// plan, step 197): the frontend half of W5.1's proposal endpoints —
+// see backend/eo/code_proposals.py's own module docstring for the
+// full lifecycle this wraps (create -> pending -> resolve ->
+// accepted/rejected/partial/stale/failed).
+//
+// Plain exported async functions, not a stateful provider — unlike
+// fileProviders.js's createCloudFileProvider() (constructed once per
+// workbench mount, bound to one workspace's {workspaceId, apiUrl} for
+// the whole Explorer/tabs/search/chips surface), a proposal is
+// something ONE chat send kicks off at a time from
+// WorkspaceChatPanel.jsx's Edit-mode composer — there's no shared
+// per-workspace state here worth wrapping in a factory closure, so
+// every function below just takes `apiUrl`/`workspaceId` as plain
+// arguments, same shape as SessionContext.jsx's/
+// WorkspaceDockContext.jsx's own `${API_URL}/api/...` call sites.
+//
+// What this step wires up, concretely: WorkspaceChatPanel.jsx's
+// Ask|Edit toggle (W4.2) can now actually select "Edit" (previously
+// disabled, "Coming in W5"), and a chip-bearing Edit-mode send calls
+// createProposal() below instead of the Ask-mode chat path. The
+// result renders as a plain, read-only list in that panel — no
+// Keep/Undo (W5.3), no cross-session pending tray (W5.4). That's a
+// deliberate scope line, not an oversight: this step's job is making
+// the real round trip (create -> live status update via Pusher)
+// reachable from the UI at all, not building the merge view on top of
+// it.
+"use client";
+import { authHeaders } from "../../context/SessionContext";
+import { getPusherClient } from "../pusherClient";
+import { toProposalRef } from "./proposalRefs";
+
+/**
+ * Thrown by resolveProposal() on a 409 — same role FileConflictError
+ * plays in fileProviders.js, just carrying a LIST of conflicting files
+ * (eo/code_proposals.py's ProposalStaleError.stale_files, one entry
+ * per file that moved since this proposal was created) instead of
+ * one, since a proposal can touch several files at once. Nothing in
+ * this step's UI catches this yet (there's no resolve() call site
+ * until W5.3's Keep/Undo view exists to send decisions) — exported
+ * now so that step doesn't have to invent it later.
+ */
+export class ProposalStaleError extends Error {
+  constructor(staleFiles) {
+    super("One or more files changed on the server since this proposal was created");
+    this.name = "ProposalStaleError";
+    this.staleFiles = staleFiles || [];
+  }
+}
+
+async function parseErrorDetail(res) {
+  const body = await res.json().catch(() => null);
+  return body?.detail || `${res.status} ${res.statusText}`;
+}
+
+// The wire shape of a ref — see proposalRefs.js (W7.1b moved it there so
+// it can be tested under plain `node`; it now also carries an element
+// chip's `element` object, which W7.1a's backend reads).
+
+/**
+ * POST .../code/proposals — see api/routes/code_edit.py's
+ * create_code_proposal() docstring: this call is synchronous end to
+ * end (today's stub generator runs inline, W5.2's real agent call
+ * will too) and returns the FULLY STORED proposal, status included —
+ * no polling needed for this step's own round trip.
+ *
+ * `refs`: codeContext.js's full ref objects — trimmed to
+ * proposalRefs.js's toProposalRef() shape before the request body is built, so this
+ * function's caller never has to remember to do that trim itself.
+ * Throws (via parseErrorDetail) on a 400 (empty instruction, no refs,
+ * a folder ref, an unsupported ref kind) — see create_proposal()'s
+ * own docstring for that closed set; a generation FAILURE is NOT an
+ * error here, it's a normal 200 with `status: "failed"` on the
+ * returned proposal (same reasoning that function's docstring gives),
+ * so callers should check `.status`, not just catch.
+ */
+export async function createProposal(apiUrl, workspaceId, { instruction, refs, sessionId }) {
+  const res = await fetch(`${apiUrl}/api/workspaces/${workspaceId}/code/proposals`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({
+      instruction,
+      refs: (refs || []).map(toProposalRef),
+      session_id: sessionId ?? null,
+    }),
+  });
+  if (!res.ok) throw new Error(await parseErrorDetail(res));
+  return res.json();
+}
+
+/**
+ * GET .../code/proposals[?status=pending] — most recent first. Not
+ * called anywhere yet in this step (there's no pending tray until
+ * W5.4), but a from-scratch fetch is exactly what that tray's own
+ * mount-time load will need, same "the plumbing exists before the
+ * component that uses it" shape createProposal()'s Pusher-ready
+ * subscribeToProposalEvents() below already takes.
+ */
+export async function listProposals(apiUrl, workspaceId, { status } = {}) {
+  const qs = status ? `?status=${encodeURIComponent(status)}` : "";
+  const res = await fetch(`${apiUrl}/api/workspaces/${workspaceId}/code/proposals${qs}`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) throw new Error(await parseErrorDetail(res));
+  return res.json();
+}
+
+/**
+ * GET .../code/proposals/{id} — full shape, files[] (original +
+ * proposed per file) included. What W5.3's merge view will fetch once
+ * a proposal card is actually clicked; not called anywhere yet.
+ */
+export async function getProposal(apiUrl, workspaceId, proposalId) {
+  const res = await fetch(
+    `${apiUrl}/api/workspaces/${workspaceId}/code/proposals/${proposalId}`,
+    { headers: await authHeaders() }
+  );
+  if (!res.ok) throw new Error(await parseErrorDetail(res));
+  return res.json();
+}
+
+/**
+ * POST .../code/proposals/{id}/resolve — `decisions`:
+ * [{path, decision: "keep"|"undo", finalContent?}], mirroring
+ * eo/code_proposals.py's resolve_proposal() own `decisions` shape
+ * (camelCase here, converted to the wire's `final_content` below —
+ * every other field name already matches). Not called anywhere yet;
+ * W5.3's Keep/Undo view is the intended caller. Throws
+ * ProposalStaleError on a 409, same shape/reasoning as
+ * fileProviders.js's write() throwing FileConflictError on its own
+ * 409.
+ */
+export async function resolveProposal(apiUrl, workspaceId, proposalId, decisions) {
+  const res = await fetch(
+    `${apiUrl}/api/workspaces/${workspaceId}/code/proposals/${proposalId}/resolve`,
+    {
+      method: "POST",
+      headers: await authHeaders({ json: true }),
+      body: JSON.stringify({
+        files: (decisions || []).map((d) => ({
+          path: d.path,
+          decision: d.decision,
+          final_content: d.finalContent ?? null,
+        })),
+      }),
+    }
+  );
+  if (res.status === 409) {
+    const body = await res.json().catch(() => null);
+    throw new ProposalStaleError(body?.detail?.stale_files || []);
+  }
+  if (!res.ok) throw new Error(await parseErrorDetail(res));
+  return res.json();
+}
+
+/**
+ * POST /api/deploy/{session_id}/propose — W8.5b. Re-runs the deploy
+ * config writer for a chat and, when the plan is usable, files it as a
+ * pending code proposal (api/routes/deploy.py's deploy_propose(); see
+ * deployProposal.js for how the response is read). Returns the route's
+ * body as-is: the plan plus `proposal` / `proposal_skipped`.
+ *
+ * Used by the Build tab's Deploy card ("Propose" / "Re-propose") and by
+ * the pending tray's "Regenerate" on a deploy proposal — the one place
+ * Regenerate must NOT go through createProposal() above, which would
+ * send the instruction to the code_editor agent. A skipped plan is a
+ * normal 200 (check `proposal`), not an error; this throws only on a
+ * real HTTP failure.
+ */
+export async function proposeDeployConfig(apiUrl, sessionId) {
+  const res = await fetch(`${apiUrl}/api/deploy/${encodeURIComponent(sessionId)}/propose`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({}),
+  });
+  if (!res.ok) throw new Error(await parseErrorDetail(res));
+  return res.json();
+}
+
+/**
+ * POST .../code/proposals/from-wireframe — W8.6. Files a wireframe's HTML
+ * as a PENDING proposal for index.html (api/routes/code_edit.py's
+ * create_wireframe_code_proposal(); see wireframeCode.js for how the
+ * response is read). The wireframe is sent as text, not as a ref: it
+ * lives in the Wireframes sub-tab's own saved panel text, not in the
+ * project's files, so there is no path for a ref to point at.
+ *
+ * No LLM call on the backend, so — like createProposal() above — it
+ * returns the FULLY STORED proposal straight away. Nothing is written to
+ * the project's files until that proposal is resolved with Keep.
+ *
+ * Throws on a real HTTP failure only; the notable one is a 400 for html
+ * the backend won't take (empty, no markup, over the size cap), which
+ * wireframeCode.js's wireframeCodeBlocker() normally catches first.
+ * `status: "failed"` on a 200 is possible too (the store keeps those rows
+ * so a badge has something to attach to) — callers read the body through
+ * describeWireframeResponse(), not just catch.
+ *
+ * @param {string} apiUrl
+ * @param {string} workspaceId
+ * @param {{html: string, screenLabel?: string | null, sessionId?: string | null}} input
+ */
+export async function proposeWireframeCode(apiUrl, workspaceId, { html, screenLabel, sessionId }) {
+  const res = await fetch(`${apiUrl}/api/workspaces/${workspaceId}/code/proposals/from-wireframe`, {
+    method: "POST",
+    headers: await authHeaders({ json: true }),
+    body: JSON.stringify({
+      html,
+      screen_label: screenLabel ?? null,
+      session_id: sessionId ?? null,
+    }),
+  });
+  if (!res.ok) throw new Error(await parseErrorDetail(res));
+  return res.json();
+}
+
+/**
+ * relay/emitter.py's CODE_PROPOSAL_READY / CODE_PROPOSAL_RESOLVED, on
+ * the same `workspace-${id}` channel fileProviders.js's
+ * CloudFileProvider.subscribe() already binds to for
+ * `code_file_updated` — same sanitization, same bind_global +
+ * eventType filter shape, so a second subscriber on this channel
+ * (this one) behaves identically to the first. Returns an unsubscribe
+ * function, same contract as that provider's subscribe().
+ *
+ * Both payloads are `{workspace_id, proposal_id, status}` only (see
+ * that module's own comment on why — never file content), which is
+ * already everything `onReady`/`onResolved` need: WorkspaceChatPanel.jsx's
+ * own read-only proposal list (this step) matches on `proposal_id`
+ * against what createProposal() already returned it synchronously, so
+ * a resolution from ANOTHER tab/session (the only case this
+ * subscription actually adds anything for, today — this tab's own
+ * create already has the row) still flips that entry's status live.
+ * `onReady` is included for symmetry / for W5.4's pending tray to use
+ * later; nothing in this step passes one.
+ */
+export function subscribeToProposalEvents(workspaceId, { onReady, onResolved } = {}) {
+  const pusher = getPusherClient();
+  if (!pusher) return () => {}; // Pusher env vars not set — live updates disabled
+
+  const channelName = `workspace-${workspaceId.replace(/[^A-Za-z0-9_=@,.;-]/g, "-")}`;
+  const channel = pusher.subscribe(channelName);
+  const handler = (eventType, data) => {
+    if (eventType === "code_proposal_ready") onReady?.(data);
+    else if (eventType === "code_proposal_resolved") onResolved?.(data);
+  };
+  channel.bind_global(handler);
+
+  return () => {
+    channel.unbind_global(handler);
+    pusher.unsubscribe(channelName);
+  };
+}

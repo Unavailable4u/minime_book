@@ -1,0 +1,1565 @@
+import { useState, useEffect, useMemo, memo, useRef } from "react";
+import { useSession } from "../../context/SessionContext";
+import { useWorkspaces } from "../../context/WorkspacesContext";   // NEW — Item 2 concern split, slice 3
+import { useChatList } from "../../context/ChatListContext";   // NEW — Item 2 concern split, slice 4
+import KnowledgeGraphView from "../KnowledgeGraphView";
+import ExtractionTableView from "../research/ExtractionTableView";
+import Markdown from "../Markdown";
+import WorkspaceStageIcons, { STAGE_THEME } from "../WorkspaceStageIcons"; // NEW — item #2: colored per-stage icon + per-project stage badges
+import ConfirmDialog from "../ConfirmDialog";   // NEW — §2 fix: same delete affordance as Notebooks' Sources tab
+import ManageWorkspaceModal from "../ManageWorkspaceModal"; // NEW — project management (rename/delete/members/export), parity with Notebooks/Plan — was already built, just never wired into this tab
+import { ChatRowMenu } from "../RowMenu"; // NEW — shared per-chat "⋮" menu (Rename/Delete), same one Chat sidebar + every other stage tab uses
+import WorkspaceChatPanel from "../WorkspaceChatPanel";  // NEW — §6.2b: embedded chat + WorkingPanel dock, same as Notebooks
+import { useWorkspaceDockActions, useLastActiveChatId, useWorkspaceDock } from "../../context/WorkspaceDockContext"; // NEW — step 3e; useLastActiveChatId added for C1 nested-chat row highlight; useWorkspaceDock added for the Sources/Dataset live-panel fix
+import CreateWorkspaceModal from "../CreateWorkspaceModal"; // NEW — item #10 / B2: native "create project" for this tab
+import { useViewport } from "../../hooks/useViewport";   // NEW — Phase 5 step 6.1: mobile UI retrofit, same reference pattern as components/mobile/NotebooksTab.jsx
+import { OPEN_TAB_SIDEBAR_EVENT } from "../mobile/events"; // NEW — Phase 5 step 6.1: hamburger -> this tab's own project-picker drawer, same wiring as Notebooks
+import MobileResearchTab from "../mobile/ResearchTab"; // NEW — Phase 5 step 6.1: real structural fork, see that file and MOBILE_PLAN.md
+import {
+  Search, Share2, Table2, GitCompare, FlaskConical,
+  RefreshCw, ExternalLink, FolderOpen, Plus, X, Loader2, Sparkles, Trash2, MessageSquare,
+  ArrowUpRight, MoreVertical, Check, ChevronRight, ChevronLeft,
+  GraduationCap, Globe, MessagesSquare, Newspaper, Terminal, // NEW — mobile Sources toolbar merge: per-scope icons for the icon-only trigger, same idea as WorkspaceChatPanel's MODES icons
+} from "lucide-react";
+
+// Part 3 §3.9 — Research as a dedicated top-level section, same shape as
+// Notebooks (§4.7): a project (= workspace, exactly like "notebook" ==
+// workspace_id there) picker on the left, sub-tabs on the right.
+//
+// What's genuinely NEW backend-facing work here vs. reused: `academic_search`
+// already writes every found paper as a Part 0 node (section: "research",
+// node_type: "source") and every citation as a "cites" edge (§3.3);
+// `citation_graph_builder` is a read-only view over exactly that data
+// (§3.4) -- so "Sources" and "Citation Graph" below are real, live-fetched
+// data via the same fetchWorkspaceNodes()/fetchGraphEdges() Notebooks
+// already uses, no new endpoints needed.
+//
+// Contradictions/consensus meter and dataset analysis are still paste-
+// or handoff-based: they're written to session-scoped memory-bus keys
+// (KEYS["contradiction_candidates"], etc.), not persistent per-workspace
+// storage, so there's no GET endpoint to fetch "the latest one" outside
+// the chat run that produced it. Same known simplification the Notebooks
+// README used for Mind Map/Study.
+//
+// Extraction Table is the exception: agents/note_table_builder.py has
+// its own direct endpoint (POST /api/workspaces/{id}/table) that reads
+// a workspace's ingested nodes and extracts user-specified fields on
+// demand — no chat run or memory-bus key required — so that sub-tab
+// below calls it directly instead of asking the user to paste anything.
+// Manual paste is kept as a fallback for markdown table output that
+// came from elsewhere.
+
+// NEW — Phase 5 step 6.1: exported (was module-local) so
+// components/mobile/ResearchTab.jsx can build its icon rail and mobile
+// header off the same list instead of a forked copy — same convention
+// as NotebooksTab.jsx's own exported SUB_TABS.
+export const SUB_TABS = [
+  { id: "sources", label: "Sources", icon: Search },
+  { id: "graph", label: "Citation Graph", icon: Share2 },
+  { id: "extraction", label: "Extraction Table", icon: Table2 },
+  { id: "contradictions", label: "Contradictions & Consensus", icon: GitCompare },
+  { id: "dataset", label: "Dataset Analysis", icon: FlaskConical },
+];
+
+// Edge from_node_id/to_node_id are "node:{workspace_id}:{node_id}"
+// (eo/graph_edges.py); node.node_id from list_nodes() is already the bare
+// id. Normalize here so KnowledgeGraphView's ForceGraphBase can actually
+// match link endpoints to node ids.
+function bareNodeId(fullId) {
+  const parts = (fullId || "").split(":");
+  return parts.length >= 3 ? parts.slice(2).join(":") : fullId;
+}
+
+// NEW — §6.2b: right-hand chat dock collapse key. Deliberately separate
+// from Notebooks' own "minime_notebooks_chatdock_collapsed" (and from
+// WorkspaceChatPanel's internal WORKING_PANEL_KEY) — folding the dock
+// away in Research shouldn't affect Notebooks' dock state or vice versa,
+// same reasoning §6.2a already applied.
+const CHAT_DOCK_KEY = "minime_research_chatdock_collapsed";
+// NEW — collapsible project-picker sidebar, same pattern as the chat
+// dock's own collapse above.
+const PROJECTS_KEY = "minime_research_projects_collapsed";
+export const PROMOTE_TARGETS = ["plan", "build", "test", "growth"];
+// NEW — Phase 5 step 6.1: exported, same reason as SUB_TABS above — the
+// mobile combo <select> (one option per stage) needs the same labels
+// the desktop 3-widget control already uses, not a second copy that can
+// drift out of sync with it.
+export const PROMOTE_LABELS = {
+  plan: "Plan",
+  build: "Build",
+  test: "Test",
+  growth: "Growth",
+};
+
+// CHANGED — Phase 5 step 6.1: this used to be the component itself
+// (default-exported directly, its return JSX mixing desktop-only and
+// shared markup with no viewport branch at all — Research hadn't been
+// touched for mobile yet). Same retrofit as NotebooksTab.jsx: it's now
+// a controller hook — every bit of state, every effect, every handler,
+// and the JSX that's genuinely IDENTICAL on every viewport
+// (projectRows, subTabContent, dockAndModals) all still live here,
+// unchanged, completely unforked. Only the project-picker column
+// (drawer on mobile), the sub-tab nav (icon-only on mobile — Research
+// has the same "five labeled buttons don't fit a phone width" problem
+// Notebooks did), and the promote control (one combo `<select>` on
+// mobile instead of three separate widgets) ever differed by viewport,
+// so those are the only things each shell builds for itself, handed
+// back in via `renderRoot`'s slots — see ResearchTabDesktop below and
+// components/mobile/ResearchTab.jsx for the two callers.
+export function useResearchTabController({ initialWorkspaceId, onConsumeInitialWorkspaceId, onPromoted, onActiveWorkspaceChange }) {
+  // FIX — `openScopedSubChat` no longer destructured from useSession()
+  // here: that's SessionContext's legacy, non-dock copy, which wrote
+  // into global sessionId/messages/liveSteps state that WorkingPanel.jsx
+  // (dock-only) never reads. SourcesPanel/DatasetPanel below now get
+  // their own dock-native openScopedSubChat via useWorkspaceDock(wsId)
+  // instead — see those components' own comments.
+  const { promoteWorkspace, fetchWorkspaceNodes, deleteWorkspaceNode, fetchGraphEdges, buildExtractionTable, fetchPanelContent, savePanelContent } = useSession();
+  const { chats } = useChatList();   // CHANGED — Item 2 concern split, slice 4: was useSession()
+  const { workspaces, fetchWorkspaces } = useWorkspaces();   // CHANGED — was useSession()
+  // NEW — step 3e follow-up fix: the embedded WorkspaceChatPanel below was
+  // NOT actually dock-driven despite the old comment here claiming so —
+  // it had no workspaceId prop, so it read messages/sessionId off
+  // useSession() (legacy/global) while switchChat here (dock-based) wrote
+  // into a dock slot the visible panel never read. Fixed below by passing
+  // workspaceId={activeWs?.id} to the panel (now the same key switchChat
+  // already resolves to).
+  // NEW — issue #3: renameChat/deleteChat give nested chat rows the same
+  // per-chat controls ChatSidebar's rows already have; createWorkspaceChat
+  // backs the new "+" beside each project name (creates a chat nested in
+  // that project directly, no "Open chat" header button needed anymore).
+  const { switchChat, renameChat, deleteChat, createWorkspaceChat } = useWorkspaceDockActions();
+  // NEW — item #11 / C1: same row-highlight source ChatSidebar's nested
+  // chat rows use, so a chat opened from here highlights consistently
+  // whether it was opened from the global sidebar or from in-tab.
+  const activeChatId = useLastActiveChatId();
+  const [activeWsId, setActiveWsId] = useState(null);
+  const [subTab, setSubTab] = useState("sources");
+  // NEW — §8 fix: promote-to-Plan busy/error state, same shape as
+  // NotebooksTab's promote-to-Research and TasksTab's promote-to-Test —
+  // this link was missing entirely (ResearchTab never destructured
+  // promoteWorkspace before), which silently stranded every research
+  // project with no way to reach Plan.
+  const [promoting, setPromoting] = useState(false);
+  const [promoteError, setPromoteError] = useState(null);
+  const [promoteTargetStage, setPromoteTargetStage] = useState("plan");
+  // NEW — §2.6 step 4: "complete" (default — leaves this tab) vs
+  // "partial" (stays active here too, per §2.1/§2.2). Same toggle as
+  // NotebooksTab's.
+  const [promoteMode, setPromoteMode] = useState("complete");
+  // NEW — §6.2b: right-hand chat dock collapse state, restored from
+  // localStorage on mount — same pattern as NotebooksTab's chatDockCollapsed.
+  const [chatDockCollapsed, setChatDockCollapsed] = useState(false);
+  const [projectsCollapsed, setProjectsCollapsed] = useState(false); // NEW — collapsible project-picker sidebar
+  // NEW — item #10 / B2: native "create project" trigger. This tab can
+  // now create its own research-stage workspace directly, instead of
+  // requiring a promotion from Notebooks or the chat sidebar's folder
+  // button — those remain valid paths in, this is just no longer the
+  // only one.
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  // NEW — issue #3: nested-chat create/rename/delete state, same shape as
+  // ChatSidebar's own editingId/editTitle/pendingDelete — just scoped to
+  // this tab's project list instead of the global chat list.
+  const [creatingChatForWs, setCreatingChatForWs] = useState(null); // workspace id currently creating a chat, or null
+  const [editingChatId, setEditingChatId] = useState(null);
+  const [editChatTitle, setEditChatTitle] = useState("");
+  const [pendingDeleteChat, setPendingDeleteChat] = useState(null); // chat object or null
+  // NEW — project management: which project's manage modal (rename /
+  // delete / members / export) is open. ManageWorkspaceModal already
+  // existed fully built and Notebooks/Plan/the Chat sidebar already use
+  // it — this tab just never had an entry point into it. Same shape as
+  // PlanTab's own managingWorkspace.
+  const [managingWorkspace, setManagingWorkspace] = useState(null);
+
+  // NEW — Phase 5 step 6.1, same wiring as NotebooksTab.jsx: on mobile
+  // the project-picker column below never renders inline (no width to
+  // spare next to sub-tab content) — it becomes a hamburger-triggered
+  // MobileDrawer instead. AppShell.jsx can't reach into this
+  // component's state directly, so it dispatches OPEN_TAB_SIDEBAR_EVENT
+  // on hamburger tap and this just listens and flips its own drawer
+  // open (see AppShell.jsx's TABS_WITH_OWN_MOBILE_SIDEBAR, now
+  // including "research").
+  const [viewport] = useViewport();
+  const isMobile = viewport === "mobile";
+  const [mobileProjectsDrawerOpen, setMobileProjectsDrawerOpen] = useState(false);
+  useEffect(() => {
+    function onOpenTabSidebar(e) {
+      if (e.detail?.tabId === "research") setMobileProjectsDrawerOpen(true);
+    }
+    window.addEventListener(OPEN_TAB_SIDEBAR_EVENT, onOpenTabSidebar);
+    return () => window.removeEventListener(OPEN_TAB_SIDEBAR_EVENT, onOpenTabSidebar);
+  }, []);
+
+  useEffect(() => {
+    setChatDockCollapsed(localStorage.getItem(CHAT_DOCK_KEY) === "1");
+    setProjectsCollapsed(localStorage.getItem(PROJECTS_KEY) === "1"); // NEW — collapsible project sidebar
+  }, []);
+
+  function toggleChatDock() {
+    setChatDockCollapsed((prev) => {
+      localStorage.setItem(CHAT_DOCK_KEY, !prev ? "1" : "0");
+      return !prev;
+    });
+  }
+
+  // NEW — collapsible project-picker sidebar, same toggle pattern as
+  // toggleChatDock above, its own localStorage key so the two collapse
+  // independently.
+  function toggleProjects() {
+    setProjectsCollapsed((prev) => {
+      localStorage.setItem(PROJECTS_KEY, !prev ? "1" : "0");
+      return !prev;
+    });
+  }
+  // NEW — same "switch + expand, no tab jump" helper as NotebooksTab.
+  // FIX — mobile: picking a chat from the project drawer used to force
+  // the dock open unconditionally whenever it was collapsed, which on
+  // mobile means the full-screen chat overlay (`lg:hidden fixed inset-0`
+  // in dockAndModals below) slams over the whole screen the instant you
+  // tap a chat. On mobile that's the person's call, not something
+  // selecting a chat should decide for them — they can still open it via
+  // the floating "Open chat" bubble (chatDockCollapsed branch below).
+  // Desktop keeps the original auto-expand behavior. Same fix as
+  // NotebooksTab.jsx's/PlanTab.jsx's own openInDock.
+  async function openInDock(chatId) {
+    await switchChat(chatId);
+    if (!isMobile && chatDockCollapsed) toggleChatDock();
+  }
+
+  // NEW — FIX (live-panel bug): SourcesPanel/DatasetPanel now dispatch
+  // straight into this project's own dock (useWorkspaceDock(wsId)),
+  // which is the SAME `ws:${wsId}` slot the embedded WorkspaceChatPanel
+  // below already reads — so there's no separate "switch into it" step
+  // needed the way openInDock's switchChat() call was for. This just
+  // expands the dock if it was collapsed, same UX as openInDock's own
+  // expand-only behavior above.
+  function maybeExpandChatDock() {
+    if (chatDockCollapsed) toggleChatDock();
+  }
+
+  // NEW — issue #3: "+" beside a project name. Creates a chat nested
+  // directly inside that project and opens it, same mechanic the Chat
+  // sidebar uses for "new chat in this group" — replaces the old
+  // standalone "Open chat" header button's job for this tab.
+  async function handleCreateChatInProject(ws) {
+    setCreatingChatForWs(ws.id);
+    try {
+      if (activeWsId !== ws.id) setActiveWsId(ws.id);
+      await createWorkspaceChat(ws.id);
+      if (chatDockCollapsed) toggleChatDock();
+    } catch (err) {
+      // Bug fix: no catch here previously -- a failed create-chat
+      // request (backend unreachable, CORS, network drop, etc.)
+      // crashed with an unhandled promise rejection instead of
+      // telling the user anything. Same inline alert() fallback
+      // NotebooksTab's rename/progress handlers already use --
+      // there's no toast system in these tab files.
+      alert(`Couldn't create chat: ${err.message || err}`);
+    } finally {
+      setCreatingChatForWs(null);
+    }
+  }
+
+  function startRenameChat(chat) {
+    setEditingChatId(chat.id);
+    setEditChatTitle(chat.title);
+  }
+
+  async function commitRenameChat(chatId) {
+    if (editChatTitle.trim()) await renameChat(chatId, editChatTitle.trim());
+    setEditingChatId(null);
+  }
+
+  function askDeleteChat(chat) {
+    setPendingDeleteChat(chat);
+  }
+
+  async function confirmDeleteChat() {
+    await deleteChat(pendingDeleteChat.id);
+    setPendingDeleteChat(null);
+  }
+
+  // NEW — §8: Research only shows research-stage workspaces now — a
+  // notebook promoted from Notebooks lands here, not in both tabs.
+  const researchProjects = workspaces.filter((w) => (w.active_stages || [w.stage]).includes("research"));
+
+  // NEW — §8: a promote-and-navigate hand-off from Notebooks (via
+  // AppShell) pre-selects the just-promoted workspace, then clears
+  // itself so it doesn't re-fire on a later unrelated tab switch.
+  useEffect(() => {
+    if (initialWorkspaceId) {
+      setActiveWsId(initialWorkspaceId);
+      onConsumeInitialWorkspaceId?.();
+    }
+  }, [initialWorkspaceId, onConsumeInitialWorkspaceId]);
+
+  // FIX — was `if (!activeWsId && ...)`, which only ever filled in a
+  // blank selection and never re-checked one that was already set. If
+  // the active project got deleted (from this tab or any other — every
+  // visited tab stays mounted, see AppShell.jsx) while this tab was kept
+  // alive in the background, activeWsId stayed pointed at the now-gone
+  // id forever, and every fetch keyed on it (nodes/panels/topics-graph)
+  // 404'd on every subsequent visit. Same stillExists recovery
+  // NotebooksTab's selectedId effect already does.
+  useEffect(() => {
+    if (researchProjects.length === 0) return;
+    const stillExists = activeWsId && researchProjects.some((w) => w.id === activeWsId);
+    if (!stillExists) setActiveWsId(researchProjects[0].id);
+  }, [researchProjects, activeWsId]);
+
+  const activeWs = researchProjects.find((w) => w.id === activeWsId) || null;
+
+  // NEW — item #1: the Data bubble now lives in AppShell's top nav, not
+  // floating over this tab's own content, so this just reports which
+  // project (if any) is active instead of rendering the bubble itself.
+  useEffect(() => {
+    onActiveWorkspaceChange?.(activeWs?.id || null, activeWs?.name);
+  }, [activeWs?.id, activeWs?.name, onActiveWorkspaceChange]);
+
+  // FIX — sub-tabs were conditionally rendered (ternary chain below),
+  // which unmounts whichever sub-tab you leave and destroys its local
+  // state (a paste-box's contents, an in-progress search, an in-flight
+  // IngestionDropzone-style upload's own progress). Same "stays
+  // mounted, hidden via CSS" technique AppShell.jsx already uses for
+  // top-level tabs, just applied one level down for this tab's own
+  // sub-tabs.
+  const [visitedSubTabs, setVisitedSubTabs] = useState(() => new Set([subTab]));
+  useEffect(() => {
+    setVisitedSubTabs((prev) => (prev.has(subTab) ? prev : new Set(prev).add(subTab)));
+  }, [subTab]);
+
+  // NEW — §8 fix: promotes the research project to Plan and hands off
+  // navigation to AppShell, same onPromoted(nextStage, wsId) contract
+  // NotebooksTab and TasksTab already use — AppShell switches tabs and
+  // pre-selects it there via PlanTab's own initialWorkspaceId prop
+  // (added alongside this fix, same shape as ResearchTab's own).
+  async function handlePromote(wsId, toStage = promoteTargetStage, mode = promoteMode) {
+    setPromoting(true);
+    setPromoteError(null);
+    try {
+      await promoteWorkspace(wsId, toStage, mode);
+      await fetchWorkspaces();
+      onPromoted?.(toStage, wsId);
+      setPromoteMode("complete");
+    } catch (err) {
+      setPromoteError(err.message);
+    } finally {
+      setPromoting(false);
+    }
+  }
+
+  // NEW — Phase 5 step 6.1: project-picker rows, shared between the
+  // desktop sidebar and the mobile drawer (components/mobile/ResearchTab.jsx)
+  // — identical markup either way, only the container around it differs
+  // by viewport. Same "build once, share via controller" idea as
+  // NotebooksTab.jsx's notebookRows.
+  const projectRows = (
+    <>
+      {researchProjects.length === 0 && (
+        <p className="px-3 py-3 text-xs text-[var(--neutral-600)]">
+          No research projects yet — create one above, promote a notebook from the Notebooks tab, or use the chat sidebar&apos;s <FolderOpen size={11} className="inline" /> button.
+        </p>
+      )}
+      {researchProjects.map((ws) => {
+        // NEW — item #11 / C1: nested chat list, mirrors ChatSidebar's
+        // memberChats pattern. Unlike ChatSidebar (a flat, always-
+        // expanded list across every workspace), this tab already has
+        // a single-selection model — one project active at a time —
+        // so "expand" here just means "is the active project", no new
+        // toggle state needed. Selecting a different project collapses
+        // the previous one's chat list the same way it already swaps
+        // the whole right-hand panel.
+        const isActive = ws.id === activeWsId;
+        const memberChats = isActive ? chats.filter((c) => ws.chat_ids.includes(c.id)) : [];
+        return (
+          <div key={ws.id} className="border-b border-[var(--neutral-900)]">
+            <div
+              onClick={() => setActiveWsId(ws.id)}
+              className={`group touch-row w-full flex items-center gap-1.5 min-w-0 text-left px-3 py-2 text-xs cursor-pointer ${
+                isActive
+                  ? "bg-[var(--neutral-800-a70)] text-[var(--neutral-100)]"
+                  : "text-[var(--neutral-300)] hover:bg-[var(--neutral-900)]"
+              }`}
+            >
+              <WorkspaceStageIcons workspace={ws} />
+              <span className="truncate flex-1 min-w-0">
+                {ws.name}
+                <span className="text-[var(--neutral-600)]"> · {ws.chat_ids.length}</span>
+              </span>
+              {/* NEW — issue #3: "+" creates a chat nested in this
+                  project, same idea as starting a new chat under a
+                  group in the Chat sidebar. Replaces the old
+                  standalone "Open chat" header button's job. */}
+              {/* CHANGED — hover-reveal is the shared `row-reveal` class
+                  (globals.css): hidden until hover with a mouse, always
+                  visible on touch; `touch-target` = 40px hit area there. */}
+              <button
+                onClick={(e) => { e.stopPropagation(); handleCreateChatInProject(ws); }}
+                title="New chat in this project"
+                aria-label="New chat in this project"
+                className="row-reveal touch-target shrink-0 text-[var(--neutral-500)] hover:text-[var(--neutral-200)]"
+                disabled={creatingChatForWs === ws.id}
+              >
+                {creatingChatForWs === ws.id ? (
+                  <Loader2 size={12} className="animate-spin" />
+                ) : (
+                  <Plus size={12} />
+                )}
+              </button>
+              {/* NEW — project management, same "⋮" -> ManageWorkspaceModal
+                  entry point Notebooks and Plan have. stopPropagation:
+                  this row is itself clickable (select project). */}
+              <button
+                onClick={(e) => { e.stopPropagation(); setManagingWorkspace(ws); }}
+                title="Rename or delete project"
+                aria-label="Manage project"
+                className="row-reveal touch-target shrink-0 text-[var(--neutral-600)] hover:text-[var(--neutral-200)]"
+              >
+                <MoreVertical size={13} />
+              </button>
+            </div>
+            {memberChats.map((chat) => (
+              <div
+                key={chat.id}
+                onClick={() => editingChatId !== chat.id && openInDock(chat.id)}
+                className={`group touch-row flex items-center gap-1.5 text-left pl-7 pr-3 py-1.5 text-[11px] cursor-pointer ${
+                  chat.id === activeChatId
+                    ? "bg-[var(--neutral-800-a70)] text-[var(--neutral-100)]"
+                    : "text-[var(--neutral-500)] hover:bg-[var(--neutral-900)] hover:text-[var(--neutral-300)]"
+                }`}
+              >
+                {editingChatId === chat.id ? (
+                  <div className="flex items-center gap-1 flex-1 min-w-0" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      autoFocus
+                      id={`chat-title-${chat.id}`}
+                      name="chatTitle"
+                      aria-label="Chat title"
+                      value={editChatTitle}
+                      onChange={(e) => setEditChatTitle(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && commitRenameChat(chat.id)}
+                      className="touch-input flex-1 min-w-0 bg-[var(--neutral-950)] border border-[var(--neutral-700)] rounded px-1.5 py-0.5 text-[11px] outline-none"
+                    />
+                    <button onClick={() => commitRenameChat(chat.id)} aria-label="Save chat title" className="touch-target"><Check size={12} className="text-green-400" /></button>
+                    <button onClick={() => setEditingChatId(null)} aria-label="Cancel rename" className="touch-target"><X size={12} className="text-[var(--neutral-500)]" /></button>
+                  </div>
+                ) : (
+                  <>
+                    <MessageSquare size={10} className="shrink-0 text-[var(--neutral-600)]" />
+                    <span className="truncate flex-1 min-w-0">{chat.title}</span>
+                    {/* CHANGED — was a hover-only Pencil + Trash2 pair, which
+                        never appeared on a touch screen. Now the same single
+                        "..." menu the Chat sidebar's rows use. */}
+                    <ChatRowMenu
+                      onRename={() => startRenameChat(chat)}
+                      onDelete={() => askDeleteChat(chat)}
+                    />
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </>
+  );
+
+  // NEW — Phase 5 step 6.1: promote-target math, shared by both shells'
+  // own promoteControl widget (a 3-part desktop control vs. a 1-select
+  // mobile combo — genuinely different markup, so the widget itself
+  // isn't built here, same split as NotebooksTab.jsx's promoteTargets).
+  const promoteTargets = (() => {
+    // NEW — §2.2: exclude stages already active for this workspace —
+    // same rule as NotebooksTab.
+    if (!activeWs) return null;
+    const activeHere = activeWs.active_stages || [activeWs.stage];
+    const availableTargets = PROMOTE_TARGETS.filter((s) => !activeHere.includes(s));
+    if (!availableTargets.length) return null;
+    const targetStage = availableTargets.includes(promoteTargetStage) ? promoteTargetStage : availableTargets[0];
+    return { availableTargets, targetStage };
+  })();
+
+  // Identical on every viewport — only the nav chrome around it
+  // (subTabNav, built per-shell below) ever differed.
+  const subTabContent = !activeWs ? (
+    <p className="text-xs text-[var(--neutral-600)]">Pick or create a project to get started.</p>
+  ) : (
+    SUB_TABS.filter((t) => visitedSubTabs.has(t.id)).map((t) => (
+      <div key={t.id} style={{ display: subTab === t.id ? "contents" : "none" }}>
+        {t.id === "sources" && (
+          <SourcesPanel wsId={activeWs.id} fetchWorkspaceNodes={fetchWorkspaceNodes} deleteWorkspaceNode={deleteWorkspaceNode} onDispatched={maybeExpandChatDock} isMobile={isMobile} />
+        )}
+        {t.id === "graph" && (
+          <CitationGraphPanel wsId={activeWs.id} fetchWorkspaceNodes={fetchWorkspaceNodes} fetchGraphEdges={fetchGraphEdges} />
+        )}
+        {t.id === "extraction" && (
+          <ExtractionPanel
+            wsId={activeWs.id}
+            buildExtractionTable={buildExtractionTable}
+            fetchPanelContent={fetchPanelContent}
+            savePanelContent={savePanelContent}
+          />
+        )}
+        {t.id === "contradictions" && (
+          <ContradictionsPanel
+            workspaceId={activeWs.id}
+            fetchPanelContent={fetchPanelContent}
+            savePanelContent={savePanelContent}
+          />
+        )}
+        {t.id === "dataset" && (
+          <DatasetPanel wsId={activeWs.id} onDispatched={maybeExpandChatDock} />
+        )}
+      </div>
+    ))
+  );
+
+  // NEW — §6.2b: embedded chat + WorkingPanel dock, scoped to this tab's
+  // own activeWs. Identical on every viewport — no isMobile check here,
+  // never was (the lg:hidden/hidden lg:flex pair below is a plain
+  // Tailwind breakpoint, same as it always was, not the useViewport()
+  // data-viewport switch the rest of this retrofit uses).
+  const dockAndModals = (
+    <>
+      {!chatDockCollapsed && (
+        <div className="hidden lg:flex shrink-0 border-l border-[var(--neutral-800)]" style={{ width: 420 }}>
+          <WorkspaceChatPanel collapsed={false} onToggleCollapse={toggleChatDock} workspaceId={activeWs?.id} stacked />
+        </div>
+      )}
+      {!chatDockCollapsed && (
+        <div className="lg:hidden fixed inset-0 z-40 bg-[var(--neutral-950)]">
+          <WorkspaceChatPanel collapsed={false} onToggleCollapse={toggleChatDock} workspaceId={activeWs?.id} stacked />
+        </div>
+      )}
+      {chatDockCollapsed && (
+        <button
+          onClick={toggleChatDock}
+          title="Open chat"
+          className="fixed bottom-4 right-4 z-40 bg-[var(--accent)] text-[var(--accent-text)] rounded-full p-3 shadow-lg"
+        >
+          <MessageSquare size={18} />
+        </button>
+      )}
+      {/* NEW — project management modal; see managingWorkspace above.
+          Deleting the active project here is safe: the stillExists
+          effect above re-points the selection at the next one. */}
+      {managingWorkspace && (
+        <ManageWorkspaceModal
+          workspace={managingWorkspace}
+          allChats={chats}
+          onClose={() => setManagingWorkspace(null)}
+        />
+      )}
+      {/* NEW — item #10 / B2: stage-aware create modal (B1). Auto-selects
+          the created project so the user lands straight in it instead of
+          having to find it in the list themselves. */}
+      {showCreateModal && (
+        <CreateWorkspaceModal
+          stage="research"
+          onClose={(created) => {
+            setShowCreateModal(false);
+            if (created) setActiveWsId(created.id);
+          }}
+        />
+      )}
+      {/* NEW — issue #3: same delete-confirmation affordance as
+          ChatSidebar's own per-chat delete, just scoped to a nested
+          project chat here. */}
+      <ConfirmDialog
+        open={!!pendingDeleteChat}
+        title="Delete chat"
+        message={`Delete "${pendingDeleteChat?.title}"? Its messages and memory can't be recovered.`}
+        confirmLabel="Delete"
+        tone="danger"
+        onConfirm={confirmDeleteChat}
+        onCancel={() => setPendingDeleteChat(null)}
+      />
+    </>
+  );
+
+  // The actual assembler. Both shells call this exactly once, supplying
+  // only the four fragments that differ by viewport (project picker,
+  // icon rail, sub-tab nav, promote control) — everything else (the
+  // outer flex row, the title/promote header row, the empty state,
+  // subTabContent, dockAndModals) is built here so neither shell can
+  // silently drift out of sync with the other on the parts that were
+  // never supposed to differ in the first place. Same idea as
+  // NotebooksTab.jsx's renderRoot.
+  // CHANGED — Phase 5 step 6.1: added the `iconRail` slot, same
+  // positioning as NotebooksTab.jsx's own renderRoot (right after
+  // projectPicker, before the flex-1 content column). Desktop passes
+  // null (its projectPicker column is a persistent column, and its
+  // subTabNav is already the full labeled pill row); mobile's
+  // projectPicker is a MobileDrawer instead, which renders as a
+  // zero-width fixed overlay in normal flow, so this rail becomes the
+  // first visible column on mobile — reusing the space freed up by the
+  // picker no longer being a persistent column, exactly like Notebooks.
+  function renderRoot({ projectPicker, iconRail, subTabNav, promoteControl }) {
+    return (
+      <div className="flex h-full">
+        {projectPicker}
+        {iconRail}
+        <div className="flex-1 min-h-0 min-w-0 flex flex-col">
+          {/* NEW — §8 fix: title + promote row, same shape as
+              NotebooksTab's header — this was missing entirely, so a
+              research project had no path forward to Plan. */}
+          {activeWs && (
+            <div className="h-10 flex items-center justify-between px-3 border-b border-[var(--neutral-800)]">
+              <h2 className="text-sm font-medium text-[var(--neutral-100)] truncate">{activeWs.name}</h2>
+              <div className="flex items-center gap-2 shrink-0">{promoteControl}</div>
+            </div>
+          )}
+          {promoteError && (
+            <p className="text-xs text-red-400 px-3 pt-2">{promoteError}</p>
+          )}
+          {subTabNav}
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 relative">
+            {subTabContent}
+          </div>
+        </div>
+        {dockAndModals}
+      </div>
+    );
+  }
+
+  return {
+    viewport, isMobile,
+    activeWs, researchProjects, projectRows,
+    projectsCollapsed, toggleProjects,
+    mobileProjectsDrawerOpen, setMobileProjectsDrawerOpen,
+    showCreateModal, setShowCreateModal,
+    subTab, setSubTab,
+    promoteTargets, promoteTargetStage, setPromoteTargetStage, promoteMode, setPromoteMode, promoting, promoteError, handlePromote,
+    renderRoot,
+  };
+}
+
+// Desktop shell. Thin on purpose (same idea as NotebooksTabDesktop) —
+// takes the already-built controller (see the router at the bottom of
+// this file, which calls the hook above exactly once) and supplies
+// only the project-picker column, the labeled pill-row sub-tab nav, and
+// the full 3-widget promote control — the three things that only ever
+// render on desktop. See components/mobile/ResearchTab.jsx for the
+// counterpart, which takes the same controller shape.
+function ResearchTabDesktop({ controller: c }) {
+  const projectPicker = c.projectsCollapsed ? (
+    <div className="w-10 shrink-0 border-r border-[var(--neutral-800)] flex flex-col items-center py-3 gap-3">
+      <button onClick={c.toggleProjects} className="touch-target text-[var(--neutral-500)] hover:text-[var(--neutral-300)]" title="Show projects">
+        <ChevronRight size={16} />
+      </button>
+    </div>
+  ) : (
+    <div className="w-56 shrink-0 border-r border-[var(--neutral-800)] flex flex-col">
+      <div className="h-10 px-3 border-b border-[var(--neutral-800)] flex items-center justify-between">
+        <span className="text-xs font-medium text-[var(--neutral-400)] flex items-center gap-1.5">
+          <STAGE_THEME.research.Icon size={13} className={STAGE_THEME.research.color} /> Research projects
+        </span>
+        {/* NEW — item #10 / B2: native create, same stage-aware modal
+            every other stage tab will wire up in B3. */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => c.setShowCreateModal(true)}
+            title="New research project"
+            className="touch-target text-[var(--neutral-500)] hover:text-[var(--neutral-200)]"
+          >
+            <Plus size={14} />
+          </button>
+          {/* NEW — collapsible sidebar, same affordance as ChatSidebar's
+              own ChevronLeft toggle. */}
+          <button onClick={c.toggleProjects} title="Hide projects" className="touch-target text-[var(--neutral-500)] hover:text-[var(--neutral-300)]">
+            <ChevronLeft size={14} />
+          </button>
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto">{c.projectRows}</div>
+    </div>
+  );
+
+  const promoteControl = c.promoteTargets && (
+    <>
+      <label className="sr-only" htmlFor="research-promote-target">Promote to</label>
+      <select
+        id="research-promote-target"
+        value={c.promoteTargets.targetStage}
+        onChange={(e) => c.setPromoteTargetStage(e.target.value)}
+        disabled={c.promoting}
+        className="bg-[var(--neutral-900)] border border-[var(--neutral-700)] text-[var(--neutral-200)] rounded-lg px-2 py-1.5 text-xs outline-none disabled:opacity-50"
+      >
+        {c.promoteTargets.availableTargets.map((stage) => (
+          <option key={stage} value={stage}>{PROMOTE_LABELS[stage]}</option>
+        ))}
+      </select>
+      {/* NEW — §2.6 step 4: complete/partial toggle. */}
+      <div
+        role="radiogroup"
+        aria-label="Promote mode"
+        className="flex items-center rounded-lg border border-[var(--neutral-700)] overflow-hidden text-xs shrink-0"
+      >
+        <button
+          type="button"
+          role="radio"
+          aria-checked={c.promoteMode === "complete"}
+          onClick={() => c.setPromoteMode("complete")}
+          disabled={c.promoting}
+          title="Move the project fully into the target stage"
+          className={`px-2 py-1.5 font-medium disabled:opacity-50 ${
+            c.promoteMode === "complete"
+              ? "bg-[var(--accent)] text-[var(--accent-text)]"
+              : "bg-[var(--neutral-900)] text-[var(--neutral-400)]"
+          }`}
+        >
+          Complete
+        </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked={c.promoteMode === "partial"}
+          onClick={() => c.setPromoteMode("partial")}
+          disabled={c.promoting}
+          title="Keep the project active here too"
+          className={`px-2 py-1.5 font-medium disabled:opacity-50 ${
+            c.promoteMode === "partial"
+              ? "bg-[var(--accent)] text-[var(--accent-text)]"
+              : "bg-[var(--neutral-900)] text-[var(--neutral-400)]"
+          }`}
+        >
+          Partial
+        </button>
+      </div>
+      <button
+        onClick={() => c.handlePromote(c.activeWs.id, c.promoteTargets.targetStage)}
+        disabled={c.promoting}
+        className="flex items-center gap-1.5 text-xs border border-[var(--neutral-700)] text-[var(--neutral-200)] rounded-lg px-3 py-1.5 font-medium disabled:opacity-50 shrink-0"
+      >
+        {c.promoting ? <Loader2 size={13} className="animate-spin" /> : <ArrowUpRight size={13} />}
+        {c.promoteMode === "partial" ? "Add to" : "Promote to"} {PROMOTE_LABELS[c.promoteTargets.targetStage]} →
+      </button>
+    </>
+  );
+
+  const subTabNav = (
+    <div className="h-10 flex items-center justify-center gap-1 px-3 border-b border-[var(--neutral-800)] overflow-x-auto">
+      {SUB_TABS.map((t) => {
+        const Icon = t.icon;
+        return (
+          <button
+            key={t.id}
+            onClick={() => c.setSubTab(t.id)}
+            className={`flex items-center gap-1.5 text-xs rounded-lg px-2.5 py-1.5 whitespace-nowrap ${
+              c.subTab === t.id
+                ? "bg-[var(--accent)] text-[var(--accent-text)] font-medium"
+                : "text-[var(--neutral-500)] hover:text-[var(--neutral-300)]"
+            }`}
+          >
+            <Icon size={13} />
+            {t.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  return c.renderRoot({ projectPicker, iconRail: null, subTabNav, promoteControl });
+}
+
+// --- Sources — Discovery (§3.3). "Search" hands off to a scoped sub-chat
+// (same "click a node, open a scoped sub-chat" hand-off shape Notebooks'
+// mind-map click uses) so academic_search + the reasoning roles it feeds
+// (researcher/fact_checker/writer/editor) run exactly as the Panel would
+// normally staff them. The list below reads back what that run wrote as
+// nodes -- real, persisted, live-fetched data, not a paste box.
+// NEW — task 13e: Sources sub-tab scope control. Each option pairs a
+// `scope` value (rides POST /api/task as `scope`, read only by
+// web_researcher's dispatch branch — see tasks.py's TaskRequest and
+// task_runner.py's _dispatch_resolved()) with task-text phrasing chosen
+// so the Panel reliably hires web_researcher with that scope instead of
+// academic_search. "Academic" is the one exception: it omits `scope`
+// entirely and keeps the original "Find recent papers about: X" phrasing
+// unchanged, so today's academic_search behavior is untouched.
+// NEW — `icon` added (was label-only): the desktop <select> never needed
+// one, but the mobile merged toolbar's scope trigger is icon-only (see
+// SourcesPanel's compact branch below), same "one source list, two
+// renderings" idea as WorkspaceChatPanel's MODES already uses for its
+// mode dropdown.
+const RESEARCH_SCOPE_OPTIONS = [
+  { value: "academic", label: "Academic", icon: GraduationCap, scope: null, phrase: (q) => `Find recent papers about: ${q}` },
+  { value: "general", label: "General web", icon: Globe, scope: "general", phrase: (q) => `Search the web for: ${q}` },
+  { value: "forum", label: "Forums", icon: MessagesSquare, scope: "forum", phrase: (q) => `Search Reddit and forums for: ${q}` },
+  { value: "news", label: "News", icon: Newspaper, scope: "news", phrase: (q) => `Search news sources for: ${q}` },
+  { value: "hackernews", label: "Hacker News", icon: Terminal, scope: "hackernews", phrase: (q) => `Search Hacker News for: ${q}` },
+];
+
+function SourcesPanel({ wsId, fetchWorkspaceNodes, deleteWorkspaceNode, onDispatched, isMobile }) {
+  // FIX — live-panel bug: this dock is the SAME `ws:${wsId}` slot the
+  // embedded WorkspaceChatPanel/WorkingPanel below is already showing
+  // for this project, so a search dispatched through it shows up there
+  // live, in real time, exactly like a task typed straight into that
+  // chat box would — no separate "switch into it" step needed. Compare
+  // to the old `openScopedSubChat` prop (SessionContext's legacy,
+  // non-dock copy), which wrote into global state WorkingPanel.jsx never
+  // reads, so a search ran for real on the backend but its progress
+  // never appeared in this project's Working Panel.
+  const dock = useWorkspaceDock(wsId);
+  const [query, setQuery] = useState("");
+  const [searchScope, setSearchScope] = useState("academic"); // NEW — task 13e
+  const [sources, setSources] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(null); // NEW — §2 fix
+  const [deleting, setDeleting] = useState(false);
+  // NEW — mobile toolbar merge: only meaningful in the compact branch
+  // below, same "icon button opens an absolutely-positioned option
+  // list" pattern as WorkspaceChatPanel's compact composer uses for its
+  // own mode picker (modeOpen there).
+  const [scopeOpen, setScopeOpen] = useState(false);
+
+  // BUGFIX — stale cross-project response: load() had no guard against
+  // out-of-order responses, unlike ContradictionsPanel/ExtractionPanel's
+  // own `cancelled`-flag effects further down this file. Switching the
+  // active project quickly enough (before the in-flight fetch for the
+  // previous one resolves) could let project A's response land after
+  // project B is already active, silently repainting B's source list
+  // with A's data -- and worse, leaving a stale `pendingDelete` node
+  // from A around, so confirming it would call deleteWorkspaceNode with
+  // B's wsId but A's node_id. wsIdRef tracks which project's response is
+  // still wanted; a response whose requestedWsId no longer matches it is
+  // simply dropped instead of committed to state.
+  const wsIdRef = useRef(wsId);
+
+  async function load() {
+    const requestedWsId = wsId;
+    setLoading(true);
+    const nodes = await fetchWorkspaceNodes(requestedWsId, "source");
+    if (wsIdRef.current !== requestedWsId) return; // superseded by a project switch
+    setSources((nodes || []).filter((n) => n.section === "research"));
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    wsIdRef.current = wsId;
+    // Clear immediately rather than waiting on the fetch above, so a
+    // project switch never leaves the previous project's sources (or a
+    // delete confirmation pointed at one of its nodes) visible under the
+    // new project's header, even for the brief window before load()
+    // resolves.
+    setSources([]);
+    setPendingDelete(null);
+    load();
+  }, [wsId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // BUGFIX — live-panel bug, part 2: this panel's own `load()` only ever
+  // ran once, on mount/wsId-change. A search dispatched via
+  // dock.openScopedSubChat() below runs for real on the backend and
+  // does write source nodes (once academic_search actually finds
+  // papers) -- but nothing here ever re-fetched to pick them up, so the
+  // list stayed on whatever it looked like at mount until the user
+  // navigated away and back (a remount). dock.state.loading is the
+  // same flag WorkspaceDockContext flips true->false around a run
+  // (see sendTask/openScopedSubChat's finishRun calls), so watching it
+  // land on false is the correct "a run belonging to this panel's dock
+  // just finished" signal -- reload right then instead of waiting on a
+  // remount that may never happen.
+  const dockLoading = dock.state.loading;
+  const prevDockLoadingRef = useRef(dockLoading);
+  useEffect(() => {
+    if (prevDockLoadingRef.current && !dockLoading) {
+      load();
+    }
+    prevDockLoadingRef.current = dockLoading;
+  }, [dockLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function runSearch() {
+    if (!query.trim()) return;
+    setSearching(true);
+    try {
+      // NEW — task 13e: phrase + scope come from the selected option.
+      // "Academic" keeps the original phrasing and passes no scope, so
+      // that path is byte-for-byte what it was before this control
+      // existed. Every other option phrases the task so the Panel hires
+      // web_researcher, and passes its scope through so that agent's
+      // dispatch branch (task_runner.py) picks the right domain preset.
+      const opt = RESEARCH_SCOPE_OPTIONS.find((o) => o.value === searchScope) || RESEARCH_SCOPE_OPTIONS[0];
+      await dock.openScopedSubChat(opt.phrase(query.trim()), null, opt.scope);
+      onDispatched?.();
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  async function confirmDelete() {
+    if (!pendingDelete) return;
+    setDeleting(true);
+    try {
+      await deleteWorkspaceNode(wsId, pendingDelete.node_id);
+      setPendingDelete(null);
+      await load();
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  const activeScope = RESEARCH_SCOPE_OPTIONS.find((o) => o.value === searchScope) || RESEARCH_SCOPE_OPTIONS[0];
+  const ActiveScopeIcon = activeScope.icon;
+
+  // NEW — mobile toolbar merge: the option list itself is identical in
+  // both layouts — only the trigger (labeled <select> vs icon-only
+  // button) and the panel's positioning differ — same split
+  // WorkspaceChatPanel's compact composer uses for its own mode picker
+  // (MODES/modeOptions there).
+  const scopeOptions = RESEARCH_SCOPE_OPTIONS.map((o) => {
+    const Icon = o.icon;
+    return (
+      <button
+        key={o.value}
+        type="button"
+        onClick={() => {
+          setSearchScope(o.value);
+          setScopeOpen(false);
+        }}
+        className={`w-full flex items-center gap-2 px-3 py-2 text-left text-xs hover:bg-[var(--neutral-800)] transition-colors ${
+          o.value === searchScope ? "bg-[var(--neutral-800-a70)]" : ""
+        }`}
+      >
+        <Icon size={14} className="shrink-0" />
+        <span className="text-[var(--neutral-200)]">{o.label}</span>
+      </button>
+    );
+  });
+
+  return (
+    <div className="space-y-4">
+      {isMobile ? (
+        // NEW — mobile Sources toolbar merge: the desktop row just below
+        // (a labeled <select> + free-text input + a worded "Search"
+        // button + a separate Refresh icon) is four separately-bordered
+        // controls competing for a phone's width — the exact problem
+        // WorkspaceChatPanel's composer had with its own
+        // attach/mode/textarea/Send row before its own compact branch.
+        // Same fix here: every control moves INSIDE one bordered box as
+        // icon-only buttons around a borderless input, so the query
+        // field gets most of the width instead of being squeezed to a
+        // sliver between four bordered siblings. Own idea, not a copy
+        // of the composer's exact control set — Search/Refresh are
+        // presented (rather than a submit + a fold-away icon), since
+        // both are things a person taps here often (Refresh especially,
+        // since search results write back asynchronously — see
+        // dockLoading effect above).
+        <div className="flex items-center gap-1 bg-[var(--neutral-900)] border border-[var(--neutral-800)] rounded-lg focus-within:border-[var(--neutral-600)] transition-colors">
+          <div className="relative shrink-0 pl-1">
+            <label className="sr-only" htmlFor="research-search-scope-mobile">Search scope</label>
+            <button
+              id="research-search-scope-mobile"
+              type="button"
+              onClick={() => setScopeOpen((o) => !o)}
+              title={`Scope: ${activeScope.label}`}
+              className="flex items-center justify-center p-1.5 rounded-md text-[var(--neutral-400)] outline-none hover:bg-[var(--neutral-800)] hover:text-[var(--neutral-200)] transition-colors"
+            >
+              <ActiveScopeIcon size={15} />
+            </button>
+            {scopeOpen && (
+              <div className="absolute top-full mt-2 left-0 w-48 max-w-[calc(100vw-2rem)] rounded-lg border border-[var(--neutral-800)] bg-[var(--neutral-900)] shadow-xl overflow-hidden z-10">
+                {scopeOptions}
+              </div>
+            )}
+          </div>
+
+          <input
+            id="research-query"
+            name="researchQuery"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && runSearch()}
+            aria-label="Research query"
+            placeholder="Search papers, web, forums…"
+            className="flex-1 min-w-0 bg-transparent border-0 px-1 py-2.5 text-xs outline-none"
+          />
+
+          <button
+            type="button"
+            onClick={load}
+            title="Refresh source list"
+            className="shrink-0 flex items-center justify-center p-1.5 rounded-md text-[var(--neutral-400)] outline-none hover:bg-[var(--neutral-800)] hover:text-[var(--neutral-200)] transition-colors"
+          >
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+          </button>
+          <div className="pr-1 shrink-0">
+            <button
+              type="button"
+              onClick={runSearch}
+              disabled={searching || !query.trim()}
+              title={searching ? "Dispatching…" : "Search"}
+              className="flex items-center justify-center p-1.5 rounded-md bg-[var(--accent)] text-[var(--accent-text)] outline-none disabled:opacity-50 transition-colors"
+            >
+              {searching ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          {/* NEW — task 13e: scope selector. Lives next to the query box
+              rather than replacing it — the query stays one free-text
+              field, this just picks which agent + domain preset it's
+              dispatched to. */}
+          <label className="sr-only" htmlFor="research-search-scope">Search scope</label>
+          <select
+            id="research-search-scope"
+            name="researchSearchScope"
+            value={searchScope}
+            onChange={(e) => setSearchScope(e.target.value)}
+            className="bg-black/30 border border-[var(--neutral-800)] rounded px-2 py-2 text-xs outline-none focus:border-[var(--cyber-cyan)] shrink-0"
+          >
+            {RESEARCH_SCOPE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+          <input
+            id="research-query"
+            name="researchQuery"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && runSearch()}
+            aria-label="Research query"
+            placeholder="e.g. transformer attention mechanisms, systematic review of..."
+            className="flex-1 bg-black/30 border border-[var(--neutral-800)] rounded px-3 py-2 text-xs outline-none focus:border-[var(--cyber-cyan)]"
+          />
+          <button
+            onClick={runSearch}
+            disabled={searching || !query.trim()}
+            className="text-xs bg-[var(--accent)] text-[var(--accent-text)] rounded px-3 py-2 font-medium disabled:opacity-50 flex items-center gap-1"
+          >
+            <Search size={13} /> {searching ? "Dispatching…" : "Search"}
+          </button>
+          <button
+            onClick={load}
+            title="Refresh source list"
+            className="text-xs text-[var(--neutral-500)] hover:text-[var(--neutral-200)] px-2"
+          >
+            <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
+          </button>
+        </div>
+      )}
+      <p className="text-[11px] text-[var(--neutral-600)]">
+        {searchScope === "academic"
+          ? "Runs academic_search (Semantic Scholar, arXiv, CrossRef, OpenAlex) plus whatever writing/synthesis roles the task needs, in this project's own chat — sources found get written back here as they're indexed."
+          : "Runs web_researcher against this scope's domain preset, in this project's own chat — sources found get written back here as they're indexed, same as academic_search."}
+      </p>
+
+      {loading && sources.length === 0 && (
+        <div className="text-xs text-[var(--neutral-600)] flex items-center gap-1.5">
+          <Loader2 size={12} className="animate-spin" /> Loading sources…
+        </div>
+      )}
+      {sources.length === 0 && !loading && (
+        <p className="text-xs text-[var(--neutral-600)]">No sources indexed in this project yet — run a search above.</p>
+      )}
+
+      <div className="space-y-2">
+        {sources.map((s) => (
+          <div key={s.node_id} className="group border border-[var(--neutral-800)] rounded-lg p-3">
+            <div className="flex items-start justify-between gap-2">
+              <span className="flex-1 min-w-0 text-xs font-medium text-[var(--neutral-100)] break-words">{s.title}</span>
+              <div className="flex items-center gap-1.5 shrink-0">
+                {(s.tags || []).map((tag) => (
+                  <span key={tag} className="text-[10px] uppercase tracking-wide text-[var(--cyber-violet)] bg-[var(--cyber-violet)]/10 rounded px-1.5 py-0.5">
+                    {tag}
+                  </span>
+                ))}
+                <button
+                  onClick={() => setPendingDelete(s)}
+                  title="Delete source"
+                  className={`text-[var(--neutral-600)] hover:text-red-400 ${
+                    // NEW — mobile polish: opacity-0-until-hover has no
+                    // equivalent on a touch screen (there's no hover
+                    // state to reveal it), so the button would look like
+                    // it wasn't there at all. Always visible on mobile;
+                    // desktop keeps the original hover-to-reveal.
+                    isMobile ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                  }`}
+                >
+                  <Trash2 size={13} />
+                </button>
+              </div>
+            </div>
+            {s.content && (
+              <p className="text-[11px] text-[var(--neutral-400)] mt-1.5 line-clamp-3">{s.content}</p>
+            )}
+          </div>
+        ))}
+      </div>
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title="Delete source"
+        message={`Delete "${pendingDelete?.title || pendingDelete?.node_id}"? This also removes any links to it in the Citation Graph.`}
+        confirmLabel={deleting ? "Deleting…" : "Delete"}
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
+    </div>
+  );
+}
+
+// --- Citation Graph — no new component needed (§3.4): same
+// KnowledgeGraphView.jsx every other domain's node/edge graph uses,
+// filtered to this project's section: "research" nodes/edges.
+function CitationGraphPanel({ wsId, fetchWorkspaceNodes, fetchGraphEdges }) {
+  // BUGFIX — same live-panel bug as SourcesPanel above: this graph is
+  // read from the exact node/edge data academic_search/web_researcher
+  // write, but load() only ever ran once on mount, so a search
+  // dispatched from the Sources sub-tab (or straight from chat) never
+  // showed up here without a manual remount. Reuse the same
+  // "ws:${wsId}" dock slot to watch for a run finishing.
+  const dock = useWorkspaceDock(wsId);
+  const [nodes, setNodes] = useState([]);
+  const [edges, setEdges] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selected, setSelected] = useState(null);
+
+  // BUGFIX — same stale cross-project response class as SourcesPanel's
+  // own load() above (see that panel's comment for the full reasoning):
+  // switching projects quickly could let a slower project A response
+  // land after project B is active and overwrite B's graph with A's
+  // nodes/edges. wsIdRef guards against committing a superseded response.
+  const wsIdRef = useRef(wsId);
+
+  async function load() {
+    const requestedWsId = wsId;
+    setLoading(true);
+    const [allNodes, allEdges] = await Promise.all([
+      fetchWorkspaceNodes(requestedWsId), // no node_type filter — quality-flag/gap nodes belong on this graph too
+      fetchGraphEdges(requestedWsId),
+    ]);
+    if (wsIdRef.current !== requestedWsId) return; // superseded by a project switch
+    const researchNodes = (allNodes || []).filter((n) => n.section === "research");
+    const researchIds = new Set(researchNodes.map((n) => n.node_id));
+    const researchEdges = (allEdges || [])
+      .map((e) => ({ ...e, from_node_id: bareNodeId(e.from_node_id), to_node_id: bareNodeId(e.to_node_id) }))
+      .filter((e) => researchIds.has(e.from_node_id) && researchIds.has(e.to_node_id));
+    setNodes(researchNodes);
+    setEdges(researchEdges);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    wsIdRef.current = wsId;
+    // Clear immediately, same reasoning as SourcesPanel's own reset: a
+    // project switch shouldn't leave the previous project's graph (or a
+    // node-detail panel selected from it) on screen while the new
+    // project's data is still loading.
+    setNodes([]);
+    setEdges([]);
+    setSelected(null);
+    load();
+  }, [wsId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // BUGFIX — see SourcesPanel's identical effect for the full reasoning:
+  // reload once dock.state.loading falls back to false (a run just
+  // finished), not only on mount.
+  const dockLoading = dock.state.loading;
+  const prevDockLoadingRef = useRef(dockLoading);
+  useEffect(() => {
+    if (prevDockLoadingRef.current && !dockLoading) {
+      load();
+    }
+    prevDockLoadingRef.current = dockLoading;
+  }, [dockLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <div className="h-full flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] text-[var(--neutral-600)]">
+          {nodes.length} source(s), {edges.length} citation/relation edge(s).
+        </p>
+        <button onClick={load} className="text-xs text-[var(--neutral-500)] hover:text-[var(--neutral-200)] flex items-center gap-1">
+          <RefreshCw size={12} className={loading ? "animate-spin" : ""} /> Refresh
+        </button>
+      </div>
+      {loading && nodes.length === 0 ? (
+        <div className="text-xs text-[var(--neutral-600)] flex items-center gap-1.5">
+          <Loader2 size={12} className="animate-spin" /> Loading citation graph…
+        </div>
+      ) : nodes.length === 0 ? (
+        <p className="text-xs text-[var(--neutral-600)]">No citation data yet — run a search from the Sources tab first.</p>
+      ) : (
+        <div className="flex-1 min-h-[420px] border border-[var(--neutral-800)] rounded-lg overflow-hidden">
+          <KnowledgeGraphView nodes={nodes} edges={edges} onSelectNode={setSelected} />
+        </div>
+      )}
+      {selected && (
+        <div className="border border-[var(--neutral-800)] rounded-lg p-3">
+          <p className="text-xs font-medium text-[var(--neutral-100)]">{selected.title}</p>
+          {selected.content && <p className="text-[11px] text-[var(--neutral-400)] mt-1">{selected.content}</p>}
+          {selected.tags?.length > 0 && (
+            <p className="text-[10px] text-[var(--neutral-600)] mt-1">{selected.tags.join(" · ")}</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- Extraction Table (§3.5) — auto-generated via
+// agents/note_table_builder.py (POST /api/workspaces/{id}/table): the
+// user names the fields they want, we extract them from every ingested
+// source in the project, one LLM call per source, merged into one row
+// each. Manual paste is kept as a fallback for output from a chat run
+// that used a different role, but it's no longer the primary path.
+const NODE_TYPE_OPTIONS = [
+  { value: "", label: "All content" },
+  { value: "source", label: "Sources only" },
+];
+
+function ExtractionPanel({ wsId, buildExtractionTable, fetchPanelContent, savePanelContent }) {
+  const [fields, setFields] = useState([]);
+  const [fieldDraft, setFieldDraft] = useState("");
+  const [nodeType, setNodeType] = useState("");
+  const [expanded, setExpanded] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState(null);
+  const [result, setResult] = useState(null);
+  const [showPaste, setShowPaste] = useState(false);
+  // FIX — the manual-paste fallback now persists through
+  // eo/panel_content.py under panel_key "extraction_manual", same
+  // pattern as ContradictionsPanel just below (and PlanTab.jsx's
+  // MarkdownPastePanel). Previously this was pure local state and lost
+  // its content on unmount or project switch just like Contradictions
+  // did before that fix. Note: the auto-generated `result` above (from
+  // buildExtractionTable) is deliberately NOT persisted here — it's a
+  // live endpoint call, same class as Sources/Citation Graph, and can
+  // be regenerated on demand rather than needing a saved copy.
+  const [raw, setRaw] = useState("");
+  const [rawLoading, setRawLoading] = useState(true);
+  const [rawSaving, setRawSaving] = useState(false);
+  const [rawSavedAt, setRawSavedAt] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setRawLoading(true);
+    setRawSavedAt(null);
+    fetchPanelContent(wsId, "extraction_manual").then((saved) => {
+      if (cancelled) return;
+      setRaw(saved?.content || "");
+      setRawLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [wsId, fetchPanelContent]);
+
+  async function handleRawSave() {
+    setRawSaving(true);
+    try {
+      await savePanelContent(wsId, "extraction_manual", raw);
+      setRawSavedAt(Date.now());
+    } finally {
+      setRawSaving(false);
+    }
+  }
+
+  function addField() {
+    const name = fieldDraft.trim();
+    if (!name || fields.includes(name)) return;
+    setFields((f) => [...f, name]);
+    setFieldDraft("");
+  }
+
+  function removeField(name) {
+    setFields((f) => f.filter((x) => x !== name));
+  }
+
+  async function generate() {
+    if (fields.length === 0 || !wsId) return;
+    setGenerating(true);
+    setError(null);
+    try {
+      const data = await buildExtractionTable(wsId, fields, { nodeType, expanded });
+      setResult(data);
+    } catch (e) {
+      setError(e.message || "Failed to generate table.");
+      setResult(null);
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="border border-[var(--neutral-800)] rounded-lg p-3 space-y-3">
+        <div>
+          <div className="text-[11px] text-[var(--neutral-500)]">Fields to extract</div>
+          <div className="flex flex-wrap gap-1.5 mt-1.5 mb-2">
+            {fields.map((f) => (
+              <span
+                key={f}
+                className="flex items-center gap-1 text-[11px] bg-[var(--cyber-violet)]/10 text-[var(--cyber-violet)] rounded px-2 py-1"
+              >
+                {f}
+                <button onClick={() => removeField(f)} className="hover:text-[var(--neutral-100)]">
+                  <X size={11} />
+                </button>
+              </span>
+            ))}
+            {fields.length === 0 && (
+              <span className="text-[11px] text-[var(--neutral-600)]">
+                e.g. &quot;sample size&quot;, &quot;methodology&quot;, &quot;key finding&quot;
+              </span>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <input
+              id="research-field-draft"
+              name="researchFieldDraft"
+              value={fieldDraft}
+              onChange={(e) => setFieldDraft(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addField(); } }}
+              aria-label="Add a field name"
+              placeholder="Add a field name and press Enter"
+              className="flex-1 bg-black/30 border border-[var(--neutral-800)] rounded px-3 py-1.5 text-xs outline-none focus:border-[var(--cyber-cyan)]"
+            />
+            <button
+              onClick={addField}
+              disabled={!fieldDraft.trim()}
+              className="text-xs text-[var(--neutral-300)] border border-[var(--neutral-800)] rounded px-2.5 py-1.5 hover:border-[var(--neutral-700)] disabled:opacity-30 flex items-center gap-1"
+            >
+              <Plus size={12} /> Add
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <label htmlFor="research-source-scope" className="text-[11px] text-[var(--neutral-500)]">Source scope</label>
+            <select
+              id="research-source-scope"
+              name="researchSourceScope"
+              value={nodeType}
+              onChange={(e) => setNodeType(e.target.value)}
+              className="bg-black/30 border border-[var(--neutral-800)] rounded px-2 py-1 text-xs outline-none focus:border-[var(--cyber-cyan)]"
+            >
+              {NODE_TYPE_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+          <label className="flex items-center gap-1.5 text-[11px] text-[var(--neutral-500)] cursor-pointer">
+            <input type="checkbox" id="research-thorough-mode" name="researchThoroughMode" checked={expanded} onChange={(e) => setExpanded(e.target.checked)} />
+            Thorough mode (more workers, slower)
+          </label>
+        </div>
+
+        <button
+          onClick={generate}
+          disabled={generating || fields.length === 0 || !wsId}
+          className="text-xs bg-[var(--accent)] text-[var(--accent-text)] rounded px-3 py-2 font-medium disabled:opacity-50 flex items-center gap-1.5"
+        >
+          {generating ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+          {generating ? "Extracting…" : "Generate table"}
+        </button>
+
+        {error && <p className="text-[11px] text-red-400">{error}</p>}
+      </div>
+
+      {result?.summary && (
+        <p className="text-[11px] text-[var(--neutral-500)]">{result.summary}</p>
+      )}
+      {result && <ExtractionTableView data={result} />}
+
+      <div>
+        <button
+          onClick={() => setShowPaste((s) => !s)}
+          className="text-[11px] text-[var(--neutral-600)] hover:text-[var(--neutral-400)] underline underline-offset-2"
+        >
+          {showPaste ? "Hide manual paste" : "Or paste a table from a chat run instead"}
+        </button>
+        {showPaste && (
+          rawLoading ? (
+            <div className="text-xs text-[var(--neutral-600)] flex items-center gap-1.5 mt-2">
+              <Loader2 size={12} className="animate-spin" /> Loading…
+            </div>
+          ) : (
+            <div className="space-y-2 mt-2">
+              <p className="text-[11px] text-[var(--neutral-600)]">
+                Saved per project — pasting here again for the same project overwrites the
+                previous paste.
+              </p>
+              <textarea
+                id="research-comparison-raw"
+                name="researchComparisonRaw"
+                value={raw}
+                onChange={(e) => setRaw(e.target.value)}
+                placeholder="| Title | Year | Sample Size | Methodology | ... |&#10;|---|---|---|---|---|&#10;| ... |"
+                rows={6}
+                className="w-full bg-black/30 border border-[var(--neutral-800)] rounded px-3 py-2 text-xs outline-none focus:border-[var(--cyber-cyan)] font-mono"
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleRawSave}
+                  disabled={rawSaving}
+                  className="text-xs bg-[var(--accent)] text-[var(--accent-text)] rounded px-3 py-1.5 font-medium disabled:opacity-50"
+                >
+                  {rawSaving ? "Saving…" : "Save"}
+                </button>
+                {rawSavedAt && !rawSaving && <span className="text-[11px] text-[var(--neutral-600)]">Saved</span>}
+              </div>
+              {raw.trim() && <ExtractionTableView text={raw} />}
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  );
+}
+
+// --- Contradictions & Consensus (§3.6, §3.8) — same paste pattern; the
+// AI-estimated-stance banner is Definition-of-Done #6's requirement that
+// approximated results (consensus meter especially) are never presented
+// with a trained model's implied confidence.
+//
+// FIX — this now persists through eo/panel_content.py under panel_key
+// "contradictions", keyed per workspaceId — same pattern PlanTab.jsx's
+// MarkdownPastePanel already uses for PRD/API Contract/Devil's Advocate/
+// Feasibility. Previously this was pure local state: since this panel
+// stays mounted across sub-tab switches (visitedSubTabs) AND across
+// switching which research project is active, a paste would silently
+// keep showing on screen even after switching to a *different* project.
+// Fetches fresh content on every workspaceId change instead.
+function ContradictionsPanel({ workspaceId, fetchPanelContent, savePanelContent }) {
+  const [raw, setRaw] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [savedAt, setSavedAt] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setSavedAt(null);
+    fetchPanelContent(workspaceId, "contradictions").then((saved) => {
+      if (cancelled) return;
+      setRaw(saved?.content || "");
+      setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [workspaceId, fetchPanelContent]);
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      await savePanelContent(workspaceId, "contradictions", raw);
+      setSavedAt(Date.now());
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading) {
+    return <div className="text-xs text-[var(--neutral-600)] flex items-center gap-1.5"><Loader2 size={12} className="animate-spin" /> Loading…</div>;
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-[11px] text-[var(--neutral-600)]">
+        Paste a contradiction_detector or consensus_meter run&apos;s output below. Saved per
+        project — pasting here again for the same project overwrites the previous paste.
+      </p>
+      <textarea
+        id="research-consensus-raw"
+        name="researchConsensusRaw"
+        value={raw}
+        onChange={(e) => setRaw(e.target.value)}
+        placeholder="Paste the role's markdown output here…"
+        rows={6}
+        className="w-full bg-black/30 border border-[var(--neutral-800)] rounded px-3 py-2 text-xs outline-none focus:border-[var(--cyber-cyan)] font-mono"
+      />
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="text-xs bg-[var(--accent)] text-[var(--accent-text)] rounded px-3 py-1.5 font-medium disabled:opacity-50"
+        >
+          {saving ? "Saving…" : "Save"}
+        </button>
+        {savedAt && !saving && <span className="text-[11px] text-[var(--neutral-600)]">Saved</span>}
+      </div>
+      {raw.trim() && (
+        <div className="border border-[var(--cyber-amber)]/40 bg-[var(--cyber-amber)]/5 rounded-lg p-3">
+          <p className="text-[10px] uppercase tracking-wide text-[var(--cyber-amber)] mb-2">
+            AI-estimated — not verified (§3.8)
+          </p>
+          <Markdown>{raw}</Markdown>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- Dataset Analysis (§3.7) — dataset_analyst wraps sandbox_tester.py's
+// existing E2B sandbox; no upload endpoint exists yet for it (it resolves
+// a dataset path from task text or KEYS["dataset_path"], not a file
+// picker — see agents/dataset_analyst.py's own docstring), so this hands
+// off to a scoped sub-chat exactly like Sources' search does. Any chart
+// the sandbox generates renders inline in that chat's AgentStepList step,
+// not a second time here.
+function DatasetPanel({ wsId, onDispatched }) {
+  // FIX — same live-panel fix as SourcesPanel above: dispatch through
+  // this project's own dock instead of the legacy, non-dock
+  // openScopedSubChat, so the run shows up live in the Working Panel.
+  const dock = useWorkspaceDock(wsId);
+  const [task, setTask] = useState("");
+  const [running, setRunning] = useState(false);
+
+  async function run() {
+    if (!task.trim()) return;
+    setRunning(true);
+    try {
+      await dock.openScopedSubChat(task.trim());
+      onDispatched?.();
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-[11px] text-[var(--neutral-600)]">
+        Describe the dataset (by filename) and the question — e.g. &quot;analyze sales.csv: show the
+        trend by region for Q3&quot;. There&apos;s no file-upload step for this yet; the dataset needs to
+        already be a readable file the task can name.
+      </p>
+      <textarea
+        id="research-dataset-task"
+        name="researchDatasetTask"
+        value={task}
+        onChange={(e) => setTask(e.target.value)}
+        placeholder="analyze sales.csv: show the trend by region for Q3"
+        rows={3}
+        className="w-full bg-black/30 border border-[var(--neutral-800)] rounded px-3 py-2 text-xs outline-none focus:border-[var(--cyber-cyan)]"
+      />
+      <button
+        onClick={run}
+        disabled={running || !task.trim()}
+        className="text-xs bg-[var(--accent)] text-[var(--accent-text)] rounded px-3 py-2 font-medium disabled:opacity-50 flex items-center gap-1"
+      >
+        <ExternalLink size={13} /> {running ? "Dispatching…" : "Run in chat"}
+      </button>
+    </div>
+  );
+}
+
+// NEW — Phase 5 step 6.1: the real router AppShell.jsx's dynamic import
+// actually renders, same shape as NotebooksTab.jsx's own router at the
+// bottom of that file (and how mobile/AppShell.jsx / mobile/ChatSidebar.jsx
+// are picked at their own call sites) rather than branching on isMobile
+// inline. The controller hook is called exactly once here — never
+// independently by either shell — since it owns effects (data fetching,
+// the OPEN_TAB_SIDEBAR_EVENT listener, localStorage sync) that must not
+// run twice per render.
+function ResearchTab(props) {
+  const controller = useResearchTabController(props);
+  if (controller.viewport === "mobile") return <MobileResearchTab controller={controller} />;
+  return <ResearchTabDesktop controller={controller} />;
+}
+
+// Item 6 (perf audit, tab-body pass): ResearchTab takes props from its parent
+// (initialWorkspaceId, onConsumeInitialWorkspaceId, onPromoted,
+// onActiveWorkspaceChange). Wrapped in memo() now that SessionContext's
+// useCallback pass (item 2) means its stable-identity props/callbacks stay
+// stable across unrelated parent re-renders -- prop objects/arrays it reads
+// (workspaces, chats, etc.) are only ever replaced, never mutated in place, so
+// a shallow prop comparison here is meaningful.
+export default memo(ResearchTab);

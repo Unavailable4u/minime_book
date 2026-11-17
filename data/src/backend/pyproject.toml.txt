@@ -1,0 +1,23 @@
+[tool.ruff]
+target-version = "py311"
+
+[tool.ruff.lint]
+# Pinned per ci.yml's own header comment. A prior change (see git
+# history / PR discussion for "B3") briefly moved this repo onto
+# ruff's zero-config default rule set, which as of ruff 0.16 enables
+# nearly every rule family (813 findings on this repo vs. 13 under
+# this pinned selection, measured 2026-08-25 on ruff 0.16.4) -- but
+# the two cleanup batches that change's own comment described (an
+# auto-fix pass, then a manual-triage pass for RUF013/BLE001-style
+# judgment calls) were never landed, so CI was red on every push
+# regardless of what else changed. Reverted to the pinned selection to
+# unblock CI now; broadening this again should ship together with the
+# actual cleanup, not ahead of it.
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+# This module borrows the `store` fixture from test_eo_code_proposals_deploy
+# (imported, not moved), so every test taking `store` as an argument looks
+# like a redefinition of an unused import to F811. That is how pytest
+# fixture injection works, not a real shadowing bug.
+"tests/unit/test_eo_code_proposals_wireframe.py" = ["F811"]

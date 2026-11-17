@@ -1,0 +1,188 @@
+"""
+agents/test_writer.py — Test Writer (Part 4, agent #5 of the v5 Master
+Blueprint).
+
+Runs after Code Writers, before the Reviewer Pool -- generates test code
+for each freshly-written module. Output is plain assertion-style code
+(not pytest) meant to be appended directly after a module's own code and
+executed as one script: matches how sandbox_tester.py runs everything (a
+single blob per module in one E2B sandbox, checking stderr), rather than
+introducing a pytest runner the rest of the pipeline doesn't expect.
+
+sandbox_tester.py appends this test code after a module's code when
+present, so a module can "pass" the sandbox run only if it doesn't error
+out AND its own generated tests don't raise AssertionError.
+
+- Model: Groq `qwen/qwen3.6-27b`. GitHub Models fallback removed
+  2026-07-30 (quota-reality fix §4, full retirement) and not replaced.
+- No dedicated key split -- this is a single sequential call per cycle,
+  same low-volume tier as Idea Planner / Prompt Writer / Report Writer,
+  so it shares the default GROQ_API_KEY.
+"""
+
+import json
+import os
+import re
+import sys
+
+from dotenv import load_dotenv
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from eo.errors import MissingDependencyError  # NEW — bug fix
+from memory.bus import KEYS, read, write
+from utils.llm_client import generate_text
+
+load_dotenv()
+
+# Quota-reality fix, §3: Groq qwen/qwen3-32b -> qwen/qwen3.6-27b.
+# qwen/qwen3-32b doesn't appear anywhere in Groq's current live
+# free-tier model table (confirmed via GET /v1/models, 2026-07-30) --
+# qwen/qwen3.6-27b is the live model in that same family.
+# Quota-reality fix, §4 (2026-07-30): GitHub Models retired in full --
+# its fallback step is removed here, not replaced. This agent keeps
+# whatever redundancy already sat in front of it (nothing else changes).
+# FALLBACK_CHAIN: last-resort static chain, used ONLY if
+# eo/dynamic_chain.py's build_fallback_chain() below returns nothing at
+# all (every registered account excluded/cooling down at once -- should
+# be very rare). This used to be the ONLY chain this module ever tried
+# (module-level CHAIN, one entry, GROQ_API_KEY) -- see run()'s real call
+# below, which now builds a live, quota-ranked, multi-provider chain
+# instead.
+FALLBACK_CHAIN = [
+    {"provider": "groq", "model": "qwen/qwen3.6-27b", "key_env": "GROQ_API_KEY"},
+]
+
+SYSTEM_PROMPT = """You are a test writer for an autonomous build loop. You will be
+given JSON containing one or more freshly-written code modules. For each module,
+write short test code that exercises its main functions with plain `assert`
+statements -- NOT pytest, NOT unittest, no imports of testing frameworks.
+
+Critical constraint: your test code will be appended directly AFTER the
+module's own code in the same script and executed together. Do NOT redefine
+any function, class, or variable from the module -- call the ones that will
+already be in scope. Do NOT import the module; it's already loaded above
+your code in the same file.
+
+If a module has nothing meaningfully testable (e.g. pure UI markup, a config
+file, boilerplate with no logic), output a single line: `# no testable logic`
+for that module -- do not invent fake assertions just to have something.
+
+Exception handling rule, critical: when testing that a function correctly
+raises an error, catch ONLY that specific exception type (e.g.
+`except ValueError:`), never a bare `except:` and never `except Exception:`.
+A bare except also silently swallows AssertionError from your own asserts
+above it in the same try block -- that turns a genuinely failing test into
+a falsely "passing" one, which defeats the entire point of writing the
+test. If you're not testing for a raised exception, don't use try/except
+at all -- a plain `assert` that's allowed to raise and fail loudly is
+correct and expected.
+
+Respond with ONLY valid JSON, no markdown fences, no preamble, in exactly this
+shape:
+{
+  "module_name": "assert some_function(1, 2) == 3\\nassert other_function('') is None\\n"
+}
+Return an entry for every module you were given.
+"""
+
+
+# Catches bare `except:`, `except Exception:`/`except Exception as e:`, and
+# `except BaseException:`/`except BaseException as e:` -- anything broad
+# enough to swallow AssertionError from our own asserts. Specific catches
+# like `except ValueError:` are untouched. Prompt-only guidance (see
+# SYSTEM_PROMPT above) reduces how often the model does this but doesn't
+# guarantee it -- this is the hard backstop.
+_UNSAFE_EXCEPT_RE = re.compile(
+    r"except\s*(:|Exception\b\s*(as\s+\w+\s*)?:|BaseException\b\s*(as\s+\w+\s*)?:)"
+)
+
+
+def _has_unsafe_except(code: str) -> bool:
+    return bool(_UNSAFE_EXCEPT_RE.search(code))
+
+
+def _strip_fences(text: str) -> str:
+    text = text.strip()
+    # qwen3-32b (a reasoning model) used to prepend a <think>...</think>
+    # block before its actual answer -- strip it before fence-stripping.
+    # Kept after the §3 swap to qwen/qwen3.6-27b as a defensive no-op:
+    # harmless if that model doesn't emit the tag, still correct if it
+    # does (unconfirmed either way as of this fix).
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+    if text.startswith("```"):
+        text = text.split("```")[1]
+        text = text.removeprefix("json")
+    return text.strip()
+
+
+def run(session_id: str = None, domain: str = None):
+    submitted_code = read(KEYS["submitted_code"])
+    if not submitted_code:
+        # Bug fix: was `raise ValueError(...)` -- "implementer" is the role
+        # name code_writers.py resolves from (eo/registry.py's
+        # REAL_ACTION_ROLES), so on the adaptive path eo/executor.py can
+        # insert it and retry this step automatically instead of the whole
+        # task dying here.
+        raise MissingDependencyError(
+            "implementer", "No submitted_code found in memory. Run the Code Writers first."
+        )
+
+    user_content = (
+        "Modules to write tests for:\n" + json.dumps(submitted_code, indent=2)
+    )
+
+    # perf audit §4.4 / priority #7: was double-wrapped in call_with_retry
+    # on top of generate_text()'s own chain-walk fallback — a real
+    # multi-provider outage retried the whole CHAIN up to 4 times with
+    # real sleeps (1/2/4/8s) in between, on top of generate_text() already
+    # having walked every step in CHAIN once per attempt. generate_text()
+    # is the single source of retry/fallback behavior now.
+    #
+    # Bug fix (2026-08-12): deferred import -- see eo/dynamic_chain.py's
+    # module docstring for why this can't be a module-level import.
+    # Quota-ranked, cooldown-aware, spread across providers -- replaces
+    # the old single-entry CHAIN that had nothing to fall back to when
+    # its one key rate-limited.
+    from eo.dynamic_chain import build_fallback_chain
+    chain = build_fallback_chain("test_writer") or FALLBACK_CHAIN
+
+    raw_text = generate_text(SYSTEM_PROMPT, user_content, chain, agent_name="Test Writer",
+                              session_id=session_id, domain=domain)
+    
+    cleaned = _strip_fences(raw_text)
+
+    try:
+        test_code = json.loads(cleaned)
+        if not isinstance(test_code, dict):
+            raise json.JSONDecodeError("expected a JSON object", cleaned, 0)
+    except json.JSONDecodeError:
+        print("  [Test Writer] output was not valid JSON -- no tests generated this cycle.")
+        test_code = {}
+
+    # Only keep string values -- anything else is a malformed entry we'd
+    # rather drop than have crash sandbox_tester.py downstream.
+    test_code = {
+        name: code for name, code in test_code.items()
+        if isinstance(code, str) and name in submitted_code
+    }
+
+    # Hard backstop: drop any module whose generated test code still has a
+    # bare/broad except clause, even though the prompt tells the model not
+    # to. A test that can silently swallow its own AssertionError is worse
+    # than no test at all -- same reasoning as the malformed-entry filter
+    # above, applied to a correctness issue instead of a shape issue.
+    unsafe = [name for name, code in test_code.items() if _has_unsafe_except(code)]
+    if unsafe:
+        print(
+            f"  [Test Writer] dropped {len(unsafe)} module(s) with a bare/broad "
+            f"except clause that would swallow AssertionError: {', '.join(unsafe)}"
+        )
+        test_code = {name: code for name, code in test_code.items() if name not in unsafe}
+
+    write(KEYS["test_code"], test_code)
+    return test_code
+
+
+if __name__ == "__main__":
+    result = run()
+    print(json.dumps(result, indent=2))

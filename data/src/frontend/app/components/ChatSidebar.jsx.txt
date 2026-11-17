@@ -1,0 +1,521 @@
+"use client";
+import { useState, useEffect } from "react";   // CHANGED — add useEffect
+import { useSession } from "../context/SessionContext";
+import { useWorkspaces } from "../context/WorkspacesContext";   // NEW — Item 2 concern split, slice 3
+import { useChatList } from "../context/ChatListContext";   // NEW — Item 2 concern split, slice 4
+import { useWorkspaceDockActions, useLastActiveChatId } from "../context/WorkspaceDockContext"; // NEW — step 3e
+import { Plus, Trash2, Pencil, Link2, Settings2, ChevronLeft, ChevronRight, Check, X, FolderPlus, FolderInput } from "lucide-react";
+import ManageBatchModal from "./ManageBatchModal";
+import CreateWorkspaceModal from "./CreateWorkspaceModal";
+import AttachChatToWorkspaceModal from "./AttachChatToWorkspaceModal";
+import ManageWorkspaceModal from "./ManageWorkspaceModal";
+import ConfirmDialog from "./ConfirmDialog";
+import RowMenu from "./RowMenu"; // NEW — shared per-row "⋮" menu (touch-safe); replaces this file's own inline copy
+import WorkspaceStageIcons from "./WorkspaceStageIcons"; // NEW — item #2: extracted so every stage tab can share this, not just ChatSidebar
+
+// NEW — §9.1: color-code batches so grouping is visible at a glance
+// without reading labels. Deterministic hash of the batch id → one of a
+// small fixed palette, so a given batch always gets the same color across
+// reloads (no need to persist a color field on the batch object itself).
+const BATCH_ACCENTS = [
+  "var(--cyber-cyan)",
+  "var(--cyber-magenta)",
+  "var(--cyber-amber)",
+  "var(--cyber-violet)",
+  "var(--cyber-lime)",
+];
+
+function hashBatchColor(batchId) {
+  let hash = 0;
+  for (let i = 0; i < batchId.length; i++) {
+    hash = (hash * 31 + batchId.charCodeAt(i)) | 0;
+  }
+  return BATCH_ACCENTS[Math.abs(hash) % BATCH_ACCENTS.length];
+}
+
+// item #2: STAGE_ICON_MAP/STAGE_ORDER/WorkspaceStageIcons moved to
+// ./WorkspaceStageIcons.jsx (as STAGE_THEME) so every stage tab's own
+// sidebar can reuse the exact same icon+color per stage, not just this
+// component.
+
+export default function ChatSidebar({ collapsed, onToggle }) {
+  const { batches } = useSession();
+  // Ensure `batches` is an array-like list before using array helpers
+  const batchesArr = Array.isArray(batches)
+    ? batches
+    : batches && typeof batches === "object"
+    ? (typeof batches[Symbol.iterator] === "function" ? Array.from(batches) : Object.values(batches))
+    : [];
+  const { chats } = useChatList();   // CHANGED — Item 2 concern split, slice 4: was useSession()
+  const { workspaces } = useWorkspaces();   // CHANGED — was useSession()
+  // NEW — step 3e: these five used to come from useSession() and wrote
+  // into one shared global sessionId/messages. ChatSidebar is global
+  // (item #6, kept that way on purpose) and lists chats belonging to
+  // many different workspaces, so it needs the key-agnostic dock hook —
+  // each call resolves its own dock slot from the chatId involved.
+  const { switchChat, createNewChat, renameChat, deleteChat, linkChats } = useWorkspaceDockActions();
+  // NEW — step 3e: replaces the old `sessionId === chat.id` highlight.
+  // There's no longer one shared "the active chat" once different docks
+  // can each be showing a different chat at once — see this hook's own
+  // comment in WorkspaceDockContext.jsx.
+  const activeChatId = useLastActiveChatId();
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [linkingId, setLinkingId] = useState(null);
+  const [pendingDelete, setPendingDelete] = useState(null); // chat object or null
+  // CHANGED — the per-chat-row "..." menu (one button carrying create
+  // project / add to project / share memory / rename / delete, replacing
+  // an old cluster of up to 5 always-hover-visible icon buttons) now
+  // lives in RowMenu.jsx, shared with every stage tab's nested chat
+  // rows. Its open/closed state, outside-click handling and flip-upward
+  // positioning moved with it, so there's no menuChatId here anymore.
+  // The old version was hover-revealed with a mousedown outside-click
+  // listener — neither works on a touch screen (see RowMenu.jsx).
+  // NEW — §4: which batch's manage modal is open. The modal itself is
+  // built in §5 (ManageBatchModal) — for now this just tracks selection
+  // so wiring the modal in next is a one-line render addition.
+  const [managingBatch, setManagingBatch] = useState(null);
+  const [managingWorkspace, setManagingWorkspace] = useState(null);
+  const [creatingWorkspace, setCreatingWorkspace] = useState(false);
+  const [creatingProjectFrom, setCreatingProjectFrom] = useState(null);
+  const [attachingChatToProject, setAttachingChatToProject] = useState(null);
+  // NEW — §8: search bar. Client-side only — chats/batches/workspaces are
+  // already loaded in state, no backend endpoint needed.
+  const [query, setQuery] = useState("");
+
+  function openManageBatch(batch) {
+    setManagingBatch(batch);
+  }
+
+  const workspacedChatIds = new Set(workspaces.flatMap((w) => w.chat_ids));
+// A chat that's somehow in both a workspace and a batch is shown under
+// the workspace only — it's the more structural, persistent grouping.
+  const batchedChatIds = new Set(
+    batchesArr.flatMap((b) => b.member_chat_ids).filter((id) => !workspacedChatIds.has(id))
+  );
+  const unbatchedChats = chats.filter((c) => !batchedChatIds.has(c.id) && !workspacedChatIds.has(c.id));
+
+  // NEW — §8: search filtering. A group (workspace/batch) stays visible if
+  // its own name matches OR any of its member chats match — and in that
+  // second case we only show the matching members, not the whole group,
+  // so a search for one chat title doesn't dump every batch-mate on screen.
+  const q = query.trim().toLowerCase();
+  const chatMatches = (chat) => !q || chat.title.toLowerCase().includes(q);
+
+  const filteredWorkspaces = q
+    ? workspaces.filter(
+        (ws) => ws.name.toLowerCase().includes(q) || chats.some((c) => ws.chat_ids.includes(c.id) && chatMatches(c))
+      )
+    : workspaces;
+
+  const filteredBatches = q
+    ? batchesArr.filter(
+        (b) => b.name.toLowerCase().includes(q) || chats.some((c) => b.member_chat_ids.includes(c.id) && chatMatches(c))
+      )
+    : batchesArr;
+
+  const filteredUnbatchedChats = unbatchedChats.filter(chatMatches);
+
+  if (collapsed) {
+    return (
+      <div className="w-10 shrink-0 border-r border-[var(--neutral-800)] flex flex-col items-center py-3 gap-3">
+        <button onClick={onToggle} className="touch-target text-[var(--neutral-500)] hover:text-[var(--neutral-300)]" title="Show chats">
+          <ChevronRight size={16} />
+        </button>
+      </div>
+    );
+  }
+
+  function startRename(chat) {
+    setEditingId(chat.id);
+    setEditTitle(chat.title);
+  }
+
+  async function commitRename(chatId) {
+    if (editTitle.trim()) await renameChat(chatId, editTitle.trim());
+    setEditingId(null);
+  }
+
+  function askDelete(chat) {
+    setPendingDelete(chat);
+  }
+
+  function openCreateProject(chatIds, initialName) {
+    setCreatingProjectFrom({ chatIds, initialName });
+  }
+
+  function openAttachToProject(chat) {
+    setAttachingChatToProject(chat);
+  }
+
+  async function confirmDelete() {
+    await deleteChat(pendingDelete.id);
+    setPendingDelete(null);
+  }
+
+  // Extracted from the original flat-list row so batched (indented) and
+  // unbatched chats render identically — same click/rename/link/delete
+  // behavior either way, just an indent + no per-row Link2 badge once a
+  // chat is grouped (the batch header above it already communicates that).
+  function renderChatRow(chat, { indent = false, accentColor = null, allowProjectActions = false } = {}) {
+    return (
+      <div
+        key={chat.id}
+        className={`group px-3 py-2 border-b border-[var(--neutral-900)] cursor-pointer ${indent ? "pl-6" : ""} ${
+          chat.id === activeChatId ? "bg-[var(--neutral-800-a70)]" : "hover:bg-[var(--neutral-900)]"
+        }`}
+        style={accentColor ? { borderLeft: `2px solid ${accentColor}` } : undefined}
+        onClick={() => editingId !== chat.id && switchChat(chat.id)}
+      >
+        {editingId === chat.id ? (
+          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+            <input
+              autoFocus
+              id={`chat-title-${chat.id}`}
+              name="chatTitle"
+              aria-label="Chat title"
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && commitRename(chat.id)}
+              className="touch-input flex-1 min-w-0 bg-[var(--neutral-950)] border border-[var(--neutral-700)] rounded px-1.5 py-0.5 text-xs outline-none"
+            />
+            <button onClick={() => commitRename(chat.id)} aria-label="Save chat title" className="touch-target"><Check size={13} className="text-green-400" /></button>
+            <button onClick={() => setEditingId(null)} aria-label="Cancel rename" className="touch-target"><X size={13} className="text-[var(--neutral-500)]" /></button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-1">
+            <span className="text-xs text-[var(--neutral-200)] truncate">{chat.title}</span>
+            {/* NEW — CO3 patch 3: chat.last_status comes from
+                GET /api/chats (eo/chat_store.py's list_chats(), now
+                joined against chat_messages' last row) — durable
+                across reload, unlike the old in-memory-only pausedRun
+                state. */}
+            {chat.last_status === "paused" && (
+              <span className="shrink-0 text-[9px] leading-none px-1 py-0.5 rounded border border-amber-800 text-amber-300">
+                Paused
+              </span>
+            )}
+            {/* Batched chats already show a badge in their batch header
+                above, so only render the per-row Link2 badge for chats
+                linked the old, non-batch way. Kept outside the menu (and
+                always visible, not hover-gated) since it's a status
+                indicator, same idea as the Paused badge above — not an
+                action to merge away. */}
+            {!indent && chat.linked_chat_ids?.length > 0 && (
+              <Link2 size={12} className="shrink-0 text-[var(--neutral-500)]" title={`Linked to ${chat.linked_chat_ids.length} chat(s)`} />
+            )}
+            {/* CHANGED — every per-row action (create project, add to
+                project, share memory, rename, delete) used to be its own
+                always-hover-visible icon button, up to 5 at once. Merged
+                into a single "..." menu, same consolidation as the
+                project/batch header rows below (one Settings2 icon) and
+                NotebooksTab's own notebook rows (one MoreVertical icon).
+                CHANGED — the menu itself is now the shared RowMenu (also
+                used by every stage tab's nested chat rows), so it's
+                always visible on touch instead of hover-only. */}
+            <RowMenu
+              title="Chat options"
+              items={[
+                allowProjectActions && {
+                  key: "create-project",
+                  label: "Create project from chat",
+                  icon: FolderPlus,
+                  onSelect: () => openCreateProject([chat.id], chat.title),
+                },
+                allowProjectActions && {
+                  key: "add-to-project",
+                  label: "Add to project",
+                  icon: FolderInput,
+                  onSelect: () => openAttachToProject(chat),
+                },
+                // Manual per-chat link hidden once a chat is batched —
+                // batch membership (managed via "Manage batch") is now
+                // the single source of truth for its linked_chat_ids,
+                // so editing it here directly would fight
+                // memory_batch.py's _sync_members on the next batch
+                // edit.
+                !indent && {
+                  key: "share-memory",
+                  label: "Share memory with other chats",
+                  icon: Link2,
+                  onSelect: () => setLinkingId(chat.id),
+                },
+                { key: "rename", label: "Rename", icon: Pencil, onSelect: () => startRename(chat) },
+                { key: "delete", label: "Delete", icon: Trash2, danger: true, onSelect: () => askDelete(chat) },
+              ]}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-64 shrink-0 border-r border-[var(--neutral-800)] flex flex-col h-full">
+      <div className="h-10 flex items-center justify-between px-3 border-b border-[var(--neutral-800)]">
+        <span className="text-xs font-medium text-[var(--neutral-400)]">Chats</span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              // Bug fix: this used to call createNewChat directly as the
+              // onClick handler, so a failed request (backend unreachable,
+              // CORS, etc.) threw as an unhandled promise rejection with
+              // no feedback to the user at all. Same alert() fallback
+              // used elsewhere in this codebase where there's no toast
+              // system.
+              createNewChat().catch((err) => alert(`Couldn't create chat: ${err.message || err}`));
+            }}
+            title="New chat"
+            className="touch-target text-[var(--neutral-400)] hover:text-[var(--neutral-100)]">
+            <Plus size={15} />
+          </button>
+          <button onClick={() => setCreatingWorkspace(true)} title="New project" className="touch-target text-[var(--neutral-400)] hover:text-[var(--neutral-100)]">
+            <FolderPlus size={15} />
+          </button>
+          <button onClick={onToggle} title="Hide chats" className="touch-target text-[var(--neutral-500)] hover:text-[var(--neutral-300)]">
+            <ChevronLeft size={15} />
+          </button>
+        </div>
+      </div>
+
+      <div className="px-3 py-2 border-b border-[var(--neutral-900)]">
+        <input
+          id="chat-sidebar-search"
+          name="chat-sidebar-search"
+          aria-label="Search chats, batches, projects"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search chats, batches, projects…"
+          className="w-full bg-black/30 border border-[var(--neutral-800)] rounded px-2 py-1 text-xs outline-none focus:border-[var(--cyber-cyan)]"
+        />
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+        {filteredWorkspaces.map((ws) => {
+          const memberChats = chats.filter((c) => ws.chat_ids.includes(c.id));
+          // Whole group matched by name → show every member. Only a member
+          // matched → show just the matching ones (still lets you jump
+          // straight to the chat you searched for).
+          const visibleMembers = ws.name.toLowerCase().includes(q) ? memberChats : memberChats.filter(chatMatches);
+          return (
+            <div key={ws.id} className="border-b border-[var(--neutral-900)]">
+              <div className="flex items-center justify-between px-3 py-1.5 bg-black/20">
+                <span className="text-[10px] uppercase tracking-wide" style={{ color: "var(--cyber-magenta)" }}>
+                  {ws.name} · {ws.chat_ids.length}
+                </span>
+                <div className="flex items-center gap-2">
+                  <WorkspaceStageIcons workspace={ws} />
+                  {/* CHANGED — was two icons (FolderInput "Add chat to
+                      project" + Settings2 "Manage project"). Adding a chat
+                      is now one of the actions inside "Manage project"
+                      itself (see its own "Chats in this project" section),
+                      so this row keeps just the one entry point in. */}
+                  <button onClick={() => setManagingWorkspace(ws)} title="Manage project" aria-label="Manage project" className="touch-target">
+                    <Settings2 size={11} className="text-[var(--neutral-500)] hover:text-[var(--neutral-200)]" />
+                  </button>
+                </div>
+              </div>
+              {visibleMembers.map((chat) => renderChatRow(chat, { indent: true }))}
+            </div>
+          );
+        })}
+
+        {filteredBatches.map((batch) => {
+          const memberChats = chats.filter(
+            (c) => batch.member_chat_ids.includes(c.id) && !workspacedChatIds.has(c.id)
+          );
+          if (memberChats.length === 0) return null; // all members moved into a workspace
+          const visibleMembers = batch.name.toLowerCase().includes(q) ? memberChats : memberChats.filter(chatMatches);
+          if (visibleMembers.length === 0) return null;
+          const accentColor = hashBatchColor(batch.id);
+          return (
+            <div key={batch.id} className="border-b border-[var(--neutral-900)]">
+              <div className="flex items-center justify-between px-3 py-1.5 bg-black/20">
+                <span className="text-[10px] uppercase tracking-wide flex items-center" style={{ color: accentColor }}>
+                  <Link2 size={10} className="inline mr-1" />
+                  {batch.name} · {memberChats.length}
+                </span>
+                <div className="flex items-center gap-2">
+                  {/* CHANGED — was two icons (FolderPlus "Create project
+                      from batch" + Settings2 "Manage batch"). Creating a
+                      project is now one of the actions inside "Manage
+                      batch" itself (passed down as onCreateProject), so
+                      this row keeps just the one entry point in. */}
+                  <button onClick={() => openManageBatch(batch)} title="Manage batch" aria-label="Manage batch" className="touch-target">
+                    <Settings2 size={11} className="text-[var(--neutral-500)] hover:text-[var(--neutral-200)]" />
+                  </button>
+                </div>
+              </div>
+              {visibleMembers.map((chat) => renderChatRow(chat, { indent: true, accentColor }))}
+            </div>
+          );
+        })}
+
+        {filteredUnbatchedChats.map((chat) => renderChatRow(chat, { allowProjectActions: true }))}
+      </div>
+
+      {linkingId && (
+        <LinkChatsModal
+          chatId={linkingId}
+          allChats={chats}
+          onClose={() => setLinkingId(null)}
+        />
+      )}
+
+      {managingBatch && (
+        <ManageBatchModal
+          batch={batchesArr.find((b) => b.id === managingBatch.id) || managingBatch}
+          allChats={chats}
+          onClose={() => setManagingBatch(null)}
+          // NEW — replaces the batch header row's own FolderPlus button.
+          // Same membership filter renderChatRow's caller used: a chat
+          // already moved into a workspace isn't offered here either.
+          onCreateProject={() => {
+            const liveBatch = batchesArr.find((b) => b.id === managingBatch.id) || managingBatch;
+            const memberChatIds = chats
+              .filter((c) => liveBatch.member_chat_ids.includes(c.id) && !workspacedChatIds.has(c.id))
+              .map((c) => c.id);
+            setManagingBatch(null);
+            openCreateProject(memberChatIds, liveBatch.name);
+          }}
+        />
+      )}
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title="Delete chat"
+        message={`Delete "${pendingDelete?.title}"? Its messages and memory can't be recovered.`}
+        confirmLabel="Delete"
+        tone="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
+
+      {creatingWorkspace && <CreateWorkspaceModal onClose={() => setCreatingWorkspace(false)} />}
+
+      {creatingProjectFrom && (
+        <CreateWorkspaceModal
+          onClose={() => setCreatingProjectFrom(null)}
+          initialName={creatingProjectFrom.initialName}
+          sourceChatIds={creatingProjectFrom.chatIds}
+        />
+      )}
+
+      {attachingChatToProject && (
+        <AttachChatToWorkspaceModal
+          chat={attachingChatToProject}
+          workspaces={workspaces}
+          onClose={() => setAttachingChatToProject(null)}
+        />
+      )}
+
+      {managingWorkspace && (
+        <ManageWorkspaceModal
+          workspace={workspaces.find((w) => w.id === managingWorkspace.id) || managingWorkspace}
+          allChats={chats}
+          onClose={() => setManagingWorkspace(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+// NEW — §6: this modal is now "Create batch" in practice. It keeps the
+// name LinkChatsModal (and the old linkChats() path stays available for
+// power users linking a chat that ISN'T going into a batch), but saving
+// with 1+ chats selected now calls createBatch() so the result is a real
+// mutual-membership group, not a one-directional linked_chat_ids edit.
+// This only ever opens for unbatched chats — the Link2 button that opens
+// it is already hidden on batched rows (see renderChatRow above), so
+// there's no "chat already in a batch" case to special-case here.
+//
+// SessionContext dead-code prep: linkChats here now comes from
+// useWorkspaceDockActions() instead of useSession() — found this was the
+// one live caller still on the legacy version (createBatch/estimateBatch
+// stay on useSession(), they're genuinely app-wide, not chat-lifecycle).
+// The dock's linkChats is a functionally identical passthrough (same
+// PATCH /api/chats/:id/links call + refreshChatList()), so this is a
+// pure swap, not a behavior change.
+function LinkChatsModal({ chatId, allChats, onClose }) {
+  const { createBatch, estimateBatch } = useSession();
+  const { linkChats } = useWorkspaceDockActions();
+  const current = allChats.find((c) => c.id === chatId);
+  const [selected, setSelected] = useState(new Set(current?.linked_chat_ids || []));
+  const [estimate, setEstimate] = useState(null);   // NEW — §9.2
+
+  function toggle(id) {
+    const next = new Set(selected);
+    next.has(id) ? next.delete(id) : next.add(id);
+    setSelected(next);
+  }
+
+  // NEW — §9.2: recompute as the selection changes. Nothing to estimate
+  // until there's at least one other chat picked — an empty selection
+  // isn't forming a batch at all.
+  useEffect(() => {
+    if (selected.size === 0) { setEstimate(null); return; }
+    let cancelled = false;
+    estimateBatch([chatId, ...Array.from(selected)]).then((result) => {
+      if (!cancelled) setEstimate(result);
+    });
+    return () => { cancelled = true; };
+  }, [selected, chatId, estimateBatch]);
+
+  async function save() {
+    if (selected.size > 0) {
+      // Selecting at least one other chat forms a real batch now, instead
+      // of the old one-directional link. Default name is editable right
+      // after via ManageBatchModal's rename affordance (§5).
+      const defaultName = `${current?.title || "Chat"} + ${selected.size} more`;
+      await createBatch(defaultName, [chatId, ...Array.from(selected)]);
+    } else {
+      // Nothing selected: fall back to clearing any old-style links.
+      await linkChats(chatId, []);
+    }
+    onClose();
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
+      <div
+        className="bg-[var(--neutral-900)] border border-[var(--neutral-700)] rounded-lg p-4 w-80 max-h-[70vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-sm font-medium text-[var(--neutral-200)] mb-1">Share memory with &quot;{current?.title}&quot;</h3>
+        <p className="text-xs text-[var(--neutral-500)] mb-3">
+          Pick chats to group with this one — they&apos;ll all share memory with each other as a batch.
+        </p>
+        <div className="space-y-1">
+          {allChats.filter((c) => c.id !== chatId).map((c) => (
+            <label key={c.id} className="flex items-center gap-2 text-xs text-[var(--neutral-300)] py-1 cursor-pointer">
+              <input
+                type="checkbox"
+                id={`batch-select-${c.id}`}
+                name={`batch-select-${c.id}`}
+                checked={selected.has(c.id)}
+                onChange={() => toggle(c.id)}
+              />
+              {c.title}
+            </label>
+          ))}
+          {allChats.length <= 1 && (
+            <p className="text-xs text-[var(--neutral-600)]">No other chats yet.</p>
+          )}
+        </div>
+
+        {/* NEW — §9.2: goes right here, between the checkbox list and the
+            Cancel/Save row — so it's the last thing you see before deciding */}
+        {estimate && selected.size > 0 && (
+          <p className={`text-[11px] mt-3 ${estimate.max_tokens_per_message > 800 ? "text-red-400" : "text-[var(--neutral-500)]"}`}>
+            ~{estimate.max_tokens_per_message} tokens of shared context injected per message across {estimate.member_count} chats
+          </p>
+        )}
+
+        <div className="flex justify-end gap-2 mt-4">
+          <button onClick={onClose} className="text-xs text-[var(--neutral-400)] px-3 py-1.5">Cancel</button>
+          <button onClick={save} className="text-xs bg-[var(--accent)] text-[var(--accent-text)] rounded px-3 py-1.5 font-medium">Save</button>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,468 @@
+"""
+m2c/src/m2c/cli.py -- Patch C01: the ``m2c`` command (Patch C03: login/logout).
+
+    m2c [--mode M] [--plain]      after login, the terminal chat (C09); --plain, or no terminal: the plain prompt (I01)
+    m2c -p "task"                 headless: run one task, no prompts, no terminal needed (C10)
+          [--output-format text|json] [--mode plan|ask|accept-edits]
+          [--allow RULE]... [--deny RULE]... [--sandbox auto|required|off] [--cwd PATH]   (real tools: C10b)
+    m2c --version
+    m2c login [--device-name N]   sign in with a code you approve in the web app
+    m2c logout                    delete this device's local credential
+    m2c doctor [--project P]      check that this machine can run m2c
+    m2c trust --list              the project folders you decided about (C26)
+    m2c trust --forget PATH       drop the decision for a folder, so you are asked again
+
+Built on argparse only (runtime dependencies are the standard library until
+a work package says otherwise).  ``main()`` returns an exit status instead of
+calling ``sys.exit`` itself, so tests can call it directly; the console
+script generated from ``[project.scripts]`` does ``sys.exit(main())``.
+
+Exit statuses (stable, scripts may rely on them):
+
+    0   success (for doctor: every hard requirement met; warnings allowed)
+    1   doctor found a hard requirement missing; or login/logout hit a problem
+        with the config directory or an unexpected error (only its type is shown)
+    2   usage error (unknown command, bad option, --project not a directory,
+        M2C_SERVER_URL missing or unsafe, unusable --device-name)
+    3   reserved: C01 used it for "not implemented yet"; nothing returns it now
+    4   sign-in failed: login was denied, expired or could not reach the server,
+        or logout could not delete the credential (the message says which); for
+        the bare ``m2c`` prompt: not signed in, or the device was revoked
+    5   the bare ``m2c`` prompt could not reach the server
+    130 login was cancelled with Ctrl+C
+
+``m2c -p`` (headless.py, Patch C10) has its OWN exit statuses, a different table: 0 success, 1 general failure,
+2 usage error, 3 policy denial, 4 quota exhausted, 5 not logged in or device revoked, 130 / 143 ended by Ctrl-C /
+SIGTERM.  (4 and 5 mean something else for the commands above: scripts that run ``m2c -p`` read the headless table.)
+This module only parses the options and calls ``headless.run_headless``; -p is not a command, so it cannot be combined
+with one, and --output-format is an option of -p only.  --mode also starts the interactive terminal chat in that mode
+(plan, ask or accept-edits; plan can only be chosen here, it is left through the plan_exit tool); --plain forces the
+plain prompt of I01, which has no modes, so --mode with it (or without a terminal) is a usage error rather than a
+silently ignored safety option.
+
+Patch C10b: ``m2c -p`` runs the tools for real (edits, commands) under the policy of C06 in a non-interactive form: the
+options --allow, --deny, --sandbox and --cwd belong to -p only (with anything else they are a usage error, for the same
+reason as --mode above).  They are handed to ``headless.run_headless`` as one ``tool_setup`` made by ``session_setup``;
+that module is imported only when -p runs, so ``--version``, ``--help`` and the other commands do not load the tool and
+policy packages.
+
+Side effects, deliberately minimal: ``--version`` and ``--help`` do not touch
+the filesystem, and neither does ``logout`` when there is nothing to delete.
+``doctor`` and ``login`` create the config directory (``~/.m2c``, mode 0700,
+or ``$M2C_HOME``): doctor because proving it can be created and written is one
+of its checks, login because the credential goes there.  The report goes to
+stdout, and so do the sign-in code and address; log lines and error messages
+go to stderr.  Neither a credential, a device code nor a token is ever printed
+or logged (see auth/credentials.py).
+
+Place this file at: m2c/src/m2c/cli.py
+"""
+from __future__ import annotations
+
+import argparse
+import logging
+import os
+import sys
+import time
+from collections.abc import Sequence
+from pathlib import Path
+from typing import Any
+
+from . import __version__, doctor, headless
+from .auth import login as login_mod
+from .auth.credentials import AuthError
+from .config import ServerUrlError, log_level_from_env, server_url_from_env
+from .logging_setup import configure_logging, log_event
+from .paths import ConfigDirError
+
+EXIT_OK = 0
+EXIT_FAILURE = 1
+EXIT_USAGE = 2
+EXIT_NOT_IMPLEMENTED = 3  # reserved: C01's stubs used it; nothing returns it since C03
+EXIT_AUTH = 4
+EXIT_UNREACHABLE = 5  # the prompt could not reach the server (I01)
+EXIT_INTERRUPTED = 130  # the shell convention for "ended by Ctrl+C"
+
+logger = logging.getLogger("m2c.cli")
+
+_EPILOG = """\
+environment variables:
+  M2C_HOME        directory for m2c's local files (default: ~/.m2c). Must be an
+                  absolute path; created with mode 0700. Tests and second
+                  profiles use this to avoid touching the real home directory.
+  M2C_LOG_LEVEL   DEBUG, INFO, WARNING (default), ERROR or CRITICAL. Logs go to
+                  stderr and never contain message content.
+  M2C_SERVER_URL  address of your MiniMe server (https://..., or http:// for
+                  localhost). Needed by `m2c login`; afterwards it is remembered
+                  with the credential.
+
+exit status of login, logout, doctor and the prompt: 0 ok, 1 doctor found a
+missing hard requirement (or an unexpected error), 2 usage error, 4 sign-in
+failed (login or logout) or not signed in, 5 the prompt could not reach the
+server, 130 login cancelled.
+
+exit status of `m2c -p` (headless mode; a different table):
+""" + headless.EXIT_CODES_HELP + """\
+ 130  interrupted (Ctrl-C), run cancelled first
+ 143  terminated (SIGTERM), run cancelled first
+In --output-format json mode the same status is also in the one JSON object
+printed on stdout.
+"""
+
+_LOGIN_DESCRIPTION = """\
+Sign in without typing a password here. m2c shows a short code and a web
+address; open the address in a browser (on any device), sign in to your
+account and enter the code. m2c waits, then stores a credential for this
+device: in your OS keyring if the optional 'keyring' package is installed and
+usable, otherwise in a file (mode 0600) in the m2c config directory.
+
+Needs M2C_SERVER_URL set to your MiniMe server (https://...).
+"""
+
+_LOGOUT_DESCRIPTION = """\
+Delete this device's credential from this machine (keyring and file).
+
+This does not contact the server: the device stays registered with your
+account until you revoke it on the Devices page of the web app.
+"""
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="m2c",
+        description="M2C (Minime to Code): a local-first coding agent client.",
+        epilog=_EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("--version", action="version", version=f"m2c {__version__}")
+    # Not required (I01): `m2c` with no command opens the prompt after login.
+    headless_group = parser.add_argument_group(
+        "headless mode",
+        "Run one task without any prompt or terminal: m2c -p \"fix the failing test\".\n"
+        "Use -p - to read the task from stdin (also for a task that starts with a dash).\n"
+        "Text mode writes the reply to stdout and progress to stderr; json mode writes one\n"
+        "JSON object to stdout. Tools run for real under the permission policy: what the\n"
+        "mode allows (--mode accept-edits for file edits) or an --allow rule permits; a call\n"
+        "that would need approval is refused and fails the run (exit 3). Project settings\n"
+        "are ignored. Exit statuses are listed at the end.",
+    )
+    headless_group.add_argument(
+        "-p", "--print", dest="print_task", metavar="TASK",
+        help="run TASK headlessly and print the result ('-' reads the task from stdin)",
+    )
+    headless_group.add_argument(
+        "--output-format", choices=headless.OUTPUT_FORMATS, default=None, metavar="{text,json}",
+        help="with -p: text (default) streams the reply; json prints one JSON object at the end",
+    )
+    headless_group.add_argument(
+        "--mode", default=None, metavar="{" + ",".join(headless.MODES) + "}",
+        help="the permission mode a headless run (-p) or the terminal chat starts in (default: "
+        + headless.DEFAULT_MODE + "); plan can only be chosen here",
+    )
+    headless_group.add_argument(
+        "--allow", action="append", default=None, metavar="RULE",
+        help="with -p: allow calls matching RULE, written tool(pattern), e.g. 'bash(git status)' or "
+        "'write_file(src/**)'; repeatable; for this run only",
+    )
+    headless_group.add_argument(
+        "--deny", action="append", default=None, metavar="RULE",
+        help="with -p: deny calls matching RULE (same syntax); repeatable; a deny always wins over an allow",
+    )
+    headless_group.add_argument(
+        "--sandbox", choices=("auto", "required", "off"), default=None, metavar="{auto,required,off}",
+        help="with -p: how shell commands are sandboxed (default: auto = when the sandbox is available; required = "
+        "refuse to run commands without it; off = no sandbox)",
+    )
+    headless_group.add_argument(
+        "--cwd", default=None, metavar="PATH",
+        help="with -p: the project folder to work in (default: the current directory; the filesystem root and your "
+        "home directory are refused)",
+    )
+    parser.add_argument(
+        "--plain", action="store_true",
+        help="use the plain prompt (no colours, no keys) instead of the terminal chat; it is also used when stdin or "
+        "stdout is not a terminal",
+    )
+    sub = parser.add_subparsers(dest="command", metavar="<command>", required=False)
+    login_parser = sub.add_parser(
+        "login",
+        help="sign in with a code you approve in the web app",
+        description=_LOGIN_DESCRIPTION,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    login_parser.add_argument(
+        "--device-name",
+        metavar="NAME",
+        help="how this device appears on the web Devices page (default: this machine's host name)",
+    )
+    sub.add_parser(
+        "logout",
+        help="delete this device's local credential (revoke the device on the web Devices page)",
+        description=_LOGOUT_DESCRIPTION,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    doctor_parser = sub.add_parser(
+        "doctor",
+        help="check that this machine can run m2c",
+        description="Check the operating system, Python, git, ripgrep, bubblewrap, "
+        "the project location and the config directory.",
+    )
+    doctor_parser.add_argument(
+        "--project",
+        metavar="PATH",
+        type=Path,
+        help="project folder to check (default: the current directory)",
+    )
+    trust_parser = sub.add_parser(
+        "trust",
+        help="list the project folders you decided about, or forget a decision",
+        description="Project settings, hooks and skills are used only in a folder you trusted, and only while its files "
+        "are the ones you trusted.  The answer is given in the folder itself, when m2c asks.  This command only shows "
+        "the saved answers (--list) or removes one so that you are asked again (--forget).",
+    )
+    trust_group = trust_parser.add_mutually_exclusive_group(required=True)
+    trust_group.add_argument("--list", action="store_true", help="show each folder, your decision and when you made it")
+    trust_group.add_argument("--forget", metavar="PATH", help="remove the saved decision for this folder")
+    return parser
+
+
+def _unexpected(command: str, exc: Exception) -> int:
+    """Whatever went wrong inside, the terminal gets the exception's *type*:
+    its text can echo a request, and a traceback prints local variables."""
+    log_event(logger, logging.ERROR, "cli.unexpected_error", exc_type=type(exc).__name__)
+    print(f"m2c {command}: unexpected error ({type(exc).__name__}).", file=sys.stderr)
+    return EXIT_FAILURE
+
+
+def _run_login(device_name: str | None) -> int:
+    # Everything that can be checked without the network is checked first, so
+    # a typo never starts a pairing.
+    try:
+        name = None if device_name is None else login_mod.normalize_device_name(device_name)
+    except ValueError as exc:
+        print(f"m2c login: --device-name: {exc}.", file=sys.stderr)
+        return EXIT_USAGE
+    try:
+        server_url = server_url_from_env()
+    except ServerUrlError as exc:
+        print(f"m2c login: {exc}.", file=sys.stderr)
+        return EXIT_USAGE
+    if server_url is None:
+        print(
+            "m2c login: set M2C_SERVER_URL to the address of your MiniMe server "
+            "(for example https://api.example.com), then run it again.",
+            file=sys.stderr,
+        )
+        return EXIT_USAGE
+    try:
+        login_mod.login(server_url, device_name=name)
+    except KeyboardInterrupt:
+        print("\nm2c login: Cancelled. Nothing was stored.", file=sys.stderr)
+        return EXIT_INTERRUPTED
+    except AuthError as exc:  # messages are fixed text (auth/credentials.py)
+        print(f"m2c login: {exc}", file=sys.stderr)
+        return EXIT_AUTH
+    except ConfigDirError as exc:
+        print(f"m2c login: {exc}.", file=sys.stderr)
+        return EXIT_FAILURE
+    except Exception as exc:
+        return _unexpected("login", exc)
+    return EXIT_OK
+
+
+def _run_logout() -> int:
+    try:
+        removed = login_mod.logout()
+    except AuthError as exc:
+        print(f"m2c logout: {exc}", file=sys.stderr)
+        return EXIT_AUTH
+    except ConfigDirError as exc:
+        print(f"m2c logout: {exc}.", file=sys.stderr)
+        return EXIT_FAILURE
+    except Exception as exc:
+        return _unexpected("logout", exc)
+    if removed:
+        print("Signed out: the local credential was deleted from this machine.")
+        print(
+            "This device stays registered with your account until you revoke it "
+            "on the Devices page of the web app."
+        )
+    else:
+        print("Not signed in; there was no local credential to delete.")
+    return EXIT_OK
+
+
+def _run_doctor(project: Path | None) -> int:
+    if project is not None and not project.is_dir():
+        print(f"m2c doctor: --project: {project} is not a directory.", file=sys.stderr)
+        return EXIT_USAGE
+    report = doctor.run_doctor(env=doctor.Environment.detect(project))
+    sys.stdout.write(report.render())
+    return EXIT_OK if report.ok else EXIT_FAILURE
+
+
+def _run_trust(args: argparse.Namespace) -> int:
+    """``m2c trust --list`` / ``--forget PATH`` (Patch C26).  Reads and edits the trust file only; it cannot grant trust."""
+    from .trust import TrustStore, TrustStoreError, canonical_root
+    from .tui.safe import clean_line
+
+    try:
+        store = TrustStore.default()
+        if args.list:
+            entries = store.items()
+            for folder, entry in entries:
+                when = time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime(entry.time))
+                print(f"{entry.decision:<9}  {when}  {clean_line(folder, 300)}")
+            if not entries:
+                print("No folder trust decisions are stored.")
+            if store.ignored_entries:
+                n = store.ignored_entries
+                print(f"({n} malformed entr{'y' if n == 1 else 'ies'} ignored)")
+            return EXIT_OK
+        folder = canonical_root(os.path.expanduser(args.forget))
+        if folder is None:
+            print("m2c trust: --forget: that is not a usable folder path.", file=sys.stderr)
+            return EXIT_USAGE
+        if store.forget(folder):
+            print(f"Forgot the trust decision for {clean_line(folder, 300)}. You will be asked again there.")
+        else:
+            print(f"There is no decision stored for {clean_line(folder, 300)}.")
+        return EXIT_OK
+    except TrustStoreError as exc:  # fixed text plus the path, with how to fix it (store.py)
+        print(f"m2c trust: {clean_line(str(exc), 1000)}", file=sys.stderr)
+        return EXIT_FAILURE
+    except ConfigDirError as exc:
+        print(f"m2c trust: {exc}.", file=sys.stderr)
+        return EXIT_FAILURE
+    except Exception as exc:
+        return _unexpected("trust", exc)
+
+
+def _run_headless(args: argparse.Namespace) -> int:
+    """`m2c -p` (patch C10): everything, including usage errors and the json object, is headless.py's."""
+    options = headless.HeadlessOptions(
+        task=args.print_task,
+        mode=headless.DEFAULT_MODE if args.mode is None else args.mode,
+        output_format="text" if args.output_format is None else args.output_format,
+    )
+    try:
+        from . import session_setup  # lazy: only -p needs the policy and tool packages
+
+        def tool_setup() -> Any:
+            return session_setup.headless_tool_setup(
+                cwd=args.cwd, allow=tuple(args.allow or ()), deny=tuple(args.deny or ()),
+                sandbox="auto" if args.sandbox is None else args.sandbox)
+
+        return headless.run_headless(options, tool_setup=tool_setup)
+    except Exception as exc:  # run_headless reports its own failures; this is a last resort, never a traceback
+        return _unexpected("-p", exc)
+
+
+def _run_prompt(mode: str | None = None, plain: bool = False) -> int:
+    """`m2c` with no command: after login, open the terminal chat (m2c/tui, patch C09), or the plain prompt loop
+    (m2c/repl.py, patch I01) with --plain or when stdin or stdout is not a terminal."""
+    import asyncio
+
+    from . import repl
+    from .auth.credentials import NotLoggedInError, load_credential
+    from .store import open_db
+
+    interactive = (not plain) and sys.stdin.isatty() and sys.stdout.isatty()
+    if mode is not None and not interactive:
+        print("m2c: --mode needs the terminal chat; it cannot be used with --plain or without a terminal.",
+              file=sys.stderr)
+        return EXIT_USAGE
+    chat = None
+    if interactive:
+        try:  # the terminal libraries are imported only here, so every other command stays free of them
+            from .tui import app as chat
+        except ImportError:
+            if mode is not None:
+                print("m2c: the terminal chat needs prompt_toolkit and rich; install them to use --mode.", file=sys.stderr)
+                return EXIT_FAILURE
+            print("m2c: the terminal chat needs prompt_toolkit and rich; using the plain prompt.", file=sys.stderr)
+    try:
+        load_credential()
+    except NotLoggedInError:
+        print("m2c: not signed in. Run `m2c login` first.", file=sys.stderr)
+        return EXIT_AUTH
+    except AuthError as exc:  # fixed text (auth/credentials.py)
+        print(f"m2c: {exc}", file=sys.stderr)
+        return EXIT_AUTH
+    try:
+        store = open_db()
+    except ConfigDirError as exc:
+        print(f"m2c: {exc}.", file=sys.stderr)
+        return EXIT_FAILURE
+    except Exception as exc:
+        return _unexpected("prompt", exc)
+    try:
+        if chat is not None:
+            from .tui.session import StartupError
+
+            try:
+                status = asyncio.run(chat.run_chat(store, project_path=str(Path.cwd()), mode=mode or headless.DEFAULT_MODE))
+            except StartupError as exc:  # fixed text
+                print(f"m2c: {exc}.", file=sys.stderr)
+                return EXIT_USAGE
+        else:
+            status = asyncio.run(repl.run_prompt(store, project_path=str(Path.cwd())))
+    except KeyboardInterrupt:
+        return EXIT_INTERRUPTED
+    except Exception as exc:
+        return _unexpected("prompt", exc)
+    finally:
+        store.close()
+    return status
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = build_parser()
+    try:
+        args = parser.parse_args(argv)
+    except SystemExit as exc:  # --version, --help and usage errors
+        if exc.code is None:
+            return EXIT_OK
+        return exc.code if isinstance(exc.code, int) else EXIT_USAGE
+
+    configure_logging(log_level_from_env())
+    log_event(logger, logging.DEBUG, "cli.start", version=__version__)
+
+    if args.print_task is not None:
+        if args.command is not None:
+            print(f"m2c: -p/--print runs a task; it cannot be combined with the {args.command!r} command.", file=sys.stderr)
+            return EXIT_USAGE
+        if args.plain:
+            print("m2c: --plain applies to the chat, not to -p/--print.", file=sys.stderr)
+            return EXIT_USAGE
+        return _run_headless(args)
+    if args.output_format is not None:
+        print("m2c: --output-format only applies to -p/--print.", file=sys.stderr)
+        return EXIT_USAGE
+    for flag, value in (("--allow", args.allow), ("--deny", args.deny), ("--sandbox", args.sandbox), ("--cwd", args.cwd)):
+        if value is not None:    # C10b: a safety option that would be silently ignored is a usage error
+            print(f"m2c: {flag} only applies to -p/--print.", file=sys.stderr)
+            return EXIT_USAGE
+    if args.command is not None and (args.mode is not None or args.plain):
+        print(f"m2c: --mode and --plain apply to the chat (no command) and --mode to -p, not to the {args.command!r} "
+              "command.", file=sys.stderr)
+        return EXIT_USAGE
+    if args.mode is not None and args.mode not in headless.MODES:
+        print(f"m2c: --mode must be one of {', '.join(headless.MODES)}.", file=sys.stderr)
+        return EXIT_USAGE
+    if args.command is None:
+        return _run_prompt(args.mode, args.plain)
+    if args.command == "login":
+        return _run_login(args.device_name)
+    if args.command == "logout":
+        return _run_logout()
+    if args.command == "doctor":
+        return _run_doctor(args.project)
+    if args.command == "trust":
+        return _run_trust(args)
+    parser.error(f"unknown command {args.command!r}")  # unreachable: argparse validates choices
+    return EXIT_USAGE
+
+
+if __name__ == "__main__":
+    sys.exit(main())

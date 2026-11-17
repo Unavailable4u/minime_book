@@ -1,0 +1,2067 @@
+"use client";
+import { useCallback, useEffect, useState, useRef, memo } from "react";
+import dynamic from "next/dynamic"; // NEW — W2.3a: EditorWorkbench measures real DOM nodes (CodeMirror), so it has to load client-only, see the EditorWorkbench declaration below
+import { useSession, authHeaders } from "../../context/SessionContext";
+import { useWorkspaces } from "../../context/WorkspacesContext";   // NEW — Item 2 concern split, slice 3
+import { useChatList } from "../../context/ChatListContext";   // NEW — Item 2 concern split, slice 4
+import WorkspaceChatPanel from "../WorkspaceChatPanel";
+import WireframePreview from "../WireframePreview"; // NEW — patch 12 (Plan/Build wireframes split): relocated from PlanTab.jsx's Wireframes sub-tab. Same component, same round-trip contract (onRequestEdit re-sends into the currently open chat) -- only the tab it renders in changed.
+import CreateWorkspaceModal from "../CreateWorkspaceModal"; // NEW — item #10 / B3: native "create project" for this tab, same as ResearchTab's B2
+import ConfirmDialog from "../ConfirmDialog"; // NEW — issue #3: same delete-confirmation affordance as ChatSidebar's own per-chat delete
+import ManageWorkspaceModal from "../ManageWorkspaceModal"; // NEW — project management (rename/delete/members/export), parity with Notebooks/Plan — was already built, just never wired into this tab
+import { ChatRowMenu } from "../RowMenu"; // NEW — shared per-chat "⋮" menu (Rename/Delete), same one Chat sidebar + every other stage tab uses
+import { useWorkspaceDockActions, useWorkspaceDock, useLastActiveChatId } from "../../context/WorkspaceDockContext"; // NEW — item #11 / C2: nested chat list, same as ResearchTab/PlanTab's C1. CHANGED — patch 12: useWorkspaceDock added, same hook PlanTab.jsx used to source WireframesPanel's sessionId/sendTask -- Build now owns that wiring instead.
+import { Loader2, ArrowUpRight, ChevronRight, ChevronLeft, MessageSquare, Plus, MoreVertical, Check, X } from "lucide-react"; // CHANGED — W2.3a: the file-tree/editor/ZIP icons (ChevronDown, RefreshCw, Save, Folder, FolderOpen, FileCode, Download) moved out with the old CodeView, into components/workbench/
+import WorkspaceStageIcons, { STAGE_THEME } from "../WorkspaceStageIcons"; // NEW — item #2: colored per-stage icon + per-project stage badges
+import InstructionChecklist from "../InstructionChecklist"; // NEW — patch 7 (T2/T3 Plan/Build split): relocated from PlanTab.jsx's Blueprint sub-tab. Same component, same backend read/write path (workspace_facts.custom["instructions"], GET .../device-spec, PATCH .../instructions/steps/{step_id}) -- only the tab it renders in changed.
+import { useSplitter } from "../../hooks/useSplitter"; // NEW — W0.2: draggable chat-dock width, replacing the old fixed width: 560
+// NEW — W4.1: the shared code-context store. Mounted here, wrapping
+// the workbench + chat-dock section below, as a sibling ancestor of
+// both EditorWorkbench and WorkspaceChatPanel (see codeContext.js's
+// own header) — either side can add/read/remove chips without
+// prop-drilling through the other. Kept out of the project-picker
+// sidebar's own subtree so switching projects in that list doesn't
+// remount it; see this provider's own `key` below for why it DOES
+// remount the workbench+chat section.
+import { CodeContextProvider, useCodeContext } from "../../lib/workbench/codeContext";
+import ContextChips from "../workbench/ContextChips";
+// NEW — W8.4: "Work on this" on an Instructions step. These three are the
+// non-editor pieces it needs: a cloud provider just to list/read the
+// project's files (fileProviders.js is fetch-only — it does NOT pull
+// CodeMirror into this tab's chunk, that stays behind EditorWorkbench's
+// dynamic import), the files-minus-placeholders helper, and the pure
+// step→file/draft/mode decision.
+import { createCloudFileProvider } from "../../lib/workbench/fileProviders";
+import { realFilePaths } from "../../lib/workbench/fileTree";
+import { planWorkOnStep } from "../../lib/workbench/instructionStep";
+import { createLatestGuard } from "../../lib/latestRequest"; // NEW — Patch B05: "latest request wins" guard for the board fetch, see refresh() below
+// NEW — W8.5b: the Deploy card files the writer's plan for the same Keep/Undo
+// review as any AI edit. codeProposals.js is fetch/Pusher only (no CodeMirror,
+// so it doesn't pull the editor into this tab's chunk); deployProposal.js is the
+// pure decision logic (what the card shows, how a /propose response reads).
+import { listProposals, proposeDeployConfig, proposeWireframeCode, subscribeToProposalEvents } from "../../lib/workbench/codeProposals"; // CHANGED — W8.6: proposeWireframeCode
+import {
+  deployCardView,
+  describeProposeResponse,
+  pendingFromProposeResponse,
+  deployProposalSummary,
+  pickPendingDeployProposal,
+} from "../../lib/workbench/deployProposal";
+// NEW — W8.6: the Wireframes sub-tab's "Turn into code" files the wireframe as
+// a pending proposal for index.html, reviewed in the same Keep/Undo view as any
+// AI edit. wireframeCode.js is the pure decision logic (what the code row shows,
+// how the route's response reads), same split as deployProposal.js above.
+import {
+  describeWireframeResponse,
+  pickPendingWireframeProposal,
+  wireframeCodeBlocker,
+  wireframeCodeView,
+  wireframeProposalSummary,
+} from "../../lib/workbench/wireframeCode";
+
+// NEW — W4.2 (Build Workbench plan). BuildTab itself can't call
+// useCodeContext() — it's the component CREATING CodeContextProvider
+// as a child element below, not a descendant of it — so this tiny
+// wrapper, rendered INSIDE that provider (both <WorkspaceChatPanel>
+// call sites below are), does the read and hands WorkspaceChatPanel
+// only the plain data/element props it actually takes (`codeRefs`,
+// `codeChips`, `onClearCodeRefs`), same "no lib/workbench dependency"
+// shape as that file's existing `activeContext` prop. Module-scope,
+// not nested inside BuildTab: an inline function component would get a
+// fresh identity — and remount its whole subtree, draft included — on
+// every BuildTab render.
+// CHANGED — W5.3: same reasoning for `onReviewProposal` — this is the
+// one place inside the provider that can turn a "Review" click (the
+// proposals list's own button, in WorkspaceChatPanel.jsx) into
+// codeContext.js's requestReview(proposal.id), which EditorWorkbench.jsx
+// (a DIFFERENT descendant of the same provider) is what actually
+// listens for. `onEnterReviewMode` is BuildTab's own plain callback —
+// switching the Build tab to its Editor sub-tab, and (only on the
+// mobile overlay instance below) closing the chat dock — passed in
+// rather than read from context, since neither of those is
+// code-context state.
+// CHANGED — W6.2: same reasoning again, for "Fix with AI" (a Console-tab
+// button, in EditorWorkbench.jsx) — this is the one place inside the
+// provider that can turn codeContext.js's own pendingChatMode into
+// something WorkspaceChatPanel.jsx can apply to its Ask|Edit toggle,
+// since that file has no lib/workbench import of its own (see its
+// header). Nothing here decides WHAT mode to request or WHEN — that's
+// entirely EditorWorkbench.jsx's handleFixWithAI(); this is just the
+// wire between the two.
+// CHANGED — W8.4: and once more for an Instructions step's "Work on
+// this" — `pendingDraft`/`clearDraft` carry the starter message the
+// composer should be pre-filled with (InstructionsView below asks for
+// it; WorkspaceChatPanel.jsx merges it into its draft).
+function CodeAwareChatPanel({ onEnterReviewMode, ...props }) {
+  const { refs, clearRefs, requestReview, pendingChatMode, clearChatMode, pendingDraft, clearDraft } = useCodeContext();
+  const onReviewProposal = useCallback(
+    (proposal) => {
+      onEnterReviewMode?.();
+      requestReview(proposal.id);
+    },
+    [onEnterReviewMode, requestReview]
+  );
+  return (
+    <WorkspaceChatPanel
+      {...props}
+      codeRefs={refs}
+      codeChips={<ContextChips />}
+      onClearCodeRefs={clearRefs}
+      onReviewProposal={onReviewProposal}
+      pendingChatMode={pendingChatMode}
+      onConsumeChatMode={clearChatMode}
+      pendingDraft={pendingDraft}
+      onConsumeDraft={clearDraft}
+    />
+  );
+}
+// Part 8.9: replaces the old static shared-secret x-api-key header
+// -- every fetch() below now sends the real per-user Supabase JWT via
+// authHeaders(), matching require_auth()'s Authorization: Bearer check.
+
+// §7 fix: Tasks is now scoped to a build-stage workspace instead of
+// whatever chat happens to be open. Same left-hand picker pattern as
+// NotebooksTab.jsx (localStorage-persisted selection, auto-select first
+// item once loaded), filtered to workspace.stage === "build" instead of
+// "note".
+//
+// UPDATED — step 16 (T3) audit: this comment used to warn that
+// eo/chat_workspace.py's list_workspaces()/get_workspace() didn't
+// SELECT/return w.stage, which would make every workspace read as stage
+// "note" and leave this filter showing nothing. Re-checked against the
+// current backend: both functions' queries already select w.stage, and
+// _row_to_workspace() already returns it (`"stage": row.get("stage",
+// "note")`) — confirmed by reading eo/chat_workspace.py directly, plus
+// WorkspacesContext.jsx's fetchWorkspaces(), which passes the backend's
+// JSON straight through with nothing stripped. That bug is already
+// fixed; this comment was just never updated to say so, which risked
+// someone re-diagnosing a problem that no longer exists. Left as a
+// dated note rather than deleted outright, so anyone reading this file's
+// history understands why the filter below was once expected to be broken.
+const SELECTED_BUILD_WS_KEY = "minime_tasks_selected_ws_id";
+const CHAT_DOCK_KEY = "minime_build_chatdock_collapsed";
+// NEW — collapsible project-picker sidebar, same pattern as the chat
+// dock's own collapse above.
+const PROJECTS_KEY = "minime_build_projects_collapsed";
+const PROMOTE_TARGETS = ["test", "growth"];
+const PROMOTE_LABELS = {
+  test: "Test",
+  growth: "Growth",
+};
+
+// feature_status's own value vocabulary (see agents/idea_planner.py's
+// SYSTEM_PROMPT) -- "done" | "in_progress" | missing. No new taxonomy
+// invented here; "missing" is just the absence of a feature_status entry
+// for a feature that current_plan["features"] lists.
+const COLUMNS = [
+  { status: "missing", label: "Missing" },
+  { status: "in_progress", label: "In Progress" },
+  { status: "done", label: "Done" },
+];
+
+// NEW — patch 7 (T2/T3 Plan/Build split): Build now has two sub-views for
+// a selected project instead of just the kanban board. Same small
+// nested-tab-bar pattern PlanTab.jsx's own BLUEPRINT_VIEWS uses.
+// UPDATED — patch 10: third sub-view, Code, added alongside Tasks/
+// Instructions. Same nav bar, no new pattern.
+// UPDATED — W2.3a: the Code sub-view is now the Editor workbench
+// (explorer + tabs + CodeMirror, components/workbench/EditorWorkbench.jsx).
+// UPDATED — patch 12 (Plan/Build wireframes split): fourth sub-view,
+// Wireframes, relocated here from PlanTab.jsx's SUB_TABS — decided this
+// pass that wireframing is build-time UI work, not a plan-time spec
+// document. Same nav bar, no new pattern.
+const BUILD_VIEWS = [
+  { id: "tasks", label: "Tasks" },
+  { id: "instructions", label: "Instructions" },
+  { id: "code", label: "Editor" }, // CHANGED — W2.3a: id stays "code" (the buildView checks below key off it); only the label changes to match what it now opens
+  { id: "wireframes", label: "Wireframes" },
+];
+
+// NEW — W2.3a: replaces the old inline CodeView (file tree + <textarea>).
+// `ssr: false` because CodeMirror measures real DOM nodes and has no
+// server-rendering story (see CodeEditor.jsx's header); it also keeps
+// the CodeMirror + language-data bundle out of this tab's own chunk
+// until someone actually opens the Editor sub-tab.
+const EditorWorkbench = dynamic(() => import("../workbench/EditorWorkbench"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex-1 min-h-0 flex items-center justify-center text-xs text-[var(--neutral-500)]">
+      Loading editor…
+    </div>
+  ),
+});
+
+function statusFor(featureStatus, featureName) {
+  return featureStatus[featureName] || "missing";
+}
+
+function Card({ title, action, children }) {
+  return (
+    <div className="cyber-panel p-4">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="font-display text-[11px] uppercase tracking-wide text-cyber-dim">{title}</h3>
+        {action}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// module_specs (agents/prompt_writer.py) is {"modules": [{name, description,
+// inputs, outputs, edge_cases}, ...]} for whichever ONE feature
+// current_plan["target_feature"] names this cycle -- it is not keyed by
+// feature name, and there is no per-feature history for features that
+// haven't been the target yet. So only the target feature card can
+// expand to something real; every other card is a plain label.
+function FeatureCard({ name, isTarget, targetModules, expanded, onToggle }) {
+  const canExpand = isTarget;
+  return (
+    <div className="cyber-panel p-3 space-y-2">
+      <button
+        type="button"
+        onClick={canExpand ? onToggle : undefined}
+        disabled={!canExpand}
+        className={`w-full text-left flex items-start justify-between gap-2 ${canExpand ? "" : "cursor-default"}`}
+      >
+        <span className="text-xs text-cyber-text">{name}</span>
+        {isTarget && (
+          <span className="shrink-0 font-display text-[9px] uppercase tracking-wide text-cyber-cyan border border-cyber-cyan/40 rounded px-1.5 py-0.5">
+            this cycle
+          </span>
+        )}
+      </button>
+      {expanded && canExpand && (
+        <div className="pt-2 border-t border-cyber-border text-[11px] text-cyber-dim space-y-2">
+          {(!targetModules || targetModules.length === 0) && (
+            <p>No module_specs recorded for this cycle yet.</p>
+          )}
+          {targetModules?.map((m, i) => (
+            <div key={m.name || i} className="space-y-0.5">
+              <p className="text-cyber-text font-mono">{m.name}</p>
+              {m.description && <p>{m.description}</p>}
+              {m.inputs && <p><span className="text-cyber-dim/70">in:</span> {String(m.inputs)}</p>}
+              {m.outputs && <p><span className="text-cyber-dim/70">out:</span> {String(m.outputs)}</p>}
+              {Array.isArray(m.edge_cases) && m.edge_cases.length > 0 && (
+                <p><span className="text-cyber-dim/70">edge cases:</span> {m.edge_cases.join(", ")}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Part 7 §7.3 -- fixed six-category vocabulary, matching
+// eo/registry.py's integration_flagger seed brief exactly (no new
+// taxonomy invented on the frontend either).
+const INTEGRATION_LABELS = {
+  auth: "Auth",
+  payments: "Payments",
+  email_notifications: "Email / Notifications",
+  analytics: "Analytics",
+  file_storage: "File Storage",
+  monitoring: "Monitoring",
+};
+
+function IntegrationChecklist({ integrations }) {
+  if (!integrations || integrations.length === 0) {
+    return (
+      <Card title="Integrations flagged">
+        <p className="text-[11px] text-cyber-dim">
+          None flagged yet -- integration_flagger runs once, early in the
+          cycle, and its result is cached for the rest of this session.
+        </p>
+      </Card>
+    );
+  }
+  return (
+    <Card title={`Integrations flagged (${integrations.length})`}>
+      <ul className="space-y-1.5">
+        {integrations.map((item, i) => (
+          <li key={`${item.type}-${i}`} className="text-[11px] flex items-start gap-2">
+            <span className="shrink-0 font-display uppercase tracking-wide text-[10px] text-cyber-cyan border border-cyber-cyan/40 rounded px-1.5 py-0.5">
+              {INTEGRATION_LABELS[item.type] || item.type}
+            </span>
+            <span className="text-cyber-dim">{item.evidence}</span>
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}
+
+// Strips an optional ```html (or ```mermaid) fenced code block wrapper so
+// a raw paste of either the bare markup or the fenced chat-rendered form
+// both work. Copied from PlanTab.jsx's own unfenceMermaid() as part of
+// patch 12 (Wireframes relocation) -- that copy stays in PlanTab.jsx too,
+// since its DiagramPastePanel (architecture/schema) still needs it; not
+// worth threading a shared import across two tabs for one small helper.
+function unfenceMermaid(text) {
+  const m = /```(?:mermaid)?\s*\n?([\s\S]*?)```/.exec(text || "");
+  return (m ? m[1] : text || "").trim();
+}
+
+// The label the pasted wireframe goes by in the preview header, in "Send edit"
+// messages, and on the proposal "Turn into code" files (W8.6).
+const WIREFRAME_SCREEN_LABEL = "Pasted wireframe";
+
+// --- Wireframes — paste the initial HTML, then edit via the existing
+// WireframePreview.jsx round trip. Per WireframePreview's own docstring,
+// onRequestEdit reuses the ordinary chat-send function, and the edit
+// round-trip only works while the CURRENTLY ACTIVE chat (sessionId) is
+// the same one that actually ran wireframe_sketcher — flagged plainly
+// here rather than hidden, same discipline as every other known
+// simplification in this domain.
+//
+// NEW — patch 12 (Plan/Build wireframes split): relocated verbatim from
+// PlanTab.jsx's own WireframesPanel. Persistence is unchanged — still
+// eo/panel_content.py under panelKey "wireframes", the same generic
+// per-workspace store PlanTab wrote to, so a wireframe pasted before
+// this patch shows up here too, no migration needed. sessionId/sendTask
+// now come from this tab's own `dock` (scoped to the selected build
+// project) instead of Plan's.
+//
+// NOT wired to PanelSourceBadge (carried over from PlanTab, patch 4) —
+// "wireframes" was never one of PLAN_ROLE_PANEL_MAP's six roles (see
+// eo/panel_content.py's own comment on that map), so
+// write_panel_from_role() never writes this panel_key and content_source
+// would read "manual" unconditionally, every time, for every workspace —
+// a badge that can only ever show one static label isn't telling the
+// person anything a badge is for. Revisit only if wireframe_sketcher ever
+// gets a direct-write path of its own.
+function WireframesPanel({ workspaceId, apiUrl, fetchPanelContent, savePanelContent, sessionId, sendTask, onOpenEditor }) {
+  const [raw, setRaw] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [savedAt, setSavedAt] = useState(null);
+  const [codeBusy, setCodeBusy] = useState(false); // W8.6: a Turn-into-code request is in flight
+  const [codeError, setCodeError] = useState(null); // W8.6
+  const [pending, setPending] = useState(null); // W8.6: wireframeProposalSummary() of the pending wireframe proposal
+  const { requestReview } = useCodeContext(); // W8.6: this panel renders INSIDE CodeContextProvider (see the render below)
+  const html = unfenceMermaid(raw.replace(/```html/i, "```")); // reuse the same fence-stripper for ```html blocks
+
+  // W8.6: leaving this sub-view (or switching project) while a request is
+  // still out must not set state on an unmounted panel.
+  const aliveRef = useRef(true);
+  useEffect(() => {
+    aliveRef.current = true;
+    return () => {
+      aliveRef.current = false;
+    };
+  }, []);
+
+  // W8.6: the pending wireframe proposal, if any — GET .../code/proposals
+  // ?status=pending filtered to the wireframe ones (wireframeCode.js),
+  // loaded on mount and re-loaded on CODE_PROPOSAL_READY/RESOLVED, so a Keep
+  // or Reject in the Editor (or another tab) clears the row here without a
+  // refresh. Same shape as DeployPanel's reload; a failed lookup leaves the
+  // row on what it last knew (console only) — it's a status line, not worth
+  // an error banner.
+  const reload = useCallback(async () => {
+    if (!workspaceId) return;
+    try {
+      const found = pickPendingWireframeProposal(await listProposals(apiUrl, workspaceId, { status: "pending" }));
+      if (!aliveRef.current) return;
+      setPending(found ? wireframeProposalSummary(found) : null);
+    } catch (err) {
+      console.error("Couldn't load the wireframe's review state:", err);
+    }
+  }, [apiUrl, workspaceId]);
+
+  useEffect(() => {
+    setPending(null); // another project's proposal must not linger while this one loads
+    setCodeError(null);
+    reload();
+  }, [reload]);
+
+  const reloadRef = useRef(reload);
+  useEffect(() => {
+    reloadRef.current = reload;
+  }, [reload]);
+  useEffect(() => {
+    if (!workspaceId) return undefined;
+    return subscribeToProposalEvents(workspaceId, {
+      onReady: () => reloadRef.current(),
+      onResolved: () => reloadRef.current(),
+    });
+  }, [workspaceId]);
+
+  // W8.6: files the wireframe AS SHOWN (the fence-stripped text the preview
+  // renders — not the saved copy, which may be older) for review. A re-send
+  // is fine: the backend rejects the earlier wireframe proposal once the new
+  // one exists, so a failure never costs the person the one they had.
+  async function handleTurnIntoCode() {
+    const blocker = wireframeCodeBlocker(html);
+    if (blocker) {
+      setCodeError(blocker);
+      return;
+    }
+    setCodeBusy(true);
+    setCodeError(null);
+    try {
+      const res = await proposeWireframeCode(apiUrl, workspaceId, {
+        html,
+        screenLabel: WIREFRAME_SCREEN_LABEL,
+        sessionId: sessionId || null,
+      });
+      if (!aliveRef.current) return;
+      const outcome = describeWireframeResponse(res);
+      if (outcome.ok) setPending(outcome.proposal);
+      else setCodeError(outcome.message);
+    } catch (err) {
+      if (aliveRef.current) setCodeError(err.message || "Couldn't file this wireframe for review.");
+    } finally {
+      if (aliveRef.current) setCodeBusy(false);
+    }
+  }
+
+  // Same order DeployPanel's Review and the chat card's Review use: go to
+  // the Editor, then ask it to open the proposal — it's mounted by the time
+  // it reads the request (see EditorWorkbench's pendingReview effect).
+  function handleReviewCode() {
+    if (!pending) return;
+    onOpenEditor?.();
+    requestReview(pending.id);
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setSavedAt(null);
+    fetchPanelContent(workspaceId, "wireframes").then((saved) => {
+      if (cancelled) return;
+      setRaw(saved?.content || "");
+      setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [workspaceId, fetchPanelContent]);
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      await savePanelContent(workspaceId, "wireframes", raw);
+      setSavedAt(Date.now());
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading) {
+    return <div className="text-xs text-cyber-dim flex items-center gap-1.5"><Loader2 size={12} className="animate-spin" /> Loading…</div>;
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-[11px] text-cyber-dim">
+        Paste wireframe_sketcher&apos;s HTML output below (raw or a fenced <code>```html</code> block).
+        &quot;Send edit&quot; below re-sends the edit instruction into whichever chat is currently open
+        (session <code>{sessionId ? sessionId.slice(0, 8) : "none"}</code>) — this only produces a
+        real follow-up wireframe if that&apos;s the same chat that generated this one (§5.5/§5.7).
+      </p>
+      <textarea
+        id="build-wireframe-paste-raw"
+        name="buildWireframePasteRaw"
+        value={raw}
+        onChange={(e) => setRaw(e.target.value)}
+        placeholder="<!doctype html>..."
+        rows={6}
+        className="w-full bg-black/30 border border-cyber-border rounded px-3 py-2 text-xs outline-none focus:border-[var(--cyber-cyan)] font-mono"
+      />
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="text-xs bg-[var(--accent)] text-[var(--accent-text)] rounded px-3 py-1.5 font-medium disabled:opacity-50"
+        >
+          {saving ? "Saving…" : "Save"}
+        </button>
+        {savedAt && !saving && <span className="text-[11px] text-cyber-dim">Saved</span>}
+      </div>
+      <WireframePreview
+        html={html}
+        screenLabel={WIREFRAME_SCREEN_LABEL}
+        onRequestEdit={sendTask ? (instruction) => sendTask(instruction) : undefined}
+        onTurnIntoCode={handleTurnIntoCode}
+        onReviewCode={handleReviewCode}
+        codeView={wireframeCodeView({ pending, blocker: wireframeCodeBlocker(html) })}
+        codeBusy={codeBusy}
+        codeError={codeError}
+      />
+    </div>
+  );
+}
+
+// NEW — patch 7 (T2/T3 Plan/Build split): InstructionChecklist relocated
+// here from PlanTab.jsx's BlueprintView. Same fetch/toggle plumbing that
+// lived in BlueprintView -- fetchDeviceSpec/toggleInstructionStep are
+// global SessionContext functions, not Plan-tab-owned, so this is a
+// straight copy of that logic, scoped to instructions only (Parts/
+// Wiring/Mech stay in Plan as design specs, see PlanTab.jsx's own
+// comment on BLUEPRINT_VIEWS).
+// CHANGED — W8.4: every step also gets a "Work on this" button (see
+// InstructionChecklist.jsx). InstructionsView is the one place that can
+// act on it: it renders INSIDE CodeContextProvider (BuildTab's render
+// below), so it can drop a chip into the shared store and queue the
+// jump / chat-mode / draft requests the Editor and chat dock pick up —
+// exactly the channels Explorer's "Add to chat" and the Console's "Fix
+// with AI" already use. What a click does:
+//   1. list the project's files (fresh, at click time — not on mount, so
+//      it can't be stale and costs nothing until it's used);
+//   2. instructionStep.js's planWorkOnStep() picks the relevant file (if
+//      any), the starter message, and Ask vs Edit;
+//   3. file found -> read it, add it as a `file` chip, queue a jump to it,
+//      and switch to the Editor sub-view (`onOpenEditor`);
+//   4. open the chat dock (`onOpenChat`) with the starter message
+//      pre-filled and the mode set. Nothing is sent: the person reads
+//      it, edits it, and presses send themselves.
+// No file found is not an error — a step like "Sand the lid" has none —
+// the chat is still opened with the message, and a line under the
+// header says so. `onOpenEditor`/`onOpenChat` are BuildTab's own plain
+// callbacks (they touch its sub-view and dock state, not code context).
+function InstructionsView({ workspaceId, apiUrl, fetchDeviceSpec, toggleInstructionStep, onOpenEditor, onOpenChat }) {
+  const [spec, setSpec] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notice, setNotice] = useState(null); // W8.4
+  const { addRef, requestJump, requestChatMode, requestDraft } = useCodeContext();
+  // W8.4: leaving this sub-view (or switching project) while a click is
+  // still listing files must not then yank the person into the Editor.
+  const aliveRef = useRef(true);
+  useEffect(() => {
+    aliveRef.current = true;
+    return () => { aliveRef.current = false; };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    fetchDeviceSpec(workspaceId).then((data) => {
+      if (cancelled) return;
+      setSpec(data);
+      setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [workspaceId, fetchDeviceSpec]);
+
+  async function handleToggleStep(phaseId, stepId, done) {
+    const result = await toggleInstructionStep(workspaceId, stepId, done);
+    // toggle endpoint returns the full updated `instructions` object
+    // (api/server.py's toggle_instruction_step) -- swap it in directly
+    // rather than re-fetching the whole device spec for a one-step change.
+    if (result?.instructions) {
+      setSpec((prev) => ({ ...prev, instructions: result.instructions }));
+    }
+  }
+
+  async function handleWorkOnStep(phase, step) {
+    setNotice(null);
+    const provider = createCloudFileProvider({ workspaceId, apiUrl });
+    let paths = [];
+    let listError = null;
+    try {
+      paths = realFilePaths(await provider.list());
+    } catch (err) {
+      listError = err?.message || "request failed";
+    }
+    if (!aliveRef.current) return;
+
+    const plan = planWorkOnStep({ step, phaseName: phase?.name, paths });
+    if (plan.path) {
+      // The chip carries the file's text (Ask mode fences snippets into
+      // the message; Edit mode sends the path). A read that fails
+      // still gets the chip + jump: the Editor will say why it can't
+      // open the file, which beats silently dropping the step's file.
+      let snippet = "";
+      try {
+        snippet = (await provider.read(plan.path)).content ?? "";
+      } catch {
+        /* chip without a snippet; see above */
+      }
+      if (!aliveRef.current) return;
+      addRef({ kind: "file", path: plan.path, provider: provider.id, snippet });
+      requestJump({ path: plan.path });
+      onOpenEditor?.();
+    } else {
+      setNotice(
+        listError
+          ? `Couldn't read this project's files (${listError}), so no file was opened. The chat has the step ready.`
+          : paths.length === 0
+            ? "This project has no files yet, so there's nothing to open. The chat has the step ready."
+            : "No file in this project matches that step. The chat has it ready."
+      );
+    }
+    requestChatMode(plan.mode);
+    requestDraft(plan.draft);
+    onOpenChat?.();
+  }
+
+  if (loading) {
+    return (
+      <div className="text-xs text-[var(--neutral-600)] flex items-center gap-1.5">
+        <Loader2 size={12} className="animate-spin" /> Loading…
+      </div>
+    );
+  }
+
+  const hasPhases = spec?.instructions?.phases?.length > 0;
+
+  if (!hasPhases) {
+    return (
+      <p className="text-xs text-[var(--neutral-600)]">
+        No build instructions generated yet — run hardware_speccer from this project&apos;s chat once a PRD exists.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {notice && <p className="text-[11px] text-[var(--neutral-500)]">{notice}</p>}
+      <InstructionChecklist
+        phases={spec.instructions.phases}
+        onToggleStep={handleToggleStep}
+        onWorkOnStep={handleWorkOnStep}
+      />
+    </div>
+  );
+}
+
+// Part 7 §7.6 -- deploy action button + status indicator.
+// CHANGED — W8.5b: "Propose" no longer ends at a plan you then press
+// "Write Config" on. The backend (W8.5a) files the writer's plan as a
+// PENDING code proposal in this project, and this card's job is to say so
+// and get the person to the review: "Review config" opens the Editor on that
+// proposal's Keep/Undo diff (the same door the chat card's Review button
+// uses), and the file lands in the project's files only on Keep.
+//
+// "Write Config" is gone from this card. It called /write, the old
+// unreviewed write-to-disk path, which the backend still serves but
+// api/routes/deploy.py documents as no longer offered for workspace-backed
+// projects — and every project in this tab is one. The one case that left it
+// the only way to a file (the chat isn't in a project you own, so the
+// proposal is skipped as `no_workspace`) now says so instead of silently
+// writing around the review.
+//
+// "Go Live" is still intentionally unwired -- the backend endpoint blocks on
+// a server-terminal y/N prompt (agents/deploy_agent.py's _confirm_deploy()),
+// which a browser fetch() can't answer. Wiring it here today would just hang
+// the request.
+//
+// What the card knows, and where from:
+//   - the plan: `deployConfigPlan`, the memory-bus plan from the tasks fetch;
+//   - the pending proposal: GET .../code/proposals?status=pending, filtered to
+//     the deploy writer's (deployProposal.js), loaded on mount and re-loaded
+//     on CODE_PROPOSAL_READY/RESOLVED — so a Regenerate from the Editor's
+//     tray, or a Keep, shows up here without a refresh;
+//   - whether the plan's file is already in the project's files (one file
+//     list) — what's true after a Keep, since a resolved proposal isn't in
+//     the pending list;
+//   - why THIS session's last Propose wasn't filed, if it wasn't (`skipped`).
+function DeployPanel({
+  sessionId,
+  workspaceId,
+  apiUrl,
+  deployConfigPlan,
+  lastDeployConfigSummary,
+  onRefresh,
+  onOpenEditor,
+}) {
+  const [busy, setBusy] = useState(null); // "propose" | null
+  const [error, setError] = useState(null);
+  const [pending, setPending] = useState(null); // deployProposalSummary() of the pending proposal
+  const [fileExists, setFileExists] = useState(null); // plan's file is in the project: true | false | null (unknown)
+  const [skipped, setSkipped] = useState(null); // `proposal_skipped` from this session's last Propose
+  const { requestReview } = useCodeContext();
+
+  const planPath = deployConfigPlan?.config_filename || null;
+
+  const aliveRef = useRef(true);
+  useEffect(() => {
+    aliveRef.current = true;
+    return () => {
+      aliveRef.current = false;
+    };
+  }, []);
+
+  // A failed lookup leaves the card on what it last knew (console only):
+  // it's a status line, not worth an error banner over the plan itself.
+  const reload = useCallback(async () => {
+    if (!workspaceId) return;
+    try {
+      const found = pickPendingDeployProposal(await listProposals(apiUrl, workspaceId, { status: "pending" }));
+      if (!aliveRef.current) return;
+      setPending(found ? deployProposalSummary(found) : null);
+      if (found || !planPath) {
+        setFileExists(null);
+        return;
+      }
+      const files = await createCloudFileProvider({ workspaceId, apiUrl }).list();
+      if (!aliveRef.current) return;
+      setFileExists(Object.prototype.hasOwnProperty.call(files || {}, planPath));
+    } catch (err) {
+      console.error("Couldn't load the deploy config's review state:", err);
+    }
+  }, [apiUrl, workspaceId, planPath]);
+
+  useEffect(() => {
+    reload();
+  }, [reload]);
+
+  // Latest reload for the event handlers below without re-subscribing
+  // (Pusher subscribe/unsubscribe) every time the plan's path changes.
+  const reloadRef = useRef(reload);
+  useEffect(() => {
+    reloadRef.current = reload;
+  }, [reload]);
+  useEffect(() => {
+    if (!workspaceId) return undefined;
+    return subscribeToProposalEvents(workspaceId, {
+      onReady: () => reloadRef.current(),
+      onResolved: () => reloadRef.current(),
+    });
+  }, [workspaceId]);
+
+  async function handlePropose() {
+    setBusy("propose");
+    setError(null);
+    try {
+      const res = await proposeDeployConfig(apiUrl, sessionId);
+      const { skipped: why } = describeProposeResponse(res);
+      setSkipped(why);
+      // A skipped/failed propose leaves any earlier pending proposal in
+      // place (the backend only supersedes it once a NEW one exists), so
+      // only a filed one replaces what the card shows.
+      const filed = pendingFromProposeResponse(res);
+      if (filed) setPending(filed);
+      await onRefresh();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  // Same order the chat card's Review uses (BuildTab's CodeAwareChatPanel):
+  // go to the Editor, then ask it to open the proposal — it's mounted by the
+  // time it reads the request (see EditorWorkbench's pendingReview effect).
+  function handleReview() {
+    if (!pending) return;
+    onOpenEditor?.();
+    requestReview(pending.id);
+  }
+
+  const hasConfig = Boolean(lastDeployConfigSummary);
+  const hasPlan = Boolean(deployConfigPlan);
+  const view = deployCardView({ plan: deployConfigPlan, pending, fileExists, skipped });
+
+  return (
+    <Card title="Deploy">
+      <div className="space-y-2 text-[11px]">
+        {view.message && <p className="text-cyber-dim">{view.message}</p>}
+        {(view.platform || view.path) && (
+          <div className="text-cyber-text">
+            {view.platform && (
+              <p>
+                <span className="text-cyber-dim/70">platform:</span> {view.platform}
+              </p>
+            )}
+            {view.path && (
+              <p>
+                <span className="text-cyber-dim/70">config file:</span>{" "}
+                <span className="font-mono">{view.path}</span>
+              </p>
+            )}
+            {view.reason && <p className="text-cyber-dim">{view.reason}</p>}
+          </div>
+        )}
+        {view.kind === "review" && (
+          <p className="text-cyber-cyan">
+            Ready for your review — nothing is added to this project until you press Keep.
+          </p>
+        )}
+        {view.notice && <p className="text-amber-400">{view.notice}</p>}
+        {hasConfig && (
+          <p className="text-cyber-cyan">
+            Config written to disk ({lastDeployConfigSummary.config_filename}) --
+            ready for a manual deploy, or for &quot;Go Live&quot; once that&apos;s wired up.
+          </p>
+        )}
+        {error && <p className="text-rose-400">{error}</p>}
+        <div className="flex flex-wrap gap-2 pt-1">
+          <button
+            type="button"
+            disabled={busy !== null || !sessionId}
+            onClick={handlePropose}
+            title={view.kind === "review" ? "Generates a new config and replaces the one waiting for review" : undefined}
+            className="font-display text-[10px] uppercase tracking-wide border border-cyber-cyan/40 text-cyber-cyan rounded px-2 py-1 disabled:opacity-50"
+          >
+            {busy === "propose" ? "Proposing..." : hasPlan ? "Re-propose" : "Propose"}
+          </button>
+          {view.kind === "review" && (
+            <button
+              type="button"
+              disabled={busy !== null}
+              onClick={handleReview}
+              className="font-display text-[10px] uppercase tracking-wide border border-cyber-cyan/40 text-cyber-cyan rounded px-2 py-1 disabled:opacity-50"
+            >
+              Review config
+            </button>
+          )}
+          <button
+            type="button"
+            disabled
+            title="Not wired up yet -- see chat"
+            className="font-display text-[10px] uppercase tracking-wide border border-cyber-dim/30 text-cyber-dim/50 rounded px-2 py-1 cursor-not-allowed"
+          >
+            Go Live
+          </button>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+// Part 7 §7.6 -- monitoring widget. Sentry is read-only status (it's an
+// ordinary generated module, nothing for the user to configure here);
+// UptimeRobot needs a one-time API key + a URL to register, since
+// agents/deploy_agent.py's register_uptimerobot_monitor() deliberately
+// takes an explicit url rather than reading one off a real deploy (no
+// real host client exists yet -- see that module's docstring).
+const SENTRY_STATUS_LABELS = {
+  not_planned: "Not planned",
+  planned: "Planned this cycle",
+  configured: "Configured",
+};
+
+function MonitoringWidget({ sessionId, apiUrl, monitoring, onRefresh }) {
+  const [apiKey, setApiKey] = useState("");
+  const [url, setUrl] = useState("");
+  const [busy, setBusy] = useState(null); // "key" | "register" | null
+  const [error, setError] = useState(null);
+
+  const sentryStatus = monitoring?.sentry_status || "not_planned";
+  const uptimerobot = monitoring?.uptimerobot || null;
+
+  async function saveKey() {
+    if (!apiKey) return;
+    setBusy("key");
+    setError(null);
+    try {
+      const res = await fetch(`${apiUrl}/api/monitoring/${sessionId}/uptimerobot-key`, {
+        method: "POST",
+        headers: await authHeaders({ json: true }),
+        body: JSON.stringify({ api_key: apiKey }),
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => null))?.detail || `${res.status} ${res.statusText}`);
+      setApiKey("");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function register() {
+    if (!url) return;
+    setBusy("register");
+    setError(null);
+    try {
+      const res = await fetch(`${apiUrl}/api/monitoring/${sessionId}/uptimerobot-register`, {
+        method: "POST",
+        headers: await authHeaders({ json: true }),
+        body: JSON.stringify({ url }),
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(body?.detail || `${res.status} ${res.statusText}`);
+      await onRefresh();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <Card title="Monitoring">
+      <div className="space-y-3 text-[11px]">
+        <div>
+          <span className="text-cyber-dim/70">Sentry:</span>{" "}
+          <span className="text-cyber-text">{SENTRY_STATUS_LABELS[sentryStatus] || sentryStatus}</span>
+        </div>
+
+        <div className="space-y-1.5">
+          <span className="text-cyber-dim/70">UptimeRobot:</span>{" "}
+          {uptimerobot ? (
+            uptimerobot.status === "registered" ? (
+              <span className="text-cyber-cyan">
+                registered -- {uptimerobot.friendly_name} ({uptimerobot.url})
+              </span>
+            ) : (
+              <span className="text-rose-400">{uptimerobot.message}</span>
+            )
+          ) : (
+            <span className="text-cyber-dim">not registered yet</span>
+          )}
+
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            <input
+              type="password"
+              id="build-uptimerobot-api-key"
+              name="buildUptimerobotApiKey"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              aria-label="UptimeRobot API key"
+              placeholder="UptimeRobot API key"
+              className="flex-1 min-w-[140px] bg-cyber-bg border border-cyber-border rounded px-2 py-1 text-cyber-text placeholder:text-cyber-dim/50 outline-none"
+            />
+            <button
+              type="button"
+              disabled={busy !== null || !apiKey}
+              onClick={saveKey}
+              className="font-display text-[10px] uppercase tracking-wide border border-cyber-cyan/40 text-cyber-cyan rounded px-2 py-1 disabled:opacity-50"
+            >
+              {busy === "key" ? "Saving..." : "Save Key"}
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            <input
+              type="text"
+              id="build-uptimerobot-url"
+              name="buildUptimerobotUrl"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              aria-label="Deployed URL"
+              placeholder="https://your-deployed-url.example.com"
+              className="flex-1 min-w-[180px] bg-cyber-bg border border-cyber-border rounded px-2 py-1 text-cyber-text placeholder:text-cyber-dim/50 outline-none"
+            />
+            <button
+              type="button"
+              disabled={busy !== null || !url}
+              onClick={register}
+              className="font-display text-[10px] uppercase tracking-wide border border-cyber-cyan/40 text-cyber-cyan rounded px-2 py-1 disabled:opacity-50"
+            >
+              {busy === "register" ? "Registering..." : "Register"}
+            </button>
+          </div>
+          <p className="text-cyber-dim/70">
+            No live URL from a real deploy yet (see the Deploy panel above)
+            -- paste the URL to monitor manually for now.
+          </p>
+        </div>
+
+        {error && <p className="text-rose-400">{error}</p>}
+      </div>
+    </Card>
+  );
+}
+
+// Parts pricing — live-fetch panel, same shape as DeployPanel/
+// MonitoringWidget above: a direct fetch() with authHeaders(), not the
+// paste-panel pattern PlanTab.jsx uses. Parts live in
+// workspace_facts.custom.parts (see api/server.py's refresh_part_prices),
+// read back via the existing GET /api/workspaces/{ws_id}/facts endpoint
+// rather than a new one -- no dedicated parts store exists yet.
+function PartsPanel({ wsId, apiUrl }) {
+  const [parts, setParts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
+  const [newPartName, setNewPartName] = useState("");
+  const [newPartQty, setNewPartQty] = useState(1);
+
+  async function loadFacts() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${apiUrl}/api/workspaces/${wsId}/facts`, {
+        headers: await authHeaders(),
+      });
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      const facts = await res.json();
+      setParts(facts?.custom?.parts || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (wsId) loadFacts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wsId]);
+
+  function addPart() {
+    if (!newPartName.trim()) return;
+    setParts((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), name: newPartName.trim(), qty: Number(newPartQty) || 1 },
+    ]);
+    setNewPartName("");
+    setNewPartQty(1);
+  }
+
+  function removePart(id) {
+    setParts((prev) => prev.filter((p) => p.id !== id));
+  }
+
+  async function refreshPrices(forceRefresh = false) {
+    if (parts.length === 0) return;
+    setRefreshing(true);
+    setError(null);
+    try {
+      const res = await fetch(`${apiUrl}/api/workspaces/${wsId}/parts/refresh-prices`, {
+        method: "POST",
+        headers: await authHeaders({ json: true }),
+        body: JSON.stringify({ parts, force_refresh: forceRefresh }),
+      });
+      if (!res.ok) {
+        throw new Error((await res.json().catch(() => null))?.detail || `${res.status} ${res.statusText}`);
+      }
+      const { parts: updated } = await res.json();
+      setParts(updated);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
+  return (
+    <Card
+      title={`Parts${parts.length ? ` (${parts.length})` : ""}`}
+      action={
+        <button
+          type="button"
+          disabled={refreshing || parts.length === 0}
+          onClick={() => refreshPrices(false)}
+          className="font-display text-[10px] uppercase tracking-wide border border-cyber-cyan/40 text-cyber-cyan rounded px-2 py-1 disabled:opacity-50"
+        >
+          {refreshing ? "Refreshing..." : "Refresh prices"}
+        </button>
+      }
+    >
+      <div className="space-y-2 text-[11px]">
+        {loading ? (
+          <p className="text-cyber-dim">Loading...</p>
+        ) : (
+          <>
+            {parts.length === 0 && (
+              <p className="text-cyber-dim">No parts added yet.</p>
+            )}
+            {parts.map((p) => (
+              <div key={p.id} className="flex items-center justify-between gap-2 border-b border-cyber-border/50 pb-1.5">
+                <div className="min-w-0">
+                  <p className="text-cyber-text truncate">{p.name} <span className="text-cyber-dim/70">×{p.qty}</span></p>
+                  {p.estimated_price_bdt != null ? (
+                    <p className="text-cyber-dim">
+                      ৳{p.estimated_price_bdt}
+                      {p.vendor_url ? (
+                        <a href={p.vendor_url} target="_blank" rel="noreferrer" className="text-cyber-cyan ml-1 underline">
+                          {p.vendor_name || "source"}
+                        </a>
+                      ) : null}
+                      {p.price_checked_at && (
+                        <span className="text-cyber-dim/60"> — checked {new Date(p.price_checked_at).toLocaleDateString()}</span>
+                      )}
+                    </p>
+                  ) : (
+                    <p className="text-cyber-dim/60">Not priced yet</p>
+                  )}
+                </div>
+                <button onClick={() => removePart(p.id)} className="text-cyber-dim/60 hover:text-rose-400 shrink-0">✕</button>
+              </div>
+            ))}
+          </>
+        )}
+        {error && <p className="text-rose-400">{error}</p>}
+        <div className="flex gap-1.5 pt-1">
+          <input
+            id="build-new-part-name"
+            name="buildNewPartName"
+            value={newPartName}
+            onChange={(e) => setNewPartName(e.target.value)}
+            aria-label="Part name"
+            placeholder="Part name, e.g. HolyBro Kakute H7 V2"
+            className="flex-1 min-w-0 bg-black/30 border border-cyber-border rounded px-2 py-1 text-[11px] outline-none focus:border-cyber-cyan"
+          />
+          <input
+            type="number"
+            id="build-new-part-qty"
+            name="buildNewPartQty"
+            min={1}
+            value={newPartQty}
+            onChange={(e) => setNewPartQty(e.target.value)}
+            aria-label="Part quantity"
+            className="w-14 bg-black/30 border border-cyber-border rounded px-2 py-1 text-[11px] outline-none focus:border-cyber-cyan"
+          />
+          <button
+            type="button"
+            onClick={addPart}
+            className="font-display text-[10px] uppercase tracking-wide border border-cyber-cyan/40 text-cyber-cyan rounded px-2 py-1"
+          >
+            Add
+          </button>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function BuildTab({ onPromoted, onActiveWorkspaceChange, initialLocalTabRedirect, onConsumeInitialLocalTabRedirect }) {
+  // §7 fix: workspaces + promoteWorkspace come from the same
+  // SessionContext NotebooksTab/ResearchTab already use — no new context
+  // plumbing needed, Tasks just reads the shared list and filters it.
+  // NEW — patch 7: fetchDeviceSpec/toggleInstructionStep pulled from the
+  // same global SessionContext PlanTab.jsx's BlueprintView already used
+  // for these -- confirmed workspace-scoped, not Plan-tab-scoped, so no
+  // new plumbing needed here.
+  // CHANGED — patch 12: fetchPanelContent/savePanelContent added, same
+  // generic eo/panel_content.py-backed pair PlanTab.jsx already used for
+  // its six paste panels -- workspace-scoped, not Plan-tab-scoped, so no
+  // new plumbing needed here, just pulling them in for the relocated
+  // WireframesPanel below.
+  const { promoteWorkspace, API_URL, fetchDeviceSpec, toggleInstructionStep, fetchPanelContent, savePanelContent } = useSession();
+  const { chats } = useChatList();   // CHANGED — Item 2 concern split, slice 4: was useSession()
+  const { workspaces, fetchWorkspaces } = useWorkspaces();   // CHANGED — was useSession()
+  // NEW — item #11 / C2: same dock-driven "open chat" + row-highlight
+  // pattern as ResearchTab/PlanTab's C1.
+  const { switchChat, renameChat, deleteChat, createWorkspaceChat } = useWorkspaceDockActions();
+  const activeChatId = useLastActiveChatId();
+
+  // Build-stage workspaces only -- the "picked" list for this tab, same
+  // shape as NotebooksTab's `notebooks` / ResearchTab's `researchProjects`.
+  const buildProjects = workspaces.filter((w) => (w.active_stages || [w.stage]).includes("build"));
+
+  const [selectedWsId, setSelectedWsId] = useState(null);
+  const [restoredSelection, setRestoredSelection] = useState(false);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [expandedFeature, setExpandedFeature] = useState(null);
+  // NEW — patch 7: which of BUILD_VIEWS is showing for the selected
+  // project. Same pattern as PlanTab's BlueprintView `view` state.
+  const [buildView, setBuildView] = useState("tasks");
+  // NEW — W8.4: "Work on this" picks a file out of the project's CLOUD
+  // files, so the Editor it opens is asked for the Cloud source. One-shot:
+  // armed right before the sub-view switch, consumed by EditorWorkbench on
+  // mount, never persisted as the person's own source preference. (M2C
+  // B10: Local folder mode is gone, so cloud is the only source and this
+  // is now effectively a no-op; the W3.2 "force Local" twin was removed.)
+  const [forceCloudSourceOnce, setForceCloudSourceOnce] = useState(false);
+  // NEW — W2.5: unsaved-edits guard. EditorWorkbench reports whether any
+  // open file has unsaved edits through `onDirtyChange`. It lands in a
+  // ref, not state: it's only ever read inside event handlers, and
+  // flipping it shouldn't re-render this whole tab. (And it's a callback
+  // rather than a `ref` on EditorWorkbench because that component is
+  // mounted through next/dynamic, whose wrapper doesn't forward refs.)
+  const editorDirtyRef = useRef(false);
+  const handleEditorDirty = useCallback((dirty) => {
+    editorDirtyRef.current = dirty;
+  }, []);
+  const [pendingNav, setPendingNav] = useState(null); // {run} — a navigation held behind the "Discard unsaved changes?" confirm
+  const [promoting, setPromoting] = useState(false);
+  const [promoteError, setPromoteError] = useState(null);
+  const [promoteTargetStage, setPromoteTargetStage] = useState("test");
+  // NEW — §2.6 step 4: "complete" (existing behavior, leaves this tab)
+  // vs "partial" (stays active here too, per §2.1/§2.2). Same toggle as
+  // Notebooks/Research/Plan.
+  const [promoteMode, setPromoteMode] = useState("complete");
+  const [chatDockCollapsed, setChatDockCollapsed] = useState(false);
+  const [projectsCollapsed, setProjectsCollapsed] = useState(false); // NEW — collapsible project-picker sidebar
+  // NEW — item #10 / B3: native "create project" trigger, same pattern
+  // as ResearchTab's B2. This tab can now create its own build-stage
+  // workspace directly, instead of requiring a promotion from Plan or
+  // the chat sidebar's folder button — those remain valid paths in,
+  // this is just no longer the only one.
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  // NEW — issue #3: nested-chat create/rename/delete state, same shape as
+  // ResearchTab's/NotebooksTab's/PlanTab's own.
+  const [creatingChatForWs, setCreatingChatForWs] = useState(null);
+  const [editingChatId, setEditingChatId] = useState(null);
+  const [editChatTitle, setEditChatTitle] = useState("");
+  const [pendingDeleteChat, setPendingDeleteChat] = useState(null);
+  // NEW — project management: which project's manage modal (rename /
+  // delete / members / export) is open. Same shape as PlanTab's own
+  // managingWorkspace — ManageWorkspaceModal already existed fully
+  // built, this tab just never had an entry point into it.
+  const [managingWorkspace, setManagingWorkspace] = useState(null);
+
+  useEffect(() => {
+    setChatDockCollapsed(localStorage.getItem(CHAT_DOCK_KEY) === "1");
+    setProjectsCollapsed(localStorage.getItem(PROJECTS_KEY) === "1"); // NEW — collapsible project sidebar
+  }, []);
+
+  function toggleChatDock() {
+    setChatDockCollapsed((prev) => {
+      localStorage.setItem(CHAT_DOCK_KEY, !prev ? "1" : "0");
+      return !prev;
+    });
+  }
+
+  // NEW — W0.2: remembers the sidebar's collapsed/open state from just
+  // before Editor mode auto-collapsed it, so leaving Editor restores
+  // exactly that (not unconditionally "open") -- null means "nothing to
+  // restore", either because the sidebar was already collapsed when
+  // Editor mode was entered (nothing to do) or because the user made
+  // their own explicit choice while inside Editor mode (toggleProjects
+  // clears it, see below).
+  const sidebarStateBeforeAutoCollapseRef = useRef(null);
+
+  // NEW — W0.2: the Editor view wants every pixel of width it can get
+  // (build plan §1.2 -- the sidebar was one of four stacked limits on
+  // its size), so auto-collapse the project sidebar while buildView is
+  // "code" and restore it on the way out. Deliberately calls
+  // setProjectsCollapsed directly rather than toggleProjects() -- this is
+  // a transient, view-driven state change, not the user's own
+  // preference, so it must NOT overwrite PROJECTS_KEY the way an actual
+  // click on the collapse button does.
+  useEffect(() => {
+    if (buildView === "code") {
+      if (!projectsCollapsed) {
+        sidebarStateBeforeAutoCollapseRef.current = false;
+        setProjectsCollapsed(true);
+      }
+    } else if (sidebarStateBeforeAutoCollapseRef.current !== null) {
+      setProjectsCollapsed(sidebarStateBeforeAutoCollapseRef.current);
+      sidebarStateBeforeAutoCollapseRef.current = null;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buildView]);
+
+  // NEW — collapsible project-picker sidebar, same toggle pattern as
+  // toggleChatDock above, its own localStorage key so the two collapse
+  // independently.
+  function toggleProjects() {
+    // NEW — W0.2: an explicit click here is the user's own choice, so it
+    // overrides whatever the Editor-mode auto-collapse effect below was
+    // planning to restore on the way out.
+    sidebarStateBeforeAutoCollapseRef.current = null;
+    setProjectsCollapsed((prev) => {
+      localStorage.setItem(PROJECTS_KEY, !prev ? "1" : "0");
+      return !prev;
+    });
+  }
+  // NEW — item #11 / C2: same "switch + expand, no tab jump" helper as
+  // ResearchTab/PlanTab's openInDock.
+  async function openInDock(chatId) {
+    await switchChat(chatId);
+    if (chatDockCollapsed) toggleChatDock();
+  }
+
+  // NEW — W8.4: InstructionsView's "Work on this" callbacks. Both are
+  // called from inside an async handler (after it has awaited the file
+  // list), so neither may lean on this render's `chatDockCollapsed` /
+  // `buildView` closure being current.
+  // - openChatDock: unlike toggleChatDock it only ever OPENS (a dock the
+  //   person opened themselves in the meantime must not get closed by
+  //   it). On mobile "open" is the full-screen chat overlay — the
+  //   pre-filled message is what they need to see next, and closing the
+  //   overlay reveals the Editor underneath.
+  // - openEditorForStep: arms the Cloud-source override (see
+  //   forceCloudSourceOnce) and goes through requestBuildView like every
+  //   other navigation, so it's guarded the same way (nothing can be
+  //   dirty when called from Instructions — the Editor isn't mounted —
+  //   but the guard is the one door in).
+  function openChatDock() {
+    setChatDockCollapsed((prev) => {
+      if (prev) localStorage.setItem(CHAT_DOCK_KEY, "0");
+      return false;
+    });
+  }
+
+  function openEditorForStep() {
+    setForceCloudSourceOnce(true);
+    requestBuildView("code");
+  }
+
+  // NEW — W2.5: switching project, or leaving the Editor sub-view,
+  // unmounts EditorWorkbench and drops whatever it hadn't saved.
+  // guardUnsaved() runs a navigation straight away when nothing is
+  // dirty; otherwise it holds it behind a confirmation.
+  function guardUnsaved(run) {
+    if (editorDirtyRef.current) setPendingNav({ run });
+    else run();
+  }
+
+  function confirmPendingNav() {
+    const nav = pendingNav;
+    setPendingNav(null);
+    // The confirmed navigation unmounts the editor, which reports "clean"
+    // on its way out anyway; clearing it first also stops a guarded
+    // handler that re-runs itself (handleCreateChatInProject) from
+    // asking a second time.
+    editorDirtyRef.current = false;
+    nav?.run();
+  }
+
+  function requestSelectWs(id) {
+    if (id === selectedWsId) return;
+    guardUnsaved(() => setSelectedWsId(id));
+  }
+
+  function requestBuildView(id) {
+    if (id === buildView) return;
+    guardUnsaved(() => setBuildView(id));
+  }
+
+  // NEW — issue #3: "+" beside a project name. Creates a chat nested
+  // directly inside that project and opens it, same mechanic the Chat
+  // sidebar uses for "new chat in this group".
+  async function handleCreateChatInProject(ws) {
+    // NEW — W2.5: this selects `ws` first, which drops the Editor's unsaved
+    // edits if `ws` isn't the project already open — ask before doing
+    // any of it (a "Cancel" shouldn't leave a new empty chat behind).
+    if (selectedWsId !== ws.id && editorDirtyRef.current) {
+      setPendingNav({ run: () => handleCreateChatInProject(ws) });
+      return;
+    }
+    setCreatingChatForWs(ws.id);
+    try {
+      if (selectedWsId !== ws.id) setSelectedWsId(ws.id);
+      await createWorkspaceChat(ws.id);
+      if (chatDockCollapsed) toggleChatDock();
+    } catch (err) {
+      // Bug fix: no catch here previously -- a failed create-chat
+      // request (backend unreachable, CORS, network drop, etc.)
+      // crashed with an unhandled promise rejection instead of
+      // telling the user anything. Same inline alert() fallback
+      // NotebooksTab's rename/progress handlers already use --
+      // there's no toast system in these tab files.
+      alert(`Couldn't create chat: ${err.message || err}`);
+    } finally {
+      setCreatingChatForWs(null);
+    }
+  }
+
+  function startRenameChat(chat) {
+    setEditingChatId(chat.id);
+    setEditChatTitle(chat.title);
+  }
+
+  async function commitRenameChat(chatId) {
+    if (editChatTitle.trim()) await renameChat(chatId, editChatTitle.trim());
+    setEditingChatId(null);
+  }
+
+  function askDeleteChat(chat) {
+    setPendingDeleteChat(chat);
+  }
+
+  async function confirmDeleteChat() {
+    await deleteChat(pendingDeleteChat.id);
+    setPendingDeleteChat(null);
+  }
+
+  // Restore last-selected build project on mount (same pattern as
+  // NotebooksTab's SELECTED_NOTEBOOK_KEY restore effect).
+  useEffect(() => {
+    const savedId = localStorage.getItem(SELECTED_BUILD_WS_KEY);
+    if (savedId) setSelectedWsId(savedId);
+    setRestoredSelection(true);
+  }, []);
+
+  // NEW — W3.2: AppShell remapped a stale "local" tab id here and is
+  // telling us so, once. There's no wsId to restore (the old Local
+  // Files tab picked from every workspace, not just build-stage ones —
+  // D7's accepted trade-off), so this only opens the Editor sub-view for
+  // whichever build project ends up selected above (M2C B10: it shows
+  // that project's cloud files; the Local source it used to select is
+  // gone); requestBuildView's guardUnsaved isn't needed since nothing
+  // can be dirty yet this early.
+  useEffect(() => {
+    if (!initialLocalTabRedirect) return;
+    setBuildView("code");
+    onConsumeInitialLocalTabRedirect?.();
+  }, [initialLocalTabRedirect, onConsumeInitialLocalTabRedirect]);
+
+  useEffect(() => {
+    if (!restoredSelection || !selectedWsId) return;
+    localStorage.setItem(SELECTED_BUILD_WS_KEY, selectedWsId);
+  }, [selectedWsId, restoredSelection]);
+
+  // Auto-select the first build project once loaded, or recover if a
+  // previously-saved selection was promoted onward / deleted.
+  useEffect(() => {
+    if (!restoredSelection || buildProjects.length === 0) return;
+    const stillExists = selectedWsId && buildProjects.some((w) => w.id === selectedWsId);
+    if (!stillExists) setSelectedWsId(buildProjects[0].id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buildProjects, selectedWsId, restoredSelection]);
+
+  // data._session_id is the raw chat_id the backend resolved ws_id to
+  // (see api/server.py's get_tasks_for_workspace) -- DeployPanel and
+  // MonitoringWidget still hit /api/deploy/{session_id}/... and
+  // /api/monitoring/{session_id}/... directly, unchanged, so they need
+  // that resolved id rather than the workspace id.
+  const resolvedSessionId = data?._session_id || null;
+
+  // NEW — Patch B05: every board fetch takes a ticket from this guard, and a
+  // response is applied only if its ticket is still the newest. Before this,
+  // a slow response for the PREVIOUS project could land after the new
+  // project's and overwrite it (the effect's `cancelled` flag guarded
+  // setError/setLoading but never setData, and refresh() is also called
+  // from the Deploy and Monitoring cards, outside the effect). A ref, so the
+  // counter survives re-renders and is shared by every refresh() closure.
+  const boardGuardRef = useRef(null);
+  if (boardGuardRef.current === null) boardGuardRef.current = createLatestGuard();
+
+  // CHANGED — Patch B05: resolves to the board data when this request is
+  // still the newest, or to `null` when a newer request (another project, or
+  // another refresh of this one) started meanwhile and this response was
+  // dropped. (Still `undefined` when no project is selected, as before.)
+  // The callers that exist today (the load effect below and the Deploy and
+  // Monitoring cards' `await onRefresh()`) ignore the value, so `null` is
+  // safe for all of them.
+  async function refresh() {
+    if (!selectedWsId) return;
+    const guard = boardGuardRef.current;
+    const ticket = guard.begin();
+    const res = await fetch(`${API_URL}/api/tasks/workspace/${selectedWsId}`, {
+      headers: await authHeaders(),
+    });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const d = await res.json();
+    if (!guard.isLatest(ticket)) return null;
+    setData(d);
+    return d;
+  }
+
+  useEffect(() => {
+    if (!selectedWsId) {
+      boardGuardRef.current.invalidate(); // NEW — Patch B05: a response still in flight for the project just cleared must not repopulate the board
+      setData(null);
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    refresh()
+      .catch((err) => {
+        if (!cancelled) setError(err.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [API_URL, selectedWsId]);
+
+  async function handlePromote(wsId, toStage = promoteTargetStage, mode = promoteMode) {
+    setPromoting(true);
+    setPromoteError(null);
+    try {
+      await promoteWorkspace(wsId, toStage, mode);
+      await fetchWorkspaces();
+      onPromoted?.(toStage, wsId);
+      setPromoteMode("complete");
+    } catch (err) {
+      setPromoteError(err.message);
+    } finally {
+      setPromoting(false);
+    }
+  }
+
+  const selected = buildProjects.find((w) => w.id === selectedWsId);
+
+  // NEW — patch 12: same dock PlanTab.jsx used to source WireframesPanel's
+  // "re-send edit into whichever chat is currently open" (sessionId,
+  // sendTask) — scoped to the selected build project's own dock, which
+  // WorkspaceChatPanel below already reads/writes, so both stay in sync.
+  const dock = useWorkspaceDock(selected?.id);
+
+  // NEW — item #1: the Data bubble now lives in AppShell's top nav, not
+  // floating over this tab's own content, so this just reports which
+  // project (if any) is selected instead of rendering the bubble itself.
+  useEffect(() => {
+    onActiveWorkspaceChange?.(selected?.id || null, selected?.name);
+  }, [selected?.id, selected?.name, onActiveWorkspaceChange]);
+
+  const features = data?.current_plan?.features || [];
+  const featureStatus = data?.feature_status || {};
+  const targetFeature = data?.current_plan?.target_feature || null;
+  const targetModules = data?.module_specs?.modules || null;
+  const byColumn = COLUMNS.map((col) => ({
+    ...col,
+    features: features.filter((f) => statusFor(featureStatus, f) === col.status),
+  }));
+
+  // NEW — W0.2: extracted out of the board header's inline IIFE so
+  // Editor mode's compact header (below, in the return) can render the
+  // identical promote controls instead of a second copy of this ~60-line
+  // block. Only called once `selected` is known truthy.
+  function renderPromoteControls() {
+    // NEW — §2.2: exclude stages already active for this workspace —
+    // same rule as Notebooks/Research/Plan.
+    const activeHere = selected.active_stages || [selected.stage];
+    const availableTargets = PROMOTE_TARGETS.filter((s) => !activeHere.includes(s));
+    const targetStage = availableTargets.includes(promoteTargetStage)
+      ? promoteTargetStage
+      : availableTargets[0];
+    if (!availableTargets.length) return null;
+    return (
+      <>
+        <label className="sr-only" htmlFor="build-promote-target">Promote to</label>
+        <select
+          id="build-promote-target"
+          value={targetStage}
+          onChange={(e) => setPromoteTargetStage(e.target.value)}
+          disabled={promoting}
+          className="bg-[var(--neutral-900)] border border-[var(--neutral-700)] text-[var(--neutral-200)] rounded-lg px-2 py-1.5 text-xs outline-none disabled:opacity-50"
+        >
+          {availableTargets.map((stage) => (
+            <option key={stage} value={stage}>{PROMOTE_LABELS[stage]}</option>
+          ))}
+        </select>
+        {/* NEW — §2.6 step 4: complete/partial toggle. */}
+        <div
+          role="radiogroup"
+          aria-label="Promote mode"
+          className="flex items-center rounded-lg border border-[var(--neutral-700)] overflow-hidden text-xs shrink-0"
+        >
+          <button
+            type="button"
+            role="radio"
+            aria-checked={promoteMode === "complete"}
+            onClick={() => setPromoteMode("complete")}
+            disabled={promoting}
+            title="Move the project fully into the target stage"
+            className={`px-2 py-1.5 font-medium disabled:opacity-50 ${
+              promoteMode === "complete"
+                ? "bg-[var(--accent)] text-[var(--accent-text)]"
+                : "bg-[var(--neutral-900)] text-[var(--neutral-400)]"
+            }`}
+          >
+            Complete
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={promoteMode === "partial"}
+            onClick={() => setPromoteMode("partial")}
+            disabled={promoting}
+            title="Keep the project active here too"
+            className={`px-2 py-1.5 font-medium disabled:opacity-50 ${
+              promoteMode === "partial"
+                ? "bg-[var(--accent)] text-[var(--accent-text)]"
+                : "bg-[var(--neutral-900)] text-[var(--neutral-400)]"
+            }`}
+          >
+            Partial
+          </button>
+        </div>
+        {/* NEW — Patch B04: Promote goes through guardUnsaved() like every
+            other way out of this project (requestSelectWs, requestBuildView),
+            so a dirty Editor gets the same "Discard unsaved changes?"
+            confirmation instead of being left behind silently. A clean
+            Editor runs it straight away, as before. */}
+        <button
+          onClick={() => guardUnsaved(() => handlePromote(selected.id, targetStage))}
+          disabled={promoting}
+          className="flex items-center gap-1.5 text-xs border border-[var(--neutral-700)] text-[var(--neutral-200)] rounded-lg px-3 py-1.5 font-medium disabled:opacity-50"
+        >
+          {promoting ? <Loader2 size={13} className="animate-spin" /> : <ArrowUpRight size={13} />}
+          {promoteMode === "partial" ? "Add to" : "Promote to"} {PROMOTE_LABELS[targetStage]} →
+        </button>
+      </>
+    );
+  }
+
+  // NEW — W0.2: draggable chat-dock width, replacing the old fixed
+  // `style={{ width: 560 }}`. Default/min match the old fixed value and
+  // the build plan's spec; max is 60% of the viewport, recomputed live
+  // on each drag move rather than baked in, since (unlike
+  // WorkspaceChatPanel's own WORKING_PANEL_MAX_WIDTH) this bound depends
+  // on window size. Handle sits on the dock's left edge -- dragging left
+  // grows it -- same as WorkspaceChatPanel's own startWorkingPanelResize,
+  // hence reverse: true (see useSplitter.js).
+  const chatDockSplitter = useSplitter({
+    axis: "width",
+    defaultSize: 560,
+    min: 360,
+    max: () => (typeof window !== "undefined" ? window.innerWidth * 0.6 : 560),
+    storageKey: "minime_build_chatdock_width",
+    reverse: true,
+  });
+
+  return (
+    <div className="flex h-full">
+      {/* Build-project picker -- same left column pattern as
+          NotebooksTab/ResearchTab, filtered to stage === "build" instead
+          of "note"/"research". */}
+      {projectsCollapsed ? (
+        <div className="w-10 shrink-0 border-r border-[var(--neutral-800)] flex flex-col items-center py-3 gap-3">
+          <button onClick={toggleProjects} className="touch-target text-[var(--neutral-500)] hover:text-[var(--neutral-300)]" title="Show projects">
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      ) : (
+      <div className="w-56 shrink-0 border-r border-[var(--neutral-800)] flex flex-col h-full">
+        <div className="h-10 px-3 flex items-center justify-between border-b border-[var(--neutral-800)]">
+          <span className="text-xs font-medium text-[var(--neutral-400)] flex items-center gap-1.5">
+            <STAGE_THEME.build.Icon size={13} className={STAGE_THEME.build.color} /> Build
+          </span>
+          {/* NEW — item #10 / B3: native create, same stage-aware modal
+              ResearchTab's B2 wired up first. */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowCreateModal(true)}
+              title="New build project"
+              className="touch-target text-[var(--neutral-500)] hover:text-[var(--neutral-200)]"
+            >
+              <Plus size={14} />
+            </button>
+            {/* NEW — collapsible sidebar, same affordance as ChatSidebar's
+                own ChevronLeft toggle. */}
+            <button onClick={toggleProjects} title="Hide projects" className="touch-target text-[var(--neutral-500)] hover:text-[var(--neutral-300)]">
+              <ChevronLeft size={14} />
+            </button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {buildProjects.map((ws) => {
+            // NEW — item #11 / C2: nested chat list, same pattern as
+            // ResearchTab/PlanTab's C1 — "expand" just means "is the
+            // selected project", no separate toggle state needed since
+            // this tab already has a single-selection model.
+            const isSelected = ws.id === selectedWsId;
+            const memberChats = isSelected ? chats.filter((c) => ws.chat_ids.includes(c.id)) : [];
+            return (
+              <div key={ws.id} className="border-b border-[var(--neutral-900)]">
+                <div
+                  className={`group flex items-center gap-1 ${
+                    isSelected ? "bg-[var(--neutral-800-a70)]" : "hover:bg-[var(--neutral-900)]"
+                  }`}
+                >
+                  <button
+                    onClick={() => requestSelectWs(ws.id)}
+                    className="touch-row flex-1 min-w-0 flex items-center justify-between gap-1 px-3 py-2 text-left"
+                  >
+                    <span className="flex items-center min-w-0">
+                      <WorkspaceStageIcons workspace={ws} />
+                      <span className="text-xs text-[var(--neutral-200)] truncate">
+                        {ws.name}
+                        <span className="text-[var(--neutral-600)]"> · {ws.chat_ids.length}</span>
+                      </span>
+                    </span>
+                    {isSelected && <ChevronRight size={12} className="text-[var(--neutral-500)] shrink-0" />}
+                  </button>
+                  {/* NEW — issue #3: "+" creates a chat nested in this
+                      project, same idea as starting a new chat under a
+                      group in the Chat sidebar. */}
+                  {/* CHANGED — hover-reveal is the shared `row-reveal`
+                      class (globals.css): hidden until hover with a mouse,
+                      always visible on touch; `touch-target` = 40px hit
+                      area there. This tab has no mobile fork to branch in,
+                      which is why this is CSS rather than `isMobile`. */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleCreateChatInProject(ws); }}
+                    title="New chat in this project"
+                    aria-label="New chat in this project"
+                    className="row-reveal touch-target shrink-0 text-[var(--neutral-500)] hover:text-[var(--neutral-200)]"
+                    disabled={creatingChatForWs === ws.id}
+                  >
+                    {creatingChatForWs === ws.id ? (
+                      <Loader2 size={12} className="animate-spin" />
+                    ) : (
+                      <Plus size={12} />
+                    )}
+                  </button>
+                  {/* NEW — project management, same "⋮" -> ManageWorkspaceModal
+                      entry point Notebooks and Plan have. */}
+                  <button
+                    onClick={() => setManagingWorkspace(ws)}
+                    title="Rename or delete project"
+                    aria-label="Manage project"
+                    className="row-reveal touch-target shrink-0 pr-2 text-[var(--neutral-600)] hover:text-[var(--neutral-200)]"
+                  >
+                    <MoreVertical size={13} />
+                  </button>
+                </div>
+                {memberChats.map((chat) => (
+                  <div
+                    key={chat.id}
+                    onClick={() => editingChatId !== chat.id && openInDock(chat.id)}
+                    className={`group touch-row flex items-center gap-1.5 text-left pl-7 pr-3 py-1.5 text-[11px] cursor-pointer ${
+                      chat.id === activeChatId
+                        ? "bg-[var(--neutral-800-a70)] text-[var(--neutral-100)]"
+                        : "text-[var(--neutral-500)] hover:bg-[var(--neutral-900)] hover:text-[var(--neutral-300)]"
+                    }`}
+                  >
+                    {editingChatId === chat.id ? (
+                      <div className="flex items-center gap-1 flex-1 min-w-0" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          autoFocus
+                          id={`chat-title-${chat.id}`}
+                          name="chatTitle"
+                          aria-label="Chat title"
+                          value={editChatTitle}
+                          onChange={(e) => setEditChatTitle(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && commitRenameChat(chat.id)}
+                          className="touch-input flex-1 min-w-0 bg-[var(--neutral-950)] border border-[var(--neutral-700)] rounded px-1.5 py-0.5 text-[11px] outline-none"
+                        />
+                        <button onClick={() => commitRenameChat(chat.id)} aria-label="Save chat title" className="touch-target"><Check size={12} className="text-green-400" /></button>
+                        <button onClick={() => setEditingChatId(null)} aria-label="Cancel rename" className="touch-target"><X size={12} className="text-[var(--neutral-500)]" /></button>
+                      </div>
+                    ) : (
+                      <>
+                        <MessageSquare size={10} className="shrink-0 text-[var(--neutral-600)]" />
+                        <span className="truncate flex-1 min-w-0">{chat.title}</span>
+                        {/* CHANGED — was a hover-only Pencil + Trash2 pair, which
+                            never appeared on a touch screen. Now the same
+                            single "..." menu the Chat sidebar's rows use. */}
+                        <ChatRowMenu
+                          onRename={() => startRenameChat(chat)}
+                          onDelete={() => askDeleteChat(chat)}
+                        />
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            );
+          })}
+          {buildProjects.length === 0 && (
+            <p className="px-3 py-3 text-xs text-[var(--neutral-600)]">
+              No build-stage projects yet — create one above, or promote a project to Build from the Plan tab.
+            </p>
+          )}
+        </div>
+      </div>
+      )}
+
+      {/* NEW — W4.1: everything below (the workbench + the chat dock in
+          all its shapes) shares one code-context store, reset per
+          project via `key` — see this provider's own import comment
+          above. The project-picker sidebar just above is deliberately
+          OUTSIDE it: switching projects in that list must not remount
+          it. */}
+      <CodeContextProvider key={selected?.id}>
+      {/* Selected project's board */}
+      {/* CHANGED — W0.2: Editor mode (buildView === "code") swaps this
+          from a scrolling max-w-4xl column to a flex column filling the
+          available height, so the workbench's own panes can stretch
+          instead of being capped at a fixed pixel height -- see the
+          buildView === "code" branch in the ternary just below. */}
+      <div className={buildView === "code" ? "flex-1 min-h-0 flex flex-col" : "flex-1 min-h-0 overflow-y-auto"}>
+        {!selected ? (
+          <div className="h-full flex items-center justify-center text-sm text-[var(--neutral-600)]">
+            Select a build project to see its task board.
+          </div>
+        ) : loading ? (
+          <div className="px-4 py-6 max-w-4xl mx-auto">
+            <p className="text-xs text-cyber-dim">Loading board...</p>
+          </div>
+        ) : error ? (
+          <div className="px-4 py-6 max-w-4xl mx-auto">
+            <p className="text-xs text-rose-400">
+              Couldn&apos;t load the task board: {error}. Check that{" "}
+              <code className="font-mono">GET /api/tasks/workspace/{"{ws_id}"}</code> is reachable
+              and that you&apos;re signed in with a valid session.
+            </p>
+          </div>
+        ) : buildView === "code" ? (
+          // NEW — W0.2: Editor mode's own compact header -- title,
+          // sub-nav and promote controls in one row, no max-w-4xl -- so
+          // EditorWorkbench below gets the rest of the available height instead
+          // of sharing the board's tall title block. Same
+          // renderPromoteControls() the board header below uses.
+          <>
+            <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 border-b border-[var(--neutral-800)]">
+              <div className="flex items-center gap-3 min-w-0">
+                <h2 className="text-sm font-medium text-[var(--neutral-100)] truncate">{selected.name}</h2>
+                <nav className="flex gap-1 shrink-0">
+                  {BUILD_VIEWS.map((v) => (
+                    <button
+                      key={v.id}
+                      onClick={() => requestBuildView(v.id)}
+                      className={`text-xs rounded px-2.5 py-1 ${
+                        buildView === v.id
+                          ? "bg-[var(--accent)] text-[var(--accent-text)] font-medium"
+                          : "text-[var(--neutral-500)] hover:text-[var(--neutral-300)]"
+                      }`}
+                    >
+                      {v.label}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">{renderPromoteControls()}</div>
+            </div>
+            {promoteError && <p className="text-xs text-red-400 px-4 pt-2">{promoteError}</p>}
+            <div className="flex-1 min-h-0 flex flex-col px-4 pb-4 pt-3">
+              {/* NEW — W4.1: the chip tray for whatever's been added to
+                  chat via Explorer's "Add to chat" or the editor's own
+                  floating toolbar / Mod-L / gutter selection. Renders
+                  nothing when empty (see ContextChips.jsx). Keyed
+                  implicitly by CodeContextProvider's own key above, so
+                  it's already empty again on a fresh project. */}
+              <ContextChips className="shrink-0 mb-2" />
+              {/* CHANGED — W2.3a: was patch 10's CodeView (file tree +
+                  <textarea>). The workbench owns its own tabs/buffers, so
+                  key={selected.id} remounts it per project -- otherwise
+                  one project's open tabs would carry into the next.
+                  CHANGED — W2.5: that remount would discard unsaved
+                  edits, so every navigation that causes it (project
+                  click, "+" chat, create-project, the sub-view buttons
+                  above) goes through guardUnsaved(); `onDirtyChange` is
+                  how the workbench tells us there's anything to guard. */}
+              <EditorWorkbench
+                key={selected.id}
+                workspaceId={selected.id}
+                apiUrl={API_URL}
+                reserveCorner={chatDockCollapsed}
+                onDirtyChange={handleEditorDirty}
+                initialSourceOverride={forceCloudSourceOnce ? "cloud" : undefined}
+                onConsumeInitialSourceOverride={() => setForceCloudSourceOnce(false)}
+                // W6.2: "Fix with AI" (Console tab) requests Ask mode
+                // via codeContext.js regardless of whether the chat dock
+                // happens to be visible right now -- CodeAwareChatPanel's
+                // own effect only gets a chance to APPLY that request
+                // once it's actually mounted, which (see the two
+                // CodeAwareChatPanel call sites below) only happens while
+                // chatDockCollapsed is false. This is the other half:
+                // make sure it's false, same "open it first" step
+                // openInDock() above already takes for a chat picked from
+                // the sidebar.
+                onFixWithAIChat={() => {
+                  if (chatDockCollapsed) toggleChatDock();
+                }}
+              />
+            </div>
+          </>
+        ) : (
+          <div className="relative px-4 py-6 max-w-4xl mx-auto space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-base font-medium text-[var(--neutral-100)]">{selected.name}</h2>
+              <div className="flex items-center gap-2 shrink-0">{renderPromoteControls()}</div>
+            </div>
+
+            {/* NEW — patch 7: Tasks / Instructions sub-nav, same small
+                tab-bar pattern as PlanTab's BlueprintView. */}
+            <nav className="flex gap-1 justify-center">
+              {BUILD_VIEWS.map((v) => (
+                <button
+                  key={v.id}
+                  onClick={() => setBuildView(v.id)}
+                  className={`text-xs rounded px-2.5 py-1 ${
+                    buildView === v.id
+                      ? "bg-[var(--accent)] text-[var(--accent-text)] font-medium"
+                      : "text-[var(--neutral-500)] hover:text-[var(--neutral-300)]"
+                  }`}
+                >
+                  {v.label}
+                </button>
+              ))}
+            </nav>
+
+            {/* CHANGED — W0.2: the "code" branch that used to live here
+                is unreachable now -- the outer ternary above intercepts
+                buildView === "code" before this max-w-4xl block is ever
+                rendered, so it's handled up there instead (own compact
+                header, no max-w-4xl). */}
+            {buildView === "instructions" ? (
+              <InstructionsView
+                workspaceId={selected.id}
+                apiUrl={API_URL}
+                fetchDeviceSpec={fetchDeviceSpec}
+                toggleInstructionStep={toggleInstructionStep}
+                onOpenEditor={openEditorForStep}
+                onOpenChat={openChatDock}
+              />
+            ) : buildView === "wireframes" ? (
+              // NEW — patch 12 (Plan/Build wireframes split): relocated
+              // from PlanTab.jsx's own Wireframes sub-tab. sessionId/
+              // sendTask come from this tab's own `dock` (declared above,
+              // scoped to `selected`), same wiring shape Plan used.
+              <WireframesPanel
+                workspaceId={selected.id}
+                apiUrl={API_URL}
+                fetchPanelContent={fetchPanelContent}
+                savePanelContent={savePanelContent}
+                sessionId={dock.state.sessionId}
+                sendTask={dock.sendTask}
+                onOpenEditor={openEditorForStep}
+              />
+            ) : (
+              <>
+                {promoteError && <p className="text-xs text-red-400">{promoteError}</p>}
+
+                {features.length === 0 ? (
+                  <p className="text-cyber-dim text-sm">
+                    No plan yet for this project. Once a coding-domain build cycle runs, its features
+                    and status will show up here.
+                  </p>
+                ) : (
+                  <>
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      {byColumn.map((col) => (
+                        <Card key={col.status} title={`${col.label} (${col.features.length})`}>
+                          <div className="space-y-2">
+                            {col.features.length === 0 && (
+                              <p className="text-[11px] text-cyber-dim">Nothing here.</p>
+                            )}
+                            {col.features.map((name) => (
+                              <FeatureCard
+                                key={name}
+                                name={name}
+                                isTarget={name === targetFeature}
+                                targetModules={name === targetFeature ? targetModules : null}
+                                expanded={expandedFeature === name}
+                                onToggle={() => setExpandedFeature(expandedFeature === name ? null : name)}
+                              />
+                            ))}
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                    <IntegrationChecklist integrations={data?.integrations} />
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <DeployPanel
+                        sessionId={resolvedSessionId}
+                        workspaceId={selected?.id}
+                        apiUrl={API_URL}
+                        deployConfigPlan={data?.deploy_config_plan}
+                        lastDeployConfigSummary={data?.last_deploy_config_summary}
+                        onRefresh={refresh}
+                        onOpenEditor={openEditorForStep}
+                      />
+                      <MonitoringWidget
+                        sessionId={resolvedSessionId}
+                        apiUrl={API_URL}
+                        monitoring={data?.monitoring}
+                        onRefresh={refresh}
+                      />
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* CHANGED — step 3e: was rendered bare (legacy mode, reading the
+          global SessionContext sessionId regardless of which build
+          project was selected above). Now passes this tab's own
+          `selected` project so the dock resolves ws:${selected.id} and
+          shows/updates the right project's chat, same fix already
+          applied to NotebooksTab. BuildTab never called switchChat
+          itself, so no other change was needed here. */}
+      {/* CHANGED — closed dock renders nothing on desktop instead of a
+          reserved rail; the floating bubble below is the way back in at
+          every width now. Same change across all six docked tabs. */}
+      {!chatDockCollapsed && (
+        <div
+          className="hidden lg:flex shrink-0 relative border-l border-[var(--neutral-800)]"
+          style={{ width: chatDockSplitter.size }}
+        >
+          {/* NEW — W0.2: drag handle replacing the old fixed
+              `style={{ width: 560 }}`. Same left-edge-grows-left pattern
+              WorkspaceChatPanel's own startWorkingPanelResize already
+              uses for its working panel, now shared via useSplitter.js. */}
+          <div
+            onMouseDown={chatDockSplitter.onHandleMouseDown}
+            title="Drag to resize"
+            className="absolute left-0 top-0 bottom-0 w-1.5 -ml-0.5 cursor-col-resize z-10 hover:bg-[var(--accent)]/40"
+          />
+          <CodeAwareChatPanel
+            collapsed={false}
+            onToggleCollapse={toggleChatDock}
+            workspaceId={selected?.id}
+            stacked
+            onEnterReviewMode={() => requestBuildView("code")}
+          />
+        </div>
+      )}
+      {!chatDockCollapsed && (
+        <div className="lg:hidden fixed inset-0 z-40 bg-[var(--neutral-950)]">
+          {/* W5.3: this instance IS the mobile chat overlay (see the
+              wrapping div's own `lg:hidden fixed inset-0` above) — Review
+              both switches to the Editor sub-tab AND gets out of the way
+              of it, same as tapping a search result already does
+              elsewhere in this tab. `toggleChatDock` is a plain toggle;
+              this only runs while the dock is open (chatDockCollapsed
+              is false — see the `!chatDockCollapsed` guard around this
+              whole block), so calling it here always closes it. */}
+          <CodeAwareChatPanel
+            collapsed={false}
+            onToggleCollapse={toggleChatDock}
+            workspaceId={selected?.id}
+            stacked
+            onEnterReviewMode={() => {
+              requestBuildView("code");
+              toggleChatDock();
+            }}
+          />
+        </div>
+      )}
+      {chatDockCollapsed && (
+        <button
+          onClick={toggleChatDock}
+          title="Open chat"
+          className="fixed bottom-4 right-4 z-40 bg-[var(--accent)] text-[var(--accent-text)] rounded-full p-3 shadow-lg"
+        >
+          <MessageSquare size={18} />
+        </button>
+      )}
+      </CodeContextProvider>
+
+      {/* NEW — project management modal; see managingWorkspace above.
+          Deleting the selected project here is safe: the auto-select
+          effect near the top re-points the selection at the next one. */}
+      {managingWorkspace && (
+        <ManageWorkspaceModal
+          workspace={managingWorkspace}
+          allChats={chats}
+          onClose={() => setManagingWorkspace(null)}
+        />
+      )}
+
+      {/* NEW — item #10 / B3: stage-aware create modal (B1). Auto-selects
+          the created project so the user lands straight in it instead of
+          having to find it in the list themselves — same as ResearchTab's B2. */}
+      {showCreateModal && (
+        <CreateWorkspaceModal
+          stage="build"
+          onClose={(created) => {
+            setShowCreateModal(false);
+            if (created) requestSelectWs(created.id);
+          }}
+        />
+      )}
+
+      {/* NEW — W2.5: see guardUnsaved(). Same wording as the editor's own
+          tab-close confirmation. */}
+      <ConfirmDialog
+        open={!!pendingNav}
+        title="Discard unsaved changes?"
+        message="You have unsaved changes in the Editor. Leaving now will discard them."
+        confirmLabel="Discard"
+        onConfirm={confirmPendingNav}
+        onCancel={() => setPendingNav(null)}
+      />
+
+      {/* NEW — issue #3: same delete-confirmation affordance as
+          ChatSidebar's own per-chat delete, just scoped to a nested
+          project chat here. */}
+      <ConfirmDialog
+        open={!!pendingDeleteChat}
+        title="Delete chat"
+        message={`Delete "${pendingDeleteChat?.title}"? Its messages and memory can't be recovered.`}
+        confirmLabel="Delete"
+        tone="danger"
+        onConfirm={confirmDeleteChat}
+        onCancel={() => setPendingDeleteChat(null)}
+      />
+    </div>
+  );
+}
+
+// Item 6 (perf audit, tab-body pass): BuildTab takes props from its parent
+// (onPromoted, onActiveWorkspaceChange). Wrapped in memo() now that
+// SessionContext's useCallback pass (item 2) means its stable-identity
+// props/callbacks stay stable across unrelated parent re-renders -- prop
+// objects/arrays it reads (workspaces, chats, etc.) are only ever replaced,
+// never mutated in place, so a shallow prop comparison here is meaningful.
+export default memo(BuildTab);

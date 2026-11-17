@@ -1,0 +1,279 @@
+"""
+api/routes/system.py
+
+B6, piece 2 — the small, low-risk stuff: health check, quota snapshot,
+usage history. No shared state with any other route group, which is
+exactly why this was the second piece split out (after tasks.py) —
+good practice for the split-and-verify pattern before tackling the
+bigger, more entangled domains (workspaces, notebooks, etc.) later.
+
+Deliberately NOT included here: /api/capabilities. That route shares
+CAPABILITIES_MANIFEST and _capability_label() with the not-yet-split
+notebooks routes still in api/server.py — moving it alone would either
+duplicate that manifest or force an awkward import back into
+api.server (circular). It moves later, alongside the notebooks split.
+"""
+
+import time
+from urllib.parse import urlparse
+
+from fastapi import APIRouter, Depends, Query
+
+from api.deps import require_auth
+from eo import agent_task_pool, chat_page_cache, conversation_memory, db, laya_routing, sga, tool_budget  # NEW — sga: perf audit follow-up (#1); tool_budget: perf audit follow-up (#6); conversation_memory: perf audit follow-up (#3b); laya_routing: Laya migration Tier 3
+from eo.quota_sentinel import (
+    get_quota_snapshot,
+    get_rate_window_snapshot,
+    get_usage_history,
+    get_usage_history_scoped,
+)
+from memory import bus
+from utils.llm_client import get_ledger_event_stats  # NEW — perf audit follow-up (#5)
+
+router = APIRouter()
+
+# Perf audit item #4.4/#7 follow-up: how many round trips each backend
+# gets timed over for /api/system/backend-latency-probe below. 5 is
+# enough to see min/max spread (e.g. one slow outlier vs. a
+# consistently slow backend) without turning the endpoint itself into
+# a slow request. Not meant to be a rigorous benchmark -- just enough
+# real numbers to answer "is Redis actually faster than Postgres here,
+# or is this cache paying REST overhead for nothing."
+_LATENCY_PROBE_SAMPLES = 5
+
+
+def _redact_host(raw_url: str | None) -> str | None:
+    """Returns just the host from a connection URL/DSN -- e.g.
+    'db.xyz.supabase.co' or 'us1-xxxx.upstash.io' -- with no
+    credentials, path, or query string, so this is safe to return in
+    an API response. The host is also the thing that actually answers
+    "which region is this in": Upstash and Supabase/RDS-style hosts
+    both encode region in the hostname (e.g. an 'us-east-1' or 'us1'
+    segment), so comparing these two strings directly answers the
+    open question from the perf audit without needing any extra
+    provider-specific API calls. None if the env var isn't set."""
+    if not raw_url:
+        return None
+    return urlparse(raw_url).hostname
+
+
+def _timed_calls(fn, samples: int) -> dict:
+    """Runs fn() `samples` times back-to-back, timing each call with
+    perf_counter(), and returns {"avg_ms", "min_ms", "max_ms",
+    "samples_ms"}. Sequential on purpose (not concurrent) -- this is
+    measuring the per-call latency a single request pays, which is
+    exactly the cost the perf audit's before_seq page-cache path pays
+    sequentially today, not this backend's max throughput."""
+    times_ms = []
+    for _ in range(samples):
+        start = time.perf_counter()
+        fn()
+        times_ms.append((time.perf_counter() - start) * 1000)
+    return {
+        "avg_ms": round(sum(times_ms) / len(times_ms), 2),
+        "min_ms": round(min(times_ms), 2),
+        "max_ms": round(max(times_ms), 2),
+        "samples_ms": [round(t, 2) for t in times_ms],
+    }
+
+
+def _postgres_ping() -> None:
+    # trusted=True: this touches no RLS'd table and has no acting
+    # user, same category db.cursor()'s own docstring documents for
+    # audit_log-style internal reads -- see that docstring for why
+    # trusted=True is the right call here rather than inventing a
+    # user_id this probe doesn't have.
+    with db.cursor(trusted=True) as cur:
+        cur.execute("select 1")
+        cur.fetchone()
+
+
+@router.get("/api/health")
+def health():
+    return {"status": "ok"}
+
+
+@router.get("/api/system/backend-latency-probe", dependencies=[Depends(require_auth)])
+def backend_latency_probe():
+    # Perf audit item #4.4/#7 follow-up: answers the open question
+    # from the audit -- "is Redis's per-call REST round trip actually
+    # faster than Postgres's for this workload, or could a co-location
+    # mismatch mean the page cache is paying MORE latency than the
+    # Postgres query it exists to avoid, independent of hit rate."
+    # Reports both backends' host (for a quick visual region check)
+    # and real, timed round-trip latency (the number that actually
+    # answers the question, since region strings alone can mislead --
+    # e.g. same-continent-different-metro still adds real latency).
+    return {
+        "postgres": {
+            "host": _redact_host(db.DATABASE_URL),
+            "latency_ms": _timed_calls(_postgres_ping, _LATENCY_PROBE_SAMPLES),
+        },
+        "redis": {
+            "host": _redact_host(bus.UPSTASH_REDIS_REST_URL),
+            "latency_ms": _timed_calls(bus.ping, _LATENCY_PROBE_SAMPLES),
+        },
+    }
+
+
+@router.get("/api/system/chat-page-cache-stats", dependencies=[Depends(require_auth)])
+def chat_page_cache_stats():
+    # Perf audit item #3: surfaces the global hit/miss counters
+    # eo/chat_store.py's before_seq branch now records on every
+    # cache-eligible lookup (see eo/chat_page_cache.py's
+    # record_cache_result()/get_cache_stats()). This is the number to
+    # pull before deciding whether item #7's Redis page cache is worth
+    # keeping enabled, given B4's per-call REST overhead -- a low
+    # hit_rate here means most before_seq page loads are paying for a
+    # Redis round trip that never turns into a served hit. Just a
+    # snapshot read, no auth-scoping needed beyond "logged in" since
+    # these are aggregate counters, not per-user or per-chat data.
+    return chat_page_cache.get_cache_stats()
+
+
+@router.get("/api/system/db-pool-stats", dependencies=[Depends(require_auth)])
+def db_pool_stats():
+    # Perf audit §4.6 / priority #9 (part 3): surfaces the global
+    # getconn()-outcome counters eo/db.py's _getconn_with_retry() records
+    # on every checkout (see that function's own docstring and
+    # get_pool_stats()). This is the number to pull before raising
+    # DB_POOL_MAX / api/server.py's APP_THREAD_POOL_SIZE any further --
+    # a nonzero "exhausted" means real requests got a 503 today, not a
+    # hypothetical one. Same "aggregate counters, no per-user scoping
+    # needed beyond logged-in" reasoning as chat_page_cache_stats above.
+    return db.get_pool_stats()
+
+
+@router.get("/api/system/agent-pool-stats", dependencies=[Depends(require_auth)])
+def agent_pool_stats():
+    # perf audit §4.6 / priority #9 (part 6): companion to db_pool_stats()
+    # above, for the dedicated agent-task executor (eo/agent_task_pool.py)
+    # that post_task/post_task_preview/post_task_confirm/post_resume/
+    # post_task_from_template now dispatch through instead of the shared
+    # fast-route thread limiter. A nonzero "queued_on_submit" relative to
+    # "started_immediately" means agent runs are routinely waiting behind
+    # each other -- check this before raising AGENT_TASK_POOL_SIZE.
+    return agent_task_pool.get_agent_pool_stats()
+
+
+@router.get("/api/system/sga-stats", dependencies=[Depends(require_auth)])
+def sga_stats():
+    # Perf audit follow-up (latency discussion, point #1): surfaces the
+    # global resolve/escalate counters eo/sga.py's attempt() now records
+    # on every call (see that module's get_sga_stats() docstring). Pull
+    # this before touching STAGE_TIMEOUTS's guessed 1.0/2.0/3.0s
+    # cutoffs or _requests_verification()'s keyword list -- a low
+    # resolve_rate with most of escalated_by_reason landing in
+    # "verification_keyword" means the keyword match is over-triggering
+    # (zero SGA calls even attempted), which is a very different fix
+    # from "Stage 1-3 themselves are too conservative." Same "aggregate
+    # counters, no per-user scoping needed beyond logged-in" posture as
+    # chat_page_cache_stats/db_pool_stats/agent_pool_stats above.
+    return sga.get_sga_stats()
+
+
+@router.get("/api/system/laya-routing-stats", dependencies=[Depends(require_auth)])
+def laya_routing_stats():
+    # Laya migration Tier 3: both gates default to LAYA_*_PREGATE=observe,
+    # meaning Laya's verdict is logged and scored against what the real
+    # panel/gatekeeper LLM call then decided, but never changes routing on
+    # its own. Check skip_precision/stop_precision here -- they should sit
+    # very close to 1.0 -- before flipping either gate to "on" in
+    # eo/laya_routing.py's env vars. See that module's own docstring for
+    # what each field means and why these two gates are held to a higher
+    # bar than eo/sga.py's Tier 2 pre-gate.
+    return {
+        "panel_gate": {"mode": laya_routing.PANEL_GATE_MODE,
+                       "threshold": laya_routing.PANEL_GATE_THRESHOLD,
+                       **laya_routing.get_panel_gate_stats()},
+        "gatekeeper_gate": {"mode": laya_routing.GATEKEEPER_GATE_MODE,
+                            "threshold": laya_routing.GATEKEEPER_GATE_THRESHOLD,
+                            **laya_routing.get_gatekeeper_gate_stats()},
+    }
+
+
+@router.get("/api/system/tool-budget-stats", dependencies=[Depends(require_auth)])
+def tool_budget_stats():
+    # Perf audit follow-up (item #6): surfaces the global
+    # increment/hit counters eo/tool_budget.py's increment()/
+    # over_threshold() now record on every counted role-step (see
+    # get_tool_budget_stats()'s own docstring). Pull this after
+    # DEFAULT_TOOL_CALL_BUDGET was lowered (40 -> 15, see that
+    # constant's docstring in eo/tool_budget.py) to see whether the
+    # new number is actually calibrated -- a hit_rate near 0 means
+    # it's still comfortably high; a hit_rate that's uncomfortably
+    # high across real chat-tab sessions means it should come back
+    # up. Same "aggregate counters, no per-user scoping needed beyond
+    # logged-in" posture as the other /api/system/*-stats routes
+    # above.
+    return tool_budget.get_tool_budget_stats()
+
+
+@router.get("/api/system/conversation-thread-stats", dependencies=[Depends(require_auth)])
+def conversation_thread_stats():
+    # Perf audit follow-up (item #3b): surfaces the global
+    # routed/created/reused/skipped counters
+    # eo/conversation_memory.py's _route_to_thread() now records on
+    # every user-turn routing decision (see
+    # get_conversation_thread_stats()'s own docstring). Pull this
+    # before touching THREAD_SIMILARITY_THRESHOLD or
+    # MAX_THREADS_PER_SESSION -- a low created_new_thread rate relative
+    # to routed_existing_thread means most sessions already stay
+    # on-topic and branching rarely fires at all, which would mean
+    # item #3 (the "worth storing?" pre-filter) alone was already
+    # handling most of the noise this feature was built to catch. Same
+    # posture as the other /api/system/*-stats routes above.
+    return conversation_memory.get_conversation_thread_stats()
+
+
+@router.get("/api/system/ledger-event-stats", dependencies=[Depends(require_auth)])
+def ledger_event_stats():
+    # Perf audit follow-up (latency discussion, point #5): surfaces the
+    # global wait/reroute/provider_failure counters
+    # utils/llm_client.py's _record_ledger_event() now records on every
+    # ledger-gating decision (see get_ledger_event_stats()'s own
+    # docstring). A high reroute_rate confirms generate_text() already
+    # treats "another provider has headroom" as the common case rather
+    # than sleeping and retrying the same one -- check here before
+    # touching any of _handle_transient_error()'s retry-vs-reroute
+    # branches. Same posture as the other /api/system/*-stats routes
+    # above: aggregate counters, no per-user scoping needed beyond
+    # logged-in.
+    return get_ledger_event_stats()
+
+
+@router.get("/api/quota", dependencies=[Depends(require_auth)])
+def quota():
+    # Phase 8a — today's daily-quota figures (existing) plus a
+    # `rate_windows` section keyed by the same agent_key, giving the
+    # dashboard the live minute/daily headroom state from rate_ledger.py
+    # (token-based providers and OpenRouter-style request-based
+    # providers both covered, per get_rate_window_snapshot()'s
+    # docstring) alongside the once-a-day usage figures already here.
+    return {
+        **get_quota_snapshot(),
+        "rate_windows": get_rate_window_snapshot(),
+    }
+
+
+@router.get("/api/usage/history", dependencies=[Depends(require_auth)])
+def usage_history(
+    days: int = Query(7, ge=1, le=90),
+    domain: str | None = Query(None),
+    workspace_id: str | None = Query(None),
+):
+    # Cross-session, persisted day-by-day usage -- reads the same
+    # usage:{provider}:{key_id}:{date} records /api/quota already reads
+    # for today, just repeated across the last `days` calendar dates.
+    # See eo/quota_sentinel.py's get_usage_history() docstring for the
+    # exact response shape.
+    #
+    # Part 2 §2.6 -- when domain and/or workspace_id is given, this
+    # branches to get_usage_history_scoped() instead, returning
+    # {dates, domain, workspace} (see that function's docstring) rather
+    # than {dates, providers, accounts}. Same route, response shape
+    # depends on query params -- exactly the way `days` already changes
+    # this endpoint's window without becoming a separate route.
+    if domain or workspace_id:
+        return get_usage_history_scoped(days=days, domain=domain, workspace_id=workspace_id)
+    return get_usage_history(days=days)
