@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for the Explorer page (P13, P14b): router.js, model.js and highlight.js (pure), and explorer.html in jsdom.
+"""Tests for the Explorer page (P13, P14b, P14d): router.js, model.js, highlight.js and blocks.js (pure), and explorer.html in jsdom.
 
     python scripts/test_explorer.py
 
@@ -34,6 +34,12 @@ class ExplorerTests(unittest.TestCase):
     def test_highlight(self):
         """P14b: language choice, HTML -> segments, the vendored engine, and a round trip over the embedded source."""
         r = run("highlight.mjs")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertNotIn("FAIL", r.stdout)
+
+    def test_blocks(self):
+        """P14d: line ranges, anchor search, block alignment, block / function at a line, card stacking, and every real note against its embedded source."""
+        r = run("blocks.mjs")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertNotIn("FAIL", r.stdout)
 

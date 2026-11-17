@@ -161,7 +161,9 @@ function explain(file, rec, note) {
       const href = m ? buildRoute({ view: "file", path: file.path, start: Number(m[1]), end: m[2] ? Number(m[2]) : null, tab: "source" }) : null;
       return h("li", null, href ? h("a", { href }, `lines ${b.lines}`) : `lines ${b.lines}`, " ", h("b", null, b.title || ""), b.text ? h("span", { class: "ex-dim" }, ` ${b.text}`) : null);
     });
-    put(section("Walkthrough", blocks.length ? h("ol", { class: "ex-blocks" }, blocks) : null));
+    put(section("Walkthrough", blocks.length ? h("div", null,
+      h("p", { class: "ex-dim" }, "Each block is a stretch of the file, in reading order. ", h("a", { class: "mm-btn", href: buildRoute({ view: "file", path: file.path, tab: "source" }) }, "Read it beside the code")),
+      h("ol", { class: "ex-blocks" }, blocks)) : null));
   }
   const exports = rec && rec.exports && rec.exports.length ? h("p", { class: "ex-chips" }, rec.exports.slice(0, 40).map((e) => h("code", null, e))) : null;
   put(section("Exports", exports));

@@ -16,7 +16,7 @@ SRC_LINES[9] = "def run(x):  # <b>not html</b>";
 SRC_LINES[10] = "";
 SRC_LINES[11] = "\treturn '&amp;'";
 
-export function writeFixture(dir, { big = false, drift = false } = {}) {
+export function writeFixture(dir, { big = false, drift = false, long = false } = {}) {
   const W = (rel, o) => { const p = path.join(dir, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, JSON.stringify(o)); };
   const recs = [
     { path: "backend/agents/a.py", functions: [fn("run", 10, 20, { doc1: "Run it.", raises: ["ValueError"], decorators: ["cached"], calls: [["route", "backend/api/b.py::route"], ["Agent", "backend/agents/a.py::Agent"], ["print", null], ["os.path.join", null], ["print", null], ["gone", "gone/x.py::f"]] }), fn("Agent.step", 30, 40), fn("_clean_query", 120, 141)], classes: [{ qual: "Agent", name: "Agent", start: 25, end: 50, loc: 26, bases: ["Base"], hash: "h_Agent" }],
@@ -35,12 +35,26 @@ export function writeFixture(dir, { big = false, drift = false } = {}) {
   W("data/code/files/s0.json", { files: recs });
   W("data/code/imports.json", { imports: { "backend/api/b.py": ["backend/agents/a.py", "nowhere.py"] }, imported_by: { "backend/agents/a.py": ["backend/api/b.py"] }, external: { "backend/agents/a.py": ["httpx"] } });
   W("data/index/notes.json", { totals: { files: 3, noted: 1 }, folders: { "backend/agents": { files: 1, noted: 1, stale: 0 }, backend: { files: 2, noted: 1, stale: 0 } }, files: { "backend/agents/a.py": { status: "fresh", tier: 1 } } });
-  W("data/notes/backend__agents__a.py.json", { summary: "Agent module.", purpose: "p", written: "2026-10-20", commit: "abcdef123", blob: drift ? "c".repeat(40) : BLOB, symbols: [{ qual: "run", summary: "Runs the agent.", details: "Longer text about run.", params: [{ name: "x", desc: "the input value" }, { name: "extra", desc: "only the note knows" }], returns: "the result text", raises: ["KeyError when missing"], side_effects: ["writes a log"], confidence: "medium", evidence: ["12-14", "bad", "18"], hash: "h_run" }, { qual: "Agent.step", summary: "Steps.", hash: "OLD" }], blocks: [{ lines: "10-20", title: "Run", text: "x" }] });
+  W("data/notes/backend__agents__a.py.json", { summary: "Agent module.", purpose: "p", written: "2026-10-20", commit: "abcdef123", blob: drift ? "c".repeat(40) : BLOB, symbols: [{ qual: "run", summary: "Runs the agent.", details: "Longer text about run.", params: [{ name: "x", desc: "the input value" }, { name: "extra", desc: "only the note knows" }], returns: "the result text", raises: ["KeyError when missing"], side_effects: ["writes a log"], confidence: "medium", evidence: ["12-14", "bad", "18"], hash: "h_run" }, { qual: "Agent.step", summary: "Steps.", hash: "OLD" }], blocks: [
+    { lines: "10-20", title: "Run", text: "x", anchor: "def run(x):" },                       // right place
+    { lines: "30-40", title: "Step", text: "Steps once.", anchor: "line 30" },                // right place
+    { lines: "120-141", title: "Cleaning", text: "Cleans the query.", anchor: "line 125" },   // moved 5 lines down: 125-146
+    { lines: "145-150", title: "Tail", text: "No anchor." },                                   // not checked
+    { lines: "200-210", title: "Past the end", text: "z", anchor: "line 200" },               // left out
+    { lines: "abc", title: "Broken", text: "z" }] });                                          // left out
+  if (long) {                                        // a note for the 2,500-line b.py, with blocks in the first chunk and in the last
+    const r = (i) => `row ${i}`;
+    W("data/notes/backend__api__b.py.json", { summary: "Router.", purpose: "p", written: "2026-10-20", commit: "abcdef123", blob: BLOB, symbols: [], blocks: [
+      { lines: "5-8", title: "Top", text: "First.", anchor: r(5) }, { lines: "1500-1510", title: "Middle", text: "Second.", anchor: r(1500) }, { lines: "2400-2410", title: "Late", text: "Third.", anchor: r(2400) }] });
+    const idx = JSON.parse(fs.readFileSync(path.join(dir, "data/index/notes.json"), "utf8"));
+    idx.files["backend/api/b.py"] = { status: "fresh", tier: 2 };
+    W("data/index/notes.json", idx);
+  }
   W("content/config.json", { github: { repo: "Unavailable4u/MiniMe" }, editor: { scheme: "vscode" }, embedSource: true });
-  W("data/src/manifest.json", { schema: 1, commit: drift ? "d".repeat(40) : COMMIT, files: { "backend/agents/a.py": BLOB, ...(big ? { "backend/api/b.py": BLOB } : {}) } });
+  W("data/src/manifest.json", { schema: 1, commit: drift ? "d".repeat(40) : COMMIT, files: { "backend/agents/a.py": BLOB, ...(big || long ? { "backend/api/b.py": BLOB } : {}) } });
   fs.mkdirSync(path.join(dir, "data/src/backend/agents"), { recursive: true });
   fs.writeFileSync(path.join(dir, "data/src/backend/agents/a.py.txt"), `${SRC_LINES.join("\n")}\n`);
-  if (big) {                                         // a 2,500-line file: the viewer draws 1,000 lines at a time
+  if (big || long) {                                 // a 2,500-line file: the viewer draws 1,000 lines at a time
     fs.mkdirSync(path.join(dir, "data/src/backend/api"), { recursive: true });
     fs.writeFileSync(path.join(dir, "data/src/backend/api/b.py.txt"), `${Array.from({ length: 2500 }, (_, i) => `row ${i + 1}`).join("\n")}\n`);
   }
@@ -53,10 +67,10 @@ export async function jsdomOrSkip() {
 }
 
 /* Load explorer.html (scripts stripped) in jsdom, serve data/ from a temp fixture, and import the real main.js. `omit` = data paths that answer 404. */
-export async function boot({ hash = "", omit = [], big = false, drift = false } = {}) {
+export async function boot({ hash = "", omit = [], big = false, drift = false, long = false } = {}) {
   const JSDOM = await jsdomOrSkip();
   const data = fs.mkdtempSync(path.join(os.tmpdir(), "explorer-"));
-  writeFixture(data, { big, drift });
+  writeFixture(data, { big, drift, long });
   const html = fs.readFileSync(path.join(ROOT, "explorer.html"), "utf8").replace(/<script[\s\S]*?<\/script>/g, "");
   const dom = new JSDOM(html, { url: `http://localhost:8000/explorer.html${hash}`, pretendToBeVisual: true });
   const w = dom.window;

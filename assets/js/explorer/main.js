@@ -3,7 +3,7 @@
 
    The data is sharded, so a file page loads exactly two small files: its shard (symbols, git dates) and its note, if it has one.
    The Source tab (P14a) loads the embedded copy of the file, data/src/<path>.txt, only when it is opened. The symbol panel (P14c: signature, parameters, calls and called-by, from the file's record, its note
-   and callers/<shard>.json) is loaded when the address names a symbol; the walkthrough margin cards arrive with the next P14 patches; assets/js/links.js builds the raw / GitHub / VS Code links. */
+   and callers/<shard>.json) is loaded when the address names a symbol; the walkthrough margin cards (P14d, blocks.js) are built by the Source tab from the note's blocks; assets/js/links.js builds the raw / GitHub / VS Code links. */
 import { h } from "./dom.js";
 import { parseRoute, buildRoute } from "./router.js";
 import { loadCore, loadRecord, loadRecords, loadNote, loadCallers, symbolRows, allFiles, noteStatus } from "./model.js";

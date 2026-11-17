@@ -193,6 +193,13 @@ export function parseGoto(input, total) {
 
 const sameCommit = (a, b) => { const x = String(a || "").toLowerCase(); const y = String(b || "").toLowerCase(); return x.length >= 7 && y.length >= 7 && (x.startsWith(y) || y.startsWith(x)); };
 
+/* True when the AI note was written against another version of the file than the embedded copy (their git blob ids differ).
+   False when either side is unknown: no note, no blob in the note, or the file is not in the embedded copy. (P14d: the margin cards use it too.) */
+export function noteDrifted({ path, note, srcFiles }) {
+  const blob = srcFiles && Object.prototype.hasOwnProperty.call(srcFiles, path) ? srcFiles[path] : "";
+  return !!(note && note.blob && blob && note.blob !== blob);
+}
+
 /* Reasons to read the line numbers on the Source tab with care. Each is { level: "warn", text }.
      copyCommit    commit the embedded source was copied from (data/src/manifest.json)
      censusCommit  commit the census, and so every line number in the Symbols tab, belongs to
@@ -203,8 +210,7 @@ export function sourceNotices({ path, note, srcFiles, copyCommit, censusCommit }
   if (copyCommit && censusCommit && !sameCommit(copyCommit, censusCommit)) {
     out.push({ level: "warn", text: `This source is the copy of commit ${String(copyCommit).slice(0, 7)}, but the census is from ${String(censusCommit).slice(0, 7)}. Line numbers in the Symbols tab may be off.` });
   }
-  const blob = srcFiles && Object.prototype.hasOwnProperty.call(srcFiles, path) ? srcFiles[path] : "";
-  if (note && note.blob && blob && note.blob !== blob) {
+  if (noteDrifted({ path, note, srcFiles })) {
     out.push({ level: "warn", text: "The AI note was written against a different version of this file than the copy shown here. Its line numbers and walkthrough may not match." });
   }
   return out;

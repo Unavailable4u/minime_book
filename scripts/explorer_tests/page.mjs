@@ -2,7 +2,7 @@
 // model.js caches fetched JSON for the life of the page, so every scenario runs in its own Node process:  node page.mjs [normal|degraded|broken|scale]
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-const SCENARIOS = ["normal", "degraded", "broken", "scale", "source", "nomanifest", "fetchfail", "drift", "symbol", "nocallers"];
+const SCENARIOS = ["normal", "degraded", "broken", "scale", "source", "nomanifest", "fetchfail", "drift", "symbol", "nocallers", "walkthrough", "walknarrow", "walklong"];
 const which = process.argv[2];
 if (!which) {
   let bad = 0;
@@ -239,6 +239,123 @@ if (which === "drift") {
   const warn = [...P.doc.querySelectorAll("#ex-main .ex-callout--warn")].map((e) => e.textContent);
   ok(warn.length === 2 && warn[0].includes("ddddddd") && warn[0].includes("a1389bf"), `copy/census commit mismatch is named (${warn[0]})`);
   ok(warn[1].includes("different version of this file"), "note written for another blob is flagged");
+  ok(P.doc.querySelectorAll(".ex-card").length === 4 && P.doc.querySelectorAll(".ex-card.is-stale").length === 4 && P.doc.querySelectorAll(".ex-card .ex-card__chip--stale").length === 4, "P14d: when the note is for another version, every card says the code changed");
+  allErrors.push(...P.errors);
+}
+
+/* P14d: the walkthrough cards. jsdom has no layout, so the geometry is faked: line N sits at 20 N px, each line is 20 px high, and the code box
+   scrolls through a plain property. That is enough to check which block and function the reader is in and where n / p take them. */
+const fakeLayout = (P) => {
+  const { w, doc } = P;
+  const lineNo = (el) => { const m = /^ex-L(\d+)$/.exec(el.id || ""); return m ? Number(m[1]) : 0; };
+  Object.defineProperty(w.HTMLElement.prototype, "offsetTop", { configurable: true, get() { return lineNo(this) * 20; } });
+  Object.defineProperty(w.HTMLElement.prototype, "offsetHeight", { configurable: true, get() { return lineNo(this) ? 20 : this.classList.contains("ex-card") ? 60 : 0; } });
+  const code = doc.querySelector(".ex-code");
+  let top = 0;
+  Object.defineProperty(code, "scrollTop", { configurable: true, get: () => top, set: (v) => { if (v !== top) setTimeout(() => code.dispatchEvent(new w.Event("scroll")), 0); top = v; } });   // like a browser, a script-made scroll fires a scroll event later
+  Object.defineProperty(code, "scrollHeight", { configurable: true, get: () => 3000 });
+  Object.defineProperty(code, "clientHeight", { configurable: true, get: () => 400 });
+  const scrollTo = async (px) => { top = px; code.dispatchEvent(new w.Event("scroll")); await P.wait(60); };
+  return { code, scrollTo, top: () => top };
+};
+
+if (which === "walkthrough") {
+  const P = await boot({ hash: "#/f/backend/agents/a.py?tab=source" });
+  const { doc, w, wait, key, text, errors } = P;
+  const L = fakeLayout(P);
+  const cards = () => [...doc.querySelectorAll(".ex-card")];
+  const titles = () => cards().map((c) => c.querySelector(".ex-card__t").textContent);
+  const active = () => cards().filter((c) => c.classList.contains("is-active")).map((c) => c.querySelector(".ex-card__t").textContent);
+  const bar = () => doc.querySelector(".ex-src__now");
+  const barText = () => bar().textContent.replace(/\s+/g, " ").trim();
+  ok(doc.querySelector(".ex-src")?.classList.contains("has-notes"), "a note with blocks turns the margin on");
+  ok(titles().join() === "Run,Step,Cleaning,Tail", `4 of the 6 blocks are placed, in line order (${titles()})`);
+  ok(cards().map((c) => c.getAttribute("aria-label")).join("|") === "Walkthrough note 1 of 4: Run|Walkthrough note 2 of 4: Step|Walkthrough note 3 of 4: Cleaning|Walkthrough note 4 of 4: Tail", "each card is labelled with its place");
+  ok(doc.querySelectorAll(".ex-code .ex-bhead").length === 4, "the same notes are also drawn as headers inside the code, for narrow screens");
+  const chips = (i) => [...cards()[i].querySelectorAll(".ex-card__chip")].map((c) => c.textContent);
+  ok(chips(0).length === 0 && chips(1).length === 0 && chips(2).join() === "moved" && chips(3).join() === "not checked", `moved and unchecked blocks are marked, the rest are not (${chips(2)} / ${chips(3)})`);
+  ok(cards()[2].querySelector(".ex-card__chip--shifted").title.includes("125-146") && cards()[2].querySelector(".ex-card__chip--shifted").title.includes("120-141"), "the mark says where the block was found and where the note had it");
+  ok(cards()[2].querySelector("button.ex-link").textContent === "lines 125–146", "a moved block is shown at the lines where it really is");
+  ok(doc.querySelector(".ex-code .ex-bhead").nextElementSibling?.id === "ex-L10", "an inline header sits right before the first line of its block");
+  const callout = [...doc.querySelectorAll("#ex-main .ex-callout")].map((c) => c.textContent).join(" | ");
+  ok(/2 walkthrough notes could not be placed/.test(callout) && callout.includes("Past the end: its lines are past the end of this file") && callout.includes("Broken: its line range is not valid"), `blocks that cannot be placed are listed, not dropped silently (${callout})`);
+  ok(text("ex-main").includes("4 walkthrough notes"), "the line under the tools counts the notes");
+  ok(!doc.querySelector(".ex-code b") && !/null|undefined/.test(text("ex-main")), "card text is text; no stray null/undefined");
+
+  /* where the reader is */
+  ok(!bar().hidden && barText().includes("Top of the file"), `at the top the bar says so (${barText()})`);
+  await L.scrollTo(300);                          // first line whose bottom is below 301 px: line 15
+  ok(barText().includes("run") && barText().includes("lines 10–20") && barText().includes("Runs the agent.") && barText().includes("walkthrough: Run"), `line 15: function, its range and summary, and the block (${barText()})`);
+  ok(active().join() === "Run" && doc.querySelectorAll(".ex-card[aria-current]").length === 1, "exactly one card is current");
+  ok(!doc.querySelector(".ex-band").hidden && doc.querySelector(".ex-band").style.top === "200px" && doc.querySelector(".ex-band").style.height === "220px", `a tint covers the block's lines (${doc.querySelector(".ex-band").style.top}, ${doc.querySelector(".ex-band").style.height})`);
+  ok(doc.querySelector(".ex-src__now a.ex-link")?.getAttribute("href") === "#/f/backend/agents/a.py::run?tab=symbols", "the bar links to the symbol panel");
+  await L.scrollTo(680);                          // line 34: Agent.step, block Step
+  ok(barText().includes("Agent.step") && barText().includes("walkthrough: Step") && active().join() === "Step", `line 34 is in the method, not in its class (${barText()})`);
+  await L.scrollTo(520);                          // line 27: Agent (class), no block
+  ok(barText().includes("Agent") && !barText().includes("Agent.step") && !barText().includes("walkthrough:") && active().length === 0 && doc.querySelector(".ex-band").hidden, `line 27: the class, no block, no tint (${barText()})`);
+  await L.scrollTo(100);                          // line 5: no symbol, no block
+  ok(barText().includes("Top of the file") === true || barText().includes("Outside any function"), `outside any function (${barText()})`);
+
+  /* n / p and the cards */
+  key(L.code, "n"); await wait(30);              // reading line 5 -> the first block that starts after it
+  ok(L.top() === 10 * 20 - 2 && active().join() === "Run", `n goes to the next block and puts its first line at the top (${L.top()})`);
+  key(L.code, "n"); key(L.code, "n"); await wait(30);
+  ok(active().join() === "Cleaning" && L.top() === 125 * 20 - 2 && barText().includes("_clean_query"), `n, n reaches the moved block at its real line, inside _clean_query (${active()}, ${L.top()})`);
+  key(L.code, "n"); await wait(30); ok(active().join() === "Tail", "n reaches the last block");
+  key(L.code, "n"); await wait(30); ok(active().join() === "Tail" && text("ex-toast").includes("last walkthrough note"), "n at the end stays and says so");
+  key(L.code, "p"); await wait(30); ok(active().join() === "Cleaning", "p goes back one");
+  await L.scrollTo(1000);                        // reading by hand (line 50, outside every block) clears the jump
+  ok(active().length === 0, `scrolling by hand clears the jumped-to block (${active()})`);
+  key(L.code, "n"); await wait(30); ok(active().join() === "Cleaning", "n after scrolling by hand goes to the next block below the reading line");
+  cards()[1].querySelector("button.ex-link").click(); await wait(40);
+  ok(w.location.hash === "#/f/backend/agents/a.py@30-40?tab=source" && doc.querySelectorAll(".ex-line.is-sel").length === 11 && L.top() === 30 * 20 - 2 && active().join() === "Step", `a card selects its lines, rewrites the address and scrolls to them (${w.location.hash})`);
+  doc.querySelector(".ex-code .ex-bhead button.ex-link").click(); await wait(40);
+  ok(w.location.hash === "#/f/backend/agents/a.py@10-20?tab=source", "the inline header button does the same");
+
+  /* the checkbox */
+  const nb = [...doc.querySelectorAll(".ex-src__tools label")].find((l) => /Walkthrough notes/.test(l.textContent))?.querySelector("input");
+  ok(!!nb && nb.checked && !nb.closest("label").hidden, "a Walkthrough notes checkbox appears, ticked");
+  nb.checked = false; nb.dispatchEvent(new w.Event("change"));
+  ok(doc.querySelector(".ex-src").classList.contains("is-notes-off") && w.localStorage.getItem("minime_ex_notes") === "0", "unticking hides the cards and remembers it");
+  ok(barText().includes("Agent") || barText().includes("run") || barText().length > 0, "the explain bar does not depend on the cards");
+  nb.checked = true; nb.dispatchEvent(new w.Event("change")); ok(!doc.querySelector(".ex-src").classList.contains("is-notes-off") && w.localStorage.getItem("minime_ex_notes") === "1", "ticking brings them back");
+
+  /* the Explain tab */
+  await P.nav("#/f/backend/agents/a.py?tab=explain");
+  ok(doc.querySelector(".ex-blocks")?.textContent.includes("Cleaning") && doc.querySelector("#ex-main a.mm-btn[href='#/f/backend/agents/a.py?tab=source']")?.textContent === "Read it beside the code", "the Explain tab points to the code with the notes beside it");
+  /* a file with census symbols but no note still gets the explain bar and no cards */
+  await P.nav("#/f/backend/api/b.py?tab=source");
+  ok(doc.querySelectorAll(".ex-card").length === 0 && !doc.querySelector(".ex-src")?.classList.contains("has-notes"), "no note: no cards and no margin");
+  allErrors.push(...errors);
+}
+
+if (which === "walknarrow") {
+  let ro = null;
+  globalThis.ResizeObserver = class { constructor(cb) { ro = cb; } observe() {} disconnect() {} };
+  const P = await boot({ hash: "#/f/backend/agents/a.py?tab=source" });
+  const root = () => P.doc.querySelector(".ex-src");
+  ok(typeof ro === "function", "the viewer watches its own width");
+  ro([{ contentRect: { width: 500 } }]); ok(root().classList.contains("is-narrow"), "under 760 px the viewer switches to inline headers");
+  ro([{ contentRect: { width: 900 } }]); ok(!root().classList.contains("is-narrow"), "and back to the margin when it is wide again");
+  ro([{ contentRect: { width: 0 } }]); ok(!root().classList.contains("is-narrow"), "a hidden viewer (width 0) changes nothing");
+  allErrors.push(...P.errors);
+}
+
+if (which === "walklong") {
+  const P = await boot({ hash: "#/f/backend/api/b.py?tab=source", long: true });
+  const { doc, wait, nav } = P;
+  fakeLayout(P);
+  const shown = () => [...doc.querySelectorAll(".ex-card")].filter((c) => !c.hidden).map((c) => c.querySelector(".ex-card__t").textContent);
+  ok([...doc.querySelectorAll(".ex-card")].length === 3 && shown().join() === "Top", `cards of lines that are not drawn yet stay hidden (${shown()})`);
+  ok(doc.querySelectorAll(".ex-code .ex-bhead").length === 1, "and so do their inline headers");
+  doc.querySelector(".ex-src__more").click(); await wait(60);
+  ok(shown().join() === "Top,Middle" && doc.querySelectorAll(".ex-code .ex-bhead").length === 2, `Show more lines reveals the next card (${shown()})`);
+  doc.querySelector(".ex-src__more").click(); await wait(60);
+  ok(shown().join() === "Top,Middle,Late", "and the last one");
+  await nav("#/f/backend/api/b.py?tab=source");
+  const late = [...doc.querySelectorAll(".ex-card")].find((c) => c.querySelector(".ex-card__t").textContent === "Late");
+  late.querySelector("button.ex-link").click(); await wait(60);
+  ok(doc.querySelectorAll(".ex-line.is-sel").length === 11 && P.w.location.hash === "#/f/backend/api/b.py@2400-2410?tab=source", "picking a card whose lines are not drawn yet draws them and selects them");
   allErrors.push(...P.errors);
 }
 

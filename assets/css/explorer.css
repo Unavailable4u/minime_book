@@ -195,6 +195,37 @@ kbd { font-family: var(--font-mono); font-size: var(--fs-xs); padding: 0.05rem 0
 .ex-code.is-wrap .ex-line__t { flex: 1 1 0; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 
 /* ------------------------------------------------------------ narrower screens */
+/* ---- Walkthrough margin cards and the explain bar (P14d) ---------------------------------------------------------------
+   The code box scrolls on its own; the margin column is a clipped box whose content is moved with the same scroll position (source.js sets
+   the transform), so each card stays level with the lines it explains. Under 760 px of viewer width (.is-narrow, set from the viewer's own
+   width) the margin goes away and the same notes appear as headers between the lines. */
+.ex-code { position: relative; }
+.ex-src__body { display: grid; grid-template-columns: minmax(0, 1fr) 17rem; gap: var(--space-3); align-items: stretch; }
+.ex-src:not(.has-notes) .ex-src__body, .ex-src.is-notes-off .ex-src__body, .ex-src.is-narrow .ex-src__body { grid-template-columns: minmax(0, 1fr); }
+.ex-src__now { margin: 0 0 var(--space-2); padding: var(--space-2) var(--space-3); border: 1px solid var(--line); border-left: 3px solid var(--flow); border-radius: var(--radius-2); background: var(--panel); font-size: var(--fs-sm); overflow-wrap: anywhere; }
+.ex-src__now[hidden] { display: none; }
+.ex-src__q { font-family: var(--font-mono); }
+.ex-margin { position: relative; overflow: hidden; min-height: 12rem; }
+.ex-src:not(.has-notes) .ex-margin, .ex-src.is-notes-off .ex-margin, .ex-src.is-narrow .ex-margin { display: none; }
+.ex-margin__in { position: absolute; top: 0; left: 0; right: 0; will-change: transform; }
+.ex-card, .ex-bhead { box-sizing: border-box; padding: var(--space-2) var(--space-3); background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--graph); border-radius: var(--radius-2); font-family: var(--font-ui); font-size: var(--fs-sm); line-height: 1.45; white-space: normal; color: var(--ink); }
+.ex-card { position: absolute; left: 0; right: 0; }
+.ex-card[hidden] { display: none; }
+.ex-card.is-active, .ex-bhead.is-active { border-left-color: var(--brand); background: var(--panel-2); }
+.ex-card.is-stale, .ex-bhead.is-stale { border-style: dashed; border-left-style: solid; }
+.ex-card__head { display: flex; align-items: baseline; gap: var(--space-2); }
+.ex-card__n { flex: none; font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-dim); }
+.ex-card__t { margin: 0; font-size: var(--fs-sm); font-weight: 600; }
+.ex-card__x { margin: var(--space-1) 0 0; color: var(--ink-dim); }
+.ex-card__f { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); margin: var(--space-2) 0 0; font-size: var(--fs-xs); }
+.ex-card__chip { padding: 0 var(--space-2); border: 1px solid var(--line-strong); border-radius: 999px; color: var(--ink-dim); }
+.ex-card__chip--shifted { border-color: var(--flow); }
+.ex-card__chip--unverified, .ex-card__chip--stale { border-color: var(--gate); }
+.ex-bhead { display: none; }
+.ex-src.is-narrow:not(.is-notes-off) .ex-bhead { display: block; position: sticky; left: 0; width: min(calc(100% - 1rem), 40rem); margin: var(--space-2) var(--space-2); }
+.ex-band { position: absolute; left: 0; right: 0; pointer-events: none; background: color-mix(in srgb, var(--graph) 8%, transparent); border-left: 3px solid var(--graph); }
+.ex-band[hidden] { display: none; }
+
 @media (max-width: 1199px) {
   .ex { grid-template-columns: var(--ex-tw) 6px minmax(0, 1fr); grid-template-areas: "tree bar main" "tree bar insp"; }
   .ex-insp { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--line); }
