@@ -1,14 +1,14 @@
 /* MiniMe Atlas 2 - Explorer hash routes (P13). Pure: no DOM, no network, so Node can test it.
 
    Canonical forms (what the Explorer writes, and what the command palette already writes):
-     #/f/<path>[::<qual>][@<start>[-<end>]][?tab=symbols]     a file, optionally one symbol and a line range
+     #/f/<path>[::<qual>][@<start>[-<end>]][?tab=symbols|source|view]     a file, optionally one symbol and a line range
      #/d/<folder>[?tab=symbols]                                a folder
      #/                                                        the start page
    The form assets/js/links.js writes, #/<path>@<start>-<end>, is read too. It does not say whether the path is a file or a
    folder, so it comes back as view "auto" and the page decides from the file index. */
 import { cleanPath } from "../links.js";
 
-export const TABS = ["explain", "source", "symbols"];
+export const TABS = ["view", "explain", "source", "symbols"];
 
 const encPath = (p) => p.split("/").map(encodeURIComponent).join("/");
 

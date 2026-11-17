@@ -107,12 +107,20 @@ function grammar(hljs, lang) {
   return grammarPromises.get(lang);
 }
 
-/* lines: the file as the viewer shows it (array of strings). Returns { lang, lines: [[{t,c}]] } with exactly one entry per
-   line and the same text as the input, or null when there is nothing to colour (plain file, too big, vendor missing, error). */
-export async function highlightLines(lines, path) {
+/* A fenced code block's info string ("python", "js title=x", "jsonc") -> grammar, or null. Only grammars that are vendored count. */
+const FENCE_ALIAS = { py: "python", python3: "python", js: "javascript", jsx: "javascript", node: "javascript", ts: "typescript", tsx: "typescript", jsonc: "json",
+  yml: "yaml", sh: "bash", shell: "bash", zsh: "bash", console: "bash", ps1: "powershell", html: "xml", svg: "xml", toml: "ini", md: "markdown", postgres: "sql", postgresql: "sql", psql: "sql" };
+const KNOWN = new Set(["python", "javascript", "typescript", "json", "sql", "yaml", "bash", "powershell", "css", "xml", "ini", "markdown", "dockerfile"]);
+export function langFromFence(info) {
+  const w = String(info || "").trim().split(/[\s{]/)[0].toLowerCase();
+  const l = FENCE_ALIAS[w] || w;
+  return KNOWN.has(l) ? l : null;
+}
+
+/* Colours for text in a known grammar. Same contract as highlightLines (one entry per line, same text) but the grammar is given. */
+export async function highlightWith(lines, lang) {
   try {
-    const lang = langFor(path, lines[0]);
-    if (!lang) return null;
+    if (!lang || !KNOWN.has(lang)) return null;
     const text = lines.join("\n");
     if (text.length > MAX_CHARS) return null;
     const hljs = await engine();
@@ -124,4 +132,11 @@ export async function highlightLines(lines, path) {
   } catch {
     return null;
   }
+}
+
+/* lines: the file as the viewer shows it (array of strings). Returns { lang, lines: [[{t,c}]] } with exactly one entry per
+   line and the same text as the input, or null when there is nothing to colour (plain file, too big, vendor missing, error). */
+export async function highlightLines(lines, path) {
+  const lang = langFor(path, lines[0]);
+  return lang ? highlightWith(lines, lang) : null;
 }

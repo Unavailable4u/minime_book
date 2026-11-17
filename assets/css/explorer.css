@@ -242,3 +242,55 @@ kbd { font-family: var(--font-mono); font-size: var(--fs-xs); padding: 0.05rem 0
   .ex-sym__row { padding-inline: var(--space-3); }
 }
 @media (prefers-reduced-motion: reduce) { .ex-toast, .ex.is-sheet .ex-side { transition: none; } }
+
+/* ---- P14e: the view tab for Markdown, JSON and SQL files ---- */
+.ex-doc__from { margin: 0 0 var(--space-3); font-size: var(--fs-xs); }
+.ex-md { max-width: 80ch; line-height: var(--lh-body, 1.6); overflow-wrap: anywhere; }
+.ex-md > :first-child { margin-top: 0; }
+.ex-md__h { margin: var(--space-5) 0 var(--space-2); line-height: var(--lh-tight); scroll-margin-top: calc(var(--topbar-h) + var(--space-4)); }
+.ex-md .ex-md__h1 { font-size: var(--fs-xl); } .ex-md .ex-md__h2 { font-size: var(--fs-lg); } .ex-md .ex-md__h3 { font-size: var(--fs-md); }
+.ex-md .ex-md__h4, .ex-md .ex-md__h5, .ex-md .ex-md__h6 { font-size: var(--fs-sm); }
+.ex-md__src { margin-left: var(--space-2); font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 400; color: var(--ink-dim); text-decoration: none; opacity: 0; }
+.ex-md__h:hover .ex-md__src, .ex-md__src:focus-visible { opacity: 1; }
+.ex-md p, .ex-md ul, .ex-md ol, .ex-md blockquote { margin: 0 0 var(--space-3); }
+.ex-md ul, .ex-md ol { padding-left: 1.5rem; }
+.ex-md li > :last-child { margin-bottom: 0; }
+.ex-md blockquote { padding: 0 var(--space-4); color: var(--ink-dim); border-left: 3px solid var(--line-strong); }
+.ex-md hr { border: 0; border-top: 1px solid var(--line); margin: var(--space-5) 0; }
+.ex-md code { font-family: var(--font-mono); font-size: 0.9em; padding: 0.05rem 0.3rem; background: var(--panel-2); border-radius: var(--radius-1); }
+.ex-md__tasks { list-style: none; padding-left: 0.5rem; }
+.ex-md__task input { margin-right: var(--space-1); }
+.ex-md__ext::after { content: " \2197"; font-size: 0.8em; color: var(--ink-dim); }
+.ex-md__dead { color: var(--ink-dim); text-decoration: underline dotted; cursor: help; }
+.ex-md__img { padding: 0 var(--space-2); border: 1px dashed var(--line-strong); border-radius: var(--radius-1); color: var(--ink-dim); font-size: var(--fs-sm); }
+.ex-md__codewrap { margin: 0 0 var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--panel); overflow: hidden; }
+.ex-md__codebar { display: flex; align-items: center; justify-content: space-between; padding: var(--space-1) var(--space-3); border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: var(--fs-xs); }
+.ex-md__code { margin: 0; padding: var(--space-3); overflow-x: auto; font-family: var(--font-mono); font-size: var(--fs-sm); line-height: 1.5; }
+.ex-md__code code { padding: 0; background: none; font-size: inherit; }
+.ex-md__tablewrap [data-align="center"] { text-align: center; } .ex-md__tablewrap [data-align="right"] { text-align: right; }
+.ex-md__front, .ex-md__toc { margin: 0 0 var(--space-4); padding: var(--space-2) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--panel); font-size: var(--fs-sm); }
+.ex-md__toc ul { list-style: none; margin: var(--space-2) 0 0; padding: 0; }
+.ex-md__toc .ex-md__lv1 { padding-left: var(--space-4); } .ex-md__toc .ex-md__lv2 { padding-left: calc(2 * var(--space-4)); }
+
+.ex-j__bar { display: flex; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-3); }
+.ex-j__schema { margin: 0 0 var(--space-4); padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-left: 3px solid var(--graph); border-radius: var(--radius-2); background: var(--panel); }
+.ex-j__schema h3 { margin: 0 0 var(--space-2); }
+.ex-j__tree, .ex-j__tree ul { margin: 0; padding: 0; list-style: none; font-family: var(--font-mono); font-size: var(--fs-sm); }
+.ex-j__tree ul { margin-left: 0.55rem; padding-left: var(--space-3); border-left: 1px solid var(--line); }
+.ex-j__tree li { padding: 1px 0; overflow-wrap: anywhere; }
+.ex-j__tg, .ex-j__k, .ex-j__more { font: inherit; color: inherit; background: none; border: 0; padding: 0 0.2rem; cursor: pointer; }
+.ex-j__tg { width: 1.2rem; color: var(--ink-dim); } .ex-j__tg:disabled { opacity: 0.3; cursor: default; }
+.ex-j__k { color: var(--flow); } .ex-j__k:hover { text-decoration: underline; }
+.ex-j__more { color: var(--brand); text-decoration: underline; }
+.ex-j__v--string { color: var(--ok); } .ex-j__v--number { color: var(--graph); } .ex-j__v--boolean, .ex-j__v--null { color: var(--gate); }
+.ex-j__page { margin: var(--space-1) 0; }
+.ex-j button:focus-visible, .ex-sql button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+.ex-sql__head { margin: 0 0 var(--space-3); padding: var(--space-2) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--panel); font-size: var(--fs-sm); }
+.ex-sql__chips { display: flex; flex-wrap: wrap; gap: var(--space-1); margin: 0 0 var(--space-2); }
+.ex-sql__chips button[aria-pressed="true"] { border-color: var(--brand); color: var(--ink); font-weight: 600; }
+.ex-sql__stat { display: block; margin: 0 0 var(--space-2); font-size: var(--fs-xs); }
+.ex-sql__detail { font-size: var(--fs-sm); }
+.ex-sql__note { display: block; font-size: var(--fs-xs); }
+.ex-sql__cols { margin-top: var(--space-2); }
+.ex-sql__cons { margin: var(--space-2) 0 0; font-size: var(--fs-xs); }

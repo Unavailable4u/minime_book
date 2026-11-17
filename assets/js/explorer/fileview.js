@@ -7,6 +7,7 @@ import { coverage, noteStatus, notePrompt, allFiles } from "./model.js";
 import { createSymbols } from "./symbols.js";
 import { renderSource } from "./source.js";
 import { renderSymbolPanel } from "./symbol.js";
+import { docViewFor, renderDocView, DOC_LABEL } from "./docview.js";
 import { codeLinks } from "../links.js";
 
 /* ------------------------------------------------------------------ pieces */
@@ -202,13 +203,15 @@ export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTa
   ]), codeButtons(file, linkOpts, start, end));
 
   const syms = rows || [];
-  const items = [["explain", "Explain"], ...(file.binary ? [] : [["source", "Source"]]), ["symbols", `Symbols (${num(syms.length)})`]];
+  const kind = docViewFor(file, linkOpts);                                   // Markdown, JSON, SQL with an embedded copy: one more tab, first (P14e)
+  const items = [...(kind ? [["view", DOC_LABEL[kind]]] : []), ["explain", "Explain"], ...(file.binary ? [] : [["source", "Source"]]), ["symbols", `Symbols (${num(syms.length)})`]];
   // An explicit tab wins; otherwise a symbol opens the Symbols tab and a bare line range opens the Source tab.
-  const active = items.some((x) => x[0] === tab) ? tab : qual ? "symbols" : start ? "source" : "explain";
+  const active = items.some((x) => x[0] === tab) ? tab : qual ? "symbols" : start ? "source" : kind ? "view" : "explain";
   host.append(tabs(items, active, setTab));
   const panel = h("div", { class: "ex-panel", id: "ex-panel", role: "tabpanel", "aria-labelledby": `ex-tab-${active}` });
   host.append(panel);
-  if (active === "explain") panel.append(explain(file, rec, note));
+  if (active === "view") renderDocView(panel, { core, file, kind, linkOpts });
+  else if (active === "explain") panel.append(explain(file, rec, note));
   else if (active === "source") renderSource(panel, { core, file, rec, note, qual, start, end, linkOpts, onRange });
   else {
     // A named symbol gets its panel (signature, parameters, calls, called by) above the list; the list keeps it highlighted.

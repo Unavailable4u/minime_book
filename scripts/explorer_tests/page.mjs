@@ -2,7 +2,7 @@
 // model.js caches fetched JSON for the life of the page, so every scenario runs in its own Node process:  node page.mjs [normal|degraded|broken|scale]
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-const SCENARIOS = ["normal", "degraded", "broken", "scale", "source", "nomanifest", "fetchfail", "drift", "symbol", "nocallers", "walkthrough", "walknarrow", "walklong"];
+const SCENARIOS = ["normal", "degraded", "broken", "scale", "source", "nomanifest", "fetchfail", "drift", "symbol", "nocallers", "walkthrough", "walknarrow", "walklong", "docs"];
 const which = process.argv[2];
 if (!which) {
   let bad = 0;
@@ -359,4 +359,45 @@ if (which === "walklong") {
   allErrors.push(...P.errors);
 }
 
+if (which === "docs") {
+  const P = await boot({ hash: "#/f/README.md", docs: true });
+  const { doc, wait, nav, errors } = P;
+  const tabs = () => [...doc.querySelectorAll(".ex-tabs [role=tab]")].map((b) => b.textContent.replace(/\s+\(\d+\)/, ""));
+  const sel = () => doc.querySelector(".ex-tabs [aria-selected=true]")?.textContent;
+  ok(tabs().join() === "Document,Explain,Source,Symbols", `Markdown file: Document tab first (${tabs()})`);
+  ok(sel() === "Document", "and it is open by default");
+  const md = doc.querySelector(".ex-md");
+  ok(!!md && md.querySelector("h2.ex-md__h1")?.textContent.startsWith("Title"), "headings are rendered one level down (the page owns the h1)");
+  const hrefs = [...md.querySelectorAll("a")].map((a) => a.getAttribute("href"));
+  ok(hrefs.includes("#/f/backend/agents/a.py@3-5?tab=source"), `a repository link with #L3-L5 opens the Source tab (${hrefs.filter((x) => x && x.startsWith("#/"))})`);
+  ok(hrefs.includes("#/d/backend"), "a folder link opens the folder");
+  ok(!hrefs.some((x) => /javascript/i.test(x || "")), "a javascript: link is not a link");
+  ok(md.querySelector(".ex-md__dead")?.textContent === "dead", "a link to a file that is not in the census is plain text");
+  ok(md.querySelector('a[href="https://example.org"][rel="noopener noreferrer"]'), "external links open with noopener");
+  ok(!md.querySelector("img") && md.querySelector(".ex-md__img"), "images are never loaded");
+  ok(md.querySelector("table th[data-align=right]"), "table alignment");
+  ok(md.querySelectorAll(".ex-md__toc li").length === 4, "contents list for 4 headings");
+  const before = doc.defaultView.location.hash;
+  md.querySelector("a[data-anchor=third]").click();
+  ok(doc.defaultView.location.hash === before, "an in-page link does not touch the address");
+  await wait(200);
+  ok(md.querySelector("pre code span[class^=hljs]"), "fenced python is coloured after load");
+  md.querySelector(".ex-md__h2 .ex-md__src, .ex-md__h1 .ex-md__src");
+  await nav("#/f/README.md?tab=explain"); ok(sel() === "Explain" && !doc.querySelector(".ex-md"), "the Explain tab still works");
+  await nav("#/f/README.md@4?tab=source"); ok(sel() === "Source", "a line link opens the Source tab");
+  await nav("#/f/conf.json"); await wait(100);
+  ok(sel() === "Structure" && doc.querySelectorAll(".ex-j__tree li").length >= 3, "JSON opens the Structure tab with a tree");
+  const kb = [...doc.querySelectorAll(".ex-j__k")].map((b) => b.textContent); ok(kb.includes('"name"') && kb.includes('"list"'), `top-level keys are shown (${kb})`);
+  doc.querySelectorAll(".ex-j__bar button")[0].click(); ok(doc.querySelectorAll(".ex-j__tree li").length >= 8, "Expand all opens the nested values");
+  await nav("#/f/bad.json"); await wait(100);
+  ok(/not valid JSON/.test(doc.querySelector(".ex-callout--warn")?.textContent || ""), "invalid JSON says so");
+  await nav("#/f/m.sql"); await wait(100);
+  ok(sel() === "Outline" && doc.querySelectorAll(".ex-sql__table > tbody > tr").length === 2, "SQL opens the Outline tab with its two statements");
+  doc.querySelector('.ex-sql__chips button[data-kind="grant"]').click();
+  ok(doc.querySelectorAll(".ex-sql__table > tbody > tr").length === 1, "a kind chip filters the rows");
+  await nav("#/f/backend/agents/a.py"); ok(tabs()[0] === "Explain", "a code file gets no extra tab");
+  done(errors);
+}
+
 done(allErrors);
+

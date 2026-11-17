@@ -9,6 +9,9 @@ const FIELDS = ["name", "lang", "lines", "code", "functions", "classes", "commit
 const fn = (q, s, e, x = {}) => ({ qual: q, name: q.split(".").pop(), start: s, end: e, loc: e - s + 1, cc: 3, doc1: "", params: [{ name: "x", annotation: "int", default: null }], returns: "str", hash: `h_${q}`, kind: q.includes(".") ? "method" : "function", visibility: "public", ...x });
 
 export const COMMIT = `a1389bfdeadbeef${"0".repeat(25)}`;     // 40 hex characters, starts with the census commit of the fixture
+export const DOC_MD = [
+  "# Title", "", "Some **bold** text and a [file](backend/agents/a.py#L3-L5), a [folder](backend/), a [dead](nope.md), an [evil](javascript:alert(1)) link, an [outside](https://example.org).", "",
+  "## Section", "", "- one", "- two", "", "## Third", "", "```python", "def f():", "    return 1", "```", "", "### Fourth", "", "| a | b |", "|---|--:|", "| 1 | 2 |", "", "![pic](https://example.org/x.png)", "", "[jump](#third)", ""].join("\n");
 export const BLOB = "b".repeat(40);
 /* The embedded copy of backend/agents/a.py: 150 lines, line N reads "line N", with a few awkward ones. */
 export const SRC_LINES = Array.from({ length: 150 }, (_, i) => `line ${i + 1}`);
@@ -16,7 +19,7 @@ SRC_LINES[9] = "def run(x):  # <b>not html</b>";
 SRC_LINES[10] = "";
 SRC_LINES[11] = "\treturn '&amp;'";
 
-export function writeFixture(dir, { big = false, drift = false, long = false } = {}) {
+export function writeFixture(dir, { big = false, drift = false, long = false, docs = false } = {}) {
   const W = (rel, o) => { const p = path.join(dir, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, JSON.stringify(o)); };
   const recs = [
     { path: "backend/agents/a.py", functions: [fn("run", 10, 20, { doc1: "Run it.", raises: ["ValueError"], decorators: ["cached"], calls: [["route", "backend/api/b.py::route"], ["Agent", "backend/agents/a.py::Agent"], ["print", null], ["os.path.join", null], ["print", null], ["gone", "gone/x.py::f"]] }), fn("Agent.step", 30, 40), fn("_clean_query", 120, 141)], classes: [{ qual: "Agent", name: "Agent", start: 25, end: 50, loc: 26, bases: ["Base"], hash: "h_Agent" }],
@@ -31,7 +34,7 @@ export function writeFixture(dir, { big = false, drift = false, long = false } =
     { name: "agents", n: { files: 1, lines: 60, code: 50, functions: 3, classes: 1 }, files: [["a.py", "py", 60, 50, 3, 1, 5, "2026-10-05", "", 0]], dirs: [] },
     { name: "api", n: { files: 1, lines: 40, code: 30, functions: 1, classes: 0 }, files: [["b.py", "py", 40, 30, 1, 0, 0, "", "t", 0]], dirs: [] }] }];
   if (big) dirs.push({ name: "bulk", n: { files: 1200, lines: 1, code: 1, functions: 0, classes: 0 }, dirs: [], files: Array.from({ length: 1200 }, (_, i) => [`m${String(i).padStart(4, "0")}.py`, "py", 1, 1, 0, 0, 0, "", "", 0]) });
-  W("data/code/tree.json", { file_fields: FIELDS, shards: ["s0"], commit: "a1389bfdeadbeef", generated: "2026-11-01", root: { files: [["README.md", "md", 10, 8, 0, 0, 1, "2026-01-01", "", 0]], dirs } });
+  W("data/code/tree.json", { file_fields: FIELDS, shards: ["s0"], commit: "a1389bfdeadbeef", generated: "2026-11-01", root: { files: [["README.md", "md", 10, 8, 0, 0, 1, "2026-01-01", "", 0], ...(docs ? [["conf.json", "json", 3, 3, 0, 0, 0, "", "", 0], ["m.sql", "sql", 3, 3, 0, 0, 0, "", "", 0], ["bad.json", "json", 1, 1, 0, 0, 0, "", "", 0]] : [])], dirs } });
   W("data/code/files/s0.json", { files: recs });
   W("data/code/imports.json", { imports: { "backend/api/b.py": ["backend/agents/a.py", "nowhere.py"] }, imported_by: { "backend/agents/a.py": ["backend/api/b.py"] }, external: { "backend/agents/a.py": ["httpx"] } });
   W("data/index/notes.json", { totals: { files: 3, noted: 1 }, folders: { "backend/agents": { files: 1, noted: 1, stale: 0 }, backend: { files: 2, noted: 1, stale: 0 } }, files: { "backend/agents/a.py": { status: "fresh", tier: 1 } } });
@@ -58,6 +61,13 @@ export function writeFixture(dir, { big = false, drift = false, long = false } =
     fs.mkdirSync(path.join(dir, "data/src/backend/api"), { recursive: true });
     fs.writeFileSync(path.join(dir, "data/src/backend/api/b.py.txt"), `${Array.from({ length: 2500 }, (_, i) => `row ${i + 1}`).join("\n")}\n`);
   }
+  if (docs) {
+    const man = JSON.parse(fs.readFileSync(path.join(dir, "data/src/manifest.json"), "utf8"));
+    const put = (name, text) => { man.files[name] = BLOB; fs.writeFileSync(path.join(dir, "data/src", `${name}.txt`), text); };
+    put("README.md", DOC_MD); put("conf.json", '{"name":"x","list":[1,2,3],"nested":{"a":null}}\n'); put("bad.json", '{"a": 1 "b": 2}\n');
+    put("m.sql", "-- Migration\nCREATE TABLE t (id int primary key, n text not null);\nGRANT SELECT ON t TO anon;\n");
+    W("data/src/manifest.json", man);
+  }
   W("data/code/callers/s0.json", { schema: 2, shard: "s0", callers: { "backend/agents/a.py::run": ["backend/api/b.py::route", "backend/agents/a.py::Agent.step", "backend/api/b.py::f1", "backend/api/b.py::f2"], "backend/agents/a.py::Agent": ["backend/api/b.py::route"], "backend/api/b.py::route": ["backend/agents/a.py::run"] } });
   W("data/graph/file-links.json", { paths: ["backend/agents/a.py", "backend/api/b.py"], links: [[[1, 4]], [[0, 4]]], commit: "abc", date: "2026-11-01" });
 }
@@ -67,10 +77,10 @@ export async function jsdomOrSkip() {
 }
 
 /* Load explorer.html (scripts stripped) in jsdom, serve data/ from a temp fixture, and import the real main.js. `omit` = data paths that answer 404. */
-export async function boot({ hash = "", omit = [], big = false, drift = false, long = false } = {}) {
+export async function boot({ hash = "", omit = [], big = false, drift = false, long = false, docs = false } = {}) {
   const JSDOM = await jsdomOrSkip();
   const data = fs.mkdtempSync(path.join(os.tmpdir(), "explorer-"));
-  writeFixture(data, { big, drift, long });
+  writeFixture(data, { big, drift, long, docs });
   const html = fs.readFileSync(path.join(ROOT, "explorer.html"), "utf8").replace(/<script[\s\S]*?<\/script>/g, "");
   const dom = new JSDOM(html, { url: `http://localhost:8000/explorer.html${hash}`, pretendToBeVisual: true });
   const w = dom.window;
