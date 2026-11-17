@@ -46,6 +46,8 @@ Other commands: `python scripts/refresh_atlas.py` refreshes from the census you 
 
 **Overview (P07).** `index.html` is a shell: `assets/js/overview.js` and `assets/css/overview.css` draw it from `data/index/vitals.json` (the census half is written by `refresh_atlas.py`, the graph half by `refresh_graph.py`), `content/subsystems.json` (directory table), `content/system/request-path.json` ("Anatomy of a request", shared with the System page) and the hand-written `content/overview/*.html`. `scripts/test_overview.py` tests the helpers in Node.
 
+**Topology (P08).** The "System at a glance" diagram on the Overview: `assets/js/topology.js` and `assets/css/topology.css` draw it from `content/topology.json` (the hand-curated layout), `data/index/vitals.json` `census.topology` (box size = code lines, from `refresh_atlas.py`) and `data/graph/folders.json` (line width = graph links, from `refresh_graph.py`). Hover or focus a box for its details, click it for links, follow one request through it, or open the M2C client into its 9 parts. `?edit=1` lets you drag boxes and copy the new layout as JSON. `scripts/test_topology.py` tests the helpers in Node and the layout against the census; the rules are in `check_site.py`.
+
 **Not refreshed, because the census cannot supply it.** From the Graphify graph (now the `graph` half of `data/index/vitals.json`): the graph nodes and links, "Graph hubs", the API "frontend callers" column (carried over per route, blank for routes added since) and the Explore connection edges (carried over per file). From other inputs: Tests, Health, Data model, Tables, Graph, Roadmap, Finance, Decisions and the document pages. Each of those keeps its own "Built ... from commit ..." label, so every page says how old it is.
 
 ## Product names

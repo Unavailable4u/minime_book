@@ -26,7 +26,7 @@ _spec = importlib.util.spec_from_file_location("refresh_atlas", ROOT / "scripts"
 ra = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ra)
 
-FILES = [f"{name}.html" for name in ra.PAGES] + ["data/census.json", "data/summary.md", "data/index/stats.json", "data/index/vitals.json", "content/subsystems.json"]
+FILES = [f"{name}.html" for name in ra.PAGES] + ["data/census.json", "data/summary.md", "data/index/stats.json", "data/index/vitals.json", "content/subsystems.json", "content/topology.json"]
 
 
 def read(p):
@@ -123,6 +123,35 @@ class OnACopy(unittest.TestCase):
         self.assertEqual({"files": 1, "code": 7, "functions": 0}, counts["one"])
         self.assertEqual({"files": 1, "code": 3, "functions": 0}, counts["dir"])
         self.assertEqual({"files": 1, "code": 1, "functions": 0}, counts["other"])
+
+    def test_topology_counts_follow_the_layout_and_children_sum_into_their_parent(self):
+        """P08: census.topology holds, per node of content/topology.json, the numbers the diagram draws its boxes from."""
+        spec = {"nodes": [{"id": "pkg", "folders": ["m2c/src/m2c"], "children": ["tui", "rest"]},
+                          {"id": "tui", "folders": ["m2c/src/m2c/tui"], "parent": "pkg"},
+                          {"id": "rest", "folders": ["m2c/src/m2c"], "parent": "pkg"},
+                          {"id": "empty", "folders": ["nowhere"]}]}
+        fn = lambda doc: {"name": "f", "doc": doc}
+        files = [{"path": "m2c/src/m2c/tui/a.py", "lang": "python", "code": 10, "functions": [fn(True), fn(False)]},
+                 {"path": "m2c/src/m2c/tui/big.py", "lang": "python", "code": 30, "functions": []},
+                 {"path": "m2c/src/m2c/run.py", "lang": "python", "code": 5, "functions": [fn(True)]},
+                 {"path": "m2c/src/m2c/tui/test_a.py", "lang": "python", "code": 99, "test": True, "functions": [fn(True)]},
+                 {"path": "m2c/src/m2c/blob.bin", "lang": "binary", "code": 77, "binary": True, "functions": []}]
+        out = ra.topology_counts({"files": files}, spec)
+        self.assertEqual({"files": 2, "code": 40, "functions": 2, "documented": 1, "python_functions": 2}, {k: out["tui"][k] for k in out["tui"] if k != "top"})
+        self.assertEqual({"files": 1, "code": 5, "functions": 1, "documented": 1, "python_functions": 1}, {k: out["rest"][k] for k in out["rest"] if k != "top"})
+        self.assertEqual(3, out["pkg"]["files"], "a node with children is the sum of its children (tests and binaries left out)")
+        self.assertEqual(45, out["pkg"]["code"])
+        self.assertEqual(["m2c/src/m2c/tui/big.py", "m2c/src/m2c/tui/a.py", "m2c/src/m2c/run.py"], [t["path"] for t in out["pkg"]["top"]])
+        self.assertEqual({"files": 0, "code": 0, "functions": 0, "documented": 0, "python_functions": 0, "top": []}, out["empty"])
+        self.assertEqual({}, ra.topology_counts({"files": files}, None), "no layout: nothing to count, not a crash")
+
+    def test_every_node_of_the_real_layout_resolves_to_real_files(self):
+        spec = json.loads(read(self.tmp / "content" / "topology.json"))
+        counts = ra.topology_counts(self.census, spec)
+        self.assertEqual({n["id"] for n in spec["nodes"]}, set(counts))
+        empty = [i for i, r in counts.items() if not r["files"]]
+        self.assertEqual([], empty, "a node that matches no census file would be drawn as a size-less box")
+        self.assertEqual(counts, ra.census_vitals(self.census, ra.load_subsystems(self.tmp), spec)["topology"])
 
     def test_graph_half_of_vitals_is_carried_over_untouched(self):
         graph = json.loads(read(self.tmp / "data" / "index" / "vitals.json"))["graph"]

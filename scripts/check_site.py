@@ -35,6 +35,13 @@ Errors (exit 1)
                      entry without its id, name, text or match, a duplicate id, a "match" that no file in the census has, a
                      chapter, page, diagram, file or function that does not exist, and every data-fragment="x" of index.html
                      that has no content/overview/x.html
+    topology-bad-entry / topology-bad-target / topology-bad-layout / topology-bad-data
+                     (P08) content/topology.json and data/graph/folders.json: a node without its label, text, x/y or
+                     folders, a duplicate or badly spelled id, a folder two boxes claim, a part and its parent that do not
+                     point at each other, an edge between nodes that do not exist (or twice, or a declared one without a
+                     label); a folder that holds no file of the census, a chapter, diagram or page that does not exist; a box
+                     (at the size the page draws it) outside the diagram or outside its group; a folder table that is not
+                     a list of [from, to, count] rows
 
 Warnings (exit 0, unless --strict)
     big-file         over the size budget (--max-size-kb, default 600); assets/vendor/ is left out (vendored libraries)
@@ -42,6 +49,8 @@ Warnings (exit 0, unless --strict)
     unused-allow     an allow-list line that matched nothing (delete it)
     glossary-long    a term whose "short" is over 160 characters or whose "long" is over 600
     glossary-dup-alias  an alias that another term (or alias) also uses
+    topology-edge-quiet  a line that is not "declared" although the graph has no links across it (it would be drawn thin and dashed)
+    topology-stale   a box without numbers in data/index/vitals.json census.topology (run scripts/refresh_atlas.py)
 
 Known issues go in scripts/check_site.allow, one per line:
 
@@ -80,6 +89,11 @@ PATHS_PATH = "content/reading-paths.json"         # P05: ordered chapter section
 SUBSYSTEMS_PATH = "content/subsystems.json"       # P07: the Overview's directory table
 REQUEST_PATH = "content/system/request-path.json"  # P07: "Anatomy of a request" (also used by the System page, P09)
 OVERVIEW_VITALS_PATH = "content/overview/vitals.json"   # P07: why each vital sign matters, and where it links
+TOPOLOGY_PATH = "content/topology.json"           # P08: the curated layout of the live topology diagram
+TOPOLOGY_VITALS = "data/index/vitals.json"        # P08: census.topology, the numbers a box is sized by
+TOPOLOGY_FOLDERS = "data/graph/folders.json"      # P08: graph links between folders, the numbers a line is drawn by
+TOPOLOGY_BOX = {"w0": 112, "w1": 156, "h0": 44, "h1": 60}   # the same as BOX in assets/js/topology.js (scripts/test_topology.py compares them)
+TOPOLOGY_CHILD = {"w": 72, "h": 42}               # and CHILD
 OVERVIEW_FRAGMENTS = "content/overview/"          # P07: index.html loads <name> for every data-fragment="<name>"
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
 FRAGMENT_RE = re.compile(r"""\bdata-fragment\s*=\s*["']([^"']+)["']""")
@@ -270,8 +284,9 @@ def check_content_refs(root, files, ids_of, add):
     subsystems = _read_json(root, SUBSYSTEMS_PATH) if (root / SUBSYSTEMS_PATH).is_file() else None
     request = _read_json(root, REQUEST_PATH) if (root / REQUEST_PATH).is_file() else None
     ov_copy = _read_json(root, OVERVIEW_VITALS_PATH) if (root / OVERVIEW_VITALS_PATH).is_file() else None
+    topology = _read_json(root, TOPOLOGY_PATH) if (root / TOPOLOGY_PATH).is_file() else None
     has_index = (root / "index.html").is_file() and (root / OVERVIEW_FRAGMENTS).is_dir()
-    if all(d is None for d in (glossary, paths_doc, subsystems, request, ov_copy)) and not has_index:
+    if all(d is None for d in (glossary, paths_doc, subsystems, request, ov_copy, topology)) and not has_index:
         return
     nav = _read_json(root, NAV_PATH) if (root / NAV_PATH).is_file() else None
     pages = {}                                          # nav id -> url
@@ -496,6 +511,216 @@ def check_content_refs(root, files, ids_of, add):
         for name in sorted(set(FRAGMENT_RE.findall(index_text))):
             if f"{OVERVIEW_FRAGMENTS}{name}.html" not in files:
                 add("ERROR", "overview-bad-target", "index.html", name, f'data-fragment="{name}" has no {OVERVIEW_FRAGMENTS}{name}.html')
+
+    if topology is not None or (root / TOPOLOGY_PATH).is_file():
+        syms = symbols()
+        check_topology(root, topology, files, add, problem, None if syms is None else set(syms))
+
+
+# ------------------------------------------------------------- the live topology diagram (P08)
+def _topology_owner(by, path):
+    """The node a folder or file belongs to: the longest "folders" prefix wins, and a part counts for the box it opens from."""
+    best, size = None, -1
+    for nid, n in by.items():
+        for f in n.get("folders") if isinstance(n.get("folders"), list) else []:
+            if isinstance(f, str) and f and (path == f or path.startswith(f + "/")) and len(f) > size:
+                best, size = nid, len(f)
+    if best is not None and isinstance(by[best].get("parent"), str) and by[best]["parent"] in by:
+        return by[best]["parent"]
+    return best
+
+
+def _topology_links(by, a, b, pairs):
+    """Graph links in either direction between box a and box b (links between the parts of a box count for the box)."""
+    total = 0
+    for row in pairs or []:
+        if isinstance(row, (list, tuple)) and len(row) == 3 and isinstance(row[2], int) and not isinstance(row[2], bool):
+            ends = {_topology_owner(by, str(row[0])), _topology_owner(by, str(row[1]))}
+            if ends == {a, b} and a != b:
+                total += row[2]
+    return total
+
+
+def _topology_size(node, max_code, vitals):
+    """The size the page draws a box at (topology.js nodeSize / CHILD); a box with no numbers is drawn at the smallest size."""
+    if isinstance(node.get("parent"), str):
+        return TOPOLOGY_CHILD["w"], TOPOLOGY_CHILD["h"]
+    code = (vitals.get(node.get("id")) or {}).get("code") if isinstance(vitals, dict) else None
+    t = (max(0, code) / max_code) ** 0.5 if isinstance(code, (int, float)) and max_code > 0 else 0
+    b = TOPOLOGY_BOX
+    return int(b["w0"] + (b["w1"] - b["w0"]) * t + 0.5), int(b["h0"] + (b["h1"] - b["h0"]) * t + 0.5)
+
+
+def check_topology(root, spec, files, add, problem, census):
+    """Validates content/topology.json (and data/graph/folders.json against it). `census` is the set of file paths of data/census.json,
+    or None when there is none; `problem(target)` says why a chapter target does not exist (None when it does)."""
+    root = Path(root)
+    num = lambda v: isinstance(v, (int, float)) and not isinstance(v, bool)
+    text_of = lambda d, k: isinstance(d, dict) and isinstance(d.get(k), str) and bool(d[k].strip())
+    bad = lambda code, detail, msg: add("ERROR", code, TOPOLOGY_PATH, detail, msg)
+    if not isinstance(spec, dict):
+        bad("topology-bad-entry", "-", "expected an object with version, view, groups, nodes and edges")
+        return
+    if spec.get("version") != 1:
+        bad("topology-bad-entry", "version", '"version" must be 1')
+    view = spec.get("view")
+    view_ok = isinstance(view, list) and len(view) == 2 and all(num(v) and v > 0 for v in view)
+    if not view_ok:
+        bad("topology-bad-entry", "view", '"view" must be [width, height], both above 0')
+    nodes_in, groups_in, edges_in = spec.get("nodes"), spec.get("groups", []), spec.get("edges", [])
+    if not isinstance(nodes_in, list) or not nodes_in:
+        bad("topology-bad-entry", "nodes", '"nodes" must be a non-empty list')
+        nodes_in = []
+    for key, val in (("groups", groups_in), ("edges", edges_in)):
+        if not isinstance(val, list):
+            bad("topology-bad-entry", key, f'"{key}" must be a list')
+    groups_in = groups_in if isinstance(groups_in, list) else []
+    edges_in = edges_in if isinstance(edges_in, list) else []
+
+    # ---- groups
+    groups = {}
+    for i, g in enumerate(groups_in):
+        gid = g.get("id") if isinstance(g, dict) else None
+        if not isinstance(gid, str) or not SLUG_RE.match(gid):
+            bad("topology-bad-entry", f"group#{i}", f'group {i} needs an "id" of lower-case letters, digits and hyphens')
+            continue
+        if gid in groups:
+            bad("topology-bad-entry", gid, f'two groups have the id "{gid}"')
+        if not text_of(g, "label") or not all(num(g.get(k)) for k in ("x", "y", "w", "h")):
+            bad("topology-bad-entry", f"{gid}|rect", f'group "{gid}" needs a "label" and numbers x, y, w and h')
+            continue
+        groups[gid] = g
+        if view_ok and not (g["x"] >= 0 and g["y"] >= 0 and g["x"] + g["w"] <= view[0] and g["y"] + g["h"] <= view[1]):
+            add("ERROR", "topology-bad-layout", TOPOLOGY_PATH, f"{gid}|view", f'group "{gid}" is not inside the {view[0]} x {view[1]} diagram')
+
+    # ---- nodes
+    by = {}
+    for i, n in enumerate(nodes_in):
+        nid = n.get("id") if isinstance(n, dict) else None
+        if not isinstance(nid, str) or not SLUG_RE.match(nid):
+            bad("topology-bad-entry", f"node#{i}", f'node {i} needs an "id" of lower-case letters, digits and hyphens')
+            continue
+        if nid in by:
+            bad("topology-bad-entry", nid, f'two nodes have the id "{nid}"')
+            continue
+        by[nid] = n
+    for nid, n in by.items():
+        for key in ("label", "what"):
+            if not text_of(n, key):
+                bad("topology-bad-entry", f"{nid}|{key}", f'"{nid}" has no "{key}"')
+        if not (num(n.get("x")) and num(n.get("y"))):
+            bad("topology-bad-entry", f"{nid}|xy", f'"{nid}" needs numbers x and y')
+        folders = n.get("folders")
+        if not (isinstance(folders, list) and folders and all(isinstance(f, str) and f and not f.startswith("/") and not f.endswith("/") for f in folders)):
+            bad("topology-bad-entry", f"{nid}|folders", f'"{nid}": "folders" must be a non-empty list of repo folders (a/b, no leading or trailing slash)')
+        parent = n.get("parent")
+        if parent is None:
+            if n.get("group") not in groups:
+                bad("topology-bad-entry", f"{nid}|group", f'"{nid}": "group" must be the id of one of the groups')
+        elif parent not in by:
+            bad("topology-bad-entry", f"{nid}|parent", f'"{nid}": parent "{parent}" is not a node')
+        elif by[parent].get("parent") is not None:
+            bad("topology-bad-entry", f"{nid}|nest", f'"{nid}" is a part of a part: parts are one level deep')
+        elif nid not in (by[parent].get("children") or []):
+            bad("topology-bad-entry", f"{nid}|parent", f'"{nid}" names "{parent}" as its parent but "{parent}" does not list it in "children"')
+        for kid in n.get("children") or []:
+            if kid not in by or by[kid].get("parent") != nid:
+                bad("topology-bad-entry", f"{nid}|{kid}", f'"{nid}" lists "{kid}" as a part, but "{kid}" is not a node whose parent is "{nid}"')
+
+    # ---- a folder belongs to one box (a part may repeat the folder of the box it opens from: the rest of that folder)
+    claimed = {}
+    for nid, n in by.items():
+        for f in n.get("folders") if isinstance(n.get("folders"), list) else []:
+            if not isinstance(f, str):
+                continue
+            other = claimed.get(f)
+            if other and other != nid and by[other].get("parent") != nid and n.get("parent") != other:
+                bad("topology-bad-entry", f"{nid}|{f}", f'folder "{f}" is claimed by both "{other}" and "{nid}"')
+            claimed.setdefault(f, nid)
+
+    # ---- what a box points at
+    for nid, n in by.items():
+        if census is not None:
+            for f in n.get("folders") if isinstance(n.get("folders"), list) else []:
+                if isinstance(f, str) and not any(p == f or p.startswith(f + "/") for p in census):
+                    add("ERROR", "topology-bad-target", TOPOLOGY_PATH, f"{nid}|{f}", f'"{nid}": folder "{f}" holds no file of {CENSUS_PATH}')
+        if n.get("chapter"):
+            why = problem(n["chapter"])
+            if why:
+                add("ERROR", "topology-bad-target", TOPOLOGY_PATH, f"{nid}|{n['chapter']}", f'"{nid}": chapter {n["chapter"]} {why}')
+        if n.get("diagram") and (not isinstance(n["diagram"], str) or n["diagram"] not in files):
+            add("ERROR", "topology-bad-target", TOPOLOGY_PATH, f"{nid}|{n['diagram']}", f'"{nid}": diagram {n["diagram"]} does not exist')
+
+    # ---- edges
+    seen = set()
+    live_edges = []
+    for i, e in enumerate(edges_in):
+        a, b = (e.get("from"), e.get("to")) if isinstance(e, dict) else (None, None)
+        if a not in by or b not in by:
+            bad("topology-bad-entry", f"edge#{i}", f'edge {i} must join two nodes of "nodes" ("from" and "to")')
+            continue
+        name = f"{a}->{b}"
+        if a == b:
+            bad("topology-bad-entry", name, f'"{a}" cannot have a line to itself')
+            continue
+        pair = frozenset((a, b))
+        if pair in seen:
+            bad("topology-bad-entry", name, f'"{a}" and "{b}" already have a line: the same pair the other way round is the same line')
+        seen.add(pair)
+        if e.get("declared") and not text_of(e, "label"):
+            bad("topology-bad-entry", f"{name}|label", f'{name} is "declared" so it needs a "label" that says what the relationship is')
+        for flag in ("declared", "gate"):
+            if flag in e and not isinstance(e[flag], bool):
+                bad("topology-bad-entry", f"{name}|{flag}", f'{name}: "{flag}" must be true or false')
+        if "bend" in e and not num(e["bend"]):
+            bad("topology-bad-entry", f"{name}|bend", f'{name}: "bend" must be a number')
+        if "label_t" in e and not (num(e["label_t"]) and 0 <= e["label_t"] <= 1):
+            bad("topology-bad-entry", f"{name}|label_t", f'{name}: "label_t" must be a number from 0 to 1')
+        for key, end in (("from_child", a), ("to_child", b)):
+            if key in e and (e[key] not in by or by[e[key]].get("parent") != end):
+                bad("topology-bad-entry", f"{name}|{key}", f'{name}: "{key}" must be a part of "{end}"')
+        live_edges.append((name, a, b, bool(e.get("declared"))))
+
+    # ---- the numbers: census.topology gives box sizes, folders.json gives line widths
+    vitals = _read_json(root, TOPOLOGY_VITALS) if (root / TOPOLOGY_VITALS).is_file() else None
+    counts = None
+    if isinstance(vitals, dict):
+        counts = ((vitals.get("census") or {}).get("topology")) if isinstance(vitals.get("census"), dict) else None
+        counts = counts if isinstance(counts, dict) else {}
+        if not counts:
+            add("WARN", "topology-stale", TOPOLOGY_PATH, "-", f"{TOPOLOGY_VITALS} has no census.topology: run python scripts/refresh_atlas.py")
+        else:
+            for nid in by:
+                row = counts.get(nid)
+                if not (isinstance(row, dict) and isinstance(row.get("files"), int) and row["files"] > 0):
+                    add("WARN", "topology-stale", TOPOLOGY_PATH, nid, f'"{nid}" has no numbers in {TOPOLOGY_VITALS} census.topology: run python scripts/refresh_atlas.py')
+
+    # ---- layout: every box, at the size the page draws it, inside the diagram and inside its group
+    top = [n for n in by.values() if n.get("parent") is None]
+    max_code = max([1] + [(counts or {}).get(n["id"], {}).get("code") or 0 for n in top]) if counts else 1
+    for nid, n in by.items():
+        if not (num(n.get("x")) and num(n.get("y"))):
+            continue
+        w, h = _topology_size(n, max_code, counts)
+        x0, x1, y0, y1 = n["x"] - w / 2, n["x"] + w / 2, n["y"] - h / 2, n["y"] + h / 2
+        if view_ok and not (x0 >= 0 and y0 >= 0 and x1 <= view[0] and y1 <= view[1]):
+            add("ERROR", "topology-bad-layout", TOPOLOGY_PATH, f"{nid}|view", f'"{nid}" ({w} x {h}) sticks out of the {view[0]} x {view[1]} diagram')
+        gid = n.get("group") if n.get("parent") is None else (by.get(n.get("parent")) or {}).get("group")
+        g = groups.get(gid)
+        if g and not (x0 >= g["x"] and y0 >= g["y"] and x1 <= g["x"] + g["w"] and y1 <= g["y"] + g["h"]):
+            add("ERROR", "topology-bad-layout", TOPOLOGY_PATH, f"{nid}|group", f'"{nid}" ({w} x {h}) is not inside its group "{gid}"' + (" (a part stays inside the group of the box it opens from)" if n.get("parent") else ""))
+
+    # ---- folders.json
+    table = _read_json(root, TOPOLOGY_FOLDERS) if (root / TOPOLOGY_FOLDERS).is_file() else None
+    if (root / TOPOLOGY_FOLDERS).is_file():
+        pairs = table.get("pairs") if isinstance(table, dict) else None
+        if not (isinstance(pairs, list) and all(isinstance(r, list) and len(r) == 3 and isinstance(r[0], str) and isinstance(r[1], str)
+                                                and isinstance(r[2], int) and not isinstance(r[2], bool) and r[2] > 0 for r in pairs)):
+            add("ERROR", "topology-bad-data", TOPOLOGY_FOLDERS, "pairs", '"pairs" must be a list of [from folder, to folder, count above 0]')
+        else:
+            for name, a, b, declared in live_edges:
+                if not declared and not _topology_links(by, a, b, pairs):
+                    add("WARN", "topology-edge-quiet", TOPOLOGY_PATH, name, f'{name} is drawn from graph links but {TOPOLOGY_FOLDERS} has none across it: add "declared": true and a "label", or run scripts/refresh_graph.py')
 
 
 # ------------------------------------------------------------- figures (P06)

@@ -31,6 +31,9 @@ What it refreshes, and where each number comes from:
                         the route paths by shape (inferred, not proven, and the HTTP method is ignored,
                         the same caveat the page already states).
     data/summary.md     the "Graph:" line
+    data/graph/folders.json  (P08) cross-folder link counts and node counts at the finer folder level the live topology
+                        diagram on index.html uses (frontend/app/<x>, m2c/src/m2c/<part>, protocol/v1 ...). The diagram
+                        reads it for edge widths; which folders form which box is in content/topology.json
 
 Safety: the graph must have been built at the same commit as data/census.json (and at the
 current MiniMe HEAD), otherwise the pages would mix two different versions of the code. Pass
@@ -112,16 +115,30 @@ def folder(path):
     return "/".join(s[:2])
 
 
-def folder_stats(g):
-    """(directed cross-folder link counts, non-test node counts per folder), tests excluded."""
+def topo_folder(path):
+    """The folder a file belongs to in the topology diagram (P08), one level finer than folder() where the diagram needs it:
+    m2c/src/m2c/<part> ('m2c/src/m2c' for the files directly in the package), frontend/app/<x>, protocol/v1, daemon, backend/<x>.
+    '' for a file at the top level of the repository."""
+    dirs = path.split("/")[:-1]
+    if not dirs:
+        return ""
+    if dirs[:3] == ["m2c", "src", "m2c"]:
+        return "/".join(dirs[:4])
+    if dirs[:2] == ["frontend", "app"] and len(dirs) >= 3:
+        return "/".join(dirs[:3])
+    return "/".join(dirs[:2])
+
+
+def folder_stats(g, key=folder):
+    """(directed cross-folder link counts, non-test node counts per folder), tests excluded. `key` maps a path to its folder."""
     pairs, nodes = collections.Counter(), collections.Counter()
     for n in g.nodes:
         p = n["source_file"]
-        if p and folder(p) and not is_test(p):
-            nodes[folder(p)] += 1
+        if p and key(p) and not is_test(p):
+            nodes[key(p)] += 1
     for a, b in g.links:
         pa, pb = g.file_of[a], g.file_of[b]
-        fa, fb = folder(pa) if pa else "", folder(pb) if pb else ""
+        fa, fb = key(pa) if pa else "", key(pb) if pb else ""
         if fa and fb and fa != fb and not is_test(pa) and not is_test(pb):
             pairs[(fa, fb)] += 1
     return pairs, nodes
@@ -137,6 +154,21 @@ def graph_hubs(g):
 def graph_vitals(g):
     """The "graph" half of data/index/vitals.json. The commit is the short form, like the census's."""
     return {"commit": g.commit[:7], "date": g.date, "nodes": len(g.nodes), "links": len(g.links), "communities": g.communities, "hubs": graph_hubs(g)}
+
+
+# ------------------------------------------------------------------- folders.json
+FOLDERS_REL = "data/graph/folders.json"
+
+
+def folders_json(g):
+    """data/graph/folders.json (P08): the folder-level numbers the topology diagram draws its edges from. Deterministic: the
+    commit and day are the graph's own. One folder pair per line so a rebuilt graph gives a readable diff."""
+    pairs, nodes = folder_stats(g, topo_folder)
+    head = {"version": 1, "source": "graphify", "commit": g.commit[:7], "date": g.date, "nodes": dict(sorted(nodes.items()))}
+    rows = sorted(([a, b, v] for (a, b), v in pairs.items()), key=lambda r: (-r[2], r[0], r[1]))
+    top = json.dumps(head, indent=2, ensure_ascii=False)
+    body = ",\n".join("    " + json.dumps(r, ensure_ascii=False) for r in rows)
+    return top[:-2] + ',\n  "pairs": [' + ("\n" + body + "\n  " if rows else "") + "]\n}\n"
 
 
 # ---------------------------------------------------------------------- graph page
@@ -407,6 +439,11 @@ def refresh_all(root, g, minime):
     old, crlf = ra.read_lf(vp) if vp.exists() else (None, False)
     if new != old:
         changes[vp] = ra.to_native(new, crlf).encode("utf-8")
+    fp = root / FOLDERS_REL                                        # P08: edge widths for the topology diagram
+    new = folders_json(g)
+    old, crlf = ra.read_lf(fp) if fp.exists() else (None, False)
+    if new != old:
+        changes[fp] = ra.to_native(new, crlf).encode("utf-8")
     target = root / "graph-viewer.html"
     data = viewer_html(viewer_data(g, explore_html)).encode("utf-8")
     if not target.exists() or target.read_bytes() != data:

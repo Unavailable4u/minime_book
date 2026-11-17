@@ -68,7 +68,87 @@ class Fixture(unittest.TestCase):
 
     def apply(self):
         for p, data in rg.refresh_all(self.book, self.graph(), self.minime).items():
+            p.parent.mkdir(parents=True, exist_ok=True)         # like main(): data/graph/ does not exist before the first run
             p.write_bytes(data)
+
+
+class FoldersJson(Fixture):
+    """data/graph/folders.json (P08): folder-to-folder link counts at the finer level the topology diagram needs."""
+    REL = "data/graph/folders.json"
+
+    def test_the_diagram_folder_is_one_level_finer_where_the_diagram_needs_it(self):
+        cases = {
+            "m2c/src/m2c/tui/app.py": "m2c/src/m2c/tui", "m2c/src/m2c/policy/sub/deep.py": "m2c/src/m2c/policy",
+            "m2c/src/m2c/cli.py": "m2c/src/m2c", "m2c/tests/test_cli.py": "m2c/tests",
+            "frontend/app/components/Chat.jsx": "frontend/app/components", "frontend/app/lib/preview/x.js": "frontend/app/lib",
+            "frontend/app/page.js": "frontend/app", "frontend/package.json": "frontend",
+            "protocol/v1/hello.json": "protocol/v1", "protocol/validate.py": "protocol",
+            "daemon/tools.py": "daemon", "backend/eo/a.py": "backend/eo", "backend/api/routes/x.py": "backend/api",
+            "README.md": "",
+        }
+        self.assertEqual(cases, {p: rg.topo_folder(p) for p in cases})
+
+    def test_refresh_writes_the_pairs_and_node_counts_of_the_graph_with_tests_and_concepts_left_out(self):
+        self.apply()
+        doc = json.loads(read(self.book / self.REL))
+        self.assertEqual(["version", "source", "commit", "date", "nodes", "pairs"], list(doc))
+        self.assertEqual((1, "graphify", COMMIT[:7]), (doc["version"], doc["source"], doc["commit"]))
+        self.assertEqual([["backend/agents", "backend/eo", 2]], doc["pairs"], "a1 to e1 and e2 count; the concept node and the test file do not")
+        self.assertEqual({"backend/agents": 1, "backend/eo": 2}, doc["nodes"])
+
+    def test_the_file_has_one_pair_per_line_busiest_first_and_ends_with_a_newline(self):
+        self.apply()
+        raw = read(self.book / self.REL)
+        self.assertTrue(raw.endswith("}\n"))
+        self.assertNotIn("\r", raw)
+        self.assertEqual(1, len([ln for ln in raw.splitlines() if ln.startswith('    ["')]))
+        self.assertEqual(raw, rg.folders_json(self.graph()))
+
+    def test_pairs_are_sorted_by_count_then_name_and_survive_an_empty_graph(self):
+        pairs = json.loads(rg.folders_json(self.finer_graph()))["pairs"]
+        self.assertEqual(sorted(pairs, key=lambda r: (-r[2], r[0], r[1])), pairs)
+        self.assertEqual([["m2c/src/m2c/tui", "m2c/src/m2c/link", 2], ["frontend/app/components", "frontend/app/lib", 1], ["m2c/src/m2c/link", "protocol/v1", 1]], pairs)
+        empty = self.finer_graph(links=[])
+        self.assertEqual([], json.loads(rg.folders_json(empty))["pairs"])
+        self.assertIn('"pairs": []', rg.folders_json(empty))
+
+    def test_the_parts_of_m2c_and_the_frontend_are_told_apart_not_lumped_into_their_top_folder(self):
+        pairs = {(a, b) for a, b, _ in json.loads(rg.folders_json(self.finer_graph()))["pairs"]}
+        self.assertIn(("m2c/src/m2c/tui", "m2c/src/m2c/link"), pairs)
+        self.assertIn(("frontend/app/components", "frontend/app/lib"), pairs)
+        self.assertNotIn(("m2c/src", "m2c/src"), pairs)
+
+    def test_a_link_inside_one_folder_is_not_a_pair(self):
+        doc = json.loads(rg.folders_json(self.finer_graph(links=[("t1", "t2")])))
+        self.assertEqual([], doc["pairs"], "t1 and t2 are both in m2c/src/m2c/tui")
+
+    def test_the_seed_file_is_replaced_by_the_real_numbers_and_a_second_run_changes_nothing(self):
+        (self.book / "data" / "graph").mkdir(parents=True)
+        shutil.copy(ROOT / self.REL, self.book / self.REL)
+        self.assertEqual("seed", json.loads(read(self.book / self.REL))["source"], "the repo ships the seed until the first update_all.py run")
+        self.apply()
+        self.assertEqual("graphify", json.loads(read(self.book / self.REL))["source"])
+        first = (self.book / self.REL).read_bytes()
+        self.apply()
+        self.assertEqual(first, (self.book / self.REL).read_bytes())
+
+    def test_a_refresh_does_not_touch_the_layout_or_the_numbers_of_the_census(self):
+        (self.book / "content").mkdir(parents=True)
+        shutil.copy(ROOT / "content" / "topology.json", self.book / "content" / "topology.json")
+        before = (self.book / "content" / "topology.json").read_bytes()
+        vit = json.loads(read(self.book / "data" / "index" / "vitals.json"))["census"]
+        self.apply()
+        self.assertEqual(before, (self.book / "content" / "topology.json").read_bytes(), "the layout is curated by hand")
+        self.assertEqual(vit, json.loads(read(self.book / "data" / "index" / "vitals.json"))["census"], "census.topology belongs to refresh_atlas.py")
+
+    def finer_graph(self, links=None):
+        node = lambda i, f: {"id": i, "label": i + "()", "source_file": f, "community": 0, "file_type": "code"}
+        nodes = [node("t1", "m2c/src/m2c/tui/a.py"), node("t2", "m2c/src/m2c/tui/b.py"), node("l1", "m2c/src/m2c/link/c.py"),
+                 node("c1", "frontend/app/components/X.jsx"), node("b1", "frontend/app/lib/y.js"), node("p1", "protocol/v1/hello.json")]
+        links = [("t1", "l1"), ("t2", "l1"), ("c1", "b1"), ("l1", "p1")] if links is None else links
+        path = self.tmp / "finer.json"
+        path.write_text(json.dumps({"directed": False, "nodes": nodes, "links": [{"source": s, "target": t} for s, t in links], "built_at_commit": COMMIT}), encoding="utf-8")
+        return rg.Graph(path, repo_prefix=str(self.minime))
 
 
 class Refresh(Fixture):

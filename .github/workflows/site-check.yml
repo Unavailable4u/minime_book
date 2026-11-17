@@ -13,6 +13,7 @@
 #     python scripts/test_reader.py
 #     python scripts/test_library.py
 #     python scripts/test_overview.py
+#     python scripts/test_topology.py
 #     python scripts/test_codemod_shell.py
 #     python scripts/build_code.py --check
 #     python scripts/test_build_code.py
@@ -54,5 +55,6 @@ jobs:
           python3 scripts/test_reader.py
           python3 scripts/test_library.py
           python3 scripts/test_overview.py
+          python3 scripts/test_topology.py
           python3 scripts/test_codemod_shell.py
           python3 scripts/test_build_code.py

@@ -168,6 +168,7 @@ def nonbinary(c):
 # Each script rewrites only its own half and carries the other over untouched, so neither can wipe the other's numbers.
 VITALS_REL = "data/index/vitals.json"
 SUBSYSTEMS_REL = "content/subsystems.json"
+TOPOLOGY_REL = "content/topology.json"
 OTHER_ID = "other"                      # files that no subsystem claims
 
 
@@ -260,7 +261,52 @@ def subsystem_counts(c, spec):
     return out
 
 
-def census_vitals(c, spec=None):
+def load_topology(root):
+    """content/topology.json (the live topology diagram's layout, P08), or None when the file is not there."""
+    p = Path(root) / TOPOLOGY_REL
+    return json.loads(read_lf(p)[0]) if p.is_file() else None
+
+
+TOPOLOGY_TOP = 3                        # largest files kept per node: the "open first" links in the diagram's detail card
+
+
+def topology_counts(c, spec):
+    """{node id: {files, code, functions, documented, python_functions, top}} for the nodes of content/topology.json (P08).
+    A node claims files by "folders" (path prefixes; the longest wins, so m2c/src/m2c/tui beats m2c/src/m2c). A node with "children"
+    is the sum of its children. "top" lists its largest source files. Tests and binary files are left out, like the graph's folder counts. Without a spec: {}."""
+    nodes = (spec or {}).get("nodes") or []
+    if not nodes:
+        return {}
+    blank = lambda: {"files": 0, "code": 0, "functions": 0, "documented": 0, "python_functions": 0}
+    rules = sorted(((f.rstrip("/") + "/", n["id"]) for n in nodes if not n.get("children") for f in n.get("folders") or []), key=lambda r: (-len(r[0]), r[0]))
+    out, files = {n["id"]: blank() for n in nodes}, collections.defaultdict(list)
+    for f in nonbinary(c):
+        if f.get("test"):
+            continue
+        nid = next((i for m, i in rules if f["path"].startswith(m)), None)
+        if nid is None:
+            continue
+        row, fns = out[nid], G(f, "functions")
+        row["files"] += 1
+        row["code"] += f.get("code", 0)
+        row["functions"] += len(fns)
+        if f["lang"] == "python":
+            row["python_functions"] += len(fns)
+            row["documented"] += sum(1 for fn in fns if fn.get("doc"))
+        files[nid].append({"path": f["path"], "code": f.get("code", 0), "src": f["lang"] not in PIE_EXCLUDE})
+    for n in nodes:
+        for kid in n.get("children") or []:
+            if kid in out:
+                for k, v in out[kid].items():
+                    out[n["id"]][k] += v
+                files[n["id"]] += files[kid]
+    for nid, row in out.items():                       # "open first" prefers source files; a node with none (protocol/v1) falls back to all
+        pool = [r for r in files[nid] if r["src"]] or files[nid]
+        row["top"] = [{"path": r["path"], "code": r["code"]} for r in sorted(pool, key=lambda r: (-r["code"], r["path"]))[:TOPOLOGY_TOP]]
+    return out
+
+
+def census_vitals(c, spec=None, topology=None):
     """The "census" half of data/index/vitals.json. Deterministic: no timestamp of its own."""
     g = c["git"]
     return {
@@ -277,6 +323,7 @@ def census_vitals(c, spec=None):
         "changed": changed_rows(c),
         "complex": complex_rows(c),
         "subsystems": subsystem_counts(c, spec),
+        "topology": topology_counts(c, topology),
     }
 
 
@@ -642,7 +689,7 @@ def refresh_all(root, census):
     if new != old:
         changes[stp] = to_native(new, crlf)
     vp = root / VITALS_REL
-    new = vitals_text(read_vitals(root), census=census_vitals(census, load_subsystems(root)))
+    new = vitals_text(read_vitals(root), census=census_vitals(census, load_subsystems(root), load_topology(root)))
     old, crlf = read_lf(vp) if vp.exists() else (None, False)
     if new != old:
         changes[vp] = to_native(new, crlf)

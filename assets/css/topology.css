@@ -1,0 +1,127 @@
+/* MiniMe Atlas 2 - Live topology (P08). Loaded by index.html after overview.css; drawn by assets/js/topology.js.
+   Tokens only (tokens.css): no raw colours, so both themes work. Colour keeps the Atlas's meaning:
+   cyan = data flow (graph links), amber = approval gate, crimson = brand and the selected box, violet = the contract, green = fresh. */
+
+/* The page around this section is not under .mm yet, so it falls back to the browser's serif font; the diagram sets its own.
+   The links styled as buttons would also pick up the plain-link colour of ".ov a" (brand on brand), so their colours are set here. */
+[data-topology] { margin: 0; color: var(--ink); font-family: var(--font-ui); font-size: var(--fs-base); line-height: var(--lh-ui); }
+[data-topology] a.mm-btn, [data-topology] a.mm-btn:hover { color: var(--ink); text-decoration: none; }
+[data-topology] a.mm-btn--primary, [data-topology] a.mm-btn--primary:hover { color: var(--on-brand); }
+[data-topology] [hidden] { display: none; }
+[data-topology] button:focus-visible, [data-topology] a:focus-visible, [data-topology] summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.tp-fresh { margin: 0 0 var(--space-3); }
+.tp-fresh__t { margin: 0; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+.tp-bar-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-3); }
+.tp-zoom { display: inline-flex; align-items: center; gap: var(--space-1); margin-left: auto; }
+.tp-zoom .mm-btn { min-width: 36px; padding: 0 var(--space-3); }
+.tp-zoom .mm-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+.tp-zoomv { min-width: 3.4rem; text-align: center; color: var(--ink-dim); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+.tp-edit { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); flex-basis: 100%; padding: var(--space-2) var(--space-3); border: 1px dashed var(--gate); border-radius: var(--radius-3); font-size: var(--fs-sm); }
+.tp-msg { display: block; min-height: 1.2em; margin: 0 0 var(--space-2); color: var(--ink-dim); font-size: var(--fs-sm); }
+.tp-json { display: block; width: 100%; margin-top: var(--space-2); padding: var(--space-2); color: var(--ink); background: var(--panel-2); border: 1px solid var(--line-strong); border-radius: var(--radius-2); font: var(--fs-xs)/1.4 var(--font-mono); }
+
+.tp-pathpanel { margin: 0 0 var(--space-3); padding: var(--space-3) var(--space-4); background: var(--panel); border: 1px solid var(--flow); border-left-width: 4px; border-radius: var(--radius-3); }
+.tp-pathpanel__t { margin: 0 0 var(--space-1) !important; font-weight: 600; }
+.tp-pathpanel__w { max-width: 70ch; margin: 0 0 var(--space-2) !important; color: var(--ink-dim); font-size: var(--fs-sm); }
+.tp-pathpanel__nav { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.tp-pathpanel__nav .mm-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+/* ------------------------------------------------------------ diagram + details card */
+.tp-grid { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); align-items: start; }
+.tp-stagewrap { min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-3); }
+.tp-stage { overflow: auto; border-radius: var(--radius-3); -webkit-overflow-scrolling: touch; }
+.tp-stage[data-zoomed="true"] { cursor: grab; }
+.tp-stage[data-drag="true"] { cursor: grabbing; user-select: none; }
+.tp-svg { display: block; width: 100%; height: auto; min-width: 640px; touch-action: manipulation; }
+
+.tp-group rect { fill: none; stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 5 5; }
+.tp-group text { fill: var(--ink-dim); font: 600 12.5px var(--font-ui); letter-spacing: 0.06em; text-transform: uppercase; }
+.tp-group--contract rect { stroke: var(--graph); }
+.tp-group--contract text { fill: var(--graph); }
+.tp-frame__r { fill: var(--panel-2); stroke: var(--line-strong); stroke-width: 1.2; }
+.tp-frame__t { fill: var(--ink); font: 600 14px var(--font-ui); }
+
+.tp-edge { fill: none; stroke-linecap: round; }
+.tp-edge--live { stroke: var(--flow); opacity: 0.8; }
+.tp-edge--declared { stroke: var(--ink-dim); stroke-dasharray: 7 6; opacity: 0.9; }
+.tp-edge--gate { stroke: var(--gate); opacity: 1; stroke-width: 3px; }
+.tp-edge--dim { opacity: 0.12; }
+.tp-edge__l { fill: var(--ink-dim); font: 500 12px var(--font-ui); paint-order: stroke; stroke: var(--panel); stroke-width: 5px; stroke-linejoin: round; pointer-events: none; }
+.tp-edge__l--gate { fill: var(--gate); font-weight: 600; }
+.tp-flow { fill: none; stroke: var(--brand); stroke-width: 3.5; stroke-linecap: round; stroke-dasharray: 2 9; pointer-events: none; }
+.tp-flow--move { animation: tp-dash 1.1s linear infinite; }
+@keyframes tp-dash { to { stroke-dashoffset: -22; } }
+
+.tp-node { cursor: pointer; outline: none; }
+.tp-box { fill: var(--panel-2); stroke: var(--line-strong); stroke-width: 1.4; transition: stroke 0.12s, fill 0.12s; }
+.tp-node:hover .tp-box, .tp-node:focus-visible .tp-box { stroke: var(--flow); stroke-width: 2.4; }
+.tp-node:focus-visible .tp-box { stroke: var(--focus); stroke-width: 3; }
+.tp-node--sel .tp-box { stroke: var(--brand); stroke-width: 3; fill: var(--panel); }
+.tp-node--gate .tp-box { stroke: var(--gate); }
+.tp-node--dim { opacity: 0.28; }
+.tp-label { fill: var(--ink); font: 600 14.5px var(--font-ui); pointer-events: none; }
+.tp-sub { fill: var(--ink-dim); font: 500 12px var(--font-mono); font-variant-numeric: tabular-nums; pointer-events: none; }
+.tp-node--kid .tp-label { font-size: 12.5px; }
+.tp-node--kid .tp-sub { font-size: 10px; }
+.tp-bar { fill: var(--flow); pointer-events: none; }
+.tp-badge { fill: var(--brand); stroke: var(--bg); stroke-width: 2; }
+.tp-badge__t { fill: var(--on-brand); font: 700 11px var(--font-ui); pointer-events: none; }
+[data-edit="on"] .tp-node { cursor: move; }
+
+.tp-card { padding: var(--space-4); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-3); font-size: var(--fs-sm); outline: none; }
+.tp-card[data-state="pinned"] { border-color: var(--brand); }
+.tp-card[data-state="idle"] { border-style: dashed; }
+.tp-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-2); }
+.tp-card h3 { margin: 0 0 var(--space-2) !important; font-size: var(--fs-lg); }
+.tp-close { min-height: 30px; padding: 0 var(--space-3); }
+.tp-what { margin: 0 0 var(--space-3) !important; }
+.tp-idle, .tp-hint, .tp-note { color: var(--ink-dim); }
+.tp-hint, .tp-note { margin: var(--space-3) 0 0 !important; font-size: var(--fs-xs); }
+.tp-more { margin: var(--space-3) 0 0 !important; color: var(--ink-dim); }
+.tp-crumb { margin: 0 0 var(--space-2) !important; color: var(--ink-dim); }
+.tp-facts { display: grid; grid-template-columns: 6.2rem minmax(0, 1fr); gap: var(--space-2) var(--space-3); margin: 0; }
+.tp-facts dt { color: var(--ink-dim); font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.04em; padding-top: 0.15em; }
+.tp-facts dd { margin: 0; overflow-wrap: anywhere; }
+.tp-facts dd code { display: inline-block; margin: 0 var(--space-1) var(--space-1) 0; }
+.tp-actions { display: flex; flex-direction: column; align-items: stretch; gap: var(--space-2); margin-top: var(--space-4); }
+.tp-actions .mm-btn { justify-content: flex-start; text-align: left; text-decoration: none; height: auto; padding-top: var(--space-2); padding-bottom: var(--space-2); }
+.tp-actions .mm-btn code { background: none; border: 0; padding: 0; color: inherit; }
+.tp-linkbtn { padding: 0; color: var(--brand); background: none; border: 0; font: inherit; text-decoration: underline; text-underline-offset: 0.18em; cursor: pointer; text-align: left; }
+.tp-dim-t { color: var(--ink-dim); font-weight: 400; }
+
+.tp-keys { margin: var(--space-3) 0 0 !important; color: var(--ink-dim); font-size: var(--fs-xs); }
+.tp-legend { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); margin: var(--space-3) 0 0; padding: 0; list-style: none; color: var(--ink-dim); font-size: var(--fs-xs); }
+.tp-legend li { display: flex; align-items: center; gap: var(--space-2); margin: 0; }
+.tp-sw { display: inline-block; flex: none; width: 26px; height: 0; border-top: 3px solid var(--flow); }
+.tp-sw--box { height: 14px; border: 1.4px solid var(--line-strong); border-radius: 4px; background: var(--panel-2); }
+.tp-sw--decl { border-top: 3px dashed var(--ink-dim); }
+.tp-sw--gate { border-top-color: var(--gate); }
+.tp-list { margin-top: var(--space-4); }
+.tp-list summary { cursor: pointer; font-weight: 600; }
+.tp-list .mm-tablewrap { margin-top: var(--space-2); }
+.tp-list .n { text-align: right; font-variant-numeric: tabular-nums; }
+.tp-list code { margin-right: var(--space-1); }
+.tp-cap { padding: var(--space-2) var(--space-3); color: var(--ink-dim); font-size: var(--fs-xs); text-align: left; caption-side: top; }
+
+/* ------------------------------------------------------------ wide: the card is a column beside the diagram */
+@media (min-width: 960px) {
+  .tp-grid { grid-template-columns: minmax(0, 1fr) 19.5rem; }
+  .tp-card { position: sticky; top: var(--space-4); max-height: calc(100vh - 2rem); overflow: auto; }
+  .tp-svg { min-width: 0; }
+}
+
+/* ------------------------------------------------------------ narrow: tapping a box opens a bottom sheet; the diagram scrolls and zooms inside its frame */
+@media (max-width: 959px) {
+  .tp-card[data-state="idle"], .tp-card[data-state="preview"] { display: none; }
+  .tp-card[data-state="pinned"] { position: fixed; z-index: var(--z-modal, 50); left: 0; right: 0; bottom: 0; max-height: 58vh; overflow: auto; padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+    border-width: 2px 0 0; border-radius: var(--radius-3) var(--radius-3) 0 0; box-shadow: var(--shadow-3); }
+  .tp-actions .mm-btn { min-height: 44px; }
+  .tp-zoom { margin-left: 0; }
+}
+body[data-tp-sheet="open"] { padding-bottom: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-flow--move { animation: none; }
+  .tp-box { transition: none; }
+}

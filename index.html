@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="assets/css/components.css">
 <link rel="stylesheet" href="assets/css/shell.css">
 <link rel="stylesheet" href="assets/css/overview.css">
+<link rel="stylesheet" href="assets/css/topology.css">
 </head>
 <body data-page="index"><main>
 <div class="ov">
@@ -21,6 +22,11 @@
   <section class="ov-fresh" id="ov-fresh" aria-label="Which commit each source describes" aria-live="polite"></section>
 
   <section class="ov-section" data-fragment="abstract"></section>
+
+  <section class="ov-section" id="topology" aria-labelledby="topology-h">
+    <h2 id="topology-h">System at a glance</h2>
+    <div data-topology><p class="ov-empty">Loading the diagram…</p></div>
+  </section>
 
   <section class="ov-section" id="anatomy" aria-labelledby="anatomy-h">
     <h2 id="anatomy-h">Anatomy of a request</h2>
@@ -58,6 +64,7 @@
 </div>
 </main>
 <script type="module" src="assets/js/overview.js"></script>
+<script type="module" src="assets/js/topology.js"></script>
 <script type="module" src="assets/js/shell.js"></script>
 </body>
 </html>

@@ -335,6 +335,420 @@
         "files": 20,
         "functions": 123
       }
+    },
+    "topology": {
+      "agents": {
+        "code": 13603,
+        "documented": 288,
+        "files": 76,
+        "functions": 461,
+        "python_functions": 461,
+        "top": [
+          {
+            "code": 1389,
+            "path": "backend/agents/hardware_speccer.py"
+          },
+          {
+            "code": 500,
+            "path": "backend/agents/code_editor.py"
+          },
+          {
+            "code": 379,
+            "path": "backend/agents/component_spec_lookup.py"
+          }
+        ]
+      },
+      "api": {
+        "code": 4804,
+        "documented": 141,
+        "files": 23,
+        "functions": 284,
+        "python_functions": 284,
+        "top": [
+          {
+            "code": 1082,
+            "path": "backend/api/task_runner.py"
+          },
+          {
+            "code": 874,
+            "path": "backend/api/routes/notebooks.py"
+          },
+          {
+            "code": 512,
+            "path": "backend/api/routes/tasks.py"
+          }
+        ]
+      },
+      "codeagent": {
+        "code": 6299,
+        "documented": 306,
+        "files": 20,
+        "functions": 651,
+        "python_functions": 651,
+        "top": [
+          {
+            "code": 955,
+            "path": "backend/codeagent/loop.py"
+          },
+          {
+            "code": 523,
+            "path": "backend/codeagent/run_handlers.py"
+          },
+          {
+            "code": 519,
+            "path": "backend/codeagent/adapters/openai_compat.py"
+          }
+        ]
+      },
+      "daemon": {
+        "code": 1369,
+        "documented": 30,
+        "files": 10,
+        "functions": 67,
+        "python_functions": 67,
+        "top": [
+          {
+            "code": 620,
+            "path": "daemon/preview_proxy.py"
+          },
+          {
+            "code": 219,
+            "path": "daemon/tools.py"
+          },
+          {
+            "code": 136,
+            "path": "daemon/connection.py"
+          }
+        ]
+      },
+      "db": {
+        "code": 2157,
+        "documented": 0,
+        "files": 15,
+        "functions": 0,
+        "python_functions": 0,
+        "top": [
+          {
+            "code": 332,
+            "path": "backend/migrations/0003_rls_policies.sql"
+          },
+          {
+            "code": 274,
+            "path": "backend/migrations/0013_m2c_devices.sql"
+          },
+          {
+            "code": 210,
+            "path": "backend/migrations/0014_m2c_runs.sql"
+          }
+        ]
+      },
+      "eo": {
+        "code": 18638,
+        "documented": 700,
+        "files": 113,
+        "functions": 993,
+        "python_functions": 993,
+        "top": [
+          {
+            "code": 1158,
+            "path": "backend/eo/registry.py"
+          },
+          {
+            "code": 828,
+            "path": "backend/eo/mech_validator.py"
+          },
+          {
+            "code": 822,
+            "path": "backend/eo/executor.py"
+          }
+        ]
+      },
+      "m2c": {
+        "code": 20214,
+        "documented": 498,
+        "files": 94,
+        "functions": 1196,
+        "python_functions": 1196,
+        "top": [
+          {
+            "code": 1066,
+            "path": "m2c/src/m2c/link/client.py"
+          },
+          {
+            "code": 1005,
+            "path": "m2c/src/m2c/policy/shellparse.py"
+          },
+          {
+            "code": 856,
+            "path": "m2c/src/m2c/headless.py"
+          }
+        ]
+      },
+      "m2c-core": {
+        "code": 6648,
+        "documented": 195,
+        "files": 24,
+        "functions": 428,
+        "python_functions": 428,
+        "top": [
+          {
+            "code": 856,
+            "path": "m2c/src/m2c/headless.py"
+          },
+          {
+            "code": 851,
+            "path": "m2c/src/m2c/checkpoints.py"
+          },
+          {
+            "code": 794,
+            "path": "m2c/src/m2c/runner.py"
+          }
+        ]
+      },
+      "m2c-link": {
+        "code": 1296,
+        "documented": 41,
+        "files": 3,
+        "functions": 96,
+        "python_functions": 96,
+        "top": [
+          {
+            "code": 1066,
+            "path": "m2c/src/m2c/link/client.py"
+          },
+          {
+            "code": 165,
+            "path": "m2c/src/m2c/link/reconnect.py"
+          },
+          {
+            "code": 65,
+            "path": "m2c/src/m2c/link/__init__.py"
+          }
+        ]
+      },
+      "m2c-policy": {
+        "code": 2258,
+        "documented": 42,
+        "files": 5,
+        "functions": 122,
+        "python_functions": 122,
+        "top": [
+          {
+            "code": 1005,
+            "path": "m2c/src/m2c/policy/shellparse.py"
+          },
+          {
+            "code": 696,
+            "path": "m2c/src/m2c/policy/decide.py"
+          },
+          {
+            "code": 401,
+            "path": "m2c/src/m2c/policy/rules.py"
+          }
+        ]
+      },
+      "m2c-protocol": {
+        "code": 2171,
+        "documented": 0,
+        "files": 29,
+        "functions": 0,
+        "python_functions": 0,
+        "top": [
+          {
+            "code": 468,
+            "path": "m2c/src/m2c/protocol/v1/envelope.json"
+          },
+          {
+            "code": 326,
+            "path": "m2c/src/m2c/protocol/v1/run_event.json"
+          },
+          {
+            "code": 276,
+            "path": "m2c/src/m2c/protocol/v1/tool_proposed.json"
+          }
+        ]
+      },
+      "m2c-sandbox": {
+        "code": 2199,
+        "documented": 65,
+        "files": 7,
+        "functions": 154,
+        "python_functions": 154,
+        "top": [
+          {
+            "code": 713,
+            "path": "m2c/src/m2c/sandbox/probe.py"
+          },
+          {
+            "code": 566,
+            "path": "m2c/src/m2c/sandbox/netproxy.py"
+          },
+          {
+            "code": 349,
+            "path": "m2c/src/m2c/sandbox/netpolicy.py"
+          }
+        ]
+      },
+      "m2c-store": {
+        "code": 626,
+        "documented": 24,
+        "files": 5,
+        "functions": 36,
+        "python_functions": 36,
+        "top": [
+          {
+            "code": 183,
+            "path": "m2c/src/m2c/store/migrations.py"
+          },
+          {
+            "code": 155,
+            "path": "m2c/src/m2c/store/events.py"
+          },
+          {
+            "code": 151,
+            "path": "m2c/src/m2c/store/db.py"
+          }
+        ]
+      },
+      "m2c-tools": {
+        "code": 2343,
+        "documented": 64,
+        "files": 5,
+        "functions": 145,
+        "python_functions": 145,
+        "top": [
+          {
+            "code": 621,
+            "path": "m2c/src/m2c/tools/shell.py"
+          },
+          {
+            "code": 611,
+            "path": "m2c/src/m2c/tools/files.py"
+          },
+          {
+            "code": 497,
+            "path": "m2c/src/m2c/tools/search.py"
+          }
+        ]
+      },
+      "m2c-trust": {
+        "code": 560,
+        "documented": 14,
+        "files": 4,
+        "functions": 36,
+        "python_functions": 36,
+        "top": [
+          {
+            "code": 251,
+            "path": "m2c/src/m2c/trust/store.py"
+          },
+          {
+            "code": 212,
+            "path": "m2c/src/m2c/trust/fingerprint.py"
+          },
+          {
+            "code": 85,
+            "path": "m2c/src/m2c/trust/prompt.py"
+          }
+        ]
+      },
+      "m2c-tui": {
+        "code": 2113,
+        "documented": 53,
+        "files": 12,
+        "functions": 179,
+        "python_functions": 179,
+        "top": [
+          {
+            "code": 850,
+            "path": "m2c/src/m2c/tui/session.py"
+          },
+          {
+            "code": 244,
+            "path": "m2c/src/m2c/tui/app.py"
+          },
+          {
+            "code": 195,
+            "path": "m2c/src/m2c/tui/render.py"
+          }
+        ]
+      },
+      "protocol": {
+        "code": 3054,
+        "documented": 20,
+        "files": 37,
+        "functions": 35,
+        "python_functions": 35,
+        "top": [
+          {
+            "code": 455,
+            "path": "protocol/validate.py"
+          }
+        ]
+      },
+      "services": {
+        "code": 3172,
+        "documented": 135,
+        "files": 19,
+        "functions": 157,
+        "python_functions": 157,
+        "top": [
+          {
+            "code": 1425,
+            "path": "backend/utils/llm_client.py"
+          },
+          {
+            "code": 539,
+            "path": "backend/utils/rate_ledger.py"
+          },
+          {
+            "code": 317,
+            "path": "backend/relay/emitter.py"
+          }
+        ]
+      },
+      "web-components": {
+        "code": 29137,
+        "documented": 0,
+        "files": 103,
+        "functions": 840,
+        "python_functions": 0,
+        "top": [
+          {
+            "code": 2667,
+            "path": "frontend/app/components/tabs/NotebooksTab.jsx"
+          },
+          {
+            "code": 1651,
+            "path": "frontend/app/components/workbench/EditorWorkbench.jsx"
+          },
+          {
+            "code": 1545,
+            "path": "frontend/app/components/WorkspaceChatPanel.jsx"
+          }
+        ]
+      },
+      "web-lib": {
+        "code": 7869,
+        "documented": 0,
+        "files": 74,
+        "functions": 507,
+        "python_functions": 0,
+        "top": [
+          {
+            "code": 1473,
+            "path": "frontend/app/context/SessionContext.jsx"
+          },
+          {
+            "code": 809,
+            "path": "frontend/app/context/WorkspaceDockContext.jsx"
+          },
+          {
+            "code": 312,
+            "path": "frontend/app/lib/workbench/editorStore.js"
+          }
+        ]
+      }
     }
   },
   "graph": {

@@ -1,0 +1,389 @@
+{
+  "version": 1,
+  "title": "System at a glance",
+  "note": "The layout is curated here. Box size is code lines (from the census) and line width is graph links between the folders (data/graph/folders.json). A dashed line is a relationship declared here: the graph has no links across that boundary, or the boundary is not code (HTTP, WebSocket, an approval).",
+  "not_drawn": "Tests, build scripts, evaluations, fixtures and docs are not drawn.",
+  "view": [
+    1000,
+    640
+  ],
+  "groups": [
+    {
+      "id": "devices",
+      "label": "Your machine",
+      "x": 14,
+      "y": 14,
+      "w": 250,
+      "h": 612
+    },
+    {
+      "id": "contract",
+      "label": "Contract",
+      "x": 282,
+      "y": 246,
+      "w": 150,
+      "h": 150
+    },
+    {
+      "id": "browser",
+      "label": "Browser",
+      "x": 450,
+      "y": 14,
+      "w": 536,
+      "h": 140
+    },
+    {
+      "id": "server",
+      "label": "MiniMe server",
+      "x": 450,
+      "y": 170,
+      "w": 536,
+      "h": 456,
+      "align": "end"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "web-components",
+      "label": "Web components",
+      "folders": [
+        "frontend/app/components"
+      ],
+      "group": "browser",
+      "x": 600,
+      "y": 88,
+      "what": "The React screens: chat, workspaces, the stage tabs, notebooks and the code workbench.",
+      "chapter": "doc-minime-feature-guide#2-the-main-user-experience",
+      "diagram": "architecture/system.html"
+    },
+    {
+      "id": "web-lib",
+      "label": "Web lib & state",
+      "folders": [
+        "frontend/app/lib",
+        "frontend/app/context",
+        "frontend/app/hooks"
+      ],
+      "group": "browser",
+      "x": 860,
+      "y": 88,
+      "what": "Shared client code the screens lean on: API calls, context providers and hooks.",
+      "chapter": "doc-minime-feature-guide#2-the-main-user-experience"
+    },
+    {
+      "id": "api",
+      "label": "API",
+      "folders": [
+        "backend/api"
+      ],
+      "group": "server",
+      "x": 545,
+      "y": 262,
+      "what": "The JWT-checked HTTP and WebSocket edge, and the task runner that starts a request.",
+      "chapter": "doc-minime-feature-guide#3-chat",
+      "diagram": "architecture/api-surface.html"
+    },
+    {
+      "id": "eo",
+      "label": "Orchestrator",
+      "folders": [
+        "backend/eo"
+      ],
+      "group": "server",
+      "x": 730,
+      "y": 340,
+      "what": "Fast relay, inspector, router, gatekeeper loop, executor, role registry, and the approval gate for local actions.",
+      "chapter": "doc-minime-feature-guide#5-the-agent-system",
+      "diagram": "architecture/task-pipeline.html"
+    },
+    {
+      "id": "agents",
+      "label": "Agent modules",
+      "folders": [
+        "backend/agents"
+      ],
+      "group": "server",
+      "x": 730,
+      "y": 455,
+      "what": "The workers a role resolves to, plus a generic worker for roles without a module.",
+      "chapter": "doc-minime-feature-guide#12-role-library",
+      "diagram": "architecture/task-sequence.html"
+    },
+    {
+      "id": "services",
+      "label": "Shared services",
+      "folders": [
+        "backend/memory",
+        "backend/relay",
+        "backend/utils",
+        "backend/config",
+        "backend/graph"
+      ],
+      "group": "server",
+      "x": 900,
+      "y": 262,
+      "what": "The JSON bus, the realtime emitter, the model-provider client with its rate ledger, and configuration.",
+      "chapter": "doc-minime-feature-guide#16-knowledge-graph-and-structured-data",
+      "diagram": "architecture/dataflow.html"
+    },
+    {
+      "id": "db",
+      "label": "Database schema",
+      "folders": [
+        "backend/migrations"
+      ],
+      "group": "server",
+      "x": 900,
+      "y": 560,
+      "what": "The SQL migrations that build the Postgres schema. SQL has no call links, so it shows no graph edges.",
+      "chapter": "doc-minime-feature-guide#16-knowledge-graph-and-structured-data"
+    },
+    {
+      "id": "codeagent",
+      "label": "Code agent",
+      "folders": [
+        "backend/codeagent"
+      ],
+      "group": "server",
+      "x": 545,
+      "y": 560,
+      "what": "The server half of M2C: the agent loop, the tool-call broker and the WebSocket the client connects to.",
+      "chapter": "doc-m2c-feature-guide#5-agent-loop-and-tools"
+    },
+    {
+      "id": "protocol",
+      "label": "Protocol",
+      "folders": [
+        "protocol"
+      ],
+      "group": "contract",
+      "x": 357,
+      "y": 321,
+      "what": "The JSON-schema contract between the M2C client and the server, with fixtures and a validator.",
+      "chapter": "doc-m2c-feature-guide#5-agent-loop-and-tools"
+    },
+    {
+      "id": "m2c",
+      "label": "M2C client",
+      "folders": [
+        "m2c/src/m2c"
+      ],
+      "group": "devices",
+      "x": 139,
+      "y": 392,
+      "what": "The coding agent that runs on your machine and talks to the server through the protocol. Expand it to see its parts.",
+      "chapter": "doc-m2c-feature-guide#6-safety-and-trust",
+      "children": [
+        "m2c-link",
+        "m2c-protocol",
+        "m2c-policy",
+        "m2c-sandbox",
+        "m2c-tools",
+        "m2c-trust",
+        "m2c-tui",
+        "m2c-store",
+        "m2c-core"
+      ]
+    },
+    {
+      "id": "daemon",
+      "label": "Local daemon",
+      "folders": [
+        "daemon"
+      ],
+      "group": "devices",
+      "x": 139,
+      "y": 120,
+      "what": "A small program on your machine that reads and writes your files for the web workspace, only after an approval.",
+      "chapter": "doc-minime-feature-guide#19-security-and-trust-features",
+      "diagram": "architecture/daemon-approval.html"
+    },
+    {
+      "id": "m2c-link",
+      "label": "link",
+      "folders": [
+        "m2c/src/m2c/link"
+      ],
+      "group": "devices",
+      "x": 62,
+      "y": 310,
+      "what": "The WebSocket link to the MiniMe server.",
+      "chapter": "doc-m2c-feature-guide#6-safety-and-trust",
+      "parent": "m2c"
+    },
+    {
+      "id": "m2c-protocol",
+      "label": "protocol",
+      "folders": [
+        "m2c/src/m2c/protocol"
+      ],
+      "group": "devices",
+      "x": 216,
+      "y": 310,
+      "what": "The client's copy of the protocol schemas and message checks.",
+      "chapter": "doc-m2c-feature-guide#6-safety-and-trust",
+      "parent": "m2c"
+    },
+    {
+      "id": "m2c-policy",
+      "label": "policy",
+      "folders": [
+        "m2c/src/m2c/policy"
+      ],
+      "group": "devices",
+      "x": 139,
+      "y": 310,
+      "what": "The local policy engine: which commands and paths are allowed.",
+      "chapter": "doc-m2c-feature-guide#6-safety-and-trust",
+      "parent": "m2c"
+    },
+    {
+      "id": "m2c-sandbox",
+      "label": "sandbox",
+      "folders": [
+        "m2c/src/m2c/sandbox"
+      ],
+      "group": "devices",
+      "x": 62,
+      "y": 390,
+      "what": "Runs commands in a restricted environment.",
+      "chapter": "doc-m2c-feature-guide#6-safety-and-trust",
+      "parent": "m2c"
+    },
+    {
+      "id": "m2c-tools",
+      "label": "tools",
+      "folders": [
+        "m2c/src/m2c/tools"
+      ],
+      "group": "devices",
+      "x": 139,
+      "y": 390,
+      "what": "The tools the agent can call: files, search, shell.",
+      "chapter": "doc-m2c-feature-guide#6-safety-and-trust",
+      "parent": "m2c"
+    },
+    {
+      "id": "m2c-trust",
+      "label": "trust",
+      "folders": [
+        "m2c/src/m2c/trust"
+      ],
+      "group": "devices",
+      "x": 216,
+      "y": 390,
+      "what": "Workspace trust decisions.",
+      "chapter": "doc-m2c-feature-guide#6-safety-and-trust",
+      "parent": "m2c"
+    },
+    {
+      "id": "m2c-tui",
+      "label": "tui",
+      "folders": [
+        "m2c/src/m2c/tui"
+      ],
+      "group": "devices",
+      "x": 62,
+      "y": 470,
+      "what": "The terminal user interface.",
+      "chapter": "doc-m2c-feature-guide#6-safety-and-trust",
+      "parent": "m2c"
+    },
+    {
+      "id": "m2c-store",
+      "label": "store",
+      "folders": [
+        "m2c/src/m2c/store"
+      ],
+      "group": "devices",
+      "x": 139,
+      "y": 470,
+      "what": "Local history, checkpoints and settings.",
+      "chapter": "doc-m2c-feature-guide#6-safety-and-trust",
+      "parent": "m2c"
+    },
+    {
+      "id": "m2c-core",
+      "label": "other",
+      "folders": [
+        "m2c/src/m2c"
+      ],
+      "group": "devices",
+      "x": 216,
+      "y": 470,
+      "what": "Context, sign-in, secrets, interaction and the files directly in the package.",
+      "chapter": "doc-m2c-feature-guide#6-safety-and-trust",
+      "parent": "m2c"
+    }
+  ],
+  "edges": [
+    {
+      "from": "web-components",
+      "to": "web-lib"
+    },
+    {
+      "from": "web-components",
+      "to": "api",
+      "declared": true,
+      "label": "HTTPS + JWT",
+      "label_t": 0.2
+    },
+    {
+      "from": "services",
+      "to": "web-components",
+      "declared": true,
+      "label": "WebSocket push",
+      "label_t": 0.3
+    },
+    {
+      "from": "api",
+      "to": "eo"
+    },
+    {
+      "from": "api",
+      "to": "agents"
+    },
+    {
+      "from": "eo",
+      "to": "agents"
+    },
+    {
+      "from": "eo",
+      "to": "services"
+    },
+    {
+      "from": "api",
+      "to": "codeagent"
+    },
+    {
+      "from": "agents",
+      "to": "services"
+    },
+    {
+      "from": "eo",
+      "to": "daemon",
+      "declared": true,
+      "gate": true,
+      "label": "only after approval",
+      "bend": 187,
+      "label_t": 0.8
+    },
+    {
+      "from": "codeagent",
+      "to": "protocol",
+      "declared": true,
+      "label": "validates messages"
+    },
+    {
+      "from": "m2c",
+      "to": "protocol",
+      "declared": true,
+      "label": "speaks",
+      "from_child": "m2c-protocol"
+    },
+    {
+      "from": "codeagent",
+      "to": "eo"
+    }
+  ]
+}
