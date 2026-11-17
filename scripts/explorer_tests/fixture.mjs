@@ -8,7 +8,15 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 const FIELDS = ["name", "lang", "lines", "code", "functions", "classes", "commits", "last", "flags", "shard"];
 const fn = (q, s, e, x = {}) => ({ qual: q, name: q.split(".").pop(), start: s, end: e, loc: e - s + 1, cc: 3, doc1: "", params: [{ name: "x", annotation: "int", default: null }], returns: "str", hash: `h_${q}`, kind: q.includes(".") ? "method" : "function", visibility: "public", ...x });
 
-export function writeFixture(dir, { big = false } = {}) {
+export const COMMIT = `a1389bfdeadbeef${"0".repeat(25)}`;     // 40 hex characters, starts with the census commit of the fixture
+export const BLOB = "b".repeat(40);
+/* The embedded copy of backend/agents/a.py: 150 lines, line N reads "line N", with a few awkward ones. */
+export const SRC_LINES = Array.from({ length: 150 }, (_, i) => `line ${i + 1}`);
+SRC_LINES[9] = "def run(x):  # <b>not html</b>";
+SRC_LINES[10] = "";
+SRC_LINES[11] = "\treturn '&amp;'";
+
+export function writeFixture(dir, { big = false, drift = false } = {}) {
   const W = (rel, o) => { const p = path.join(dir, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, JSON.stringify(o)); };
   const recs = [
     { path: "backend/agents/a.py", functions: [fn("run", 10, 20, { doc1: "Run it." }), fn("Agent.step", 30, 40), fn("_clean_query", 120, 141)], classes: [{ qual: "Agent", name: "Agent", start: 25, end: 50, loc: 26, bases: ["Base"], hash: "h_Agent" }],
@@ -27,8 +35,15 @@ export function writeFixture(dir, { big = false } = {}) {
   W("data/code/files/s0.json", { files: recs });
   W("data/code/imports.json", { imports: { "backend/api/b.py": ["backend/agents/a.py", "nowhere.py"] }, imported_by: { "backend/agents/a.py": ["backend/api/b.py"] }, external: { "backend/agents/a.py": ["httpx"] } });
   W("data/index/notes.json", { totals: { files: 3, noted: 1 }, folders: { "backend/agents": { files: 1, noted: 1, stale: 0 }, backend: { files: 2, noted: 1, stale: 0 } }, files: { "backend/agents/a.py": { status: "fresh", tier: 1 } } });
-  W("data/notes/backend__agents__a.py.json", { summary: "Agent module.", purpose: "p", written: "2026-10-20", commit: "abcdef123", symbols: [{ qual: "run", summary: "Runs the agent.", hash: "h_run" }, { qual: "Agent.step", summary: "Steps.", hash: "OLD" }], blocks: [{ lines: "10-20", title: "Run", text: "x" }] });
-  W("data/src/manifest.json", { commit: "3727ae323c26919558a3b5f6db73c81a578537fb", files: { "backend/agents/a.py": "blob1" } });   // a full 40-hex commit: links.js builds GitHub URLs only with one
+  W("data/notes/backend__agents__a.py.json", { summary: "Agent module.", purpose: "p", written: "2026-10-20", commit: "abcdef123", blob: drift ? "c".repeat(40) : BLOB, symbols: [{ qual: "run", summary: "Runs the agent.", hash: "h_run" }, { qual: "Agent.step", summary: "Steps.", hash: "OLD" }], blocks: [{ lines: "10-20", title: "Run", text: "x" }] });
+  W("content/config.json", { github: { repo: "Unavailable4u/MiniMe" }, editor: { scheme: "vscode" }, embedSource: true });
+  W("data/src/manifest.json", { schema: 1, commit: drift ? "d".repeat(40) : COMMIT, files: { "backend/agents/a.py": BLOB, ...(big ? { "backend/api/b.py": BLOB } : {}) } });
+  fs.mkdirSync(path.join(dir, "data/src/backend/agents"), { recursive: true });
+  fs.writeFileSync(path.join(dir, "data/src/backend/agents/a.py.txt"), `${SRC_LINES.join("\n")}\n`);
+  if (big) {                                         // a 2,500-line file: the viewer draws 1,000 lines at a time
+    fs.mkdirSync(path.join(dir, "data/src/backend/api"), { recursive: true });
+    fs.writeFileSync(path.join(dir, "data/src/backend/api/b.py.txt"), `${Array.from({ length: 2500 }, (_, i) => `row ${i + 1}`).join("\n")}\n`);
+  }
   W("data/graph/file-links.json", { paths: ["backend/agents/a.py", "backend/api/b.py"], links: [[[1, 4]], [[0, 4]]], commit: "abc", date: "2026-11-01" });
 }
 
@@ -37,15 +52,15 @@ export async function jsdomOrSkip() {
 }
 
 /* Load explorer.html (scripts stripped) in jsdom, serve data/ from a temp fixture, and import the real main.js. `omit` = data paths that answer 404. */
-export async function boot({ hash = "", omit = [], big = false } = {}) {
+export async function boot({ hash = "", omit = [], big = false, drift = false } = {}) {
   const JSDOM = await jsdomOrSkip();
   const data = fs.mkdtempSync(path.join(os.tmpdir(), "explorer-"));
-  writeFixture(data, { big });
+  writeFixture(data, { big, drift });
   const html = fs.readFileSync(path.join(ROOT, "explorer.html"), "utf8").replace(/<script[\s\S]*?<\/script>/g, "");
   const dom = new JSDOM(html, { url: `http://localhost:8000/explorer.html${hash}`, pretendToBeVisual: true });
   const w = dom.window;
   const set = (k, v) => Object.defineProperty(globalThis, k, { value: v, configurable: true, writable: true });
-  for (const k of ["document", "location", "localStorage", "Node", "HTMLElement", "requestAnimationFrame", "cancelAnimationFrame"]) set(k, w[k]);
+  for (const k of ["document", "location", "history", "localStorage", "Node", "HTMLElement", "requestAnimationFrame", "cancelAnimationFrame"]) set(k, w[k]);
   set("window", w); set("navigator", w.navigator);
   w.scrollTo = () => {}; w.HTMLElement.prototype.scrollIntoView = () => {};
   const errors = [];
@@ -55,7 +70,7 @@ export async function boot({ hash = "", omit = [], big = false } = {}) {
   globalThis.fetch = async (u) => {
     const rel = decodeURIComponent(new URL(String(u)).pathname).slice(rootPath.length);
     const f = path.join(data, rel);
-    return !omit.includes(rel) && fs.existsSync(f) ? { ok: true, status: 200, json: async () => JSON.parse(fs.readFileSync(f, "utf8")) } : { ok: false, status: 404, json: async () => ({}) };
+    return !omit.includes(rel) && fs.existsSync(f) ? { ok: true, status: 200, json: async () => JSON.parse(fs.readFileSync(f, "utf8")), text: async () => fs.readFileSync(f, "utf8") } : { ok: false, status: 404, json: async () => ({}), text: async () => "" };
   };
   await import(`${pathToFileURL(path.join(ROOT, "assets/js/explorer/main.js")).href}?${Math.random()}`);
   const wait = (ms = 80) => new Promise((r) => setTimeout(r, ms));

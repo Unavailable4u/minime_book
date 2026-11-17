@@ -169,6 +169,47 @@ export function filterSymbols(rows, { q = "", kind = "all", noteOnly = false, hi
   });
 }
 
+/* ------------------------------------------------------------------ source text (P14a) */
+/* The copy under data/src/ is the committed LF text; CRLF is tolerated anyway. The newline that ends the file does not start a line. */
+export function splitLines(text) {
+  const lines = String(text == null ? "" : text).replace(/\r\n?/g, "\n").split("\n");
+  if (lines.length > 1 && lines[lines.length - 1] === "") lines.pop();
+  return lines;
+}
+
+/* A line range that is inside the file: { start, end } with 1 <= start <= end <= total, or null when there is none to show. */
+export function clampRange(start, end, total) {
+  if (!Number.isInteger(start) || start < 1 || !(total >= 1)) return null;
+  const s = Math.min(start, total);
+  const e = Number.isInteger(end) ? Math.min(Math.max(end, s), total) : s;
+  return { start: s, end: e };
+}
+
+/* What a reader types in "Go to line": "120", "120-141", "120:141" or "120 141". null when it is not a line or a range. */
+export function parseGoto(input, total) {
+  const m = /^\s*(\d+)(?:\s*[-:–,\s]\s*(\d+))?\s*$/.exec(String(input || ""));
+  return m ? clampRange(Number(m[1]), m[2] ? Number(m[2]) : null, total) : null;
+}
+
+const sameCommit = (a, b) => { const x = String(a || "").toLowerCase(); const y = String(b || "").toLowerCase(); return x.length >= 7 && y.length >= 7 && (x.startsWith(y) || y.startsWith(x)); };
+
+/* Reasons to read the line numbers on the Source tab with care. Each is { level: "warn", text }.
+     copyCommit    commit the embedded source was copied from (data/src/manifest.json)
+     censusCommit  commit the census, and so every line number in the Symbols tab, belongs to
+     note          the AI note of the file, if any; its `blob` is the git blob it was written against
+     srcFiles      "files" of the manifest: path -> blob id of the embedded copy */
+export function sourceNotices({ path, note, srcFiles, copyCommit, censusCommit }) {
+  const out = [];
+  if (copyCommit && censusCommit && !sameCommit(copyCommit, censusCommit)) {
+    out.push({ level: "warn", text: `This source is the copy of commit ${String(copyCommit).slice(0, 7)}, but the census is from ${String(censusCommit).slice(0, 7)}. Line numbers in the Symbols tab may be off.` });
+  }
+  const blob = srcFiles && Object.prototype.hasOwnProperty.call(srcFiles, path) ? srcFiles[path] : "";
+  if (note && note.blob && blob && note.blob !== blob) {
+    out.push({ level: "warn", text: "The AI note was written against a different version of this file than the copy shown here. Its line numbers and walkthrough may not match." });
+  }
+  return out;
+}
+
 /* ------------------------------------------------------------------ churn */
 const monthIndex = (iso) => { const m = /^(\d{4})-(\d{2})/.exec(iso || ""); return m ? Number(m[1]) * 12 + Number(m[2]) - 1 : null; };
 
@@ -215,6 +256,19 @@ export function getJSON(rel) {
     cache.get(rel).catch(() => cache.delete(rel));        // a failed fetch is tried again next time
   }
   return cache.get(rel);
+}
+
+/* Plain text (the embedded source files). Only the last few are kept: they can be 240 KB each. */
+const TEXT_KEEP = 6;
+const textCache = new Map();
+
+export function getText(rel) {
+  if (textCache.has(rel)) { const p = textCache.get(rel); textCache.delete(rel); textCache.set(rel, p); return p; }
+  const p = fetch(new URL(rel, BASE)).then((r) => { if (!r.ok) throw new Error(`${rel}: ${r.status}`); return r.text(); });
+  textCache.set(rel, p);
+  p.catch(() => textCache.delete(rel));
+  while (textCache.size > TEXT_KEEP) textCache.delete(textCache.keys().next().value);
+  return p;
 }
 
 const optional = (rel) => getJSON(rel).catch(() => null);

@@ -5,6 +5,7 @@ import { h, num, day, copyText, toast } from "./dom.js";
 import { buildRoute } from "./router.js";
 import { coverage, noteStatus, notePrompt, allFiles } from "./model.js";
 import { createSymbols } from "./symbols.js";
+import { renderSource } from "./source.js";
 import { codeLinks } from "../links.js";
 
 /* ------------------------------------------------------------------ pieces */
@@ -156,7 +157,7 @@ function explain(file, rec, note) {
       section("Concepts", note.concepts && note.concepts.length ? h("p", { class: "ex-chips" }, note.concepts.map((c) => h("code", null, c))) : null));
     const blocks = (note.blocks || []).map((b) => {
       const m = /^(\d+)(?:-(\d+))?$/.exec(String(b.lines || ""));
-      const href = m ? buildRoute({ view: "file", path: file.path, start: Number(m[1]), end: m[2] ? Number(m[2]) : null }) : null;
+      const href = m ? buildRoute({ view: "file", path: file.path, start: Number(m[1]), end: m[2] ? Number(m[2]) : null, tab: "source" }) : null;
       return h("li", null, href ? h("a", { href }, `lines ${b.lines}`) : `lines ${b.lines}`, " ", h("b", null, b.title || ""), b.text ? h("span", { class: "ex-dim" }, ` ${b.text}`) : null);
     });
     put(section("Walkthrough", blocks.length ? h("ol", { class: "ex-blocks" }, blocks) : null));
@@ -169,7 +170,7 @@ function explain(file, rec, note) {
   return out;
 }
 
-export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTab, linkOpts, openFile, start, end }) {
+export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTab, linkOpts, openFile, start, end, onRange }) {
   const status = noteStatus(core.notes, file.path);
   const entry = core.notes && core.notes.files && core.notes.files[file.path];
   const badges = h("p", { class: "ex-badges" }, h("span", { class: "ex-pill" }, file.lang || "file"), file.test ? h("span", { class: "ex-pill" }, "test") : null,
@@ -198,11 +199,14 @@ export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTa
   ]), codeButtons(file, linkOpts, start, end));
 
   const syms = rows || [];
-  const active = tab === "symbols" || qual ? "symbols" : "explain";
-  host.append(tabs([["explain", "Explain"], ["symbols", `Symbols (${num(syms.length)})`]], active, setTab));
+  const items = [["explain", "Explain"], ...(file.binary ? [] : [["source", "Source"]]), ["symbols", `Symbols (${num(syms.length)})`]];
+  // An explicit tab wins; otherwise a symbol opens the Symbols tab and a bare line range opens the Source tab.
+  const active = items.some((x) => x[0] === tab) ? tab : qual ? "symbols" : start ? "source" : "explain";
+  host.append(tabs(items, active, setTab));
   const panel = h("div", { class: "ex-panel", id: "ex-panel", role: "tabpanel", "aria-labelledby": `ex-tab-${active}` });
   host.append(panel);
   if (active === "explain") panel.append(explain(file, rec, note));
+  else if (active === "source") renderSource(panel, { core, file, rec, note, qual, start, end, linkOpts, onRange });
   else {
     const t = createSymbols({ rows: syms, showPath: false, linkOpts, selected: qual, onOpen: (r) => openFile(r) });
     panel.append(t.el);

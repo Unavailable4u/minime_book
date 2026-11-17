@@ -20,7 +20,13 @@ t("router: round trip with spaces, tab, method qual", () => {
 t("router: folder ignores qual and lines", () => assert.equal(buildRoute({ view: "dir", path: "backend", qual: "x", start: 1 }), "#/d/backend"));
 t("router: legacy links.js form is view auto", () => { const r = parseRoute("#/backend/a.py@10-20"); assert.deepEqual([r.view, r.path, r.start, r.end], ["auto", "backend/a.py", 10, 20]); });
 t("router: bad input falls back to home, never throws", () => { for (const h of ["#/f/%E0%A4%A", "#/f/", "#/f/::x", "#/f/a.py@0", "#/f/a.py@9-3"]) parseRoute(h); assert.equal(parseRoute("#/f/%E0%A4%A").view, "home"); assert.equal(parseRoute("#/f/a.py@0").start, null); assert.equal(parseRoute("#/f/a.py@9-3").end, 9); });
-t("router: unknown tab is dropped", () => assert.equal(parseRoute("#/f/a.py?tab=source").tab, ""));
+t("router: unknown tab is dropped", () => assert.equal(parseRoute("#/f/a.py?tab=nope").tab, ""));
+t("router: source tab with symbol and lines round trips", () => {
+  const r = parseRoute("#/f/a/b.py::A.m@3-9?tab=source");
+  assert.deepEqual([r.view, r.path, r.qual, r.start, r.end, r.tab], ["file", "a/b.py", "A.m", 3, 9, "source"]);
+  assert.equal(buildRoute(r), "#/f/a/b.py::A.m@3-9?tab=source");
+  assert.equal(buildRoute({ view: "file", path: "a/b.py", start: 7, tab: "source" }), "#/f/a/b.py@7?tab=source");
+});
 
 const raw = { file_fields: ["name", "lang", "lines", "code", "functions", "classes", "commits", "last", "flags", "shard"], shards: ["s0"], root: { files: [["R.md", "md", 5, 4, 0, 0, 1, "", "", 0]], dirs: [{ name: "b", n: { files: 3, lines: 19, code: 17, functions: 2, classes: 0 }, files: [["z.py", "py", 9, 8, 1, 0, 2, "", "t", 0], ["a.py", "py", 9, 8, 1, 0, 2, "", "", 0]], dirs: [{ name: "c", files: [["d.py", "py", 1, 1, 0, 0, 0, "", "", 0]], dirs: [] }] }] } };
 const tree = M.buildTree(raw);
@@ -77,4 +83,33 @@ t("model: indexFileLinks", () => {
   assert.deepEqual(m.map.get("a"), [{ path: "b", n: 3 }]); assert.deepEqual(m.map.get("b"), []);
 });
 t("model: noteFileName and notePrompt", () => { assert.equal(M.noteFileName("a/b.py"), "a__b.py.json"); const p = M.notePrompt("a/b.py"); assert.ok(p.includes("a__b.py.json") && p.includes("git hash-object a/b.py")); });
+t("model: splitLines drops the final newline, keeps blank lines, tolerates CRLF", () => {
+  assert.deepEqual(M.splitLines("a\nb\n"), ["a", "b"]);
+  assert.deepEqual(M.splitLines("a\n\nb"), ["a", "", "b"]);
+  assert.deepEqual(M.splitLines("a\r\nb\r\n"), ["a", "b"]);
+  assert.deepEqual(M.splitLines(""), [""]);
+  assert.deepEqual(M.splitLines(null), [""]);
+});
+t("model: clampRange", () => {
+  assert.deepEqual(M.clampRange(5, 9, 100), { start: 5, end: 9 });
+  assert.deepEqual(M.clampRange(5, null, 100), { start: 5, end: 5 });
+  assert.deepEqual(M.clampRange(5, 2, 100), { start: 5, end: 5 });
+  assert.deepEqual(M.clampRange(90, 500, 100), { start: 90, end: 100 });
+  assert.deepEqual(M.clampRange(500, 600, 100), { start: 100, end: 100 });
+  assert.equal(M.clampRange(0, 3, 100), null); assert.equal(M.clampRange(null, 3, 100), null); assert.equal(M.clampRange(3, 4, 0), null);
+});
+t("model: parseGoto", () => {
+  assert.deepEqual(M.parseGoto("120", 500), { start: 120, end: 120 });
+  for (const x of ["120-141", " 120 : 141 ", "120,141", "120 141", "120–141"]) assert.deepEqual(M.parseGoto(x, 500), { start: 120, end: 141 }, x);
+  assert.deepEqual(M.parseGoto("900", 500), { start: 500, end: 500 });
+  for (const x of ["", "abc", "12a", "-5", "1-2-3"]) assert.equal(M.parseGoto(x, 500), null, x);
+});
+t("model: sourceNotices", () => {
+  const A = "a".repeat(40); const B = "b".repeat(40);
+  assert.deepEqual(M.sourceNotices({ path: "x.py", note: { blob: A }, srcFiles: { "x.py": A }, copyCommit: A, censusCommit: A.slice(0, 7) }), []);
+  assert.equal(M.sourceNotices({ path: "x.py", copyCommit: A, censusCommit: B }).length, 1);
+  assert.equal(M.sourceNotices({ path: "x.py", note: { blob: A }, srcFiles: { "x.py": B } }).length, 1);
+  assert.deepEqual(M.sourceNotices({ path: "x.py", note: { blob: A }, srcFiles: {} }), [], "no copy of the file: nothing to compare");
+  assert.deepEqual(M.sourceNotices({ path: "x.py", note: {}, srcFiles: { "x.py": B }, copyCommit: "", censusCommit: A }), [], "missing facts never warn");
+});
 console.log(`${n} passed`);

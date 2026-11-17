@@ -8,7 +8,7 @@
    folder, so it comes back as view "auto" and the page decides from the file index. */
 import { cleanPath } from "../links.js";
 
-export const TABS = ["explain", "symbols"];
+export const TABS = ["explain", "source", "symbols"];
 
 const encPath = (p) => p.split("/").map(encodeURIComponent).join("/");
 

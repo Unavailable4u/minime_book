@@ -2,8 +2,8 @@
    route names. Three views share the page: the start page (#/), a folder (#/d/<folder>) and a file (#/f/<path>[::qual][@lines]).
 
    The data is sharded, so a file page loads exactly two small files: its shard (symbols, git dates) and its note, if it has one.
-   Source text, the symbol panel and the walkthrough blocks arrive with P14; until then a file page links to the raw copy, GitHub and
-   VS Code (assets/js/links.js builds all three). */
+   The Source tab (P14a) loads the embedded copy of the file, data/src/<path>.txt, only when it is opened. The symbol panel and the
+   walkthrough margin cards arrive with the next P14 patches; assets/js/links.js builds the raw / GitHub / VS Code links. */
 import { h } from "./dom.js";
 import { parseRoute, buildRoute } from "./router.js";
 import { loadCore, loadRecord, loadRecords, loadNote, symbolRows, allFiles, noteStatus } from "./model.js";
@@ -84,6 +84,8 @@ async function route() {
     const rows = rec ? symbolRows(rec, note) : [];
     renderFile(main, core, file, rec, note, {
       rows, tab: r.tab, qual: r.qual, start: r.start, end: r.end, linkOpts,
+      // Picking lines on the Source tab rewrites the address in place: no new history entry, no page rebuild.
+      onRange: (sel) => { try { history.replaceState(null, "", buildRoute({ view: "file", path: file.path, start: sel ? sel.start : null, end: sel ? sel.end : null, tab: "source" })); } catch { /* the address just stays as it was */ } },
       setTab: (t) => go({ ...r, qual: "", start: null, end: null, tab: t }),
       openFile: (s) => go({ view: "file", path: s.path, qual: s.qual, start: s.start, end: s.end, tab: "symbols" }),
     });

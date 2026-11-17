@@ -52,6 +52,7 @@ export function createSymbols({ rows, showPath, linkOpts, selected, onOpen }) {
     meta.append(`lines ${r.start}–${r.end} · ${num(r.loc)} loc`, r.cc != null ? ` · cc ${r.cc}` : "", r.visibility === "private" ? " · private" : "");
     li.append(meta);
     const go = h("p", { class: "ex-sym__go" });
+    go.append(h("a", { class: "ex-sym__view", href: buildRoute({ view: "file", path: r.path, qual: r.qual, start: r.start, end: r.end, tab: "source" }) }, "View source"));
     if (l.src) go.append(h("a", { href: l.src, target: "_blank", rel: "noopener" }, "Raw source"));
     if (l.github) go.append(h("a", { href: l.github, target: "_blank", rel: "noopener" }, "GitHub"));
     if (l.vscode) go.append(h("a", { href: l.vscode }, "VS Code"));

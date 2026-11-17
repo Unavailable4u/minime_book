@@ -2,7 +2,7 @@
 // model.js caches fetched JSON for the life of the page, so every scenario runs in its own Node process:  node page.mjs [normal|degraded|broken|scale]
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-const SCENARIOS = ["normal", "degraded", "broken", "scale"];
+const SCENARIOS = ["normal", "degraded", "broken", "scale", "source", "nomanifest", "fetchfail", "drift"];
 const which = process.argv[2];
 if (!which) {
   let bad = 0;
@@ -87,6 +87,99 @@ if (which === "scale") {
   ok(P.doc.querySelectorAll(".ex-sym__row").length === 200, "symbols table draws 200 rows first");
   P.doc.querySelector(".ex-sym__more").click(); ok(P.doc.querySelectorAll(".ex-sym__row").length === 400, "Show more adds 200");
   await P.nav("#/f/backend/api/b.py::f499@1498-1499"); ok(P.doc.querySelectorAll(".ex-sym__row.is-selected").length === 1, "deep link to a symbol past the first page reveals it");
+  await P.nav("#/f/backend/api/b.py?tab=source");
+  ok(P.doc.querySelectorAll(".ex-line").length === 1000 && !P.doc.querySelector(".ex-src__more").hidden, "a 2,500-line file is drawn 1,000 lines at a time");
+  P.doc.querySelector(".ex-src__more").click(); ok(P.doc.querySelectorAll(".ex-line").length === 2000, "Show more adds 1,000 lines");
+  await P.nav("#/f/backend/api/b.py@2400-2410?tab=source"); ok(P.doc.querySelectorAll(".ex-line").length === 2500 && P.doc.querySelector(".ex-src__more").hidden && P.doc.querySelectorAll(".ex-line.is-sel").length === 11, "a range far down is drawn and marked, nothing is left hidden");
+  await P.nav("#/f/backend/api/b.py@1500?tab=source"); ok(P.doc.querySelectorAll(".ex-line").length === 1700 && P.doc.getElementById("ex-L1500").classList.contains("is-sel"), `a range past the first chunk draws up to it (${P.doc.querySelectorAll(".ex-line").length})`);
   allErrors.push(...P.errors);
 }
+if (which === "source") {
+  const P = await boot({ hash: "#/f/backend/agents/a.py?tab=source" });
+  const { doc, w, wait, nav, key, text, errors } = P;
+  const tabSel = () => doc.querySelector('[role="tab"][aria-selected="true"]')?.id;
+  const lines = () => doc.querySelectorAll(".ex-line");
+  const sel = () => [...doc.querySelectorAll(".ex-line.is-sel")].map((e) => e.id);
+  const click = (n, o = {}) => doc.querySelector(`#ex-L${n} .ex-line__n`).dispatchEvent(new w.MouseEvent("click", { bubbles: true, cancelable: true, ...o }));
+  const info = () => text("ex-main").match(/\d[\d,]* lines?( ·[^A-Z]*?)?(?= Raw source| Copy|$)/)?.[0];
+  const btn = (re) => [...doc.querySelectorAll("#ex-main button")].find((b) => re.test(b.textContent));
+  let copied = ""; Object.defineProperty(w.navigator, "clipboard", { value: { writeText: async (t) => { copied = t; } }, configurable: true });
+
+  ok(tabSel() === "ex-tab-source", "?tab=source opens the Source tab");
+  ok(lines().length === 150, `every line of a short file is drawn (${lines().length})`);
+  ok(doc.querySelector("#ex-L7 .ex-line__n").textContent === "7" && doc.querySelector("#ex-L7 .ex-line__t").textContent === "line 7", "line number and text");
+  ok(doc.querySelector("#ex-L10 .ex-line__t").textContent === "def run(x):  # <b>not html</b>" && !doc.querySelector(".ex-code b"), "code is shown as text, never parsed as markup");
+  ok(doc.querySelector("#ex-L11 .ex-line__t").textContent === "" && doc.querySelector("#ex-L12 .ex-line__t").textContent === "\treturn '&amp;'", "blank lines, tabs and entities are kept");
+  ok(doc.querySelector("#ex-L5 .ex-line__n").getAttribute("href") === "#/f/backend/agents/a.py@5?tab=source" && doc.querySelector("#ex-L5 .ex-line__n").getAttribute("aria-label") === "Line 5", "a line number is a real link with a label");
+  ok(text("ex-main").includes("150 lines") && sel().length === 0, "no selection without a range");
+  ok(!doc.querySelector("#ex-main .ex-callout--warn"), "no warning when the copy and the census agree");
+  ok(!/null|undefined/.test(text("ex-main")), "no stray null/undefined text");
+  const gh = () => doc.querySelector(".ex-src__go a[target=_blank]:nth-of-type(2)")?.getAttribute("href") || "";
+  ok(/\/blob\/a1389bfdeadbeef0+\/backend\/agents\/a\.py$/.test(gh()), `GitHub button without a selection (${gh()})`);
+
+  click(20); await wait(20);
+  ok(w.location.hash === "#/f/backend/agents/a.py@20?tab=source", `a click selects a line and rewrites the address (${w.location.hash})`);
+  ok(sel().join() === "ex-L20" && text("ex-main").includes("line 20 selected"), "one line is marked");
+  ok(gh().endsWith("#L20"), `GitHub button follows the selection (${gh()})`);
+  ok(!!btn(/^Copy line$/), "copy button says Copy line");
+  click(25, { shiftKey: true }); await wait(20);
+  ok(w.location.hash === "#/f/backend/agents/a.py@20-25?tab=source" && sel().length === 6, `Shift+click extends the range (${w.location.hash}, ${sel().length} marked)`);
+  ok(gh().endsWith("#L20-L25"), "GitHub range");
+  btn(/^Copy lines$/).click(); await wait(20); ok(copied === ["line 20", "line 21", "line 22", "line 23", "line 24", "line 25"].join("\n"), "Copy lines copies exactly the selected lines");
+  key(doc.querySelector(".ex-code"), "Escape"); await wait(20);
+  ok(sel().length === 0 && w.location.hash === "#/f/backend/agents/a.py?tab=source", `Esc clears the selection and the range in the address (${w.location.hash})`);
+  click(30); click(30); ok(sel().length === 0, "clicking the only selected line clears it");
+  btn(/^Copy file$/).click(); await wait(20); ok(copied.split("\n").length === 150 && copied.startsWith("def") === false && copied.startsWith("line 1\n"), "Copy file copies all 150 lines without a trailing blank");
+
+  const go = (v) => { const i = doc.querySelector(".ex-src__goto"); i.value = v; i.form.dispatchEvent(new w.Event("submit", { bubbles: true, cancelable: true })); };
+  go("100-105"); await wait(20); ok(sel().length === 6 && w.location.hash.endsWith("@100-105?tab=source"), `Go to line takes a range (${w.location.hash})`);
+  go("77"); await wait(20); ok(sel().join() === "ex-L77", "Go to line takes one line");
+  go("999x"); await wait(20); ok(sel().join() === "ex-L77" && text("ex-toast").includes("Enter a line"), "a bad entry changes nothing and says why");
+  btn(/Copy link/).click(); await wait(20); ok(copied.endsWith("explorer.html#/f/backend/agents/a.py@77?tab=source"), `Copy link (${copied})`);
+  const wrap = doc.querySelector(".ex-src__tools input[type=checkbox]"); wrap.checked = true; wrap.dispatchEvent(new w.Event("change"));
+  ok(doc.querySelector(".ex-code").classList.contains("is-wrap") && w.localStorage.getItem("minime_ex_wrap") === "1", "wrap toggle works and is remembered");
+
+  await nav("#/f/backend/agents/a.py@120-141?tab=source");
+  ok(tabSel() === "ex-tab-source" && sel().length === 22 && sel()[0] === "ex-L120", "a deep link marks its lines");
+  await nav("#/f/backend/agents/a.py@10-20");
+  ok(tabSel() === "ex-tab-source" && sel().length === 11, "a bare line range opens the Source tab");
+  await nav("#/f/backend/agents/a.py::_clean_query@120-141");
+  ok(tabSel() === "ex-tab-symbols", "a symbol route still opens the Symbols tab");
+  const view = [...doc.querySelectorAll(".ex-sym__view")].find((a) => a.getAttribute("href").includes("_clean_query"));
+  ok(view?.getAttribute("href") === "#/f/backend/agents/a.py::_clean_query@120-141?tab=source", "each symbol row links to its source");
+  view.click(); await wait(200);
+  ok(tabSel() === "ex-tab-source" && sel().length === 22 && text("ex-main").includes("_clean_query"), "View source opens the lines of the symbol and names it");
+  await nav("#/f/backend/agents/a.py");
+  ok(tabSel() === "ex-tab-explain", "no hint: Explain is still the default");
+  ok(doc.querySelector(".ex-blocks a")?.getAttribute("href") === "#/f/backend/agents/a.py@10-20?tab=source", "walkthrough blocks link to their lines in the Source tab");
+  await nav("#/f/README.md?tab=source");
+  ok(tabSel() === "ex-tab-source" && text("ex-main").includes("not in the embedded source copy"), "a file with no embedded copy says so");
+  allErrors.push(...errors);
+}
+
+if (which === "nomanifest") {
+  const P = await boot({ hash: "#/f/backend/agents/a.py::_clean_query@120-141?tab=source", omit: ["data/src/manifest.json"] });
+  const t = P.text("ex-main");
+  ok(t.includes("built without an embedded copy") && !P.doc.querySelector(".ex-line"), "no manifest: the tab explains and draws no code");
+  ok(t.includes("No link can be made yet"), "and says why there is no GitHub / VS Code button");
+  ok(t.includes("_clean_query(x: int) -> str") && t.includes("lines 120–141"), "the census signature and lines stand in for the code");
+  await P.nav("#/f/backend/agents/a.py?tab=source"); ok(P.text("ex-main").includes("Module docstring") && P.text("ex-main").includes("Agents."), "without a symbol it shows the module docstring");
+  allErrors.push(...P.errors);
+}
+
+if (which === "fetchfail") {
+  const P = await boot({ hash: "#/f/backend/agents/a.py@10-20?tab=source", omit: ["data/src/backend/agents/a.py.txt"] });
+  ok(P.text("ex-main").includes("could not be loaded") && !P.doc.querySelector(".ex-line"), "a failed fetch is explained, not a blank tab");
+  ok([...P.doc.querySelectorAll(".ex-src__go a")].some((a) => (a.getAttribute("href") || "").endsWith("#L10-L20")), "GitHub still opens the exact lines");
+  allErrors.push(...P.errors);
+}
+
+if (which === "drift") {
+  const P = await boot({ hash: "#/f/backend/agents/a.py?tab=source", drift: true });
+  const warn = [...P.doc.querySelectorAll("#ex-main .ex-callout--warn")].map((e) => e.textContent);
+  ok(warn.length === 2 && warn[0].includes("ddddddd") && warn[0].includes("a1389bf"), `copy/census commit mismatch is named (${warn[0]})`);
+  ok(warn[1].includes("different version of this file"), "note written for another blob is flagged");
+  allErrors.push(...P.errors);
+}
+
 done(allErrors);
