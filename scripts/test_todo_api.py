@@ -19,7 +19,7 @@ NODE = shutil.which("node")
 @unittest.skipUnless(NODE, "node is not on PATH")
 class TodoApiTests(unittest.TestCase):
     def test_audit_kind(self):
-        r = subprocess.run([NODE, str(HERE / "todo_api.mjs")], capture_output=True, text=True, timeout=60, env={**os.environ, "NODE_NO_WARNINGS": "1"})
+        r = subprocess.run([NODE, str(HERE / "todo_api.mjs")], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60, env={**os.environ, "NODE_NO_WARNINGS": "1"})
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertNotIn("FAIL", r.stdout)
 

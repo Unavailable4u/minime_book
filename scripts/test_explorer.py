@@ -21,7 +21,7 @@ NODE = shutil.which("node")
 
 def run(script: str) -> subprocess.CompletedProcess:
     env = {**os.environ, "NODE_NO_WARNINGS": "1"}
-    return subprocess.run([NODE, str(HERE / script)], capture_output=True, text=True, timeout=120, env=env)
+    return subprocess.run([NODE, str(HERE / script)], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120, env=env)
 
 
 @unittest.skipUnless(NODE, "node is not on PATH")

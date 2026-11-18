@@ -237,7 +237,7 @@ class PrePaintMatchesShell(unittest.TestCase):
                 "  legacy: run(c, '?x=1&legacy=1') }))));\n", encoding="utf-8")
             (tmp / "snippet.js").write_text(snippet, encoding="utf-8")
             (tmp / "cases.json").write_text(json.dumps(cases), encoding="utf-8")
-            res = subprocess.run([NODE, "run.mjs"], cwd=tmp, capture_output=True, text=True, timeout=60)
+            res = subprocess.run([NODE, "run.mjs"], cwd=tmp, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60)
             self.assertEqual(0, res.returncode, res.stderr)
             rows = json.loads(res.stdout)
         finally:

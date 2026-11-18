@@ -30,7 +30,7 @@ def run_node(body: str, data: dict | None = None):
         (tmp / "run.mjs").write_text(
             "import * as P from './palette.mjs'; import fs from 'node:fs';\n"
             "const data = JSON.parse(fs.readFileSync('data.json', 'utf8'));\n" + body, encoding="utf-8")
-        res = subprocess.run([NODE, "run.mjs"], cwd=tmp, capture_output=True, text=True, timeout=60)
+        res = subprocess.run([NODE, "run.mjs"], cwd=tmp, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60)
         if res.returncode != 0:
             raise AssertionError(res.stderr)
         return json.loads(res.stdout)
