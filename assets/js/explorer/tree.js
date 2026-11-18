@@ -8,14 +8,16 @@
      Enter / Space                open the file or folder page       o   open the file at GitHub (the census commit)
 
    Folder rows carry four dots: how many of the files that want an AI note have one (data/index/notes.json). File rows carry a mark
-   when a note exists: a circle for fresh, a diamond for stale (shape as well as colour). */
+   when a note exists: a circle for fresh, a diamond for stale (shape as well as colour). With audit marks (P16) a file or folder row
+   also shows how many of its symbols are reviewed ("✓ 3/12"); the glyph turns to ↻ when a review needs redoing and to ! for a concern. */
 import { h, clear } from "./dom.js";
 import { flatten, coverage, noteStatus, ancestors } from "./model.js";
+import { progressEl } from "./auditui.js";
 
 export const ROW_H = 28;
 const OVERSCAN = 8;
 
-export function createTree(host, { core, onOpen, onGithub }) {
+export function createTree(host, { core, onOpen, onGithub, audit = null }) {
   const expanded = new Set();
   let filter = "";
   let rows = [];
@@ -51,6 +53,11 @@ export function createTree(host, { core, onOpen, onGithub }) {
     });
     el.append(h("span", { class: "ex-row__twist", "aria-hidden": "true" }, isDir ? (open ? "▾" : "▸") : ""));
     el.append(h("span", { class: "ex-row__name" }, n.name + (isDir ? "/" : "")));
+    if (audit) {
+      const p = isDir ? audit.dirProgress(n.path, n.n.functions + n.n.classes) : audit.fileProgress(n.path, n.functions + n.classes);
+      const mark = progressEl(p);
+      if (mark) el.append(mark);
+    }
     if (isDir) {
       const c = coverage(core.notes, n.path);
       if (c) {

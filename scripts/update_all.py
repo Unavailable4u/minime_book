@@ -143,6 +143,7 @@ def main(argv=None):
     run(PY, "scripts/test_refresh_source.py")
     run(PY, "scripts/test_links.py")
     run(PY, "scripts/test_chapter_links.py")
+    run(PY, "scripts/test_todo_api.py")
 
     print("\n== Result ==")
     run("git", "status", "--short")

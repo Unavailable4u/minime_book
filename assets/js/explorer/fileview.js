@@ -10,6 +10,7 @@ import { renderSymbolPanel } from "./symbol.js";
 import { docViewFor, renderDocView, DOC_LABEL } from "./docview.js";
 import { codeLinks } from "../links.js";
 import { bookMentions, renderBackrefs } from "./backlinks.js";
+import { progressEl, AUDIT_HASH } from "./auditui.js";
 
 /* ------------------------------------------------------------------ pieces */
 function crumbs(path, isFile) {
@@ -61,7 +62,7 @@ function codeButtons(file, linkOpts, start, end) {
 }
 
 /* ------------------------------------------------------------------ start page */
-export function renderHome(host, core, { openFolder }) {
+export function renderHome(host, core, { openFolder, audit = null }) {
   const t = core.tree;
   const n = t.root.n;
   host.replaceChildren(
@@ -72,6 +73,12 @@ export function renderHome(host, core, { openFolder }) {
       h("span", null, h("b", null, num(n.lines)), " lines"),
       core.notes && core.notes.totals ? h("span", null, h("b", null, num(core.notes.totals.noted)), ` of ${num(core.notes.totals.files)} files have an AI note`) : null),
     h("p", { class: "ex-src" }, `Census of ${t.generated || "?"}, commit ${(t.commit || "").slice(0, 7) || "?"}.`));
+  if (audit) {                                                  // P16: how much of the code has been read
+    const a = audit.totals(n.functions + n.classes);
+    host.append(h("p", { class: "ex-auditline" }, h("b", null, "Audit: "),
+      a.marked ? `${num(a.reviewed)} of ${num(a.total)} symbols reviewed${a.rereview ? `, ${num(a.rereview)} need re-review` : ""}${a.concern ? `, ${num(a.concern)} concern${a.concern === 1 ? "" : "s"}` : ""}${a.todo ? `, ${num(a.todo)} to do` : ""}. ` : "nothing marked yet. ",
+      h("a", { href: AUDIT_HASH }, "Open the audit page")));
+  }
   const grid = h("div", { class: "ex-folders" });
   for (const d of t.root.dirs) {
     grid.append(h("a", { class: "ex-folder", href: buildRoute({ view: "dir", path: d.path }), onclick: (e) => { e.preventDefault(); openFolder(d.path); } },
@@ -88,14 +95,15 @@ export function renderHome(host, core, { openFolder }) {
 /* ------------------------------------------------------------------ folder page */
 const COLS = [["name", "Name"], ["lines", "Lines"], ["functions", "Functions"], ["classes", "Classes"], ["commits", "Commits"], ["last", "Last change"]];
 
-export function renderDir(host, core, dir, { tab, setTab, loadSymbols, linkOpts, openFile }) {
+export function renderDir(host, core, dir, { tab, setTab, loadSymbols, linkOpts, openFile, audit = null }) {
   const c = coverage(core.notes, dir.path);
   host.replaceChildren(
     crumbs(dir.path, false),
     h("h1", null, `${dir.name}/`),
     h("p", { class: "ex-totals" }, h("span", null, h("b", null, num(dir.n.files)), " files"), h("span", null, h("b", null, num(dir.n.lines)), " lines"),
       h("span", null, h("b", null, num(dir.n.functions)), " functions"), h("span", null, h("b", null, num(dir.n.classes)), " classes"),
-      c ? h("span", null, coverDots(c), ` ${c.noted} of ${c.files} files have an AI note`) : null));
+      c ? h("span", null, coverDots(c), ` ${c.noted} of ${c.files} files have an AI note`) : null,
+      audit && audit.dirProgress(dir.path, dir.n.functions + dir.n.classes) ? h("span", null, progressEl(audit.dirProgress(dir.path, dir.n.functions + dir.n.classes)), " symbols reviewed") : null));
   const active = tab === "symbols" ? "symbols" : "explain";
   host.append(tabs([["explain", "Folders and files"], ["symbols", "Symbols"]], active, setTab));
   const panel = h("div", { class: "ex-panel", id: "ex-panel", role: "tabpanel", "aria-labelledby": `ex-tab-${active}` });
@@ -106,7 +114,7 @@ export function renderDir(host, core, dir, { tab, setTab, loadSymbols, linkOpts,
       panel.replaceChildren();
       if (more > 0) panel.append(h("p", { class: "ex-callout" }, `This folder has ${more} more data shard${more === 1 ? "" : "s"} than the page loads at once. Open a subfolder to see every symbol in it.`));
       if (noteCap) panel.append(h("p", { class: "ex-dim" }, `AI summaries are shown for the first ${noteCap} files that have a note; the rest show their docstring.`));
-      panel.append(createSymbols({ rows, showPath: true, linkOpts, onOpen: (r) => openFile(r) }).el);
+      panel.append(createSymbols({ rows, showPath: true, linkOpts, onOpen: (r) => openFile(r), audit }).el);
     }).catch((e) => { panel.replaceChildren(h("p", { class: "ex-err" }, `Could not load the symbols: ${e.message}`)); });
     return;
   }
@@ -175,7 +183,7 @@ function explain(file, rec, note) {
   return out;
 }
 
-export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTab, linkOpts, openFile, start, end, onRange, callers = null, book = null }) {
+export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTab, linkOpts, openFile, start, end, onRange, callers = null, book = null, audit = null, commit = "" }) {
   const status = noteStatus(core.notes, file.path);
   const entry = core.notes && core.notes.files && core.notes.files[file.path];
   const badges = h("p", { class: "ex-badges" }, h("span", { class: "ex-pill" }, file.lang || "file"), file.test ? h("span", { class: "ex-pill" }, "test") : null,
@@ -223,9 +231,9 @@ export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTa
     if (qual && !sym) panel.append(h("p", { class: "ex-callout ex-callout--warn" }, `This file has no function or class named ${qual} in the census. It may have been renamed or removed since.`));
     if (sym) {
       const isTest = (p) => { const f = core.tree.files.get(p); return !!(f && f.test); };
-      panel.append(renderSymbolPanel({ file, files: core.tree.files, linkOpts, openSymbol: (path, q) => openFile({ path, qual: q }) }, { sym: row.kind === "class" ? { ...sym, kind: "class" } : sym, row, callers, isTest, rec }));
+      panel.append(renderSymbolPanel({ file, files: core.tree.files, linkOpts, openSymbol: (path, q) => openFile({ path, qual: q }), audit, rows: syms, commit }, { sym: row.kind === "class" ? { ...sym, kind: "class" } : sym, row, callers, isTest, rec }));
     }
-    const t = createSymbols({ rows: syms, showPath: false, linkOpts, selected: qual, onOpen: (r) => openFile(r) });
+    const t = createSymbols({ rows: syms, showPath: false, linkOpts, selected: qual, onOpen: (r) => openFile(r), audit });
     panel.append(t.el);
     if (qual) t.reveal(qual, !sym);
   }

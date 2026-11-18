@@ -83,7 +83,7 @@ export async function jsdomOrSkip() {
 }
 
 /* Load explorer.html (scripts stripped) in jsdom, serve data/ from a temp fixture, and import the real main.js. `omit` = data paths that answer 404. */
-export async function boot({ hash = "", omit = [], big = false, drift = false, long = false, docs = false } = {}) {
+export async function boot({ hash = "", omit = [], big = false, drift = false, long = false, docs = false, seed = {}, init = null } = {}) {
   const JSDOM = await jsdomOrSkip();
   const data = fs.mkdtempSync(path.join(os.tmpdir(), "explorer-"));
   writeFixture(data, { big, drift, long, docs });
@@ -94,6 +94,8 @@ export async function boot({ hash = "", omit = [], big = false, drift = false, l
   for (const k of ["document", "location", "history", "localStorage", "Node", "HTMLElement", "requestAnimationFrame", "cancelAnimationFrame"]) set(k, w[k]);
   set("window", w); set("navigator", w.navigator);
   w.scrollTo = () => {}; w.HTMLElement.prototype.scrollIntoView = () => {};
+  for (const [k, v] of Object.entries(seed)) w.localStorage.setItem(k, v);      // what the browser already holds (P16: audit marks)
+  if (init) init(w);                                                            // e.g. a fake window.Sync, before the page script runs
   const errors = [];
   w.addEventListener("error", (e) => errors.push(e.message));
   process.on("unhandledRejection", (e) => errors.push(`rejection: ${e}`));

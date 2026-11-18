@@ -2,7 +2,7 @@
 // model.js caches fetched JSON for the life of the page, so every scenario runs in its own Node process:  node page.mjs [normal|degraded|broken|scale]
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-const SCENARIOS = ["normal", "degraded", "broken", "scale", "source", "nomanifest", "fetchfail", "drift", "symbol", "nocallers", "walkthrough", "walknarrow", "walklong", "docs", "book", "nobook"];
+const SCENARIOS = ["normal", "degraded", "broken", "scale", "source", "nomanifest", "fetchfail", "drift", "symbol", "nocallers", "walkthrough", "walknarrow", "walklong", "docs", "book", "nobook", "audit", "auditstale", "auditpage", "auditshared"];
 const which = process.argv[2];
 if (!which) {
   let bad = 0;
@@ -420,6 +420,127 @@ if (which === "docs") {
   doc.querySelector('.ex-sql__chips button[data-kind="grant"]').click();
   ok(doc.querySelectorAll(".ex-sql__table > tbody > tr").length === 1, "a kind chip filters the rows");
   await nav("#/f/backend/agents/a.py"); ok(tabs()[0] === "Explain", "a code file gets no extra tab");
+  done(errors);
+}
+
+/* ---------------------------------------------------------------- P16: audit mode */
+const KEY = "minime_audit_v1";
+const stored = (w) => JSON.parse(w.localStorage.getItem(KEY) || '{"marks":[]}').marks;
+const SYM = "#/f/backend/agents/a.py::run@10-20?tab=symbols";
+const treeRow = (doc, p) => [...doc.querySelectorAll(".ex-row")].find((r) => r.title === p);
+const mark = (o) => ({ path: "backend/agents/a.py", qual: "run", state: "reviewed", note: "", hash: "h_run", commit: "a1389bfdeadbeef", start: 10, end: 20, at: "2026-11-17T10:00:00.000Z", ...o });
+
+if (which === "audit") {                         // keys, buttons, persistence, tree / row / inspector marks, filter
+  const P = await boot({ hash: SYM });
+  const { doc, w, wait, key, text, errors } = P;
+  const main = doc.getElementById("ex-main");
+  const btn = (s) => doc.querySelector(`.ex-audit__btn[data-state="${s}"]`);
+  ok(!!doc.querySelector(".ex-audit") && doc.querySelector(".ex-audit__state").textContent === "not marked", "the symbol panel has an Audit card, not marked yet");
+  ok(["reviewed", "concern", "todo"].every((s) => btn(s)?.getAttribute("aria-pressed") === "false"), "three state buttons, none pressed");
+  ok(doc.querySelector(".ex-audit__note").disabled, "the comment box waits for a mark");
+  key(main, "r"); await wait(30);
+  ok(btn("reviewed").getAttribute("aria-pressed") === "true" && /reviewed/.test(doc.querySelector(".ex-audit__state").textContent), "r marks the open symbol reviewed");
+  ok(stored(w).length === 1 && stored(w)[0].hash === "h_run" && stored(w)[0].qual === "run" && stored(w)[0].start === 10, "the mark is saved in localStorage with the census hash and lines");
+  ok(/^[0-9a-f]{7,40}$/.test(stored(w)[0].commit), "and the census commit");
+  ok(!!doc.querySelector(".ex-sym__row.is-selected .ex-aud--reviewed"), "the row of the list shows the mark");
+  ok(treeRow(doc, "backend/agents/a.py").textContent.includes("1/4") && treeRow(doc, "backend/agents").textContent.includes("1/4"), "tree: the file and its folder show 1/4 reviewed");
+  ok(text("ex-insp").includes("1 of 4 reviewed") && !!doc.querySelector(".ex-audbar"), "inspector: progress bar and count");
+  ok(/Agent/.test(doc.querySelector(".ex-audit__next")?.getAttribute("href") || ""), "Next to review points at the next symbol by line");
+  key(main, "r"); await wait(30);
+  ok(stored(w).length === 0 && btn("reviewed").getAttribute("aria-pressed") === "false" && !treeRow(doc, "backend/agents/a.py").textContent.includes("/4"), "the same key again clears the mark everywhere");
+  key(main, "c"); await wait(30);
+  ok(btn("concern").getAttribute("aria-pressed") === "true" && !doc.querySelector(".ex-audit__note").disabled, "c flags a concern and opens the comment box");
+  const note = doc.querySelector(".ex-audit__note"); note.value = "swallows errors"; note.dispatchEvent(new w.Event("change")); await wait(30);
+  ok(stored(w)[0].note === "swallows errors" && stored(w)[0].state === "concern", "the comment is saved");
+  key(note, "r"); key(note, "n"); await wait(30);
+  ok(stored(w)[0].state === "concern", "typing r or n in the comment box does not change the mark");
+  key(main, "n"); await wait(30);
+  ok(stored(w)[0].state === "todo" && stored(w)[0].note === "swallows errors", "n switches to to-do and keeps the comment");
+  const tr = doc.getElementById("ex-tree"); tr.focus(); key(tr, "r"); ok(stored(w)[0].state === "todo", "keys typed in the tree do not mark");
+  key(main, "R", { shiftKey: true }); ok(stored(w)[0].state === "todo", "capital R is not a mark key");
+  key(main, "r", { ctrlKey: true }); ok(stored(w)[0].state === "todo", "Ctrl+R is left to the browser");
+  doc.documentElement.classList.add("mmp-open"); key(main, "r"); doc.documentElement.classList.remove("mmp-open"); ok(stored(w)[0].state === "todo", "nothing is marked while the palette is open");
+  btn("reviewed").click(); await wait(30); ok(stored(w)[0].state === "reviewed", "the buttons do the same as the keys");
+  doc.querySelector(".ex-audit .ex-link").click(); await wait(30); ok(stored(w).length === 0, "Clear mark removes it");
+  btn("reviewed").click(); await wait(30);
+  const sel = doc.querySelector('select[aria-label="Audit state"]');
+  sel.value = "reviewed"; sel.dispatchEvent(new w.Event("change")); await wait(30);
+  ok(doc.querySelectorAll(".ex-sym__row").length === 1, "the Audit filter keeps only the reviewed symbol");
+  sel.value = "open"; sel.dispatchEvent(new w.Event("change")); await wait(30);
+  ok(doc.querySelectorAll(".ex-sym__row").length === 3, "\"Not reviewed yet\" keeps the other three");
+  await P.nav("#/f/backend/agents/a.py?tab=symbols"); key(main, "r"); await wait(30);
+  ok(stored(w).length === 1 && /Open a symbol first/.test(doc.getElementById("ex-toast")?.textContent || ""), "r without an open symbol marks nothing and says what to do");
+  await P.nav("#/"); ok(text("ex-main").includes("Audit: 1 of 5 symbols reviewed"), "the start page shows the audit total");
+  ok(!/null|undefined/.test(text("ex-main")), "no stray null/undefined text");
+  done(errors);
+}
+
+if (which === "auditstale") {                    // a changed hash turns a review into "needs re-review"
+  const P = await boot({ hash: SYM, seed: { [KEY]: JSON.stringify({ v: 1, marks: [mark({ hash: "OLDHASH" }), mark({ qual: "ghost", state: "todo", hash: "" })] }) } });
+  const { doc, w, wait, key, text, errors } = P;
+  const main = doc.getElementById("ex-main");
+  ok(doc.querySelector(".ex-audit__state").textContent.includes("needs re-review"), "a review of an older version reads \"needs re-review\"");
+  ok(!doc.querySelector(".ex-audit .ex-callout--warn").hidden && /changed since you reviewed/.test(doc.querySelector(".ex-audit .ex-callout--warn").textContent), "with a notice that says why");
+  ok(doc.querySelector('.ex-audit__btn[data-state="reviewed"]').textContent.includes("Reviewed again"), "the button offers to review again");
+  ok(!!doc.querySelector(".ex-sym__row.is-selected .ex-aud--rereview"), "the row shows the re-review mark");
+  ok(treeRow(doc, "backend/agents/a.py").textContent.includes("0/4") && !!treeRow(doc, "backend/agents/a.py").querySelector(".ex-aud--rereview"), "tree: 0 of 4 reviewed, with the re-review glyph");
+  ok(!!doc.querySelector(".ex-audsec .ex-aud--gone") && text("ex-insp").includes("ghost"), "inspector: a mark whose symbol is gone from the census is listed as gone");
+  ok(stored(w)[0].hash === "OLDHASH", "the old mark is kept, not deleted");
+  key(main, "r"); await wait(30);
+  ok(doc.querySelector(".ex-audit__state").textContent.includes("reviewed") && !doc.querySelector(".ex-audit__state").textContent.includes("re-review") && stored(w).find((m) => m.qual === "run").hash === "h_run", "r renews it with the current hash");
+  ok(doc.querySelector(".ex-audit .ex-callout--warn").hidden, "and the notice goes");
+  done(errors);
+}
+
+if (which === "auditpage") {                     // #/audit: totals, lists, check, import, clear
+  const seed = { [KEY]: JSON.stringify({ v: 1, marks: [mark(), mark({ qual: "Agent.step", state: "concern", note: "leaks a handle", hash: "h_Agent.step", start: 30, end: 40 }), mark({ path: "backend/api/b.py", qual: "route", state: "todo", hash: "h_route", start: 1, end: 5 }), mark({ path: "nowhere/x.py", qual: "f", state: "todo", hash: "z" })] }) };
+  const P = await boot({ hash: "#/audit", seed });
+  const { doc, w, wait, text, errors } = P;
+  const main = () => text("ex-main");
+  ok(doc.querySelector("#ex-main h1").textContent === "Audit", "#/audit opens the audit page");
+  ok(/1 reviewed of 5 symbols/.test([...doc.querySelectorAll(".ex-audstat")].map((x) => x.textContent.replace(/\s+/g, " ")).join(" ")), "totals: reviewed of all symbols in the census");
+  ok(main().includes("Concerns (1)") && main().includes("leaks a handle"), "the concern is listed with its comment");
+  ok(/not been compared with the census/.test(main()), "unchecked reviews are called out");
+  const byText = (t) => [...doc.querySelectorAll("#ex-main button")].find((b) => b.textContent.includes(t));
+  byText("Check against the census").click(); await wait(250);
+  ok(!/not been compared/.test(main()) && main().includes("No longer in the census (1)") && main().includes("nowhere/x.py::f"), "Check compares with the census and finds the file that is gone");
+  ok(byText("Copy as Markdown") && byText("Export JSON") && byText("Import JSON") && byText("Copy JSON"), "export / import / Markdown buttons");
+  const file = doc.querySelector('input[type="file"]');
+  const imp = JSON.stringify({ v: 1, marks: [{ path: "backend/agents/a.py", qual: "_clean_query", state: "concern", note: "from a colleague", hash: "h__clean_query", at: "2026-11-18T08:00:00Z" }, { path: "bad::path", qual: "x", state: "todo" }] });
+  Object.defineProperty(file, "files", { value: [new w.File([imp], "audit.json")], configurable: true });
+  file.dispatchEvent(new w.Event("change")); await wait(150);
+  ok(main().includes("Concerns (2)") && main().includes("from a colleague"), "importing a file adds its marks");
+  ok(/1 new/.test(doc.getElementById("ex-toast").textContent) && /1 skipped/.test(doc.getElementById("ex-toast").textContent), "and says what it did, with the invalid one skipped");
+  [...doc.querySelectorAll(".ex-audlist__item")].find((li) => li.textContent.includes("from a colleague")).querySelector("button").click(); await wait(50);
+  ok(main().includes("Concerns (1)") && stored(w).length === 4, "clear removes one mark (and the page follows)");
+  ok(main().includes("Where the marks are kept") && /Marks are kept in this browser/.test(main()), "the page says where marks are kept");
+  ok(!/null|undefined/.test(main()), "no stray null/undefined text");
+  done(errors);
+}
+
+if (which === "auditshared") {                   // shared mode through a fake sync.js
+  const ents = {}; const hs = { change: [], status: [] }; const puts = []; let started = 0;
+  const Sync = { status: "live", on: (e, f) => hs[e].push(f), start: () => { started++; }, list: (k) => Object.keys(ents).filter((x) => x.startsWith(`${k}:`)).map((x) => ents[x]),
+    put(kind, v) { v.updatedAt = new Date().toISOString(); ents[`${kind}:${v.id}`] = v; puts.push([kind, v]); hs.change.forEach((f) => f()); return v; } };
+  const { auditId } = await import("../../assets/js/explorer/audit.js");
+  ents[`audit:${auditId("backend/agents/a.py", "run")}`] = { id: auditId("backend/agents/a.py", "run"), path: "backend/agents/a.py", qual: "run", state: "concern", note: "team note", hash: "h_run", updatedAt: "2026-11-18T00:00:00.000Z" };
+  const P = await boot({ hash: SYM, seed: { minime_audit_mode: "shared", [KEY]: JSON.stringify({ v: 1, marks: [mark({ qual: "Agent.step", hash: "h_Agent.step" })] }) }, init: (w) => { w.Sync = Sync; } });
+  const { doc, w, wait, key, text, nav, errors } = P;
+  const main = doc.getElementById("ex-main");
+  ok(started === 1, "sync.js is started when shared mode is remembered");
+  ok(doc.querySelector(".ex-audit__state").textContent.includes("concern") && doc.querySelector(".ex-audit__note").value === "team note", "the panel shows the team's mark, not the local one");
+  ok(/Shared with the team/.test(doc.querySelector(".ex-audit__meta").textContent), "and says it is shared");
+  key(main, "r"); await wait(30);
+  const last = puts[puts.length - 1];
+  ok(last[0] === "audit" && last[1].id === auditId("backend/agents/a.py", "run") && last[1].state === "reviewed" && last[1].hash === "h_run" && last[1].note === "team note", "a key press writes a record of kind audit with the hashed id (note kept)");
+  ok(stored(w).length === 1 && stored(w)[0].qual === "Agent.step", "the browser's own marks are left alone");
+  await nav("#/audit");
+  ok(doc.querySelector('.ex-audshare input[type="checkbox"]').checked && /connected/.test(text("ex-main")), "the audit page shows sharing is on and its status");
+  const up = [...doc.querySelectorAll("#ex-main button")].find((b) => b.textContent.includes("Upload the 1 marks"));
+  ok(!!up, "an explicit button offers to upload the local marks");
+  up.click(); await wait(30); ok(puts.some((p) => p[1].qual === "Agent.step"), "and uploads them only when pressed");
+  const cb = doc.querySelector('.ex-audshare input[type="checkbox"]'); cb.checked = false; cb.dispatchEvent(new w.Event("change")); await wait(80);
+  ok(w.localStorage.getItem("minime_audit_mode") === "local" && /Marks are kept in this browser/.test(text("ex-main")), "turning sharing off goes back to this browser's marks");
   done(errors);
 }
 

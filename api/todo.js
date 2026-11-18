@@ -7,7 +7,10 @@
     can fix each other's work. Writes are rate limited and size limited.
 
   Data model: one Redis hash, field "<kind>:<id>" -> JSON.
-  kinds: person, project, task, master, settings.
+  kinds: person, project, task, master, settings, audit.
+    (audit = the Explorer's audit marks, P16: one record per code symbol, shared only when someone switches
+     shared mode on in the Explorer. The id is a hash of "path::qual" because ids may not contain ":" or "/";
+     the path and the name travel inside the record.)
   Conflicts: per record, the newest updatedAt wins (a stale write is rejected, and the
   client then adopts the newer record). Deletes are tombstones ({deleted:true}), so
   nothing is ever really lost. Each day the first read or write also stores a snapshot
@@ -15,7 +18,7 @@
 */
 
 const P = 'minime:todo:v1:';
-const KINDS = new Set(['person', 'project', 'task', 'master', 'settings']);
+const KINDS = new Set(['person', 'project', 'task', 'master', 'settings', 'audit']);
 const ID_RE = /^[A-Za-z0-9_.-]{1,64}$/;
 const LIMITS = { body: 1500000, ops: 200, entity: 40000, feedKeep: 200, feedSend: 60, perMinute: 150, snapDays: 35 };
 

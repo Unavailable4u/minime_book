@@ -1,9 +1,11 @@
 /* MiniMe Atlas 2 - Explorer inspector (P13): the right-hand column. For a file it shows what it is connected to (imports, imported by,
    graph neighbours, external packages) and its history. Everything here comes from the census and the graph, none of it is AI-written,
-   so nothing in this column carries the AI label. Lists show 12 entries and open to all of them. */
+   so nothing in this column carries the AI label. Lists show 12 entries and open to all of them. The Audit block at the bottom (P16) is the
+   reader's own: how many symbols of the file are reviewed, and which are marked. */
 import { h, num, day } from "./dom.js";
 import { buildRoute } from "./router.js";
 import { monthBuckets } from "./model.js";
+import { auditFileSection } from "./auditui.js";
 
 const SVG = "http://www.w3.org/2000/svg";
 const SHOW = 12;
@@ -51,7 +53,7 @@ function list(title, items, note) {
   return box;
 }
 
-export function renderInspector(host, core, file, rec) {
+export function renderInspector(host, core, file, rec, { audit = null, rows = [] } = {}) {
   host.replaceChildren();
   host.append(h("h2", { class: "ex-insp__title" }, "Relations"));
   const im = core.imports;
@@ -82,12 +84,14 @@ export function renderInspector(host, core, file, rec) {
     sec.append(h("p", { class: "ex-insp__hist" }, `+${num(g.added)} / −${num(g.deleted)} lines in total`));
   } else sec.append(h("p", { class: "ex-dim" }, "No git history for this file in the census."));
   host.append(sec);
+  if (audit && !file.binary) host.append(auditFileSection({ audit, path: file.path, rows }));
 }
 
 export function renderHelp(host) {
   host.replaceChildren(
     h("h2", { class: "ex-insp__title" }, "Keys"),
     h("dl", { class: "ex-keys" },
-      ...[["/", "filter the tree"], ["j / k", "move in the tree"], ["l / h", "open / close a folder"], ["Enter", "open the file or folder"], ["o", "open the file on GitHub"], ["Ctrl+K", "search everything"]]
+      ...[["/", "filter the tree"], ["j / k", "move in the tree"], ["l / h", "open / close a folder"], ["Enter", "open the file or folder"], ["o", "open the file on GitHub"], ["Ctrl+K", "search everything"],
+        ["r", "mark the open symbol reviewed"], ["c", "flag a concern on it"], ["n", "put it on your to-do list"]]
         .flatMap(([k, v]) => [h("dt", null, h("kbd", null, k)), h("dd", null, v)])));
 }

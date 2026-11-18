@@ -10,11 +10,14 @@
      methods     for a class
      evidence    the line ranges the note cites, as links into the Source tab
    Calls and callers are static and best effort (the census reads the code, it does not run it); the panel says so rather than
-   implying that "no callers" means "unused". All text goes in with textContent. */
+   implying that "no callers" means "unused". All text goes in with textContent.
+   With ctx.audit (P16) an Audit card sits under the summary: the three state buttons (r / c / n), a one-line comment and, when the code
+   has changed since it was reviewed, the "needs re-review" notice. ctx also carries rows (every symbol row of the file) and commit. */
 import { h, num, copyText, toast } from "./dom.js";
 import { buildRoute } from "./router.js";
 import { symbolDetail } from "./model.js";
 import { codeLinks } from "../links.js";
+import { auditSection } from "./auditui.js";
 
 const SHOW = 12;                 // callers and calls shown before "Show all"
 const FRESH = { fresh: ["mm-badge mm-badge--ok", "AI note fresh"], stale: ["mm-badge mm-badge--stale", "code changed since the note"], unverified: ["mm-badge", "note freshness unknown"] };
@@ -109,6 +112,7 @@ export function renderSymbolPanel(ctx, input) {
   root.append(
     d.summary ? h("p", { class: "ex-symp__sum" }, d.summary, " ", h("span", { class: d.from === "note" ? "mm-badge mm-badge--ai" : "ex-from" }, d.from === "note" ? "AI note" : "docstring")) : h("p", { class: "ex-dim" }, "No description yet: this symbol has no AI note and no docstring."),
     ...(d.details ? [h("p", { class: "ex-symp__details" }, d.details)] : []), go);
+  if (ctx.audit && input.row) root.append(auditSection({ audit: ctx.audit, path: ctx.file.path, row: input.row, rows: ctx.rows || [], commit: ctx.commit || "" }));
 
   const parts = [
     sec("Parameters", paramsTable(d)),

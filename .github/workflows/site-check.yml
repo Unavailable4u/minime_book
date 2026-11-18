@@ -24,6 +24,7 @@
 #     python scripts/test_links.py
 #     python scripts/vendor_highlight.py --check
 #     python scripts/test_vendor_highlight.py
+#     python scripts/test_todo_api.py
 name: Site check
 on:
   pull_request:
@@ -75,3 +76,4 @@ jobs:
           python3 scripts/test_refresh_source.py
           python3 scripts/test_links.py
           python3 scripts/test_vendor_highlight.py
+          python3 scripts/test_todo_api.py
