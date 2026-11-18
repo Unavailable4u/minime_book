@@ -2,7 +2,7 @@
 // model.js caches fetched JSON for the life of the page, so every scenario runs in its own Node process:  node page.mjs [normal|degraded|broken|scale]
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-const SCENARIOS = ["normal", "degraded", "broken", "scale", "source", "nomanifest", "fetchfail", "drift", "symbol", "nocallers", "walkthrough", "walknarrow", "walklong", "docs"];
+const SCENARIOS = ["normal", "degraded", "broken", "scale", "source", "nomanifest", "fetchfail", "drift", "symbol", "nocallers", "walkthrough", "walknarrow", "walklong", "docs", "book", "nobook"];
 const which = process.argv[2];
 if (!which) {
   let bad = 0;
@@ -94,6 +94,30 @@ if (which === "scale") {
   await P.nav("#/f/backend/api/b.py@1500?tab=source"); ok(P.doc.querySelectorAll(".ex-line").length === 1700 && P.doc.getElementById("ex-L1500").classList.contains("is-sel"), `a range past the first chunk draws up to it (${P.doc.querySelectorAll(".ex-line").length})`);
   allErrors.push(...P.errors);
 }
+if (which === "book") {                         // P15: "Discussed in the book" on the file and symbol pages
+  const P = await boot({ hash: "#/f/backend/agents/a.py" });
+  const { doc, nav, errors } = P;
+  const sec = () => doc.querySelector(".ex-book");
+  const items = () => [...doc.querySelectorAll(".ex-book li")].map((li) => li.textContent.replace(/\s+/g, " ").trim());
+  ok(!!sec() && sec().querySelector("h3").textContent === "Discussed in the book (2)", `a file lists the sections that mention it and its symbols (${sec()?.querySelector("h3").textContent})`);
+  ok(items()[0].startsWith("Chapter X › Intro") && items()[0].includes("×2") && items()[1].startsWith("Chapter Y › Running it") && items()[1].includes("run"), `chapter order, counts and the symbol (${JSON.stringify(items())})`);
+  ok(doc.querySelector(".ex-book a").getAttribute("href") === "doc-x.html#intro", "each item links to the chapter section");
+  ok(!!doc.querySelector(".ex-tabs") && sec().compareDocumentPosition(doc.querySelector(".ex-tabs")) & 4, "the section sits above the tabs");
+  await nav("#/f/backend/agents/a.py::run?tab=symbols");
+  ok(items().length === 1 && items()[0].startsWith("Chapter Y"), `a symbol page lists only that symbol's mentions (${JSON.stringify(items())})`);
+  await nav("#/f/backend/agents/a.py::Agent.step?tab=symbols");
+  ok(!sec(), "a symbol nobody mentions has no section");
+  await nav("#/f/backend/api/b.py");
+  ok(!sec(), "a file nobody mentions has no section");
+  done(errors);
+}
+
+if (which === "nobook") {                       // P15: mentions.json is optional
+  const P = await boot({ hash: "#/f/backend/agents/a.py", omit: ["data/index/mentions.json"] });
+  ok(!P.doc.querySelector(".ex-book") && !!P.doc.querySelector(".ex-file") && !!P.doc.querySelector(".ex-tabs"), "without mentions.json the file page is the same as before, with no error");
+  done(P.errors);
+}
+
 if (which === "symbol") {                       // P14c: the symbol panel
   const P = await boot({ hash: "#/f/backend/agents/a.py::run@10-20?tab=symbols" });
   const { doc, w, wait, nav, text, errors } = P;

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for the Explorer page (P13, P14b, P14d, P14e): router.js, model.js, highlight.js, blocks.js, markdown.js, jsonview.js and sql.js (pure), and explorer.html in jsdom.
+"""Tests for the Explorer page (P13, P14b, P14d, P14e, P15): router.js, model.js, highlight.js, blocks.js, markdown.js, jsonview.js and sql.js (pure), and explorer.html in jsdom.
 
     python scripts/test_explorer.py
 
@@ -46,6 +46,14 @@ class ExplorerTests(unittest.TestCase):
     def test_docs(self):
         """P14e: Markdown, JSON and SQL views: parsers, link safety, and every embedded .md / .json / .sql file of the repository."""
         r = run("docs.mjs")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertNotIn("FAIL", r.stdout)
+
+    def test_codelink(self):
+        """P15: chapter code links (targets, lookup, card content, a chapter page in jsdom) and the Explorer's backlinks helper."""
+        r = run("codelink.mjs")
+        if r.returncode == 77:
+            self.skipTest("jsdom is not installed: npm install --prefix scripts/explorer_tests jsdom")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertNotIn("FAIL", r.stdout)
 

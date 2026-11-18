@@ -1,0 +1,4 @@
+{
+  "_help": "P15. Map the text of a <code> span in a chapter to where it lives, when the automatic rules cannot find it. Keys are matched without regard to case. Targets: path, path::qualified.name, path::name@10-40 (lines) or folder/ . A target that is not in the census is reported by scripts/build_index.py and not linked. See data/index/link-report.json for the most common unresolved texts.",
+  "aliases": {}
+}

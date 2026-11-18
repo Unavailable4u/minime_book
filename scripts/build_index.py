@@ -8,6 +8,7 @@ Inputs
   content/nav.json         pages (wings -> items) and optional chapter order
   doc-*.html               chapter headings (h2/h3 that carry an id) and each chapter's banner (description, counts)
   content/glossary.json    optional; list of terms or {"terms": [...]}
+  content/link-aliases.json optional; {"aliases": {phrase: target}} for chapter <code> text the rules cannot resolve (P15)
   data/census.json         files, functions, classes, routes
 
 Outputs (all under data/index/)
@@ -17,6 +18,9 @@ Outputs (all under data/index/)
                            chapter's own banner (.bk-desc, .bk-meta) and "Built ..." stamp, so counts never drift (P05)
   paths.json               {"paths": [...]}
   routes.json              {"routes": [{method, route, handler, file, line}]}
+  linkables.json           P15: what the browser may turn into a link, by the exact text of a <code> span in a chapter
+  mentions.json            P15: for each file / symbol, the chapter sections that mention it (the Explorer's "Discussed in the book")
+  link-report.json         P15: how much of each chapter's <code> resolved, and the most common misses (see scripts/chapter_links.py)
   symbols.json             manifest of the shards below
   symbols-<shard>.json     {"fields": ["qual","file","line","kind"], "files": [path, ...],
                             "rows": [[qual, index into files, line, kind]]}
@@ -38,6 +42,9 @@ import sys
 from collections import defaultdict
 from html.parser import HTMLParser
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import chapter_links  # noqa: E402  (P15: chapter <-> code links)
 
 ROOT = Path(__file__).resolve().parent.parent
 INDEX_DIR = "data/index"
@@ -323,8 +330,8 @@ def collect_pages(nav: dict) -> list[dict]:
     return pages
 
 
-def collect_headings(root: Path, nav: dict) -> list[dict]:
-    """Chapter headings. nav order first, then any doc-*.html not listed there."""
+def chapter_order(root: Path, nav: dict) -> list[tuple[str, str]]:
+    """[(url, nav title)]: nav order first, then any doc-*.html not listed there."""
     order: list[tuple[str, str]] = []
     seen: set[str] = set()
     for c in nav.get("chapters") or []:
@@ -335,9 +342,13 @@ def collect_headings(root: Path, nav: dict) -> list[dict]:
         if p.name not in seen:
             seen.add(p.name)
             order.append((p.name, ""))
+    return order
 
+
+def collect_headings(root: Path, nav: dict) -> list[dict]:
+    """Chapter headings. nav order first, then any doc-*.html not listed there."""
     out: list[dict] = []
-    for url, nav_title in order:
+    for url, nav_title in chapter_order(root, nav):
         parsed = parse_chapter(read_lf(root / url))
         title = nav_title or parsed.h1 or re.sub(r"\s*[·|-]\s*MiniMe Atlas\s*$", "", parsed.title) or url
         used: set[str] = set()
@@ -487,6 +498,18 @@ def pack_shard(rows: list[list]) -> dict:
     return {"fields": SYMBOL_FIELDS, "files": files, "rows": packed}
 
 
+# ------------------------------------------------------------- chapter <-> code (P15)
+def collect_chapter_links(root: Path, nav: dict, census: dict) -> dict[str, dict]:
+    """linkables / mentions / report for every chapter. The chapter numbers in mentions.json are positions in chapter_order()."""
+    chapters = []
+    for url, nav_title in chapter_order(root, nav):
+        html = read_lf(root / url)
+        title = nav_title or parse_chapter(html).h1 or url
+        chapters.append({"url": url, "title": title, "html": html})
+    aliases = load_json(root / "content" / "link-aliases.json", None)
+    return chapter_links.collect_links(chapters, collect_paths(census), collect_symbols(census), aliases)
+
+
 # ----------------------------------------------------------------------- build
 def build(root: Path, warn=None, census: dict | None = None) -> dict[str, str]:
     """Return {repo-relative output path: file text}. Pure: writes nothing.
@@ -515,6 +538,12 @@ def build(root: Path, warn=None, census: dict | None = None) -> dict[str, str]:
     out[f"{INDEX_DIR}/book.json"] = dumps(collect_book(root, nav, warn))
     out[f"{INDEX_DIR}/paths.json"] = dumps({"paths": collect_paths(census)})
     out[f"{INDEX_DIR}/routes.json"] = dumps({"routes": collect_routes(census)})
+    cl = collect_chapter_links(root, nav, census)
+    out[f"{INDEX_DIR}/linkables.json"] = dumps(cl["linkables"])
+    out[f"{INDEX_DIR}/mentions.json"] = dumps(cl["mentions"])
+    out[f"{INDEX_DIR}/link-report.json"] = dumps(cl["report"])
+    for problem in cl["report"]["aliasProblems"]:
+        warn(f"content/link-aliases.json: {problem}")
 
     shards = shard_symbols(collect_symbols(census))
     manifest = []
@@ -589,6 +618,11 @@ def main(argv: list[str] | None = None) -> int:
     print(f"search index: {len(changed)} file(s) updated" if changed else "search index: already current")
     for c in changed:
         print(f"  {c}")
+    report = load_json(root / INDEX_DIR / "link-report.json", None)          # P15: how much of the chapters' <code> text found its code
+    if report and report.get("summary"):
+        t = report["summary"]
+        print(f"chapter code links: {t['resolved']} of {t['spans']} <code> spans linked ({t['pct']} %; {t['pctOfCandidates']} % of those that could be), "
+              f"{t['ambiguous']} ambiguous, {t['unresolved']} unresolved; per chapter and the most common misses: {INDEX_DIR}/link-report.json")
     return 0
 
 

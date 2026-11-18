@@ -294,3 +294,10 @@ kbd { font-family: var(--font-mono); font-size: var(--fs-xs); padding: 0.05rem 0
 .ex-sql__note { display: block; font-size: var(--fs-xs); }
 .ex-sql__cols { margin-top: var(--space-2); }
 .ex-sql__cons { margin: var(--space-2) 0 0; font-size: var(--fs-xs); }
+
+/* ------------------------------------------------------------ "Discussed in the book" (P15) */
+.ex-book { margin: var(--space-4) 0; }
+.ex-book__list { margin: 0 0 var(--space-2); padding-left: var(--space-4); }
+.ex-book__list li { margin: 0 0 var(--space-2); overflow-wrap: anywhere; }
+.ex-book__sym { margin-left: var(--space-2); font-size: var(--fs-xs); }
+.ex-book__snip { display: block; font-size: var(--fs-xs); }

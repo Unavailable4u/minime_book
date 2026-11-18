@@ -12,7 +12,7 @@
    Keys handled here: [ and Ctrl/Cmd+B (sidebar), ] (fires minime:toc-toggle for P04), Esc (closes drawers and the code-links popover).
    Keys handled by palette.js: Ctrl/Cmd+K, t, ?, g + o/e/b/s.
 
-   Chapter pages (a .bk-banner or a .doc article inside <main>) also load reader.js (P04) on demand, and figures.js (P06) after it:
+   Chapter pages (a .bk-banner or a .doc article inside <main>) also load reader.js (P04) on demand, figures.js (P06) after it, and codelink.js (P15: <code> identifiers become links into the Explorer) last:
    see loadReader().
 
    Events on document:
@@ -470,7 +470,11 @@ function loadReader() {
     .catch((err) => console.warn("[atlas reader]", err))
     .then(() => import("./figures.js"))
     .then((m) => m.initFigures({ navReady }))
-    .catch((err) => console.warn("[atlas figures]", err));
+    .catch((err) => console.warn("[atlas figures]", err))
+    // P15: identifiers in <code> become links into the Explorer. Last, so it sees the finished page; a failure only means no links.
+    .then(() => import("./codelink.js"))
+    .then((m) => m.initCodeLinks())
+    .catch((err) => console.warn("[atlas codelink]", err));
 }
 
 function boot() {

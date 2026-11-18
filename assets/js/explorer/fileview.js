@@ -9,6 +9,7 @@ import { renderSource } from "./source.js";
 import { renderSymbolPanel } from "./symbol.js";
 import { docViewFor, renderDocView, DOC_LABEL } from "./docview.js";
 import { codeLinks } from "../links.js";
+import { bookMentions, renderBackrefs } from "./backlinks.js";
 
 /* ------------------------------------------------------------------ pieces */
 function crumbs(path, isFile) {
@@ -174,7 +175,7 @@ function explain(file, rec, note) {
   return out;
 }
 
-export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTab, linkOpts, openFile, start, end, onRange, callers = null }) {
+export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTab, linkOpts, openFile, start, end, onRange, callers = null, book = null }) {
   const status = noteStatus(core.notes, file.path);
   const entry = core.notes && core.notes.files && core.notes.files[file.path];
   const badges = h("p", { class: "ex-badges" }, h("span", { class: "ex-pill" }, file.lang || "file"), file.test ? h("span", { class: "ex-pill" }, "test") : null,
@@ -201,6 +202,8 @@ export function renderFile(host, core, file, rec, note, { rows, tab, qual, setTa
     ["Functions", file.functions ? num(file.functions) : ""], ["Classes", file.classes ? num(file.classes) : ""],
     ["Commits", file.commits ? `${num(file.commits)}, last ${day(file.last)}` : ""], ["Size", m.size != null ? `${num(m.size)} bytes` : ""],
   ]), codeButtons(file, linkOpts, start, end));
+  const backrefs = renderBackrefs(bookMentions(book, file.path, qual));      // P15: the chapter sections that mention this file / symbol
+  if (backrefs) host.append(backrefs);
 
   const syms = rows || [];
   const kind = docViewFor(file, linkOpts);                                   // Markdown, JSON, SQL with an embedded copy: one more tab, first (P14e)

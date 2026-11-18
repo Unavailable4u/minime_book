@@ -6,7 +6,7 @@
    and callers/<shard>.json) is loaded when the address names a symbol; the walkthrough margin cards (P14d, blocks.js) are built by the Source tab from the note's blocks; assets/js/links.js builds the raw / GitHub / VS Code links. */
 import { h } from "./dom.js";
 import { parseRoute, buildRoute } from "./router.js";
-import { loadCore, loadRecord, loadRecords, loadNote, loadCallers, symbolRows, allFiles, noteStatus } from "./model.js";
+import { loadCore, loadRecord, loadRecords, loadNote, loadCallers, symbolRows, allFiles, noteStatus, getJSON } from "./model.js";
 import { createTree } from "./tree.js";
 import { renderHome, renderDir, renderFile } from "./fileview.js";
 import { renderInspector, renderHelp } from "./inspector.js";
@@ -79,12 +79,13 @@ async function route() {
     let rec = null;
     let note = null;
     let callers = null;
-    try { [rec, note, callers] = await Promise.all([loadRecord(core, file), noteStatus(core.notes, file.path) === "none" ? null : loadNote(file.path), r.qual ? loadCallers(core, file).catch(() => null) : null]); }
+    let book = null;
+    try { [rec, note, callers, book] = await Promise.all([loadRecord(core, file), noteStatus(core.notes, file.path) === "none" ? null : loadNote(file.path), r.qual ? loadCallers(core, file).catch(() => null) : null, getJSON("data/index/mentions.json").catch(() => null)]); }
     catch (e) { if (my === seq) { fail(main, `Could not load the data of ${file.path}: ${e.message}`); } return; }
     if (my !== seq) return;                                     // the reader has already moved on
     const rows = rec ? symbolRows(rec, note) : [];
     renderFile(main, core, file, rec, note, {
-      rows, tab: r.tab, qual: r.qual, start: r.start, end: r.end, linkOpts, callers,
+      rows, tab: r.tab, qual: r.qual, start: r.start, end: r.end, linkOpts, callers, book,
       // Picking lines on the Source tab rewrites the address in place: no new history entry, no page rebuild.
       onRange: (sel) => { try { history.replaceState(null, "", buildRoute({ view: "file", path: file.path, start: sel ? sel.start : null, end: sel ? sel.end : null, tab: "source" })); } catch { /* the address just stays as it was */ } },
       setTab: (t) => go({ ...r, qual: "", start: null, end: null, tab: t }),

@@ -53,6 +53,12 @@ export function writeFixture(dir, { big = false, drift = false, long = false, do
     idx.files["backend/api/b.py"] = { status: "fresh", tier: 2 };
     W("data/index/notes.json", idx);
   }
+  W("data/index/mentions.json", { chapters: [{ url: "doc-x.html", title: "Chapter X" }, { url: "doc-y.html", title: "Chapter Y" }], mentions: {
+    "backend/agents/a.py": [{ c: 0, id: "intro", h: "Intro", s: "We start in a.py, which runs the agents.", n: 2 }],
+    "backend/agents/a.py::run": [{ c: 1, id: "run-it", h: "Running it", s: "Then run does the work.", n: 1 }] } });
+  W("data/index/linkables.json", { links: { "backend/agents/a.py": "backend/agents/a.py", "Agent.step": "backend/agents/a.py::Agent.step", _clean_query: "backend/agents/a.py::_clean_query",
+    "backend/": "backend/", "backend/agents/a.py:12-14": "backend/agents/a.py@12-14", "gone/x.py": "gone/x.py::f" },
+    choices: { twin: ["backend/agents/a.py::run", "backend/api/b.py::route"] }, sections: { "doc-x.html#two": { twin: "backend/api/b.py::route" } } });
   W("content/config.json", { github: { repo: "Unavailable4u/MiniMe" }, editor: { scheme: "vscode" }, embedSource: true });
   W("data/src/manifest.json", { schema: 1, commit: drift ? "d".repeat(40) : COMMIT, files: { "backend/agents/a.py": BLOB, ...(big || long ? { "backend/api/b.py": BLOB } : {}) } });
   fs.mkdirSync(path.join(dir, "data/src/backend/agents"), { recursive: true });
