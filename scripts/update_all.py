@@ -33,10 +33,15 @@ What it runs, in order, stopping at the first problem:
     7. refresh_schema.py                         the data model (data/code/schema.json), read from the SQL that step 5 embedded. It runs after
                                                  the census and the source so it describes the same commit; without embedded source it falls
                                                  back to what the census recorded and says so. (infra.json is written by step 2.)
-    8. both scripts with --check (refresh_atlas.py --check covers the search index, data/code/infra.json and the rest of data/code too),
-       refresh_schema.py --check, notes.py ingest --check, notes.py validate, refresh_source.py --check and refresh_protocol.py --check,
-       and the unit tests, to prove nothing is left stale
-    9. with --push: git add, commit and push
+    8. arch.py ingest --minime <MiniMe>          the architecture model (P25, UPDATING.md "Step 2c"): the structure is derived from the census
+                                                 and data/code/*.json (so it runs after steps 6 and 7, which write protocol.json and schema.json),
+                                                 the flows Copilot wrote (MiniMe/graphify-out/atlas-arch) are validated, their evidence hashes
+                                                 filled, and data/arch/ plus data/index/arch.json are rewritten. A malformed flow stops here;
+                                                 stale, broken and unverified flows only warn
+    9. both scripts with --check (refresh_atlas.py --check covers the search index, data/code/infra.json and the rest of data/code too),
+       refresh_schema.py --check, notes.py ingest --check, notes.py validate, refresh_source.py --check, refresh_protocol.py --check,
+       arch.py ingest --check, arch.py validate, and the unit tests, to prove nothing is left stale
+   10. with --push: git add, commit and push
 
 Standard library only (the census itself needs tree-sitter and PyYAML, see --install-deps).
 """
@@ -132,6 +137,9 @@ def main(argv=None):
     run(*protocol)                         # fails (and says why) if MiniMe has no protocol/v1 at the census commit
     run(PY, "scripts/refresh_schema.py")   # P18: the data model; reads data/src (or the census when the source is not embedded)
 
+    arch = [PY, "scripts/arch.py", "ingest", "--minime", minime]
+    run(*arch)                             # P25: after the census, protocol.json and schema.json it reads; a malformed flow stops here
+
     print("\n== Verifying nothing is stale ==")
     run(PY, "scripts/refresh_atlas.py", "--check")
     run(PY, "scripts/refresh_schema.py", "--check")
@@ -141,6 +149,8 @@ def main(argv=None):
     if embed:
         run(*(source + ["--check"]))
     run(*(protocol + ["--check"]))
+    run(*(arch + ["--check"]))
+    run(PY, "scripts/arch.py", "validate")
     run(PY, "scripts/test_refresh_atlas.py")
     run(PY, "scripts/test_refresh_graph.py")
     run(PY, "scripts/test_build_index.py")
@@ -152,6 +162,7 @@ def main(argv=None):
     run(PY, "scripts/test_build_code.py")
     run(PY, "scripts/test_topology.py")
     run(PY, "scripts/test_notes.py")
+    run(PY, "scripts/test_arch.py")
     run(PY, "scripts/test_refresh_source.py")
     run(PY, "scripts/test_links.py")
     run(PY, "scripts/test_chapter_links.py")

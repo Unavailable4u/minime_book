@@ -1,0 +1,244 @@
+{
+ "version": 1,
+ "note": "The flows the Atlas explains, and the views it draws. A flow is written by Copilot (prompt C in UPDATING.md, Step 2c) into MiniMe/graphify-out/atlas-arch/<id>.json and ingested by scripts/arch.py. 'seeds' are where Copilot starts reading (a file, or path::qual); 'views' are the views of the System page that draw the flow; 'replaces' is the hand-made diagram it will replace (P09/P26). 'extractors' read a literal list out of MiniMe's source with ast (scripts/arch_extract.py); with cross_check the flow is marked incomplete when it has no step for one of the names found. system, dataflow and api-surface need no flow: they are derived from the census alone.",
+ "extractors": [
+  {
+   "id": "agent-registry",
+   "file": "backend/eo/registry.py",
+   "kind": "dict-keys",
+   "name": "REGISTRY"
+  },
+  {
+   "id": "role-modules",
+   "file": "backend/eo/registry.py",
+   "kind": "dict-map",
+   "name": "REAL_ACTION_ROLES"
+  }
+ ],
+ "flows": [
+  {
+   "id": "request-path",
+   "title": "Request path",
+   "kind": "sequence",
+   "views": [
+    "task-sequence"
+   ],
+   "replaces": "architecture/task-sequence.html",
+   "seeds": [
+    "frontend/app/components/WorkspaceChatPanel.jsx::WorkspaceChatPanel",
+    "backend/api/routes/tasks.py::post_task",
+    "backend/api/task_runner.py::run_task",
+    "backend/api/task_runner.py::_try_cache_and_sga",
+    "backend/eo/sga.py::attempt",
+    "backend/eo/inspector.py::classify",
+    "backend/eo/router.py::build_execution_graph",
+    "backend/eo/dispatcher.py::next_step",
+    "backend/eo/loop_controller.py::run_with_looping",
+    "backend/eo/loop_controller.py::_run_gatekeeper",
+    "backend/eo/executor.py::execute_graph",
+    "backend/eo/registry.py::resolve_role",
+    "backend/agents/generic_worker.py::run",
+    "backend/utils/rate_ledger.py::can_proceed",
+    "backend/utils/llm_client.py::generate_text",
+    "backend/memory/bus.py::write",
+    "backend/eo/conversation_memory.py::append_turn",
+    "backend/relay/emitter.py::emit_event"
+   ]
+  },
+  {
+   "id": "task-pipeline",
+   "title": "Task pipeline",
+   "kind": "pipeline",
+   "views": [
+    "task-pipeline"
+   ],
+   "replaces": "architecture/task-pipeline.html",
+   "seeds": [
+    "backend/api/task_runner.py::run_task",
+    "backend/eo/router.py::build_execution_graph",
+    "backend/eo/dispatcher.py::next_step",
+    "backend/eo/executor.py::execute_graph",
+    "backend/eo/loop_controller.py::run_with_looping",
+    "backend/eo/loop_v4.py"
+   ],
+   "extractors": [
+    {
+     "id": "router-tiers",
+     "file": "backend/eo/router.py",
+     "kind": "nested",
+     "name": "TIERS",
+     "field": "agents",
+     "cross_check": true
+    }
+   ]
+  },
+  {
+   "id": "taskrun-lifecycle",
+   "title": "Task run lifecycle",
+   "kind": "lifecycle",
+   "views": [
+    "taskrun-lifecycle"
+   ],
+   "replaces": "architecture/taskrun-lifecycle.html",
+   "seeds": [
+    "backend/api/task_runner.py",
+    "backend/eo/executor.py",
+    "backend/eo/run_guard.py",
+    "backend/eo/loop_controller.py"
+   ]
+  },
+  {
+   "id": "workspace-lifecycle",
+   "title": "Workspace lifecycle",
+   "kind": "lifecycle",
+   "views": [
+    "workspace-lifecycle"
+   ],
+   "replaces": "architecture/workspace-lifecycle.html",
+   "seeds": [
+    "backend/api/routes/workspaces.py",
+    "backend/eo/chat_workspace.py",
+    "backend/eo/local_workspace.py",
+    "backend/eo/workspace_facts.py"
+   ]
+  },
+  {
+   "id": "daemon-approval",
+   "title": "Daemon approval",
+   "kind": "gated",
+   "views": [
+    "daemon-approval"
+   ],
+   "replaces": "architecture/daemon-approval.html",
+   "seeds": [
+    "daemon/minime_daemon.py",
+    "daemon/connection.py",
+    "daemon/tools.py",
+    "daemon/path_guard.py",
+    "backend/eo/local_workspace.py",
+    "backend/eo/local_workspace_tools.py"
+   ]
+  },
+  {
+   "id": "memory",
+   "title": "Memory",
+   "kind": "pipeline",
+   "views": [
+    "memory"
+   ],
+   "seeds": [
+    "backend/memory/bus.py",
+    "backend/eo/conversation_memory.py",
+    "backend/eo/knowledge_graph.py",
+    "backend/eo/rolling_summary.py",
+    "backend/eo/semantic_cache.py"
+   ]
+  },
+  {
+   "id": "m2c-protocol",
+   "title": "M2C protocol run",
+   "kind": "sequence",
+   "views": [
+    "m2c-protocol"
+   ],
+   "seeds": [
+    "protocol/validate.py",
+    "backend/codeagent/loop.py",
+    "backend/codeagent/connections.py",
+    "m2c/src/m2c/link/client.py",
+    "m2c/src/m2c/runner.py",
+    "m2c/src/m2c/policy/decide.py"
+   ]
+  }
+ ],
+ "views": [
+  {
+   "id": "system",
+   "title": "System map",
+   "type": "layered",
+   "source": "derived",
+   "replaces": "architecture/system.html"
+  },
+  {
+   "id": "dataflow",
+   "title": "Data flow",
+   "type": "layered",
+   "source": "derived",
+   "replaces": "architecture/dataflow.html",
+   "edge_kinds": [
+    "api-call",
+    "db",
+    "env",
+    "declared",
+    "protocol"
+   ]
+  },
+  {
+   "id": "task-pipeline",
+   "title": "Task pipeline",
+   "type": "layered",
+   "source": "flow",
+   "flow": "task-pipeline",
+   "replaces": "architecture/task-pipeline.html"
+  },
+  {
+   "id": "task-sequence",
+   "title": "Request sequence",
+   "type": "sequence",
+   "source": "flow",
+   "flow": "request-path",
+   "replaces": "architecture/task-sequence.html"
+  },
+  {
+   "id": "taskrun-lifecycle",
+   "title": "Task run lifecycle",
+   "type": "lifecycle",
+   "source": "flow",
+   "flow": "taskrun-lifecycle",
+   "replaces": "architecture/taskrun-lifecycle.html"
+  },
+  {
+   "id": "workspace-lifecycle",
+   "title": "Workspace lifecycle",
+   "type": "lifecycle",
+   "source": "flow",
+   "flow": "workspace-lifecycle",
+   "replaces": "architecture/workspace-lifecycle.html"
+  },
+  {
+   "id": "daemon-approval",
+   "title": "Daemon approval",
+   "type": "gated",
+   "source": "flow",
+   "flow": "daemon-approval",
+   "replaces": "architecture/daemon-approval.html"
+  },
+  {
+   "id": "api-surface",
+   "title": "API surface",
+   "type": "catalog",
+   "source": "derived",
+   "replaces": "architecture/api-surface.html"
+  },
+  {
+   "id": "m2c-protocol",
+   "title": "M2C protocol",
+   "type": "sequence",
+   "source": "flow",
+   "flow": "m2c-protocol"
+  },
+  {
+   "id": "memory",
+   "title": "Memory",
+   "type": "layered",
+   "source": "flow",
+   "flow": "memory"
+  },
+  {
+   "id": "unified",
+   "title": "Everything, zoomable",
+   "type": "layered",
+   "source": "derived"
+  }
+ ]
+}

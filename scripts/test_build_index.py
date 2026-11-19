@@ -127,6 +127,20 @@ class BuildIndexTests(unittest.TestCase):
     def test_no_glossary_gives_empty_terms(self):
         self.assertEqual(self.built()["data/index/search.json"]["terms"], [])
 
+    def test_arch_entries_come_from_the_registry_only(self):
+        self.assertEqual(self.built()["data/index/search.json"]["arch"], {"flows": [], "views": []})   # no registry: empty, no warning
+        reg = {"flows": [{"id": "task-pipeline", "title": "Task pipeline", "kind": "pipeline", "views": ["task-pipeline"], "status": "fresh"},
+                         {"id": "memory", "kind": "pipeline"}, {"nope": 1}],
+               "views": [{"id": "system", "title": "System map", "type": "layered"}]}
+        (self.root / "content").mkdir(parents=True, exist_ok=True)
+        (self.root / "content" / "arch-flows.json").write_text(json.dumps(reg), encoding="utf-8")
+        arch = self.built()["data/index/search.json"]["arch"]
+        self.assertEqual([f["id"] for f in arch["flows"]], ["memory", "task-pipeline"])
+        self.assertEqual(arch["flows"][1], {"id": "task-pipeline", "title": "Task pipeline", "kind": "pipeline", "url": "architecture.html#task-pipeline"})
+        self.assertEqual(arch["flows"][0]["title"], "memory")                       # no title: the id
+        self.assertEqual(arch["views"], [{"id": "system", "title": "System map", "type": "layered", "url": "architecture.html#system"}])
+        self.assertNotIn("status", json.dumps(arch))                                # status is data/index/arch.json's job
+
     def test_paths_and_routes(self):
         out = self.built()
         self.assertEqual(out["data/index/paths.json"]["paths"],

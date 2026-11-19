@@ -19,6 +19,9 @@
 #     python scripts/test_build_code.py
 #     python scripts/notes.py validate
 #     python scripts/test_notes.py
+#     python scripts/arch.py build --check
+#     python scripts/arch.py validate
+#     python scripts/test_arch.py
 #     python scripts/refresh_source.py --check
 #     python scripts/test_refresh_source.py
 #     python scripts/test_links.py
@@ -58,6 +61,10 @@ jobs:
         run: python3 scripts/build_code.py --check
       - name: Notes in data/notes follow the schema
         run: python3 scripts/notes.py validate
+      - name: Architecture model is current and its flows follow the schema
+        run: |
+          python3 scripts/arch.py build --check
+          python3 scripts/arch.py validate
       - name: Embedded source (data/src) matches its manifest and the census commit
         run: python3 scripts/refresh_source.py --check
       - name: Protocol data (data/code/protocol.json) is at the census commit
@@ -78,6 +85,7 @@ jobs:
           python3 scripts/test_codemod_shell.py
           python3 scripts/test_build_code.py
           python3 scripts/test_notes.py
+          python3 scripts/test_arch.py
           python3 scripts/test_refresh_source.py
           python3 scripts/test_links.py
           python3 scripts/test_vendor_highlight.py

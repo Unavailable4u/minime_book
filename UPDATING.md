@@ -9,9 +9,10 @@ The Atlas has six kinds of generated content:
 | AI-written notes (`MiniMe/graphify-out/atlas-notes/`, written by Copilot: what each file and function is for) | `scripts/notes.py ingest` | `data/notes/` and `data/index/notes.json` (coverage and freshness; read by the Explorer and Coverage pages when they land) |
 | MiniMe's source code, as committed at the census commit | `scripts/refresh_source.py` | `data/src/<path>.txt` and `data/src/manifest.json` (the Explorer's Source tab shows the real lines next to the explanations; see "Embedded source" below) |
 | MiniMe's `protocol/` folder (the M2C wire contract), `m2c/`, and `docs/decisions/`, as committed at the census commit | `scripts/refresh_protocol.py` | `data/code/protocol.json`: the Protocol, M2C client and Decision records pages (see "Protocol, M2C and decision records" below) |
+| The architecture model: structure from the census and `data/code/*.json` (script, never stale), flows written by Copilot into `MiniMe/graphify-out/atlas-arch/`, layout in `content/arch-layout.json` | `scripts/arch.py ingest` | `data/arch/` (`derived.json`, `model.json`, `flows/`, `views/`) and `data/index/arch.json` (per-flow status). Step 2c below |
 | The SQL in `data/src/` (migrations and the Supabase dump) plus the census's `table_refs` | `scripts/refresh_schema.py` | `data/code/schema.json`: tables, columns, foreign keys, policies, migrations and "who touches this table" (Data model, a shell drawn by `assets/js/data.js`). Run by `update_all.py` after the source step; falls back to the census, and says so, when the SQL is not embedded |
 
-`scripts/update_all.py` runs all six, then proves nothing is stale and runs the tests. The notes are the only part a person has to drive: Copilot writes them in batches (Step 2b below), and everything else about them is automatic.
+`scripts/update_all.py` runs all seven, then proves nothing is stale and runs the tests. The notes and the architecture flows are the parts a person has to drive: Copilot writes them in batches (Steps 2b and 2c below), and everything else about them is automatic.
 
 ## The routine
 
@@ -69,6 +70,62 @@ python scripts/notes.py status
 
 Do not commit in MiniMe between `todo` and `ingest`: the notes record the commit they were written against, and a different commit makes them stale at once (`todo` warns when MiniMe has moved on from the census).
 
+## Step 2c: Architecture flows (Copilot, run per flow)
+
+The architecture model has three parts. The **structure** (which folders exist, who imports whom, which routes and agents there are) is derived by `scripts/arch.py` from the census and `data/code/*.json`: no AI, never stale. The **flows** (the ordered steps of the request path, the task pipeline, the run and workspace lifecycles, the daemon approval path, memory, the M2C protocol) are written by Copilot, one JSON file per flow, into `MiniMe/graphify-out/atlas-arch/`. Every step cites the code it is about (`{path, qual, lines}`); `arch.py` fills in the hashes and later says which steps went **stale** (the cited code changed) or **broken** (it is gone). The **layout** is `content/arch-layout.json` (databases and outside services, pinned positions). Which flows and views exist is `content/arch-flows.json`.
+
+Do steps 1-3 first (and Step 2b if you want notes). Then, in a loop:
+
+```powershell
+cd path\to\minime_book
+python scripts/arch.py status                       # per flow: missing / fresh / stale / broken / unverified
+python scripts/arch.py todo --minime ../MiniMe      # writes _SCHEMA.md and _todo.json into MiniMe/graphify-out/atlas-arch/
+```
+
+Open MiniMe in VS Code, switch Copilot to **Agent** mode and paste prompt **C** (flows not written yet) or **D** (refresh the stale steps). `_todo.json` says which. When Copilot is done:
+
+```powershell
+python scripts/arch.py validate --minime ../MiniMe      # optional: check without writing
+python scripts/arch.py ingest --minime ../MiniMe
+python scripts/arch.py status
+```
+
+`ingest` rejects a flow that has an error (add `--skip-invalid` to take the rest): a schema or actor id that is wrong, a step without evidence, a bad `next`, a step id that was renumbered or reused, a secret, or a **symbol that does not exist** in a flow written at the current commit. Warnings (over-long text, a stage the code registers that has no step, a citation of removed code) are printed and do not stop it. Do not commit in MiniMe between `todo` and `ingest`: a flow records the commit it was written at.
+
+**Prompt C: write flows**
+
+```
+Write "architecture flows" for the Atlas. Do NOT modify any source file, do not commit.
+
+1. Read graphify-out/atlas-arch/_SCHEMA.md and graphify-out/atlas-arch/_todo.json. Process at most 2 flows from it, in order.
+2. For each flow: read the seed files listed in its todo entry, then follow the calls (census.json "calls" and the code itself)
+   to trace the REAL execution path. Write graphify-out/atlas-arch/<flow-id>.json (schema version 1).
+3. Set "commit" to `git rev-parse HEAD`. Use ONLY actor ids listed in the todo entry's "actors".
+4. Every step (or transition) needs >= 1 evidence entry {path, qual, lines}: a real function or class that does what the step says.
+   If you cannot point to code for a step, do NOT write it; put it in "unknowns" instead. Leave evidence "hash" as null.
+5. Order steps by actual execution order in the code, not by what documents say. If data/docs or a chapter disagrees with the code,
+   follow the code and add an entry to "doc_conflicts" naming the chapter section.
+6. Mark approval gates (user, daemon, policy, tiers) with kind "gate" and a "gate" object; DB/Redis/file writes are kind "store";
+   LLM-provider and network calls are kind "external". Use stable step ids s01, s02, ... in execution order.
+7. Text fields are plain English, <= 240 chars. Never include secrets, tokens, or values from .env files.
+8. When done, run `python -c "import json,glob;[json.load(open(f)) for f in glob.glob('graphify-out/atlas-arch/*.json')]"`
+   and print: flows written, steps written, steps skipped (no evidence) and why.
+Do not ask me questions unless something blocks you.
+```
+
+**Prompt D: after a code change, refresh only what is stale**
+
+```
+Run `git status` and `git log -1 --oneline`; stop if there are uncommitted changes.
+Re-read graphify-out/atlas-arch/_todo.json (flows not written, or steps whose evidence changed or disappeared).
+Update ONLY the steps/transitions listed there. Keep every other step, its id and its order exactly as they are.
+New steps take the next free id (never renumber, never reuse). Remove a step only if the code path no longer exists
+(and fix the "next" links of its neighbours). Re-check evidence for each touched step against the current code.
+Same rules as prompt C. Update "commit" to the current HEAD. Do not touch source files; do not commit.
+```
+
+A few facts are read straight from MiniMe's source with `ast` and never guessed (`scripts/arch_extract.py`: the agent registry, the role-to-module map, the router tiers). They are listed under `extractors` in `content/arch-flows.json`; when one cannot be read, the flow is written entirely by Copilot and the status says so. `arch.py build --check` (what CI runs, no MiniMe needed) proves `data/arch/` matches what the committed inputs produce. If you pin node positions in the System page's edit mode, paste the JSON into `pins` of `content/arch-layout.json`.
+
 **Prompt A: write a batch of new notes**
 
 ```
@@ -122,8 +179,9 @@ Do not ask me questions unless something blocks you.
 4. `notes.py ingest --minime <MiniMe>`: validates the notes Copilot wrote, copies them into `data/notes/`, rewrites `data/index/notes.json`. A malformed note stops it; stale or missing notes only show in the coverage numbers.
 5. `refresh_source.py --minime <MiniMe>`: copies MiniMe's source into `data/src/` (see "Embedded source"). A file that fails the secret scan is not copied and is printed as `REFUSED`; that never stops the run. Skipped with `--no-embed-source`, or when `content/config.json` has `"embedSource": false`.
 6. `refresh_protocol.py --minime <MiniMe>`: rebuilds `data/code/protocol.json` from `protocol/`, `m2c/` and `docs/decisions/` at the census commit (see "Protocol, M2C and decision records"). It stops with a message if MiniMe has no `protocol/v1` at that commit.
-7. Both scripts with `--check` (the first also proves the search index is current), `notes.py ingest --check`, `notes.py validate`, `refresh_source.py --check` and `refresh_protocol.py --check`, then the unit tests, including the index builder, the palette, the chapter reader, the notes pipeline, the source copier and the protocol pages.
-8. With `--push`: `git add -A`, commit, `git pull --rebase`, `git push`.
+7. `refresh_schema.py`, then `arch.py ingest --minime <MiniMe>`: derives the architecture structure and ingests the flows Copilot wrote (Step 2c). A flow with an error stops it; stale or missing flows only show in `arch.py status`. (It runs after the schema step because the derived structure reads `data/code/schema.json`.)
+8. Both scripts with `--check` (the first also proves the search index is current), `notes.py ingest --check`, `notes.py validate`, `arch.py ingest --check`, `arch.py validate`, `refresh_source.py --check` and `refresh_protocol.py --check`, then the unit tests, including the index builder, the palette, the chapter reader, the notes pipeline, the architecture model, the source copier and the protocol pages.
+9. With `--push`: `git add -A`, commit, `git pull --rebase`, `git push`.
 
 The GitHub Action (`refresh-atlas.yml`) still runs when `data/census.json` is pushed. After this routine it finds nothing to change, so it commits nothing.
 
@@ -216,6 +274,7 @@ Tests, Health, Data model, Tables, Roadmap, Finance, Decisions and the document 
 | `note file(s) are malformed, nothing was ingested` | `ingest` printed which file and why. Fix or delete that file in `MiniMe/graphify-out/atlas-notes/` (or run Prompt A/B again for it), or use `--skip-invalid`. |
 | `error: ... symbol X: not in the census` | Copilot invented a function name (or used a `qual` that was not in `_todo.json`). Fix the note or have Copilot redo that file. |
 | `MiniMe is at X but the census is from Y` (from `notes.py todo`) | MiniMe moved on after the census. Run `python scripts/update_all.py` first, so lines, hashes and blob ids match what Copilot will read. |
+| `arch: ... cites X, which is not in the census` / a flow is rejected | Copilot cited a function that does not exist at the flow's commit. `arch.py validate --minime ../MiniMe` names the step; fix it by hand or run Prompt C/D again for that flow. |
 | `git push` rejected | Branch protection or a new remote commit. Run `git pull --rebase`, then `git push`. |
 | `REFUSED (not copied): path: ...` from `refresh_source.py` | The secret scan found something that looks like a credential in a MiniMe file outside `tests/`, so that file is not in `data/src`. Check it in MiniMe; if it is a false positive, add an allow-list rule to MiniMe's `.gitleaks.toml` (the scan reads it when `gitleaks` is installed) or fix the pattern. |
 | `protocol: data/code/protocol.json is out of date` | Run `python scripts/refresh_protocol.py --minime ../MiniMe` (or `update_all.py`). In CI this means `data/code/protocol.json` was not committed together with the census it belongs to. |
@@ -223,4 +282,4 @@ Tests, Health, Data model, Tables, Roadmap, Finance, Decisions and the document 
 | `MiniMe has no commit abc1234 (the census commit)` | Your MiniMe checkout does not contain the commit the census was built from. `git fetch` in MiniMe, or refresh the census from this checkout. |
 | The VS Code button is missing | Set your MiniMe folder with the link icon in the top bar. |
 
-Single steps: `python scripts/build_index.py --check`, `python scripts/refresh_atlas.py --check`, `python scripts/refresh_graph.py --minime ../MiniMe --check` and `python scripts/notes.py ingest --minime ../MiniMe --check` change nothing and exit 1 if something is out of date.
+Single steps: `python scripts/build_index.py --check`, `python scripts/refresh_atlas.py --check`, `python scripts/refresh_graph.py --minime ../MiniMe --check` `python scripts/notes.py ingest --minime ../MiniMe --check` and `python scripts/arch.py ingest --minime ../MiniMe --check` change nothing and exit 1 if something is out of date.

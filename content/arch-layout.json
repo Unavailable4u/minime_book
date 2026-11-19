@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "note": "Hand-kept parts of the architecture model (scripts/arch.py). 'virtual' declares the nodes that are not folders of the repo: databases and outside services. Copilot never invents these. Each one carries a 'source' (where the evidence for it is) and 'edges_from', which says how its connections are derived from the census (env: files that use one of these environment variables; tables: files that mention a database table; providers: files that use a key slot of a model provider in data/code/agents.json). Only code in the node's own group gets an edge to it (from_groups overrides that), so a table name that happens to appear in the M2C client's local store does not become a Postgres connection. 'pins' holds node positions you set in the System page's edit mode (?edit=1, Copy JSON); a node that is not pinned takes its position from content/topology.json, or is placed automatically.",
+  "virtual": [
+    {
+      "id": "store:postgres",
+      "label": "Postgres",
+      "kind": "store",
+      "group": "group:server",
+      "source": "backend/migrations/*.sql define the schema (data/code/schema.json); the connection comes from DATABASE_URL and the SUPABASE_* variables (data/code/infra.json).",
+      "edges_from": {
+        "tables": true,
+        "env": [
+          "DATABASE_URL",
+          "SUPABASE_URL",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_JWT_SECRET"
+        ]
+      }
+    },
+    {
+      "id": "store:redis",
+      "label": "Upstash Redis",
+      "kind": "store",
+      "group": "group:server",
+      "source": "UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in the environment (data/code/infra.json).",
+      "edges_from": {
+        "env": [
+          "UPSTASH_REDIS_REST_URL",
+          "UPSTASH_REDIS_REST_TOKEN"
+        ]
+      }
+    },
+    {
+      "id": "store:vector",
+      "label": "Upstash Vector",
+      "kind": "store",
+      "group": "group:server",
+      "source": "UPSTASH_VECTOR_REST_URL and UPSTASH_VECTOR_REST_TOKEN in the environment (data/code/infra.json).",
+      "edges_from": {
+        "env": [
+          "UPSTASH_VECTOR_REST_URL",
+          "UPSTASH_VECTOR_REST_TOKEN"
+        ]
+      }
+    },
+    {
+      "id": "ext:llm-providers",
+      "label": "LLM providers",
+      "kind": "external",
+      "group": "group:server",
+      "source": "The model providers with key pools in data/code/agents.json (providers).",
+      "edges_from": {
+        "providers": true
+      }
+    }
+  ],
+  "pins": {}
+}

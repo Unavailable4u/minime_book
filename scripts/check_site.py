@@ -30,6 +30,12 @@ Errors (exit 1)
                      assets/vendor/mermaid/mermaid.min.js is not vendored; an SVG (file or inline code) that is unsafe
                      or not well-formed (every content/figures/**/*.svg is checked, used or not); a figure without "alt"
 
+    arch-bad-registry / arch-bad-layout / arch-missing-data / arch-bad-evidence / arch-bad-ref
+                     (P25) content/arch-flows.json or content/arch-layout.json that breaks the rules of scripts/arch.py; a
+                     view without its shard (data/arch/views/<id>.json) or model.json entry; a flow in data/arch/flows that
+                     cites a file missing from data/index/paths.json; a data-arch-view / data-arch-flow in a page that names
+                     a view or flow the registry does not have. A site without arch files is not checked.
+
     overview-bad-entry / overview-bad-target
                      (P07) content/subsystems.json, content/system/request-path.json and content/overview/vitals.json: an
                      entry without its id, name, text or match, a duplicate id, a "match" that no file in the census has, a
@@ -894,6 +900,86 @@ def check_figures(root, files, ids_of, add):
                 bad("figure-bad-src", f"a mermaid figure needs {MERMAID_VENDOR}; run: python scripts/vendor_mermaid.py", "vendor")
 
 
+# ------------------------------------------------------------- architecture model (P25)
+ARCH_REGISTRY = "content/arch-flows.json"
+ARCH_LAYOUT = "content/arch-layout.json"
+ARCH_DATA = "data/arch/"
+ARCH_ATTR = re.compile(r"""data-arch-(view|flow)\s*=\s*["']([^"']*)["']""")
+
+
+def _arch_evidence_paths(node):
+    """Every evidence "path" cited anywhere in a flow (steps or lifecycle transitions)."""
+    out = []
+    if isinstance(node, dict):
+        for k, v in node.items():
+            if k == "evidence" and isinstance(v, list):
+                out += [e["path"] for e in v if isinstance(e, dict) and isinstance(e.get("path"), str)]
+            else:
+                out += _arch_evidence_paths(v)
+    elif isinstance(node, list):
+        for v in node:
+            out += _arch_evidence_paths(v)
+    return out
+
+
+def check_arch(root, files, ids_of, add):
+    """The architecture model (scripts/arch.py). Rules for the registry and layout come from arch.py itself; this adds the
+    cross-file ones: a view needs its shard and a model entry, a flow cites only files of the repo (data/index/paths.json),
+    and a page may only name views and flows that exist. A site without arch files passes."""
+    root = Path(root)
+    if ARCH_REGISTRY not in files and ARCH_LAYOUT not in files:
+        return
+    try:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("arch_for_check_site", Path(__file__).resolve().parent / "arch.py")
+        arch = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(arch)
+    except Exception as e:                              # arch.py missing or broken: say so once, skip the rest
+        add("ERROR", "arch-bad-registry", ARCH_REGISTRY, "-", f"scripts/arch.py cannot be loaded: {e}")
+        return
+    reg = arch.load_registry(root)
+    for msg in arch.registry_problems(reg, root):
+        add("ERROR", "arch-bad-registry", ARCH_REGISTRY, "-", msg)
+    if ARCH_LAYOUT in files:
+        layout = _read_json(root, ARCH_LAYOUT)
+        for msg in arch.layout_problems(layout if isinstance(layout, dict) else {}):
+            add("ERROR", "arch-bad-layout", ARCH_LAYOUT, "-", msg)
+    view_ids = {v["id"] for v in reg["views"]}
+    flow_ids = {f["id"] for f in reg["flows"]}
+
+    model = _read_json(root, ARCH_DATA + "model.json") if ARCH_DATA + "model.json" in files else None
+    model_views = model.get("views") if isinstance(model, dict) else None
+    for vid in sorted(view_ids):
+        if f"{ARCH_DATA}views/{vid}.json" not in files:
+            add("ERROR", "arch-missing-data", f"{ARCH_DATA}views/{vid}.json", vid, f'view "{vid}" has no shard; run: python scripts/arch.py build')
+        if isinstance(model_views, (list, dict)) and vid not in {(x.get("id") if isinstance(x, dict) else x) for x in model_views} | (set(model_views) if isinstance(model_views, dict) else set()):
+            add("ERROR", "arch-missing-data", ARCH_DATA + "model.json", vid, f'view "{vid}" is not in model.json; run: python scripts/arch.py build')
+
+    paths_doc = _read_json(root, "data/index/paths.json") if "data/index/paths.json" in files else None
+    known = set(paths_doc.get("paths", [])) if isinstance(paths_doc, dict) else None
+    for rel in sorted(f for f in files if f.startswith(ARCH_DATA + "flows/") and f.endswith(".json")):
+        flow = _read_json(root, rel)
+        if flow is None:
+            continue                                    # reported as bad-json
+        if known is None:
+            continue
+        for path in sorted(set(_arch_evidence_paths(flow))):
+            if path not in known:
+                add("ERROR", "arch-bad-evidence", rel, path, f"cites {path}, which is not a file in data/index/paths.json")
+
+    for rel in sorted(f for f in files if f.endswith(".html") and (root / f).is_file()):
+        if rel.startswith("architecture/"):
+            continue                                    # generated diagrams carry their own markup
+        try:
+            text = (root / rel).read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for kind, ref in sorted(set(ARCH_ATTR.findall(text))):
+            ok = ref in (view_ids if kind == "view" else flow_ids)
+            if not ok:
+                add("ERROR", "arch-bad-ref", rel, f"{kind}:{ref}", f'data-arch-{kind}="{ref}" is not a {kind} of {ARCH_REGISTRY}')
+
+
 def run_checks(root=ROOT, allow=None, deep=False, max_size_kb=DEFAULT_MAX_SIZE_KB):
     """Runs every check on the site under `root`. `allow` is a list from load_allow()."""
     root = Path(root)
@@ -1038,6 +1124,9 @@ def run_checks(root=ROOT, allow=None, deep=False, max_size_kb=DEFAULT_MAX_SIZE_K
 
     # ---- figures (P06) ------------------------------------------------------
     check_figures(root, files, ids_of, add)
+
+    # ---- architecture model (P25) -------------------------------------------
+    check_arch(root, files, ids_of, add)
 
     # ---- allow list ---------------------------------------------------------
     used = set()

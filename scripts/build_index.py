@@ -9,11 +9,15 @@ Inputs
   doc-*.html               chapter headings (h2/h3 that carry an id) and each chapter's banner (description, counts)
   content/glossary.json    optional; list of terms or {"terms": [...]}
   content/link-aliases.json optional; {"aliases": {phrase: target}} for chapter <code> text the rules cannot resolve (P15)
+  content/arch-flows.json  optional; the architecture flows and views (P25)
   data/census.json         files, functions, classes, routes
 
 Outputs (all under data/index/)
-  search.json              {"pages": [...], "headings": [...], "terms": [...]}
-                           a page may carry "label" ("Ch. 4 · Title") and "part"
+  search.json              {"pages": [...], "headings": [...], "terms": [...], "arch": {"flows": [...], "views": [...]}}
+                           a page may carry "label" ("Ch. 4 · Title") and "part"; "arch" (P25) lists the architecture
+                           flows and views of content/arch-flows.json as palette entries (id, title, kind or type, url).
+                           It reads the registry only, never the flow status, so it does not change when the flows are
+                           re-ingested (the status is in data/index/arch.json, written by scripts/arch.py)
   book.json                {"parts": [...], "chapters": [...], "totals": {...}}: one row per chapter, read from the
                            chapter's own banner (.bk-desc, .bk-meta) and "Built ..." stamp, so counts never drift (P05)
   paths.json               {"paths": [...]}
@@ -51,6 +55,7 @@ INDEX_DIR = "data/index"
 MAX_SHARD_ROWS = 4000
 SYMBOL_FIELDS = ["qual", "file", "line", "kind"]
 GLOSSARY_PAGE = "glossary.html"
+ARCH_PAGE = "architecture.html"                    # the System page (P09); each view is a section: architecture.html#<view id>
 LOCAL_URL_SKIP = ("http://", "https://", "#", "mailto:")
 
 
@@ -511,6 +516,22 @@ def collect_chapter_links(root: Path, nav: dict, census: dict) -> dict[str, dict
 
 
 # ----------------------------------------------------------------------- build
+def collect_arch(root: Path) -> dict:
+    """P25: the flows and views of content/arch-flows.json as palette entries. Absent or unreadable registry: both lists empty."""
+    reg = load_json(Path(root) / "content" / "arch-flows.json", None)
+    reg = reg if isinstance(reg, dict) else {}
+
+    def rows(key, kind_key):
+        out = []
+        for x in reg.get(key) or []:
+            if isinstance(x, dict) and isinstance(x.get("id"), str) and x["id"]:
+                out.append({"id": x["id"], "title": x.get("title") or x["id"], kind_key: x.get(kind_key) or "",
+                            "url": f"{ARCH_PAGE}#{x['views'][0] if key == 'flows' and x.get('views') else x['id']}"})
+        return sorted(out, key=lambda r: r["id"])
+
+    return {"flows": rows("flows", "kind"), "views": rows("views", "type")}
+
+
 def build(root: Path, warn=None, census: dict | None = None) -> dict[str, str]:
     """Return {repo-relative output path: file text}. Pure: writes nothing.
 
@@ -534,6 +555,7 @@ def build(root: Path, warn=None, census: dict | None = None) -> dict[str, str]:
         "pages": collect_pages(nav),
         "headings": collect_headings(root, nav),
         "terms": collect_terms(root),
+        "arch": collect_arch(root),
     })
     out[f"{INDEX_DIR}/book.json"] = dumps(collect_book(root, nav, warn))
     out[f"{INDEX_DIR}/paths.json"] = dumps({"paths": collect_paths(census)})

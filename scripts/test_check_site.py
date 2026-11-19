@@ -450,6 +450,55 @@ class AllowList(SiteCase):
         self.assertEqual(["broken-anchor|a.html|b.html#x"], [raw for raw, _ in cs.load_allow(p)])
 
 
+class ArchModel(SiteCase):
+    """P25: the architecture model's files and the pages that name its views and flows."""
+
+    REG = {"flows": [{"id": "request-path", "title": "Request path", "kind": "sequence", "seeds": ["backend/main.py"]}],
+           "views": [{"id": "system", "title": "System", "type": "layered", "source": "derived"}]}
+
+    def arch_site(self, **over):
+        files = {
+            "index.html": page(body='<p>hi</p>'),
+            "content/arch-flows.json": json.dumps(self.REG),
+            "data/arch/views/system.json": "{}",
+            "data/arch/model.json": json.dumps({"views": [{"id": "system"}]}),
+            "data/index/paths.json": json.dumps({"paths": ["backend/main.py"]}),
+        }
+        files.update(over)
+        return self.site(files)
+
+    def acodes(self, site):
+        return [c for c in self.codes(site.check()) if c.startswith("arch-")]
+
+    def test_clean_and_absent(self):
+        self.assertEqual(self.acodes(self.arch_site()), [])
+        self.assertEqual(self.acodes(self.site({"index.html": page()})), [])
+
+    def test_missing_shard_and_model_entry(self):
+        s = self.arch_site(**{"data/arch/model.json": json.dumps({"views": []})})
+        self.assertIn("arch-missing-data", self.acodes(s))
+        reg = json.loads(json.dumps(self.REG))
+        reg["views"].append({"id": "other", "title": "O", "type": "layered", "source": "derived"})
+        s = self.arch_site(**{"content/arch-flows.json": json.dumps(reg)})
+        self.assertIn("arch-missing-data", self.acodes(s))
+
+    def test_bad_registry(self):
+        reg = {"flows": [{"id": "Bad Id", "kind": "nope"}], "views": []}
+        self.assertIn("arch-bad-registry", self.acodes(self.arch_site(**{"content/arch-flows.json": json.dumps(reg)})))
+
+    def test_evidence_path_must_exist(self):
+        flow = {"steps": [{"id": "s1", "evidence": [{"path": "backend/gone.py"}]}]}
+        self.assertIn("arch-bad-evidence", self.acodes(self.arch_site(**{"data/arch/flows/request-path.json": json.dumps(flow)})))
+        flow["steps"][0]["evidence"][0]["path"] = "backend/main.py"
+        self.assertEqual(self.acodes(self.arch_site(**{"data/arch/flows/request-path.json": json.dumps(flow)})), [])
+
+    def test_page_references(self):
+        ok = page(body='<div data-arch-view="system" data-arch-flow="request-path"></div>')
+        self.assertEqual(self.acodes(self.arch_site(**{"index.html": ok})), [])
+        bad = page(body='<div data-arch-view="nope"></div><div data-arch-flow="nope"></div>')
+        self.assertEqual(self.acodes(self.arch_site(**{"index.html": bad})).count("arch-bad-ref"), 2)
+
+
 class Cli(SiteCase):
     def test_main_exit_codes(self):
         bad = self.site({"index.html": page(body='<a href="nope.html">x</a>')})
