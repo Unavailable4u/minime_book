@@ -21,7 +21,7 @@ rg = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(rg)
 ra = rg.ra
 
-PAGES = ["graph.html", "explore.html", "api.html", "graph-viewer.html", "data/summary.md", "data/index/vitals.json"]
+PAGES = ["graph.html", "explore.html", "graph-viewer.html", "data/summary.md", "data/index/vitals.json"]
 COMMIT = "a" * 40
 
 
@@ -34,6 +34,7 @@ class Fixture(unittest.TestCase):
         self.tmp = Path(tempfile.mkdtemp())
         self.book, self.minime = self.tmp / "book", self.tmp / "MiniMe"
         (self.book / "data" / "index").mkdir(parents=True)
+        (self.book / "data" / "code").mkdir(parents=True)
         for rel in PAGES:
             shutil.copy(ROOT / rel, self.book / rel)
         (self.minime / "graphify-out").mkdir(parents=True)
@@ -330,6 +331,9 @@ class ApiCallers(Fixture):
                   ("POST", "/api/devices/{device_id}/revoke"), ("GET", "/api/devices"), ("GET", "/api/devices/{device_id}")]
         return rg.scan_callers(self.minime / "frontend", routes)
 
+    def calls(self, routes):
+        return rg.scan_api_calls(self.minime / "frontend", routes)[0]
+
     def test_alias_path_param_and_nested_parentheses_are_matched(self):
         counts, per_file = self.callers()
         self.assertEqual(1, counts[("GET", "/api/workspaces/{ws_id}/code/files")])
@@ -345,6 +349,58 @@ class ApiCallers(Fixture):
         (self.minime / "frontend" / "app" / "lib" / "x.js").write_text("fetch('/api/devices')", encoding="utf-8")
         counts, _ = self.callers()
         self.assertEqual(1, counts[("GET", "/api/devices")])
+
+
+    # ------------------------------------------------------------- P17: how well each link is backed (`via`) and routes.json
+    def test_via_says_method_when_the_code_names_the_route_method_and_shape_when_only_the_path_fits(self):
+        (self.minime / "frontend" / "app" / "lib" / "dev.js").write_text(
+            "export const revoke = (id) => fetch(`/api/devices/${id}/revoke`, {\n  method: \"POST\",\n});\n", encoding="utf-8")
+        post, get = ("POST", "/api/devices/{device_id}/revoke"), ("GET", "/api/devices/{device_id}/revoke")
+        calls = self.calls([post, get])
+        self.assertEqual(["method"], calls[post]["app/lib/dev.js"])
+        self.assertEqual(["shape"], calls[get]["app/lib/dev.js"], "same path shape, but the code says POST: a weaker link, kept and labelled, not dropped")
+
+    def test_via_says_score_when_the_best_path_matches_and_no_method_is_named(self):
+        (self.minime / "frontend" / "app" / "lib" / "dev.js").write_text("export const list = () => fetch('/api/devices');\n", encoding="utf-8")
+        route = ("GET", "/api/devices")
+        self.assertEqual(["score"], self.calls([route, ("GET", "/api/devices/{device_id}")])[route]["app/lib/dev.js"])
+
+    def test_a_helper_named_apiPost_names_the_method(self):
+        (self.minime / "frontend" / "app" / "lib" / "h.js").write_text("apiPost('/api/devices/revoke-all', {});\n", encoding="utf-8")
+        post = ("POST", "/api/devices/revoke-all")
+        self.assertEqual(["method"], self.calls([post, ("GET", "/api/devices/revoke-all")])[post]["app/lib/h.js"])
+
+    def test_a_comment_line_is_not_evidence_for_a_method_but_the_link_itself_is_still_found(self):
+        (self.minime / "frontend" / "app" / "lib" / "c.js").write_text("// POST /api/devices/revoke-all is used below\nconst u = '/api/devices/revoke-all';\n", encoding="utf-8")
+        post = ("POST", "/api/devices/revoke-all")
+        self.assertEqual(["score"], self.calls([post])[post]["app/lib/c.js"])
+
+    def test_the_pair_set_is_the_same_with_or_without_the_second_opinion(self):
+        routes = [("GET", "/api/workspaces/{ws_id}/code/files"), ("GET", "/api/workspaces/{ws_id}/code/files/{file_path:path}/history"),
+                  ("POST", "/api/devices/{device_id}/revoke"), ("GET", "/api/devices"), ("GET", "/api/devices/{device_id}")]
+        calls = self.calls(routes)
+        counts, per_file = self.callers()
+        self.assertEqual({r: len(calls[r]) for r in routes}, {r: counts[r] for r in routes})
+        self.assertEqual(sum(per_file.values()), sum(len(v) for v in calls.values()))
+
+    def test_refresh_writes_the_callers_half_of_routes_json_and_keeps_the_census_half(self):
+        census = {"meta": {"generated": "2026-11-19T00:00:00"}, "git": {"head": "aaaaaaa"},
+                  "routes": [{"method": "POST", "path": "/api/devices/{device_id}/revoke", "handler": "revoke", "file": "backend/api/routes/devices.py", "line": 10,
+                              "end": 20, "async": True, "deps": ["get_user"], "response_model": None, "router_prefix": ""},
+                             {"method": "GET", "path": "/api/nobody-calls-this", "handler": "n", "file": "backend/api/routes/n.py", "line": 1, "end": 2, "deps": []}]}
+        (self.book / "data" / "census.json").write_text(json.dumps(census), encoding="utf-8")
+        (self.minime / "frontend" / "app" / "lib" / "dev.js").write_text("fetch(`/api/devices/${id}/revoke`, { method: 'POST' });\n", encoding="utf-8")
+        self.apply()
+        doc = json.loads(read(self.book / ra.ROUTES_REL))
+        by = {r["path"]: r for r in doc["routes"]}
+        self.assertEqual([{"file": "frontend/app/lib/dev.js", "via": ["method"]}, {"file": "frontend/app/lib/files.js", "via": ["score"]}],
+                         by["/api/devices/{device_id}/revoke"]["callers"], "one file names POST, the other names no method")
+        self.assertEqual([], by["/api/nobody-calls-this"]["callers"])
+        self.assertEqual("revoke", by["/api/devices/{device_id}/revoke"]["handler"], "the census half is built from the census")
+        self.assertEqual(rg.git_head(self.minime) or self.graph().commit, doc["callers_scan"]["commit"])
+        self.assertEqual(2, doc["callers_scan"]["frontend_files"], "files.js and dev.js; files.test.js is not scanned")
+        self.assertEqual(2, doc["callers_scan"]["pairs"])
+        self.assertEqual({}, rg.refresh_all(self.book, self.graph(), self.minime), "a second run changes nothing")
 
 
 class Freshness(Fixture):

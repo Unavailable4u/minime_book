@@ -21,10 +21,13 @@ was originally built from -- that is how every renderer below was validated):
 
     code       file table                      functions   function table
     history    KPIs, calendar, monthly lines, weekdays, biggest commits, latest commits
-    map        treemap data                    agents      table, KPIs, provider and role charts
-    api        route table, KPIs, routes per file
+    map        treemap data
     infra      services, Dockerfiles, CI pipeline, dependencies, environment variables
     explore    file, function and route search data
+    data/code/routes.json   (P17) every route with handler, deps, response model and router, for api.html. The "callers" half (which
+                            frontend files call a route) is written by refresh_graph.py; each script keeps the other's half.
+    data/code/agents.json   (P17) agent modules, roles and provider key slots, for agents.html. api.html and agents.html are shells
+                            that assets/js/api.js and agents.js draw from these two files.
     data/index/stats.json   the live numbers the shared shell shows (sidebar counts, snapshot chip)
     data/index/vitals.json  the "census" half of the Overview's numbers (KPIs, languages, commits per month, areas,
                             largest / most-changed / most complex, docstring coverage, the directory table counts).
@@ -38,10 +41,9 @@ was originally built from -- that is how every renderer below was validated):
 
 What it deliberately does NOT touch, because the census cannot supply it:
 
-    * Anything from the Graphify graph: the "graph" half of data/index/vitals.json (nodes, links,
-      communities, hubs), "Frontend files that call the API most", and the per-route "frontend
-      callers" column on api. Existing callers are carried over by (method, path); routes
-      that are new since the last Graphify run show a blank.
+    * Anything from the Graphify graph or the frontend scan: the "graph" half of data/index/vitals.json (nodes, links,
+      communities, hubs) and the per-route "callers" in data/code/routes.json. Existing callers are carried over by
+      route key (method + path); a route that is new since the last scan starts with none.
       explore's connection edges are carried over too, remapped by file path.
     * Pages built from other inputs: tests and health (a pytest/coverage run and notes),
       data (Supabase schema), tables, graph, graph-viewer, roadmap, finance, decisions, ...
@@ -475,31 +477,87 @@ def refresh_map(html, c):
     return replace_literal(html, "const TREE=", json.dumps(map_tree(c), separators=(",", ":")))
 
 
-# --------------------------------------------------------------------------- api
-def _short_api(p):
-    return p.split("backend/api/", 1)[1] if p.startswith("backend/api/") else p
+# ------------------------------------------------------------ routes and agents (P17)
+# api.html and agents.html are shells now: assets/js/api.js and agents.js draw them from two files, so no regex renderer is left.
+#     data/code/routes.json   every route (the census half, written here) and which frontend files call it (the callers half,
+#                             written by refresh_graph.py). Each script rewrites only its own half and carries the other over
+#                             by route key, the same way data/index/vitals.json works.
+#     data/code/agents.json   agent modules, the roles they fill and the provider key slots (all from the census registry)
+# Nothing in either file is typed by hand. A link (a caller, a router, a role's module) is written only when the data has it.
+ROUTES_REL = "data/code/routes.json"
+AGENTS_REL = "data/code/agents.json"
+DATA_SCHEMA = 1
+AGENT_DOC_MAX = 200                     # characters of a module's first docstring line kept in agents.json
 
 
-def refresh_api(html, c):
-    old = read_literal(html, "ROWS=")
-    callers = {(r[0], r[1]): r[7] for r in old}   # from the last Graphify run; not derivable from the census
-    rows = [[r["method"], r["path"], r["handler"], _short_api(r["file"]), r["line"], ", ".join(r["deps"]) if r["deps"] else "none",
-             r.get("response_model") or "", callers.get((r["method"], r["path"]), "")] for r in c["routes"]]
-    html = replace_literal(html, "ROWS=", json.dumps(rows))
-    cnt = collections.Counter(r["method"] for r in c["routes"])
-    html = replace_first_grid(html, kpi_grid([
-        (fmt(len(c["routes"])), "routes"), (fmt(cnt["GET"]), "GET"), (fmt(cnt["POST"]), "POST"), (fmt(cnt["PUT"] + cnt["PATCH"]), "PUT / PATCH"),
-        (fmt(cnt["DELETE"]), "DELETE"), (fmt(sum(1 for r in c["routes"] if r["deps"])), "with declared auth/deps"),
-        (fmt(sum(1 for r in rows if isinstance(r[7], int) and r[7] > 0)), "called by the frontend")]))
-    stem = lambda p: p.rsplit("/", 1)[-1].rsplit(".", 1)[0]
-    rpf = collections.Counter(stem(r["file"]) for r in c["routes"]).most_common(13)
-    return replace_card(html, "Routes per file", '<div class="card"><h3>Routes per file</h3>' + bars(rpf) + "</div>")
+def json_text(d):
+    """One-space indent, sorted keys, trailing newline: stable diffs, and small enough to fetch whole."""
+    return json.dumps(d, indent=1, sort_keys=True, ensure_ascii=False) + "\n"
 
 
-# ------------------------------------------------------------------------ agents
-def agent_rows(c):
-    tests = [f for f in c["files"] if f.get("test")]
-    out = []
+def read_json(root, rel):
+    """A JSON file of the site as it is on disk: {} when it is missing or not valid JSON (the next refresh writes a fresh one)."""
+    p = Path(root) / rel
+    if not p.is_file():
+        return {}
+    try:
+        d = json.loads(read_lf(p)[0])
+    except ValueError:
+        return {}
+    return d if isinstance(d, dict) else {}
+
+
+def route_key(r):
+    return f"{r['method']} {r['path']}"
+
+
+def router_include(file, includes):
+    """The census's `include_router(...)` entry for a route file, or None. The census lists the includes without saying which
+    file each one belongs to, so a link is made only when exactly one include is named after the file (chats.py: `chats`,
+    `chats_router` or `chats_routes`). Two or more candidates, or none, and the route gets no router: nothing is guessed."""
+    stem = base(file).rsplit(".", 1)[0]
+    hits = [i for i in includes if i.get("alias") in (stem, f"{stem}_router", f"{stem}_routes")]
+    return hits[0] if len(hits) == 1 else None
+
+
+def build_routes(c, existing=None):
+    """routes.json from the census. `existing` is the file as it is on disk: its callers and callers_scan are carried over by
+    route key (they come from the frontend scan in refresh_graph.py, not from the census), so a route that is new since the
+    last scan starts with no callers."""
+    existing = existing or {}
+    old = {r["key"]: r for r in existing.get("routes") or [] if isinstance(r, dict) and "key" in r}
+    includes = c.get("router_includes") or []
+    routes = []
+    for r in c["routes"]:
+        key = route_key(r)
+        rec = {"key": key, "method": r["method"], "path": r["path"], "handler": r["handler"], "file": r["file"], "line": r["line"],
+               "end": r.get("end"), "async": bool(r.get("async")), "deps": list(r.get("deps") or []), "response_model": r.get("response_model") or None,
+               "callers": (old.get(key) or {}).get("callers") or []}
+        if r.get("router_prefix"):
+            rec["prefix"] = r["router_prefix"]
+        inc = router_include(r["file"], includes)
+        if inc:
+            rec["router"], rec["include_prefix"] = inc["alias"], inc.get("prefix") or ""
+        routes.append(rec)
+    doc = {"schema": DATA_SCHEMA, "commit": c["git"]["head"], "generated": c["meta"]["generated"][:10], "routes": routes}
+    if existing.get("callers_scan"):
+        doc["callers_scan"] = existing["callers_scan"]
+    return doc
+
+
+def with_callers(doc, callers, scan):
+    """`doc` (from build_routes) with the frontend callers filled in: callers is {route key: [{"file", "via": [...]}]}, scan
+    describes the scan that found them. A route the scan did not hit has an empty list."""
+    out = dict(doc)
+    out["routes"] = [{**r, "callers": sorted(callers.get(r["key"], []), key=lambda x: x["file"])} for r in doc["routes"]]
+    out["callers_scan"] = scan
+    return out
+
+
+def build_agents(c):
+    """agents.json: modules (backend/agents/*.py), roles (the role-prompt keys) and provider key slots (names only, no secrets)."""
+    tests = sorted(f["path"] for f in c["files"] if f.get("test"))
+    modules = []
     for f in sorted(c["files"], key=lambda f: f["path"]):
         p = f["path"]
         if not (p.startswith("backend/agents/") and p.endswith(".py")) or p.endswith("__init__.py") or f.get("test"):
@@ -509,35 +567,26 @@ def agent_rows(c):
         doc = (f.get("module_doc") or "").strip().split("\n")[0]
         pre = f"agents/{name}.py"
         if doc.startswith(pre):
-            doc = doc[len(pre):].lstrip(" —-:").strip()
-        out.append([name, doc[:52], f["code"], len(G(f, "functions")), sum(1 for t in tests if name in base(t["path"])), g.get("commits", 0), g.get("last") or ""])
-    return out
-
-
-def _role_serve(c):
-    serve = collections.Counter()
-    for v in c["registry"]["agent_capabilities"].values():
-        for r in v["natural_roles"]:
-            serve[r] += 1
-    return serve
-
-
-def refresh_agents(html, c):
-    rows = agent_rows(c)
+            doc = doc[len(pre):].lstrip(" \u2014-:").strip()
+        modules.append({"name": name, "file": p, "doc": doc[:AGENT_DOC_MAX], "code": f["code"], "functions": len(G(f, "functions")),
+                        "tests": [t for t in tests if name in base(t)], "commits": g.get("commits", 0), "last": g.get("last") or ""})
     reg = c["registry"]
-    caps, roles, serve = reg["agent_capabilities"], reg["role_prompts_seed_keys"], _role_serve(c)
-    html = replace_literal(html, "ROWS=", json.dumps(rows))
-    html = replace_first_grid(html, kpi_grid([
-        (fmt(len(rows)), "agent modules"), (fmt(len(roles)), "roles"), (fmt(len(caps)), "provider key slots"),
-        (fmt(len({v["provider"] for v in caps.values()})), "providers"), (fmt(sum(r[2] for r in rows)), "agent code lines"),
-        (fmt(sum(1 for r in rows if r[4] == 0)), "agents with no test file")]))
-    prov = collections.Counter(v["provider"] for v in caps.values())
-    html = replace_card(html, "Key slots per provider", '<div class="card"><h3>Key slots per provider</h3>' + bars(prov.most_common())
-                        + '<p class="note" style="font-size:12.5px;color:#a8a6a0">Each slot is one API key in AGENT_CAPABILITIES (names only, no secrets).</p></div>')
-    html = replace_card(html, "How many key slots can serve each role",
-                        '<div class="card"><h3>How many key slots can serve each role</h3>' + bars([(r, serve[r]) for r in roles if serve[r] > 0]) + "</div>")
-    pills = "".join(f'<span class="pill">{esc(r)}{"" if serve[r] > 0 else " · no key slot"}</span>' for r in roles)
-    return replace_card(html, "All ", f'<div class="card" style="margin-top:14px"><h3>All {len(roles)} roles</h3>{pills}</div>')
+    caps = reg["agent_capabilities"]
+    by_provider = collections.defaultdict(list)
+    for slot, v in caps.items():
+        by_provider[v["provider"]].append(slot)
+    aliases = reg.get("role_aliases_keys") or {}
+    names = {m["name"] for m in modules}
+    roles = []
+    for key in reg["role_prompts_seed_keys"]:
+        rec = {"key": key, "slots": sorted(s for s, v in caps.items() if key in v["natural_roles"])}
+        if key in aliases:
+            rec["aliases"] = list(aliases[key])
+        if key in names:                # a role that has an agent module of the same name; the census records no other role-to-module link
+            rec["module"] = key
+        roles.append(rec)
+    return {"schema": DATA_SCHEMA, "commit": c["git"]["head"], "generated": c["meta"]["generated"][:10], "modules": modules, "roles": roles,
+            "providers": [{"name": n, "slots": sorted(s)} for n, s in sorted(by_provider.items())]}
 
 
 # ------------------------------------------------------------------------- infra
@@ -638,7 +687,7 @@ def refresh_explore(html, c):
 # ------------------------------------------------------------------------ driver
 PAGES = {                               # index.html is not here any more: it is a shell that overview.js fills from data/index/vitals.json
     "code": refresh_code, "functions": refresh_functions, "history": refresh_history,
-    "map": refresh_map, "api": refresh_api, "agents": refresh_agents, "infra": refresh_infra, "explore": refresh_explore,
+    "map": refresh_map, "infra": refresh_infra, "explore": refresh_explore,
 }
 
 
@@ -688,6 +737,11 @@ def refresh_all(root, census):
     old, crlf = read_lf(stp) if stp.exists() else (None, False)
     if new != old:
         changes[stp] = to_native(new, crlf)
+    for rel, new in ((ROUTES_REL, json_text(build_routes(census, read_json(root, ROUTES_REL)))), (AGENTS_REL, json_text(build_agents(census)))):
+        p = root / rel                                                 # P17: what api.html and agents.html draw
+        old, crlf = read_lf(p) if p.exists() else (None, False)
+        if new != old:
+            changes[p] = to_native(new, crlf)
     vp = root / VITALS_REL
     new = vitals_text(read_vitals(root), census=census_vitals(census, load_subsystems(root), load_topology(root)))
     old, crlf = read_lf(vp) if vp.exists() else (None, False)

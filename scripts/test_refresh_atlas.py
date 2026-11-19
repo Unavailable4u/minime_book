@@ -26,7 +26,8 @@ _spec = importlib.util.spec_from_file_location("refresh_atlas", ROOT / "scripts"
 ra = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ra)
 
-FILES = [f"{name}.html" for name in ra.PAGES] + ["data/census.json", "data/summary.md", "data/index/stats.json", "data/index/vitals.json", "content/subsystems.json", "content/topology.json"]
+FILES = [f"{name}.html" for name in ra.PAGES] + ["data/census.json", "data/summary.md", "data/index/stats.json", "data/index/vitals.json", "data/code/routes.json", "data/code/agents.json",
+                                                    "content/subsystems.json", "content/topology.json"]
 
 
 def read(p):
@@ -43,7 +44,7 @@ class RepoState(unittest.TestCase):
 class OnACopy(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp())
-        for d in ("data/index", "content"):
+        for d in ("data/index", "data/code", "content"):
             (self.tmp / d).mkdir(parents=True)
         for rel in FILES:
             shutil.copy(ROOT / rel, self.tmp / rel)
@@ -170,28 +171,60 @@ class OnACopy(unittest.TestCase):
         self.assertEqual({"census"}, set(json.loads(read(vp))))
 
     def test_graphify_derived_content_is_preserved(self):
-        before = {n: read(self.tmp / f"{n}.html") for n in ("api", "explore")}
+        before = read(self.tmp / "explore.html")
         self.newer_census()
         self.refresh()
-        a, b = ra.find_card(before["api"], "Frontend files that call"), ra.find_card(read(self.tmp / "api.html"), "Frontend files that call")
-        self.assertEqual(before["api"][a[0]:a[1]], read(self.tmp / "api.html")[b[0]:b[1]])
-        self.assertEqual(ra.read_literal(before["explore"], ",DC="), ra.read_literal(read(self.tmp / "explore.html"), ",DC="), "doc sections must be untouched")
+        self.assertEqual(ra.read_literal(before, ",DC="), ra.read_literal(read(self.tmp / "explore.html"), ",DC="), "doc sections must be untouched")
 
-    def test_new_route_has_blank_callers_and_existing_callers_are_kept(self):
-        old_rows = ra.read_literal(read(self.tmp / "api.html"), "ROWS=")
-        old_callers = {(r[0], r[1]): r[7] for r in old_rows}
+    def test_api_and_agents_are_shells_not_generated_pages_any_more(self):
+        """P17: api.html and agents.html are drawn by assets/js/api.js and agents.js from data/code/routes.json and agents.json."""
+        for name in ("api", "agents"):
+            self.assertNotIn(name, ra.PAGES)
+        for gone in ("refresh_api", "refresh_agents", "agent_rows", "_role_serve", "_short_api"):
+            self.assertFalse(hasattr(ra, gone), gone)
+        before = {n: read(ROOT / f"{n}.html") for n in ("api", "agents")}
+        self.newer_census()
+        self.refresh()
+        for n in before:
+            self.assertEqual(before[n], read(ROOT / f"{n}.html"))
+        self.assertEqual("2099-01-02", json.loads(read(self.tmp / ra.ROUTES_REL))["generated"])
+        self.assertEqual("abc1234", json.loads(read(self.tmp / ra.AGENTS_REL))["commit"])
+
+    def test_new_route_has_no_callers_and_existing_callers_are_kept(self):
+        old = json.loads(read(self.tmp / ra.ROUTES_REL))
+        old_callers = {r["key"]: r["callers"] for r in old["routes"]}
+        self.assertTrue(any(old_callers.values()), "the committed routes.json should carry callers from the last frontend scan")
         r0 = copy.deepcopy(self.census["routes"][0])
         r0.update(path="/api/brand-new-route", handler="brand_new")
         self.census["routes"].append(r0)
         self.save_census()
         self.refresh()
-        rows = ra.read_literal(read(self.tmp / "api.html"), "ROWS=")
-        new = [r for r in rows if r[1] == "/api/brand-new-route"]
+        doc = json.loads(read(self.tmp / ra.ROUTES_REL))
+        new = [r for r in doc["routes"] if r["path"] == "/api/brand-new-route"]
         self.assertEqual(1, len(new))
-        self.assertEqual("", new[0][7], "no Graphify data for a new route: blank, not a made-up number")
-        for r in rows:
-            if (r[0], r[1]) in old_callers:
-                self.assertEqual(old_callers[(r[0], r[1])], r[7])
+        self.assertEqual([], new[0]["callers"], "no frontend scan has seen a new route: no callers, not a made-up one")
+        for r in doc["routes"]:
+            if r["key"] in old_callers:
+                self.assertEqual(old_callers[r["key"]], r["callers"])
+        self.assertEqual(old["callers_scan"], doc["callers_scan"], "the scan description belongs to refresh_graph.py and is kept")
+
+    def test_a_removed_route_takes_its_callers_with_it_and_a_renamed_one_starts_empty(self):
+        self.census["routes"][0]["path"] = "/api/renamed"
+        self.save_census()
+        self.refresh()
+        doc = json.loads(read(self.tmp / ra.ROUTES_REL))
+        self.assertEqual(len(self.census["routes"]), len(doc["routes"]))
+        self.assertEqual([], next(r for r in doc["routes"] if r["path"] == "/api/renamed")["callers"])
+
+    def test_routes_json_is_rebuilt_when_missing_or_not_json_and_no_callers_are_invented(self):
+        rp = self.tmp / ra.ROUTES_REL
+        for damage in (lambda: rp.write_text("{not json", encoding="utf-8"), rp.unlink):
+            damage()
+            self.assertEqual(0, ra.main(["--root", str(self.tmp)]))
+            d = json.loads(read(rp))
+            self.assertEqual(len(self.census["routes"]), len(d["routes"]))
+            self.assertEqual([], [r for r in d["routes"] if r["callers"]])
+            self.assertNotIn("callers_scan", d, "a census refresh must never claim a frontend scan happened")
 
     def test_explore_edges_follow_their_files_when_indexes_shift(self):
         def path_edges(html):

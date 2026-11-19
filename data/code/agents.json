@@ -1,0 +1,1205 @@
+{
+ "commit": "3727ae3",
+ "generated": "2026-11-19",
+ "modules": [
+  {
+   "code": 203,
+   "commits": 5,
+   "doc": "Discovery (Part 3 §3.3).",
+   "file": "backend/agents/academic_search.py",
+   "functions": 9,
+   "last": "2026-10-21",
+   "name": "academic_search",
+   "tests": [
+    "backend/tests/unit/test_agent_academic_search.py"
+   ]
+  },
+  {
+   "code": 139,
+   "commits": 7,
+   "doc": "Part 5 §5.3. Proposes a system-level",
+   "file": "backend/agents/architecture_diagrammer.py",
+   "functions": 3,
+   "last": "2026-08-25",
+   "name": "architecture_diagrammer",
+   "tests": [
+    "backend/tests/unit/test_agent_architecture_diagrammer.py"
+   ]
+  },
+  {
+   "code": 376,
+   "commits": 2,
+   "doc": "Part 4 §4.3. Deterministic, no-LLM-call",
+   "file": "backend/agents/backlink_detector.py",
+   "functions": 12,
+   "last": "2026-08-25",
+   "name": "backlink_detector",
+   "tests": [
+    "backend/tests/unit/test_agent_backlink_detector.py"
+   ]
+  },
+  {
+   "code": 74,
+   "commits": 2,
+   "doc": "Part 8.5: Google Calendar connector.",
+   "file": "backend/agents/calendar_agent.py",
+   "functions": 5,
+   "last": "2026-08-25",
+   "name": "calendar_agent",
+   "tests": [
+    "backend/tests/unit/test_agent_calendar_agent.py"
+   ]
+  },
+  {
+   "code": 121,
+   "commits": 2,
+   "doc": "Citation graph view (Part 3).",
+   "file": "backend/agents/citation_graph_builder.py",
+   "functions": 8,
+   "last": "2026-08-25",
+   "name": "citation_graph_builder",
+   "tests": [
+    "backend/tests/unit/test_agent_citation_graph_builder.py"
+   ]
+  },
+  {
+   "code": 500,
+   "commits": 2,
+   "doc": "W5.2 (Build Workbench plan, step 204): the LLM",
+   "file": "backend/agents/code_editor.py",
+   "functions": 22,
+   "last": "2026-10-01",
+   "name": "code_editor",
+   "tests": [
+    "backend/tests/unit/test_agent_code_editor.py",
+    "backend/tests/unit/test_agent_code_editor_elements.py"
+   ]
+  },
+  {
+   "code": 76,
+   "commits": 5,
+   "doc": "Code Writer (1-worker), Part 2.4's tier-1",
+   "file": "backend/agents/code_writer_lean.py",
+   "functions": 2,
+   "last": "2026-09-27",
+   "name": "code_writer_lean",
+   "tests": [
+    "backend/tests/unit/test_agent_code_writer_lean.py"
+   ]
+  },
+  {
+   "code": 191,
+   "commits": 8,
+   "doc": "Code Writer Pool (Part 4, agent #3 of the v5",
+   "file": "backend/agents/code_writers.py",
+   "functions": 8,
+   "last": "2026-08-25",
+   "name": "code_writers",
+   "tests": [
+    "backend/tests/integration/test_code_writers_pool.py"
+   ]
+  },
+  {
+   "code": 90,
+   "commits": 2,
+   "doc": "G1a: curated component-dimension",
+   "file": "backend/agents/component_dimension_table.py",
+   "functions": 6,
+   "last": "2026-08-14",
+   "name": "component_dimension_table",
+   "tests": [
+    "backend/tests/unit/test_component_dimension_table.py"
+   ]
+  },
+  {
+   "code": 379,
+   "commits": 10,
+   "doc": "Real part dimension/datasheet lookup.",
+   "file": "backend/agents/component_spec_lookup.py",
+   "functions": 15,
+   "last": "2026-08-26",
+   "name": "component_spec_lookup",
+   "tests": [
+    "backend/tests/unit/test_component_spec_lookup_datasheet.py"
+   ]
+  },
+  {
+   "code": 87,
+   "commits": 3,
+   "doc": "Notebooks integration guide §6.6 (Phase 3):",
+   "file": "backend/agents/concept_linker.py",
+   "functions": 5,
+   "last": "2026-08-25",
+   "name": "concept_linker",
+   "tests": [
+    "backend/tests/unit/test_agent_concept_linker.py"
+   ]
+  },
+  {
+   "code": 168,
+   "commits": 5,
+   "doc": "Multi-Platform Content Fan-Out Pool",
+   "file": "backend/agents/content_adapter_pool.py",
+   "functions": 5,
+   "last": "2026-08-25",
+   "name": "content_adapter_pool",
+   "tests": [
+    "backend/tests/unit/test_agent_content_adapter_pool.py"
+   ]
+  },
+  {
+   "code": 214,
+   "commits": 3,
+   "doc": "Contradiction/gap detector, deterministic",
+   "file": "backend/agents/contradiction_prefilter.py",
+   "functions": 10,
+   "last": "2026-10-01",
+   "name": "contradiction_prefilter",
+   "tests": [
+    "backend/tests/unit/test_agent_contradiction_prefilter.py"
+   ]
+  },
+  {
+   "code": 157,
+   "commits": 2,
+   "doc": "Data Layer architecture §8b: turning one",
+   "file": "backend/agents/correction_locator.py",
+   "functions": 8,
+   "last": "2026-08-25",
+   "name": "correction_locator",
+   "tests": [
+    "backend/tests/unit/test_agent_correction_locator.py"
+   ]
+  },
+  {
+   "code": 133,
+   "commits": 5,
+   "doc": "Dataset Analyst (Part 3 §3.7).",
+   "file": "backend/agents/dataset_analyst.py",
+   "functions": 5,
+   "last": "2026-08-25",
+   "name": "dataset_analyst",
+   "tests": [
+    "backend/tests/unit/test_agent_dataset_analyst.py"
+   ]
+  },
+  {
+   "code": 51,
+   "commits": 3,
+   "doc": "Module Dependency Mapper (Part 4, agent #4",
+   "file": "backend/agents/dependency_mapper.py",
+   "functions": 2,
+   "last": "2026-08-25",
+   "name": "dependency_mapper",
+   "tests": [
+    "backend/tests/unit/test_agent_dependency_mapper.py"
+   ]
+  },
+  {
+   "code": 158,
+   "commits": 4,
+   "doc": "Part 7 §7.4, step 2 of the propose/apply split.",
+   "file": "backend/agents/deploy_agent.py",
+   "functions": 7,
+   "last": "2026-08-25",
+   "name": "deploy_agent",
+   "tests": [
+    "backend/tests/unit/test_agent_deploy_agent.py"
+   ]
+  },
+  {
+   "code": 92,
+   "commits": 7,
+   "doc": "Part 7 §7.4, step 1 of the propose/apply",
+   "file": "backend/agents/deploy_config_writer.py",
+   "functions": 3,
+   "last": "2026-10-01",
+   "name": "deploy_config_writer",
+   "tests": [
+    "backend/tests/unit/test_agent_deploy_config_writer.py"
+   ]
+  },
+  {
+   "code": 73,
+   "commits": 4,
+   "doc": "Documentation Agent (Part 4, agent #14 of",
+   "file": "backend/agents/documentation_agent.py",
+   "functions": 2,
+   "last": "2026-09-27",
+   "name": "documentation_agent",
+   "tests": [
+    "backend/tests/unit/test_agent_documentation_agent.py"
+   ]
+  },
+  {
+   "code": 70,
+   "commits": 2,
+   "doc": "Duplication/Similarity Checker (Part 4,",
+   "file": "backend/agents/duplication_checker.py",
+   "functions": 2,
+   "last": "2026-08-25",
+   "name": "duplication_checker",
+   "tests": [
+    "backend/tests/unit/test_agent_duplication_checker.py"
+   ]
+  },
+  {
+   "code": 299,
+   "commits": 3,
+   "doc": "mechanical export of a node/artifact into a target",
+   "file": "backend/agents/exporter.py",
+   "functions": 18,
+   "last": "2026-08-25",
+   "name": "exporter",
+   "tests": []
+  },
+  {
+   "code": 138,
+   "commits": 4,
+   "doc": "Structured multi-paper extraction",
+   "file": "backend/agents/extraction_table_builder.py",
+   "functions": 7,
+   "last": "2026-08-25",
+   "name": "extraction_table_builder",
+   "tests": [
+    "backend/tests/unit/test_agent_extraction_table_builder.py"
+   ]
+  },
+  {
+   "code": 105,
+   "commits": 2,
+   "doc": "Notebooks integration guide §6.2: the missing",
+   "file": "backend/agents/fact_detector.py",
+   "functions": 3,
+   "last": "2026-08-25",
+   "name": "fact_detector",
+   "tests": [
+    "backend/tests/unit/test_agent_fact_detector.py"
+   ]
+  },
+  {
+   "code": 274,
+   "commits": 2,
+   "doc": "executes the file plan produced by",
+   "file": "backend/agents/file_manager.py",
+   "functions": 10,
+   "last": "2026-08-25",
+   "name": "file_manager",
+   "tests": [
+    "backend/tests/integration/test_file_manager.py"
+   ]
+  },
+  {
+   "code": 160,
+   "commits": 4,
+   "doc": "Fixer Pool (Part 4, agent #9 of the v5 Master",
+   "file": "backend/agents/fixer_pool.py",
+   "functions": 9,
+   "last": "2026-08-25",
+   "name": "fixer_pool",
+   "tests": [
+    "backend/tests/integration/test_fixer_pool.py"
+   ]
+  },
+  {
+   "code": 372,
+   "commits": 20,
+   "doc": "v6 migration Part 10. Runs ANY role that",
+   "file": "backend/agents/generic_worker.py",
+   "functions": 10,
+   "last": "2026-09-27",
+   "name": "generic_worker",
+   "tests": [
+    "backend/tests/integration/test_generic_worker_legacy_roles.py"
+   ]
+  },
+  {
+   "code": 141,
+   "commits": 4,
+   "doc": "Part 5 §5.6. The centerpiece handoff from",
+   "file": "backend/agents/handoff_packager.py",
+   "functions": 9,
+   "last": "2026-08-25",
+   "name": "handoff_packager",
+   "tests": [
+    "backend/tests/unit/test_agent_handoff_packager.py"
+   ]
+  },
+  {
+   "code": 1389,
+   "commits": 41,
+   "doc": "MiniMe Blueprint. Proposes a hardware bill-of-",
+   "file": "backend/agents/hardware_speccer.py",
+   "functions": 29,
+   "last": "2026-08-29",
+   "name": "hardware_speccer",
+   "tests": [
+    "backend/tests/unit/test_hardware_speccer_pricing.py"
+   ]
+  },
+  {
+   "code": 59,
+   "commits": 8,
+   "doc": "",
+   "file": "backend/agents/idea_planner.py",
+   "functions": 1,
+   "last": "2026-08-27",
+   "name": "idea_planner",
+   "tests": [
+    "backend/tests/unit/test_agent_idea_planner.py"
+   ]
+  },
+  {
+   "code": 188,
+   "commits": 2,
+   "doc": "mechanical import of docx/pptx/xlsx/csv/md/json back",
+   "file": "backend/agents/importer.py",
+   "functions": 10,
+   "last": "2026-08-25",
+   "name": "importer",
+   "tests": []
+  },
+  {
+   "code": 229,
+   "commits": 4,
+   "doc": "G3b (Master Guide, \"G3/G4. Hierarchical",
+   "file": "backend/agents/mech_primitive_pool.py",
+   "functions": 9,
+   "last": "2026-08-25",
+   "name": "mech_primitive_pool",
+   "tests": [
+    "backend/tests/unit/test_mech_primitive_pool.py"
+   ]
+  },
+  {
+   "code": 257,
+   "commits": 4,
+   "doc": "G3f-1 (Master Guide, \"G3/G4. Hierarchical",
+   "file": "backend/agents/mech_section_pool.py",
+   "functions": 12,
+   "last": "2026-08-25",
+   "name": "mech_section_pool",
+   "tests": [
+    "backend/tests/unit/test_mech_section_pool.py"
+   ]
+  },
+  {
+   "code": 202,
+   "commits": 4,
+   "doc": "G3e-2 (Master Guide, \"G3/G4.",
+   "file": "backend/agents/mech_subsection_pool.py",
+   "functions": 9,
+   "last": "2026-08-25",
+   "name": "mech_subsection_pool",
+   "tests": [
+    "backend/tests/unit/test_mech_subsection_pool.py"
+   ]
+  },
+  {
+   "code": 74,
+   "commits": 2,
+   "doc": "Cross-Cycle Memory Search (Part 4, agent #0 of",
+   "file": "backend/agents/memory_search.py",
+   "functions": 4,
+   "last": "2026-08-25",
+   "name": "memory_search",
+   "tests": [
+    "backend/tests/unit/test_agent_memory_search.py"
+   ]
+  },
+  {
+   "code": 103,
+   "commits": 2,
+   "doc": "Notebooks integration guide §6.5 (Phase 2): Mind",
+   "file": "backend/agents/mind_mapper.py",
+   "functions": 5,
+   "last": "2026-08-25",
+   "name": "mind_mapper",
+   "tests": [
+    "backend/tests/unit/test_agent_mind_mapper.py"
+   ]
+  },
+  {
+   "code": 94,
+   "commits": 2,
+   "doc": "Part 4 §4.3. Deterministic, no-LLM-call",
+   "file": "backend/agents/note_clusterer.py",
+   "functions": 8,
+   "last": "2026-08-25",
+   "name": "note_clusterer",
+   "tests": [
+    "backend/tests/unit/test_agent_note_clusterer.py"
+   ]
+  },
+  {
+   "code": 137,
+   "commits": 4,
+   "doc": "Part 4 §4.4. Data tables from scattered",
+   "file": "backend/agents/note_table_builder.py",
+   "functions": 7,
+   "last": "2026-08-25",
+   "name": "note_table_builder",
+   "tests": [
+    "backend/tests/unit/test_agent_note_table_builder.py"
+   ]
+  },
+  {
+   "code": 78,
+   "commits": 2,
+   "doc": "Notes domain: Part 4 §4.6, the silent note-taking",
+   "file": "backend/agents/note_taker.py",
+   "functions": 5,
+   "last": "2026-08-25",
+   "name": "note_taker",
+   "tests": []
+  },
+  {
+   "code": 161,
+   "commits": 11,
+   "doc": "Phase CO, CO1 (Master Guide v2, §5).",
+   "file": "backend/agents/output_organizer.py",
+   "functions": 4,
+   "last": "2026-08-25",
+   "name": "output_organizer",
+   "tests": [
+    "backend/evals/promptfoo/tests/asserts/output_organizer_asserts.py",
+    "backend/evals/promptfoo/tests/output_organizer.yaml",
+    "backend/tests/unit/test_agent_output_organizer.py",
+    "backend/tests/unit/test_eval_output_organizer_provider.py"
+   ]
+  },
+  {
+   "code": 187,
+   "commits": 3,
+   "doc": "closes the one gap the MiniMe ingestion",
+   "file": "backend/agents/overlapping_checker.py",
+   "functions": 9,
+   "last": "2026-10-01",
+   "name": "overlapping_checker",
+   "tests": [
+    "backend/tests/unit/test_agent_overlapping_checker.py"
+   ]
+  },
+  {
+   "code": 61,
+   "commits": 2,
+   "doc": "Google PageSpeed Insights connector.",
+   "file": "backend/agents/pagespeed_agent.py",
+   "functions": 3,
+   "last": "2026-08-25",
+   "name": "pagespeed_agent",
+   "tests": [
+    "backend/tests/unit/test_agent_pagespeed_agent.py"
+   ]
+  },
+  {
+   "code": 169,
+   "commits": 11,
+   "doc": "Bangladesh hardware part price lookup.",
+   "file": "backend/agents/part_price_finder.py",
+   "functions": 8,
+   "last": "2026-08-26",
+   "name": "part_price_finder",
+   "tests": []
+  },
+  {
+   "code": 52,
+   "commits": 3,
+   "doc": "Part 4 §4.2. Deterministic, no-LLM-call PDF",
+   "file": "backend/agents/pdf_ingestor.py",
+   "functions": 4,
+   "last": "2026-08-25",
+   "name": "pdf_ingestor",
+   "tests": []
+  },
+  {
+   "code": 116,
+   "commits": 3,
+   "doc": "Performance Reviewer (Patch 8, rollout",
+   "file": "backend/agents/performance_reviewer.py",
+   "functions": 5,
+   "last": "2026-09-27",
+   "name": "performance_reviewer",
+   "tests": [
+    "backend/tests/unit/test_agent_performance_reviewer.py"
+   ]
+  },
+  {
+   "code": 58,
+   "commits": 3,
+   "doc": "Notebooks Chat-First Refinement, Phase 5",
+   "file": "backend/agents/podcast_scriptwriter.py",
+   "functions": 2,
+   "last": "2026-08-30",
+   "name": "podcast_scriptwriter",
+   "tests": [
+    "backend/tests/unit/test_agent_podcast_scriptwriter.py"
+   ]
+  },
+  {
+   "code": 91,
+   "commits": 4,
+   "doc": "",
+   "file": "backend/agents/prompt_writer.py",
+   "functions": 3,
+   "last": "2026-08-25",
+   "name": "prompt_writer",
+   "tests": [
+    "backend/tests/unit/test_agent_prompt_writer.py",
+    "backend/tests/unit/test_agent_prompt_writer_lean.py"
+   ]
+  },
+  {
+   "code": 70,
+   "commits": 7,
+   "doc": "Prompt/Spec Writer (lean), Part 2.4's",
+   "file": "backend/agents/prompt_writer_lean.py",
+   "functions": 2,
+   "last": "2026-09-27",
+   "name": "prompt_writer_lean",
+   "tests": [
+    "backend/tests/unit/test_agent_prompt_writer_lean.py"
+   ]
+  },
+  {
+   "code": 75,
+   "commits": 2,
+   "doc": "Notebooks Chat-First Refinement, Phase 5",
+   "file": "backend/agents/rehearsal_scriptwriter.py",
+   "functions": 2,
+   "last": "2026-08-25",
+   "name": "rehearsal_scriptwriter",
+   "tests": [
+    "backend/tests/unit/test_agent_rehearsal_scriptwriter.py"
+   ]
+  },
+  {
+   "code": 71,
+   "commits": 5,
+   "doc": "",
+   "file": "backend/agents/report_writer.py",
+   "functions": 1,
+   "last": "2026-08-25",
+   "name": "report_writer",
+   "tests": [
+    "backend/tests/integration/test_report_writer.py"
+   ]
+  },
+  {
+   "code": 57,
+   "commits": 7,
+   "doc": "Responder, Tier-0 execution agent (Part 2.3 of the",
+   "file": "backend/agents/responder.py",
+   "functions": 1,
+   "last": "2026-08-27",
+   "name": "responder",
+   "tests": [
+    "backend/tests/unit/test_agent_responder.py"
+   ]
+  },
+  {
+   "code": 68,
+   "commits": 1,
+   "doc": "Review Aggregator (Part 4, agent #8).",
+   "file": "backend/agents/review_aggregator.py",
+   "functions": 2,
+   "last": "2026-08-05",
+   "name": "review_aggregator",
+   "tests": []
+  },
+  {
+   "code": 133,
+   "commits": 3,
+   "doc": "Reviewer Pool",
+   "file": "backend/agents/reviewer.py",
+   "functions": 6,
+   "last": "2026-08-25",
+   "name": "reviewer",
+   "tests": [
+    "backend/tests/integration/test_reviewer.py",
+    "backend/tests/unit/test_agent_performance_reviewer.py",
+    "backend/tests/unit/test_agent_reviewer_fixer_lean.py"
+   ]
+  },
+  {
+   "code": 82,
+   "commits": 6,
+   "doc": "Combined Reviewer+Fixer, Part 2.4's tier-1",
+   "file": "backend/agents/reviewer_fixer_lean.py",
+   "functions": 2,
+   "last": "2026-09-27",
+   "name": "reviewer_fixer_lean",
+   "tests": [
+    "backend/tests/unit/test_agent_reviewer_fixer_lean.py"
+   ]
+  },
+  {
+   "code": 99,
+   "commits": 2,
+   "doc": "Sandbox Tester (Part 4, agent #10 of the v5",
+   "file": "backend/agents/sandbox_tester.py",
+   "functions": 3,
+   "last": "2026-08-25",
+   "name": "sandbox_tester",
+   "tests": [
+    "backend/tests/integration/test_sandbox_tester.py"
+   ]
+  },
+  {
+   "code": 105,
+   "commits": 7,
+   "doc": "Part 5 §5.3. Proposes a database/entity",
+   "file": "backend/agents/schema_diagrammer.py",
+   "functions": 3,
+   "last": "2026-08-25",
+   "name": "schema_diagrammer",
+   "tests": [
+    "backend/tests/unit/test_agent_schema_diagrammer.py"
+   ]
+  },
+  {
+   "code": 70,
+   "commits": 2,
+   "doc": "Security Scan Aggregator (new; not one of",
+   "file": "backend/agents/security_aggregator.py",
+   "functions": 4,
+   "last": "2026-08-25",
+   "name": "security_aggregator",
+   "tests": [
+    "backend/tests/unit/test_agent_security_aggregator.py"
+   ]
+  },
+  {
+   "code": 152,
+   "commits": 4,
+   "doc": "Security/Dependency Scanner Pool (Part 4,",
+   "file": "backend/agents/security_scanner.py",
+   "functions": 8,
+   "last": "2026-08-25",
+   "name": "security_scanner",
+   "tests": [
+    "backend/tests/integration/test_security_scanner.py"
+   ]
+  },
+  {
+   "code": 58,
+   "commits": 3,
+   "doc": "Notebooks Chat-First Refinement, Phase 5",
+   "file": "backend/agents/slide_deck_planner.py",
+   "functions": 2,
+   "last": "2026-08-30",
+   "name": "slide_deck_planner",
+   "tests": [
+    "backend/tests/unit/test_agent_slide_deck_planner.py"
+   ]
+  },
+  {
+   "code": 47,
+   "commits": 2,
+   "doc": "Part 4 §4.2. The single \"write ingested",
+   "file": "backend/agents/source_ingestor.py",
+   "functions": 2,
+   "last": "2026-08-25",
+   "name": "source_ingestor",
+   "tests": [
+    "backend/tests/unit/test_agent_source_ingestor.py"
+   ]
+  },
+  {
+   "code": 301,
+   "commits": 3,
+   "doc": "Data Layer architecture §1/§3. Source",
+   "file": "backend/agents/source_manager.py",
+   "functions": 12,
+   "last": "2026-08-25",
+   "name": "source_manager",
+   "tests": [
+    "backend/tests/unit/test_agent_source_manager_exec.py",
+    "backend/tests/unit/test_agent_source_manager_prep.py"
+   ]
+  },
+  {
+   "code": 115,
+   "commits": 2,
+   "doc": "Data Layer architecture §5b: Source",
+   "file": "backend/agents/source_planner_lean.py",
+   "functions": 6,
+   "last": "2026-08-25",
+   "name": "source_planner_lean",
+   "tests": [
+    "backend/tests/unit/test_agent_source_planner_lean.py"
+   ]
+  },
+  {
+   "code": 143,
+   "commits": 2,
+   "doc": "Source quality + plagiarism/near-duplicate",
+   "file": "backend/agents/source_quality_flagger.py",
+   "functions": 4,
+   "last": "2026-08-25",
+   "name": "source_quality_flagger",
+   "tests": [
+    "backend/tests/unit/test_agent_source_quality_flagger.py"
+   ]
+  },
+  {
+   "code": 74,
+   "commits": 1,
+   "doc": "Static Security Scan (secrets + SAST). New this",
+   "file": "backend/agents/static_scan.py",
+   "functions": 3,
+   "last": "2026-08-05",
+   "name": "static_scan",
+   "tests": []
+  },
+  {
+   "code": 230,
+   "commits": 7,
+   "doc": "decides HOW the codebase should be organized",
+   "file": "backend/agents/structure_architect.py",
+   "functions": 9,
+   "last": "2026-09-27",
+   "name": "structure_architect",
+   "tests": [
+    "backend/tests/integration/test_structure_architect.py"
+   ]
+  },
+  {
+   "code": 61,
+   "commits": 2,
+   "doc": "Notebooks integration guide §6.1: Flashcards /",
+   "file": "backend/agents/study_generator.py",
+   "functions": 2,
+   "last": "2026-08-25",
+   "name": "study_generator",
+   "tests": [
+    "backend/tests/unit/test_agent_study_generator.py"
+   ]
+  },
+  {
+   "code": 102,
+   "commits": 2,
+   "doc": "source-grounded, single-topic note",
+   "file": "backend/agents/topic_note_writer.py",
+   "functions": 3,
+   "last": "2026-08-25",
+   "name": "topic_note_writer",
+   "tests": [
+    "backend/tests/unit/test_agent_topic_note_writer.py"
+   ]
+  },
+  {
+   "code": 150,
+   "commits": 4,
+   "doc": "Part 4 §4.4. Deterministic, no-LLM-call audio",
+   "file": "backend/agents/tts_synthesizer.py",
+   "functions": 11,
+   "last": "2026-09-03",
+   "name": "tts_synthesizer",
+   "tests": [
+    "backend/tests/unit/test_agent_tts_synthesizer.py"
+   ]
+  },
+  {
+   "code": 53,
+   "commits": 2,
+   "doc": "Part 4 §4.2. Deterministic, no-LLM-call",
+   "file": "backend/agents/video_ingestor.py",
+   "functions": 3,
+   "last": "2026-08-25",
+   "name": "video_ingestor",
+   "tests": [
+    "backend/tests/unit/test_agent_video_ingestor.py"
+   ]
+  },
+  {
+   "code": 177,
+   "commits": 3,
+   "doc": "Part 4 §4.4. Deterministic, no-LLM-call",
+   "file": "backend/agents/video_overview_builder.py",
+   "functions": 8,
+   "last": "2026-09-03",
+   "name": "video_overview_builder",
+   "tests": [
+    "backend/tests/unit/test_agent_video_overview_builder.py"
+   ]
+  },
+  {
+   "code": 57,
+   "commits": 3,
+   "doc": "Part 4 §4.2. Deterministic, transcription-only",
+   "file": "backend/agents/voice_ingestor.py",
+   "functions": 3,
+   "last": "2026-08-25",
+   "name": "voice_ingestor",
+   "tests": []
+  },
+  {
+   "code": 32,
+   "commits": 1,
+   "doc": "Part 4 §4.2. Deterministic, no-LLM-call web",
+   "file": "backend/agents/web_clipper.py",
+   "functions": 1,
+   "last": "2026-08-05",
+   "name": "web_clipper",
+   "tests": [
+    "backend/tests/unit/test_agent_web_clipper.py"
+   ]
+  },
+  {
+   "code": 149,
+   "commits": 5,
+   "doc": "the E1 research role (task 13c).",
+   "file": "backend/agents/web_researcher.py",
+   "functions": 5,
+   "last": "2026-08-26",
+   "name": "web_researcher",
+   "tests": []
+  },
+  {
+   "code": 269,
+   "commits": 2,
+   "doc": "bug audit #7 (new feature): \"Suggested",
+   "file": "backend/agents/workflow_suggester.py",
+   "functions": 11,
+   "last": "2026-08-25",
+   "name": "workflow_suggester",
+   "tests": [
+    "backend/tests/unit/test_agent_workflow_suggester.py"
+   ]
+  }
+ ],
+ "providers": [
+  {
+   "name": "cloudflare",
+   "slots": [
+    "CF_SCANNER_RESERVE_1_ACCOUNT_ID",
+    "CF_SCANNER_RESERVE_2_ACCOUNT_ID",
+    "CF_SCANNER_RESERVE_3_ACCOUNT_ID",
+    "CLOUDFLARE_ACCOUNT_ID_4",
+    "CLOUDFLARE_ACCOUNT_ID_5",
+    "CLOUDFLARE_ACCOUNT_ID_6",
+    "CLOUDFLARE_ACCOUNT_ID_7",
+    "CLOUDFLARE_ACCOUNT_ID_8"
+   ]
+  },
+  {
+   "name": "gemini",
+   "slots": [
+    "GEMINI_API_KEY_1",
+    "GEMINI_API_KEY_12",
+    "GEMINI_API_KEY_15",
+    "GEMINI_API_KEY_16",
+    "GEMINI_API_KEY_17",
+    "GEMINI_API_KEY_18",
+    "GEMINI_API_KEY_2",
+    "GEMINI_API_KEY_3"
+   ]
+  },
+  {
+   "name": "groq",
+   "slots": [
+    "EO_INSPECTOR_GROQ_KEY_1",
+    "EO_INSPECTOR_GROQ_KEY_2",
+    "GROQ_API_KEY",
+    "GROQ_API_KEY_10",
+    "GROQ_API_KEY_11",
+    "GROQ_API_KEY_12",
+    "GROQ_API_KEY_13",
+    "GROQ_API_KEY_14",
+    "GROQ_API_KEY_6",
+    "GROQ_API_KEY_7",
+    "GROQ_API_KEY_8",
+    "GROQ_API_KEY_9",
+    "GROQ_RESERVE_1",
+    "GROQ_RESERVE_2",
+    "SGA_GROQ_1",
+    "SGA_GROQ_2",
+    "SGA_GROQ_3"
+   ]
+  },
+  {
+   "name": "huggingface",
+   "slots": [
+    "HUGGINGFACE_API_KEY",
+    "HUGGINGFACE_API_KEY_2",
+    "HUGGINGFACE_API_KEY_3",
+    "HUGGINGFACE_API_KEY_4",
+    "HUGGINGFACE_API_KEY_5"
+   ]
+  },
+  {
+   "name": "mistral",
+   "slots": [
+    "MISTRAL_API_KEY",
+    "MISTRAL_API_KEY_10",
+    "MISTRAL_API_KEY_2",
+    "MISTRAL_API_KEY_3",
+    "MISTRAL_API_KEY_4",
+    "MISTRAL_API_KEY_9"
+   ]
+  },
+  {
+   "name": "openrouter",
+   "slots": [
+    "EO_PANEL_OPENROUTER_KEY",
+    "OPENROUTER_API_KEY_1",
+    "OPENROUTER_API_KEY_2",
+    "OPENROUTER_API_KEY_3",
+    "OPENROUTER_API_KEY_4",
+    "OPENROUTER_API_KEY_5",
+    "OPENROUTER_RESERVE_1",
+    "OPENROUTER_RESERVE_2",
+    "OPENROUTER_RESERVE_3"
+   ]
+  }
+ ],
+ "roles": [
+  {
+   "key": "implementer",
+   "slots": [
+    "OPENROUTER_API_KEY_1",
+    "OPENROUTER_API_KEY_2",
+    "OPENROUTER_API_KEY_3",
+    "OPENROUTER_API_KEY_4",
+    "OPENROUTER_API_KEY_5",
+    "OPENROUTER_RESERVE_1",
+    "OPENROUTER_RESERVE_2",
+    "OPENROUTER_RESERVE_3"
+   ]
+  },
+  {
+   "key": "verifier",
+   "slots": [
+    "GROQ_API_KEY_13",
+    "GROQ_API_KEY_14",
+    "GROQ_API_KEY_6",
+    "GROQ_API_KEY_7",
+    "GROQ_API_KEY_8",
+    "GROQ_RESERVE_1",
+    "GROQ_RESERVE_2"
+   ]
+  },
+  {
+   "key": "researcher",
+   "slots": [
+    "EO_PANEL_OPENROUTER_KEY",
+    "GEMINI_API_KEY_16",
+    "GEMINI_API_KEY_2",
+    "GROQ_API_KEY",
+    "GROQ_API_KEY_10",
+    "GROQ_API_KEY_11",
+    "GROQ_API_KEY_12"
+   ]
+  },
+  {
+   "key": "web_researcher",
+   "module": "web_researcher",
+   "slots": []
+  },
+  {
+   "key": "writer",
+   "slots": [
+    "GEMINI_API_KEY_16",
+    "GEMINI_API_KEY_2",
+    "GROQ_API_KEY",
+    "GROQ_API_KEY_10",
+    "GROQ_API_KEY_11",
+    "GROQ_API_KEY_12",
+    "MISTRAL_API_KEY",
+    "MISTRAL_API_KEY_2",
+    "MISTRAL_API_KEY_3",
+    "MISTRAL_API_KEY_9"
+   ]
+  },
+  {
+   "key": "fact_checker",
+   "slots": [
+    "EO_PANEL_OPENROUTER_KEY",
+    "GEMINI_API_KEY_17",
+    "GEMINI_API_KEY_3",
+    "GROQ_API_KEY_13",
+    "GROQ_API_KEY_14",
+    "GROQ_API_KEY_6",
+    "GROQ_API_KEY_7",
+    "GROQ_API_KEY_8",
+    "GROQ_RESERVE_1",
+    "GROQ_RESERVE_2"
+   ]
+  },
+  {
+   "key": "contradiction_detector",
+   "slots": []
+  },
+  {
+   "key": "devils_advocate",
+   "slots": []
+  },
+  {
+   "key": "feasibility_estimator",
+   "slots": []
+  },
+  {
+   "key": "note_taker",
+   "module": "note_taker",
+   "slots": []
+  },
+  {
+   "key": "rolling_summarizer",
+   "slots": []
+  },
+  {
+   "key": "rolling_summary_reground",
+   "slots": []
+  },
+  {
+   "key": "topic_note_writer",
+   "module": "topic_note_writer",
+   "slots": []
+  },
+  {
+   "key": "fact_detector",
+   "module": "fact_detector",
+   "slots": []
+  },
+  {
+   "key": "consensus_meter",
+   "slots": []
+  },
+  {
+   "key": "flashcard_writer",
+   "slots": []
+  },
+  {
+   "key": "quiz_writer",
+   "slots": []
+  },
+  {
+   "key": "study_guide_writer",
+   "slots": []
+  },
+  {
+   "key": "wireframe_sketcher",
+   "slots": []
+  },
+  {
+   "key": "persona_customer",
+   "slots": []
+  },
+  {
+   "key": "persona_skeptic",
+   "slots": []
+  },
+  {
+   "key": "critic_reviewer",
+   "slots": []
+  },
+  {
+   "key": "usability_walkthrough",
+   "slots": []
+  },
+  {
+   "key": "red_team",
+   "slots": []
+  },
+  {
+   "key": "pricing_sensitivity",
+   "slots": []
+  },
+  {
+   "key": "support_ticket_predictor",
+   "slots": []
+  },
+  {
+   "key": "competitor_response",
+   "slots": []
+  },
+  {
+   "key": "marketplace_review_batch",
+   "slots": []
+  },
+  {
+   "key": "simulation_synthesizer",
+   "slots": []
+  },
+  {
+   "key": "mapper",
+   "slots": []
+  },
+  {
+   "key": "report_writer",
+   "module": "report_writer",
+   "slots": [
+    "GROQ_API_KEY",
+    "GROQ_API_KEY_10",
+    "GROQ_API_KEY_11",
+    "GROQ_API_KEY_12"
+   ]
+  },
+  {
+   "key": "slide_planner",
+   "slots": []
+  },
+  {
+   "key": "podcast_scriptwriter",
+   "module": "podcast_scriptwriter",
+   "slots": []
+  },
+  {
+   "key": "rehearsal_scriptwriter",
+   "module": "rehearsal_scriptwriter",
+   "slots": []
+  },
+  {
+   "key": "infographic_designer",
+   "slots": []
+  },
+  {
+   "key": "api_contract_writer",
+   "slots": []
+  },
+  {
+   "key": "intake_interviewer",
+   "slots": []
+  },
+  {
+   "key": "question_forcer",
+   "slots": []
+  },
+  {
+   "key": "prd_writer",
+   "slots": []
+  },
+  {
+   "key": "prd_writer_hardware_scope",
+   "slots": []
+  },
+  {
+   "key": "brand_voice_checker",
+   "slots": []
+  },
+  {
+   "key": "content_calendar_builder",
+   "slots": []
+  },
+  {
+   "key": "seo_structure_auditor",
+   "slots": []
+  },
+  {
+   "key": "outreach_categorizer",
+   "slots": []
+  },
+  {
+   "key": "integration_flagger",
+   "slots": []
+  },
+  {
+   "key": "logic_architect",
+   "slots": [
+    "GEMINI_API_KEY_12"
+   ]
+  }
+ ],
+ "schema": 1
+}

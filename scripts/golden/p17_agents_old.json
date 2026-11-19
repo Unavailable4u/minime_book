@@ -1,0 +1,792 @@
+{
+ "kpis": [
+  [
+   "73",
+   "agent modules"
+  ],
+  [
+   "46",
+   "roles"
+  ],
+  [
+   "53",
+   "provider key slots"
+  ],
+  [
+   "6",
+   "providers"
+  ],
+  [
+   "11,546",
+   "agent code lines"
+  ],
+  [
+   "9",
+   "agents with no test file"
+  ]
+ ],
+ "pills": [
+  "implementer",
+  "verifier",
+  "researcher",
+  "web_researcher · no key slot",
+  "writer",
+  "fact_checker",
+  "contradiction_detector · no key slot",
+  "devils_advocate · no key slot",
+  "feasibility_estimator · no key slot",
+  "note_taker · no key slot",
+  "rolling_summarizer · no key slot",
+  "rolling_summary_reground · no key slot",
+  "topic_note_writer · no key slot",
+  "fact_detector · no key slot",
+  "consensus_meter · no key slot",
+  "flashcard_writer · no key slot",
+  "quiz_writer · no key slot",
+  "study_guide_writer · no key slot",
+  "wireframe_sketcher · no key slot",
+  "persona_customer · no key slot",
+  "persona_skeptic · no key slot",
+  "critic_reviewer · no key slot",
+  "usability_walkthrough · no key slot",
+  "red_team · no key slot",
+  "pricing_sensitivity · no key slot",
+  "support_ticket_predictor · no key slot",
+  "competitor_response · no key slot",
+  "marketplace_review_batch · no key slot",
+  "simulation_synthesizer · no key slot",
+  "mapper · no key slot",
+  "report_writer",
+  "slide_planner · no key slot",
+  "podcast_scriptwriter · no key slot",
+  "rehearsal_scriptwriter · no key slot",
+  "infographic_designer · no key slot",
+  "api_contract_writer · no key slot",
+  "intake_interviewer · no key slot",
+  "question_forcer · no key slot",
+  "prd_writer · no key slot",
+  "prd_writer_hardware_scope · no key slot",
+  "brand_voice_checker · no key slot",
+  "content_calendar_builder · no key slot",
+  "seo_structure_auditor · no key slot",
+  "outreach_categorizer · no key slot",
+  "integration_flagger · no key slot",
+  "logic_architect"
+ ],
+ "provider_bars": [
+  [
+   "groq",
+   17
+  ],
+  [
+   "openrouter",
+   9
+  ],
+  [
+   "cloudflare",
+   8
+  ],
+  [
+   "gemini",
+   8
+  ],
+  [
+   "mistral",
+   6
+  ],
+  [
+   "huggingface",
+   5
+  ]
+ ],
+ "role_bars": [
+  [
+   "implementer",
+   8
+  ],
+  [
+   "verifier",
+   7
+  ],
+  [
+   "researcher",
+   7
+  ],
+  [
+   "writer",
+   10
+  ],
+  [
+   "fact_checker",
+   10
+  ],
+  [
+   "report_writer",
+   4
+  ],
+  [
+   "logic_architect",
+   1
+  ]
+ ],
+ "rows": [
+  [
+   "academic_search",
+   "Discovery (Part 3 §3.3).",
+   203,
+   9,
+   1,
+   5,
+   "2026-10-21"
+  ],
+  [
+   "architecture_diagrammer",
+   "Part 5 §5.3. Proposes a system-level",
+   139,
+   3,
+   1,
+   7,
+   "2026-08-25"
+  ],
+  [
+   "backlink_detector",
+   "Part 4 §4.3. Deterministic, no-LLM-call",
+   376,
+   12,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "calendar_agent",
+   "Part 8.5: Google Calendar connector.",
+   74,
+   5,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "citation_graph_builder",
+   "Citation graph view (Part 3).",
+   121,
+   8,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "code_editor",
+   "W5.2 (Build Workbench plan, step 204): the LLM",
+   500,
+   22,
+   2,
+   2,
+   "2026-10-01"
+  ],
+  [
+   "code_writer_lean",
+   "Code Writer (1-worker), Part 2.4's tier-1",
+   76,
+   2,
+   1,
+   5,
+   "2026-09-27"
+  ],
+  [
+   "code_writers",
+   "Code Writer Pool (Part 4, agent #3 of the v5",
+   191,
+   8,
+   1,
+   8,
+   "2026-08-25"
+  ],
+  [
+   "component_dimension_table",
+   "G1a: curated component-dimension",
+   90,
+   6,
+   1,
+   2,
+   "2026-08-14"
+  ],
+  [
+   "component_spec_lookup",
+   "Real part dimension/datasheet lookup.",
+   379,
+   15,
+   1,
+   10,
+   "2026-08-26"
+  ],
+  [
+   "concept_linker",
+   "Notebooks integration guide §6.6 (Phase 3):",
+   87,
+   5,
+   1,
+   3,
+   "2026-08-25"
+  ],
+  [
+   "content_adapter_pool",
+   "Multi-Platform Content Fan-Out Pool",
+   168,
+   5,
+   1,
+   5,
+   "2026-08-25"
+  ],
+  [
+   "contradiction_prefilter",
+   "Contradiction/gap detector, deterministic",
+   214,
+   10,
+   1,
+   3,
+   "2026-10-01"
+  ],
+  [
+   "correction_locator",
+   "Data Layer architecture §8b: turning one",
+   157,
+   8,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "dataset_analyst",
+   "Dataset Analyst (Part 3 §3.7).",
+   133,
+   5,
+   1,
+   5,
+   "2026-08-25"
+  ],
+  [
+   "dependency_mapper",
+   "Module Dependency Mapper (Part 4, agent #4",
+   51,
+   2,
+   1,
+   3,
+   "2026-08-25"
+  ],
+  [
+   "deploy_agent",
+   "Part 7 §7.4, step 2 of the propose/apply split.",
+   158,
+   7,
+   1,
+   4,
+   "2026-08-25"
+  ],
+  [
+   "deploy_config_writer",
+   "Part 7 §7.4, step 1 of the propose/apply",
+   92,
+   3,
+   1,
+   7,
+   "2026-10-01"
+  ],
+  [
+   "documentation_agent",
+   "Documentation Agent (Part 4, agent #14 of",
+   73,
+   2,
+   1,
+   4,
+   "2026-09-27"
+  ],
+  [
+   "duplication_checker",
+   "Duplication/Similarity Checker (Part 4,",
+   70,
+   2,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "exporter",
+   "mechanical export of a node/artifact into a target",
+   299,
+   18,
+   0,
+   3,
+   "2026-08-25"
+  ],
+  [
+   "extraction_table_builder",
+   "Structured multi-paper extraction",
+   138,
+   7,
+   1,
+   4,
+   "2026-08-25"
+  ],
+  [
+   "fact_detector",
+   "Notebooks integration guide §6.2: the missing",
+   105,
+   3,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "file_manager",
+   "executes the file plan produced by",
+   274,
+   10,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "fixer_pool",
+   "Fixer Pool (Part 4, agent #9 of the v5 Master",
+   160,
+   9,
+   1,
+   4,
+   "2026-08-25"
+  ],
+  [
+   "generic_worker",
+   "v6 migration Part 10. Runs ANY role that",
+   372,
+   10,
+   1,
+   20,
+   "2026-09-27"
+  ],
+  [
+   "handoff_packager",
+   "Part 5 §5.6. The centerpiece handoff from",
+   141,
+   9,
+   1,
+   4,
+   "2026-08-25"
+  ],
+  [
+   "hardware_speccer",
+   "MiniMe Blueprint. Proposes a hardware bill-of-",
+   1389,
+   29,
+   1,
+   41,
+   "2026-08-29"
+  ],
+  [
+   "idea_planner",
+   "",
+   59,
+   1,
+   1,
+   8,
+   "2026-08-27"
+  ],
+  [
+   "importer",
+   "mechanical import of docx/pptx/xlsx/csv/md/json back",
+   188,
+   10,
+   0,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "mech_primitive_pool",
+   "G3b (Master Guide, \"G3/G4. Hierarchical",
+   229,
+   9,
+   1,
+   4,
+   "2026-08-25"
+  ],
+  [
+   "mech_section_pool",
+   "G3f-1 (Master Guide, \"G3/G4. Hierarchical",
+   257,
+   12,
+   1,
+   4,
+   "2026-08-25"
+  ],
+  [
+   "mech_subsection_pool",
+   "G3e-2 (Master Guide, \"G3/G4.",
+   202,
+   9,
+   1,
+   4,
+   "2026-08-25"
+  ],
+  [
+   "memory_search",
+   "Cross-Cycle Memory Search (Part 4, agent #0 of",
+   74,
+   4,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "mind_mapper",
+   "Notebooks integration guide §6.5 (Phase 2): Mind",
+   103,
+   5,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "note_clusterer",
+   "Part 4 §4.3. Deterministic, no-LLM-call",
+   94,
+   8,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "note_table_builder",
+   "Part 4 §4.4. Data tables from scattered",
+   137,
+   7,
+   1,
+   4,
+   "2026-08-25"
+  ],
+  [
+   "note_taker",
+   "Notes domain: Part 4 §4.6, the silent note-taking",
+   78,
+   5,
+   0,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "output_organizer",
+   "Phase CO, CO1 (Master Guide v2, §5).",
+   161,
+   4,
+   4,
+   11,
+   "2026-08-25"
+  ],
+  [
+   "overlapping_checker",
+   "closes the one gap the MiniMe ingestion",
+   187,
+   9,
+   1,
+   3,
+   "2026-10-01"
+  ],
+  [
+   "pagespeed_agent",
+   "Google PageSpeed Insights connector.",
+   61,
+   3,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "part_price_finder",
+   "Bangladesh hardware part price lookup.",
+   169,
+   8,
+   0,
+   11,
+   "2026-08-26"
+  ],
+  [
+   "pdf_ingestor",
+   "Part 4 §4.2. Deterministic, no-LLM-call PDF",
+   52,
+   4,
+   0,
+   3,
+   "2026-08-25"
+  ],
+  [
+   "performance_reviewer",
+   "Performance Reviewer (Patch 8, rollout",
+   116,
+   5,
+   1,
+   3,
+   "2026-09-27"
+  ],
+  [
+   "podcast_scriptwriter",
+   "Notebooks Chat-First Refinement, Phase 5",
+   58,
+   2,
+   1,
+   3,
+   "2026-08-30"
+  ],
+  [
+   "prompt_writer",
+   "",
+   91,
+   3,
+   2,
+   4,
+   "2026-08-25"
+  ],
+  [
+   "prompt_writer_lean",
+   "Prompt/Spec Writer (lean), Part 2.4's",
+   70,
+   2,
+   1,
+   7,
+   "2026-09-27"
+  ],
+  [
+   "rehearsal_scriptwriter",
+   "Notebooks Chat-First Refinement, Phase 5",
+   75,
+   2,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "report_writer",
+   "",
+   71,
+   1,
+   1,
+   5,
+   "2026-08-25"
+  ],
+  [
+   "responder",
+   "Responder, Tier-0 execution agent (Part 2.3 of the",
+   57,
+   1,
+   1,
+   7,
+   "2026-08-27"
+  ],
+  [
+   "review_aggregator",
+   "Review Aggregator (Part 4, agent #8).",
+   68,
+   2,
+   0,
+   1,
+   "2026-08-05"
+  ],
+  [
+   "reviewer",
+   "Reviewer Pool",
+   133,
+   6,
+   3,
+   3,
+   "2026-08-25"
+  ],
+  [
+   "reviewer_fixer_lean",
+   "Combined Reviewer+Fixer, Part 2.4's tier-1",
+   82,
+   2,
+   1,
+   6,
+   "2026-09-27"
+  ],
+  [
+   "sandbox_tester",
+   "Sandbox Tester (Part 4, agent #10 of the v5",
+   99,
+   3,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "schema_diagrammer",
+   "Part 5 §5.3. Proposes a database/entity",
+   105,
+   3,
+   1,
+   7,
+   "2026-08-25"
+  ],
+  [
+   "security_aggregator",
+   "Security Scan Aggregator (new; not one of",
+   70,
+   4,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "security_scanner",
+   "Security/Dependency Scanner Pool (Part 4,",
+   152,
+   8,
+   1,
+   4,
+   "2026-08-25"
+  ],
+  [
+   "slide_deck_planner",
+   "Notebooks Chat-First Refinement, Phase 5",
+   58,
+   2,
+   1,
+   3,
+   "2026-08-30"
+  ],
+  [
+   "source_ingestor",
+   "Part 4 §4.2. The single \"write ingested",
+   47,
+   2,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "source_manager",
+   "Data Layer architecture §1/§3. Source",
+   301,
+   12,
+   2,
+   3,
+   "2026-08-25"
+  ],
+  [
+   "source_planner_lean",
+   "Data Layer architecture §5b: Source",
+   115,
+   6,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "source_quality_flagger",
+   "Source quality + plagiarism/near-duplicate",
+   143,
+   4,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "static_scan",
+   "Static Security Scan (secrets + SAST). New this",
+   74,
+   3,
+   0,
+   1,
+   "2026-08-05"
+  ],
+  [
+   "structure_architect",
+   "decides HOW the codebase should be organized",
+   230,
+   9,
+   1,
+   7,
+   "2026-09-27"
+  ],
+  [
+   "study_generator",
+   "Notebooks integration guide §6.1: Flashcards /",
+   61,
+   2,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "topic_note_writer",
+   "source-grounded, single-topic note",
+   102,
+   3,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "tts_synthesizer",
+   "Part 4 §4.4. Deterministic, no-LLM-call audio",
+   150,
+   11,
+   1,
+   4,
+   "2026-09-03"
+  ],
+  [
+   "video_ingestor",
+   "Part 4 §4.2. Deterministic, no-LLM-call",
+   53,
+   3,
+   1,
+   2,
+   "2026-08-25"
+  ],
+  [
+   "video_overview_builder",
+   "Part 4 §4.4. Deterministic, no-LLM-call",
+   177,
+   8,
+   1,
+   3,
+   "2026-09-03"
+  ],
+  [
+   "voice_ingestor",
+   "Part 4 §4.2. Deterministic, transcription-only",
+   57,
+   3,
+   0,
+   3,
+   "2026-08-25"
+  ],
+  [
+   "web_clipper",
+   "Part 4 §4.2. Deterministic, no-LLM-call web",
+   32,
+   1,
+   1,
+   1,
+   "2026-08-05"
+  ],
+  [
+   "web_researcher",
+   "the E1 research role (task 13c).",
+   149,
+   5,
+   0,
+   5,
+   "2026-08-26"
+  ],
+  [
+   "workflow_suggester",
+   "bug audit #7 (new feature): \"Suggested",
+   269,
+   11,
+   1,
+   2,
+   "2026-08-25"
+  ]
+ ],
+ "source": "agents.html at minime_book cdb4882, census 3727ae3"
+}

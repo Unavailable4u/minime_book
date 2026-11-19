@@ -1,0 +1,82 @@
+/* MiniMe Atlas 2 - the API and Agents pages (P17). Loaded by api.html and agents.html after tokens/base/components/shell.css.
+   Tokens only (tokens.css): no raw colours, so both themes work. The Atlas's colour meaning: cyan = data flow, amber = gates and
+   warnings, crimson = brand, green = fresh, violet = relations. Colour is never the only signal: badges also carry a shape and a word. */
+
+.cp { max-width: 1500px; margin: 0 auto; padding: var(--space-6) var(--space-4) var(--space-8); }
+.cp h1 { margin: 0 0 var(--space-2); font-size: var(--fs-3xl); line-height: var(--lh-tight); letter-spacing: -0.02em; }
+.cp h2 { margin: var(--space-6) 0 var(--space-3); font-size: var(--fs-xl); line-height: var(--lh-tight); }
+.cp h3 { margin: 0 0 var(--space-2); font-size: var(--fs-md); }
+.cp p { margin: 0 0 var(--space-3); }
+.cp code { font-family: var(--font-mono); font-variant-ligatures: none; font-size: 0.9em; overflow-wrap: anywhere; }
+.cp a { color: var(--brand); text-underline-offset: 0.18em; }
+.cp a.mm-btn { color: var(--ink); text-decoration: none; }
+.cp a:focus-visible, .cp button:focus-visible, .cp tr:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.cp [hidden] { display: none; }
+.cp-sub { max-width: 70ch; color: var(--ink-dim); }
+.cp-dim { color: var(--ink-dim); }
+.cp-empty { padding: var(--space-4) var(--space-5); color: var(--ink-dim); border: 1px dashed var(--line-strong); border-radius: var(--radius-3); }
+
+/* freshness: which commit the numbers describe, and whether the caller scan is from another one */
+.cp-fresh { margin: 0 0 var(--space-4); padding: var(--space-2) var(--space-4); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-3); }
+.cp-fresh[data-state="stale"] { border-color: var(--gate); }
+.cp-fresh__stale { color: var(--gate); font-weight: 600; }
+
+.cp-kpis { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); margin-bottom: var(--space-4); }
+.cp-kpis .mm-card { padding: var(--space-3) var(--space-4); }
+.cp-two { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); margin-bottom: var(--space-2); }
+
+/* bar charts */
+.cp-bars__list { margin: 0; padding: 0; list-style: none; }
+.cp-bar { display: flex; align-items: center; gap: var(--space-3); margin: var(--space-1) 0; font-size: var(--fs-sm); }
+.cp-bar > a, .cp-bar > span { flex: none; width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-dim); text-decoration: none; }
+.cp-bar > a:hover { color: var(--brand); text-decoration: underline; }
+.cp-bar i { display: block; height: 0.55rem; border-radius: var(--radius-pill); background: var(--flow); min-width: 2px; }
+.cp-bar em { font-style: normal; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.cp-bars__note { margin: var(--space-3) 0 0; font-size: var(--fs-xs); }
+
+/* table + detail panel: the panel is first in the DOM so a narrow screen shows it above the table; wide screens put it beside it */
+.cp-split { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); grid-template-areas: "detail" "main"; align-items: start; }
+.cp-detail { grid-area: detail; min-width: 0; }
+.cp-main { grid-area: main; min-width: 0; }
+.cp-tablewrap { max-height: 70vh; }
+.cp-table .mm-table tbody tr { cursor: pointer; }
+.cp-table .mm-table tbody tr[aria-selected="true"] { background: var(--panel-2); box-shadow: inset 3px 0 0 var(--brand); }
+.cp-table .mm-table td:nth-child(2) { max-width: 26rem; overflow: hidden; text-overflow: ellipsis; }
+.cp-filter { width: min(28rem, 100%); }
+@media (min-width: 1280px) {
+  .cp-split.has-detail { grid-template-columns: minmax(0, 1fr) minmax(24rem, 32rem); grid-template-areas: "main detail"; }
+  .cp-split.has-detail .cp-detail { position: sticky; top: calc(var(--topbar-h, 0px) + var(--space-3)); max-height: calc(100vh - var(--topbar-h, 0px) - var(--space-5)); overflow: auto; }
+}
+.cp-detail__in { padding: var(--space-4) var(--space-5); background: var(--panel); border: 1px solid var(--line-strong); border-radius: var(--radius-3); }
+.cp-detail__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+.cp-detail__head h2 { margin: 0 0 var(--space-3); font-size: var(--fs-lg); overflow-wrap: anywhere; }
+.cp-facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--space-1) var(--space-4); margin: 0 0 var(--space-3); font-size: var(--fs-sm); }
+.cp-facts dt { color: var(--ink-dim); }
+.cp-facts dd { margin: 0; overflow-wrap: anywhere; }
+.cp-links { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0 0 var(--space-3); }
+.cp-sec { margin: var(--space-4) 0 0; padding-top: var(--space-3); border-top: 1px solid var(--line); }
+.cp-list { margin: 0 0 var(--space-3); padding-left: var(--space-5); font-size: var(--fs-sm); }
+.cp-list li { margin: var(--space-1) 0; overflow-wrap: anywhere; }
+.cp-chain { margin: 0 0 var(--space-3); padding-left: var(--space-5); font-size: var(--fs-sm); }
+.cp-label { margin: var(--space-2) 0 var(--space-1); color: var(--ink-dim); font-size: var(--fs-xs); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.cp-lede { font-size: var(--fs-base); }
+.cp-badges { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.cp-caveat { font-size: var(--fs-xs); }
+.cp-linkbtn { padding: 0; color: var(--brand); background: none; border: 0; font: inherit; font-size: var(--fs-xs); text-decoration: underline; cursor: pointer; }
+
+/* the HTTP method: a word, plus a colour from the same tokens as the rest of the Atlas */
+.cp-method { display: inline-block; min-width: 3.6rem; padding: 0.05rem var(--space-2); font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 700; text-align: center; color: var(--ink);
+  border: 1px solid var(--m, var(--line-strong)); border-radius: var(--radius-1); background: color-mix(in srgb, var(--m, var(--line-strong)) 14%, transparent); }
+.cp-method--get { --m: var(--flow); }
+.cp-method--post { --m: var(--ok); }
+.cp-method--put, .cp-method--patch { --m: var(--gate); }
+.cp-method--delete { --m: var(--brand); }
+
+/* roles as pills */
+.cp-pills { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-2); }
+.cp-pill { padding: 0.1rem var(--space-3); font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink); text-decoration: none; background: var(--panel); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); }
+.cp-pill:hover, .cp-pill[aria-current="true"] { border-color: var(--brand); }
+.cp .cp-pill { color: var(--ink); }
+
+@media (max-width: 760px) { .cp { padding: var(--space-4) 16px var(--space-7); } .cp-bar > a, .cp-bar > span { width: 7.5rem; } .cp-facts { grid-template-columns: minmax(0, 1fr); } .cp-detail__in { padding: var(--space-3) var(--space-4); } }
+@media (prefers-reduced-motion: reduce) { .cp * { transition: none !important; scroll-behavior: auto !important; } }

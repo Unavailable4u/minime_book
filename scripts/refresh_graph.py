@@ -25,11 +25,12 @@ What it refreshes, and where each number comes from:
                         half of the same file belongs to refresh_atlas.py and is carried over untouched
     explore.html        the per-file "Links out / Links in" edges (top 14 each way, weight = number of
                         graph links between the two files)
-    api.html            the per-route "Frontend callers" column, the "called by the frontend" KPI and
-                        "Frontend files that call the API most". These are NOT in graph.json: they are
-                        found by scanning MiniMe/frontend for "/api/..." strings and matching them to
-                        the route paths by shape (inferred, not proven, and the HTTP method is ignored,
-                        the same caveat the page already states).
+    data/code/routes.json   (P17) the "callers" half: which frontend files call each route, and how well each link is backed
+                        (via: method / score / shape). These are NOT in graph.json: they are found by scanning
+                        MiniMe/frontend for "/api/..." strings and matching them to the route paths by shape (inferred, not
+                        proven), then checking the code for the HTTP method (a port of MiniMe's graphify_api_links.py).
+                        The census half (handlers, deps, ...) belongs to refresh_atlas.py and is kept as it is.
+                        api.html draws it (assets/js/api.js).
     data/summary.md     the "Graph:" line
     data/graph/folders.json  (P08) cross-folder link counts and node counts at the finer folder level the live topology
                         diagram on index.html uses (frontend/app/<x>, m2c/src/m2c/<part>, protocol/v1 ...). The diagram
@@ -403,36 +404,144 @@ def api_literals(src):
     return out
 
 
-def scan_callers(frontend, routes):
-    """({(method, path): n frontend files}, {file: n routes it calls}). Matched by path shape, not method."""
+# The second opinion, ported from MiniMe's scripts/graphify_api_links.py (which writes graph.linked.json). It reads the frontend line by
+# line, follows `const base = `.../api/x`` aliases, notices the HTTP method (`method: "POST"` within 16 lines, or an apiPost( helper)
+# and scores a call against every route by path segments. P17 reconciled the two (UPDATING.md): this file's pair set is the larger one
+# (143 routes and 41 frontend files against 142 and 31 on the census commit it was compared at), so it stays the source of *which* file
+# calls *which* route. The port is used only to say how well each pair is backed: `via`.
+PATH_RE = re.compile(r"/api/[A-Za-z0-9_./${}:~()\-]+")
+BASE_RE = re.compile(r"(?:const|let|var)\s+(\w+)\s*=\s*`([^`]*?/api/[^`]*)`")
+BASE_USE_RE = re.compile(r"\$\{(\w+)\}([^'\"`),]*)")
+METHOD_RE = re.compile(r"\bmethod\s*:\s*[\"'](GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD)[\"']", re.I)
+HELPER_RE = re.compile(r"\bapi(Get|Post|Put|Patch|Delete|Options|Head)\s*\(", re.I)
+VIA_ORDER = ("method", "score", "shape")
+
+
+def norm_call_path(path):
+    path = re.sub(r"\$\{(?:qs|query|searchParams)\}", "", path)
+    path = path.split("?", 1)[0].split("#", 1)[0].strip()
+    path = re.sub(r"[).,;]+$", "", path)
+    path = path.replace("\\", "/")
+    path = re.sub(r"\$\{[^}/]+\}|\{[^}/]+\}", "{param}", path)
+    path = re.sub(r"/+", "/", path)
+    if not path.startswith("/"):
+        path = "/" + path
+    return path.rstrip("/") or "/"
+
+
+def path_match_score(call_path, route_path):
+    """(score, dynamic segments matched) of a normalised call path against a route path, or None when the shapes cannot match."""
+    left, right = norm_call_path(call_path), norm_call_path(route_path)
+    lp, rp = left.strip("/").split("/"), right.strip("/").split("/")
+    if left == "/" or right == "/" or len(lp) != len(rp):
+        return (0, 0) if left == right else None
+    score = dyn = 0
+    for a, b in zip(lp, rp):
+        if a == b:
+            score += 2
+        elif a == "{param}" and b == "{param}":
+            score += 1
+            dyn += 1
+        elif a == "{param}" or b == "{param}":
+            continue
+        else:
+            return None
+    return score, dyn
+
+
+def best_routes(path, method, routes):
+    """The routes that match a call best by path score; when the code names an HTTP method, only those with that method."""
+    scored = [(path_match_score(path, r[1]), r) for r in routes]
+    scored = [(s, r) for s, r in scored if s is not None]
+    if not scored:
+        return []
+    top = max(s for s, _ in scored)
+    best = [r for s, r in scored if s == top]
+    return [r for r in best if r[0] == method] if method else best
+
+
+def named_calls(src):
+    """[(normalised path, upper-case HTTP method or None)] for every "/api/..." call written in a frontend source, line by line."""
+    lines = src.splitlines()
+    bases = {}
+    for n, line in enumerate(lines, 1):
+        m = BASE_RE.search(line)
+        if m:
+            bases.setdefault(m.group(1), []).append((n, m.group(2)[m.group(2).find("/api"):]))
+    out = []
+    for n, line in enumerate(lines, 1):
+        s = line.lstrip()
+        if s.startswith("//") or s.startswith("*"):
+            continue
+        paths = [] if BASE_RE.search(line) else [m.group(0) for m in PATH_RE.finditer(line)]
+        for name, defs in bases.items():
+            for use in BASE_USE_RE.finditer(line):
+                if use.group(1) == name:
+                    before = [d for d in defs if d[0] <= n]
+                    if before:
+                        paths.append(before[-1][1] + use.group(2))
+        if not paths:
+            continue
+        ctx = []
+        for cl in lines[n - 1:n + 16]:
+            ctx.append(cl)
+            if "});" in cl:
+                break
+        mm, hm = METHOD_RE.search("\n".join(ctx)), HELPER_RE.search(line)
+        method = hm.group(1).upper() if hm else mm.group(1).upper() if mm else None
+        for pv in dict.fromkeys(paths):
+            out.append((norm_call_path(pv), method))
+    return out
+
+
+def scan_api_calls(frontend, routes):
+    """({(method, path): {file relative to frontend/: [via, ...]}}, number of frontend files scanned).
+
+    Which file calls which route is decided as before: a "/api/..." string in the file matches the route's path shape (the HTTP method
+    is ignored, and an exact path beats a /{param} route of the same shape). `via` says how well that link is backed, strongest first:
+      method  the best path match, and the code names this route's HTTP method
+      score   the best path match, and the code names no method
+      shape   only the path shape matched (the link is a weaker guess)
+    Test files and build folders are not scanned. Every link is inferred, not proven."""
     rx = {r: route_regex(r[1]) for r in routes}
     plain = {r for r in routes if "{" not in r[1]}
-    calls, per_file = collections.defaultdict(set), collections.defaultdict(set)
+    out = {r: {} for r in routes}
+    scanned = 0
     for fp in sorted(Path(frontend).rglob("*")):
         rel = fp.relative_to(frontend).as_posix()
         if not fp.is_file() or fp.suffix not in FRONTEND_EXT or SKIP_DIRS & set(fp.relative_to(frontend).parts) or is_test(rel):
             continue
-        for lit in api_literals(fp.read_text(encoding="utf-8", errors="ignore")):
+        scanned += 1
+        src = fp.read_text(encoding="utf-8", errors="ignore")
+        hits = set()
+        for lit in api_literals(src):
             hit = [r for r in routes if rx[r].match(lit)]
             if "_p_" not in lit and any(r in plain for r in hit):
                 hit = [r for r in hit if r in plain]      # an exact path beats a /{param} route of the same shape
-            for r in hit:
-                calls[r].add(rel)
-                per_file[rel].add(r)
-    return {r: len(calls[r]) for r in routes}, {f: len(v) for f, v in per_file.items()}
+            hits.update(hit)
+        if not hits:
+            continue
+        backed = collections.defaultdict(set)
+        for path, method in named_calls(src):
+            for r in best_routes(path, method, routes):
+                backed[r].add("method" if method else "score")
+        for r in hits:
+            out[r][rel] = [v for v in VIA_ORDER if v in backed.get(r, ())] or ["shape"]
+    return out, scanned
 
 
-def refresh_api(html, frontend):
-    rows = ra.read_literal(html, "ROWS=")
-    counts, per_file = scan_callers(frontend, [(r[0], r[1]) for r in rows])
-    for r in rows:
-        r[7] = counts[(r[0], r[1])]
-    html = ra.replace_literal(html, "ROWS=", json.dumps(rows))
-    called = sum(1 for r in rows if r[7] > 0)
-    html = ra.sub_once(html, r'(<div class="k">)[\d,]+(</div><div class="l">called by the frontend</div>)',
-                       lambda m: f"{m.group(1)}{fmt(called)}{m.group(2)}")
-    top = sorted(per_file.items(), key=lambda kv: (-kv[1], kv[0]))[:10]
-    return ra.replace_card(html, "Frontend files that call the API most", ra.bars_card("Frontend files that call the API most", [(base(f), base(f), n) for f, n in top]))
+def scan_callers(frontend, routes):
+    """({(method, path): n frontend files}, {file: n routes it calls}). The counts the old api.html showed."""
+    calls, _ = scan_api_calls(frontend, routes)
+    per_file = collections.Counter(f for files in calls.values() for f in files)
+    return {r: len(calls[r]) for r in routes}, dict(per_file)
+
+
+def api_callers(frontend, commit, routes):
+    """(callers, scan) for data/code/routes.json: callers is {"METHOD /path": [{"file": "frontend/...", "via": [...]}]}."""
+    calls, scanned = scan_api_calls(frontend, [(r["method"], r["path"]) for r in routes])
+    callers = {f"{m} {p}": [{"file": f"frontend/{f}", "via": via} for f, via in sorted(files.items())] for (m, p), files in calls.items() if files}
+    return callers, {"commit": commit, "frontend_files": scanned, "pairs": sum(len(v) for v in callers.values())}
 
 
 # --------------------------------------------------------------------------- driver
@@ -460,8 +569,15 @@ def refresh_all(root, g, minime):
     explore = root / "explore.html"
     explore_html = changes[explore].decode("utf-8") if explore in changes else ra.read_lf(explore)[0]
     frontend = Path(minime) / "frontend"
-    if frontend.is_dir():
-        page("api.html", refresh_api, frontend)
+    census = ra.read_json(root, "data/census.json")
+    if frontend.is_dir() and census.get("routes"):                  # P17: the "callers" half of data/code/routes.json; the census half is rebuilt as refresh_atlas.py does
+        rp = root / ra.ROUTES_REL
+        doc = ra.build_routes(census, ra.read_json(root, ra.ROUTES_REL))
+        callers, scan = api_callers(frontend, git_head(minime) or g.commit, doc["routes"])
+        new = ra.json_text(ra.with_callers(doc, callers, scan))
+        old, crlf = ra.read_lf(rp) if rp.exists() else (None, False)
+        if new != old:
+            changes[rp] = ra.to_native(new, crlf).encode("utf-8")
     sp = root / "data" / "summary.md"
     if sp.exists():
         old, crlf = ra.read_lf(sp)

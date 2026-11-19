@@ -1,0 +1,4400 @@
+{
+ "callers_scan": {
+  "commit": "3727ae323c26919558a3b5f6db73c81a578537fb",
+  "frontend_files": 191,
+  "pairs": 215
+ },
+ "commit": "3727ae3",
+ "generated": "2026-11-19",
+ "routes": [
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 88,
+   "file": "backend/api/routes/chats.py",
+   "handler": "register_project_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/projects",
+   "line": 85,
+   "method": "POST",
+   "path": "/api/projects",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "shape"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 93,
+   "file": "backend/api/routes/chats.py",
+   "handler": "projects",
+   "include_prefix": "",
+   "key": "GET /api/projects",
+   "line": 92,
+   "method": "GET",
+   "path": "/api/projects",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/ChatSidebar.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/context/ChatListContext.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "shape"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 106,
+   "file": "backend/api/routes/chats.py",
+   "handler": "get_chats",
+   "include_prefix": "",
+   "key": "GET /api/chats",
+   "line": 105,
+   "method": "GET",
+   "path": "/api/chats",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/ChatSidebar.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/context/ChatListContext.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 111,
+   "file": "backend/api/routes/chats.py",
+   "handler": "create_chat",
+   "include_prefix": "",
+   "key": "POST /api/chats",
+   "line": 110,
+   "method": "POST",
+   "path": "/api/chats",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 206,
+   "file": "backend/api/routes/chats.py",
+   "handler": "get_chat",
+   "include_prefix": "",
+   "key": "GET /api/chats/{chat_id}",
+   "line": 115,
+   "method": "GET",
+   "path": "/api/chats/{chat_id}",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 215,
+   "file": "backend/api/routes/chats.py",
+   "handler": "rename_chat",
+   "include_prefix": "",
+   "key": "PATCH /api/chats/{chat_id}/rename",
+   "line": 210,
+   "method": "PATCH",
+   "path": "/api/chats/{chat_id}/rename",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/ChatSidebar.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 224,
+   "file": "backend/api/routes/chats.py",
+   "handler": "link_chats",
+   "include_prefix": "",
+   "key": "PATCH /api/chats/{chat_id}/links",
+   "line": 219,
+   "method": "PATCH",
+   "path": "/api/chats/{chat_id}/links",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 250,
+   "file": "backend/api/routes/chats.py",
+   "handler": "append_message",
+   "include_prefix": "",
+   "key": "POST /api/chats/{chat_id}/messages",
+   "line": 228,
+   "method": "POST",
+   "path": "/api/chats/{chat_id}/messages",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "method",
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 260,
+   "file": "backend/api/routes/chats.py",
+   "handler": "delete_chat",
+   "include_prefix": "",
+   "key": "DELETE /api/chats/{chat_id}",
+   "line": 254,
+   "method": "DELETE",
+   "path": "/api/chats/{chat_id}",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 267,
+   "file": "backend/api/routes/chats.py",
+   "handler": "get_batches",
+   "include_prefix": "",
+   "key": "GET /api/batches",
+   "line": 266,
+   "method": "GET",
+   "path": "/api/batches",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 275,
+   "file": "backend/api/routes/chats.py",
+   "handler": "estimate_batch",
+   "include_prefix": "",
+   "key": "POST /api/batches/estimate",
+   "line": 271,
+   "method": "POST",
+   "path": "/api/batches/estimate",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method",
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 283,
+   "file": "backend/api/routes/chats.py",
+   "handler": "create_batch",
+   "include_prefix": "",
+   "key": "POST /api/batches",
+   "line": 279,
+   "method": "POST",
+   "path": "/api/batches",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 291,
+   "file": "backend/api/routes/chats.py",
+   "handler": "rename_batch",
+   "include_prefix": "",
+   "key": "PATCH /api/batches/{batch_id}/rename",
+   "line": 287,
+   "method": "PATCH",
+   "path": "/api/batches/{batch_id}/rename",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 302,
+   "file": "backend/api/routes/chats.py",
+   "handler": "unlink_batch_members",
+   "include_prefix": "",
+   "key": "POST /api/batches/{batch_id}/unlink",
+   "line": 295,
+   "method": "POST",
+   "path": "/api/batches/{batch_id}/unlink",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 312,
+   "file": "backend/api/routes/chats.py",
+   "handler": "add_batch_member",
+   "include_prefix": "",
+   "key": "POST /api/batches/{batch_id}/members",
+   "line": 306,
+   "method": "POST",
+   "path": "/api/batches/{batch_id}/members",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 321,
+   "file": "backend/api/routes/chats.py",
+   "handler": "delete_batch",
+   "include_prefix": "",
+   "key": "DELETE /api/batches/{batch_id}",
+   "line": 316,
+   "method": "DELETE",
+   "path": "/api/batches/{batch_id}",
+   "response_model": null,
+   "router": "chats_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/fileProviders.js",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 103,
+   "file": "backend/api/routes/code.py",
+   "handler": "list_code_files",
+   "key": "GET /api/workspaces/{ws_id}/code/files",
+   "line": 98,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/code/files",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/fileProviders.js",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 116,
+   "file": "backend/api/routes/code.py",
+   "handler": "list_code_findings",
+   "key": "GET /api/workspaces/{ws_id}/code/findings",
+   "line": 107,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/code/findings",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/fileProviders.js",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 142,
+   "file": "backend/api/routes/code.py",
+   "handler": "get_code_file_history",
+   "key": "GET /api/workspaces/{ws_id}/code/files/{file_path:path}/history",
+   "line": 133,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/code/files/{file_path:path}/history",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/fileProviders.js",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 163,
+   "file": "backend/api/routes/code.py",
+   "handler": "restore_code_file",
+   "key": "POST /api/workspaces/{ws_id}/code/files/{file_path:path}/restore",
+   "line": 149,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/code/files/{file_path:path}/restore",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/fileProviders.js",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 176,
+   "file": "backend/api/routes/code.py",
+   "handler": "get_code_file",
+   "key": "GET /api/workspaces/{ws_id}/code/files/{file_path:path}",
+   "line": 167,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/code/files/{file_path:path}",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/fileProviders.js",
+     "via": [
+      "method",
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 197,
+   "file": "backend/api/routes/code.py",
+   "handler": "put_code_file",
+   "key": "PUT /api/workspaces/{ws_id}/code/files/{file_path:path}",
+   "line": 180,
+   "method": "PUT",
+   "path": "/api/workspaces/{ws_id}/code/files/{file_path:path}",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/fileProviders.js",
+     "via": [
+      "method",
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 213,
+   "file": "backend/api/routes/code.py",
+   "handler": "delete_code_file",
+   "key": "DELETE /api/workspaces/{ws_id}/code/files/{file_path:path}",
+   "line": 201,
+   "method": "DELETE",
+   "path": "/api/workspaces/{ws_id}/code/files/{file_path:path}",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/fileProviders.js",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 233,
+   "file": "backend/api/routes/code.py",
+   "handler": "move_code_path",
+   "key": "POST /api/workspaces/{ws_id}/code/move",
+   "line": 221,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/code/move",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/fileProviders.js",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 247,
+   "file": "backend/api/routes/code.py",
+   "handler": "create_code_folder",
+   "key": "POST /api/workspaces/{ws_id}/code/folders",
+   "line": 237,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/code/folders",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/workbench/EditorWorkbench.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 267,
+   "file": "backend/api/routes/code.py",
+   "handler": "download_code_zip",
+   "key": "GET /api/workspaces/{ws_id}/code/zip",
+   "line": 253,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/code/zip",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/codeProposals.js",
+     "via": [
+      "method",
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 109,
+   "file": "backend/api/routes/code_edit.py",
+   "handler": "create_code_proposal",
+   "key": "POST /api/workspaces/{ws_id}/code/proposals",
+   "line": 87,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/code/proposals",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/codeProposals.js",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 134,
+   "file": "backend/api/routes/code_edit.py",
+   "handler": "create_wireframe_code_proposal",
+   "key": "POST /api/workspaces/{ws_id}/code/proposals/from-wireframe",
+   "line": 116,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/code/proposals/from-wireframe",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/codeProposals.js",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 149,
+   "file": "backend/api/routes/code_edit.py",
+   "handler": "list_code_proposals",
+   "key": "GET /api/workspaces/{ws_id}/code/proposals",
+   "line": 138,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/code/proposals",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/codeProposals.js",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 166,
+   "file": "backend/api/routes/code_edit.py",
+   "handler": "get_code_proposal",
+   "key": "GET /api/workspaces/{ws_id}/code/proposals/{proposal_id}",
+   "line": 156,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/code/proposals/{proposal_id}",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/codeProposals.js",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 197,
+   "file": "backend/api/routes/code_edit.py",
+   "handler": "resolve_code_proposal",
+   "key": "POST /api/workspaces/{ws_id}/code/proposals/{proposal_id}/resolve",
+   "line": 173,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/code/proposals/{proposal_id}/resolve",
+   "response_model": null
+  },
+  {
+   "async": true,
+   "callers": [],
+   "deps": [
+    "require_device",
+    "get_services"
+   ],
+   "end": 176,
+   "file": "backend/api/routes/code_runs.py",
+   "handler": "grant_run_credits",
+   "key": "POST /v1/code/runs/{run_id}/grant",
+   "line": 168,
+   "method": "POST",
+   "path": "/v1/code/runs/{run_id}/grant",
+   "response_model": "GrantResponse"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/workbench/codeProposals.js",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 87,
+   "file": "backend/api/routes/deploy.py",
+   "handler": "deploy_propose",
+   "key": "POST /api/deploy/{session_id}/propose",
+   "line": 71,
+   "method": "POST",
+   "path": "/api/deploy/{session_id}/propose",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 127,
+   "file": "backend/api/routes/deploy.py",
+   "handler": "deploy_write",
+   "key": "POST /api/deploy/{session_id}/write",
+   "line": 117,
+   "method": "POST",
+   "path": "/api/deploy/{session_id}/write",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 143,
+   "file": "backend/api/routes/deploy.py",
+   "handler": "deploy_go_live",
+   "key": "POST /api/deploy/{session_id}/go-live",
+   "line": 131,
+   "method": "POST",
+   "path": "/api/deploy/{session_id}/go-live",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/BuildTab.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 157,
+   "file": "backend/api/routes/deploy.py",
+   "handler": "set_uptimerobot_key",
+   "key": "POST /api/monitoring/{session_id}/uptimerobot-key",
+   "line": 147,
+   "method": "POST",
+   "path": "/api/monitoring/{session_id}/uptimerobot-key",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/BuildTab.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 177,
+   "file": "backend/api/routes/deploy.py",
+   "handler": "register_uptimerobot",
+   "key": "POST /api/monitoring/{session_id}/uptimerobot-register",
+   "line": 161,
+   "method": "POST",
+   "path": "/api/monitoring/{session_id}/uptimerobot-register",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 189,
+   "file": "backend/api/routes/devices.py",
+   "handler": "pair_start",
+   "include_prefix": "",
+   "key": "POST /v1/code/devices/pair/start",
+   "line": 179,
+   "method": "POST",
+   "path": "/v1/code/devices/pair/start",
+   "response_model": "PairStartResponse",
+   "router": "devices_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 199,
+   "file": "backend/api/routes/devices.py",
+   "handler": "pair_poll",
+   "include_prefix": "",
+   "key": "POST /v1/code/devices/pair/poll",
+   "line": 194,
+   "method": "POST",
+   "path": "/v1/code/devices/pair/poll",
+   "response_model": "PairPollResponse",
+   "router": "devices_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 208,
+   "file": "backend/api/routes/devices.py",
+   "handler": "device_token",
+   "include_prefix": "",
+   "key": "POST /v1/code/devices/token",
+   "line": 203,
+   "method": "POST",
+   "path": "/v1/code/devices/token",
+   "response_model": "TokenResponse",
+   "router": "devices_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/DevicesPanel.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/lib/devices.js",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 220,
+   "file": "backend/api/routes/devices.py",
+   "handler": "approve_device",
+   "include_prefix": "",
+   "key": "POST /api/devices/approve",
+   "line": 216,
+   "method": "POST",
+   "path": "/api/devices/approve",
+   "response_model": "ApproveResponse",
+   "router": "devices_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/devices.js",
+     "via": [
+      "shape"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 228,
+   "file": "backend/api/routes/devices.py",
+   "handler": "deny_device",
+   "include_prefix": "",
+   "key": "POST /api/devices/deny",
+   "line": 224,
+   "method": "POST",
+   "path": "/api/devices/deny",
+   "response_model": "DenyResponse",
+   "router": "devices_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/DevicesPanel.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/SettingsTab.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/lib/devices.js",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 233,
+   "file": "backend/api/routes/devices.py",
+   "handler": "list_my_devices",
+   "include_prefix": "",
+   "key": "GET /api/devices",
+   "line": 232,
+   "method": "GET",
+   "path": "/api/devices",
+   "response_model": "DeviceListResponse",
+   "router": "devices_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/DevicesPanel.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 241,
+   "file": "backend/api/routes/devices.py",
+   "handler": "revoke_my_device",
+   "include_prefix": "",
+   "key": "POST /api/devices/{device_id}/revoke",
+   "line": 237,
+   "method": "POST",
+   "path": "/api/devices/{device_id}/revoke",
+   "response_model": "RevokeResponse",
+   "router": "devices_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 67,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "get_graph_edges",
+   "include_prefix": "",
+   "key": "GET /api/graph/edges",
+   "line": 66,
+   "method": "GET",
+   "path": "/api/graph/edges",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 75,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "create_graph_edge",
+   "include_prefix": "",
+   "key": "POST /api/graph/edges",
+   "line": 71,
+   "method": "POST",
+   "path": "/api/graph/edges",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 84,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "delete_graph_edge",
+   "include_prefix": "",
+   "key": "DELETE /api/graph/edges/{edge_id}",
+   "line": 79,
+   "method": "DELETE",
+   "path": "/api/graph/edges/{edge_id}",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 94,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "get_node_summaries",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/graph/node_summaries",
+   "line": 93,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/graph/node_summaries",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 165,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "get_topics_graph",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/topics/graph",
+   "line": 115,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/topics/graph",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 181,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "get_workspace_nodes",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/nodes",
+   "line": 175,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/nodes",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 191,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "rename_node_endpoint",
+   "include_prefix": "",
+   "key": "PATCH /api/workspaces/{ws_id}/nodes/{node_id}/rename",
+   "line": 184,
+   "method": "PATCH",
+   "path": "/api/workspaces/{ws_id}/nodes/{node_id}/rename",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 284,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "delete_workspace_node",
+   "include_prefix": "",
+   "key": "DELETE /api/workspaces/{ws_id}/nodes/{node_id}",
+   "line": 224,
+   "method": "DELETE",
+   "path": "/api/workspaces/{ws_id}/nodes/{node_id}",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 294,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "get_note_candidates",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/notes/candidates",
+   "line": 293,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/notes/candidates",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 305,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "accept_note_candidate",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/notes/candidates/{candidate_id}/accept",
+   "line": 298,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/notes/candidates/{candidate_id}/accept",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 314,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "reject_note_candidate",
+   "include_prefix": "",
+   "key": "DELETE /api/workspaces/{ws_id}/notes/candidates/{candidate_id}",
+   "line": 309,
+   "method": "DELETE",
+   "path": "/api/workspaces/{ws_id}/notes/candidates/{candidate_id}",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 328,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "detect_backlinks_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/backlinks/detect",
+   "line": 318,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/backlinks/detect",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 342,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "propose_clusters_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/clusters/propose",
+   "line": 337,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/clusters/propose",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 347,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "get_cluster_candidates",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/clusters/candidates",
+   "line": 346,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/clusters/candidates",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 355,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "accept_cluster_candidate_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/clusters/candidates/{candidate_id}/accept",
+   "line": 351,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/clusters/candidates/{candidate_id}/accept",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 364,
+   "file": "backend/api/routes/graph_and_notes.py",
+   "handler": "reject_cluster_candidate_endpoint",
+   "include_prefix": "",
+   "key": "DELETE /api/workspaces/{ws_id}/clusters/candidates/{candidate_id}",
+   "line": 359,
+   "method": "DELETE",
+   "path": "/api/workspaces/{ws_id}/clusters/candidates/{candidate_id}",
+   "response_model": null,
+   "router": "graph_and_notes_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/hooks/useDaemonStatus.js",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 65,
+   "file": "backend/api/routes/local_workspace.py",
+   "handler": "local_status",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/local/status",
+   "line": 60,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/local/status",
+   "response_model": null,
+   "router": "local_workspace_router"
+  },
+  {
+   "async": true,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 90,
+   "file": "backend/api/routes/local_workspace.py",
+   "handler": "local_list_dir",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/local/list_dir",
+   "line": 77,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/local/list_dir",
+   "response_model": null,
+   "router": "local_workspace_router"
+  },
+  {
+   "async": true,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 101,
+   "file": "backend/api/routes/local_workspace.py",
+   "handler": "local_read_file",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/local/read_file",
+   "line": 94,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/local/read_file",
+   "response_model": null,
+   "router": "local_workspace_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 149,
+   "file": "backend/api/routes/local_workspace.py",
+   "handler": "local_propose_action",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/local/propose",
+   "line": 126,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/local/propose",
+   "response_model": "ProposeActionResponse",
+   "router": "local_workspace_router"
+  },
+  {
+   "async": true,
+   "callers": [
+    {
+     "file": "frontend/app/components/PendingActionBar.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 174,
+   "file": "backend/api/routes/local_workspace.py",
+   "handler": "local_confirm_action",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/local/confirm",
+   "line": 153,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/local/confirm",
+   "response_model": null,
+   "router": "local_workspace_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/PendingActionBar.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 188,
+   "file": "backend/api/routes/local_workspace.py",
+   "handler": "local_deny_action",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/local/deny",
+   "line": 178,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/local/deny",
+   "response_model": null,
+   "router": "local_workspace_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 93,
+   "file": "backend/api/routes/mcp.py",
+   "handler": "get_mcp_servers",
+   "key": "GET /api/mcp/servers",
+   "line": 81,
+   "method": "GET",
+   "path": "/api/mcp/servers",
+   "response_model": null
+  },
+  {
+   "async": true,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 111,
+   "file": "backend/api/routes/mcp.py",
+   "handler": "get_mcp_server_status",
+   "key": "GET /api/mcp/servers/{server_name}/status",
+   "line": 97,
+   "method": "GET",
+   "path": "/api/mcp/servers/{server_name}/status",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 155,
+   "file": "backend/api/routes/mcp.py",
+   "handler": "mcp_propose_action",
+   "key": "POST /api/workspaces/{ws_id}/mcp/propose",
+   "line": 135,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/mcp/propose",
+   "response_model": "ProposeMCPActionResponse"
+  },
+  {
+   "async": true,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 178,
+   "file": "backend/api/routes/mcp.py",
+   "handler": "mcp_confirm_action",
+   "key": "POST /api/workspaces/{ws_id}/mcp/confirm",
+   "line": 159,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/mcp/confirm",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 192,
+   "file": "backend/api/routes/mcp.py",
+   "handler": "mcp_deny_action",
+   "key": "POST /api/workspaces/{ws_id}/mcp/deny",
+   "line": 182,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/mcp/deny",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/notebookCapabilities.js",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 1261,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "get_capabilities",
+   "include_prefix": "",
+   "key": "GET /api/capabilities",
+   "line": 1249,
+   "method": "GET",
+   "path": "/api/capabilities",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": true,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 1317,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "classify_intent",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/notebooks/classify-intent",
+   "line": 1269,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/notebooks/classify-intent",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 1395,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "notebooks_generate",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/notebooks/generate",
+   "line": 1339,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/notebooks/generate",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 1503,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "notebooks_podcast",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/notebooks/podcast",
+   "line": 1483,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/notebooks/podcast",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 1575,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "notebooks_video_overview",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/notebooks/video_overview",
+   "line": 1561,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/notebooks/video_overview",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 1609,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "notebooks_podcast_audio",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/notebooks/podcast/audio",
+   "line": 1593,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/notebooks/podcast/audio",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 1629,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "notebooks_video_overview_video",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/notebooks/video_overview/video",
+   "line": 1613,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/notebooks/video_overview/video",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 1657,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "notebooks_presentation_rehearsal_audio",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/notebooks/presentation_rehearsal/audio",
+   "line": 1641,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/notebooks/presentation_rehearsal/audio",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 1758,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "topic_workflow_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/topics/workflow",
+   "line": 1691,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/topics/workflow",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 1799,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "build_table_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/table",
+   "line": 1769,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/table",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 1877,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "get_simulation_results",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/simulate",
+   "line": 1831,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/simulate",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 1898,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "clip_url_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/notes/clip",
+   "line": 1889,
+   "method": "POST",
+   "path": "/api/notes/clip",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 1913,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "ingest_video_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/notes/video",
+   "line": 1902,
+   "method": "POST",
+   "path": "/api/notes/video",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": true,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 1949,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "import_file_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/notes/import",
+   "line": 1917,
+   "method": "POST",
+   "path": "/api/notes/import",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": true,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 1972,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "ingest_pdf_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/notes/pdf",
+   "line": 1953,
+   "method": "POST",
+   "path": "/api/notes/pdf",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": true,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 1997,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "ingest_voice_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/notes/voice",
+   "line": 1976,
+   "method": "POST",
+   "path": "/api/notes/voice",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 2024,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "export_artifact_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/notes/export",
+   "line": 2012,
+   "method": "POST",
+   "path": "/api/notes/export",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/lib/notebookCapabilities.js",
+     "via": [
+      "shape"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 2043,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "synthesize_podcast_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/notes/podcast/synthesize",
+   "line": 2036,
+   "method": "POST",
+   "path": "/api/notes/podcast/synthesize",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 2075,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "build_video_overview_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/notes/video-overview/build",
+   "line": 2059,
+   "method": "POST",
+   "path": "/api/notes/video-overview/build",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/notebooks/QuizRunner.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 2092,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "grade_quiz_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/notes/study/quiz/grade",
+   "line": 2087,
+   "method": "POST",
+   "path": "/api/notes/study/quiz/grade",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 2138,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "record_quiz_attempt_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/notes/study/quiz/attempts",
+   "line": 2105,
+   "method": "POST",
+   "path": "/api/notes/study/quiz/attempts",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "shape"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 2144,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "list_quiz_attempts_endpoint",
+   "include_prefix": "",
+   "key": "GET /api/notes/study/quiz/attempts",
+   "line": 2142,
+   "method": "GET",
+   "path": "/api/notes/study/quiz/attempts",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 2150,
+   "file": "backend/api/routes/notebooks.py",
+   "handler": "missed_quiz_questions_endpoint",
+   "include_prefix": "",
+   "key": "GET /api/notes/study/quiz/missed",
+   "line": 2148,
+   "method": "GET",
+   "path": "/api/notes/study/quiz/missed",
+   "response_model": null,
+   "router": "notebooks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/lib/streamTicket.js",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 67,
+   "file": "backend/api/routes/stream_ticket.py",
+   "handler": "create_stream_ticket",
+   "include_prefix": "",
+   "key": "POST /api/stream-ticket",
+   "line": 40,
+   "method": "POST",
+   "path": "/api/stream-ticket",
+   "response_model": "StreamTicketResponse",
+   "router": "stream_ticket_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 93,
+   "file": "backend/api/routes/system.py",
+   "handler": "health",
+   "include_prefix": "",
+   "key": "GET /api/health",
+   "line": 92,
+   "method": "GET",
+   "path": "/api/health",
+   "response_model": null,
+   "router": "system_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 116,
+   "file": "backend/api/routes/system.py",
+   "handler": "backend_latency_probe",
+   "include_prefix": "",
+   "key": "GET /api/system/backend-latency-probe",
+   "line": 97,
+   "method": "GET",
+   "path": "/api/system/backend-latency-probe",
+   "response_model": null,
+   "router": "system_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 131,
+   "file": "backend/api/routes/system.py",
+   "handler": "chat_page_cache_stats",
+   "include_prefix": "",
+   "key": "GET /api/system/chat-page-cache-stats",
+   "line": 120,
+   "method": "GET",
+   "path": "/api/system/chat-page-cache-stats",
+   "response_model": null,
+   "router": "system_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 144,
+   "file": "backend/api/routes/system.py",
+   "handler": "db_pool_stats",
+   "include_prefix": "",
+   "key": "GET /api/system/db-pool-stats",
+   "line": 135,
+   "method": "GET",
+   "path": "/api/system/db-pool-stats",
+   "response_model": null,
+   "router": "system_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 156,
+   "file": "backend/api/routes/system.py",
+   "handler": "agent_pool_stats",
+   "include_prefix": "",
+   "key": "GET /api/system/agent-pool-stats",
+   "line": 148,
+   "method": "GET",
+   "path": "/api/system/agent-pool-stats",
+   "response_model": null,
+   "router": "system_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 172,
+   "file": "backend/api/routes/system.py",
+   "handler": "sga_stats",
+   "include_prefix": "",
+   "key": "GET /api/system/sga-stats",
+   "line": 160,
+   "method": "GET",
+   "path": "/api/system/sga-stats",
+   "response_model": null,
+   "router": "system_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 192,
+   "file": "backend/api/routes/system.py",
+   "handler": "laya_routing_stats",
+   "include_prefix": "",
+   "key": "GET /api/system/laya-routing-stats",
+   "line": 176,
+   "method": "GET",
+   "path": "/api/system/laya-routing-stats",
+   "response_model": null,
+   "router": "system_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 209,
+   "file": "backend/api/routes/system.py",
+   "handler": "tool_budget_stats",
+   "include_prefix": "",
+   "key": "GET /api/system/tool-budget-stats",
+   "line": 196,
+   "method": "GET",
+   "path": "/api/system/tool-budget-stats",
+   "response_model": null,
+   "router": "system_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 226,
+   "file": "backend/api/routes/system.py",
+   "handler": "conversation_thread_stats",
+   "include_prefix": "",
+   "key": "GET /api/system/conversation-thread-stats",
+   "line": 213,
+   "method": "GET",
+   "path": "/api/system/conversation-thread-stats",
+   "response_model": null,
+   "router": "system_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 242,
+   "file": "backend/api/routes/system.py",
+   "handler": "ledger_event_stats",
+   "include_prefix": "",
+   "key": "GET /api/system/ledger-event-stats",
+   "line": 230,
+   "method": "GET",
+   "path": "/api/system/ledger-event-stats",
+   "response_model": null,
+   "router": "system_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/TokenUsageTab.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 256,
+   "file": "backend/api/routes/system.py",
+   "handler": "quota",
+   "include_prefix": "",
+   "key": "GET /api/quota",
+   "line": 246,
+   "method": "GET",
+   "path": "/api/quota",
+   "response_model": null,
+   "router": "system_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/TokenUsageTab.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 279,
+   "file": "backend/api/routes/system.py",
+   "handler": "usage_history",
+   "include_prefix": "",
+   "key": "GET /api/usage/history",
+   "line": 260,
+   "method": "GET",
+   "path": "/api/usage/history",
+   "response_model": null,
+   "router": "system_router"
+  },
+  {
+   "async": true,
+   "callers": [
+    {
+     "file": "frontend/app/components/MessageBubble.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/WireframePreview.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/WorkspaceChatPanel.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/NotebooksTab.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/ResearchTab.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/lib/streamTicket.js",
+     "via": [
+      "shape"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 227,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "post_task",
+   "include_prefix": "",
+   "key": "POST /api/task",
+   "line": 162,
+   "method": "POST",
+   "path": "/api/task",
+   "response_model": "TaskResponse",
+   "router": "tasks_router"
+  },
+  {
+   "async": true,
+   "callers": [
+    {
+     "file": "frontend/app/components/HireReviewScreen.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/WorkspaceChatPanel.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 303,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "post_task_preview",
+   "include_prefix": "",
+   "key": "POST /api/task/preview",
+   "line": 272,
+   "method": "POST",
+   "path": "/api/task/preview",
+   "response_model": "TaskResponse",
+   "router": "tasks_router"
+  },
+  {
+   "async": true,
+   "callers": [
+    {
+     "file": "frontend/app/components/HireReviewScreen.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 343,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "post_task_confirm",
+   "include_prefix": "",
+   "key": "POST /api/task/confirm",
+   "line": 307,
+   "method": "POST",
+   "path": "/api/task/confirm",
+   "response_model": "TaskResponse",
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 397,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "request_pause",
+   "include_prefix": "",
+   "key": "POST /api/task/{session_id}/pause",
+   "line": 352,
+   "method": "POST",
+   "path": "/api/task/{session_id}/pause",
+   "response_model": "PauseResponse",
+   "router": "tasks_router"
+  },
+  {
+   "async": true,
+   "callers": [
+    {
+     "file": "frontend/app/lib/streamTicket.js",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 513,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "stream_answer",
+   "include_prefix": "",
+   "key": "GET /api/task/{session_id}/stream",
+   "line": 401,
+   "method": "GET",
+   "path": "/api/task/{session_id}/stream",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": true,
+   "callers": [
+    {
+     "file": "frontend/app/components/AgentStepList.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/WorkingPanel.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 696,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "post_resume",
+   "include_prefix": "",
+   "key": "POST /api/resume",
+   "line": 542,
+   "method": "POST",
+   "path": "/api/resume",
+   "response_model": "ResumeResponse",
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/RolePickerOverlay.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/RoleLibraryTab.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 721,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "get_roles",
+   "include_prefix": "",
+   "key": "GET /api/roles",
+   "line": 708,
+   "method": "GET",
+   "path": "/api/roles",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/RoleLibraryTab.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 734,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "put_role",
+   "include_prefix": "",
+   "key": "PUT /api/roles/{role_name}",
+   "line": 729,
+   "method": "PUT",
+   "path": "/api/roles/{role_name}",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/RoleLibraryTab.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 748,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "patch_role_pinned",
+   "include_prefix": "",
+   "key": "PATCH /api/roles/{role_name}/pin",
+   "line": 742,
+   "method": "PATCH",
+   "path": "/api/roles/{role_name}/pin",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 778,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "get_skills",
+   "include_prefix": "",
+   "key": "GET /api/skills",
+   "line": 758,
+   "method": "GET",
+   "path": "/api/skills",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 806,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "get_skill_detail",
+   "include_prefix": "",
+   "key": "GET /api/skills/{skill_id}",
+   "line": 789,
+   "method": "GET",
+   "path": "/api/skills/{skill_id}",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/SaveRunAsTemplate.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/WorkflowTemplatesTab.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 825,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "get_workflow_templates",
+   "include_prefix": "",
+   "key": "GET /api/workflow-templates",
+   "line": 822,
+   "method": "GET",
+   "path": "/api/workflow-templates",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 833,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "get_template_chat",
+   "include_prefix": "",
+   "key": "GET /api/workflow-templates/{template_id}/chat",
+   "line": 829,
+   "method": "GET",
+   "path": "/api/workflow-templates/{template_id}/chat",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/SaveRunAsTemplate.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/WorkflowTemplatesTab.jsx",
+     "via": [
+      "method",
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 853,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "post_workflow_template",
+   "include_prefix": "",
+   "key": "POST /api/workflow-templates",
+   "line": 837,
+   "method": "POST",
+   "path": "/api/workflow-templates",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/WorkflowTemplatesTab.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 867,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "put_workflow_template",
+   "include_prefix": "",
+   "key": "PUT /api/workflow-templates/{template_id}",
+   "line": 857,
+   "method": "PUT",
+   "path": "/api/workflow-templates/{template_id}",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/WorkflowTemplatesTab.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 875,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "delete_workflow_template_endpoint",
+   "include_prefix": "",
+   "key": "DELETE /api/workflow-templates/{template_id}",
+   "line": 871,
+   "method": "DELETE",
+   "path": "/api/workflow-templates/{template_id}",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": true,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/WorkflowTemplatesTab.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 919,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "post_task_from_template",
+   "include_prefix": "",
+   "key": "POST /api/task/from-template",
+   "line": 893,
+   "method": "POST",
+   "path": "/api/task/from-template",
+   "response_model": "TaskResponse",
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/BuildTab.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/lib/latestRequest.js",
+     "via": [
+      "shape"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 1055,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "get_tasks",
+   "include_prefix": "",
+   "key": "GET /api/tasks/{session_id}",
+   "line": 992,
+   "method": "GET",
+   "path": "/api/tasks/{session_id}",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 1090,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "get_step_full_result",
+   "include_prefix": "",
+   "key": "GET /api/task/{session_id}/step/{role}/full",
+   "line": 1058,
+   "method": "GET",
+   "path": "/api/task/{session_id}/step/{role}/full",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/BuildTab.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 1128,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "get_tasks_for_workspace",
+   "include_prefix": "",
+   "key": "GET /api/tasks/workspace/{ws_id}",
+   "line": 1094,
+   "method": "GET",
+   "path": "/api/tasks/workspace/{ws_id}",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/RoutingTraceGraph.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/WorkingPanel.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 1141,
+   "file": "backend/api/routes/tasks.py",
+   "handler": "get_timeline_node_blurbs",
+   "include_prefix": "",
+   "key": "GET /api/timeline/node_blurbs",
+   "line": 1140,
+   "method": "GET",
+   "path": "/api/timeline/node_blurbs",
+   "response_model": null,
+   "router": "tasks_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/UsagePanel.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/lib/usage.js",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 32,
+   "file": "backend/api/routes/usage.py",
+   "handler": "get_usage",
+   "include_prefix": "",
+   "key": "GET /api/usage",
+   "line": 29,
+   "method": "GET",
+   "path": "/api/usage",
+   "response_model": null,
+   "router": "usage_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 70,
+   "file": "backend/api/routes/user_profile.py",
+   "handler": "get_user_profile",
+   "key": "GET /api/profile",
+   "line": 65,
+   "method": "GET",
+   "path": "/api/profile",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 78,
+   "file": "backend/api/routes/user_profile.py",
+   "handler": "get_profile_corrections",
+   "key": "GET /api/profile/corrections",
+   "line": 74,
+   "method": "GET",
+   "path": "/api/profile/corrections",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 88,
+   "file": "backend/api/routes/user_profile.py",
+   "handler": "put_profile_output_format",
+   "key": "PUT /api/profile/output-format",
+   "line": 82,
+   "method": "PUT",
+   "path": "/api/profile/output-format",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 100,
+   "file": "backend/api/routes/user_profile.py",
+   "handler": "delete_profile_output_format",
+   "key": "DELETE /api/profile/output-format",
+   "line": 92,
+   "method": "DELETE",
+   "path": "/api/profile/output-format",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 121,
+   "file": "backend/api/routes/user_profile.py",
+   "handler": "put_profile_fact",
+   "key": "PUT /api/profile/{field}/{key}",
+   "line": 104,
+   "method": "PUT",
+   "path": "/api/profile/{field}/{key}",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 135,
+   "file": "backend/api/routes/user_profile.py",
+   "handler": "delete_profile_fact_route",
+   "key": "DELETE /api/profile/{field}/{key}",
+   "line": 125,
+   "method": "DELETE",
+   "path": "/api/profile/{field}/{key}",
+   "response_model": null
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/CalendarEventsPanel.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/IntegrationsPanel.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 149,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "list_integrations",
+   "include_prefix": "",
+   "key": "GET /api/integrations",
+   "line": 145,
+   "method": "GET",
+   "path": "/api/integrations",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/IntegrationsPanel.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/GrowthTab.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 177,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "connect_google_calendar",
+   "include_prefix": "",
+   "key": "GET /api/integrations/google_calendar/connect",
+   "line": 153,
+   "method": "GET",
+   "path": "/api/integrations/google_calendar/connect",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [],
+   "end": 229,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "google_calendar_callback",
+   "include_prefix": "",
+   "key": "GET /api/integrations/google_calendar/callback",
+   "line": 181,
+   "method": "GET",
+   "path": "/api/integrations/google_calendar/callback",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/IntegrationsPanel.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 235,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "disconnect_integration",
+   "include_prefix": "",
+   "key": "DELETE /api/integrations/{provider}",
+   "line": 233,
+   "method": "DELETE",
+   "path": "/api/integrations/{provider}",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/CalendarEventsPanel.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/GrowthTab.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 252,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "get_calendar_events",
+   "include_prefix": "",
+   "key": "GET /api/integrations/google_calendar/events",
+   "line": 247,
+   "method": "GET",
+   "path": "/api/integrations/google_calendar/events",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/CalendarEventsPanel.jsx",
+     "via": [
+      "method",
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/GrowthTab.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 263,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "post_calendar_event",
+   "include_prefix": "",
+   "key": "POST /api/integrations/google_calendar/events",
+   "line": 256,
+   "method": "POST",
+   "path": "/api/integrations/google_calendar/events",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/CalendarEventsPanel.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 271,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "delete_calendar_event",
+   "include_prefix": "",
+   "key": "DELETE /api/integrations/google_calendar/events/{event_id}",
+   "line": 267,
+   "method": "DELETE",
+   "path": "/api/integrations/google_calendar/events/{event_id}",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 285,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "export_workspace",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/export",
+   "line": 275,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/export",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 298,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "import_workspace",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/import",
+   "line": 289,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/import",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 346,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "export_workspace_files",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/export/files",
+   "line": 302,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/export/files",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/BuildTab.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 362,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "get_workspace_facts",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/facts",
+   "line": 357,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/facts",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/BuildTab.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method",
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 373,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "put_workspace_facts",
+   "include_prefix": "",
+   "key": "PUT /api/workspaces/{ws_id}/facts",
+   "line": 366,
+   "method": "PUT",
+   "path": "/api/workspaces/{ws_id}/facts",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/BuildTab.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 458,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "refresh_part_prices",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/parts/refresh-prices",
+   "line": 375,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/parts/refresh-prices",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 498,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "get_device_spec",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/device-spec",
+   "line": 461,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/device-spec",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 548,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "toggle_instruction_step",
+   "include_prefix": "",
+   "key": "PATCH /api/workspaces/{ws_id}/device-spec/instructions/steps/{step_id}",
+   "line": 502,
+   "method": "PATCH",
+   "path": "/api/workspaces/{ws_id}/device-spec/instructions/steps/{step_id}",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 554,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "get_workspace_fact_candidates",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/facts/candidates",
+   "line": 551,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/facts/candidates",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 569,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "accept_workspace_fact_candidate",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/facts/candidates/{candidate_id}/accept",
+   "line": 558,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/facts/candidates/{candidate_id}/accept",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 578,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "reject_workspace_fact_candidate",
+   "include_prefix": "",
+   "key": "DELETE /api/workspaces/{ws_id}/facts/candidates/{candidate_id}",
+   "line": 573,
+   "method": "DELETE",
+   "path": "/api/workspaces/{ws_id}/facts/candidates/{candidate_id}",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 604,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "submit_correction",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/corrections",
+   "line": 593,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/corrections",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 609,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "get_correction_candidates",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/corrections/candidates",
+   "line": 608,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/corrections/candidates",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 619,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "accept_correction_candidate",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/corrections/candidates/{candidate_id}/accept",
+   "line": 613,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/corrections/candidates/{candidate_id}/accept",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [],
+   "end": 628,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "reject_correction_candidate",
+   "include_prefix": "",
+   "key": "DELETE /api/workspaces/{ws_id}/corrections/candidates/{candidate_id}",
+   "line": 623,
+   "method": "DELETE",
+   "path": "/api/workspaces/{ws_id}/corrections/candidates/{candidate_id}",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 642,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "list_workspace_panel_content",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/panels",
+   "line": 637,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/panels",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 654,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "get_workspace_panel_content",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/panels/{panel_key}",
+   "line": 646,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/panels/{panel_key}",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method",
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 667,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "put_workspace_panel_content",
+   "include_prefix": "",
+   "key": "PUT /api/workspaces/{ws_id}/panels/{panel_key}",
+   "line": 658,
+   "method": "PUT",
+   "path": "/api/workspaces/{ws_id}/panels/{panel_key}",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 685,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "get_workspace_progress",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/progress",
+   "line": 675,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/progress",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method",
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 707,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "put_workspace_progress",
+   "include_prefix": "",
+   "key": "PUT /api/workspaces/{ws_id}/progress",
+   "line": 689,
+   "method": "PUT",
+   "path": "/api/workspaces/{ws_id}/progress",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/tabs/GrowthTab.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 728,
+   "file": "backend/api/routes/workspace_data.py",
+   "handler": "get_pagespeed_audit",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/audit/pagespeed",
+   "line": 717,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/audit/pagespeed",
+   "response_model": null,
+   "router": "workspace_data_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/InstructionChecklist.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/KnowledgeGraphView.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/MechView.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/BuildTab.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/GrowthTab.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/NotebooksTab.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/ResearchTab.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspacesContext.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/lib/notebookCapabilities.js",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/lib/workbench/fileProviders.js",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/lib/workbench/problems.js",
+     "via": [
+      "shape"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 113,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "get_workspaces",
+   "include_prefix": "",
+   "key": "GET /api/workspaces",
+   "line": 112,
+   "method": "GET",
+   "path": "/api/workspaces",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/components/InstructionChecklist.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/KnowledgeGraphView.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/MechView.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/BuildTab.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/GrowthTab.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/NotebooksTab.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/components/tabs/ResearchTab.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspacesContext.jsx",
+     "via": [
+      "score"
+     ]
+    },
+    {
+     "file": "frontend/app/lib/notebookCapabilities.js",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/lib/workbench/fileProviders.js",
+     "via": [
+      "shape"
+     ]
+    },
+    {
+     "file": "frontend/app/lib/workbench/problems.js",
+     "via": [
+      "shape"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 118,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "create_workspace",
+   "include_prefix": "",
+   "key": "POST /api/workspaces",
+   "line": 117,
+   "method": "POST",
+   "path": "/api/workspaces",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "shape"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 126,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "get_workspace",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}",
+   "line": 122,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 136,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "rename_workspace",
+   "include_prefix": "",
+   "key": "PATCH /api/workspaces/{ws_id}/rename",
+   "line": 130,
+   "method": "PATCH",
+   "path": "/api/workspaces/{ws_id}/rename",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 166,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "promote_workspace",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/promote",
+   "line": 138,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/promote",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 176,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "add_workspace_chat",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/chats",
+   "line": 170,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/chats",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 191,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "create_workspace_chat",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/chats/create",
+   "line": 180,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/chats/create",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    },
+    {
+     "file": "frontend/app/context/WorkspaceDockContext.jsx",
+     "via": [
+      "shape"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 202,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "remove_workspace_chat",
+   "include_prefix": "",
+   "key": "DELETE /api/workspaces/{ws_id}/chats/{chat_id}",
+   "line": 195,
+   "method": "DELETE",
+   "path": "/api/workspaces/{ws_id}/chats/{chat_id}",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 213,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "delete_workspace",
+   "include_prefix": "",
+   "key": "DELETE /api/workspaces/{ws_id}",
+   "line": 206,
+   "method": "DELETE",
+   "path": "/api/workspaces/{ws_id}",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 260,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "get_workspace_members",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/members",
+   "line": 219,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/members",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method",
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 275,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "add_workspace_member",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/members",
+   "line": 264,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/members",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 288,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "update_workspace_member",
+   "include_prefix": "",
+   "key": "PATCH /api/workspaces/{ws_id}/members/{target_user_id}",
+   "line": 279,
+   "method": "PATCH",
+   "path": "/api/workspaces/{ws_id}/members/{target_user_id}",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 299,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "remove_workspace_member",
+   "include_prefix": "",
+   "key": "DELETE /api/workspaces/{ws_id}/members/{target_user_id}",
+   "line": 292,
+   "method": "DELETE",
+   "path": "/api/workspaces/{ws_id}/members/{target_user_id}",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 318,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "leave_workspace_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/leave",
+   "line": 305,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/leave",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 336,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "remove_owner_endpoint",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/owner/remove",
+   "line": 322,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/owner/remove",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 344,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "get_workspace_votes",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/votes",
+   "line": 340,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/votes",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method",
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 356,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "cast_workspace_vote",
+   "include_prefix": "",
+   "key": "POST /api/workspaces/{ws_id}/votes",
+   "line": 348,
+   "method": "POST",
+   "path": "/api/workspaces/{ws_id}/votes",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 367,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "set_workspace_attribution",
+   "include_prefix": "",
+   "key": "PATCH /api/workspaces/{ws_id}/attribution",
+   "line": 360,
+   "method": "PATCH",
+   "path": "/api/workspaces/{ws_id}/attribution",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "method"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 384,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "set_member_attribution_grant",
+   "include_prefix": "",
+   "key": "PATCH /api/workspaces/{ws_id}/members/{target_user_id}/attribution-grant",
+   "line": 371,
+   "method": "PATCH",
+   "path": "/api/workspaces/{ws_id}/members/{target_user_id}/attribution-grant",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 418,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "get_workspace_audit",
+   "include_prefix": "",
+   "key": "GET /api/workspaces/{ws_id}/audit",
+   "line": 388,
+   "method": "GET",
+   "path": "/api/workspaces/{ws_id}/audit",
+   "response_model": null,
+   "router": "workspaces_router"
+  },
+  {
+   "async": false,
+   "callers": [
+    {
+     "file": "frontend/app/context/SessionContext.jsx",
+     "via": [
+      "score"
+     ]
+    }
+   ],
+   "deps": [
+    "require_auth"
+   ],
+   "end": 426,
+   "file": "backend/api/routes/workspaces.py",
+   "handler": "get_my_audit",
+   "include_prefix": "",
+   "key": "GET /api/audit/me",
+   "line": 422,
+   "method": "GET",
+   "path": "/api/audit/me",
+   "response_model": null,
+   "router": "workspaces_router"
+  }
+ ],
+ "schema": 1
+}
