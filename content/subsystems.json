@@ -199,7 +199,7 @@
       "what": "The Next.js browser app: chat, workspaces, the eight stage tabs, notebooks and the code workbench.",
       "chapter": "doc-minime-feature-guide#2-the-main-user-experience",
       "pages": [
-        "explore",
+        "explorer",
         "map"
       ],
       "key_files": [

@@ -4,7 +4,7 @@
     "files": {
       "label": "Files",
       "why": "Everything that is tracked in git and is not a binary: code, tests, docs and configuration.",
-      "href": "explore.html"
+      "href": "explorer.html"
     },
     "code_lines": {
       "label": "Lines of code",
@@ -14,12 +14,12 @@
     "functions": {
       "label": "Functions and methods",
       "why": "How many named pieces of behaviour there are to understand. Most have no description yet.",
-      "href": "functions.html"
+      "href": "explorer.html"
     },
     "docstrings": {
       "label": "Python functions with a docstring",
       "why": "What can be explained from the code alone. The rest needs a written note; JavaScript is not counted.",
-      "href": "explore.html"
+      "href": "explorer.html"
     },
     "routes": {
       "label": "API routes",

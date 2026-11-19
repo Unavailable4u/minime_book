@@ -170,11 +170,23 @@ class OnACopy(unittest.TestCase):
         self.assertEqual(0, ra.main(["--root", str(self.tmp)]))
         self.assertEqual({"census"}, set(json.loads(read(vp))))
 
-    def test_graphify_derived_content_is_preserved(self):
-        before = read(self.tmp / "explore.html")
+    def test_code_functions_and_explore_are_redirects_not_generated_pages_any_more(self):
+        """P19: code.html, functions.html and explore.html only forward to the Explorer, which reads data/code/. Nothing here writes them."""
+        for name in ("code", "functions", "explore"):
+            self.assertNotIn(name, ra.PAGES)
+            page = read(ROOT / f"{name}.html")
+            self.assertLess(len(page), 4000, f"{name}.html must stay a thin page")
+            self.assertIn(f'data-compat="{name}"', page)
+            self.assertIn("assets/js/compat.js", page)
+            self.assertNotRegex(page, r"ROWS=|const F=|,FN=|,EG=|,RT=", f"{name}.html must not carry baked-in data")
+        for gone in ("refresh_code", "refresh_functions", "refresh_explore", "function_rows", "file_rows"):
+            self.assertFalse(hasattr(ra, gone), gone)
+        before = {n: read(ROOT / f"{n}.html") for n in ("code", "functions", "explore")}
         self.newer_census()
-        self.refresh()
-        self.assertEqual(ra.read_literal(before, ",DC="), ra.read_literal(read(self.tmp / "explore.html"), ",DC="), "doc sections must be untouched")
+        changes = self.refresh()
+        for n in before:
+            self.assertEqual(before[n], read(ROOT / f"{n}.html"))
+            self.assertNotIn(self.tmp / f"{n}.html", changes)
 
     def test_api_and_agents_are_shells_not_generated_pages_any_more(self):
         """P17: api.html and agents.html are drawn by assets/js/api.js and agents.js from data/code/routes.json and agents.json."""
@@ -226,32 +238,16 @@ class OnACopy(unittest.TestCase):
             self.assertEqual([], [r for r in d["routes"] if r["callers"]])
             self.assertNotIn("callers_scan", d, "a census refresh must never claim a frontend scan happened")
 
-    def test_explore_edges_follow_their_files_when_indexes_shift(self):
-        def path_edges(html):
-            F, EG = ra.read_literal(html, "const F="), ra.read_literal(html, ",EG=")
-            return {(F[int(k)][0], F[t][0], w) for k, v in EG.items() for t, w in v["o"]}
-        before = path_edges(read(self.tmp / "explore.html"))
-        template = next(f for f in self.census["files"] if f["path"].endswith(".py") and not f.get("binary"))
-        new_file = copy.deepcopy(template)
-        new_file["path"] = ".0000_brand_new_file.py"   # sorts before ".dockerignore", so every other file's index shifts by one
-        self.census["files"].append(new_file)
-        self.save_census()
-        self.refresh()
-        html = read(self.tmp / "explore.html")
-        F = ra.read_literal(html, "const F=")
-        self.assertEqual(".0000_brand_new_file.py", F[0][0])
-        self.assertEqual(before, path_edges(html), "every edge must still connect the same two files")
-
     def test_crlf_pages_are_not_seen_as_stale_and_stay_crlf(self):
         """A Windows checkout (core.autocrlf) has CRLF files. In-sync pages must not look changed, and
         pages that do change must keep CRLF rather than silently becoming LF."""
-        for rel in ("code.html", "history.html", "data/index/vitals.json"):
+        for rel in ("map.html", "history.html", "data/index/vitals.json"):
             p = self.tmp / rel
             p.write_bytes(read(p).replace("\n", "\r\n").encode("utf-8"))
         self.assertEqual({}, ra.refresh_all(self.tmp, self.census), "CRLF alone must not count as out of date")
         self.newer_census()
         changes = ra.refresh_all(self.tmp, self.census)
-        for rel in ("code.html", "history.html", "data/index/vitals.json"):
+        for rel in ("map.html", "history.html", "data/index/vitals.json"):
             raw = changes[self.tmp / rel].encode("utf-8")
             self.assertEqual(raw.count(b"\r\n"), raw.count(b"\n"), f"{rel}: a bare LF was introduced")
 

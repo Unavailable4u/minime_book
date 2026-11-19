@@ -45,6 +45,16 @@ export function parseRoute(hash) {
   return { view, path, qual, start, end: start ? end : null, tab };
 }
 
+/* #/?q=<text> (P19): the old Explore / Files / Functions pages send a search here. It prefills the file filter; the route itself is still the start page. */
+export function hashQuery(hash) {
+  const h = String(hash || "");
+  const i = h.indexOf("?");
+  if (i < 0) return "";
+  const m = /(?:^|&)q=([^&]*)/.exec(h.slice(i + 1));
+  if (!m) return "";
+  try { return decodeURIComponent(m[1].replace(/\+/g, " ")).trim(); } catch { return ""; }
+}
+
 export function buildRoute({ view = "file", path = "", qual = "", start = null, end = null, tab = "" } = {}) {
   const p = cleanPath(path);
   if (view === "home" || !p) return "#/";

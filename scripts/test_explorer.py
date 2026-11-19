@@ -63,11 +63,46 @@ class ExplorerTests(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertNotIn("FAIL", r.stdout)
 
+    def test_compat_redirects(self):
+        """P19: where explore.html#<path>, explore.html#<words>, code.html and functions.html go, and that the Explorer reads it back."""
+        r = run("compat.mjs")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertNotIn("FAIL", r.stdout)
+
     def test_page(self):
         r = run("page.mjs")
         if r.returncode == 77:
             self.skipTest("jsdom is not installed: npm install --prefix scripts/explorer_tests jsdom")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+
+class CompatPages(unittest.TestCase):
+    """P19: explore.html, code.html and functions.html are thin pages that forward to the Explorer (assets/js/compat.js)."""
+    ROOT = Path(__file__).resolve().parent.parent
+
+    def test_each_old_page_forwards_and_has_a_way_out_without_javascript(self):
+        for name in ("explore", "code", "functions"):
+            html = (self.ROOT / f"{name}.html").read_text(encoding="utf-8")
+            self.assertIn(f'<body data-compat="{name}">', html)
+            self.assertIn('<script type="module" src="assets/js/compat.js"></script>', html)
+            self.assertIn('<noscript><meta http-equiv="refresh" content="0;url=explorer.html"></noscript>', html)
+            self.assertIn('id="compat-link" href="explorer.html#/"', html)
+            self.assertIn('content="noindex,nofollow"', html)
+            self.assertLess(len(html), 4000, name)
+
+    def test_the_titles_stay_distinct_so_search_results_and_tabs_still_tell_them_apart(self):
+        titles = {n: next(l for l in (self.ROOT / f"{n}.html").read_text(encoding="utf-8").splitlines() if l.startswith("<title>")) for n in ("explore", "code", "functions")}
+        self.assertEqual(3, len(set(titles.values())), titles)
+
+    def test_they_are_hidden_from_the_sidebar_but_still_listed_so_check_site_knows_them(self):
+        import json
+        nav = json.loads((self.ROOT / "content" / "nav.json").read_text(encoding="utf-8"))
+        shown = {it["url"] for w in nav["wings"] for it in w["items"]}
+        hidden = {it["url"]: it for it in nav["hidden"]}
+        for name in ("explore.html", "code.html", "functions.html"):
+            self.assertNotIn(name, shown)
+            self.assertEqual("bare", hidden[name]["layout"])
+        self.assertIn("explorer.html", shown)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@
    and callers/<shard>.json) is loaded when the address names a symbol; the walkthrough margin cards (P14d, blocks.js) are built by the Source tab from the note's blocks; assets/js/links.js builds the raw / GitHub / VS Code links.
    Audit mode (P16): audit.js holds the marks, auditui.js draws them; #/audit is the audit page and r / c / n mark the open symbol. */
 import { h, toast } from "./dom.js";
-import { parseRoute, buildRoute } from "./router.js";
+import { parseRoute, buildRoute, hashQuery } from "./router.js";
 import { loadCore, loadRecord, loadRecords, loadNote, loadCallers, symbolRows, allFiles, noteStatus, getJSON } from "./model.js";
 import { createTree } from "./tree.js";
 import { renderHome, renderDir, renderFile } from "./fileview.js";
@@ -202,6 +202,8 @@ async function boot() {
   $("ex-sheet-close").addEventListener("click", closeSheet);
   initResize();
   window.addEventListener("hashchange", route);
+  const q0 = hashQuery(location.hash);                          // P19: explore.html#<words> arrives as #/?q=<words>
+  if (q0 && parseRoute(location.hash).view === "home") { q.value = q0; $("ex-count").textContent = `${tree.setFilter(q0).toLocaleString("en-US")} files`; }
   route();
 }
 

@@ -21,7 +21,7 @@ rg = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(rg)
 ra = rg.ra
 
-PAGES = ["graph.html", "explore.html", "graph-viewer.html", "data/summary.md", "data/index/vitals.json"]
+PAGES = ["graph.html", "graph-viewer.html", "data/summary.md", "data/index/vitals.json", "data/code/routes.json"]
 COMMIT = "a" * 40
 
 
@@ -37,8 +37,9 @@ class Fixture(unittest.TestCase):
         (self.book / "data" / "code").mkdir(parents=True)
         for rel in PAGES:
             shutil.copy(ROOT / rel, self.book / rel)
+        shutil.copytree(ROOT / "data" / "code" / "files", self.book / "data" / "code" / "files")      # P19: the viewer reads the sharded code data, not explore.html
         (self.minime / "graphify-out").mkdir(parents=True)
-        files = [r[0] for r in ra.read_literal(read(self.book / "explore.html"), "const F=")]
+        files = [f["path"] for f in rg.code_files(self.book)]
         self.eo = next(f for f in files if f.startswith("backend/eo/"))
         self.ag = next(f for f in files if f.startswith("backend/agents/") and not f.startswith("backend/agents/test_"))
         self.write_graph()
@@ -257,18 +258,31 @@ class Refresh(Fixture):
         self.assertIn("Largest 2 of 2.", html)
         self.assertIn(f"Built {self.graph().date} from commit aaaaaaa.", html)
 
-    def test_explore_edges_are_file_to_file_link_counts(self):
-        self.apply()
-        html = read(self.book / "explore.html")
-        paths = [r[0] for r in ra.read_literal(html, "const F=")]
-        eg = ra.read_literal(html, ",EG=")
-        ag, eo = paths.index(self.ag), paths.index(self.eo)
-        self.assertEqual([[eo, 2]], eg[str(ag)]["o"])
-        self.assertEqual([[ag, 2]], eg[str(eo)]["i"])
+    def test_explore_html_is_no_longer_a_generated_page(self):
+        """P19: the per-file edges live in data/graph/file-links.json (FileLinksJson); explore.html is a redirect and is neither read nor written."""
+        self.assertFalse(hasattr(rg, "refresh_explore"))
+        self.assertFalse((self.book / "explore.html").exists())
+        changes = rg.refresh_all(self.book, self.graph(), self.minime)
+        self.assertNotIn(self.book / "explore.html", changes)
 
     def test_summary_line(self):
         self.apply()
         self.assertRegex(read(self.book / "data" / "summary.md"), r"- Graph: 5 nodes, 5 links, 2 communities \(Graphify run of [\d-]+, commit `aaaaaaa`\)\.")
+
+
+class Between(unittest.TestCase):
+    """The helper graph.html's regions are replaced with (it lived in refresh_atlas.py until P18 removed it with the infra page)."""
+
+    def test_replaces_from_the_first_marker_up_to_the_second(self):
+        self.assertEqual("<a>NEW</b>", rg._between("<a>old text</b>", "<a>", "</b>", "<a>NEW"))
+
+    def test_keeps_the_newline_before_the_closing_marker(self):
+        self.assertEqual("<a>NEW\n</b>", rg._between("<a>old\n</b>", "<a>", "</b>", "<a>NEW"))
+
+    def test_a_missing_marker_is_an_error(self):
+        for a, b in (("<x>", "</b>"), ("<a>", "</x>")):
+            with self.assertRaises(KeyError):
+                rg._between("<a>old</b>", a, b, "new")
 
 
 class Viewer(Fixture):
@@ -283,9 +297,10 @@ class Viewer(Fixture):
         self.assertNotIn("__DATA__", html)
         self.assertNotIn("RAW_NODES", html)                      # no longer Graphify's viewer
         self.assertEqual({"date": self.graph().date, "commit": "aaaaaaa"}, d["meta"])
-        explore = read(self.book / "explore.html")
-        self.assertEqual(len(ra.read_literal(explore, "const F=")), len(d["files"]))
-        self.assertEqual(len(ra.read_literal(explore, ",FN=")), len(d["fns"]))
+        rows, fns = rg.viewer_rows(rg.code_files(self.book))
+        self.assertEqual(len(rows), len(d["files"]))
+        self.assertEqual(len(fns), len(d["fns"]))
+        self.assertEqual(len(rg.code_routes(self.book)), len(d["routes"]))
 
     def test_links_are_counted_from_the_graph_without_the_explore_cap(self):
         _, d = self.data()
@@ -310,6 +325,36 @@ class Viewer(Fixture):
         self.assertIn("as a constellation", html)
         self.assertNotIn("Your Graphify view, as generated.", html)
         self.assertEqual(1, html.count('<iframe src="graph-viewer.html"'))
+
+    def test_a_file_row_has_the_layout_the_viewer_template_reads(self):
+        files = [
+            {"path": "b/z.py", "lang": "python", "code": 10, "test": True, "git": {"commits": 3, "last": "2026-11-01"},
+             "module_doc": "  First line of the docstring.\nSecond line.", "functions": [{"name": "f", "start": 4, "loc": 7, "kind": "function"}]},
+            {"path": "a/y.js", "lang": "javascript", "code": 2},
+        ]
+        rows, fns = rg.viewer_rows(files)
+        self.assertEqual([["b/z.py", "py", 10, 1, 3, "2026-11-01", 1, "First line of the docstring."], ["a/y.js", "ja", 2, 0, 0, "", 0, ""]], rows)
+        self.assertEqual([["f", 0, 4, 7, "function"]], fns)
+        self.assertEqual(90, len(rg.viewer_rows([{"path": "x", "lang": "python", "code": 1, "module_doc": "w" * 200}])[0][0][7]))
+
+    def test_the_files_are_taken_in_path_order_across_shards(self):
+        paths = [f["path"] for f in rg.code_files(self.book)]
+        self.assertEqual(sorted(paths), paths)
+        self.assertEqual(len(paths), len(set(paths)))
+
+    def test_missing_code_data_is_a_clear_error_not_an_empty_viewer(self):
+        shutil.rmtree(self.book / "data" / "code" / "files")
+        with self.assertRaises(SystemExit) as cm:
+            rg.refresh_all(self.book, self.graph(), self.minime)
+        self.assertIn("refresh_atlas.py", str(cm.exception))
+
+    def test_a_route_of_a_file_the_viewer_does_not_list_is_left_out_instead_of_stopping_the_update(self):
+        g = self.graph()
+        routes = rg.code_routes(self.book)
+        files = [f for f in rg.code_files(self.book) if not f["path"].startswith("backend/api/")]
+        d = rg.viewer_data(g, files, routes)
+        self.assertLess(len(d["routes"]), len(routes))
+        self.assertEqual(len(rg.code_routes(self.book)), len(rg.viewer_data(g, rg.code_files(self.book), routes)["routes"]))
 
     def test_a_template_without_the_data_placeholder_is_refused(self):
         bad = self.tmp / "bad.html"

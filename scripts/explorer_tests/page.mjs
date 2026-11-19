@@ -2,7 +2,7 @@
 // model.js caches fetched JSON for the life of the page, so every scenario runs in its own Node process:  node page.mjs [normal|degraded|broken|scale]
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-const SCENARIOS = ["normal", "degraded", "broken", "scale", "source", "nomanifest", "fetchfail", "drift", "symbol", "nocallers", "walkthrough", "walknarrow", "walklong", "docs", "book", "nobook", "audit", "auditstale", "auditpage", "auditshared"];
+const SCENARIOS = ["normal", "degraded", "broken", "scale", "source", "nomanifest", "fetchfail", "drift", "symbol", "nocallers", "walkthrough", "walknarrow", "walklong", "docs", "book", "nobook", "audit", "auditstale", "auditpage", "auditshared", "query"];
 const which = process.argv[2];
 if (!which) {
   let bad = 0;
@@ -65,6 +65,20 @@ if (which === "normal") {
   const bar = doc.getElementById("ex-resize"); key(bar, "ArrowRight"); ok(bar.getAttribute("aria-valuenow") === "316", "resize bar keyboard");
   await nav("#/"); ok(text("ex-main").includes("3 files") && text("ex-insp").includes("Keys"), "start page");
   allErrors.push(...errors);
+}
+
+if (which === "query") {                         // P19: explore.html#<words> arrives as #/?q=<words>
+  const P = await boot({ hash: "#/?q=api" });
+  const { doc, wait, nav, rows, text, errors } = P;
+  await wait(150);
+  ok(doc.getElementById("ex-q").value === "api", "the filter box is prefilled from #/?q=");
+  ok(rows().join() === "backend/,api/,b.py", `and the tree is filtered (${rows()})`);
+  ok(text("ex-count").trim() === "1 files", "the count says so");
+  ok(text("ex-main").includes("Explorer") && text("ex-main").includes("3 files"), "the start page is still what is shown");
+  await nav("#/f/backend/agents/a.py"); ok(doc.querySelector(".ex-row.is-selected")?.title === "backend/agents/a.py" || doc.getElementById("ex-q").value === "", "opening a file the filter hides clears it");
+  const Q = await boot({ hash: "#/f/backend/agents/a.py?q=api" });
+  ok(Q.doc.getElementById("ex-q").value === "", "a query on a file route is ignored: the file wins");
+  allErrors.push(...errors, ...Q.errors);
 }
 
 if (which === "degraded") {

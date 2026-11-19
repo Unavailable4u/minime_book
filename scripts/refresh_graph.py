@@ -16,15 +16,14 @@ Only the Python standard library is used.
 What it refreshes, and where each number comes from:
 
     graph-viewer.html   the "Constellation" viewer shown on graph.html, generated from scripts/graph_viewer_template.html
-                        plus the file-level graph (files, functions and routes from explore.html, and every
-                        file-to-file link counted from graph.json, not just the top 14 per file)
+                        plus the file-level graph (files and functions from data/code/files/*.json, routes from
+                        data/code/routes.json, and every file-to-file link counted from graph.json, not just the top 14
+                        per file). Since P19 it no longer reads explore.html: that page is a redirect to the Explorer now
     graph.html          node/link/community counts, the folder-to-folder matrix, "Strongest cross-folder
                         links", the "Communities, named" table (largest 40), and the Built stamp
     data/index/vitals.json   the "graph" half: nodes, links, communities, the commit and day of the graph, and the
                         ten hubs (most connections). index.html draws it (assets/js/overview.js, P07); the "census"
                         half of the same file belongs to refresh_atlas.py and is carried over untouched
-    explore.html        the per-file "Links out / Links in" edges (top 14 each way, weight = number of
-                        graph links between the two files)
     data/code/routes.json   (P17) the "callers" half: which frontend files call each route, and how well each link is backed
                         (via: method / score / shape). These are NOT in graph.json: they are found by scanning
                         MiniMe/frontend for "/api/..." strings and matching them to the route paths by shape (inferred, not
@@ -61,7 +60,7 @@ ra = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ra)
 
 fmt, esc, base = ra.fmt, ra.esc, ra.base
-HUBS, PAIRS, MATRIX_N, COMMUNITIES, EG_TOP = 10, 12, 14, 40, 14
+HUBS, PAIRS, MATRIX_N, COMMUNITIES = 10, 12, 14, 40
 MATRIX_MIN = 1                        # smallest link count shown in the matrix (smaller shows as a dot)
 SKIP_DIRS = {"node_modules", ".next", "dist", "build", ".git", "coverage", "__pycache__"}
 FRONTEND_EXT = (".js", ".jsx", ".ts", ".tsx", ".mjs")
@@ -264,6 +263,16 @@ def refresh_viewer_blurb(html):
                        lambda m: f"{m.group(1)}Folders and files as a constellation. Search a file or function, click a folder to zoom in, click a file to see what it links to and from. {m.group(2)}")
 
 
+def _between(html, a, b, new):
+    """`html` with everything from the marker `a` up to (not including) the marker `b` replaced by `new`. Only graph.html uses it."""
+    i = html.find(a)
+    j = html.find(b, i)
+    if i < 0 or j < 0:
+        raise KeyError(f"section {a!r}..{b!r} not found")
+    tail = "\n" if html[j - 1:j] == "\n" else ""
+    return html[:i] + new + tail + html[j:]
+
+
 def refresh_graph_page(html, g):
     pairs, nodes = folder_stats(g)
     html = ra.sub_once(html, r'(<p class="sub">)[\d,]+ nodes and [\d,]+ links from Graphify(, summarized by folder first, then explorable\.</p>)',
@@ -273,29 +282,11 @@ def refresh_graph_page(html, g):
         raise KeyError("folder matrix table not found")
     j = html.find("</table>", i) + len("</table>")
     html = html[:i] + matrix_table(pairs, nodes) + html[j:]
-    html = ra._between(html, '<h3 style="margin-top:0">Strongest cross-folder links</h3>', "</div><h2>Communities, named",
+    html = _between(html, '<h3 style="margin-top:0">Strongest cross-folder links</h3>', "</div><h2>Communities, named",
                        '<h3 style="margin-top:0">Strongest cross-folder links</h3>' + strongest_bars(pairs))
-    html = ra._between(html, '<p class="sub">Graphify\'s own labels', "<h2>Interactive viewer</h2>", community_table(g))
+    html = _between(html, '<p class="sub">Graphify\'s own labels', "<h2>Interactive viewer</h2>", community_table(g))
     html = refresh_viewer_blurb(html)
     return ra.sub_once(html, r"Built \d{4}-\d{2}-\d{2} from commit [0-9a-f]+\.", f"Built {g.date} from commit {g.commit[:7]}.")
-
-
-# ------------------------------------------------------------------------- explore
-def refresh_explore(html, g):
-    paths = [r[0] for r in ra.read_literal(html, "const F=")]
-    idx = {p: i for i, p in enumerate(paths)}
-    weight = collections.Counter()
-    for a, b in g.links:
-        pa, pb = g.file_of[a], g.file_of[b]
-        if pa in idx and pb in idx and pa != pb:
-            weight[(idx[pa], idx[pb])] += 1
-    out, inn = collections.defaultdict(list), collections.defaultdict(list)
-    for (a, b), w in weight.items():
-        out[a].append([b, w])
-        inn[b].append([a, w])
-    top = lambda lst: sorted(lst, key=lambda x: (-x[1], x[0]))[:EG_TOP]
-    EG = {str(k): {"o": top(out.get(k, [])), "i": top(inn.get(k, []))} for k in sorted(set(out) | set(inn))}
-    return ra.replace_literal(html, ",EG=", json.dumps(EG, separators=(",", ":")))
 
 
 # ------------------------------------------------------------------------- viewer
@@ -312,26 +303,62 @@ def viewer_group(path):
     return p[0] if len(p) == 2 else p[0] + "/" + p[1]
 
 
-def viewer_data(g, explore_html):
+CODE_FILES_DIR = "data/code/files"       # the sharded census records build_code.py writes (P10)
+ROUTES_REL = ra.ROUTES_REL
+
+
+def code_files(root):
+    """Every non-binary file record of the census, sorted by path, read from data/code/files/*.json.
+
+    These are the same files, in the same order, that the old explore.html listed (refresh_atlas.nonbinary), so a file keeps its index in
+    the viewer's edge list."""
+    d = Path(root) / CODE_FILES_DIR
+    recs = []
+    for p in sorted(d.glob("*.json")):
+        doc = json.loads(ra.read_lf(p)[0])
+        recs.extend(doc.get("files") or [])
+    if not recs:
+        raise SystemExit(f"{d} has no file records. Run python scripts/refresh_atlas.py first (it writes the sharded code data).")
+    return sorted(recs, key=lambda f: f["path"])
+
+
+def code_routes(root):
+    """The routes of data/code/routes.json (written by refresh_atlas.py, in census order)."""
+    return (ra.read_json(root, ROUTES_REL) or {}).get("routes") or []
+
+
+def viewer_rows(files):
+    """(rows, fns): one row per file [path, 2-letter language, code lines, functions, commits, last change, is test, first line of the module docstring]
+    and one per function [name, file index, start line, lines, kind]. The layout the viewer template was built for."""
+    rows, fns = [], []
+    for i, f in enumerate(files):
+        git = f.get("git") or {}
+        fl = ra.G(f, "functions")
+        rows.append([f["path"], f["lang"][:2], f["code"], len(fl), git.get("commits", 0), git.get("last") or "", 1 if f.get("test") else 0,
+                     (f.get("module_doc") or "").strip().split("\n")[0][:90]])
+        fns.extend([fn["name"], i, fn["start"], fn["loc"], fn["kind"]] for fn in fl)
+    return rows, fns
+
+
+def viewer_data(g, files, routes):
     """Everything the viewer shows, as one JSON-able dict.
 
-    Files, functions and routes come from explore.html (which refresh_atlas.py builds from the census), so the
-    viewer always lists the same files as the rest of the Atlas. The links are counted from graph.json: one per
-    graph link between two different files, weighted by how many links join them.
+    Files, functions and routes come from data/code (which refresh_atlas.py builds from the census), so the viewer always lists the same
+    files as the rest of the Atlas. The links are counted from graph.json: one per graph link between two different files, weighted by
+    how many links join them.
     """
-    rows = ra.read_literal(explore_html, "const F=")
-    fns = ra.read_literal(explore_html, ",FN=")
-    routes = ra.read_literal(explore_html, ",RT=")
+    rows, fns = viewer_rows(files)
+    idx = {r[0]: i for i, r in enumerate(rows)}
+    routes = [[r["method"], r["path"], idx[r["file"]], r["handler"]] for r in routes if r["file"] in idx]     # a route whose file the census does not list has nowhere to be drawn
     count = collections.Counter(viewer_group(r[0]) for r in rows)
     groups = sorted(count, key=lambda x: (-count[x], x))
     gi = {x: i for i, x in enumerate(groups)}
-    files = []
+    out_files = []
     for path, lang, code, nfn, commits, last, test, doc in rows:
         doc = re.sub(r"\s+", " ", doc or "").strip()
         if len(doc) > VIEWER_DESC_MAX:
             doc = doc[:VIEWER_DESC_MAX - 3].rstrip() + "..."
-        files.append([path, lang, code, nfn, commits, last, 1 if test else 0, gi[viewer_group(path)], doc])
-    idx = {r[0]: i for i, r in enumerate(rows)}
+        out_files.append([path, lang, code, nfn, commits, last, 1 if test else 0, gi[viewer_group(path)], doc])
     weight = collections.Counter()
     for a, b in g.links:
         pa, pb = g.file_of[a], g.file_of[b]
@@ -345,11 +372,11 @@ def viewer_data(g, explore_html):
     return {
         "meta": {"date": g.date, "commit": g.commit[:7]},
         "groups": groups,
-        "files": files,
+        "files": out_files,
         "edges": edges,
         "fns": [[f[0], f[1], f[2]] for f in fns],
         "top": top,
-        "routes": [[r[0], r[1], r[2], r[3]] for r in routes],
+        "routes": routes,
     }
 
 
@@ -565,14 +592,13 @@ def refresh_all(root, g, minime):
             changes[path] = ra.to_native(new, crlf).encode("utf-8")
 
     page("graph.html", refresh_graph_page, g)
-    page("explore.html", refresh_explore, g)
-    explore = root / "explore.html"
-    explore_html = changes[explore].decode("utf-8") if explore in changes else ra.read_lf(explore)[0]
     frontend = Path(minime) / "frontend"
     census = ra.read_json(root, "data/census.json")
+    routes = None                                                   # the routes the viewer draws: the ones this run writes to routes.json, else the ones on disk
     if frontend.is_dir() and census.get("routes"):                  # P17: the "callers" half of data/code/routes.json; the census half is rebuilt as refresh_atlas.py does
         rp = root / ra.ROUTES_REL
         doc = ra.build_routes(census, ra.read_json(root, ra.ROUTES_REL))
+        routes = doc["routes"]
         callers, scan = api_callers(frontend, git_head(minime) or g.commit, doc["routes"])
         new = ra.json_text(ra.with_callers(doc, callers, scan))
         old, crlf = ra.read_lf(rp) if rp.exists() else (None, False)
@@ -600,7 +626,7 @@ def refresh_all(root, g, minime):
     if new != old:
         changes[lp] = ra.to_native(new, crlf).encode("utf-8")
     target = root / "graph-viewer.html"
-    data = viewer_html(viewer_data(g, explore_html)).encode("utf-8")
+    data = viewer_html(viewer_data(g, code_files(root), code_routes(root) if routes is None else routes)).encode("utf-8")
     if not target.exists() or target.read_bytes() != data:
         changes[target] = data
     return changes

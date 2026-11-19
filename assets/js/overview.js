@@ -388,15 +388,15 @@ function monthsCard(c, source) {
 function renderDetails() {
   const box = $("ov-details-body"), c = D.vitals && D.vitals.census, g = D.vitals && D.vitals.graph;
   if (!c) { box.replaceChildren(note("No census yet.")); return; }
-  const src = `MiniMe ${c.commit} \u00b7 ${fmtDate(c.generated)}`, file = (p) => ({ text: p.split("/").pop(), title: p, href: `explore.html#${encodeURIComponent(p)}` });
+  const src = `MiniMe ${c.commit} \u00b7 ${fmtDate(c.generated)}`, file = (p) => ({ text: p.split("/").pop(), title: p, href: `explorer.html#/f/${p.split("/").map(encodeURIComponent).join("/")}` });
   const cards = [
     langCard(c, src), monthsCard(c, src),
     barCard("Code lines by area", c.areas.map((a) => ({ text: a.area, value: a.code })), src),
     barCard("Largest files (code lines)", c.largest.map((f) => ({ ...file(f.path), value: f.code })), src),
     barCard("Most-changed files (commits)", c.changed.map((f) => ({ ...file(f.path), value: f.commits })), src),
-    barCard("Most complex functions", c.complex.map((f) => ({ text: `${f.name}  ${f.path.split("/").pop()}`, title: `${f.name} in ${f.path}`, href: `explore.html#${encodeURIComponent(f.path)}`, value: f.cc })), src + ". Cyclomatic complexity, nested functions included."),
+    barCard("Most complex functions", c.complex.map((f) => ({ text: `${f.name}  ${f.path.split("/").pop()}`, title: `${f.name} in ${f.path}`, href: `explorer.html#/f/${f.path.split("/").map(encodeURIComponent).join("/")}`, value: f.cc })), src + ". Cyclomatic complexity, nested functions included."),
   ];
-  if (g) cards.push(barCard("Graph hubs (most connections)", g.hubs.map((x) => ({ text: `${x.label}  ${x.path ? x.path.split("/").pop() : ""}`.trim(), title: x.path || x.label, href: x.path ? `explore.html#${encodeURIComponent(x.path)}` : "", value: x.links })), `graph ${g.commit} \u00b7 ${fmtDate(g.date)}`));
+  if (g) cards.push(barCard("Graph hubs (most connections)", g.hubs.map((x) => ({ text: `${x.label}  ${x.path ? x.path.split("/").pop() : ""}`.trim(), title: x.path || x.label, href: x.path ? `explorer.html#/f/${x.path.split("/").map(encodeURIComponent).join("/")}` : "", value: x.links })), `graph ${g.commit} \u00b7 ${fmtDate(g.date)}`));
   box.replaceChildren(...cards);
 }
 
