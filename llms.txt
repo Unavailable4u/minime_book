@@ -47,3 +47,4 @@ A. Migration Guide: Rust, TypeScript and a Hardened Python Backend (`data/docs/m
 - `decisions.html` — 86 golden rules, roadmap gates, and pre-patch architectural decisions
 - `consistency.html` — Cross-book governance & reconciliation matrix
 - `explore.html`, `map.html`, `code.html`, `functions.html`, `graph.html`, `api.html`, `agents.html`, `data.html`, `infra.html`, `history.html`, `architecture.html`, `tests.html`, `health.html`, `finance.html`, `rulebook.html`, `tables.html`
+- `protocol.html`, `m2c.html`, `adrs.html` — The M2C wire contract (message types, fields, tools, risk levels, real examples), the device client's package map and commands, and MiniMe's architecture decision records; all drawn from `data/code/protocol.json`

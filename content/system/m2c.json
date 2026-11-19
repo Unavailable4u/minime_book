@@ -1,0 +1,9 @@
+{
+  "intro": "M2C (Minime to Code) is a coding agent whose files, history and settings live on your own machine. The client in this repository is the device half; the reasoning loop runs on the MiniMe server, and the two talk only through the protocol on the Protocol page.",
+  "book": [
+    { "label": "Ch. 5 · M2C L26 Feature & Product Guide", "url": "doc-m2c-feature-guide.html", "note": "what the client does, tool by tool" },
+    { "label": "Ch. 6 · M2C L26 Build Execution Guide", "url": "doc-m2c-plan.html", "note": "the work packages and waves" },
+    { "label": "Ch. 7 · M2C L26 Product & Design Spec", "url": "doc-m2c-product.html", "note": "the first specification, superseded in part" },
+    { "label": "Build checklist for M2C", "url": "build.html#m2c", "note": "which work packages are ticked" }
+  ]
+}

@@ -1,6 +1,6 @@
 # Updating the whole Atlas (census + graph + notes + source) in one command
 
-The Atlas has four kinds of generated content:
+The Atlas has five kinds of generated content:
 
 | From | Refreshed by | Pages |
 |---|---|---|
@@ -8,8 +8,9 @@ The Atlas has four kinds of generated content:
 | The Graphify graph (`MiniMe/graphify-out/`) | `scripts/refresh_graph.py` | Graph and its viewer, Overview graph numbers and hubs, Explore connections, the "callers" half of `data/code/routes.json` (API "Frontend callers"), `data/summary.md` graph line |
 | AI-written notes (`MiniMe/graphify-out/atlas-notes/`, written by Copilot: what each file and function is for) | `scripts/notes.py ingest` | `data/notes/` and `data/index/notes.json` (coverage and freshness; read by the Explorer and Coverage pages when they land) |
 | MiniMe's source code, as committed at the census commit | `scripts/refresh_source.py` | `data/src/<path>.txt` and `data/src/manifest.json` (the Explorer's Source tab shows the real lines next to the explanations; see "Embedded source" below) |
+| MiniMe's `protocol/` folder (the M2C wire contract), `m2c/`, and `docs/decisions/`, as committed at the census commit | `scripts/refresh_protocol.py` | `data/code/protocol.json`: the Protocol, M2C client and Decision records pages (see "Protocol, M2C and decision records" below) |
 
-`scripts/update_all.py` runs all four, then proves nothing is stale and runs the tests. The notes are the only part a person has to drive: Copilot writes them in batches (Step 2b below), and everything else about them is automatic.
+`scripts/update_all.py` runs all five, then proves nothing is stale and runs the tests. The notes are the only part a person has to drive: Copilot writes them in batches (Step 2b below), and everything else about them is automatic.
 
 ## The routine
 
@@ -119,10 +120,27 @@ Do not ask me questions unless something blocks you.
 3. `refresh_graph.py --minime <MiniMe>`: every Graphify-driven part.
 4. `notes.py ingest --minime <MiniMe>`: validates the notes Copilot wrote, copies them into `data/notes/`, rewrites `data/index/notes.json`. A malformed note stops it; stale or missing notes only show in the coverage numbers.
 5. `refresh_source.py --minime <MiniMe>`: copies MiniMe's source into `data/src/` (see "Embedded source"). A file that fails the secret scan is not copied and is printed as `REFUSED`; that never stops the run. Skipped with `--no-embed-source`, or when `content/config.json` has `"embedSource": false`.
-6. Both scripts with `--check` (the first also proves the search index is current), `notes.py ingest --check`, `notes.py validate` and `refresh_source.py --check`, then the unit tests, including the index builder, the palette, the chapter reader, the notes pipeline and the source copier.
-7. With `--push`: `git add -A`, commit, `git pull --rebase`, `git push`.
+6. `refresh_protocol.py --minime <MiniMe>`: rebuilds `data/code/protocol.json` from `protocol/`, `m2c/` and `docs/decisions/` at the census commit (see "Protocol, M2C and decision records"). It stops with a message if MiniMe has no `protocol/v1` at that commit.
+7. Both scripts with `--check` (the first also proves the search index is current), `notes.py ingest --check`, `notes.py validate`, `refresh_source.py --check` and `refresh_protocol.py --check`, then the unit tests, including the index builder, the palette, the chapter reader, the notes pipeline, the source copier and the protocol pages.
+8. With `--push`: `git add -A`, commit, `git pull --rebase`, `git push`.
 
 The GitHub Action (`refresh-atlas.yml`) still runs when `data/census.json` is pushed. After this routine it finds nothing to change, so it commits nothing.
+
+## Protocol, M2C and decision records (P24)
+
+Three pages are drawn from one file, `data/code/protocol.json`, written by **`python scripts/refresh_protocol.py --minime ../MiniMe`** (`update_all.py` runs it for you):
+
+* **Protocol** (`protocol.html`): every message type of MiniMe's `protocol/v1` (direction, data class, the envelope's `run_id` / `seq` rules, each field with its type, limits, enum values and default), the seven `run_event` subtypes, the eleven tools with their risk level (`R0` to `R4`, drawn in the amber gate colour, plus `risk_max` where a call can be riskier), the shared enums, and the golden transcripts. Every message has one real example taken from a transcript. A chip says whether the client's copy of the schemas (`m2c/src/m2c/protocol/v1`) is byte for byte the server's.
+* **M2C client** (`m2c.html`): the package map of `m2c/src/m2c` (file counts, the first paragraph of each package's own docstring, and an AI note summary only where one exists), the commands table and the status line from `m2c/README.md`. The few hand-written sentences (what the page is for, which chapters belong to it) are in `content/system/m2c.json`.
+* **Decision records** (`adrs.html`): the files in `docs/decisions/`: number, title and status (accepted, superseded or see the record). "Read the record" opens the Markdown in the Explorer. A record is not linked to a Golden Rule yet: that waits for stable rule ids on the Decisions page (plan P21).
+
+How it stays true:
+
+* Everything is read **from git at the census commit** (`git ls-tree`, `git cat-file`), never from the working tree, so uncommitted edits and Windows line endings change nothing. The file's `generated` date is the commit's own date, so `--check` compares byte for byte.
+* **A field the schema marks `x-m2c-secret` is replaced by a placeholder in the example**, whatever the fixture holds. The fixtures contain credential-shaped placeholders; none of them reaches the site (`test_refresh_protocol.py` checks the published file for it). Long strings in examples are cut at 160 characters and long lists at three items.
+* `refresh_protocol.py --check` rebuilds in memory and compares with the file. Without a MiniMe checkout it only proves the file is well formed and at the census commit (that is what CI runs).
+* If MiniMe's schema gains a message type, field or tool, the pages change on the next `update_all.py` with no edit here. If the envelope names a type that has no schema file, the script stops and says which.
+* Tests: `python scripts/test_refresh_protocol.py` (a throw-away git repository stands in for MiniMe; the JavaScript helpers run under Node). By hand, in a browser: open `protocol.html#m/hello`, `#t/delete_path` and `#e/usage`, press Esc, and look at both themes at 360 px.
 
 ## Embedded source and code links (P12)
 
@@ -199,6 +217,7 @@ Tests, Health, Data model, Tables, Roadmap, Finance, Decisions and the document 
 | `MiniMe is at X but the census is from Y` (from `notes.py todo`) | MiniMe moved on after the census. Run `python scripts/update_all.py` first, so lines, hashes and blob ids match what Copilot will read. |
 | `git push` rejected | Branch protection or a new remote commit. Run `git pull --rebase`, then `git push`. |
 | `REFUSED (not copied): path: ...` from `refresh_source.py` | The secret scan found something that looks like a credential in a MiniMe file outside `tests/`, so that file is not in `data/src`. Check it in MiniMe; if it is a false positive, add an allow-list rule to MiniMe's `.gitleaks.toml` (the scan reads it when `gitleaks` is installed) or fix the pattern. |
+| `protocol: data/code/protocol.json is out of date` | Run `python scripts/refresh_protocol.py --minime ../MiniMe` (or `update_all.py`). In CI this means `data/code/protocol.json` was not committed together with the census it belongs to. |
 | `source: data/src is out of date` | Run `python scripts/refresh_source.py --minime ../MiniMe` (or `update_all.py`). In CI this means `data/src` was not committed together with the census it belongs to. |
 | `MiniMe has no commit abc1234 (the census commit)` | Your MiniMe checkout does not contain the commit the census was built from. `git fetch` in MiniMe, or refresh the census from this checkout. |
 | The VS Code button is missing | Set your MiniMe folder with the link icon in the top bar. |

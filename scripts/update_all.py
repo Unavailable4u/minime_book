@@ -28,9 +28,11 @@ What it runs, in order, stopping at the first problem:
                                                  from the working tree) so the Explorer can show it next to the explanations.
                                                  Secret-scanned; a file that fails is refused and listed. Skipped with --no-embed-source
                                                  or when content/config.json says "embedSource": false
-    6. both scripts with --check (refresh_atlas.py --check covers the search index and data/code too), notes.py ingest --check,
-       notes.py validate and refresh_source.py --check, and the unit tests, to prove nothing is left stale
-    7. with --push: git add, commit and push
+    6. refresh_protocol.py --minime <MiniMe>     the M2C contract (protocol/v1 schemas, tools, fixtures), the M2C package map and
+                                                 the decision records, read from git at the census commit into data/code/protocol.json
+    7. both scripts with --check (refresh_atlas.py --check covers the search index and data/code too), notes.py ingest --check,
+       notes.py validate, refresh_source.py --check and refresh_protocol.py --check, and the unit tests, to prove nothing is left stale
+    8. with --push: git add, commit and push
 
 Standard library only (the census itself needs tree-sitter and PyYAML, see --install-deps).
 """
@@ -122,6 +124,9 @@ def main(argv=None):
     else:
         print("\n(source embedding is off: data/src is not touched)")
 
+    protocol = [PY, "scripts/refresh_protocol.py", "--minime", minime]
+    run(*protocol)                         # fails (and says why) if MiniMe has no protocol/v1 at the census commit
+
     print("\n== Verifying nothing is stale ==")
     run(PY, "scripts/refresh_atlas.py", "--check")
     run(*(graph + ["--check"] + (["--allow-stale-graph"] if args.allow_stale_graph else [])))
@@ -129,6 +134,7 @@ def main(argv=None):
     run(PY, "scripts/notes.py", "validate")
     if embed:
         run(*(source + ["--check"]))
+    run(*(protocol + ["--check"]))
     run(PY, "scripts/test_refresh_atlas.py")
     run(PY, "scripts/test_refresh_graph.py")
     run(PY, "scripts/test_build_index.py")
@@ -144,6 +150,7 @@ def main(argv=None):
     run(PY, "scripts/test_links.py")
     run(PY, "scripts/test_chapter_links.py")
     run(PY, "scripts/test_codepages.py")
+    run(PY, "scripts/test_refresh_protocol.py")
     run(PY, "scripts/test_todo_api.py")
 
     print("\n== Result ==")
