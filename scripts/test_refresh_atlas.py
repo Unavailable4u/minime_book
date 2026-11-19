@@ -26,7 +26,7 @@ _spec = importlib.util.spec_from_file_location("refresh_atlas", ROOT / "scripts"
 ra = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ra)
 
-FILES = [f"{name}.html" for name in ra.PAGES] + ["data/census.json", "data/summary.md", "data/index/stats.json", "data/index/vitals.json", "data/code/routes.json", "data/code/agents.json",
+FILES = [f"{name}.html" for name in ra.PAGES] + ["data/census.json", "data/summary.md", "data/index/stats.json", "data/index/vitals.json", "data/code/routes.json", "data/code/agents.json", "data/code/infra.json",
                                                     "content/subsystems.json", "content/topology.json"]
 
 
@@ -245,13 +245,13 @@ class OnACopy(unittest.TestCase):
     def test_crlf_pages_are_not_seen_as_stale_and_stay_crlf(self):
         """A Windows checkout (core.autocrlf) has CRLF files. In-sync pages must not look changed, and
         pages that do change must keep CRLF rather than silently becoming LF."""
-        for rel in ("code.html", "infra.html", "data/index/vitals.json"):
+        for rel in ("code.html", "history.html", "data/index/vitals.json"):
             p = self.tmp / rel
             p.write_bytes(read(p).replace("\n", "\r\n").encode("utf-8"))
         self.assertEqual({}, ra.refresh_all(self.tmp, self.census), "CRLF alone must not count as out of date")
         self.newer_census()
         changes = ra.refresh_all(self.tmp, self.census)
-        for rel in ("code.html", "infra.html", "data/index/vitals.json"):
+        for rel in ("code.html", "history.html", "data/index/vitals.json"):
             raw = changes[self.tmp / rel].encode("utf-8")
             self.assertEqual(raw.count(b"\r\n"), raw.count(b"\n"), f"{rel}: a bare LF was introduced")
 

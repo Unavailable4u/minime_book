@@ -1,0 +1,2872 @@
+{
+ "ci": [
+  {
+   "file": ".github/workflows/ci.yml",
+   "jobs": [
+    {
+     "id": "test",
+     "name": "test",
+     "steps": [
+      {
+       "pin": "11d5960",
+       "text": "actions/checkout"
+      },
+      {
+       "pin": "a26af69",
+       "text": "actions/setup-python"
+      },
+      {
+       "text": "pip install -r requirements.txt"
+      },
+      {
+       "text": "Backend tests (unit, integration, static)"
+      },
+      {
+       "text": "Skip gate (backend)"
+      }
+     ]
+    },
+    {
+     "id": "lint",
+     "name": "lint",
+     "steps": [
+      {
+       "pin": "11d5960",
+       "text": "actions/checkout"
+      },
+      {
+       "pin": "a26af69",
+       "text": "actions/setup-python"
+      },
+      {
+       "text": "pip install ruff==0.17.1"
+      },
+      {
+       "text": "ruff check ."
+      }
+     ]
+    },
+    {
+     "id": "daemon-test",
+     "name": "daemon-test",
+     "steps": [
+      {
+       "pin": "11d5960",
+       "text": "actions/checkout"
+      },
+      {
+       "pin": "a26af69",
+       "text": "actions/setup-python"
+      },
+      {
+       "text": "pip install -r daemon/requirements.txt"
+      },
+      {
+       "text": "pytest daemon/tests -v"
+      }
+     ]
+    },
+    {
+     "id": "m2c-test",
+     "name": "m2c-test",
+     "steps": [
+      {
+       "pin": "11d5960",
+       "text": "actions/checkout"
+      },
+      {
+       "pin": "a26af69",
+       "text": "actions/setup-python"
+      },
+      {
+       "text": "Install ripgrep and bubblewrap (the tests that use the real tools skip without them)"
+      },
+      {
+       "text": "Probe whether bubblewrap can start on this runner"
+      },
+      {
+       "text": "pip install -e \".[dev]\""
+      },
+      {
+       "text": "Install the protocol schema libraries (jsonschema), pinned from protocol/requirements.txt"
+      },
+      {
+       "text": "Tests"
+      },
+      {
+       "text": "Skip gate (m2c)"
+      },
+      {
+       "text": "m2c --version"
+      },
+      {
+       "text": "m2c doctor"
+      }
+     ]
+    },
+    {
+     "id": "frontend-lint",
+     "name": "frontend-lint",
+     "steps": [
+      {
+       "pin": "11d5960",
+       "text": "actions/checkout"
+      },
+      {
+       "pin": "49933ea",
+       "text": "actions/setup-node"
+      },
+      {
+       "text": "npm ci"
+      },
+      {
+       "text": "CI=true npm run lint"
+      }
+     ]
+    },
+    {
+     "id": "frontend-test",
+     "name": "frontend-test",
+     "steps": [
+      {
+       "pin": "11d5960",
+       "text": "actions/checkout"
+      },
+      {
+       "pin": "49933ea",
+       "text": "actions/setup-node"
+      },
+      {
+       "text": "npm ci"
+      },
+      {
+       "text": "npm test"
+      }
+     ]
+    },
+    {
+     "id": "protocol",
+     "name": "protocol",
+     "steps": [
+      {
+       "pin": "11d5960",
+       "text": "actions/checkout"
+      },
+      {
+       "pin": "a26af69",
+       "text": "actions/setup-python"
+      },
+      {
+       "text": "pip install -r protocol/requirements.txt"
+      },
+      {
+       "text": "python protocol/validate.py"
+      },
+      {
+       "text": "Client copy of the schemas exists and is current"
+      },
+      {
+       "text": "Contract test"
+      },
+      {
+       "text": "Test the skip gate itself"
+      },
+      {
+       "text": "Skip gate (protocol)"
+      }
+     ]
+    },
+    {
+     "id": "canary",
+     "name": "canary",
+     "steps": [
+      {
+       "pin": "11d5960",
+       "text": "actions/checkout"
+      },
+      {
+       "pin": "a26af69",
+       "text": "actions/setup-python"
+      },
+      {
+       "text": "Install the backend requirements"
+      },
+      {
+       "text": "Install the m2c client without its dependencies (its rich and prompt_toolkit pins cannot be resolved with the backend's)"
+      },
+      {
+       "text": "pip check (only m2c's own rich and prompt_toolkit lines are expected)"
+      },
+      {
+       "text": "Canary test, fake-recorder mode (no database)"
+      },
+      {
+       "text": "Skip gate (canary, fake-recorder mode)"
+      },
+      {
+       "text": "Scratch database (roles, auth stub, every migration in order)"
+      },
+      {
+       "text": "Canary test, real-database mode"
+      },
+      {
+       "text": "Skip gate (canary, real-database mode)"
+      }
+     ]
+    },
+    {
+     "id": "secrets-scan",
+     "name": "secrets-scan",
+     "steps": [
+      {
+       "pin": "11d5960",
+       "text": "actions/checkout"
+      },
+      {
+       "pin": "ff98106",
+       "text": "gitleaks/gitleaks-action"
+      },
+      {
+       "text": "pip install semgrep"
+      },
+      {
+       "text": "semgrep scan --config=auto --sarif --output=semgre"
+      },
+      {
+       "pin": "c4dd10e",
+       "text": "github/codeql-action/upload-sarif"
+      },
+      {
+       "pin": "a18f986",
+       "text": "advanced-security/dismiss-alerts"
+      }
+     ]
+    },
+    {
+     "id": "promptfoo",
+     "name": "promptfoo",
+     "steps": [
+      {
+       "pin": "11d5960",
+       "text": "actions/checkout"
+      },
+      {
+       "pin": "a26af69",
+       "text": "actions/setup-python"
+      },
+      {
+       "text": "Install backend Python deps (role_provider.py imports eo/agents/utils)"
+      },
+      {
+       "pin": "49933ea",
+       "text": "actions/setup-node"
+      },
+      {
+       "text": "npm ci"
+      },
+      {
+       "text": "Ensure promptfoo's configured env file exists (empty -- CI exports vars directly below)"
+      },
+      {
+       "text": "Run Role Library promptfoo evals"
+      },
+      {
+       "text": "Run output_organizer promptfoo evals"
+      }
+     ]
+    }
+   ],
+   "name": "CI",
+   "triggers": [
+    "push",
+    "pull_request"
+   ]
+  }
+ ],
+ "commit": "3727ae3",
+ "compose_files": [
+  "docker-compose.dev.yml",
+  "docker-compose.yml"
+ ],
+ "dependencies": [
+  {
+   "file": "backend/evals/promptfoo/package.json",
+   "groups": [
+    {
+     "items": [
+      {
+       "name": "promptfoo",
+       "spec": "0.122.0"
+      }
+     ],
+     "title": "devDependencies"
+    }
+   ],
+   "kind": "package.json",
+   "name": "minime-promptfoo-evals",
+   "parsed": true
+  },
+  {
+   "file": "backend/pyproject.toml",
+   "groups": [],
+   "kind": "pyproject.toml",
+   "parsed": false
+  },
+  {
+   "file": "backend/requirements.txt",
+   "groups": [
+    {
+     "items": [
+      {
+       "name": "aiohappyeyeballs",
+       "spec": "==2.7.1"
+      },
+      {
+       "name": "aiohttp",
+       "spec": "==3.14.1"
+      },
+      {
+       "name": "aiosignal",
+       "spec": "==1.4.0"
+      },
+      {
+       "name": "annotated-doc",
+       "spec": "==0.0.4"
+      },
+      {
+       "name": "annotated-types",
+       "spec": "==0.7.0"
+      },
+      {
+       "name": "anyio",
+       "spec": "==4.14.1"
+      },
+      {
+       "name": "attrs",
+       "spec": "==26.1.0"
+      },
+      {
+       "name": "av",
+       "spec": "==18.0.0"
+      },
+      {
+       "name": "babel",
+       "spec": "==2.18.0"
+      },
+      {
+       "name": "bracex",
+       "spec": "==3.0"
+      },
+      {
+       "name": "certifi",
+       "spec": "==2026.6.17"
+      },
+      {
+       "name": "cffi",
+       "spec": "==2.0.0"
+      },
+      {
+       "name": "charset-normalizer",
+       "spec": "==3.4.7"
+      },
+      {
+       "name": "click",
+       "spec": "==8.2.0"
+      },
+      {
+       "name": "colorama",
+       "spec": "==0.4.6"
+      },
+      {
+       "name": "courlan",
+       "spec": "==1.4.0"
+      },
+      {
+       "name": "cryptography",
+       "spec": "==49.0.0"
+      },
+      {
+       "name": "ctranslate2",
+       "spec": "==4.8.1"
+      },
+      {
+       "name": "dateparser",
+       "spec": "==1.4.1"
+      },
+      {
+       "name": "decorator",
+       "spec": "==5.3.1"
+      },
+      {
+       "name": "defusedxml",
+       "spec": "==0.7.1"
+      },
+      {
+       "name": "distro",
+       "spec": "==1.9.0"
+      },
+      {
+       "name": "dockerfile-parse",
+       "spec": "==2.0.1"
+      },
+      {
+       "name": "e2b",
+       "spec": "==2.30.0"
+      },
+      {
+       "name": "e2b-code-interpreter",
+       "spec": "==2.8.1"
+      },
+      {
+       "name": "edge-tts",
+       "spec": "==7.2.8"
+      },
+      {
+       "name": "et_xmlfile",
+       "spec": "==2.0.0"
+      },
+      {
+       "name": "fastapi",
+       "spec": "==0.139.0"
+      },
+      {
+       "name": "faster-whisper",
+       "spec": "==1.2.1"
+      },
+      {
+       "name": "filelock",
+       "spec": "==3.29.7"
+      },
+      {
+       "name": "flatbuffers",
+       "spec": "==25.12.19"
+      },
+      {
+       "name": "frozenlist",
+       "spec": "==1.8.0"
+      },
+      {
+       "name": "fsspec",
+       "spec": "==2026.6.0"
+      },
+      {
+       "name": "google-auth",
+       "spec": "==2.55.1"
+      },
+      {
+       "name": "guardrails-ai",
+       "spec": "==0.10.2"
+      },
+      {
+       "name": "groq",
+       "spec": "==1.5.0"
+      },
+      {
+       "name": "h11",
+       "spec": "==0.16.0"
+      },
+      {
+       "name": "h2",
+       "spec": "==4.3.0"
+      },
+      {
+       "name": "hf-xet",
+       "spec": "==1.5.1"
+      },
+      {
+       "name": "hpack",
+       "spec": "==4.2.0"
+      },
+      {
+       "name": "htmldate",
+       "spec": "==1.10.0"
+      },
+      {
+       "name": "httpcore",
+       "spec": "==1.0.9"
+      },
+      {
+       "name": "httpx",
+       "spec": "==0.28.1"
+      },
+      {
+       "name": "huggingface_hub",
+       "spec": "==1.13.0"
+      },
+      {
+       "name": "hyperframe",
+       "spec": "==6.1.0"
+      },
+      {
+       "name": "idna",
+       "spec": "==3.18"
+      },
+      {
+       "name": "ImageIO",
+       "spec": "==2.37.3"
+      },
+      {
+       "name": "imageio-ffmpeg",
+       "spec": "==0.6.0"
+      },
+      {
+       "name": "iniconfig",
+       "spec": "==2.3.0"
+      },
+      {
+       "name": "jiter",
+       "spec": "==0.16.0"
+      },
+      {
+       "name": "joblib",
+       "spec": "==1.5.3"
+      },
+      {
+       "name": "jsonschema",
+       "spec": "==4.26.0"
+      },
+      {
+       "name": "jsonschema-specifications",
+       "spec": "==2025.9.1"
+      },
+      {
+       "name": "jusText",
+       "spec": "==3.0.2"
+      },
+      {
+       "name": "laya",
+       "spec": "==0.3.20"
+      },
+      {
+       "name": "langfuse",
+       "spec": "==4.14.3"
+      },
+      {
+       "name": "lxml",
+       "spec": "==6.1.1"
+      },
+      {
+       "name": "lxml_html_clean",
+       "spec": "==0.4.5"
+      },
+      {
+       "name": "markdown-it-py",
+       "spec": "==4.2.0"
+      },
+      {
+       "name": "mdurl",
+       "spec": "==0.1.2"
+      },
+      {
+       "name": "moviepy",
+       "spec": "==2.2.1"
+      },
+      {
+       "name": "multidict",
+       "spec": "==6.7.1"
+      },
+      {
+       "name": "narwhals",
+       "spec": "==2.23.0"
+      },
+      {
+       "name": "ndg-httpsclient",
+       "spec": "==0.5.1"
+      },
+      {
+       "name": "numpy",
+       "spec": "==2.4.6"
+      },
+      {
+       "name": "onnxruntime",
+       "spec": "==1.27.0"
+      },
+      {
+       "name": "openai",
+       "spec": "==2.44.0"
+      },
+      {
+       "name": "openpyxl",
+       "spec": "==3.1.5"
+      },
+      {
+       "name": "packaging",
+       "spec": "==26.2"
+      },
+      {
+       "name": "pdfminer.six",
+       "spec": "==20251230"
+      },
+      {
+       "name": "pdfplumber",
+       "spec": "==0.11.9"
+      },
+      {
+       "name": "pillow",
+       "spec": "==11.3.0"
+      },
+      {
+       "name": "pluggy",
+       "spec": "==1.6.0"
+      },
+      {
+       "name": "presidio-analyzer",
+       "spec": "==2.2.362"
+      },
+      {
+       "name": "presidio-anonymizer",
+       "spec": "==2.2.362"
+      },
+      {
+       "name": "proglog",
+       "spec": "==0.1.12"
+      },
+      {
+       "name": "propcache",
+       "spec": "==0.5.2"
+      },
+      {
+       "name": "protobuf",
+       "spec": "==7.35.1"
+      },
+      {
+       "name": "psycopg[binary",
+       "spec": ",pool]==3.3.5"
+      },
+      {
+       "name": "pusher",
+       "spec": "==3.3.4"
+      },
+      {
+       "name": "pyasn1",
+       "spec": "==0.6.3"
+      },
+      {
+       "name": "pyasn1_modules",
+       "spec": "==0.4.2"
+      },
+      {
+       "name": "pycparser",
+       "spec": "==3.0"
+      },
+      {
+       "name": "pydantic",
+       "spec": "==2.13.4"
+      },
+      {
+       "name": "pydantic_core",
+       "spec": "==2.46.4"
+      },
+      {
+       "name": "Pygments",
+       "spec": "==2.20.0"
+      },
+      {
+       "name": "PyJWT",
+       "spec": "==2.13.0"
+      },
+      {
+       "name": "PyNaCl",
+       "spec": "==1.6.2"
+      },
+      {
+       "name": "pyOpenSSL",
+       "spec": "==26.3.0"
+      },
+      {
+       "name": "pypdfium2",
+       "spec": "==5.11.0"
+      },
+      {
+       "name": "pytest",
+       "spec": "==9.1.1"
+      },
+      {
+       "name": "pytest-asyncio",
+       "spec": "==1.4.0"
+      },
+      {
+       "name": "pytest-mock",
+       "spec": "==3.15.1"
+      },
+      {
+       "name": "python-dateutil",
+       "spec": "==2.9.0.post0"
+      },
+      {
+       "name": "python-docx",
+       "spec": "==1.2.0"
+      },
+      {
+       "name": "python-dotenv",
+       "spec": "==1.2.2"
+      },
+      {
+       "name": "python-multipart",
+       "spec": "==0.0.32"
+      },
+      {
+       "name": "python-pptx",
+       "spec": "==1.0.2"
+      },
+      {
+       "name": "pytz",
+       "spec": "==2026.2"
+      },
+      {
+       "name": "PyYAML",
+       "spec": "==6.0.3"
+      },
+      {
+       "name": "referencing",
+       "spec": "==0.37.0"
+      },
+      {
+       "name": "regex",
+       "spec": "==2026.7.10"
+      },
+      {
+       "name": "reportlab",
+       "spec": "==5.0.0"
+      },
+      {
+       "name": "requests",
+       "spec": "==2.34.2"
+      },
+      {
+       "name": "rich",
+       "spec": "==14.3.4"
+      },
+      {
+       "name": "rpds-py",
+       "spec": "==2026.9.1"
+      },
+      {
+       "name": "scikit-learn",
+       "spec": "==1.9.0"
+      },
+      {
+       "name": "scipy",
+       "spec": "==1.17.1"
+      },
+      {
+       "name": "sentry-sdk",
+       "spec": "==2.19.2"
+      },
+      {
+       "name": "setuptools",
+       "spec": "==83.0.0"
+      },
+      {
+       "name": "six",
+       "spec": "==1.17.0"
+      },
+      {
+       "name": "sniffio",
+       "spec": "==1.3.1"
+      },
+      {
+       "name": "starlette",
+       "spec": "==1.3.1"
+      },
+      {
+       "name": "tabulate",
+       "spec": "==0.10.0"
+      },
+      {
+       "name": "tenacity",
+       "spec": "==9.1.4"
+      },
+      {
+       "name": "threadpoolctl",
+       "spec": "==3.6.0"
+      },
+      {
+       "name": "tld",
+       "spec": "==0.13.2"
+      },
+      {
+       "name": "tokenizers",
+       "spec": "==0.23.1"
+      },
+      {
+       "name": "tqdm",
+       "spec": "==4.68.3"
+      },
+      {
+       "name": "trafilatura",
+       "spec": "==2.1.0"
+      },
+      {
+       "name": "typing-inspection",
+       "spec": "==0.4.2"
+      },
+      {
+       "name": "typing_extensions",
+       "spec": "==4.16.0"
+      },
+      {
+       "name": "tzdata",
+       "spec": "==2026.3"
+      },
+      {
+       "name": "tzlocal",
+       "spec": "==5.4.4"
+      },
+      {
+       "name": "upstash-redis",
+       "spec": "==1.7.0"
+      },
+      {
+       "name": "upstash-vector",
+       "spec": "==0.8.0"
+      },
+      {
+       "name": "urllib3",
+       "spec": "==2.7.0"
+      },
+      {
+       "name": "uvicorn",
+       "spec": "==0.50.0"
+      },
+      {
+       "name": "vcrpy",
+       "spec": "==8.3.0"
+      },
+      {
+       "name": "wcmatch",
+       "spec": "==10.2.1"
+      },
+      {
+       "name": "websockets",
+       "spec": "==16.0"
+      },
+      {
+       "name": "wrapt",
+       "spec": "==2.3.0"
+      },
+      {
+       "name": "xlsxwriter",
+       "spec": "==3.2.9"
+      },
+      {
+       "name": "yarl",
+       "spec": "==1.24.2"
+      },
+      {
+       "name": "youtube-transcript-api",
+       "spec": "==1.2.4"
+      },
+      {
+       "name": "yt-dlp",
+       "spec": "==2026.7.4"
+      }
+     ],
+     "title": "requirements"
+    }
+   ],
+   "kind": "requirements",
+   "parsed": true
+  },
+  {
+   "file": "daemon/requirements.txt",
+   "groups": [
+    {
+     "items": [
+      {
+       "name": "python-dotenv",
+       "spec": "==1.2.2"
+      },
+      {
+       "name": "pytest",
+       "spec": "==8.4.1"
+      },
+      {
+       "name": "websockets",
+       "spec": "==16.0"
+      }
+     ],
+     "title": "requirements"
+    }
+   ],
+   "kind": "requirements",
+   "parsed": true
+  },
+  {
+   "file": "frontend/package.json",
+   "groups": [
+    {
+     "items": [
+      {
+       "name": "@babel/parser",
+       "spec": "^7.29.9"
+      },
+      {
+       "name": "@codemirror/autocomplete",
+       "spec": "^6.20.3"
+      },
+      {
+       "name": "@codemirror/commands",
+       "spec": "^6.11.1"
+      },
+      {
+       "name": "@codemirror/language",
+       "spec": "^6.12.4"
+      },
+      {
+       "name": "@codemirror/language-data",
+       "spec": "^6.5.2"
+      },
+      {
+       "name": "@codemirror/lint",
+       "spec": "^6.9.7"
+      },
+      {
+       "name": "@codemirror/merge",
+       "spec": "^6.12.2"
+      },
+      {
+       "name": "@codemirror/search",
+       "spec": "^6.7.2"
+      },
+      {
+       "name": "@codemirror/state",
+       "spec": "^6.7.5"
+      },
+      {
+       "name": "@codemirror/view",
+       "spec": "^6.43.12"
+      },
+      {
+       "name": "@codesandbox/sandpack-react",
+       "spec": "^2.20.0"
+      },
+      {
+       "name": "@lezer/highlight",
+       "spec": "^1.2.3"
+      },
+      {
+       "name": "@react-three/drei",
+       "spec": "^9.122.0"
+      },
+      {
+       "name": "@react-three/fiber",
+       "spec": "^8.18.0"
+      },
+      {
+       "name": "@sentry/nextjs",
+       "spec": "^10.69.0"
+      },
+      {
+       "name": "@supabase/ssr",
+       "spec": "^0.5.2"
+      },
+      {
+       "name": "@supabase/supabase-js",
+       "spec": "^2.45.4"
+      },
+      {
+       "name": "@xterm/addon-fit",
+       "spec": "^0.10.0"
+      },
+      {
+       "name": "@xterm/xterm",
+       "spec": "^5.5.0"
+      },
+      {
+       "name": "codemirror",
+       "spec": "^6.0.2"
+      },
+      {
+       "name": "lucide-react",
+       "spec": "^1.23.0"
+      },
+      {
+       "name": "mermaid",
+       "spec": "^11.16.0"
+      },
+      {
+       "name": "next",
+       "spec": "14.2.35"
+      },
+      {
+       "name": "parse5",
+       "spec": "^8.0.1"
+      },
+      {
+       "name": "prettier",
+       "spec": "^3.9.8"
+      },
+      {
+       "name": "pusher-js",
+       "spec": "^8.5.0"
+      },
+      {
+       "name": "pyodide",
+       "spec": "314.0.7"
+      },
+      {
+       "name": "react",
+       "spec": "18.3.1"
+      },
+      {
+       "name": "react-dom",
+       "spec": "18.3.1"
+      },
+      {
+       "name": "react-force-graph-2d",
+       "spec": "^1.29.1"
+      },
+      {
+       "name": "react-markdown",
+       "spec": "^10.1.0"
+      },
+      {
+       "name": "react-window",
+       "spec": "^2.3.0"
+      },
+      {
+       "name": "reactflow",
+       "spec": "^11.11.4"
+      },
+      {
+       "name": "recharts",
+       "spec": "^2.12.7"
+      },
+      {
+       "name": "remark-gfm",
+       "spec": "^4.0.1"
+      },
+      {
+       "name": "three",
+       "spec": "^0.185.1"
+      }
+     ],
+     "title": "dependencies"
+    },
+    {
+     "items": [
+      {
+       "name": "autoprefixer",
+       "spec": "10.4.19"
+      },
+      {
+       "name": "eslint",
+       "spec": "^8.57.1"
+      },
+      {
+       "name": "eslint-config-next",
+       "spec": "^14.2.35"
+      },
+      {
+       "name": "patch-package",
+       "spec": "^8.0.1"
+      },
+      {
+       "name": "postcss",
+       "spec": "8.4.38"
+      },
+      {
+       "name": "tailwindcss",
+       "spec": "3.4.4"
+      }
+     ],
+     "title": "devDependencies"
+    }
+   ],
+   "kind": "package.json",
+   "name": "minime-frontend",
+   "parsed": true
+  },
+  {
+   "file": "m2c/pyproject.toml",
+   "groups": [],
+   "kind": "pyproject.toml",
+   "parsed": false
+  },
+  {
+   "file": "protocol/requirements.txt",
+   "groups": [
+    {
+     "items": [
+      {
+       "name": "jsonschema",
+       "spec": "==4.26.0"
+      },
+      {
+       "name": "jsonschema-specifications",
+       "spec": "==2025.9.1"
+      },
+      {
+       "name": "referencing",
+       "spec": "==0.37.0"
+      },
+      {
+       "name": "rpds-py",
+       "spec": "==2026.9.1"
+      },
+      {
+       "name": "attrs",
+       "spec": "==26.1.0"
+      },
+      {
+       "name": "typing_extensions",
+       "spec": "==4.16.0"
+      },
+      {
+       "name": "pytest",
+       "spec": "==9.1.1"
+      },
+      {
+       "name": "iniconfig",
+       "spec": "==2.3.0"
+      },
+      {
+       "name": "packaging",
+       "spec": "==26.2"
+      },
+      {
+       "name": "pluggy",
+       "spec": "==1.6.0"
+      },
+      {
+       "name": "Pygments",
+       "spec": "==2.20.0"
+      }
+     ],
+     "title": "requirements"
+    }
+   ],
+   "kind": "requirements",
+   "parsed": true
+  }
+ ],
+ "dockerfiles": [
+  {
+   "cmd": "[\"uvicorn\", \"api.server:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]",
+   "expose": [
+    "8000"
+   ],
+   "file": "backend.Dockerfile",
+   "name": "backend.Dockerfile",
+   "stages": [
+    "python:3.12-slim"
+   ]
+  },
+  {
+   "cmd": "[\"npm\", \"start\"]",
+   "expose": [
+    "3000"
+   ],
+   "file": "frontend.Dockerfile",
+   "name": "frontend.Dockerfile",
+   "stages": [
+    "node:20-slim",
+    "node:20-slim",
+    "node:20-slim"
+   ]
+  }
+ ],
+ "env": [
+  {
+   "documented_in": [],
+   "files": [
+    "m2c/src/m2c/sandbox/bwrap.py",
+    "m2c/tests/headless/test_headless_wiring.py",
+    "m2c/tests/headless/test_session_setup.py",
+    "m2c/tests/runner/runner_rig.py",
+    "m2c/tests/sandbox/test_net_real_sandbox.py",
+    "m2c/tests/sandbox/test_sandbox_escape.py",
+    "m2c/tests/sandbox/test_sandbox_shell_regression.py",
+    "m2c/tests/tools/test_tools_shell.py",
+    "m2c/tests/trust/test_trust_protected.py"
+   ],
+   "name": "HOME",
+   "test_files": [
+    "m2c/tests/headless/test_headless_wiring.py",
+    "m2c/tests/headless/test_session_setup.py",
+    "m2c/tests/runner/runner_rig.py",
+    "m2c/tests/sandbox/test_net_real_sandbox.py",
+    "m2c/tests/sandbox/test_sandbox_escape.py",
+    "m2c/tests/sandbox/test_sandbox_shell_regression.py",
+    "m2c/tests/tools/test_tools_shell.py",
+    "m2c/tests/trust/test_trust_protected.py"
+   ]
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/tests/canary/harness.py",
+    "backend/tests/integration/test_codeagent_pg.py",
+    "backend/tests/integration/test_devices_pg.py",
+    "backend/tests/integration/test_hello_run_pg.py",
+    "backend/tests/integration/test_run_manager_pg.py",
+    "backend/tests/integration/test_runs_pg.py",
+    "backend/tests/integration/test_usage_ledger_pg.py",
+    "backend/tests/integration/test_workspace_code_files_pg.py"
+   ],
+   "name": "MINIME_TEST_DATABASE_URL",
+   "test_files": [
+    "backend/tests/canary/harness.py",
+    "backend/tests/integration/test_codeagent_pg.py",
+    "backend/tests/integration/test_devices_pg.py",
+    "backend/tests/integration/test_hello_run_pg.py",
+    "backend/tests/integration/test_run_manager_pg.py",
+    "backend/tests/integration/test_runs_pg.py",
+    "backend/tests/integration/test_usage_ledger_pg.py",
+    "backend/tests/integration/test_workspace_code_files_pg.py"
+   ]
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/tests/canary/harness.py",
+    "m2c/tests/auth/test_auth_credentials.py",
+    "m2c/tests/headless/test_headless_wiring.py",
+    "m2c/tests/headless/test_session_setup.py",
+    "m2c/tests/test_cli_trust.py",
+    "m2c/tests/tools/test_tools_shell_sandbox.py",
+    "m2c/tests/trust/test_trust_protected.py",
+    "m2c/tests/trust/test_trust_store.py"
+   ],
+   "name": "M2C_HOME",
+   "test_files": [
+    "backend/tests/canary/harness.py",
+    "m2c/tests/auth/test_auth_credentials.py",
+    "m2c/tests/headless/test_headless_wiring.py",
+    "m2c/tests/headless/test_session_setup.py",
+    "m2c/tests/test_cli_trust.py",
+    "m2c/tests/tools/test_tools_shell_sandbox.py",
+    "m2c/tests/trust/test_trust_protected.py",
+    "m2c/tests/trust/test_trust_store.py"
+   ]
+  },
+  {
+   "documented_in": [
+    "frontend/.env.example"
+   ],
+   "files": [
+    "frontend/app/components/MessageBubble.jsx",
+    "frontend/app/components/PendingActionBar.jsx",
+    "frontend/app/context/ChatListContext.jsx",
+    "frontend/app/context/SessionContext.jsx",
+    "frontend/app/context/WorkspaceDockContext.jsx",
+    "frontend/app/context/WorkspacesContext.jsx",
+    "frontend/app/hooks/useDaemonStatus.js",
+    "frontend/app/lib/notebookCapabilities.js"
+   ],
+   "name": "NEXT_PUBLIC_API_URL",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/tests/static/test_canary_ci_install.py",
+    "m2c/src/m2c/sandbox/bwrap.py",
+    "m2c/src/m2c/tools/search.py",
+    "m2c/tests/auth/test_auth_credentials.py",
+    "m2c/tests/auth/test_auth_redaction.py",
+    "m2c/tests/headless/headless_rig.py",
+    "m2c/tests/tools/test_tools_shell.py"
+   ],
+   "name": "PATH",
+   "test_files": [
+    "backend/tests/static/test_canary_ci_install.py",
+    "m2c/tests/auth/test_auth_credentials.py",
+    "m2c/tests/auth/test_auth_redaction.py",
+    "m2c/tests/headless/headless_rig.py",
+    "m2c/tests/tools/test_tools_shell.py"
+   ]
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/agents/structure_architect.py",
+    "backend/tests/manual/test_capability_coverage.py",
+    "backend/tests/manual/test_groq.py",
+    "backend/tests/manual/test_tool_calling.py"
+   ],
+   "name": "GROQ_API_KEY",
+   "test_files": [
+    "backend/tests/manual/test_capability_coverage.py",
+    "backend/tests/manual/test_groq.py",
+    "backend/tests/manual/test_tool_calling.py"
+   ]
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/memory/bus.py",
+    "backend/scripts/check_upstash.py",
+    "backend/tests/manual/test_upstash.py"
+   ],
+   "name": "UPSTASH_REDIS_REST_URL",
+   "test_files": [
+    "backend/tests/manual/test_upstash.py"
+   ]
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/memory/bus.py",
+    "backend/scripts/check_upstash.py",
+    "backend/tests/manual/test_upstash.py"
+   ],
+   "name": "UPSTASH_REDIS_REST_TOKEN",
+   "test_files": [
+    "backend/tests/manual/test_upstash.py"
+   ]
+  },
+  {
+   "documented_in": [
+    "frontend/.env.example"
+   ],
+   "files": [
+    "frontend/app/lib/supabaseClient.js",
+    "frontend/app/lib/supabaseServer.js",
+    "frontend/middleware.js"
+   ],
+   "name": "NEXT_PUBLIC_SUPABASE_URL",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "frontend/.env.example"
+   ],
+   "files": [
+    "frontend/app/lib/supabaseClient.js",
+    "frontend/app/lib/supabaseServer.js",
+    "frontend/middleware.js"
+   ],
+   "name": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "frontend/.env.example"
+   ],
+   "files": [
+    "frontend/instrumentation-client.js",
+    "frontend/sentry.edge.config.js",
+    "frontend/sentry.server.config.js"
+   ],
+   "name": "NEXT_PUBLIC_SENTRY_DSN",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/agents/component_spec_lookup.py",
+    "backend/scripts/test_digikey_debug_fix.py"
+   ],
+   "name": "DIGIKEY_CLIENT_ID",
+   "test_files": [
+    "backend/scripts/test_digikey_debug_fix.py"
+   ]
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/agents/component_spec_lookup.py",
+    "backend/scripts/test_digikey_debug_fix.py"
+   ],
+   "name": "DIGIKEY_CLIENT_SECRET",
+   "test_files": [
+    "backend/scripts/test_digikey_debug_fix.py"
+   ]
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/agents/component_spec_lookup.py",
+    "backend/scripts/test_digikey_debug_fix.py"
+   ],
+   "name": "DEBUG_DIGIKEY_PARAMS",
+   "test_files": [
+    "backend/scripts/test_digikey_debug_fix.py"
+   ]
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/agents/sandbox_tester.py",
+    "backend/tests/manual/test_e2b.py"
+   ],
+   "name": "E2B_API_KEY",
+   "test_files": [
+    "backend/tests/manual/test_e2b.py"
+   ]
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/api/deps.py",
+    "backend/scripts/get_test_jwt.py"
+   ],
+   "name": "SUPABASE_URL",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/api/deps.py",
+    "backend/eo/devices.py"
+   ],
+   "name": "SUPABASE_JWT_SECRET",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/api/deps.py",
+    "backend/scripts/get_test_jwt.py"
+   ],
+   "name": "SUPABASE_SERVICE_ROLE_KEY",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/api/server.py",
+    "backend/eo/devices.py"
+   ],
+   "name": "ALLOWED_ORIGINS",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/conn_timing.py",
+    "backend/eo/db.py"
+   ],
+   "name": "DATABASE_URL",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "daemon/.env.example"
+   ],
+   "files": [
+    "backend/eo/local_workspace.py",
+    "daemon/config.py"
+   ],
+   "name": "MINIME_PAIRING_TOKEN",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/eo/quota_sentinel.py",
+    "backend/tests/unit/test_eo_quota_sentinel.py"
+   ],
+   "name": "TAVILY_API_KEY",
+   "test_files": [
+    "backend/tests/unit/test_eo_quota_sentinel.py"
+   ]
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/memory/bus.py",
+    "backend/scripts/check_upstash.py"
+   ],
+   "name": "UPSTASH_VECTOR_REST_URL",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/memory/bus.py",
+    "backend/scripts/check_upstash.py"
+   ],
+   "name": "UPSTASH_VECTOR_REST_TOKEN",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/tests/manual/test_capability_coverage.py",
+    "backend/tests/manual/test_tool_calling.py"
+   ],
+   "name": "TOOL_TEST_REPEATS",
+   "test_files": [
+    "backend/tests/manual/test_capability_coverage.py",
+    "backend/tests/manual/test_tool_calling.py"
+   ]
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "m2c/tests/conftest.py",
+    "m2c/tests/tools/test_tools_shell.py"
+   ],
+   "name": "M2C_TEST_SANDBOX",
+   "test_files": [
+    "m2c/tests/conftest.py",
+    "m2c/tests/tools/test_tools_shell.py"
+   ]
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "m2c/tests/secret_handling/secret_fakes.py",
+    "m2c/tests/secret_handling/test_secrets_detectors.py"
+   ],
+   "name": "SECRET_KEY",
+   "test_files": [
+    "m2c/tests/secret_handling/secret_fakes.py",
+    "m2c/tests/secret_handling/test_secrets_detectors.py"
+   ]
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/agents/component_spec_lookup.py"
+   ],
+   "name": "MOUSER_API_KEY",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/agents/contradiction_prefilter.py"
+   ],
+   "name": "LAYA_CONTRADICTION_PREFILTER",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/agents/contradiction_prefilter.py"
+   ],
+   "name": "LAYA_CONTRADICTION_DROP_THRESHOLD",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/agents/generic_worker.py"
+   ],
+   "name": "SKILL_SELF_IMPROVE_TIMEOUT_SECONDS",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/agents/overlapping_checker.py"
+   ],
+   "name": "LAYA_OVERLAP_ARBITRATION",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/agents/overlapping_checker.py"
+   ],
+   "name": "LAYA_OVERLAP_THRESHOLD",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/agents/pagespeed_agent.py"
+   ],
+   "name": "PAGESPEED_API_KEY",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/agents/structure_architect.py"
+   ],
+   "name": "GROQ_API_KEY_9",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/api/routes/workspace_data.py"
+   ],
+   "name": "GOOGLE_OAUTH_CLIENT_ID",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/api/routes/workspace_data.py"
+   ],
+   "name": "GOOGLE_OAUTH_CLIENT_SECRET",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/api/routes/workspace_data.py"
+   ],
+   "name": "GOOGLE_OAUTH_REDIRECT_URI",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/api/routes/workspace_data.py"
+   ],
+   "name": "FRONTEND_URL",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/api/server.py"
+   ],
+   "name": "APP_THREAD_POOL_SIZE",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/api/server.py"
+   ],
+   "name": "SENTRY_DSN",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/api/server.py"
+   ],
+   "name": "ENVIRONMENT",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/api/server.py"
+   ],
+   "name": "SENTRY_TRACES_SAMPLE_RATE",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/api/server.py"
+   ],
+   "name": "ALLOWED_ORIGIN_REGEX",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/check_hf_embedding.py"
+   ],
+   "name": "HUGGINGFACE_API_KEY",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/codeagent/buffer.py"
+   ],
+   "name": "RUN_BUFFER_SECRET",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/codeagent/buffer.py"
+   ],
+   "name": "RUN_BUFFER_KEY_ID",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/codeagent/buffer.py"
+   ],
+   "name": "RUN_BUFFER_PREVIOUS_SECRETS",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/agent_task_pool.py"
+   ],
+   "name": "AGENT_TASK_POOL_SIZE",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/agent_task_pool.py"
+   ],
+   "name": "AGENT_TASK_MAX_QUEUE_DEPTH",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/agent_task_pool.py"
+   ],
+   "name": "AGENT_TASK_WALL_CLOCK_DEADLINE_SECONDS",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/agent_task_pool.py"
+   ],
+   "name": "AGENT_TASK_DEADLINE_GRACE_SECONDS",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/eo/chat_page_cache.py"
+   ],
+   "name": "CHAT_PAGE_CACHE_SIMPLE_HEURISTIC",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/chat_store.py"
+   ],
+   "name": "AFTER_SEQ_MAX_ROWS",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/conversation_memory.py"
+   ],
+   "name": "CONVERSATION_TTL_SECONDS",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/conversation_memory.py"
+   ],
+   "name": "CONVERSATION_MEMORY_FILTER_ENABLED",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/conversation_memory.py"
+   ],
+   "name": "CONVERSATION_MEMORY_AMBIGUOUS_LLM_ENABLED",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/conversation_memory.py"
+   ],
+   "name": "CONVERSATION_MAX_THREADS",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/conversation_memory.py"
+   ],
+   "name": "CONVERSATION_THREAD_SIMILARITY_THRESHOLD",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/conversation_memory.py"
+   ],
+   "name": "CONVERSATION_THREAD_ROUTING_ENABLED",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/credits.py"
+   ],
+   "name": "CREDITS_CONFIG_PATH",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/eo/db.py"
+   ],
+   "name": "DB_POOL_MIN",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/eo/db.py"
+   ],
+   "name": "DB_POOL_MAX",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/db.py"
+   ],
+   "name": "DB_POOL_GETCONN_TIMEOUT_SECONDS",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/eo/devices.py"
+   ],
+   "name": "DEVICE_JWT_SECRET",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/devices.py"
+   ],
+   "name": "DEVICE_VERIFICATION_URL",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/eo/integrations.py"
+   ],
+   "name": "INTEGRATIONS_ENCRYPTION_KEY",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/laya_gate.py"
+   ],
+   "name": "LAYA_MODEL",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/laya_gate.py"
+   ],
+   "name": "LAYA_LOAD_RETRY_SECONDS",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/laya_gate.py"
+   ],
+   "name": "LAYA_DECISION_LOG",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/laya_gate.py"
+   ],
+   "name": "LAYA_DECISION_LOG_MAX_MB",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/laya_routing.py"
+   ],
+   "name": "LAYA_PANEL_PREGATE",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/laya_routing.py"
+   ],
+   "name": "LAYA_PANEL_PREGATE_THRESHOLD",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/laya_routing.py"
+   ],
+   "name": "LAYA_GATEKEEPER_PREGATE",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/laya_routing.py"
+   ],
+   "name": "LAYA_GATEKEEPER_PREGATE_THRESHOLD",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/mcp_registry.py"
+   ],
+   "name": "MCP_SERVERS_CONFIG_PATH",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/plans.py"
+   ],
+   "name": "PLANS_CONFIG_PATH",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/registry.py"
+   ],
+   "name": "ROLE_LIBRARY_SCOPE",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/run_guard.py"
+   ],
+   "name": "TASK_TOKEN_BUDGET",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/run_guard.py"
+   ],
+   "name": "TASK_TOKEN_HARD_FACTOR",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/run_guard.py"
+   ],
+   "name": "TASK_MAX_CONSECUTIVE_FAILURES",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/run_guard.py"
+   ],
+   "name": "TASK_MAX_TOTAL_FAILURES",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/semantic_cache.py"
+   ],
+   "name": "SGA_SYSTEM_VERSION",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/sga.py"
+   ],
+   "name": "LAYA_SGA_PREGATE",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/sga.py"
+   ],
+   "name": "LAYA_SGA_PREGATE_THRESHOLD",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/eo/tool_budget.py"
+   ],
+   "name": "DEFAULT_TOOL_CALL_BUDGET",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/eo/tracing.py"
+   ],
+   "name": "LANGFUSE_PUBLIC_KEY",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/eo/tracing.py"
+   ],
+   "name": "LANGFUSE_SECRET_KEY",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/relay/emitter.py"
+   ],
+   "name": "PUSHER_APP_ID",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/relay/emitter.py"
+   ],
+   "name": "PUSHER_KEY",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/relay/emitter.py"
+   ],
+   "name": "PUSHER_SECRET",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/relay/emitter.py"
+   ],
+   "name": "PUSHER_CLUSTER",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/tests/canary/harness.py"
+   ],
+   "name": "MINIME_TEST_SCAN_DATABASE_URL",
+   "test_files": [
+    "backend/tests/canary/harness.py"
+   ]
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/tests/integration/test_eo_inspector.py"
+   ],
+   "name": "EO_INSPECTOR_GROQ_KEY_1",
+   "test_files": [
+    "backend/tests/integration/test_eo_inspector.py"
+   ]
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/tests/manual/test_groq2.py"
+   ],
+   "name": "GROQ_API_KEY_2",
+   "test_files": [
+    "backend/tests/manual/test_groq2.py"
+   ]
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/tests/manual/test_openrouter.py"
+   ],
+   "name": "OPENROUTER_TEST_KEY_ENV",
+   "test_files": [
+    "backend/tests/manual/test_openrouter.py"
+   ]
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/tests/unit/test_part14_retirement.py"
+   ],
+   "name": "MINIME_REPO_ROOT",
+   "test_files": [
+    "backend/tests/unit/test_part14_retirement.py"
+   ]
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/utils/llm_client.py"
+   ],
+   "name": "LLM_RATE_LIMIT_COOLDOWN_MIN",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/utils/llm_client.py"
+   ],
+   "name": "LLM_RATE_LIMIT_COOLDOWN_MAX",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/utils/llm_client.py"
+   ],
+   "name": "LLM_ZERO_QUOTA_COOLDOWN",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "backend/utils/llm_client.py"
+   ],
+   "name": "LLM_CHAIN_EXHAUSTION_WAIT_SECONDS",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "backend/.env.example"
+   ],
+   "files": [
+    "backend/utils/web_search.py"
+   ],
+   "name": "EXA_API_KEY",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "daemon/.env.example"
+   ],
+   "files": [
+    "daemon/config.py"
+   ],
+   "name": "MINIME_ALLOWED_ROOT",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "daemon/.env.example"
+   ],
+   "files": [
+    "daemon/config.py"
+   ],
+   "name": "MINIME_BACKEND_WS_URL",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "daemon/.env.example"
+   ],
+   "files": [
+    "daemon/config.py"
+   ],
+   "name": "MINIME_WORKSPACE_ID",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "daemon/.env.example"
+   ],
+   "files": [
+    "daemon/config.py"
+   ],
+   "name": "MINIME_PREVIEW_TARGET",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "daemon/.env.example"
+   ],
+   "files": [
+    "daemon/config.py"
+   ],
+   "name": "MINIME_FRONTEND_ORIGIN",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "daemon/.env.example"
+   ],
+   "files": [
+    "daemon/config.py"
+   ],
+   "name": "MINIME_PREVIEW_PORT",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "frontend/.env.example"
+   ],
+   "files": [
+    "frontend/app/components/TracesPanel.jsx"
+   ],
+   "name": "NEXT_PUBLIC_LANGFUSE_PROJECT_ID",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "frontend/.env.example"
+   ],
+   "files": [
+    "frontend/app/components/TracesPanel.jsx"
+   ],
+   "name": "NEXT_PUBLIC_LANGFUSE_BASE_URL",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "frontend/.env.example"
+   ],
+   "files": [
+    "frontend/app/components/WorkspaceChatPanel.jsx"
+   ],
+   "name": "NEXT_PUBLIC_CHAT_TOOL_CALLING_ENABLED",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "frontend/.env.example"
+   ],
+   "files": [
+    "frontend/app/lib/pusherClient.js"
+   ],
+   "name": "NEXT_PUBLIC_PUSHER_KEY",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "frontend/.env.example"
+   ],
+   "files": [
+    "frontend/app/lib/pusherClient.js"
+   ],
+   "name": "NEXT_PUBLIC_PUSHER_CLUSTER",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "frontend/instrumentation.js"
+   ],
+   "name": "NEXT_RUNTIME",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "frontend/.env.example"
+   ],
+   "files": [
+    "frontend/next.config.js"
+   ],
+   "name": "SENTRY_ORG",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "frontend/.env.example"
+   ],
+   "files": [
+    "frontend/next.config.js"
+   ],
+   "name": "SENTRY_PROJECT",
+   "test_files": []
+  },
+  {
+   "documented_in": [
+    "frontend/.env.example"
+   ],
+   "files": [
+    "frontend/next.config.js"
+   ],
+   "name": "SENTRY_AUTH_TOKEN",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "frontend/public/workers/pyodideWorker.js"
+   ],
+   "name": "MPLBACKEND",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "m2c/src/m2c/sandbox/netproxy.py"
+   ],
+   "name": "XDG_RUNTIME_DIR",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "m2c/src/m2c/tui/app.py"
+   ],
+   "name": "NO_COLOR",
+   "test_files": []
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "m2c/tests/sandbox/test_net_real_sandbox.py"
+   ],
+   "name": "HTTPS_PROXY",
+   "test_files": [
+    "m2c/tests/sandbox/test_net_real_sandbox.py"
+   ]
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "m2c/tests/sandbox/test_net_real_sandbox.py"
+   ],
+   "name": "HTTP_PROXY",
+   "test_files": [
+    "m2c/tests/sandbox/test_net_real_sandbox.py"
+   ]
+  },
+  {
+   "documented_in": [],
+   "files": [
+    "m2c/tests/secret_handling/secret_fakes.py"
+   ],
+   "name": "API_KEY",
+   "test_files": [
+    "m2c/tests/secret_handling/secret_fakes.py"
+   ]
+  }
+ ],
+ "env_unused_examples": [
+  {
+   "file": "backend/.env.example",
+   "name": "GROQ_API_KEY_6"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GROQ_API_KEY_7"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GROQ_API_KEY_8"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GROQ_API_KEY_10"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GROQ_API_KEY_11"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GROQ_API_KEY_12"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GROQ_API_KEY_13"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GROQ_API_KEY_14"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GROQ_RESERVE_1"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GROQ_RESERVE_2"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "SGA_GROQ_1"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "SGA_GROQ_2"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "SGA_GROQ_3"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "OPENROUTER_API_KEY_1"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "OPENROUTER_API_KEY_2"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "OPENROUTER_API_KEY_3"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "OPENROUTER_API_KEY_4"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "OPENROUTER_API_KEY_5"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "OPENROUTER_API_KEY_6"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "OPENROUTER_API_KEY_7"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "OPENROUTER_API_KEY_8"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "OPENROUTER_API_KEY_9"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "OPENROUTER_RESERVE_1"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "OPENROUTER_RESERVE_2"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "OPENROUTER_RESERVE_3"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_ACCOUNT_ID_1"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_API_KEY_1"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_ACCOUNT_ID_2"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_API_KEY_2"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_ACCOUNT_ID_3"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_API_KEY_3"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_ACCOUNT_ID_4"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_API_KEY_4"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_ACCOUNT_ID_5"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_API_KEY_5"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_ACCOUNT_ID_6"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_API_KEY_6"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_ACCOUNT_ID_7"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_API_KEY_7"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_ACCOUNT_ID_8"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CLOUDFLARE_API_KEY_8"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CF_SCANNER_RESERVE_1_ACCOUNT_ID"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CF_SCANNER_RESERVE_1_API_TOKEN"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CF_SCANNER_RESERVE_2_ACCOUNT_ID"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CF_SCANNER_RESERVE_2_API_TOKEN"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CF_SCANNER_RESERVE_3_ACCOUNT_ID"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CF_SCANNER_RESERVE_3_API_TOKEN"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_1"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_2"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_3"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_4"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_5"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_6"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_7"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_8"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_9"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_10"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_11"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_12"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_13"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_14"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_15"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_16"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_17"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GEMINI_API_KEY_18"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "MISTRAL_API_KEY"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "MISTRAL_API_KEY_2"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "MISTRAL_API_KEY_3"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "MISTRAL_API_KEY_4"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "MISTRAL_API_KEY_5"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "MISTRAL_API_KEY_6"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "MISTRAL_API_KEY_7"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "MISTRAL_API_KEY_8"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "MISTRAL_API_KEY_9"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "MISTRAL_API_KEY_10"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "HUGGINGFACE_API_KEY_2"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "HUGGINGFACE_API_KEY_3"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "HUGGINGFACE_API_KEY_4"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "HUGGINGFACE_API_KEY_5"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "HUGGINGFACE_API_KEY_6"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "HUGGINGFACE_API_KEY_7"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "HUGGINGFACE_API_KEY_8"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "HUGGINGFACE_API_KEY_9"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "HUGGINGFACE_API_KEY_10"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "EO_INSPECTOR_GROQ_KEY_2"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "EO_PANEL_OPENROUTER_KEY"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "EO_PANEL_CLOUDFLARE_ACCOUNT_ID"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "EO_PANEL_CLOUDFLARE_API_TOKEN"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "UPSTASH_REDIS_CACHE_URL"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "UPSTASH_REDIS_CACHE_TOKEN"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GUARDRAILS_API_KEY"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "GITHUB_MCP_TOKEN"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "CONTEXT7_API_KEY"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "BRAVE_API_KEY"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "TAVILY_API_KEY_2"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "TAVILY_API_KEY_3"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "TAVILY_API_KEY_4"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "TAVILY_API_KEY_5"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "TAVILY_API_KEY_6"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "TAVILY_API_KEY_7"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "TAVILY_API_KEY_8"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "TAVILY_API_KEY_9"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "TAVILY_API_KEY_10"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "LANGFUSE_BASE_URL"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "LANGFUSE_TIMEOUT"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "LANGFUSE_FLUSH_AT"
+  },
+  {
+   "file": "backend/.env.example",
+   "name": "LANGFUSE_FLUSH_INTERVAL"
+  },
+  {
+   "file": "frontend/.env.example",
+   "name": "NEXT_PUBLIC_ENVIRONMENT"
+  }
+ ],
+ "generated": "2026-11-19",
+ "schema": 1,
+ "services": [
+  {
+   "build": true,
+   "depends_on": [],
+   "env_names": [],
+   "image": null,
+   "name": "backend",
+   "ports": [
+    "8000:8000"
+   ]
+  },
+  {
+   "build": true,
+   "depends_on": [
+    "backend"
+   ],
+   "env_names": [
+    "NEXT_PUBLIC_API_URL"
+   ],
+   "image": null,
+   "name": "frontend",
+   "ports": [
+    "3000:3000"
+   ]
+  }
+ ]
+}

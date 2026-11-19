@@ -1,0 +1,3983 @@
+{
+ "docker_compose": [
+  {
+   "name": "backend",
+   "image": null,
+   "build": true,
+   "ports": [
+    "8000:8000"
+   ],
+   "depends_on": [],
+   "env_names": []
+  },
+  {
+   "name": "frontend",
+   "image": null,
+   "build": true,
+   "ports": [
+    "3000:3000"
+   ],
+   "depends_on": [
+    "backend"
+   ],
+   "env_names": [
+    "NEXT_PUBLIC_API_URL"
+   ]
+  }
+ ],
+ "dockerfiles": {
+  "backend.Dockerfile": {
+   "from": [
+    "python:3.12-slim"
+   ],
+   "expose": [
+    "8000\r"
+   ],
+   "cmd": [
+    "[\"uvicorn\", \"api.server:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]\r"
+   ]
+  },
+  "frontend.Dockerfile": {
+   "from": [
+    "node:20-slim",
+    "node:20-slim",
+    "node:20-slim"
+   ],
+   "expose": [
+    "3000\r"
+   ],
+   "cmd": [
+    "[\"npm\", \"start\"]\r"
+   ]
+  }
+ },
+ "ci": {
+  ".github/workflows/ci.yml": {
+   "name": "CI",
+   "triggers": [
+    "push",
+    "pull_request"
+   ],
+   "jobs": [
+    {
+     "id": "test",
+     "name": "test",
+     "steps": [
+      "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "pip install -r requirements.txt",
+      "Backend tests (unit, integration, static)",
+      "Skip gate (backend)"
+     ]
+    },
+    {
+     "id": "lint",
+     "name": "lint",
+     "steps": [
+      "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "pip install ruff==0.17.1",
+      "ruff check ."
+     ]
+    },
+    {
+     "id": "daemon-test",
+     "name": "daemon-test",
+     "steps": [
+      "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "pip install -r daemon/requirements.txt",
+      "pytest daemon/tests -v"
+     ]
+    },
+    {
+     "id": "m2c-test",
+     "name": "m2c-test",
+     "steps": [
+      "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "Install ripgrep and bubblewrap (the tests that use the real tools skip without them)",
+      "Probe whether bubblewrap can start on this runner",
+      "pip install -e \".[dev]\"",
+      "Install the protocol schema libraries (jsonschema), pinned from protocol/requirements.txt",
+      "Tests",
+      "Skip gate (m2c)",
+      "m2c --version",
+      "m2c doctor"
+     ]
+    },
+    {
+     "id": "frontend-lint",
+     "name": "frontend-lint",
+     "steps": [
+      "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "npm ci",
+      "CI=true npm run lint"
+     ]
+    },
+    {
+     "id": "frontend-test",
+     "name": "frontend-test",
+     "steps": [
+      "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "npm ci",
+      "npm test"
+     ]
+    },
+    {
+     "id": "protocol",
+     "name": "protocol",
+     "steps": [
+      "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "pip install -r protocol/requirements.txt",
+      "python protocol/validate.py",
+      "Client copy of the schemas exists and is current",
+      "Contract test",
+      "Test the skip gate itself",
+      "Skip gate (protocol)"
+     ]
+    },
+    {
+     "id": "canary",
+     "name": "canary",
+     "steps": [
+      "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "Install the backend requirements",
+      "Install the m2c client without its dependencies (its rich and prompt_toolkit pins cannot be resolved with the backend's)",
+      "pip check (only m2c's own rich and prompt_toolkit lines are expected)",
+      "Canary test, fake-recorder mode (no database)",
+      "Skip gate (canary, fake-recorder mode)",
+      "Scratch database (roles, auth stub, every migration in order)",
+      "Canary test, real-database mode",
+      "Skip gate (canary, real-database mode)"
+     ]
+    },
+    {
+     "id": "secrets-scan",
+     "name": "secrets-scan",
+     "steps": [
+      "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7",
+      "pip install semgrep",
+      "semgrep scan --config=auto --sarif --output=semgre",
+      "github/codeql-action/upload-sarif@c4dd10e44af883a891fe31ced449bcb4a6728b9b",
+      "advanced-security/dismiss-alerts@a18f986bdb40edba0dd7a74382c15d4a3d50a1c8"
+     ]
+    },
+    {
+     "id": "promptfoo",
+     "name": "promptfoo",
+     "steps": [
+      "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "Install backend Python deps (role_provider.py imports eo/agents/utils)",
+      "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "npm ci",
+      "Ensure promptfoo's configured env file exists (empty -- CI exports vars directly below)",
+      "Run Role Library promptfoo evals",
+      "Run output_organizer promptfoo evals"
+     ]
+    }
+   ]
+  }
+ },
+ "dependencies": {
+  "backend/evals/promptfoo/package.json": {
+   "name": "minime-promptfoo-evals",
+   "version": "0.1.0",
+   "dependencies": {},
+   "devDependencies": {
+    "promptfoo": "0.122.0"
+   },
+   "scripts": {
+    "eval": "promptfoo eval --config promptfooconfig.yaml",
+    "eval:ci": "promptfoo eval --config promptfooconfig.yaml --no-cache --no-share",
+    "eval:organizer": "promptfoo eval --config output_organizer.promptfooconfig.yaml",
+    "compare": "promptfoo eval --config compare/providers.promptfooconfig.yaml",
+    "view": "promptfoo view",
+    "check-role": "python3 scripts/check_role.py"
+   }
+  },
+  "backend/pyproject.toml": {
+   "raw_head": "[tool.ruff]\r\ntarget-version = \"py311\"\r\n\r\n[tool.ruff.lint]\r\n# Pinned per ci.yml's own header comment. A prior change (see git\r\n# history / PR discussion for \"B3\") briefly moved this repo onto\r\n# ruff's zero-config default rule set, which as of ruff 0.16 enables\r\n# nearly every rule family (813 findings on this repo vs. 13 under\r\n# this pinned selection, measured 2026-08-25 on ruff 0.16.4) -- but\r\n# the two cleanup batches that change's own comment described (an\r\n# auto-fix pass, then a manual-triage pass for RUF013/BLE001-style\r\n# judgment calls) were never landed, so CI was red on every push\r\n# regardless of what else changed. Reverted to the pinned selection to\r\n# unblock CI now; broadening this again should ship together with the\r\n# actual cleanup, not ahead of it.\r\nselect = [\"E4\", \"E7\", \"E9\", \"F\"]\r\n\r\n[tool.ruff.lint.per-file-ignores]\r\n# This module borrows the `store` fixture from test_eo_code_proposals_deploy\r\n# (imported, not moved), so every test taking `store` as an argument looks\r\n# like a redefinition of an unused import to F811. That is how pytest\r\n# fixture injection works, not a real shadowing bug.\r\n\"tests/unit/test_eo_code_proposals_wireframe.py\" = [\"F811\"]\r\n"
+  },
+  "backend/requirements.txt": [
+   {
+    "name": "aiohappyeyeballs",
+    "spec": "==2.7.1"
+   },
+   {
+    "name": "aiohttp",
+    "spec": "==3.14.1"
+   },
+   {
+    "name": "aiosignal",
+    "spec": "==1.4.0"
+   },
+   {
+    "name": "annotated-doc",
+    "spec": "==0.0.4"
+   },
+   {
+    "name": "annotated-types",
+    "spec": "==0.7.0"
+   },
+   {
+    "name": "anyio",
+    "spec": "==4.14.1"
+   },
+   {
+    "name": "attrs",
+    "spec": "==26.1.0"
+   },
+   {
+    "name": "av",
+    "spec": "==18.0.0"
+   },
+   {
+    "name": "babel",
+    "spec": "==2.18.0"
+   },
+   {
+    "name": "bracex",
+    "spec": "==3.0"
+   },
+   {
+    "name": "certifi",
+    "spec": "==2026.6.17"
+   },
+   {
+    "name": "cffi",
+    "spec": "==2.0.0"
+   },
+   {
+    "name": "charset-normalizer",
+    "spec": "==3.4.7"
+   },
+   {
+    "name": "click",
+    "spec": "==8.2.0"
+   },
+   {
+    "name": "colorama",
+    "spec": "==0.4.6"
+   },
+   {
+    "name": "courlan",
+    "spec": "==1.4.0"
+   },
+   {
+    "name": "cryptography",
+    "spec": "==49.0.0"
+   },
+   {
+    "name": "ctranslate2",
+    "spec": "==4.8.1"
+   },
+   {
+    "name": "dateparser",
+    "spec": "==1.4.1"
+   },
+   {
+    "name": "decorator",
+    "spec": "==5.3.1"
+   },
+   {
+    "name": "defusedxml",
+    "spec": "==0.7.1"
+   },
+   {
+    "name": "distro",
+    "spec": "==1.9.0"
+   },
+   {
+    "name": "dockerfile-parse",
+    "spec": "==2.0.1"
+   },
+   {
+    "name": "e2b",
+    "spec": "==2.30.0"
+   },
+   {
+    "name": "e2b-code-interpreter",
+    "spec": "==2.8.1"
+   },
+   {
+    "name": "edge-tts",
+    "spec": "==7.2.8"
+   },
+   {
+    "name": "et_xmlfile",
+    "spec": "==2.0.0"
+   },
+   {
+    "name": "fastapi",
+    "spec": "==0.139.0"
+   },
+   {
+    "name": "faster-whisper",
+    "spec": "==1.2.1"
+   },
+   {
+    "name": "filelock",
+    "spec": "==3.29.7"
+   },
+   {
+    "name": "flatbuffers",
+    "spec": "==25.12.19"
+   },
+   {
+    "name": "frozenlist",
+    "spec": "==1.8.0"
+   },
+   {
+    "name": "fsspec",
+    "spec": "==2026.6.0"
+   },
+   {
+    "name": "google-auth",
+    "spec": "==2.55.1"
+   },
+   {
+    "name": "guardrails-ai",
+    "spec": "==0.10.2"
+   },
+   {
+    "name": "groq",
+    "spec": "==1.5.0"
+   },
+   {
+    "name": "h11",
+    "spec": "==0.16.0"
+   },
+   {
+    "name": "h2",
+    "spec": "==4.3.0"
+   },
+   {
+    "name": "hf-xet",
+    "spec": "==1.5.1"
+   },
+   {
+    "name": "hpack",
+    "spec": "==4.2.0"
+   },
+   {
+    "name": "htmldate",
+    "spec": "==1.10.0"
+   },
+   {
+    "name": "httpcore",
+    "spec": "==1.0.9"
+   },
+   {
+    "name": "httpx",
+    "spec": "==0.28.1"
+   },
+   {
+    "name": "huggingface_hub",
+    "spec": "==1.13.0"
+   },
+   {
+    "name": "hyperframe",
+    "spec": "==6.1.0"
+   },
+   {
+    "name": "idna",
+    "spec": "==3.18"
+   },
+   {
+    "name": "ImageIO",
+    "spec": "==2.37.3"
+   },
+   {
+    "name": "imageio-ffmpeg",
+    "spec": "==0.6.0"
+   },
+   {
+    "name": "iniconfig",
+    "spec": "==2.3.0"
+   },
+   {
+    "name": "jiter",
+    "spec": "==0.16.0"
+   },
+   {
+    "name": "joblib",
+    "spec": "==1.5.3"
+   },
+   {
+    "name": "jsonschema",
+    "spec": "==4.26.0"
+   },
+   {
+    "name": "jsonschema-specifications",
+    "spec": "==2025.9.1"
+   },
+   {
+    "name": "jusText",
+    "spec": "==3.0.2"
+   },
+   {
+    "name": "laya",
+    "spec": "==0.3.20"
+   },
+   {
+    "name": "langfuse",
+    "spec": "==4.14.3"
+   },
+   {
+    "name": "lxml",
+    "spec": "==6.1.1"
+   },
+   {
+    "name": "lxml_html_clean",
+    "spec": "==0.4.5"
+   },
+   {
+    "name": "markdown-it-py",
+    "spec": "==4.2.0"
+   },
+   {
+    "name": "mdurl",
+    "spec": "==0.1.2"
+   },
+   {
+    "name": "moviepy",
+    "spec": "==2.2.1"
+   },
+   {
+    "name": "multidict",
+    "spec": "==6.7.1"
+   },
+   {
+    "name": "narwhals",
+    "spec": "==2.23.0"
+   },
+   {
+    "name": "ndg-httpsclient",
+    "spec": "==0.5.1"
+   },
+   {
+    "name": "numpy",
+    "spec": "==2.4.6"
+   },
+   {
+    "name": "onnxruntime",
+    "spec": "==1.27.0"
+   },
+   {
+    "name": "openai",
+    "spec": "==2.44.0"
+   },
+   {
+    "name": "openpyxl",
+    "spec": "==3.1.5"
+   },
+   {
+    "name": "packaging",
+    "spec": "==26.2"
+   },
+   {
+    "name": "pdfminer.six",
+    "spec": "==20251230"
+   },
+   {
+    "name": "pdfplumber",
+    "spec": "==0.11.9"
+   },
+   {
+    "name": "pillow",
+    "spec": "==11.3.0"
+   },
+   {
+    "name": "pluggy",
+    "spec": "==1.6.0"
+   },
+   {
+    "name": "presidio-analyzer",
+    "spec": "==2.2.362"
+   },
+   {
+    "name": "presidio-anonymizer",
+    "spec": "==2.2.362"
+   },
+   {
+    "name": "proglog",
+    "spec": "==0.1.12"
+   },
+   {
+    "name": "propcache",
+    "spec": "==0.5.2"
+   },
+   {
+    "name": "protobuf",
+    "spec": "==7.35.1"
+   },
+   {
+    "name": "psycopg[binary",
+    "spec": ",pool]==3.3.5"
+   },
+   {
+    "name": "pusher",
+    "spec": "==3.3.4"
+   },
+   {
+    "name": "pyasn1",
+    "spec": "==0.6.3"
+   },
+   {
+    "name": "pyasn1_modules",
+    "spec": "==0.4.2"
+   },
+   {
+    "name": "pycparser",
+    "spec": "==3.0"
+   },
+   {
+    "name": "pydantic",
+    "spec": "==2.13.4"
+   },
+   {
+    "name": "pydantic_core",
+    "spec": "==2.46.4"
+   },
+   {
+    "name": "Pygments",
+    "spec": "==2.20.0"
+   },
+   {
+    "name": "PyJWT",
+    "spec": "==2.13.0"
+   },
+   {
+    "name": "PyNaCl",
+    "spec": "==1.6.2"
+   },
+   {
+    "name": "pyOpenSSL",
+    "spec": "==26.3.0"
+   },
+   {
+    "name": "pypdfium2",
+    "spec": "==5.11.0"
+   },
+   {
+    "name": "pytest",
+    "spec": "==9.1.1"
+   },
+   {
+    "name": "pytest-asyncio",
+    "spec": "==1.4.0"
+   },
+   {
+    "name": "pytest-mock",
+    "spec": "==3.15.1"
+   },
+   {
+    "name": "python-dateutil",
+    "spec": "==2.9.0.post0"
+   },
+   {
+    "name": "python-docx",
+    "spec": "==1.2.0"
+   },
+   {
+    "name": "python-dotenv",
+    "spec": "==1.2.2"
+   },
+   {
+    "name": "python-multipart",
+    "spec": "==0.0.32"
+   },
+   {
+    "name": "python-pptx",
+    "spec": "==1.0.2"
+   },
+   {
+    "name": "pytz",
+    "spec": "==2026.2"
+   },
+   {
+    "name": "PyYAML",
+    "spec": "==6.0.3"
+   },
+   {
+    "name": "referencing",
+    "spec": "==0.37.0"
+   },
+   {
+    "name": "regex",
+    "spec": "==2026.7.10"
+   },
+   {
+    "name": "reportlab",
+    "spec": "==5.0.0"
+   },
+   {
+    "name": "requests",
+    "spec": "==2.34.2"
+   },
+   {
+    "name": "rich",
+    "spec": "==14.3.4"
+   },
+   {
+    "name": "rpds-py",
+    "spec": "==2026.9.1"
+   },
+   {
+    "name": "scikit-learn",
+    "spec": "==1.9.0"
+   },
+   {
+    "name": "scipy",
+    "spec": "==1.17.1"
+   },
+   {
+    "name": "sentry-sdk",
+    "spec": "==2.19.2"
+   },
+   {
+    "name": "setuptools",
+    "spec": "==83.0.0"
+   },
+   {
+    "name": "six",
+    "spec": "==1.17.0"
+   },
+   {
+    "name": "sniffio",
+    "spec": "==1.3.1"
+   },
+   {
+    "name": "starlette",
+    "spec": "==1.3.1"
+   },
+   {
+    "name": "tabulate",
+    "spec": "==0.10.0"
+   },
+   {
+    "name": "tenacity",
+    "spec": "==9.1.4"
+   },
+   {
+    "name": "threadpoolctl",
+    "spec": "==3.6.0"
+   },
+   {
+    "name": "tld",
+    "spec": "==0.13.2"
+   },
+   {
+    "name": "tokenizers",
+    "spec": "==0.23.1"
+   },
+   {
+    "name": "tqdm",
+    "spec": "==4.68.3"
+   },
+   {
+    "name": "trafilatura",
+    "spec": "==2.1.0"
+   },
+   {
+    "name": "typing-inspection",
+    "spec": "==0.4.2"
+   },
+   {
+    "name": "typing_extensions",
+    "spec": "==4.16.0"
+   },
+   {
+    "name": "tzdata",
+    "spec": "==2026.3"
+   },
+   {
+    "name": "tzlocal",
+    "spec": "==5.4.4"
+   },
+   {
+    "name": "upstash-redis",
+    "spec": "==1.7.0"
+   },
+   {
+    "name": "upstash-vector",
+    "spec": "==0.8.0"
+   },
+   {
+    "name": "urllib3",
+    "spec": "==2.7.0"
+   },
+   {
+    "name": "uvicorn",
+    "spec": "==0.50.0"
+   },
+   {
+    "name": "vcrpy",
+    "spec": "==8.3.0"
+   },
+   {
+    "name": "wcmatch",
+    "spec": "==10.2.1"
+   },
+   {
+    "name": "websockets",
+    "spec": "==16.0"
+   },
+   {
+    "name": "wrapt",
+    "spec": "==2.3.0"
+   },
+   {
+    "name": "xlsxwriter",
+    "spec": "==3.2.9"
+   },
+   {
+    "name": "yarl",
+    "spec": "==1.24.2"
+   },
+   {
+    "name": "youtube-transcript-api",
+    "spec": "==1.2.4"
+   },
+   {
+    "name": "yt-dlp",
+    "spec": "==2026.7.4"
+   }
+  ],
+  "daemon/requirements.txt": [
+   {
+    "name": "python-dotenv",
+    "spec": "==1.2.2"
+   },
+   {
+    "name": "pytest",
+    "spec": "==8.4.1"
+   },
+   {
+    "name": "websockets",
+    "spec": "==16.0"
+   }
+  ],
+  "frontend/package.json": {
+   "name": "minime-frontend",
+   "version": "0.1.0",
+   "dependencies": {
+    "@babel/parser": "^7.29.9",
+    "@codemirror/autocomplete": "^6.20.3",
+    "@codemirror/commands": "^6.11.1",
+    "@codemirror/language": "^6.12.4",
+    "@codemirror/language-data": "^6.5.2",
+    "@codemirror/lint": "^6.9.7",
+    "@codemirror/merge": "^6.12.2",
+    "@codemirror/search": "^6.7.2",
+    "@codemirror/state": "^6.7.5",
+    "@codemirror/view": "^6.43.12",
+    "@codesandbox/sandpack-react": "^2.20.0",
+    "@lezer/highlight": "^1.2.3",
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "@sentry/nextjs": "^10.69.0",
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.45.4",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "codemirror": "^6.0.2",
+    "lucide-react": "^1.23.0",
+    "mermaid": "^11.16.0",
+    "next": "14.2.35",
+    "parse5": "^8.0.1",
+    "prettier": "^3.9.8",
+    "pusher-js": "^8.5.0",
+    "pyodide": "314.0.7",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-force-graph-2d": "^1.29.1",
+    "react-markdown": "^10.1.0",
+    "react-window": "^2.3.0",
+    "reactflow": "^11.11.4",
+    "recharts": "^2.12.7",
+    "remark-gfm": "^4.0.1",
+    "three": "^0.185.1"
+   },
+   "devDependencies": {
+    "autoprefixer": "10.4.19",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.35",
+    "patch-package": "^8.0.1",
+    "postcss": "8.4.38",
+    "tailwindcss": "3.4.4"
+   },
+   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "node --test \"app/**/*.test.mjs\"",
+    "postinstall": "patch-package && node scripts/vendor-pyodide.mjs"
+   }
+  },
+  "m2c/pyproject.toml": {
+   "raw_head": "# m2c/pyproject.toml -- Patch C01: packaging for the M2C client.\r\n#\r\n# Build backend: hatchling. Chosen over setuptools because this is a pure-\r\n# Python src-layout package with no compiled code and no setup.py quirks:\r\n# PEP 517/660 editable installs work out of the box (`pip install -e .`),\r\n# the version is read from one line in src/m2c/__init__.py without importing\r\n# it, and `uv tool install` / `pipx` build it the same way. Pinned exactly,\r\n# like the other tools in this repo (ruff, the CI actions): bump it\r\n# deliberately, and prefer a release at least a couple of weeks old.\r\n[build-system]\r\nrequires = [\"hatchling==1.32.4\"]\r\nbuild-backend = \"hatchling.build\"\r\n\r\n[project]\r\nname = \"m2c\"\r\ndynamic = [\"version\"]\r\ndescription = \"M2C (Minime to Code): a local-first coding agent client for Linux and WSL2.\"\r\nreadme = \"README.md\"\r\nrequires-python = \">=3.11\"            # decision D1\r\n# Runtime dependencies: the standard library only, plus THREE exceptions.\r\n# tests/test_cli.py fails if another is added here (or imported) without that\r\n# test being changed on purpose.  The exception (Patch C04): ``websockets``, the\r\n# WebSocket client of the device link (m2c/link), pinned exactly like\r\n# daemon/requirements.txt so the two packages cannot drift; only m2c/link may\r\n# import it.  Patch C09 adds ``prompt_toolkit`` and ``rich``, the terminal chat\r\n# (decision D2); only m2c/tui/app.py imports them, and cli.py imports that\r\n# module lazily, so headless mode and every other command never l"
+  },
+  "protocol/requirements.txt": [
+   {
+    "name": "jsonschema",
+    "spec": "==4.26.0"
+   },
+   {
+    "name": "jsonschema-specifications",
+    "spec": "==2025.9.1"
+   },
+   {
+    "name": "referencing",
+    "spec": "==0.37.0"
+   },
+   {
+    "name": "rpds-py",
+    "spec": "==2026.9.1"
+   },
+   {
+    "name": "attrs",
+    "spec": "==26.1.0"
+   },
+   {
+    "name": "typing_extensions",
+    "spec": "==4.16.0"
+   },
+   {
+    "name": "pytest",
+    "spec": "==9.1.1"
+   },
+   {
+    "name": "iniconfig",
+    "spec": "==2.3.0"
+   },
+   {
+    "name": "packaging",
+    "spec": "==26.2"
+   },
+   {
+    "name": "pluggy",
+    "spec": "==1.6.0"
+   },
+   {
+    "name": "Pygments",
+    "spec": "==2.20.0"
+   }
+  ]
+ },
+ "env_examples": {
+  "backend/.env.example": [
+   {
+    "name": "ENVIRONMENT",
+    "comment": ""
+   },
+   {
+    "name": "ALLOWED_ORIGINS",
+    "comment": ""
+   },
+   {
+    "name": "FRONTEND_URL",
+    "comment": ""
+   },
+   {
+    "name": "SUPABASE_URL",
+    "comment": ""
+   },
+   {
+    "name": "SUPABASE_SERVICE_ROLE_KEY",
+    "comment": ""
+   },
+   {
+    "name": "SUPABASE_JWT_SECRET",
+    "comment": ""
+   },
+   {
+    "name": "DATABASE_URL",
+    "comment": ""
+   },
+   {
+    "name": "DB_POOL_MIN",
+    "comment": ""
+   },
+   {
+    "name": "DB_POOL_MAX",
+    "comment": ""
+   },
+   {
+    "name": "APP_THREAD_POOL_SIZE",
+    "comment": ""
+   },
+   {
+    "name": "GROQ_API_KEY",
+    "comment": ""
+   },
+   {
+    "name": "GROQ_API_KEY_6",
+    "comment": ""
+   },
+   {
+    "name": "GROQ_API_KEY_7",
+    "comment": ""
+   },
+   {
+    "name": "GROQ_API_KEY_8",
+    "comment": ""
+   },
+   {
+    "name": "GROQ_API_KEY_9",
+    "comment": ""
+   },
+   {
+    "name": "GROQ_API_KEY_10",
+    "comment": ""
+   },
+   {
+    "name": "GROQ_API_KEY_11",
+    "comment": ""
+   },
+   {
+    "name": "GROQ_API_KEY_12",
+    "comment": ""
+   },
+   {
+    "name": "GROQ_API_KEY_13",
+    "comment": ""
+   },
+   {
+    "name": "GROQ_API_KEY_14",
+    "comment": ""
+   },
+   {
+    "name": "GROQ_RESERVE_1",
+    "comment": ""
+   },
+   {
+    "name": "GROQ_RESERVE_2",
+    "comment": ""
+   },
+   {
+    "name": "SGA_GROQ_1",
+    "comment": ""
+   },
+   {
+    "name": "SGA_GROQ_2",
+    "comment": ""
+   },
+   {
+    "name": "SGA_GROQ_3",
+    "comment": ""
+   },
+   {
+    "name": "OPENROUTER_API_KEY_1",
+    "comment": ""
+   },
+   {
+    "name": "OPENROUTER_API_KEY_2",
+    "comment": ""
+   },
+   {
+    "name": "OPENROUTER_API_KEY_3",
+    "comment": ""
+   },
+   {
+    "name": "OPENROUTER_API_KEY_4",
+    "comment": ""
+   },
+   {
+    "name": "OPENROUTER_API_KEY_5",
+    "comment": ""
+   },
+   {
+    "name": "OPENROUTER_API_KEY_6",
+    "comment": ""
+   },
+   {
+    "name": "OPENROUTER_API_KEY_7",
+    "comment": ""
+   },
+   {
+    "name": "OPENROUTER_API_KEY_8",
+    "comment": ""
+   },
+   {
+    "name": "OPENROUTER_API_KEY_9",
+    "comment": ""
+   },
+   {
+    "name": "OPENROUTER_RESERVE_1",
+    "comment": ""
+   },
+   {
+    "name": "OPENROUTER_RESERVE_2",
+    "comment": ""
+   },
+   {
+    "name": "OPENROUTER_RESERVE_3",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_ACCOUNT_ID_1",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_API_KEY_1",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_ACCOUNT_ID_2",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_API_KEY_2",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_ACCOUNT_ID_3",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_API_KEY_3",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_ACCOUNT_ID_4",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_API_KEY_4",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_ACCOUNT_ID_5",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_API_KEY_5",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_ACCOUNT_ID_6",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_API_KEY_6",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_ACCOUNT_ID_7",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_API_KEY_7",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_ACCOUNT_ID_8",
+    "comment": ""
+   },
+   {
+    "name": "CLOUDFLARE_API_KEY_8",
+    "comment": ""
+   },
+   {
+    "name": "CF_SCANNER_RESERVE_1_ACCOUNT_ID",
+    "comment": ""
+   },
+   {
+    "name": "CF_SCANNER_RESERVE_1_API_TOKEN",
+    "comment": ""
+   },
+   {
+    "name": "CF_SCANNER_RESERVE_2_ACCOUNT_ID",
+    "comment": ""
+   },
+   {
+    "name": "CF_SCANNER_RESERVE_2_API_TOKEN",
+    "comment": ""
+   },
+   {
+    "name": "CF_SCANNER_RESERVE_3_ACCOUNT_ID",
+    "comment": ""
+   },
+   {
+    "name": "CF_SCANNER_RESERVE_3_API_TOKEN",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_1",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_2",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_3",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_4",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_5",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_6",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_7",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_8",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_9",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_10",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_11",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_12",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_13",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_14",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_15",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_16",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_17",
+    "comment": ""
+   },
+   {
+    "name": "GEMINI_API_KEY_18",
+    "comment": ""
+   },
+   {
+    "name": "MISTRAL_API_KEY",
+    "comment": ""
+   },
+   {
+    "name": "MISTRAL_API_KEY_2",
+    "comment": ""
+   },
+   {
+    "name": "MISTRAL_API_KEY_3",
+    "comment": ""
+   },
+   {
+    "name": "MISTRAL_API_KEY_4",
+    "comment": ""
+   },
+   {
+    "name": "MISTRAL_API_KEY_5",
+    "comment": ""
+   },
+   {
+    "name": "MISTRAL_API_KEY_6",
+    "comment": ""
+   },
+   {
+    "name": "MISTRAL_API_KEY_7",
+    "comment": ""
+   },
+   {
+    "name": "MISTRAL_API_KEY_8",
+    "comment": ""
+   },
+   {
+    "name": "MISTRAL_API_KEY_9",
+    "comment": ""
+   },
+   {
+    "name": "MISTRAL_API_KEY_10",
+    "comment": ""
+   },
+   {
+    "name": "HUGGINGFACE_API_KEY",
+    "comment": ""
+   },
+   {
+    "name": "HUGGINGFACE_API_KEY_2",
+    "comment": ""
+   },
+   {
+    "name": "HUGGINGFACE_API_KEY_3",
+    "comment": ""
+   },
+   {
+    "name": "HUGGINGFACE_API_KEY_4",
+    "comment": ""
+   },
+   {
+    "name": "HUGGINGFACE_API_KEY_5",
+    "comment": ""
+   },
+   {
+    "name": "HUGGINGFACE_API_KEY_6",
+    "comment": ""
+   },
+   {
+    "name": "HUGGINGFACE_API_KEY_7",
+    "comment": ""
+   },
+   {
+    "name": "HUGGINGFACE_API_KEY_8",
+    "comment": ""
+   },
+   {
+    "name": "HUGGINGFACE_API_KEY_9",
+    "comment": ""
+   },
+   {
+    "name": "HUGGINGFACE_API_KEY_10",
+    "comment": ""
+   },
+   {
+    "name": "EO_INSPECTOR_GROQ_KEY_1",
+    "comment": ""
+   },
+   {
+    "name": "EO_INSPECTOR_GROQ_KEY_2",
+    "comment": ""
+   },
+   {
+    "name": "EO_PANEL_OPENROUTER_KEY",
+    "comment": ""
+   },
+   {
+    "name": "EO_PANEL_CLOUDFLARE_ACCOUNT_ID",
+    "comment": ""
+   },
+   {
+    "name": "EO_PANEL_CLOUDFLARE_API_TOKEN",
+    "comment": ""
+   },
+   {
+    "name": "UPSTASH_REDIS_REST_URL",
+    "comment": ""
+   },
+   {
+    "name": "UPSTASH_REDIS_REST_TOKEN",
+    "comment": ""
+   },
+   {
+    "name": "UPSTASH_VECTOR_REST_URL",
+    "comment": ""
+   },
+   {
+    "name": "UPSTASH_VECTOR_REST_TOKEN",
+    "comment": ""
+   },
+   {
+    "name": "CHAT_PAGE_CACHE_SIMPLE_HEURISTIC",
+    "comment": ""
+   },
+   {
+    "name": "UPSTASH_REDIS_CACHE_URL",
+    "comment": ""
+   },
+   {
+    "name": "UPSTASH_REDIS_CACHE_TOKEN",
+    "comment": ""
+   },
+   {
+    "name": "GUARDRAILS_API_KEY",
+    "comment": ""
+   },
+   {
+    "name": "E2B_API_KEY",
+    "comment": ""
+   },
+   {
+    "name": "PUSHER_APP_ID",
+    "comment": ""
+   },
+   {
+    "name": "PUSHER_KEY",
+    "comment": ""
+   },
+   {
+    "name": "PUSHER_SECRET",
+    "comment": ""
+   },
+   {
+    "name": "PUSHER_CLUSTER",
+    "comment": ""
+   },
+   {
+    "name": "GOOGLE_OAUTH_CLIENT_ID",
+    "comment": ""
+   },
+   {
+    "name": "GOOGLE_OAUTH_CLIENT_SECRET",
+    "comment": ""
+   },
+   {
+    "name": "GOOGLE_OAUTH_REDIRECT_URI",
+    "comment": ""
+   },
+   {
+    "name": "INTEGRATIONS_ENCRYPTION_KEY",
+    "comment": ""
+   },
+   {
+    "name": "GITHUB_MCP_TOKEN",
+    "comment": ""
+   },
+   {
+    "name": "CONTEXT7_API_KEY",
+    "comment": ""
+   },
+   {
+    "name": "BRAVE_API_KEY",
+    "comment": ""
+   },
+   {
+    "name": "TAVILY_API_KEY",
+    "comment": ""
+   },
+   {
+    "name": "TAVILY_API_KEY_2",
+    "comment": ""
+   },
+   {
+    "name": "TAVILY_API_KEY_3",
+    "comment": ""
+   },
+   {
+    "name": "TAVILY_API_KEY_4",
+    "comment": ""
+   },
+   {
+    "name": "TAVILY_API_KEY_5",
+    "comment": ""
+   },
+   {
+    "name": "TAVILY_API_KEY_6",
+    "comment": ""
+   },
+   {
+    "name": "TAVILY_API_KEY_7",
+    "comment": ""
+   },
+   {
+    "name": "TAVILY_API_KEY_8",
+    "comment": ""
+   },
+   {
+    "name": "TAVILY_API_KEY_9",
+    "comment": ""
+   },
+   {
+    "name": "TAVILY_API_KEY_10",
+    "comment": ""
+   },
+   {
+    "name": "EXA_API_KEY",
+    "comment": ""
+   },
+   {
+    "name": "SENTRY_DSN",
+    "comment": ""
+   },
+   {
+    "name": "LANGFUSE_PUBLIC_KEY",
+    "comment": ""
+   },
+   {
+    "name": "LANGFUSE_SECRET_KEY",
+    "comment": ""
+   },
+   {
+    "name": "LANGFUSE_BASE_URL",
+    "comment": ""
+   },
+   {
+    "name": "LANGFUSE_TIMEOUT",
+    "comment": ""
+   },
+   {
+    "name": "LANGFUSE_FLUSH_AT",
+    "comment": ""
+   },
+   {
+    "name": "LANGFUSE_FLUSH_INTERVAL",
+    "comment": ""
+   },
+   {
+    "name": "DIGIKEY_CLIENT_ID",
+    "comment": ""
+   },
+   {
+    "name": "DIGIKEY_CLIENT_SECRET",
+    "comment": ""
+   },
+   {
+    "name": "MOUSER_API_KEY",
+    "comment": ""
+   },
+   {
+    "name": "DEVICE_JWT_SECRET",
+    "comment": ""
+   },
+   {
+    "name": "RUN_BUFFER_SECRET",
+    "comment": ""
+   }
+  ],
+  "daemon/.env.example": [
+   {
+    "name": "MINIME_PAIRING_TOKEN",
+    "comment": ""
+   },
+   {
+    "name": "MINIME_ALLOWED_ROOT",
+    "comment": ""
+   },
+   {
+    "name": "MINIME_BACKEND_WS_URL",
+    "comment": ""
+   },
+   {
+    "name": "MINIME_WORKSPACE_ID",
+    "comment": ""
+   },
+   {
+    "name": "MINIME_PREVIEW_TARGET",
+    "comment": ""
+   },
+   {
+    "name": "MINIME_FRONTEND_ORIGIN",
+    "comment": ""
+   },
+   {
+    "name": "MINIME_PREVIEW_PORT",
+    "comment": ""
+   }
+  ],
+  "frontend/.env.example": [
+   {
+    "name": "NEXT_PUBLIC_API_URL",
+    "comment": ""
+   },
+   {
+    "name": "NEXT_PUBLIC_SUPABASE_URL",
+    "comment": ""
+   },
+   {
+    "name": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "comment": ""
+   },
+   {
+    "name": "NEXT_PUBLIC_PUSHER_KEY",
+    "comment": ""
+   },
+   {
+    "name": "NEXT_PUBLIC_PUSHER_CLUSTER",
+    "comment": ""
+   },
+   {
+    "name": "NEXT_PUBLIC_CHAT_TOOL_CALLING_ENABLED",
+    "comment": ""
+   },
+   {
+    "name": "NEXT_PUBLIC_SENTRY_DSN",
+    "comment": ""
+   },
+   {
+    "name": "NEXT_PUBLIC_ENVIRONMENT",
+    "comment": ""
+   },
+   {
+    "name": "NEXT_PUBLIC_LANGFUSE_PROJECT_ID",
+    "comment": ""
+   },
+   {
+    "name": "NEXT_PUBLIC_LANGFUSE_BASE_URL",
+    "comment": ""
+   },
+   {
+    "name": "SENTRY_ORG",
+    "comment": ""
+   },
+   {
+    "name": "SENTRY_PROJECT",
+    "comment": ""
+   },
+   {
+    "name": "SENTRY_AUTH_TOKEN",
+    "comment": ""
+   }
+  ]
+ },
+ "env_usage": {
+  "DIGIKEY_CLIENT_ID": [
+   "backend/agents/component_spec_lookup.py",
+   "backend/scripts/test_digikey_debug_fix.py"
+  ],
+  "DIGIKEY_CLIENT_SECRET": [
+   "backend/agents/component_spec_lookup.py",
+   "backend/scripts/test_digikey_debug_fix.py"
+  ],
+  "MOUSER_API_KEY": [
+   "backend/agents/component_spec_lookup.py"
+  ],
+  "DEBUG_DIGIKEY_PARAMS": [
+   "backend/agents/component_spec_lookup.py",
+   "backend/scripts/test_digikey_debug_fix.py"
+  ],
+  "LAYA_CONTRADICTION_PREFILTER": [
+   "backend/agents/contradiction_prefilter.py"
+  ],
+  "LAYA_CONTRADICTION_DROP_THRESHOLD": [
+   "backend/agents/contradiction_prefilter.py"
+  ],
+  "SKILL_SELF_IMPROVE_TIMEOUT_SECONDS": [
+   "backend/agents/generic_worker.py"
+  ],
+  "LAYA_OVERLAP_ARBITRATION": [
+   "backend/agents/overlapping_checker.py"
+  ],
+  "LAYA_OVERLAP_THRESHOLD": [
+   "backend/agents/overlapping_checker.py"
+  ],
+  "PAGESPEED_API_KEY": [
+   "backend/agents/pagespeed_agent.py"
+  ],
+  "E2B_API_KEY": [
+   "backend/agents/sandbox_tester.py",
+   "backend/tests/manual/test_e2b.py"
+  ],
+  "GROQ_API_KEY_9": [
+   "backend/agents/structure_architect.py"
+  ],
+  "GROQ_API_KEY": [
+   "backend/agents/structure_architect.py",
+   "backend/tests/manual/test_capability_coverage.py",
+   "backend/tests/manual/test_groq.py",
+   "backend/tests/manual/test_tool_calling.py"
+  ],
+  "SUPABASE_URL": [
+   "backend/api/deps.py",
+   "backend/scripts/get_test_jwt.py"
+  ],
+  "SUPABASE_JWT_SECRET": [
+   "backend/api/deps.py",
+   "backend/eo/devices.py"
+  ],
+  "SUPABASE_SERVICE_ROLE_KEY": [
+   "backend/api/deps.py",
+   "backend/scripts/get_test_jwt.py"
+  ],
+  "GOOGLE_OAUTH_CLIENT_ID": [
+   "backend/api/routes/workspace_data.py"
+  ],
+  "GOOGLE_OAUTH_CLIENT_SECRET": [
+   "backend/api/routes/workspace_data.py"
+  ],
+  "GOOGLE_OAUTH_REDIRECT_URI": [
+   "backend/api/routes/workspace_data.py"
+  ],
+  "FRONTEND_URL": [
+   "backend/api/routes/workspace_data.py"
+  ],
+  "APP_THREAD_POOL_SIZE": [
+   "backend/api/server.py"
+  ],
+  "SENTRY_DSN": [
+   "backend/api/server.py"
+  ],
+  "ENVIRONMENT": [
+   "backend/api/server.py"
+  ],
+  "SENTRY_TRACES_SAMPLE_RATE": [
+   "backend/api/server.py"
+  ],
+  "ALLOWED_ORIGINS": [
+   "backend/api/server.py",
+   "backend/eo/devices.py"
+  ],
+  "ALLOWED_ORIGIN_REGEX": [
+   "backend/api/server.py"
+  ],
+  "HUGGINGFACE_API_KEY": [
+   "backend/check_hf_embedding.py"
+  ],
+  "RUN_BUFFER_SECRET": [
+   "backend/codeagent/buffer.py"
+  ],
+  "RUN_BUFFER_KEY_ID": [
+   "backend/codeagent/buffer.py"
+  ],
+  "RUN_BUFFER_PREVIOUS_SECRETS": [
+   "backend/codeagent/buffer.py"
+  ],
+  "DATABASE_URL": [
+   "backend/conn_timing.py",
+   "backend/eo/db.py"
+  ],
+  "AGENT_TASK_POOL_SIZE": [
+   "backend/eo/agent_task_pool.py"
+  ],
+  "AGENT_TASK_MAX_QUEUE_DEPTH": [
+   "backend/eo/agent_task_pool.py"
+  ],
+  "AGENT_TASK_WALL_CLOCK_DEADLINE_SECONDS": [
+   "backend/eo/agent_task_pool.py"
+  ],
+  "AGENT_TASK_DEADLINE_GRACE_SECONDS": [
+   "backend/eo/agent_task_pool.py"
+  ],
+  "CHAT_PAGE_CACHE_SIMPLE_HEURISTIC": [
+   "backend/eo/chat_page_cache.py"
+  ],
+  "AFTER_SEQ_MAX_ROWS": [
+   "backend/eo/chat_store.py"
+  ],
+  "CONVERSATION_TTL_SECONDS": [
+   "backend/eo/conversation_memory.py"
+  ],
+  "CONVERSATION_MEMORY_FILTER_ENABLED": [
+   "backend/eo/conversation_memory.py"
+  ],
+  "CONVERSATION_MEMORY_AMBIGUOUS_LLM_ENABLED": [
+   "backend/eo/conversation_memory.py"
+  ],
+  "CONVERSATION_MAX_THREADS": [
+   "backend/eo/conversation_memory.py"
+  ],
+  "CONVERSATION_THREAD_SIMILARITY_THRESHOLD": [
+   "backend/eo/conversation_memory.py"
+  ],
+  "CONVERSATION_THREAD_ROUTING_ENABLED": [
+   "backend/eo/conversation_memory.py"
+  ],
+  "CREDITS_CONFIG_PATH": [
+   "backend/eo/credits.py"
+  ],
+  "DB_POOL_MIN": [
+   "backend/eo/db.py"
+  ],
+  "DB_POOL_MAX": [
+   "backend/eo/db.py"
+  ],
+  "DB_POOL_GETCONN_TIMEOUT_SECONDS": [
+   "backend/eo/db.py"
+  ],
+  "DEVICE_JWT_SECRET": [
+   "backend/eo/devices.py"
+  ],
+  "DEVICE_VERIFICATION_URL": [
+   "backend/eo/devices.py"
+  ],
+  "INTEGRATIONS_ENCRYPTION_KEY": [
+   "backend/eo/integrations.py"
+  ],
+  "LAYA_MODEL": [
+   "backend/eo/laya_gate.py"
+  ],
+  "LAYA_LOAD_RETRY_SECONDS": [
+   "backend/eo/laya_gate.py"
+  ],
+  "LAYA_DECISION_LOG": [
+   "backend/eo/laya_gate.py"
+  ],
+  "LAYA_DECISION_LOG_MAX_MB": [
+   "backend/eo/laya_gate.py"
+  ],
+  "LAYA_PANEL_PREGATE": [
+   "backend/eo/laya_routing.py"
+  ],
+  "LAYA_PANEL_PREGATE_THRESHOLD": [
+   "backend/eo/laya_routing.py"
+  ],
+  "LAYA_GATEKEEPER_PREGATE": [
+   "backend/eo/laya_routing.py"
+  ],
+  "LAYA_GATEKEEPER_PREGATE_THRESHOLD": [
+   "backend/eo/laya_routing.py"
+  ],
+  "MINIME_PAIRING_TOKEN": [
+   "backend/eo/local_workspace.py",
+   "daemon/config.py"
+  ],
+  "MCP_SERVERS_CONFIG_PATH": [
+   "backend/eo/mcp_registry.py"
+  ],
+  "PLANS_CONFIG_PATH": [
+   "backend/eo/plans.py"
+  ],
+  "TAVILY_API_KEY": [
+   "backend/eo/quota_sentinel.py",
+   "backend/tests/unit/test_eo_quota_sentinel.py"
+  ],
+  "ROLE_LIBRARY_SCOPE": [
+   "backend/eo/registry.py"
+  ],
+  "TASK_TOKEN_BUDGET": [
+   "backend/eo/run_guard.py"
+  ],
+  "TASK_TOKEN_HARD_FACTOR": [
+   "backend/eo/run_guard.py"
+  ],
+  "TASK_MAX_CONSECUTIVE_FAILURES": [
+   "backend/eo/run_guard.py"
+  ],
+  "TASK_MAX_TOTAL_FAILURES": [
+   "backend/eo/run_guard.py"
+  ],
+  "SGA_SYSTEM_VERSION": [
+   "backend/eo/semantic_cache.py"
+  ],
+  "LAYA_SGA_PREGATE": [
+   "backend/eo/sga.py"
+  ],
+  "LAYA_SGA_PREGATE_THRESHOLD": [
+   "backend/eo/sga.py"
+  ],
+  "DEFAULT_TOOL_CALL_BUDGET": [
+   "backend/eo/tool_budget.py"
+  ],
+  "LANGFUSE_PUBLIC_KEY": [
+   "backend/eo/tracing.py"
+  ],
+  "LANGFUSE_SECRET_KEY": [
+   "backend/eo/tracing.py"
+  ],
+  "UPSTASH_REDIS_REST_URL": [
+   "backend/memory/bus.py",
+   "backend/scripts/check_upstash.py",
+   "backend/tests/manual/test_upstash.py"
+  ],
+  "UPSTASH_REDIS_REST_TOKEN": [
+   "backend/memory/bus.py",
+   "backend/scripts/check_upstash.py",
+   "backend/tests/manual/test_upstash.py"
+  ],
+  "UPSTASH_VECTOR_REST_URL": [
+   "backend/memory/bus.py",
+   "backend/scripts/check_upstash.py"
+  ],
+  "UPSTASH_VECTOR_REST_TOKEN": [
+   "backend/memory/bus.py",
+   "backend/scripts/check_upstash.py"
+  ],
+  "PUSHER_APP_ID": [
+   "backend/relay/emitter.py"
+  ],
+  "PUSHER_KEY": [
+   "backend/relay/emitter.py"
+  ],
+  "PUSHER_SECRET": [
+   "backend/relay/emitter.py"
+  ],
+  "PUSHER_CLUSTER": [
+   "backend/relay/emitter.py"
+  ],
+  "MINIME_TEST_DATABASE_URL": [
+   "backend/tests/canary/harness.py",
+   "backend/tests/integration/test_codeagent_pg.py",
+   "backend/tests/integration/test_devices_pg.py",
+   "backend/tests/integration/test_hello_run_pg.py",
+   "backend/tests/integration/test_run_manager_pg.py",
+   "backend/tests/integration/test_runs_pg.py",
+   "backend/tests/integration/test_usage_ledger_pg.py",
+   "backend/tests/integration/test_workspace_code_files_pg.py"
+  ],
+  "MINIME_TEST_SCAN_DATABASE_URL": [
+   "backend/tests/canary/harness.py"
+  ],
+  "M2C_HOME": [
+   "backend/tests/canary/harness.py",
+   "m2c/tests/auth/test_auth_credentials.py",
+   "m2c/tests/headless/test_headless_wiring.py",
+   "m2c/tests/headless/test_session_setup.py",
+   "m2c/tests/test_cli_trust.py",
+   "m2c/tests/tools/test_tools_shell_sandbox.py",
+   "m2c/tests/trust/test_trust_protected.py",
+   "m2c/tests/trust/test_trust_store.py"
+  ],
+  "EO_INSPECTOR_GROQ_KEY_1": [
+   "backend/tests/integration/test_eo_inspector.py"
+  ],
+  "TOOL_TEST_REPEATS": [
+   "backend/tests/manual/test_capability_coverage.py",
+   "backend/tests/manual/test_tool_calling.py"
+  ],
+  "GROQ_API_KEY_2": [
+   "backend/tests/manual/test_groq2.py"
+  ],
+  "OPENROUTER_TEST_KEY_ENV": [
+   "backend/tests/manual/test_openrouter.py"
+  ],
+  "PATH": [
+   "backend/tests/static/test_canary_ci_install.py",
+   "m2c/src/m2c/sandbox/bwrap.py",
+   "m2c/src/m2c/tools/search.py",
+   "m2c/tests/auth/test_auth_credentials.py",
+   "m2c/tests/auth/test_auth_redaction.py",
+   "m2c/tests/headless/headless_rig.py",
+   "m2c/tests/tools/test_tools_shell.py"
+  ],
+  "MINIME_REPO_ROOT": [
+   "backend/tests/unit/test_part14_retirement.py"
+  ],
+  "LLM_RATE_LIMIT_COOLDOWN_MIN": [
+   "backend/utils/llm_client.py"
+  ],
+  "LLM_RATE_LIMIT_COOLDOWN_MAX": [
+   "backend/utils/llm_client.py"
+  ],
+  "LLM_ZERO_QUOTA_COOLDOWN": [
+   "backend/utils/llm_client.py"
+  ],
+  "LLM_CHAIN_EXHAUSTION_WAIT_SECONDS": [
+   "backend/utils/llm_client.py"
+  ],
+  "EXA_API_KEY": [
+   "backend/utils/web_search.py"
+  ],
+  "MINIME_ALLOWED_ROOT": [
+   "daemon/config.py"
+  ],
+  "MINIME_BACKEND_WS_URL": [
+   "daemon/config.py"
+  ],
+  "MINIME_WORKSPACE_ID": [
+   "daemon/config.py"
+  ],
+  "MINIME_PREVIEW_TARGET": [
+   "daemon/config.py"
+  ],
+  "MINIME_FRONTEND_ORIGIN": [
+   "daemon/config.py"
+  ],
+  "MINIME_PREVIEW_PORT": [
+   "daemon/config.py"
+  ],
+  "NEXT_PUBLIC_API_URL": [
+   "frontend/app/components/MessageBubble.jsx",
+   "frontend/app/components/PendingActionBar.jsx",
+   "frontend/app/context/ChatListContext.jsx",
+   "frontend/app/context/SessionContext.jsx",
+   "frontend/app/context/WorkspaceDockContext.jsx",
+   "frontend/app/context/WorkspacesContext.jsx",
+   "frontend/app/hooks/useDaemonStatus.js",
+   "frontend/app/lib/notebookCapabilities.js"
+  ],
+  "NEXT_PUBLIC_LANGFUSE_PROJECT_ID": [
+   "frontend/app/components/TracesPanel.jsx"
+  ],
+  "NEXT_PUBLIC_LANGFUSE_BASE_URL": [
+   "frontend/app/components/TracesPanel.jsx"
+  ],
+  "NEXT_PUBLIC_CHAT_TOOL_CALLING_ENABLED": [
+   "frontend/app/components/WorkspaceChatPanel.jsx"
+  ],
+  "NEXT_PUBLIC_PUSHER_KEY": [
+   "frontend/app/lib/pusherClient.js"
+  ],
+  "NEXT_PUBLIC_PUSHER_CLUSTER": [
+   "frontend/app/lib/pusherClient.js"
+  ],
+  "NEXT_PUBLIC_SUPABASE_URL": [
+   "frontend/app/lib/supabaseClient.js",
+   "frontend/app/lib/supabaseServer.js",
+   "frontend/middleware.js"
+  ],
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY": [
+   "frontend/app/lib/supabaseClient.js",
+   "frontend/app/lib/supabaseServer.js",
+   "frontend/middleware.js"
+  ],
+  "NEXT_PUBLIC_SENTRY_DSN": [
+   "frontend/instrumentation-client.js",
+   "frontend/sentry.edge.config.js",
+   "frontend/sentry.server.config.js"
+  ],
+  "NEXT_RUNTIME": [
+   "frontend/instrumentation.js"
+  ],
+  "SENTRY_ORG": [
+   "frontend/next.config.js"
+  ],
+  "SENTRY_PROJECT": [
+   "frontend/next.config.js"
+  ],
+  "SENTRY_AUTH_TOKEN": [
+   "frontend/next.config.js"
+  ],
+  "MPLBACKEND": [
+   "frontend/public/workers/pyodideWorker.js"
+  ],
+  "HOME": [
+   "m2c/src/m2c/sandbox/bwrap.py",
+   "m2c/tests/headless/test_headless_wiring.py",
+   "m2c/tests/headless/test_session_setup.py",
+   "m2c/tests/runner/runner_rig.py",
+   "m2c/tests/sandbox/test_net_real_sandbox.py",
+   "m2c/tests/sandbox/test_sandbox_escape.py",
+   "m2c/tests/sandbox/test_sandbox_shell_regression.py",
+   "m2c/tests/tools/test_tools_shell.py",
+   "m2c/tests/trust/test_trust_protected.py"
+  ],
+  "XDG_RUNTIME_DIR": [
+   "m2c/src/m2c/sandbox/netproxy.py"
+  ],
+  "NO_COLOR": [
+   "m2c/src/m2c/tui/app.py"
+  ],
+  "M2C_TEST_SANDBOX": [
+   "m2c/tests/conftest.py",
+   "m2c/tests/tools/test_tools_shell.py"
+  ],
+  "HTTPS_PROXY": [
+   "m2c/tests/sandbox/test_net_real_sandbox.py"
+  ],
+  "HTTP_PROXY": [
+   "m2c/tests/sandbox/test_net_real_sandbox.py"
+  ],
+  "SECRET_KEY": [
+   "m2c/tests/secret_handling/secret_fakes.py",
+   "m2c/tests/secret_handling/test_secrets_detectors.py"
+  ],
+  "API_KEY": [
+   "m2c/tests/secret_handling/secret_fakes.py"
+  ]
+ },
+ "git": {
+  "head": "3727ae3"
+ },
+ "meta": {
+  "generated": "2026-11-19T01:17:50"
+ },
+ "files": [
+  {
+   "path": ".github/scripts/test_check_skips.py",
+   "test": true
+  },
+  {
+   "path": "backend/agents/test_writer.py",
+   "test": true
+  },
+  {
+   "path": "backend/evals/promptfoo/tests/_template.yaml",
+   "test": true
+  },
+  {
+   "path": "backend/evals/promptfoo/tests/asserts/output_organizer_asserts.py",
+   "test": true
+  },
+  {
+   "path": "backend/evals/promptfoo/tests/contradiction_detector.yaml",
+   "test": true
+  },
+  {
+   "path": "backend/evals/promptfoo/tests/output_organizer.yaml",
+   "test": true
+  },
+  {
+   "path": "backend/scripts/seed_tier2_test.py",
+   "test": true
+  },
+  {
+   "path": "backend/scripts/test_all_keys.py",
+   "test": true
+  },
+  {
+   "path": "backend/scripts/test_digikey_debug_fix.py",
+   "test": true
+  },
+  {
+   "path": "backend/scripts/test_generation_notifications.py",
+   "test": true
+  },
+  {
+   "path": "backend/scripts/test_proactive_suggestions.py",
+   "test": true
+  },
+  {
+   "path": "backend/scripts/test_topic_covered_sources.py",
+   "test": true
+  },
+  {
+   "path": "backend/scripts/test_topic_related_notes.py",
+   "test": true
+  },
+  {
+   "path": "backend/scripts/test_topic_scoped_grounding.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/__init__.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/canary/README.md",
+   "test": true
+  },
+  {
+   "path": "backend/tests/canary/__init__.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/canary/conftest.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/canary/harness.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/canary/scanners.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/canary/skip-allowlist.txt",
+   "test": true
+  },
+  {
+   "path": "backend/tests/canary/test_no_content_at_rest.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/canary/test_scanner_selftest.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/conftest.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/__init__.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/hello_testkit.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_brief_writer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_code_writers_pool.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_codeagent_pg.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_devices_pg.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_dynamic_chain_redundancy_gate.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_eo_inspector.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_eo_panel.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_event_emission.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_export_import.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_file_manager.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_fixer_pool.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_gatekeeper.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_generic_worker_legacy_roles.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_hello_logging.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_hello_run_e2e.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_hello_run_pg.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_inspector_diversity.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_key_override.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_loop_v4_laya_panel_gate.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_loop_v4_tier0.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_loop_v4_tier3.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_openrouter_regression.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_parallel_execution.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_pii_scrub_ingestors.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_reliability_overhaul_gate.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_report_writer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_resume_graph.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_reviewer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_run_manager_pg.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_runs_pg.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_sandbox_tester.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_security_scanner.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_staff_task_e2e.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_structure_architect.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_test_writer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_usage_ledger_hook.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_usage_ledger_pg.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_usage_logging.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/integration/test_workspace_code_files_pg.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/manual/__init__.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/manual/cassettes/README.md",
+   "test": true
+  },
+  {
+   "path": "backend/tests/manual/conftest.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/manual/smoke_tool_calling.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/manual/test_capability_coverage.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/manual/test_e2b.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/manual/test_groq.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/manual/test_groq2.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/manual/test_openrouter.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/manual/test_tool_calling.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/manual/test_upstash.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/__init__.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_broker_logging.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_buffer_logging.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_canary_ci_install.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_codeagent_logging.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_devices_migration.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_emitter_logging.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_event_type_coverage.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_loop_logging.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_metering_static.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_protocol_runtime.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_router_logging.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_run_handlers_logging.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_run_manager_logging.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_runs_migration.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_server_installs_broker.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_server_installs_run_handlers.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_sql_grants.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_usage_ledger_call_sites.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/static/test_wiring_logging.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/__init__.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/buffer_testkit.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/codeagent_testkit.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/devices_testkit.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/loop_testkit.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/metering_testkit.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/run_manager_testkit.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/runs_testkit.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_academic_search.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_architecture_diagrammer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_backlink_detector.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_calendar_agent.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_citation_graph_builder.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_code_editor.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_code_editor_elements.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_code_writer_lean.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_concept_linker.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_content_adapter_pool.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_contradiction_prefilter.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_correction_locator.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_dataset_analyst.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_dependency_mapper.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_deploy_agent.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_deploy_config_writer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_documentation_agent.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_duplication_checker.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_extraction_table_builder.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_fact_detector.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_handoff_packager.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_idea_planner.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_memory_search.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_mind_mapper.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_note_clusterer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_note_table_builder.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_output_organizer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_overlapping_checker.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_pagespeed_agent.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_performance_reviewer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_podcast_scriptwriter.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_prompt_writer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_prompt_writer_lean.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_rehearsal_scriptwriter.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_responder.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_reviewer_fixer_lean.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_schema_diagrammer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_security_aggregator.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_slide_deck_planner.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_source_ingestor.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_source_manager_exec.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_source_manager_prep.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_source_planner_lean.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_source_quality_flagger.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_study_generator.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_topic_note_writer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_tts_synthesizer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_video_ingestor.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_video_overview_builder.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_web_clipper.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_agent_workflow_suggester.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_api_mcp_routes.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_api_middleware.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_api_routes_code_edit_wireframe.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_api_routes_code_runs.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_api_routes_deploy_propose.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_api_routes_devices.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_api_routes_stream_ticket.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_api_routes_user_profile.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_cli_api_symmetry.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_adapter.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_broker.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_broker_wiring.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_buffer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_connections.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_context.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_emitter.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_hello.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_interact_catalog.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_leave_plan_mode.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_loop.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_loop_tools_gate.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_metering.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_prompts.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_protocol_runtime.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_router.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_run_handlers.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_run_manager.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_run_resume.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_run_turns.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_runs.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_toolcalls.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_wiring.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_wiring_flow.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_ws.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_codeagent_ws_failclosed.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_component_dimension_table.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_component_spec_lookup_datasheet.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_concurrency_gate_neurons.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_credits.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_device_archetype.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_dynamic_chain_cross_org_redundancy.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_dynamic_chain_headroom_score.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_dynamic_chain_rank_by_headroom.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_enclosure_spec_cutouts.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_agent_dependencies.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_audit_log.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_capabilities.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_capability_entries.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_chat_store.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_chat_workspace.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_code_edit_apply.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_code_element_context.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_code_findings.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_code_loader.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_code_proposals_deploy.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_code_proposals_wireframe.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_code_style_rules.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_concurrency_gate.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_conversation_memory.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_correction_candidates.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_data_store.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_datasheet_cache.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_devices.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_devices_credential.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_dispatcher.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_executor.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_fact_summarizer.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_graph_edges.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_injection_guard.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_integrations.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_introspection.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_knowledge_graph.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_laya_gate.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_laya_routing.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_local_workspace.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_local_workspace_tools.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_local_workspace_tools_mcp_gate.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_loop_controller.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_mcp_agent_tools.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_mcp_client.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_mcp_registry.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_memory_batch.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_modes.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_node_summaries.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_note_candidates.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_notify.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_output_guard.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_panel_content.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_prerequisite_suggestions.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_price_cache.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_product_tier_map.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_project_registry.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_quiz_progress.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_quota_sentinel.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_redaction_guard.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_registry_role_library.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_research_cache.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_result_render.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_role_marketplace.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_role_scope.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_rolling_summary.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_rolling_summary_b10.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_router.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_router_parallel_groups.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_routing_memory.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_scratchpad.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_secondary_data.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_semantic_cache.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_sga.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_skill_library.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_source_index.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_spec_cache.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_study_progress.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_tags.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_timeline_node_blurbs.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_tool_budget.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_tracing.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_user_profile.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_user_profile_b5.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_worker_pool.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_workspace_code_files.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_workspace_facts.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eo_ws_registry.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_eval_output_organizer_provider.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_hardware_speccer_pricing.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_hw_reference.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_llm_errors.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_access.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_balance.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_cutouts.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_device.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_dfm.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_enclosure.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_ergonomics.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_manufacturability.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_material.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_primitive_composition.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_primitive_pool.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_repair.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_section_pool.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_sections.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_subsection_pool.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_subsections.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_supports.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_swept_volume.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_thermal.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_validator.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_mech_wiring_weight.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_memory_bus.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_namespacing.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_part14_retirement.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_pin_resolution_gate.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_planner.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_plans.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_price_outlier_flagging.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_protocol_contract.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_rate_ledger_neurons.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_registry.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_resolve_role.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_router.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_seed_bootstrap.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_shrink_structured_list.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_stream_tickets.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_task_routes_full_payload.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_usage_context.py",
+   "test": true
+  },
+  {
+   "path": "backend/tests/unit/test_usage_ledger.py",
+   "test": true
+  },
+  {
+   "path": "daemon/tests/__init__.py",
+   "test": true
+  },
+  {
+   "path": "daemon/tests/test_config.py",
+   "test": true
+  },
+  {
+   "path": "daemon/tests/test_config_preview.py",
+   "test": true
+  },
+  {
+   "path": "daemon/tests/test_minime_daemon_preview.py",
+   "test": true
+  },
+  {
+   "path": "daemon/tests/test_path_guard.py",
+   "test": true
+  },
+  {
+   "path": "daemon/tests/test_preview_proxy.py",
+   "test": true
+  },
+  {
+   "path": "frontend/app/components/__tests__/buildTab.boardRace.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/components/__tests__/buildTab.promoteGuard.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/components/__tests__/wiringGraph.linkFilter.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/components/workbench/__tests__/PreviewPane.python.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/hooks/__tests__/pyodideVersionLockstep.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/hooks/__tests__/pyodideWorker.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/__tests__/devices.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/__tests__/latestRequest.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/__tests__/streamTicket.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/__tests__/usage.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/preview/__tests__/bundleStatic.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/preview/__tests__/consoleBridge.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/preview/__tests__/detectKind.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/preview/__tests__/inspectorRuntime.external.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/preview/__tests__/inspectorRuntime.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/preview/__tests__/instrument.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/preview/__tests__/mmInspectorFile.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/preview/__tests__/mmRange.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/preview/__tests__/previewUrl.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/preview/__tests__/reactBundle.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/preview/__tests__/sourceRef.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/preview/__tests__/urlBridge.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/preview/__tests__/wireframeInspect.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/aiUndo.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/aiUpdates.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/codeContext.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/codeProposals.wireframe.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/deployProposal.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/editorStore.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/elementRef.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/explorerOps.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/fileIcons.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/fileProviders.parseErrorDetail.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/fileTree.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/formatOnSave.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/instructionStep.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/layoutPrefs.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/loadSource.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/localFolderRemoved.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/problems.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/projectSearch.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/proposalRefs.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/pulse.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/quickOpen.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/reviewMode.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/savePrefs.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/tabUtils.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/terminalRemoved.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/usageSites.test.mjs",
+   "test": true
+  },
+  {
+   "path": "frontend/app/lib/workbench/__tests__/wireframeCode.test.mjs",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/auth/auth_fixtures.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/auth/mock_server.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/auth/test_auth_cli.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/auth/test_auth_credentials.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/auth/test_auth_login.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/auth/test_auth_redaction.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/auth/test_auth_token.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/conftest.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/context/context_helpers.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/context/test_context_assemble.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/context/test_context_instructions.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/context/test_context_memory.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/context/test_context_rules.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/headless/headless_rig.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/headless/test_headless_core.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/headless/test_headless_exit_codes.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/headless/test_headless_process.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/headless/test_headless_tools.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/headless/test_headless_wiring.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/headless/test_headless_wiring_process.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/headless/test_session_setup.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/headless/wiring_rig.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/interact/test_interact_question.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/interact/test_interact_schema_match.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/interact/test_interact_tasks.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/link/link_fakes.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/link/test_link_deps.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/link/test_link_golden.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/link/test_link_handshake.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/link/test_link_logging.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/link/test_link_reconnect.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/link/test_link_requests.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/link/test_link_resume.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/link/test_link_shutdown.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/policy/policy_helpers.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/policy/test_policy_decide_table.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/policy/test_policy_interact.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/policy/test_policy_invariants.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/policy/test_policy_modes.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/policy/test_policy_review_findings.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/policy/test_policy_robustness.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/policy/test_policy_rules.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/policy/test_policy_shellparse.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/runner/runner_rig.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/runner/test_runner_audit_logging.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/runner/test_runner_checkpoints.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/runner/test_runner_flow.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/runner/test_runner_headless.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/runner/test_runner_interact.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/runner/test_runner_interact_headless.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/runner/test_runner_ordering.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/sandbox/test_net_doctor.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/sandbox/test_net_probe.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/sandbox/test_net_real_sandbox.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/sandbox/test_netbridge.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/sandbox/test_netpolicy_prompt.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/sandbox/test_netpolicy_rules.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/sandbox/test_netproxy.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/sandbox/test_netservice.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/sandbox/test_sandbox_bwrap.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/sandbox/test_sandbox_doctor.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/sandbox/test_sandbox_escape.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/sandbox/test_sandbox_probe.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/sandbox/test_sandbox_profile.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/sandbox/test_sandbox_shell_regression.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/secret_handling/secret_fakes.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/secret_handling/test_secrets_corpus.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/secret_handling/test_secrets_detectors.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/secret_handling/test_secrets_env.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/secret_handling/test_secrets_memory.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/secret_handling/test_secrets_runner.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/secret_handling/test_secrets_stream.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_checkpoints.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_checkpoints_crash.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_cli.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_cli_trust.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_config.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_config_server_url.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_doctor.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_logging_setup.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_paths.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_repl.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_store_crash.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_store_db.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_store_events.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_store_migrations.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/test_store_sessions.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tools/conftest.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tools/test_tools_files.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tools/test_tools_path_guard_port.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tools/test_tools_paths.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tools/test_tools_run_tool.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tools/test_tools_search.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tools/test_tools_shell.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tools/test_tools_shell_dispatch.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tools/test_tools_shell_network.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tools/test_tools_shell_sandbox.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tools/tools_fixtures.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/trust/test_trust_fingerprint.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/trust/test_trust_prompt.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/trust/test_trust_protected.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/trust/test_trust_state.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/trust/test_trust_store.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/test_tui_app_e2e.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/test_tui_approval.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/test_tui_cli.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/test_tui_complete.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/test_tui_diff.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/test_tui_grant.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/test_tui_history.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/test_tui_keys.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/test_tui_network_prompt.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/test_tui_render.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/test_tui_safe.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/test_tui_session.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/test_tui_status.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/test_tui_trust.py",
+   "test": true
+  },
+  {
+   "path": "m2c/tests/tui/tui_rig.py",
+   "test": true
+  },
+  {
+   "path": "scripts/test_codebase_census.py",
+   "test": true
+  },
+  {
+   "path": "backend.Dockerfile"
+  },
+  {
+   "path": "docker-compose.dev.yml"
+  },
+  {
+   "path": "docker-compose.yml"
+  },
+  {
+   "path": "frontend.Dockerfile"
+  }
+ ]
+}

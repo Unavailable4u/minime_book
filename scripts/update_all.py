@@ -30,9 +30,13 @@ What it runs, in order, stopping at the first problem:
                                                  or when content/config.json says "embedSource": false
     6. refresh_protocol.py --minime <MiniMe>     the M2C contract (protocol/v1 schemas, tools, fixtures), the M2C package map and
                                                  the decision records, read from git at the census commit into data/code/protocol.json
-    7. both scripts with --check (refresh_atlas.py --check covers the search index and data/code too), notes.py ingest --check,
-       notes.py validate, refresh_source.py --check and refresh_protocol.py --check, and the unit tests, to prove nothing is left stale
-    8. with --push: git add, commit and push
+    7. refresh_schema.py                         the data model (data/code/schema.json), read from the SQL that step 5 embedded. It runs after
+                                                 the census and the source so it describes the same commit; without embedded source it falls
+                                                 back to what the census recorded and says so. (infra.json is written by step 2.)
+    8. both scripts with --check (refresh_atlas.py --check covers the search index, data/code/infra.json and the rest of data/code too),
+       refresh_schema.py --check, notes.py ingest --check, notes.py validate, refresh_source.py --check and refresh_protocol.py --check,
+       and the unit tests, to prove nothing is left stale
+    9. with --push: git add, commit and push
 
 Standard library only (the census itself needs tree-sitter and PyYAML, see --install-deps).
 """
@@ -126,9 +130,11 @@ def main(argv=None):
 
     protocol = [PY, "scripts/refresh_protocol.py", "--minime", minime]
     run(*protocol)                         # fails (and says why) if MiniMe has no protocol/v1 at the census commit
+    run(PY, "scripts/refresh_schema.py")   # P18: the data model; reads data/src (or the census when the source is not embedded)
 
     print("\n== Verifying nothing is stale ==")
     run(PY, "scripts/refresh_atlas.py", "--check")
+    run(PY, "scripts/refresh_schema.py", "--check")
     run(*(graph + ["--check"] + (["--allow-stale-graph"] if args.allow_stale_graph else [])))
     run(*(notes + ["--check"]))
     run(PY, "scripts/notes.py", "validate")
@@ -151,6 +157,8 @@ def main(argv=None):
     run(PY, "scripts/test_chapter_links.py")
     run(PY, "scripts/test_codepages.py")
     run(PY, "scripts/test_refresh_protocol.py")
+    run(PY, "scripts/test_dataviews.py")
+    run(PY, "scripts/test_refresh_schema.py")
     run(PY, "scripts/test_todo_api.py")
 
     print("\n== Result ==")

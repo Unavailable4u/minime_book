@@ -22,12 +22,14 @@ was originally built from -- that is how every renderer below was validated):
     code       file table                      functions   function table
     history    KPIs, calendar, monthly lines, weekdays, biggest commits, latest commits
     map        treemap data
-    infra      services, Dockerfiles, CI pipeline, dependencies, environment variables
     explore    file, function and route search data
     data/code/routes.json   (P17) every route with handler, deps, response model and router, for api.html. The "callers" half (which
                             frontend files call a route) is written by refresh_graph.py; each script keeps the other's half.
     data/code/agents.json   (P17) agent modules, roles and provider key slots, for agents.html. api.html and agents.html are shells
                             that assets/js/api.js and agents.js draw from these two files.
+    data/code/infra.json    (P18) compose services, Dockerfiles, CI jobs, dependency manifests and every environment variable read in
+                            code, for infra.html (a shell that assets/js/infra.js draws). The data model page has its own script,
+                            scripts/refresh_schema.py, which writes data/code/schema.json.
     data/index/stats.json   the live numbers the shared shell shows (sidebar counts, snapshot chip)
     data/index/vitals.json  the "census" half of the Overview's numbers (KPIs, languages, commits per month, areas,
                             largest / most-changed / most complex, docstring coverage, the directory table counts).
@@ -64,8 +66,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 G = lambda f, k: f.get(k) or []
 fmt = lambda n: f"{n:,}"
-esc = lambda s: _html.escape(s, quote=True)          # most pages escape quotes ...
-esc_nq = lambda s: _html.escape(s, quote=False)      # ... infra does not
+esc = lambda s: _html.escape(s, quote=True)
 
 
 # ------------------------------------------------------------------ html helpers
@@ -589,70 +590,92 @@ def build_agents(c):
             "providers": [{"name": n, "slots": sorted(s)} for n, s in sorted(by_provider.items())]}
 
 
-# ------------------------------------------------------------------------- infra
-def infra_services(c):
-    cards = []
-    for s in c["docker_compose"]:
-        built = "Built from its Dockerfile" if s.get("build") else (f"Image {esc_nq(s['image'])}" if s.get("image") else "")
-        pills = "".join(f'<span class="pill">port {esc_nq(p)}</span>' for p in s.get("ports", []))
-        pills += "".join(f'<span class="pill">needs {esc_nq(d)}</span>' for d in s.get("depends_on", []))
-        pills += "".join(f'<span class="pill">{esc_nq(e)}</span>' for e in s.get("env_names", []))
-        cards.append(f'<div class="card"><h3 style="margin-top:0">{esc_nq(s["name"])}</h3><p class="l">{built}</p>{pills}</div>')
-    for name, d in c["dockerfiles"].items():
-        pills = "".join(f'<span class="pill">{esc_nq(x)}</span>' for x in d.get("from", []))
-        port = (d["expose"][0] if d.get("expose") else "").strip()
-        cmd = (d["cmd"][0] if d.get("cmd") else "").strip()
-        cards.append(f'<div class="card"><h3 style="margin-top:0">{esc_nq(name)}</h3>{pills}<p class="l" style="margin:8px 0 0">Port {esc_nq(port)} · starts with <code>{esc_nq(cmd)}</code></p></div>')
-    return '<h2>Services</h2><div class="grid g2">' + "".join(cards) + "</div>"
+# ------------------------------------------------------------------------- infra (P18)
+# infra.html is a shell now: assets/js/infra.js draws it from data/code/infra.json. There is no regex renderer left for it.
+#     services (docker-compose), Dockerfiles, CI jobs, dependency manifests and every environment variable the code reads,
+#     with the files that read it and the .env.example file and comment that document it. Names only: no value of any
+#     variable is in the census, so none can be in this file.
+INFRA_REL = "data/code/infra.json"
+SHA_PIN = re.compile(r"@([0-9a-f]{40})$")
+
+
+def _file_set(c):
+    return {f["path"] for f in c.get("files", [])}
 
 
 def infra_ci(c):
-    cards = []
-    for wf in c["ci"].values():
-        for j in wf["jobs"]:
-            steps = "".join(f'<li>{esc_nq(re.sub(r"@[0-9a-f]{40}$", "", st)[:70])}</li>' for st in j.get("steps", []))
-            cards.append(f'<div class="card"><h3 style="margin-top:0">{esc_nq(j.get("name") or j["id"])}</h3><ol class="l" style="margin:0;padding-left:18px;font-size:12.5px">{steps}</ol></div>')
-    return '<h2>CI pipeline</h2><div class="grid">' + "".join(cards) + "</div>"
+    """Every workflow: its jobs and their steps. A step pinned to a commit (`actions/checkout@<40 hex>`) keeps the short pin apart."""
+    out = []
+    for path, wf in c.get("ci", {}).items():
+        jobs = []
+        for j in wf.get("jobs", []):
+            steps = []
+            for st in j.get("steps", []):
+                m = SHA_PIN.search(st)
+                steps.append({"text": SHA_PIN.sub("", st), **({"pin": m.group(1)[:7]} if m else {})})
+            jobs.append({"id": j["id"], "name": j.get("name") or j["id"], "steps": steps})
+        out.append({"file": path, "name": wf.get("name") or path, "triggers": list(wf.get("triggers") or []), "jobs": jobs})
+    return out
+
+
+def infra_dockerfiles(c):
+    have = _file_set(c)
+    out = []
+    for name, d in c.get("dockerfiles", {}).items():
+        out.append({"name": name, "file": name if name in have else None, "stages": [x.strip() for x in d.get("from", [])],
+                    "expose": [x.strip() for x in d.get("expose", [])], "cmd": (d.get("cmd") or [""])[0].strip()})
+    return out
 
 
 def infra_deps(c):
-    d = c["dependencies"]
-    back, front, daemon = d["backend/requirements.txt"], d["frontend/package.json"], d["daemon/requirements.txt"]
-    pill = lambda n, s: f'<span class=pill>{esc_nq(n)} <span style=color:#6d6b66>{esc_nq(s[:12])}</span></span>'
-    qpill = lambda n, s: f'<span class="pill">{esc_nq(n)} <span style="color:#6d6b66">{esc_nq(s[:12])}</span></span>'
-    left = f'<div class="card"><h3 style="margin-top:0">Backend ({len(back)})</h3>' + "".join(pill(x["name"], x["spec"]) for x in back) + "</div>"
-    right = ('<div class="card"><h3 style="margin-top:0">Frontend</h3>' + "".join(qpill(k, v) for k, v in front["dependencies"].items())
-             + "<h3>Dev tools</h3>" + "".join(qpill(k, v) for k, v in front.get("devDependencies", {}).items())
-             + f"<h3>Daemon ({len(daemon)})</h3>" + "".join(f'<span class=pill>{esc_nq(x["name"])}</span>' for x in daemon) + "</div>")
-    return '<h2>Dependencies</h2><div class="grid g2">' + left + right + "</div>"
+    """One entry per dependency manifest the census read. A manifest the census kept only the head of (pyproject.toml) is listed as not parsed."""
+    out = []
+    for path, d in c.get("dependencies", {}).items():
+        if isinstance(d, list):
+            out.append({"file": path, "kind": "requirements", "parsed": True, "groups": [{"title": "requirements", "items": [{"name": x["name"], "spec": x.get("spec", "")} for x in d]}]})
+        elif isinstance(d, dict) and ("dependencies" in d or "devDependencies" in d):
+            groups = [{"title": g, "items": [{"name": k, "spec": v} for k, v in d[g].items()]} for g in ("dependencies", "devDependencies") if d.get(g)]
+            rec = {"file": path, "kind": "package.json", "parsed": True, "groups": groups}
+            if d.get("name"):
+                rec["name"] = d["name"]
+            out.append(rec)
+        else:
+            out.append({"file": path, "kind": "pyproject.toml" if path.endswith(".toml") else "manifest", "parsed": False, "groups": []})
+    return out
 
 
-def env_rows(c):
-    examples = {e["name"] for v in c["env_examples"].values() for e in v}
+def infra_env(c):
+    """Every environment variable read in code: [{name, files, test_files, documented_in, comment?}], most-used first (ties keep the census order)."""
+    tests = {f["path"] for f in c.get("files", []) if f.get("test")}
+    docs, comments = {}, {}
+    for path, vs in c.get("env_examples", {}).items():
+        for v in vs:
+            docs.setdefault(v["name"], []).append(path)
+            if v.get("comment") and v["name"] not in comments:
+                comments[v["name"]] = v["comment"].strip()
     rows = []
-    for name, files in c["env_usage"].items():
-        first = files[0]
-        rows.append([name, len(files), first.replace("backend/", "", 1) if first.startswith("backend/") else first, "yes" if name in examples else "no"])
-    rows.sort(key=lambda r: -r[1])   # stable: ties keep the census's own order
+    for name, files in c.get("env_usage", {}).items():
+        rec = {"name": name, "files": list(files), "test_files": [f for f in files if f in tests], "documented_in": docs.get(name, [])}
+        if name in comments:
+            rec["comment"] = comments[name]
+        rows.append(rec)
+    rows.sort(key=lambda r: -len(r["files"]))   # stable: ties keep the census's own order
     return rows
 
 
-def _between(html, a, b, new):
-    i = html.find(a)
-    j = html.find(b, i)
-    if i < 0 or j < 0:
-        raise KeyError(f"section {a!r}..{b!r} not found")
-    tail = "\n" if html[j - 1:j] == "\n" else ""
-    return html[:i] + new + tail + html[j:]
-
-
-def refresh_infra(html, c):
-    html = _between(html, "<h2>Services</h2>", "<h2>CI pipeline</h2>", infra_services(c))
-    html = _between(html, "<h2>CI pipeline</h2>", "<h2>Dependencies</h2>", infra_ci(c))
-    html = _between(html, "<h2>Dependencies</h2>", "<h2>Environment variables", infra_deps(c))
-    rows = env_rows(c)
-    html = replace_literal(html, "ROWS=", json.dumps(rows))
-    return sub_once(html, r"Environment variables used in code \([\d,]+\)", f"Environment variables used in code ({fmt(len(rows))})")
+def build_infra(c):
+    """infra.json from the census (schema 1)."""
+    used = set(c.get("env_usage", {}))
+    unused = []
+    for path, vs in c.get("env_examples", {}).items():
+        for v in vs:
+            if v["name"] not in used:
+                unused.append({"name": v["name"], "file": path, **({"comment": v["comment"].strip()} if v.get("comment") else {})})
+    compose = sorted(p for p in _file_set(c) if "/" not in p and re.fullmatch(r"docker-compose[\w.-]*\.ya?ml", p))
+    services = [{"name": s["name"], "image": s.get("image"), "build": bool(s.get("build")), "ports": list(s.get("ports") or []),
+                 "depends_on": list(s.get("depends_on") or []), "env_names": list(s.get("env_names") or [])} for s in c.get("docker_compose", [])]
+    return {"schema": DATA_SCHEMA, "commit": c["git"]["head"], "generated": c["meta"]["generated"][:10], "compose_files": compose, "services": services,
+            "dockerfiles": infra_dockerfiles(c), "ci": infra_ci(c), "dependencies": infra_deps(c), "env": infra_env(c), "env_unused_examples": unused}
 
 
 # ----------------------------------------------------------------------- explore
@@ -687,7 +710,7 @@ def refresh_explore(html, c):
 # ------------------------------------------------------------------------ driver
 PAGES = {                               # index.html is not here any more: it is a shell that overview.js fills from data/index/vitals.json
     "code": refresh_code, "functions": refresh_functions, "history": refresh_history,
-    "map": refresh_map, "infra": refresh_infra, "explore": refresh_explore,
+    "map": refresh_map, "explore": refresh_explore,
 }
 
 
@@ -737,8 +760,8 @@ def refresh_all(root, census):
     old, crlf = read_lf(stp) if stp.exists() else (None, False)
     if new != old:
         changes[stp] = to_native(new, crlf)
-    for rel, new in ((ROUTES_REL, json_text(build_routes(census, read_json(root, ROUTES_REL)))), (AGENTS_REL, json_text(build_agents(census)))):
-        p = root / rel                                                 # P17: what api.html and agents.html draw
+    for rel, new in ((ROUTES_REL, json_text(build_routes(census, read_json(root, ROUTES_REL)))), (AGENTS_REL, json_text(build_agents(census))), (INFRA_REL, json_text(build_infra(census)))):
+        p = root / rel                                                 # P17 / P18: what api.html, agents.html and infra.html draw
         old, crlf = read_lf(p) if p.exists() else (None, False)
         if new != old:
             changes[p] = to_native(new, crlf)

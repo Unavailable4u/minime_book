@@ -1,0 +1,7080 @@
+{
+ "commit": "3727ae3",
+ "drift": {
+  "in_dump_not_in_migrations": [],
+  "in_migrations_not_in_dump": [
+   "public.device_pairings",
+   "public.devices",
+   "public.runs",
+   "public.usage_ledger",
+   "public.user_plans"
+  ]
+ },
+ "dump_files": [
+  "scripts/auth.sql",
+  "scripts/public.sql",
+  "scripts/realtime.sql",
+  "scripts/storage.sql",
+  "scripts/vault.sql"
+ ],
+ "generated": "2026-11-19",
+ "migrations": [
+  {
+   "adds_columns": [
+    {
+     "column": "show_attribution",
+     "table": "public.workspaces"
+    },
+    {
+     "column": "stage",
+     "table": "public.workspaces"
+    },
+    {
+     "column": "stage_history",
+     "table": "public.workspaces"
+    },
+    {
+     "column": "active_stages",
+     "table": "public.workspaces"
+    },
+    {
+     "column": "role",
+     "table": "public.workspace_members"
+    },
+    {
+     "column": "can_toggle_attribution",
+     "table": "public.workspace_members"
+    }
+   ],
+   "creates": [
+    "public.audit_log",
+    "public.batch_members",
+    "public.batches",
+    "public.chats",
+    "public.user_integrations",
+    "public.workspace_members",
+    "public.workspace_owner_votes",
+    "public.workspace_panel_content",
+    "public.workspaces"
+   ],
+   "file": "backend/migrations/0000_base_schema.sql",
+   "functions": [],
+   "id": "0000",
+   "indexes": 12,
+   "policies": 0,
+   "summary": "WHAT THIS FILE IS. The schema that existed BEFORE migration 0001: the statements that were run by hand in the Supabase SQL editor (Dashboard -> SQL Editor) during the original build-out, \"Part 8.2\" through \"Part 8.6\" plus the stage model…",
+   "title": "base schema",
+   "touches": [],
+   "triggers": 0
+  },
+  {
+   "adds_columns": [
+    {
+     "column": "source_node_ids",
+     "table": "public.workspace_panel_content"
+    }
+   ],
+   "creates": [],
+   "file": "backend/migrations/0001_add_panel_content_source_node_ids.sql",
+   "functions": [],
+   "id": "0001",
+   "indexes": 0,
+   "policies": 0,
+   "summary": "Bug audit #2's real fix: workspace_panel_content rows don't currently record which source nodes fed into a given generation, so the delete cascade in api/server.py (delete_workspace_node) has no way to tell which saved panels a given…",
+   "title": "add panel content source node ids",
+   "touches": [
+    "public.workspace_panel_content"
+   ],
+   "triggers": 0
+  },
+  {
+   "adds_columns": [],
+   "creates": [
+    "public.chat_messages"
+   ],
+   "file": "backend/migrations/0002_add_chat_messages_table.sql",
+   "functions": [],
+   "id": "0002",
+   "indexes": 2,
+   "policies": 0,
+   "summary": "Perf audit item #1: eo/chat_store.py's append_message() currently rewrites the ENTIRE chats.messages JSONB array on every single message -- SELECT ... FOR UPDATE the whole array, deserialize it in Python, append one item, re-serialize the…",
+   "title": "add chat messages table",
+   "touches": [],
+   "triggers": 0
+  },
+  {
+   "adds_columns": [],
+   "creates": [],
+   "file": "backend/migrations/0003_rls_policies.sql",
+   "functions": [],
+   "id": "0003",
+   "indexes": 0,
+   "policies": 4,
+   "summary": "A1 — real per-user RLS. eo/db.py's original docstring (see git blame on that file) documented this table's-eye view of where things stood after 8.2: RLS was enabled on every table but had no policies, and the only thing stopping one…",
+   "title": "rls policies",
+   "touches": [
+    "public.audit_log",
+    "public.batch_members",
+    "public.batches",
+    "public.chat_messages",
+    "public.chats",
+    "public.user_integrations",
+    "public.workspace_members",
+    "public.workspace_owner_votes",
+    "public.workspace_panel_content",
+    "public.workspaces"
+   ],
+   "triggers": 0
+  },
+  {
+   "adds_columns": [],
+   "creates": [],
+   "file": "backend/migrations/0004_fix_workspace_members_recursion.sql",
+   "functions": [
+    "_current_uid",
+    "_is_workspace_member",
+    "_trusted_internal"
+   ],
+   "id": "0004",
+   "indexes": 0,
+   "policies": 6,
+   "summary": "Fixes a real bug in 0003: workspace_members_scope's own USING clause queries workspace_members (aliased wm2) to check membership. But that inner query is ITSELF subject to workspace_members_scope (RLS applies to every query against the…",
+   "title": "fix workspace members recursion",
+   "touches": [
+    "public.chat_messages",
+    "public.chats",
+    "public.workspace_members",
+    "public.workspace_owner_votes",
+    "public.workspace_panel_content",
+    "public.workspaces"
+   ],
+   "triggers": 0
+  },
+  {
+   "adds_columns": [
+    {
+     "column": "content_source",
+     "table": "public.workspace_panel_content"
+    }
+   ],
+   "creates": [],
+   "file": "backend/migrations/0005_add_panel_content_source.sql",
+   "functions": [],
+   "id": "0005",
+   "indexes": 0,
+   "policies": 0,
+   "summary": "Patch 4: workspace_panel_content rows don't currently record HOW a panel got its content -- a manual paste-and-Load (api/routes/ workspace_data.py's put_workspace_panel_content) and an automatic chat-to-panel write (eo/panel_content.py's…",
+   "title": "add panel content source",
+   "touches": [
+    "public.workspace_panel_content"
+   ],
+   "triggers": 0
+  },
+  {
+   "adds_columns": [],
+   "creates": [
+    "public.workspace_code_files"
+   ],
+   "file": "backend/migrations/0006_add_workspace_code_files.sql",
+   "functions": [],
+   "id": "0006",
+   "indexes": 1,
+   "policies": 1,
+   "summary": "Master Guide V2 step 16 (T3), patch 8: the Code sub-tab's backend persistence layer (eo/workspace_code_files.py). Same \"one row per key, per workspace, last-write-wins\" shape workspace_panel_content already has, keyed by file_path instead…",
+   "title": "add workspace code files",
+   "touches": [],
+   "triggers": 0
+  },
+  {
+   "adds_columns": [],
+   "creates": [],
+   "file": "backend/migrations/0007_grant_workspace_code_files.sql",
+   "functions": [],
+   "id": "0007",
+   "indexes": 0,
+   "policies": 0,
+   "summary": "Fixes: psycopg2.errors.InsufficientPrivilege: permission denied for table workspace_code_files, hit on the Code sub-tab's very first GET .../code/files call.",
+   "title": "grant workspace code files",
+   "touches": [],
+   "triggers": 0
+  },
+  {
+   "adds_columns": [],
+   "creates": [
+    "public.llm_call_log"
+   ],
+   "file": "backend/migrations/0008_add_llm_call_log.sql",
+   "functions": [],
+   "id": "0008",
+   "indexes": 3,
+   "policies": 1,
+   "summary": "Cost-per-task + latency logging. utils/llm_client.py's log_usage() / _log_usage() already write usage:{provider}:{key_id}:{date} to Upstash on every real chat-completion call -- a TTL'd (2 days), incrementing DAILY counter keyed by…",
+   "title": "add llm call log",
+   "touches": [],
+   "triggers": 0
+  },
+  {
+   "adds_columns": [
+    {
+     "column": "version",
+     "table": "public.workspace_code_files"
+    }
+   ],
+   "creates": [
+    "public.workspace_code_file_versions"
+   ],
+   "file": "backend/migrations/0009_code_file_versions.sql",
+   "functions": [],
+   "id": "0009",
+   "indexes": 0,
+   "policies": 1,
+   "summary": "W1.1 (MiniMe Build Workbench plan, step 16 follow-up): version history + optimistic conflict detection for workspace_code_files (migration 0006). Today every write -- a person's own Save via api/routes/code.py's PUT, and the tier-3…",
+   "title": "code file versions",
+   "touches": [
+    "public.workspace_code_files"
+   ],
+   "triggers": 0
+  },
+  {
+   "adds_columns": [],
+   "creates": [
+    "public.workspace_code_proposals"
+   ],
+   "file": "backend/migrations/0010_code_proposals.sql",
+   "functions": [],
+   "id": "0010",
+   "indexes": 1,
+   "policies": 1,
+   "summary": "W5.1 (Build Workbench plan, step 197): the pending-review store behind \"select code / Add to chat / Edit mode\" (W4.1/W4.2) turning into a Copilot-style Keep/Undo diff (W5.3/W5.4). A proposal is created by POST .../code/proposals…",
+   "title": "code proposals",
+   "touches": [],
+   "triggers": 0
+  },
+  {
+   "adds_columns": [],
+   "creates": [
+    "public.workspace_code_findings"
+   ],
+   "file": "backend/migrations/0011_code_findings.sql",
+   "functions": [],
+   "id": "0011",
+   "indexes": 0,
+   "policies": 1,
+   "summary": "W8.3a (Build Workbench plan, backend half of the Problems panel): a per-file store for the findings the tier-3 pipeline already produces -- sandbox_tester's failing test runs (KEYS[\"test_results\"]) and security_scanner/static_scan's…",
+   "title": "code findings",
+   "touches": [],
+   "triggers": 0
+  },
+  {
+   "adds_columns": [],
+   "creates": [
+    "public.usage_ledger",
+    "public.user_plans"
+   ],
+   "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+   "functions": [],
+   "id": "0012",
+   "indexes": 3,
+   "policies": 5,
+   "summary": "S01 (shared usage ledger and plan limits): the billing foundation the Tech-A/B roadmap and the M2C/Menux build plans all assume exists. Two tables:",
+   "title": "user plans and usage ledger",
+   "touches": [],
+   "triggers": 0
+  },
+  {
+   "adds_columns": [],
+   "creates": [
+    "public.device_pairings",
+    "public.devices"
+   ],
+   "file": "backend/migrations/0013_m2c_devices.sql",
+   "functions": [
+    "device_pairings_guard_delete",
+    "device_pairings_guard_update",
+    "devices_guard_update"
+   ],
+   "id": "0013",
+   "indexes": 2,
+   "policies": 4,
+   "summary": "S03 (device pairing and credentials): the server-side registry behind the M2C device-code login (`m2c login`). Two tables:",
+   "title": "m2c devices",
+   "touches": [],
+   "triggers": 3
+  },
+  {
+   "adds_columns": [],
+   "creates": [
+    "public.runs"
+   ],
+   "file": "backend/migrations/0014_m2c_runs.sql",
+   "functions": [
+    "runs_guard_update"
+   ],
+   "id": "0014",
+   "indexes": 3,
+   "policies": 3,
+   "summary": "S06 (run manager, ephemeral buffer, run metadata): the server-side record of an M2C run. One table:",
+   "title": "m2c runs",
+   "touches": [],
+   "triggers": 1
+  }
+ ],
+ "relations": [
+  {
+   "cols": [
+    "user_id"
+   ],
+   "from": "auth.identities",
+   "origin": "dump",
+   "to": "auth.users",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "session_id"
+   ],
+   "from": "auth.mfa_amr_claims",
+   "origin": "dump",
+   "to": "auth.sessions",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "factor_id"
+   ],
+   "from": "auth.mfa_challenges",
+   "origin": "dump",
+   "to": "auth.mfa_factors",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "user_id"
+   ],
+   "from": "auth.mfa_factors",
+   "origin": "dump",
+   "to": "auth.users",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "mfa_factor_id"
+   ],
+   "from": "auth.mfa_recovery_code_sets",
+   "origin": "dump",
+   "to": "auth.mfa_factors",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "user_id"
+   ],
+   "from": "auth.mfa_recovery_code_sets",
+   "origin": "dump",
+   "to": "auth.users",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "mfa_recovery_code_set_id"
+   ],
+   "from": "auth.mfa_recovery_codes",
+   "origin": "dump",
+   "to": "auth.mfa_recovery_code_sets",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "client_id"
+   ],
+   "from": "auth.oauth_authorizations",
+   "origin": "dump",
+   "to": "auth.oauth_clients",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "user_id"
+   ],
+   "from": "auth.oauth_authorizations",
+   "origin": "dump",
+   "to": "auth.users",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "client_id"
+   ],
+   "from": "auth.oauth_consents",
+   "origin": "dump",
+   "to": "auth.oauth_clients",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "user_id"
+   ],
+   "from": "auth.oauth_consents",
+   "origin": "dump",
+   "to": "auth.users",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "user_id"
+   ],
+   "from": "auth.one_time_tokens",
+   "origin": "dump",
+   "to": "auth.users",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "session_id"
+   ],
+   "from": "auth.refresh_tokens",
+   "origin": "dump",
+   "to": "auth.sessions",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "sso_provider_id"
+   ],
+   "from": "auth.saml_providers",
+   "origin": "dump",
+   "to": "auth.sso_providers",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "flow_state_id"
+   ],
+   "from": "auth.saml_relay_states",
+   "origin": "dump",
+   "to": "auth.flow_state",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "sso_provider_id"
+   ],
+   "from": "auth.saml_relay_states",
+   "origin": "dump",
+   "to": "auth.sso_providers",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "sso_provider_id"
+   ],
+   "from": "auth.scim_tokens",
+   "origin": "dump",
+   "to": "auth.sso_providers",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "sso_provider_id"
+   ],
+   "from": "auth.scim_users",
+   "origin": "dump",
+   "to": "auth.sso_providers",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "user_id"
+   ],
+   "from": "auth.scim_users",
+   "origin": "dump",
+   "to": "auth.users",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "oauth_client_id"
+   ],
+   "from": "auth.sessions",
+   "origin": "dump",
+   "to": "auth.oauth_clients",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "user_id"
+   ],
+   "from": "auth.sessions",
+   "origin": "dump",
+   "to": "auth.users",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "sso_provider_id"
+   ],
+   "from": "auth.sso_domains",
+   "origin": "dump",
+   "to": "auth.sso_providers",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "user_id"
+   ],
+   "from": "auth.webauthn_challenges",
+   "origin": "dump",
+   "to": "auth.users",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "user_id"
+   ],
+   "from": "auth.webauthn_credentials",
+   "origin": "dump",
+   "to": "auth.users",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "batch_id"
+   ],
+   "from": "public.batch_members",
+   "on_delete": "cascade",
+   "origin": "both",
+   "to": "public.batches",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "chat_id"
+   ],
+   "from": "public.batch_members",
+   "on_delete": "cascade",
+   "origin": "both",
+   "to": "public.chats",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "owner_id"
+   ],
+   "from": "public.batches",
+   "on_delete": "cascade",
+   "origin": "both",
+   "to": "auth.users",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "chat_id"
+   ],
+   "from": "public.chat_messages",
+   "on_delete": "cascade",
+   "origin": "both",
+   "to": "public.chats",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "owner_id"
+   ],
+   "from": "public.chats",
+   "on_delete": "cascade",
+   "origin": "both",
+   "to": "auth.users",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "workspace_id"
+   ],
+   "from": "public.chats",
+   "on_delete": "set null",
+   "origin": "both",
+   "to": "public.workspaces",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "workspace_id"
+   ],
+   "from": "public.workspace_code_file_versions",
+   "on_delete": "cascade",
+   "origin": "both",
+   "to": "public.workspaces",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "workspace_id"
+   ],
+   "from": "public.workspace_code_files",
+   "on_delete": "cascade",
+   "origin": "both",
+   "to": "public.workspaces",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "workspace_id",
+    "file_path"
+   ],
+   "from": "public.workspace_code_findings",
+   "on_delete": "cascade",
+   "origin": "migrations",
+   "to": "public.workspace_code_files",
+   "to_cols": [
+    "workspace_id",
+    "file_path"
+   ]
+  },
+  {
+   "cols": [
+    "workspace_id"
+   ],
+   "from": "public.workspace_code_proposals",
+   "on_delete": "cascade",
+   "origin": "both",
+   "to": "public.workspaces",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "user_id"
+   ],
+   "from": "public.workspace_members",
+   "on_delete": "cascade",
+   "origin": "both",
+   "to": "auth.users",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "workspace_id"
+   ],
+   "from": "public.workspace_members",
+   "on_delete": "cascade",
+   "origin": "both",
+   "to": "public.workspaces",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "workspace_id"
+   ],
+   "from": "public.workspace_owner_votes",
+   "on_delete": "cascade",
+   "origin": "both",
+   "to": "public.workspaces",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "workspace_id"
+   ],
+   "from": "public.workspace_panel_content",
+   "on_delete": "cascade",
+   "origin": "both",
+   "to": "public.workspaces",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "owner_id"
+   ],
+   "from": "public.workspaces",
+   "on_delete": "cascade",
+   "origin": "both",
+   "to": "auth.users",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "bucket_id"
+   ],
+   "from": "storage.objects",
+   "origin": "dump",
+   "to": "storage.buckets",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "bucket_id"
+   ],
+   "from": "storage.s3_multipart_uploads",
+   "origin": "dump",
+   "to": "storage.buckets",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "bucket_id"
+   ],
+   "from": "storage.s3_multipart_uploads_parts",
+   "origin": "dump",
+   "to": "storage.buckets",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "upload_id"
+   ],
+   "from": "storage.s3_multipart_uploads_parts",
+   "origin": "dump",
+   "to": "storage.s3_multipart_uploads",
+   "to_cols": [
+    "id"
+   ]
+  },
+  {
+   "cols": [
+    "bucket_id"
+   ],
+   "from": "storage.vector_indexes",
+   "origin": "dump",
+   "to": "storage.buckets_vectors",
+   "to_cols": [
+    "id"
+   ]
+  }
+ ],
+ "schema": 1,
+ "schemas": [
+  {
+   "file": "scripts/public.sql",
+   "name": "public",
+   "tables": 15
+  },
+  {
+   "file": "scripts/auth.sql",
+   "name": "auth",
+   "tables": 27
+  },
+  {
+   "file": "scripts/realtime.sql",
+   "name": "realtime",
+   "tables": 3
+  },
+  {
+   "file": "scripts/storage.sql",
+   "name": "storage",
+   "tables": 8
+  },
+  {
+   "file": "scripts/vault.sql",
+   "name": "vault",
+   "tables": 1
+  }
+ ],
+ "source": "src",
+ "tables": [
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "bigserial"
+    },
+    {
+     "name": "user_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "action",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "target_type",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "target_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "'{}'::jsonb",
+     "name": "detail",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "backend/migrations/0000_base_schema.sql",
+   "created_line": 164,
+   "indexes": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "name": "audit_log_user_id_idx",
+     "on": "user_id, created_at desc",
+     "unique": false
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "name": "audit_log_target_idx",
+     "on": "target_type, target_id, created_at desc",
+     "unique": false
+    }
+   ],
+   "key": "public.audit_log",
+   "name": "audit_log",
+   "origin": "both",
+   "pk": [
+    "id"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "name": "audit_log_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/audit_log.py"
+    ],
+    "sql": [
+     "backend/migrations/0003_rls_policies.sql"
+    ],
+    "tests": [
+     "backend/tests/static/test_sql_grants.py",
+     "backend/tests/unit/test_eo_audit_log.py",
+     "backend/tests/unit/test_eo_chat_store.py",
+     "backend/tests/unit/test_eo_integrations.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "index"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "policy"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "fk": {
+      "col": "id",
+      "on_delete": "cascade",
+      "to": "public.batches"
+     },
+     "name": "batch_id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "fk": {
+      "col": "id",
+      "on_delete": "cascade",
+      "to": "public.chats"
+     },
+     "name": "chat_id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    }
+   ],
+   "created_in": "backend/migrations/0000_base_schema.sql",
+   "created_line": 101,
+   "fks": [
+    {
+     "cols": [
+      "batch_id"
+     ],
+     "on_delete": "cascade",
+     "to": "public.batches",
+     "to_cols": [
+      "id"
+     ]
+    },
+    {
+     "cols": [
+      "chat_id"
+     ],
+     "on_delete": "cascade",
+     "to": "public.chats",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "indexes": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "name": "idx_batch_members_chat",
+     "on": "chat_id",
+     "unique": false
+    }
+   ],
+   "key": "public.batch_members",
+   "name": "batch_members",
+   "origin": "both",
+   "pk": [
+    "batch_id",
+    "chat_id"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "name": "batch_members_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/memory_batch.py"
+    ],
+    "sql": [
+     "backend/migrations/0003_rls_policies.sql"
+    ],
+    "tests": [
+     "backend/tests/unit/test_eo_memory_batch.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "index"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "policy"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "name": "name",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "fk": {
+      "col": "id",
+      "on_delete": "cascade",
+      "to": "auth.users"
+     },
+     "name": "owner_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "backend/migrations/0000_base_schema.sql",
+   "created_line": 93,
+   "fks": [
+    {
+     "cols": [
+      "owner_id"
+     ],
+     "on_delete": "cascade",
+     "to": "auth.users",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "indexes": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "name": "idx_batches_owner",
+     "on": "owner_id",
+     "unique": false
+    }
+   ],
+   "key": "public.batches",
+   "name": "batches",
+   "origin": "both",
+   "pk": [
+    "id"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "name": "batches_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/memory_batch.py"
+    ],
+    "sql": [
+     "backend/migrations/0003_rls_policies.sql"
+    ],
+    "tests": [
+     "backend/tests/unit/test_eo_memory_batch.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "index"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "policy"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "default": "'New Chat'",
+     "name": "title",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "fk": {
+      "col": "id",
+      "on_delete": "cascade",
+      "to": "auth.users"
+     },
+     "name": "owner_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "fk": {
+      "col": "id",
+      "on_delete": "set null",
+      "to": "public.workspaces"
+     },
+     "name": "workspace_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "false",
+     "name": "is_private",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "default": "'{}'",
+     "name": "tags",
+     "notnull": true,
+     "pk": false,
+     "type": "text[]"
+    },
+    {
+     "name": "template_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "'{}'",
+     "name": "linked_chat_ids",
+     "notnull": true,
+     "pk": false,
+     "type": "text[]"
+    },
+    {
+     "default": "'[]'::jsonb",
+     "name": "messages",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "backend/migrations/0000_base_schema.sql",
+   "created_line": 72,
+   "fks": [
+    {
+     "cols": [
+      "owner_id"
+     ],
+     "on_delete": "cascade",
+     "to": "auth.users",
+     "to_cols": [
+      "id"
+     ]
+    },
+    {
+     "cols": [
+      "workspace_id"
+     ],
+     "on_delete": "set null",
+     "to": "public.workspaces",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "indexes": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "name": "idx_chats_owner",
+     "on": "owner_id",
+     "unique": false
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "name": "idx_chats_workspace",
+     "on": "workspace_id",
+     "unique": false
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "name": "idx_chats_updated_at",
+     "on": "updated_at desc",
+     "unique": false
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "name": "idx_chats_template",
+     "on": "template_id",
+     "unique": false
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "name": "idx_chats_tags",
+     "on": "tags",
+     "unique": false
+    }
+   ],
+   "key": "public.chats",
+   "name": "chats",
+   "origin": "both",
+   "pk": [
+    "id"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "name": "chats_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/chat_store.py",
+     "backend/eo/chat_workspace.py",
+     "backend/eo/db.py",
+     "backend/eo/memory_batch.py",
+     "backend/scripts/backfill_chat_messages.py"
+    ],
+    "sql": [
+     "backend/migrations/0002_add_chat_messages_table.sql",
+     "backend/migrations/0003_rls_policies.sql",
+     "backend/migrations/0004_fix_workspace_members_recursion.sql"
+    ],
+    "tests": [
+     "backend/tests/unit/test_eo_chat_store.py",
+     "backend/tests/unit/test_eo_chat_workspace.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "index"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "policy"
+    },
+    {
+     "file": "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "op": "policy"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "bigserial"
+    },
+    {
+     "name": "user_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "provider",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "account_label",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "access_token",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "refresh_token",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "scope",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "expires_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "backend/migrations/0000_base_schema.sql",
+   "created_line": 183,
+   "indexes": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "name": "user_integrations_user_id_idx",
+     "on": "user_id",
+     "unique": false
+    }
+   ],
+   "key": "public.user_integrations",
+   "name": "user_integrations",
+   "origin": "both",
+   "pk": [
+    "id"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "name": "user_integrations_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/integrations.py"
+    ],
+    "sql": [
+     "backend/migrations/0003_rls_policies.sql"
+    ],
+    "tests": [
+     "backend/tests/unit/test_eo_integrations.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "index"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "policy"
+    }
+   ],
+   "unique": [
+    [
+     "user_id",
+     "provider"
+    ]
+   ]
+  },
+  {
+   "checks": [
+    "role in ('viewer', 'editor', 'moderator', 'partner')"
+   ],
+   "columns": [
+    {
+     "fk": {
+      "col": "id",
+      "on_delete": "cascade",
+      "to": "public.workspaces"
+     },
+     "name": "workspace_id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "fk": {
+      "col": "id",
+      "on_delete": "cascade",
+      "to": "auth.users"
+     },
+     "name": "user_id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "default": "now()",
+     "name": "added_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "added_in": "backend/migrations/0000_base_schema.sql",
+     "check": "role in ('viewer', 'editor')",
+     "default": "'viewer'",
+     "name": "role",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "added_in": "backend/migrations/0000_base_schema.sql",
+     "default": "false",
+     "name": "can_toggle_attribution",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    }
+   ],
+   "created_in": "backend/migrations/0000_base_schema.sql",
+   "created_line": 65,
+   "fks": [
+    {
+     "cols": [
+      "workspace_id"
+     ],
+     "on_delete": "cascade",
+     "to": "public.workspaces",
+     "to_cols": [
+      "id"
+     ]
+    },
+    {
+     "cols": [
+      "user_id"
+     ],
+     "on_delete": "cascade",
+     "to": "auth.users",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "public.workspace_members",
+   "name": "workspace_members",
+   "origin": "both",
+   "pk": [
+    "workspace_id",
+    "user_id"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "name": "workspace_members_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/chat_workspace.py"
+    ],
+    "sql": [
+     "backend/migrations/0003_rls_policies.sql",
+     "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "backend/migrations/0006_add_workspace_code_files.sql",
+     "backend/migrations/0009_code_file_versions.sql",
+     "backend/migrations/0010_code_proposals.sql",
+     "backend/migrations/0011_code_findings.sql"
+    ],
+    "tests": [
+     "backend/tests/unit/test_eo_chat_workspace.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "add column"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "constraint"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "policy"
+    },
+    {
+     "file": "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "op": "policy"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "fk": {
+      "col": "id",
+      "on_delete": "cascade",
+      "to": "public.workspaces"
+     },
+     "name": "workspace_id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "name": "voter_id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "vote_target",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "default": "now()",
+     "name": "cast_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "backend/migrations/0000_base_schema.sql",
+   "created_line": 149,
+   "fks": [
+    {
+     "cols": [
+      "workspace_id"
+     ],
+     "on_delete": "cascade",
+     "to": "public.workspaces",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "public.workspace_owner_votes",
+   "name": "workspace_owner_votes",
+   "origin": "both",
+   "pk": [
+    "workspace_id",
+    "voter_id"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "name": "workspace_owner_votes_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/chat_workspace.py"
+    ],
+    "sql": [
+     "backend/migrations/0003_rls_policies.sql",
+     "backend/migrations/0004_fix_workspace_members_recursion.sql"
+    ],
+    "tests": [
+     "backend/tests/unit/test_eo_chat_workspace.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "policy"
+    },
+    {
+     "file": "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "op": "policy"
+    }
+   ]
+  },
+  {
+   "checks": [
+    "content_source in ('manual', 'chat')"
+   ],
+   "columns": [
+    {
+     "fk": {
+      "col": "id",
+      "on_delete": "cascade",
+      "to": "public.workspaces"
+     },
+     "name": "workspace_id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "name": "panel_key",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "default": "''",
+     "name": "content",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_by",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "added_in": "backend/migrations/0001_add_panel_content_source_node_ids.sql",
+     "comment": "Node ids (bare, not the \"node:{ws_id}:{id}\" prefixed vector id) that fed this panel's last generation. NULL has a specific meaning: either \"generated from the whole notebook at the time\" (Regenerate run with no source_node_ids scope) or \"not a source-generated panel at all\" (the manual-paste…",
+     "name": "source_node_ids",
+     "notnull": false,
+     "pk": false,
+     "type": "text[]"
+    },
+    {
+     "added_in": "backend/migrations/0005_add_panel_content_source.sql",
+     "comment": "How this panel's current content was last written: 'manual' for a person's own paste-and-Load save (api/routes/workspace_data.py's put_workspace_panel_content, eo/panel_content.py's set_content() called with its default content_source), or 'chat' for an automatic direct-write from a finished chat…",
+     "default": "'manual'",
+     "name": "content_source",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    }
+   ],
+   "created_in": "backend/migrations/0000_base_schema.sql",
+   "created_line": 223,
+   "fks": [
+    {
+     "cols": [
+      "workspace_id"
+     ],
+     "on_delete": "cascade",
+     "to": "public.workspaces",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "indexes": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "name": "idx_workspace_panel_content_ws",
+     "on": "workspace_id",
+     "unique": false
+    }
+   ],
+   "key": "public.workspace_panel_content",
+   "name": "workspace_panel_content",
+   "origin": "both",
+   "pk": [
+    "workspace_id",
+    "panel_key"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "name": "workspace_panel_content_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/panel_content.py"
+    ],
+    "sql": [
+     "backend/migrations/0001_add_panel_content_source_node_ids.sql",
+     "backend/migrations/0003_rls_policies.sql",
+     "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "backend/migrations/0005_add_panel_content_source.sql"
+    ],
+    "tests": [
+     "backend/tests/unit/test_eo_panel_content.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "index"
+    },
+    {
+     "file": "backend/migrations/0001_add_panel_content_source_node_ids.sql",
+     "op": "add column"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "policy"
+    },
+    {
+     "file": "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "op": "policy"
+    },
+    {
+     "file": "backend/migrations/0005_add_panel_content_source.sql",
+     "op": "add column"
+    },
+    {
+     "file": "backend/migrations/0005_add_panel_content_source.sql",
+     "op": "constraint"
+    }
+   ]
+  },
+  {
+   "checks": [
+    "stage in ('note','research','plan','build','test','growth')"
+   ],
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "name": "name",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "fk": {
+      "col": "id",
+      "on_delete": "cascade",
+      "to": "auth.users"
+     },
+     "name": "owner_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "added_in": "backend/migrations/0000_base_schema.sql",
+     "default": "true",
+     "name": "show_attribution",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "added_in": "backend/migrations/0000_base_schema.sql",
+     "default": "'note'",
+     "name": "stage",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "added_in": "backend/migrations/0000_base_schema.sql",
+     "default": "'[]'::jsonb",
+     "name": "stage_history",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "added_in": "backend/migrations/0000_base_schema.sql",
+     "default": "'[\"note\"]'::jsonb",
+     "name": "active_stages",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    }
+   ],
+   "created_in": "backend/migrations/0000_base_schema.sql",
+   "created_line": 54,
+   "fks": [
+    {
+     "cols": [
+      "owner_id"
+     ],
+     "on_delete": "cascade",
+     "to": "auth.users",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "indexes": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "name": "idx_workspaces_owner",
+     "on": "owner_id",
+     "unique": false
+    }
+   ],
+   "key": "public.workspaces",
+   "name": "workspaces",
+   "origin": "both",
+   "pk": [
+    "id"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "name": "workspaces_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/chat_workspace.py",
+     "backend/eo/panel_content.py",
+     "backend/eo/workspace_code_files.py"
+    ],
+    "sql": [
+     "backend/migrations/0003_rls_policies.sql",
+     "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "backend/migrations/0006_add_workspace_code_files.sql",
+     "backend/migrations/0009_code_file_versions.sql",
+     "backend/migrations/0010_code_proposals.sql",
+     "backend/migrations/0011_code_findings.sql"
+    ],
+    "tests": [
+     "backend/tests/integration/test_workspace_code_files_pg.py",
+     "backend/tests/unit/test_eo_chat_workspace.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "index"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "add column"
+    },
+    {
+     "file": "backend/migrations/0000_base_schema.sql",
+     "op": "constraint"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "policy"
+    },
+    {
+     "file": "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "op": "policy"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "fk": {
+      "col": "id",
+      "on_delete": "cascade",
+      "to": "public.chats"
+     },
+     "name": "chat_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "owner_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "seq",
+     "notnull": true,
+     "pk": false,
+     "type": "bigint"
+    },
+    {
+     "name": "role",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "payload",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "comment": "Normalized per-message rows mirroring chats.messages (see migration 0002 and eo/chat_store.py). Once backfilled and cut over, this replaces the JSONB messages column as the source of truth for chat history. seq (not created_at) is the authoritative order -- see migration comments for why.",
+   "created_in": "backend/migrations/0002_add_chat_messages_table.sql",
+   "created_line": 45,
+   "fks": [
+    {
+     "cols": [
+      "chat_id"
+     ],
+     "on_delete": "cascade",
+     "to": "public.chats",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "indexes": [
+    {
+     "file": "backend/migrations/0002_add_chat_messages_table.sql",
+     "name": "chat_messages_chat_id_seq_idx",
+     "on": "chat_id, seq",
+     "unique": true
+    },
+    {
+     "file": "backend/migrations/0002_add_chat_messages_table.sql",
+     "name": "chat_messages_owner_id_idx",
+     "on": "owner_id",
+     "unique": false
+    }
+   ],
+   "key": "public.chat_messages",
+   "name": "chat_messages",
+   "origin": "both",
+   "pk": [
+    "id"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "name": "chat_messages_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/chat_store.py",
+     "backend/scripts/backfill_chat_messages.py"
+    ],
+    "sql": [
+     "backend/migrations/0003_rls_policies.sql",
+     "backend/migrations/0004_fix_workspace_members_recursion.sql"
+    ],
+    "tests": [
+     "backend/tests/unit/test_eo_chat_store.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0002_add_chat_messages_table.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0002_add_chat_messages_table.sql",
+     "op": "index"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0003_rls_policies.sql",
+     "op": "policy"
+    },
+    {
+     "file": "backend/migrations/0004_fix_workspace_members_recursion.sql",
+     "op": "policy"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "fk": {
+      "col": "id",
+      "on_delete": "cascade",
+      "to": "public.workspaces"
+     },
+     "name": "workspace_id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "name": "file_path",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "default": "''",
+     "name": "content",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "language",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "updated_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_by",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "added_in": "backend/migrations/0009_code_file_versions.sql",
+     "comment": "Current live version number for this file. Bumped by every successful write (write_file()/write_files()/restore_version() in eo/workspace_code_files.py), never reset, never reused. The content that was live AT a past version lives in workspace_code_file_versions, not here -- this row is always the…",
+     "default": "1",
+     "name": "version",
+     "notnull": true,
+     "pk": false,
+     "type": "integer"
+    }
+   ],
+   "comment": "Per-workspace persistence for the Code sub-tab (Build tab). One row per (workspace_id, file_path) -- see eo/workspace_code_files.py for read/write access, and eo/panel_content.py for the sibling pattern this table's shape was copied from.",
+   "created_in": "backend/migrations/0006_add_workspace_code_files.sql",
+   "created_line": 25,
+   "fks": [
+    {
+     "cols": [
+      "workspace_id"
+     ],
+     "on_delete": "cascade",
+     "to": "public.workspaces",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "indexes": [
+    {
+     "file": "backend/migrations/0006_add_workspace_code_files.sql",
+     "name": "workspace_code_files_workspace_id_idx",
+     "on": "workspace_id",
+     "unique": false
+    }
+   ],
+   "key": "public.workspace_code_files",
+   "name": "workspace_code_files",
+   "origin": "both",
+   "pk": [
+    "workspace_id",
+    "file_path"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0006_add_workspace_code_files.sql",
+     "name": "workspace_code_files_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/code_proposals.py",
+     "backend/eo/workspace_code_files.py"
+    ],
+    "sql": [
+     "backend/migrations/0007_grant_workspace_code_files.sql",
+     "backend/migrations/0009_code_file_versions.sql",
+     "backend/migrations/0011_code_findings.sql"
+    ],
+    "tests": [
+     "backend/tests/static/test_sql_grants.py",
+     "backend/tests/unit/test_eo_workspace_code_files.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0006_add_workspace_code_files.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0006_add_workspace_code_files.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0006_add_workspace_code_files.sql",
+     "op": "policy"
+    },
+    {
+     "file": "backend/migrations/0006_add_workspace_code_files.sql",
+     "op": "index"
+    },
+    {
+     "file": "backend/migrations/0009_code_file_versions.sql",
+     "op": "add column"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "session_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "'Agent'",
+     "name": "agent_name",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "provider",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "model",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "key_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "tier",
+     "notnull": false,
+     "pk": false,
+     "type": "smallint"
+    },
+    {
+     "name": "path",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "domain",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "input_tokens",
+     "notnull": false,
+     "pk": false,
+     "type": "integer"
+    },
+    {
+     "name": "output_tokens",
+     "notnull": false,
+     "pk": false,
+     "type": "integer"
+    },
+    {
+     "name": "total_tokens",
+     "notnull": false,
+     "pk": false,
+     "type": "integer"
+    },
+    {
+     "name": "cost_usd",
+     "notnull": false,
+     "pk": false,
+     "type": "numeric(18, 8)"
+    },
+    {
+     "name": "latency_ms",
+     "notnull": false,
+     "pk": false,
+     "type": "integer"
+    },
+    {
+     "name": "finish_reason",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "error",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    }
+   ],
+   "comment": "One row per real agent->LLM chat-completion call (cost-per-task + latency logging). Written by utils/llm_client.py's _record_call_log(), alongside (never instead of) the existing Upstash usage:{provider}:{key_id}:{date} counter log_usage() writes -- that counter still feeds quota_sentinel.py's…",
+   "created_in": "backend/migrations/0008_add_llm_call_log.sql",
+   "created_line": 70,
+   "indexes": [
+    {
+     "file": "backend/migrations/0008_add_llm_call_log.sql",
+     "name": "llm_call_log_session_id_idx",
+     "on": "session_id",
+     "unique": false
+    },
+    {
+     "file": "backend/migrations/0008_add_llm_call_log.sql",
+     "name": "llm_call_log_agent_provider_model_idx",
+     "on": "agent_name, provider, model",
+     "unique": false
+    },
+    {
+     "file": "backend/migrations/0008_add_llm_call_log.sql",
+     "name": "llm_call_log_created_at_idx",
+     "on": "created_at",
+     "unique": false
+    }
+   ],
+   "key": "public.llm_call_log",
+   "name": "llm_call_log",
+   "origin": "both",
+   "pk": [
+    "id"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0008_add_llm_call_log.sql",
+     "name": "llm_call_log_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/utils/llm_client.py"
+    ],
+    "sql": [],
+    "tests": []
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0008_add_llm_call_log.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0008_add_llm_call_log.sql",
+     "op": "index"
+    },
+    {
+     "file": "backend/migrations/0008_add_llm_call_log.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0008_add_llm_call_log.sql",
+     "op": "policy"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "fk": {
+      "col": "id",
+      "on_delete": "cascade",
+      "to": "public.workspaces"
+     },
+     "name": "workspace_id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "name": "file_path",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "name": "version",
+     "notnull": true,
+     "pk": true,
+     "type": "integer"
+    },
+    {
+     "default": "''",
+     "name": "content",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "updated_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_by",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "source in ('user', 'pipeline', 'proposal', 'restore')",
+     "default": "'user'",
+     "name": "source",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    }
+   ],
+   "comment": "One row per PAST version of a workspace_code_files row -- the live/current version is never duplicated in here, only in workspace_code_files itself. Written by eo/workspace_code_files.py's write_file()/write_files()/restore_version() right before they overwrite a row that already existed (a…",
+   "created_in": "backend/migrations/0009_code_file_versions.sql",
+   "created_line": 81,
+   "fks": [
+    {
+     "cols": [
+      "workspace_id"
+     ],
+     "on_delete": "cascade",
+     "to": "public.workspaces",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "public.workspace_code_file_versions",
+   "name": "workspace_code_file_versions",
+   "origin": "both",
+   "pk": [
+    "workspace_id",
+    "file_path",
+    "version"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0009_code_file_versions.sql",
+     "name": "workspace_code_file_versions_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/workspace_code_files.py"
+    ],
+    "sql": [],
+    "tests": [
+     "backend/tests/integration/test_workspace_code_files_pg.py",
+     "backend/tests/static/test_sql_grants.py",
+     "backend/tests/unit/test_eo_workspace_code_files.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0009_code_file_versions.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0009_code_file_versions.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0009_code_file_versions.sql",
+     "op": "policy"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "fk": {
+      "col": "id",
+      "on_delete": "cascade",
+      "to": "public.workspaces"
+     },
+     "name": "workspace_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "session_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "created_by",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "instruction",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "status in ('pending', 'accepted', 'rejected', 'partial', 'stale', 'failed')",
+     "default": "'pending'",
+     "name": "status",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "'[]'::jsonb",
+     "name": "files",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "name": "summary",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "'[]'::jsonb",
+     "name": "refs",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "default": "'{}'::jsonb",
+     "name": "model_meta",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "resolved_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "comment": "W5.1: pending/resolved LLM-proposed code edits for the Build workbench's review flow -- see eo/code_proposals.py for read/write access. A row here never implies workspace_code_files was written; only resolve_proposal() (status leaving 'pending') ever writes real file content, via…",
+   "created_in": "backend/migrations/0010_code_proposals.sql",
+   "created_line": 123,
+   "fks": [
+    {
+     "cols": [
+      "workspace_id"
+     ],
+     "on_delete": "cascade",
+     "to": "public.workspaces",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "indexes": [
+    {
+     "file": "backend/migrations/0010_code_proposals.sql",
+     "name": "workspace_code_proposals_workspace_status_idx",
+     "on": "workspace_id, status, created_at desc",
+     "unique": false
+    }
+   ],
+   "key": "public.workspace_code_proposals",
+   "name": "workspace_code_proposals",
+   "origin": "both",
+   "pk": [
+    "id"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0010_code_proposals.sql",
+     "name": "workspace_code_proposals_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/code_proposals.py"
+    ],
+    "sql": [],
+    "tests": [
+     "backend/tests/unit/test_eo_code_proposals_deploy.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0010_code_proposals.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0010_code_proposals.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0010_code_proposals.sql",
+     "op": "policy"
+    },
+    {
+     "file": "backend/migrations/0010_code_proposals.sql",
+     "op": "index"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "workspace_id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "name": "file_path",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "check": "seq >= 0",
+     "name": "seq",
+     "notnull": true,
+     "pk": true,
+     "type": "integer"
+    },
+    {
+     "check": "line is null or line >= 1",
+     "name": "line",
+     "notnull": false,
+     "pk": false,
+     "type": "integer"
+    },
+    {
+     "check": "severity in ('error', 'warning', 'info')",
+     "name": "severity",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "message",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "source",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "comment": "workspace_code_files.version of the file when this finding was produced. A finding whose file_version differs from the live file's version predates a later write and its line number may no longer be right.",
+     "name": "file_version",
+     "notnull": false,
+     "pk": false,
+     "type": "integer"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "comment": "W8.3a: scan/test findings per code file, normalised to {line, severity, message, source} for the Build workbench's Problems panel. Written by eo/code_findings.py's replace_findings() (called from api/task_runner.py's _write_code_files()), read by GET .../code/findings. A file's findings are always…",
+   "created_in": "backend/migrations/0011_code_findings.sql",
+   "created_line": 76,
+   "fks": [
+    {
+     "cols": [
+      "workspace_id",
+      "file_path"
+     ],
+     "on_delete": "cascade",
+     "to": "public.workspace_code_files",
+     "to_cols": [
+      "workspace_id",
+      "file_path"
+     ]
+    }
+   ],
+   "key": "public.workspace_code_findings",
+   "name": "workspace_code_findings",
+   "origin": "both",
+   "pk": [
+    "workspace_id",
+    "file_path",
+    "seq"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0011_code_findings.sql",
+     "name": "workspace_code_findings_scope"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/code_findings.py"
+    ],
+    "sql": [],
+    "tests": [
+     "backend/tests/unit/test_eo_code_findings.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0011_code_findings.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0011_code_findings.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0011_code_findings.sql",
+     "op": "policy"
+    }
+   ]
+  },
+  {
+   "checks": [
+    "(surface = 'system') = (user_id is null)"
+   ],
+   "columns": [
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "user_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "surface in ('web', 'm2c', 'menux', 'system')",
+     "name": "surface",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "session_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "run_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "provider",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "model",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "input_tokens is null or input_tokens >= 0",
+     "name": "input_tokens",
+     "notnull": false,
+     "pk": false,
+     "type": "integer"
+    },
+    {
+     "check": "cached_input_tokens is null or cached_input_tokens >= 0",
+     "name": "cached_input_tokens",
+     "notnull": false,
+     "pk": false,
+     "type": "integer"
+    },
+    {
+     "check": "output_tokens is null or output_tokens >= 0",
+     "name": "output_tokens",
+     "notnull": false,
+     "pk": false,
+     "type": "integer"
+    },
+    {
+     "check": "credits >= 0",
+     "comment": "Credits charged against the pool. Always set: an unpriced call is charged a conservative fallback (config/plans.json), never zero.",
+     "name": "credits",
+     "notnull": true,
+     "pk": false,
+     "type": "numeric(18, 6)"
+    },
+    {
+     "check": "cost_usd is null or cost_usd >= 0",
+     "comment": "Provider cost in USD, NULL when the provider/model has no price-table entry (a gap, not a free call -- same meaning as llm_call_log.cost_usd).",
+     "name": "cost_usd",
+     "notnull": false,
+     "pk": false,
+     "type": "numeric(18, 8)"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "comment": "S01: one row per real LLM call, per account and per surface, numbers and opaque ids only -- never content. Written by eo/usage_ledger.py (commit), called from utils/llm_client.py beside _record_call_log(), fail-open. \"Used this period\" is SUM(credits) over the period window, not a stored counter.…",
+   "created_in": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+   "created_line": 133,
+   "indexes": [
+    {
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "name": "usage_ledger_user_created_idx",
+     "on": "user_id, created_at desc",
+     "unique": false
+    },
+    {
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "name": "usage_ledger_session_idx",
+     "on": "session_id",
+     "unique": false
+    },
+    {
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "name": "usage_ledger_created_at_idx",
+     "on": "created_at",
+     "unique": false
+    }
+   ],
+   "key": "public.usage_ledger",
+   "name": "usage_ledger",
+   "origin": "migrations",
+   "pk": [
+    "id"
+   ],
+   "policies": [
+    {
+     "cmd": "insert",
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "name": "usage_ledger_insert"
+    },
+    {
+     "cmd": "select",
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "name": "usage_ledger_select"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/codeagent/metering.py",
+     "backend/eo/usage_ledger.py"
+    ],
+    "sql": [],
+    "tests": [
+     "backend/tests/canary/harness.py",
+     "backend/tests/integration/test_hello_run_pg.py",
+     "backend/tests/integration/test_usage_ledger_pg.py",
+     "backend/tests/static/test_sql_grants.py",
+     "backend/tests/unit/test_usage_ledger.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "op": "index"
+    },
+    {
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "op": "policy"
+    }
+   ]
+  },
+  {
+   "checks": [
+    "period_end > period_start"
+   ],
+   "columns": [
+    {
+     "name": "user_id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "default": "'free'",
+     "name": "plan_key",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "credit_pool >= 0",
+     "comment": "Credits available per period for this account. Per-row rather than looked up from plan_key so a support top-up or grant can change one account without changing the plan definition.",
+     "name": "credit_pool",
+     "notnull": true,
+     "pk": false,
+     "type": "numeric(18, 4)"
+    },
+    {
+     "name": "period_start",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "period_end",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "check": "status in ('active', 'past_due', 'canceled')",
+     "default": "'active'",
+     "name": "status",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    }
+   ],
+   "comment": "S01: one row per account -- plan_key (see config/plans.json), the size of its credit pool for the period, and the period window. Absent row = plans.json default plan, calendar-month window (eo/plans.py). Billing events and support adjustments write here; the app only reads it today.",
+   "created_in": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+   "created_line": 80,
+   "key": "public.user_plans",
+   "name": "user_plans",
+   "origin": "migrations",
+   "pk": [
+    "user_id"
+   ],
+   "policies": [
+    {
+     "cmd": "insert",
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "name": "user_plans_insert"
+    },
+    {
+     "cmd": "select",
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "name": "user_plans_select"
+    },
+    {
+     "cmd": "update",
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "name": "user_plans_update"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/plans.py"
+    ],
+    "sql": [],
+    "tests": [
+     "backend/tests/integration/test_usage_ledger_pg.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0012_user_plans_and_usage_ledger.sql",
+     "op": "policy"
+    }
+   ]
+  },
+  {
+   "checks": [
+    "expires_at > created_at",
+    "status not in ('approved', 'consumed') or user_id is not null"
+   ],
+   "columns": [
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "check": "device_code_hash ~ '^[0-9a-f]{64}$'",
+     "name": "device_code_hash",
+     "notnull": true,
+     "pk": false,
+     "type": "text",
+     "unique": true
+    },
+    {
+     "check": "user_code_hash ~ '^[0-9a-f]{64}$'",
+     "name": "user_code_hash",
+     "notnull": true,
+     "pk": false,
+     "type": "text",
+     "unique": true
+    },
+    {
+     "check": "char_length(device_name) between 1 and 64",
+     "name": "device_name",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "char_length(os) between 1 and 64",
+     "name": "os",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "char_length(client_version) between 1 and 32",
+     "name": "client_version",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "status in ('pending', 'approved', 'denied', 'consumed')",
+     "default": "'pending'",
+     "name": "status",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "user_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "expires_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "approved_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "consumed_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "comment": "S03: in-flight device-code logins. Hashes of the device code and user code only (never the codes), the labels the terminal reported, and a status that moves pending -> approved -> consumed (or denied). Expires after about 10 minutes; purged a day later. Trusted-internal access only (eo/devices.py).",
+   "created_in": "backend/migrations/0013_m2c_devices.sql",
+   "created_line": 193,
+   "indexes": [
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "name": "device_pairings_expires_idx",
+     "on": "expires_at",
+     "unique": false
+    }
+   ],
+   "key": "public.device_pairings",
+   "name": "device_pairings",
+   "origin": "migrations",
+   "pk": [
+    "id"
+   ],
+   "policies": [
+    {
+     "cmd": "all",
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "name": "device_pairings_internal"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/devices.py"
+    ],
+    "sql": [],
+    "tests": [
+     "backend/tests/integration/test_devices_pg.py",
+     "backend/tests/static/test_devices_migration.py",
+     "backend/tests/unit/test_eo_devices.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "op": "index"
+    },
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "op": "trigger"
+    },
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "op": "policy"
+    }
+   ],
+   "triggers": [
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "name": "device_pairings_guard_update",
+     "when": "before update"
+    },
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "name": "device_pairings_guard_delete",
+     "when": "before delete"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "user_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "char_length(device_name) between 1 and 64",
+     "name": "device_name",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "char_length(os) between 1 and 64",
+     "name": "os",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "char_length(client_version) between 1 and 32",
+     "name": "client_version",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "credential_hash ~ '^[0-9a-f]{64}$'",
+     "comment": "SHA-256 hex of the device credential. The credential itself is shown to the device once, at pairing, and never stored.",
+     "name": "credential_hash",
+     "notnull": true,
+     "pk": false,
+     "type": "text",
+     "unique": true
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "comment": "Last time the device exchanged its credential for a token (POST /v1/code/devices/token). Not a live-presence signal.",
+     "name": "last_seen_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "comment": "Set when the owner revokes the device. A revoked device can no longer get a token; NULL = active. Permanent: it cannot be cleared or changed. Rows are never deleted.",
+     "name": "revoked_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "comment": "S03: registry of paired M2C devices -- owner, name/OS/client version labels, SHA-256 of the device credential, last-seen and revoked timestamps. No content, no plaintext secrets, no foreign keys (eo/devices.py). Only last_seen_at and revoked_at can change.",
+   "created_in": "backend/migrations/0013_m2c_devices.sql",
+   "created_line": 85,
+   "indexes": [
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "name": "devices_user_created_idx",
+     "on": "user_id, created_at desc",
+     "unique": false
+    }
+   ],
+   "key": "public.devices",
+   "name": "devices",
+   "origin": "migrations",
+   "pk": [
+    "id"
+   ],
+   "policies": [
+    {
+     "cmd": "insert",
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "name": "devices_insert"
+    },
+    {
+     "cmd": "select",
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "name": "devices_select"
+    },
+    {
+     "cmd": "update",
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "name": "devices_update"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/eo/devices.py"
+    ],
+    "sql": [],
+    "tests": [
+     "backend/tests/integration/test_codeagent_pg.py",
+     "backend/tests/integration/test_devices_pg.py",
+     "backend/tests/static/test_devices_migration.py",
+     "backend/tests/unit/test_api_routes_devices.py",
+     "backend/tests/unit/test_eo_devices.py",
+     "backend/tests/unit/test_eo_devices_credential.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "op": "index"
+    },
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "op": "trigger"
+    },
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "op": "policy"
+    }
+   ],
+   "triggers": [
+    {
+     "file": "backend/migrations/0013_m2c_devices.sql",
+     "name": "devices_guard_update",
+     "when": "before update"
+    }
+   ]
+  },
+  {
+   "checks": [
+    "(state in ('completed', 'cancelled', 'failed', 'expired')) = (ended_at is not null)"
+   ],
+   "columns": [
+    {
+     "check": "id ~ '^[A-Za-z0-9_-]{8,64}$'",
+     "comment": "Opaque run id minted by the client in run.start; the same string usage_ledger.run_id carries. Never parsed.",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "name": "user_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "device_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "check": "profile ~ '^[a-z][a-z0-9_-]{0,31}$'",
+     "name": "profile",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "mode ~ '^[a-z][a-z0-9_-]{0,31}$'",
+     "name": "mode",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "state in ( 'created', 'running', 'awaiting_approval', 'completed', 'paused_budget', 'paused_disconnected', 'paused_error', 'cancelled', 'failed', 'expired')",
+     "default": "'created'",
+     "name": "state",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "ended_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "check": "error_code is null or error_code ~ '^[a-z][a-z_]{0,63}$'",
+     "comment": "A protocol/v1 error code (for example quota_exhausted), never a message.",
+     "name": "error_code",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "steps >= 0",
+     "default": "0",
+     "name": "steps",
+     "notnull": true,
+     "pk": false,
+     "type": "integer"
+    },
+    {
+     "check": "credits >= 0",
+     "comment": "Informational running total. usage_ledger (migration 0012) is the metering truth.",
+     "default": "0",
+     "name": "credits",
+     "notnull": true,
+     "pk": false,
+     "type": "numeric"
+    }
+   ],
+   "comment": "S06: content-free metadata of an M2C run -- opaque id, owner, device, profile, mode, state, timestamps, a protocol error code and two counters. No title, prompt, text, path or message column: a run's content lives only in the encrypted Redis buffer (codeagent/buffer.py). Terminal states are final…",
+   "created_in": "backend/migrations/0014_m2c_runs.sql",
+   "created_line": 98,
+   "indexes": [
+    {
+     "file": "backend/migrations/0014_m2c_runs.sql",
+     "name": "runs_device_open_idx",
+     "on": "device_id",
+     "unique": false
+    },
+    {
+     "file": "backend/migrations/0014_m2c_runs.sql",
+     "name": "runs_open_updated_idx",
+     "on": "updated_at",
+     "unique": false
+    },
+    {
+     "file": "backend/migrations/0014_m2c_runs.sql",
+     "name": "runs_open_created_idx",
+     "on": "created_at",
+     "unique": false
+    }
+   ],
+   "key": "public.runs",
+   "name": "runs",
+   "origin": "migrations",
+   "pk": [
+    "id"
+   ],
+   "policies": [
+    {
+     "cmd": "insert",
+     "file": "backend/migrations/0014_m2c_runs.sql",
+     "name": "runs_insert"
+    },
+    {
+     "cmd": "select",
+     "file": "backend/migrations/0014_m2c_runs.sql",
+     "name": "runs_select"
+    },
+    {
+     "cmd": "update",
+     "file": "backend/migrations/0014_m2c_runs.sql",
+     "name": "runs_update"
+    }
+   ],
+   "refs": {
+    "code": [
+     "backend/codeagent/run_manager.py",
+     "backend/codeagent/runs.py"
+    ],
+    "sql": [],
+    "tests": [
+     "backend/tests/canary/test_scanner_selftest.py",
+     "backend/tests/integration/test_run_manager_pg.py",
+     "backend/tests/integration/test_runs_pg.py",
+     "backend/tests/static/test_runs_migration.py"
+    ]
+   },
+   "rls": "forced",
+   "schema": "public",
+   "touched": [
+    {
+     "file": "backend/migrations/0014_m2c_runs.sql",
+     "op": "create"
+    },
+    {
+     "file": "backend/migrations/0014_m2c_runs.sql",
+     "op": "index"
+    },
+    {
+     "file": "backend/migrations/0014_m2c_runs.sql",
+     "op": "trigger"
+    },
+    {
+     "file": "backend/migrations/0014_m2c_runs.sql",
+     "op": "row level security"
+    },
+    {
+     "file": "backend/migrations/0014_m2c_runs.sql",
+     "op": "policy"
+    }
+   ],
+   "triggers": [
+    {
+     "file": "backend/migrations/0014_m2c_runs.sql",
+     "name": "runs_guard_update",
+     "when": "before update"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "instance_id",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "payload",
+     "notnull": false,
+     "pk": false,
+     "type": "json"
+    },
+    {
+     "name": "created_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "''::character varying",
+     "name": "ip_address",
+     "notnull": true,
+     "pk": false,
+     "type": "varchar"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 63,
+   "key": "auth.audit_log_entries",
+   "name": "audit_log_entries",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "check": "provider_type = ANY (ARRAY['oauth2'::text, 'oidc'::text])",
+     "name": "provider_type",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "identifier ~ '^[a-z0-9][a-z0-9:-]{0,48}[a-z0-9]$'::text",
+     "name": "identifier",
+     "notnull": true,
+     "pk": false,
+     "type": "text",
+     "unique": true
+    },
+    {
+     "check": "char_length(name) >= 1 AND char_length(name) <= 100",
+     "name": "name",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "char_length(client_id) >= 1 AND char_length(client_id) <= 512",
+     "name": "client_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "client_secret",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "'{}'::text[]",
+     "name": "acceptable_client_ids",
+     "notnull": true,
+     "pk": false,
+     "type": "array"
+    },
+    {
+     "default": "'{}'::text[]",
+     "name": "scopes",
+     "notnull": true,
+     "pk": false,
+     "type": "array"
+    },
+    {
+     "default": "true",
+     "name": "pkce_enabled",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "default": "'{}'::jsonb",
+     "name": "attribute_mapping",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "default": "'{}'::jsonb",
+     "name": "authorization_params",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "default": "true",
+     "name": "enabled",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "default": "false",
+     "name": "email_optional",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "check": "issuer IS NULL OR char_length(issuer) >= 1 AND char_length(issuer) <= 2048",
+     "name": "issuer",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "discovery_url IS NULL OR char_length(discovery_url) <= 2048",
+     "name": "discovery_url",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "false",
+     "name": "skip_nonce_check",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "name": "cached_discovery",
+     "notnull": false,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "name": "discovery_cached_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "check": "authorization_url IS NULL OR authorization_url ~~ 'https://%'::text",
+     "name": "authorization_url",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "token_url IS NULL OR token_url ~~ 'https://%'::text",
+     "name": "token_url",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "userinfo_url IS NULL OR userinfo_url ~~ 'https://%'::text",
+     "name": "userinfo_url",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "jwks_uri IS NULL OR jwks_uri ~~ 'https://%'::text",
+     "name": "jwks_uri",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "'{}'::text[]",
+     "name": "custom_claims_allowlist",
+     "notnull": true,
+     "pk": false,
+     "type": "array"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 276,
+   "key": "auth.custom_oauth_providers",
+   "name": "custom_oauth_providers",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "user_id",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "auth_code",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "code_challenge_method",
+     "notnull": false,
+     "pk": false,
+     "type": "user-defined"
+    },
+    {
+     "name": "code_challenge",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "provider_type",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "provider_access_token",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "provider_refresh_token",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "created_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "authentication_method",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "auth_code_issued_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "invite_token",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "referrer",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "oauth_client_state_id",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "linking_target_id",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "default": "false",
+     "name": "email_optional",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 188,
+   "key": "auth.flow_state",
+   "name": "flow_state",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "provider_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "user_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "identity_data",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "name": "provider",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "last_sign_in_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "created_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "lower((identity_data ->> 'email'::text))",
+     "name": "email",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 75,
+   "fks": [
+    {
+     "cols": [
+      "user_id"
+     ],
+     "to": "auth.users",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.identities",
+   "name": "identities",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "uuid",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "raw_base_config",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "created_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 55,
+   "key": "auth.instances",
+   "name": "instances",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "session_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "authentication_method",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 136,
+   "fks": [
+    {
+     "cols": [
+      "session_id"
+     ],
+     "to": "auth.sessions",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.mfa_amr_claims",
+   "name": "mfa_amr_claims",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "factor_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "verified_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "ip_address",
+     "notnull": true,
+     "pk": false,
+     "type": "inet"
+    },
+    {
+     "name": "otp_code",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "web_authn_session_data",
+     "notnull": false,
+     "pk": false,
+     "type": "jsonb"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 125,
+   "fks": [
+    {
+     "cols": [
+      "factor_id"
+     ],
+     "to": "auth.mfa_factors",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.mfa_challenges",
+   "name": "mfa_challenges",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "user_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "friendly_name",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "factor_type",
+     "notnull": true,
+     "pk": false,
+     "type": "user-defined"
+    },
+    {
+     "name": "status",
+     "notnull": true,
+     "pk": false,
+     "type": "user-defined"
+    },
+    {
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "secret",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "phone",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "last_challenged_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz",
+     "unique": true
+    },
+    {
+     "name": "web_authn_credential",
+     "notnull": false,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "name": "web_authn_aaguid",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "last_webauthn_challenge_data",
+     "notnull": false,
+     "pk": false,
+     "type": "jsonb"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 108,
+   "fks": [
+    {
+     "cols": [
+      "user_id"
+     ],
+     "to": "auth.users",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.mfa_factors",
+   "name": "mfa_factors",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "user_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid",
+     "unique": true
+    },
+    {
+     "name": "mfa_factor_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid",
+     "unique": true
+    },
+    {
+     "check": "failed_verification_count >= 0",
+     "default": "0",
+     "name": "failed_verification_count",
+     "notnull": true,
+     "pk": false,
+     "type": "integer"
+    },
+    {
+     "name": "verification_locked_until",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 359,
+   "fks": [
+    {
+     "cols": [
+      "user_id"
+     ],
+     "to": "auth.users",
+     "to_cols": [
+      "id"
+     ]
+    },
+    {
+     "cols": [
+      "mfa_factor_id"
+     ],
+     "to": "auth.mfa_factors",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.mfa_recovery_code_sets",
+   "name": "mfa_recovery_code_sets",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "mfa_recovery_code_set_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "code_hash",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "consumed_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 371,
+   "fks": [
+    {
+     "cols": [
+      "mfa_recovery_code_set_id"
+     ],
+     "to": "auth.mfa_recovery_code_sets",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.mfa_recovery_codes",
+   "name": "mfa_recovery_codes",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "authorization_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text",
+     "unique": true
+    },
+    {
+     "name": "client_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "user_id",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "check": "char_length(redirect_uri) <= 2048",
+     "name": "redirect_uri",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "char_length(scope) <= 4096",
+     "name": "scope",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "char_length(state) <= 4096",
+     "name": "state",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "char_length(resource) <= 2048",
+     "name": "resource",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "char_length(code_challenge) <= 128",
+     "name": "code_challenge",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "code_challenge_method",
+     "notnull": false,
+     "pk": false,
+     "type": "user-defined"
+    },
+    {
+     "default": "'code'::auth.oauth_response_type",
+     "name": "response_type",
+     "notnull": true,
+     "pk": false,
+     "type": "user-defined"
+    },
+    {
+     "default": "'pending'::auth.oauth_authorization_status",
+     "name": "status",
+     "notnull": true,
+     "pk": false,
+     "type": "user-defined"
+    },
+    {
+     "check": "char_length(authorization_code) <= 255",
+     "name": "authorization_code",
+     "notnull": false,
+     "pk": false,
+     "type": "text",
+     "unique": true
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "(now() + '00:03:00'::interval)",
+     "name": "expires_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "approved_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "check": "char_length(nonce) <= 255",
+     "name": "nonce",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 236,
+   "fks": [
+    {
+     "cols": [
+      "client_id"
+     ],
+     "to": "auth.oauth_clients",
+     "to_cols": [
+      "id"
+     ]
+    },
+    {
+     "cols": [
+      "user_id"
+     ],
+     "to": "auth.users",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.oauth_authorizations",
+   "name": "oauth_authorizations",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "provider_type",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "code_verifier",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 269,
+   "key": "auth.oauth_client_states",
+   "name": "oauth_client_states",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "client_secret_hash",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "registration_type",
+     "notnull": true,
+     "pk": false,
+     "type": "user-defined"
+    },
+    {
+     "name": "redirect_uris",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "grant_types",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "char_length(client_name) <= 1024",
+     "name": "client_name",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "char_length(client_uri) <= 2048",
+     "name": "client_uri",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "char_length(logo_uri) <= 2048",
+     "name": "logo_uri",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "deleted_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "'confidential'::auth.oauth_client_type",
+     "name": "client_type",
+     "notnull": true,
+     "pk": false,
+     "type": "user-defined"
+    },
+    {
+     "check": "token_endpoint_auth_method = ANY (ARRAY['client_secret_basic'::text, 'client_secret_post'::text, 'none'::text])",
+     "name": "token_endpoint_auth_method",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 220,
+   "key": "auth.oauth_clients",
+   "name": "oauth_clients",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "user_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "client_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "check": "char_length(scopes) <= 2048",
+     "name": "scopes",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "now()",
+     "name": "granted_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "revoked_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 258,
+   "fks": [
+    {
+     "cols": [
+      "user_id"
+     ],
+     "to": "auth.users",
+     "to_cols": [
+      "id"
+     ]
+    },
+    {
+     "cols": [
+      "client_id"
+     ],
+     "to": "auth.oauth_clients",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.oauth_consents",
+   "name": "oauth_consents",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "user_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "token_type",
+     "notnull": true,
+     "pk": false,
+     "type": "user-defined"
+    },
+    {
+     "check": "char_length(token_hash) > 0",
+     "name": "token_hash",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "relates_to",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamp"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamp"
+    },
+    {
+     "name": "expires_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 208,
+   "fks": [
+    {
+     "cols": [
+      "user_id"
+     ],
+     "to": "auth.users",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.one_time_tokens",
+   "name": "one_time_tokens",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "instance_id",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "default": "nextval('auth.refresh_tokens_id_seq'::regclass)",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "bigint"
+    },
+    {
+     "name": "token",
+     "notnull": false,
+     "pk": false,
+     "type": "varchar",
+     "unique": true
+    },
+    {
+     "name": "user_id",
+     "notnull": false,
+     "pk": false,
+     "type": "varchar"
+    },
+    {
+     "name": "revoked",
+     "notnull": false,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "name": "created_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "parent",
+     "notnull": false,
+     "pk": false,
+     "type": "varchar"
+    },
+    {
+     "name": "session_id",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 42,
+   "fks": [
+    {
+     "cols": [
+      "session_id"
+     ],
+     "to": "auth.sessions",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.refresh_tokens",
+   "name": "refresh_tokens",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "sso_provider_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "check": "char_length(entity_id) > 0",
+     "name": "entity_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text",
+     "unique": true
+    },
+    {
+     "check": "char_length(metadata_xml) > 0",
+     "name": "metadata_xml",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "metadata_url = NULL::text OR char_length(metadata_url) > 0",
+     "name": "metadata_url",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "attribute_mapping",
+     "notnull": false,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "name": "created_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "name_id_format",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 162,
+   "fks": [
+    {
+     "cols": [
+      "sso_provider_id"
+     ],
+     "to": "auth.sso_providers",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.saml_providers",
+   "name": "saml_providers",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "sso_provider_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "check": "char_length(request_id) > 0",
+     "name": "request_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "for_email",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "redirect_to",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "created_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "flow_state_id",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 175,
+   "fks": [
+    {
+     "cols": [
+      "sso_provider_id"
+     ],
+     "to": "auth.sso_providers",
+     "to_cols": [
+      "id"
+     ]
+    },
+    {
+     "cols": [
+      "flow_state_id"
+     ],
+     "to": "auth.flow_state",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.saml_relay_states",
+   "name": "saml_relay_states",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "version",
+     "notnull": true,
+     "pk": true,
+     "type": "varchar"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 71,
+   "key": "auth.schema_migrations",
+   "name": "schema_migrations",
+   "origin": "dump",
+   "pk": [
+    "version"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "sso_provider_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "check": "token_hash ~ '^[0-9a-f]{64}$'::text",
+     "name": "token_hash",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "prefix",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "expires_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "revoked_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "last_used_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 347,
+   "fks": [
+    {
+     "cols": [
+      "sso_provider_id"
+     ],
+     "to": "auth.sso_providers",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.scim_tokens",
+   "name": "scim_tokens",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "sso_provider_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "user_id",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "resource",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "default": "lower((resource ->> 'userName'::text))",
+     "name": "user_name",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "(resource ->> 'externalId'::text)",
+     "name": "external_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "COALESCE(((resource ->> 'active'::text))::boolean, true)",
+     "name": "active",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "deleted_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 332,
+   "fks": [
+    {
+     "cols": [
+      "sso_provider_id"
+     ],
+     "to": "auth.sso_providers",
+     "to_cols": [
+      "id"
+     ]
+    },
+    {
+     "cols": [
+      "user_id"
+     ],
+     "to": "auth.users",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.scim_users",
+   "name": "scim_users",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "user_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "created_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "factor_id",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "aal",
+     "notnull": false,
+     "pk": false,
+     "type": "user-defined"
+    },
+    {
+     "name": "not_after",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "refreshed_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamp"
+    },
+    {
+     "name": "user_agent",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "ip",
+     "notnull": false,
+     "pk": false,
+     "type": "inet"
+    },
+    {
+     "name": "tag",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "oauth_client_id",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "refresh_token_hmac_key",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "refresh_token_counter",
+     "notnull": false,
+     "pk": false,
+     "type": "bigint"
+    },
+    {
+     "check": "char_length(scopes) <= 4096",
+     "name": "scopes",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 88,
+   "fks": [
+    {
+     "cols": [
+      "user_id"
+     ],
+     "to": "auth.users",
+     "to_cols": [
+      "id"
+     ]
+    },
+    {
+     "cols": [
+      "oauth_client_id"
+     ],
+     "to": "auth.oauth_clients",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.sessions",
+   "name": "sessions",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "sso_provider_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "check": "char_length(domain) > 0",
+     "name": "domain",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "created_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 153,
+   "fks": [
+    {
+     "cols": [
+      "sso_provider_id"
+     ],
+     "to": "auth.sso_providers",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.sso_domains",
+   "name": "sso_domains",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "check": "resource_id = NULL::text OR char_length(resource_id) > 0",
+     "name": "resource_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "created_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "disabled",
+     "notnull": false,
+     "pk": false,
+     "type": "boolean"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 145,
+   "key": "auth.sso_providers",
+   "name": "sso_providers",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "instance_id",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "aud",
+     "notnull": false,
+     "pk": false,
+     "type": "varchar"
+    },
+    {
+     "name": "role",
+     "notnull": false,
+     "pk": false,
+     "type": "varchar"
+    },
+    {
+     "name": "email",
+     "notnull": false,
+     "pk": false,
+     "type": "varchar"
+    },
+    {
+     "name": "encrypted_password",
+     "notnull": false,
+     "pk": false,
+     "type": "varchar"
+    },
+    {
+     "name": "email_confirmed_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "invited_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "confirmation_token",
+     "notnull": false,
+     "pk": false,
+     "type": "varchar"
+    },
+    {
+     "name": "confirmation_sent_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "recovery_token",
+     "notnull": false,
+     "pk": false,
+     "type": "varchar"
+    },
+    {
+     "name": "recovery_sent_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "email_change_token_new",
+     "notnull": false,
+     "pk": false,
+     "type": "varchar"
+    },
+    {
+     "name": "email_change",
+     "notnull": false,
+     "pk": false,
+     "type": "varchar"
+    },
+    {
+     "name": "email_change_sent_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "last_sign_in_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "raw_app_meta_data",
+     "notnull": false,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "name": "raw_user_meta_data",
+     "notnull": false,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "name": "is_super_admin",
+     "notnull": false,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "name": "created_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "updated_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "NULL::character varying",
+     "name": "phone",
+     "notnull": false,
+     "pk": false,
+     "type": "text",
+     "unique": true
+    },
+    {
+     "name": "phone_confirmed_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "''::character varying",
+     "name": "phone_change",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "''::character varying",
+     "name": "phone_change_token",
+     "notnull": false,
+     "pk": false,
+     "type": "varchar"
+    },
+    {
+     "name": "phone_change_sent_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "LEAST(email_confirmed_at, phone_confirmed_at)",
+     "name": "confirmed_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "''::character varying",
+     "name": "email_change_token_current",
+     "notnull": false,
+     "pk": false,
+     "type": "varchar"
+    },
+    {
+     "check": "email_change_confirm_status >= 0 AND email_change_confirm_status <= 2",
+     "default": "0",
+     "name": "email_change_confirm_status",
+     "notnull": false,
+     "pk": false,
+     "type": "smallint"
+    },
+    {
+     "name": "banned_until",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "''::character varying",
+     "name": "reauthentication_token",
+     "notnull": false,
+     "pk": false,
+     "type": "varchar"
+    },
+    {
+     "name": "reauthentication_sent_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "false",
+     "name": "is_sso_user",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "name": "deleted_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "false",
+     "name": "is_anonymous",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 4,
+   "key": "auth.users",
+   "name": "users",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "user_id",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "check": "challenge_type = ANY (ARRAY['signup'::text, 'registration'::text, 'authentication'::text])",
+     "name": "challenge_type",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "session_data",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "expires_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 322,
+   "fks": [
+    {
+     "cols": [
+      "user_id"
+     ],
+     "to": "auth.users",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.webauthn_challenges",
+   "name": "webauthn_challenges",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "user_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "credential_id",
+     "notnull": true,
+     "pk": false,
+     "type": "bytea"
+    },
+    {
+     "name": "public_key",
+     "notnull": true,
+     "pk": false,
+     "type": "bytea"
+    },
+    {
+     "default": "''::text",
+     "name": "attestation_type",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "aaguid",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "default": "0",
+     "name": "sign_count",
+     "notnull": true,
+     "pk": false,
+     "type": "bigint"
+    },
+    {
+     "default": "'[]'::jsonb",
+     "name": "transports",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "default": "false",
+     "name": "backup_eligible",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "default": "false",
+     "name": "backed_up",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "default": "''::text",
+     "name": "friendly_name",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "last_used_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/auth.sql",
+   "created_line": 304,
+   "fks": [
+    {
+     "cols": [
+      "user_id"
+     ],
+     "to": "auth.users",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "auth.webauthn_credentials",
+   "name": "webauthn_credentials",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "auth",
+   "touched": [
+    {
+     "file": "scripts/auth.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "topic",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "extension",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "payload",
+     "notnull": false,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "name": "event",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "false",
+     "name": "private",
+     "notnull": false,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamp"
+    },
+    {
+     "default": "now()",
+     "name": "inserted_at",
+     "notnull": true,
+     "pk": true,
+     "type": "timestamp"
+    },
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "binary_payload",
+     "notnull": false,
+     "pk": false,
+     "type": "bytea"
+    },
+    {
+     "default": "false",
+     "name": "skip_broadcast",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    }
+   ],
+   "created_in": "scripts/realtime.sql",
+   "created_line": 21,
+   "key": "realtime.messages",
+   "name": "messages",
+   "origin": "dump",
+   "pk": [
+    "id",
+    "inserted_at"
+   ],
+   "schema": "realtime",
+   "touched": [
+    {
+     "file": "scripts/realtime.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "version",
+     "notnull": true,
+     "pk": true,
+     "type": "bigint"
+    },
+    {
+     "name": "inserted_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamp"
+    }
+   ],
+   "created_in": "scripts/realtime.sql",
+   "created_line": 4,
+   "key": "realtime.schema_migrations",
+   "name": "schema_migrations",
+   "origin": "dump",
+   "pk": [
+    "version"
+   ],
+   "schema": "realtime",
+   "touched": [
+    {
+     "file": "scripts/realtime.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "bigint"
+    },
+    {
+     "name": "subscription_id",
+     "notnull": true,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "name": "entity",
+     "notnull": true,
+     "pk": false,
+     "type": "regclass"
+    },
+    {
+     "default": "'{}'::realtime.user_defined_filter[]",
+     "name": "filters",
+     "notnull": true,
+     "pk": false,
+     "type": "array"
+    },
+    {
+     "name": "claims",
+     "notnull": true,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "default": "realtime.to_regrole((claims ->> 'role'::text))",
+     "name": "claims_role",
+     "notnull": true,
+     "pk": false,
+     "type": "regrole"
+    },
+    {
+     "default": "timezone('utc'::text, now())",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamp"
+    },
+    {
+     "check": "action_filter = ANY (ARRAY['*'::text, 'INSERT'::text, 'UPDATE'::text, 'DELETE'::text])",
+     "default": "'*'::text",
+     "name": "action_filter",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "selected_columns",
+     "notnull": false,
+     "pk": false,
+     "type": "array"
+    }
+   ],
+   "created_in": "scripts/realtime.sql",
+   "created_line": 9,
+   "key": "realtime.subscription",
+   "name": "subscription",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "realtime",
+   "touched": [
+    {
+     "file": "scripts/realtime.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "name": "name",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "owner",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "false",
+     "name": "public",
+     "notnull": false,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "default": "false",
+     "name": "avif_autodetection",
+     "notnull": false,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "name": "file_size_limit",
+     "notnull": false,
+     "pk": false,
+     "type": "bigint"
+    },
+    {
+     "name": "allowed_mime_types",
+     "notnull": false,
+     "pk": false,
+     "type": "array"
+    },
+    {
+     "name": "owner_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "'STANDARD'::storage.buckettype",
+     "name": "type",
+     "notnull": true,
+     "pk": false,
+     "type": "user-defined"
+    },
+    {
+     "check": "versioning_status = ANY (ARRAY['DISABLED'::text, 'ENABLED'::text, 'SUSPENDED'::text])",
+     "default": "'DISABLED'::text",
+     "name": "versioning_status",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "check": "lifecycle_configuration IS NULL OR jsonb_typeof(lifecycle_configuration) = 'object'::text AND lifecycle_configuration ? 'rules'::text AND CASE WHEN…",
+     "name": "lifecycle_configuration",
+     "notnull": false,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "name": "lifecycle_configuration_generation",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    }
+   ],
+   "created_in": "scripts/storage.sql",
+   "created_line": 11,
+   "key": "storage.buckets",
+   "name": "buckets",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "storage",
+   "touched": [
+    {
+     "file": "scripts/storage.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "name",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "'ANALYTICS'::storage.buckettype",
+     "name": "type",
+     "notnull": true,
+     "pk": false,
+     "type": "user-defined"
+    },
+    {
+     "default": "'ICEBERG'::text",
+     "name": "format",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "deleted_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/storage.sql",
+   "created_line": 80,
+   "key": "storage.buckets_analytics",
+   "name": "buckets_analytics",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "storage",
+   "touched": [
+    {
+     "file": "scripts/storage.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "default": "'VECTOR'::storage.buckettype",
+     "name": "type",
+     "notnull": true,
+     "pk": false,
+     "type": "user-defined"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/storage.sql",
+   "created_line": 90,
+   "key": "storage.buckets_vectors",
+   "name": "buckets_vectors",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "storage",
+   "touched": [
+    {
+     "file": "scripts/storage.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "integer"
+    },
+    {
+     "name": "name",
+     "notnull": true,
+     "pk": false,
+     "type": "varchar",
+     "unique": true
+    },
+    {
+     "name": "hash",
+     "notnull": true,
+     "pk": false,
+     "type": "varchar"
+    },
+    {
+     "default": "CURRENT_TIMESTAMP",
+     "name": "executed_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamp"
+    }
+   ],
+   "created_in": "scripts/storage.sql",
+   "created_line": 4,
+   "key": "storage.migrations",
+   "name": "migrations",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "storage",
+   "touched": [
+    {
+     "file": "scripts/storage.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "bucket_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "name",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "owner",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "last_accessed_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "metadata",
+     "notnull": false,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "default": "string_to_array(name, '/'::text)",
+     "name": "path_tokens",
+     "notnull": false,
+     "pk": false,
+     "type": "array"
+    },
+    {
+     "name": "version",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "owner_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "user_metadata",
+     "notnull": false,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "name": "archived_at",
+     "notnull": false,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "false",
+     "name": "is_delete_marker",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    },
+    {
+     "default": "false",
+     "name": "is_versioned",
+     "notnull": true,
+     "pk": false,
+     "type": "boolean"
+    }
+   ],
+   "created_in": "scripts/storage.sql",
+   "created_line": 32,
+   "fks": [
+    {
+     "cols": [
+      "bucket_id"
+     ],
+     "to": "storage.buckets",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "storage.objects",
+   "name": "objects",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "storage",
+   "touched": [
+    {
+     "file": "scripts/storage.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "default": "0",
+     "name": "in_progress_size",
+     "notnull": true,
+     "pk": false,
+     "type": "bigint"
+    },
+    {
+     "name": "upload_signature",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "bucket_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "key",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "version",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "owner_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "name": "user_metadata",
+     "notnull": false,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "name": "metadata",
+     "notnull": false,
+     "pk": false,
+     "type": "jsonb"
+    }
+   ],
+   "created_in": "scripts/storage.sql",
+   "created_line": 51,
+   "fks": [
+    {
+     "cols": [
+      "bucket_id"
+     ],
+     "to": "storage.buckets",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "storage.s3_multipart_uploads",
+   "name": "s3_multipart_uploads",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "storage",
+   "touched": [
+    {
+     "file": "scripts/storage.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "upload_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "0",
+     "name": "size",
+     "notnull": true,
+     "pk": false,
+     "type": "bigint"
+    },
+    {
+     "name": "part_number",
+     "notnull": true,
+     "pk": false,
+     "type": "integer"
+    },
+    {
+     "name": "bucket_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "key",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "etag",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "owner_id",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "version",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/storage.sql",
+   "created_line": 65,
+   "fks": [
+    {
+     "cols": [
+      "upload_id"
+     ],
+     "to": "storage.s3_multipart_uploads",
+     "to_cols": [
+      "id"
+     ]
+    },
+    {
+     "cols": [
+      "bucket_id"
+     ],
+     "to": "storage.buckets",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "storage.s3_multipart_uploads_parts",
+   "name": "s3_multipart_uploads_parts",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "storage",
+   "touched": [
+    {
+     "file": "scripts/storage.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "text"
+    },
+    {
+     "name": "name",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "bucket_id",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "data_type",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "dimension",
+     "notnull": true,
+     "pk": false,
+     "type": "integer"
+    },
+    {
+     "name": "distance_metric",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "metadata_configuration",
+     "notnull": false,
+     "pk": false,
+     "type": "jsonb"
+    },
+    {
+     "default": "now()",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "now()",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/storage.sql",
+   "created_line": 97,
+   "fks": [
+    {
+     "cols": [
+      "bucket_id"
+     ],
+     "to": "storage.buckets_vectors",
+     "to_cols": [
+      "id"
+     ]
+    }
+   ],
+   "key": "storage.vector_indexes",
+   "name": "vector_indexes",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "storage",
+   "touched": [
+    {
+     "file": "scripts/storage.sql",
+     "op": "create"
+    }
+   ]
+  },
+  {
+   "columns": [
+    {
+     "default": "gen_random_uuid()",
+     "name": "id",
+     "notnull": true,
+     "pk": true,
+     "type": "uuid"
+    },
+    {
+     "name": "name",
+     "notnull": false,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "default": "''::text",
+     "name": "description",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "secret",
+     "notnull": true,
+     "pk": false,
+     "type": "text"
+    },
+    {
+     "name": "key_id",
+     "notnull": false,
+     "pk": false,
+     "type": "uuid"
+    },
+    {
+     "default": "vault._crypto_aead_det_noncegen()",
+     "name": "nonce",
+     "notnull": false,
+     "pk": false,
+     "type": "bytea"
+    },
+    {
+     "default": "CURRENT_TIMESTAMP",
+     "name": "created_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    },
+    {
+     "default": "CURRENT_TIMESTAMP",
+     "name": "updated_at",
+     "notnull": true,
+     "pk": false,
+     "type": "timestamptz"
+    }
+   ],
+   "created_in": "scripts/vault.sql",
+   "created_line": 4,
+   "key": "vault.secrets",
+   "name": "secrets",
+   "origin": "dump",
+   "pk": [
+    "id"
+   ],
+   "schema": "vault",
+   "touched": [
+    {
+     "file": "scripts/vault.sql",
+     "op": "create"
+    }
+   ]
+  }
+ ]
+}

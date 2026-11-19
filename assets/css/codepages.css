@@ -78,5 +78,39 @@
 .cp-pill:hover, .cp-pill[aria-current="true"] { border-color: var(--brand); }
 .cp .cp-pill { color: var(--ink); }
 
+/* P18: Infra and Data model pages. Same tokens, so the paper theme follows. */
+.cp-deps { margin: var(--space-3) 0; padding: var(--space-3) var(--space-4); }
+.cp-deps > summary { cursor: pointer; }
+.cp-deps[open] > summary { margin-bottom: var(--space-3); }
+.cp-timeline { margin: 0; padding: 0; list-style: none; border-left: 2px solid var(--line); }
+.cp-timeline > li { position: relative; margin: 0 0 var(--space-4) var(--space-4); padding-left: var(--space-4); }
+.cp-timeline > li::before { content: ""; position: absolute; left: calc(-1 * var(--space-4) - 6px); top: 0.55rem; width: 10px; height: 10px; border-radius: 50%; background: var(--brand); }
+.cp-timeline__head { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: baseline; }
+.cp-timeline p { margin: var(--space-1) 0 var(--space-2); max-width: 80ch; }
+.cp-er { overflow: auto; max-height: 70vh; border: 1px solid var(--line); border-radius: var(--radius-2, 8px); background: var(--panel-2); }
+.cp-er__svg { display: block; min-width: 100%; }
+.cp-er__box rect { fill: var(--panel); stroke: var(--line-strong); }
+.cp-er__box .cp-er__head { fill: var(--panel-2); stroke: var(--line-strong); }
+.cp-er__box { cursor: pointer; outline: none; }
+.cp-er__box:hover rect, .cp-er__box:focus-visible rect, .cp-er__box.is-on rect { stroke: var(--brand); }
+.cp-er__box.is-dim, .cp-er__edge.is-dim, .cp-er__ghost.is-dim { opacity: 0.25; }
+.cp-er__name { fill: var(--ink); font: 700 12px var(--font-mono, monospace); }
+.cp-er__col, .cp-er__type, .cp-er__more, .cp-er__band { fill: var(--ink-dim); font: 11px var(--font-mono, monospace); }
+.cp-er__link { cursor: pointer; fill: var(--ink); }
+.cp-er__ghost rect { fill: none; stroke: var(--line-strong); stroke-dasharray: 4 3; }
+.cp-er__edge { fill: none; stroke: var(--brand); stroke-opacity: 0.55; stroke-width: 1.4; }
+.cp-er__edge.is-on { stroke-opacity: 1; stroke-width: 2; }
+.cp-er__arrow { fill: var(--brand); }
+.cp-timeline a.cp-pill { text-decoration: none; }
+
+/* P18: tables.html, the book's tables: a toolbar, category buttons with live counts, sortable headers */
+.tb-bar { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin: var(--space-3) 0 var(--space-4); }
+.tb-count { color: var(--ink-dim); font-size: var(--fs-sm); }
+.tb-empty { color: var(--ink-dim); }
+details.tb th > button { all: unset; cursor: pointer; font-weight: 600; }
+details.tb th > button:hover, details.tb th > button:focus-visible { text-decoration: underline; }
+details.tb th[aria-sort="ascending"] > button::after { content: " \25B2"; font-size: 0.7em; }
+details.tb th[aria-sort="descending"] > button::after { content: " \25BC"; font-size: 0.7em; }
+
 @media (max-width: 760px) { .cp { padding: var(--space-4) 16px var(--space-7); } .cp-bar > a, .cp-bar > span { width: 7.5rem; } .cp-facts { grid-template-columns: minmax(0, 1fr); } .cp-detail__in { padding: var(--space-3) var(--space-4); } }
 @media (prefers-reduced-motion: reduce) { .cp * { transition: none !important; scroll-behavior: auto !important; } }

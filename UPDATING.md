@@ -1,16 +1,17 @@
 # Updating the whole Atlas (census + graph + notes + source) in one command
 
-The Atlas has five kinds of generated content:
+The Atlas has six kinds of generated content:
 
 | From | Refreshed by | Pages |
 |---|---|---|
-| `data/census.json` (MiniMe's `scripts/codebase_census.py`) | `scripts/refresh_atlas.py` | Overview, Files, Functions, History, Map, Infra, Explore, `data/code/routes.json` (API) and `data/code/agents.json` (Agents), `data/summary.md`, the search index (`data/index/*.json`) |
+| `data/census.json` (MiniMe's `scripts/codebase_census.py`) | `scripts/refresh_atlas.py` | Overview, Files, Functions, History, Map, Explore, `data/code/routes.json` (API), `data/code/agents.json` (Agents) and `data/code/infra.json` (Infra, a shell drawn by `assets/js/infra.js`), `data/summary.md`, the search index (`data/index/*.json`) |
 | The Graphify graph (`MiniMe/graphify-out/`) | `scripts/refresh_graph.py` | Graph and its viewer, Overview graph numbers and hubs, Explore connections, the "callers" half of `data/code/routes.json` (API "Frontend callers"), `data/summary.md` graph line |
 | AI-written notes (`MiniMe/graphify-out/atlas-notes/`, written by Copilot: what each file and function is for) | `scripts/notes.py ingest` | `data/notes/` and `data/index/notes.json` (coverage and freshness; read by the Explorer and Coverage pages when they land) |
 | MiniMe's source code, as committed at the census commit | `scripts/refresh_source.py` | `data/src/<path>.txt` and `data/src/manifest.json` (the Explorer's Source tab shows the real lines next to the explanations; see "Embedded source" below) |
 | MiniMe's `protocol/` folder (the M2C wire contract), `m2c/`, and `docs/decisions/`, as committed at the census commit | `scripts/refresh_protocol.py` | `data/code/protocol.json`: the Protocol, M2C client and Decision records pages (see "Protocol, M2C and decision records" below) |
+| The SQL in `data/src/` (migrations and the Supabase dump) plus the census's `table_refs` | `scripts/refresh_schema.py` | `data/code/schema.json`: tables, columns, foreign keys, policies, migrations and "who touches this table" (Data model, a shell drawn by `assets/js/data.js`). Run by `update_all.py` after the source step; falls back to the census, and says so, when the SQL is not embedded |
 
-`scripts/update_all.py` runs all five, then proves nothing is stale and runs the tests. The notes are the only part a person has to drive: Copilot writes them in batches (Step 2b below), and everything else about them is automatic.
+`scripts/update_all.py` runs all six, then proves nothing is stale and runs the tests. The notes are the only part a person has to drive: Copilot writes them in batches (Step 2b below), and everything else about them is automatic.
 
 ## The routine
 
