@@ -1,0 +1,88 @@
+/* MiniMe Atlas 2 - the System page (P09). Tokens only, so both themes work. Loaded after arch.css, which draws the diagrams themselves. */
+
+.sy-intro { max-width: 72ch; margin: 0 0 var(--space-4); color: var(--ink-dim); }
+.sy-dim { color: var(--ink-dim); font-size: var(--fs-sm); }
+.sy-note { padding: var(--space-3); color: var(--ink-dim); }
+[data-system-page] code { overflow-wrap: anywhere; }
+
+/* ---- status strip and jump list */
+.sy-strip { display: grid; gap: var(--space-2); margin: 0 0 var(--space-4); }
+.sy-strip__t { margin: 0; }
+.sy-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.sy-chip { padding: 0.1rem var(--space-3); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); font-size: var(--fs-sm); }
+.sy-chip--fresh { border-color: var(--ok); }
+.sy-chip--stale, .sy-chip--unverified, .sy-chip--missing { border-color: var(--gate); border-style: dashed; }
+.sy-chip--broken { border-color: var(--brand); border-style: double; border-width: 3px; }
+.sy-missing summary { cursor: pointer; font-size: var(--fs-sm); }
+.sy-missing ul { margin: var(--space-2) 0; padding-left: var(--space-5); }
+.sy-jump ul { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); margin: 0 0 var(--space-5); padding: 0; list-style: none; font-size: var(--fs-sm); }
+.sy-jump a { text-decoration: none; }
+.sy-jump a:hover { text-decoration: underline; }
+
+/* ---- sections */
+.sy-section, .sy-view { margin: 0 0 var(--space-7); scroll-margin-top: calc(var(--topbar-h, 3rem) + var(--space-4)); }
+.sy-view { padding-top: var(--space-4); border-top: 1px solid var(--line); }
+.sy-view__h { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+.sy-view__h h2 { margin: 0; }
+.sy-badges { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: var(--space-1) 0; }
+.sy-what, .sy-reading { max-width: 72ch; margin: var(--space-2) 0; }
+.sy-reading { color: var(--ink-dim); }
+
+/* the legend is the same semantic colours as the diagrams; each item carries a mark as well as a colour */
+.sy-legend { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin: var(--space-2) 0 var(--space-3); padding: 0; list-style: none; font-size: var(--fs-sm); color: var(--ink-dim); }
+.sy-legend__i::before { content: ""; display: inline-block; width: 1.4rem; height: 0; margin-right: var(--space-2); vertical-align: middle; border-top: 3px solid var(--line-strong); }
+.sy-legend__i--flow::before { border-top-color: var(--flow); }
+.sy-legend__i--rel::before { border-top-color: var(--graph); border-top-style: dotted; }
+.sy-legend__i--gate::before { border-top-color: var(--gate); border-top-style: double; border-top-width: 5px; }
+.sy-legend__i--sel::before { border-top-color: var(--brand); }
+.sy-legend__i--stale::before { border-top-color: var(--gate); border-top-style: dashed; }
+.sy-legend b { color: var(--ink); font-weight: 600; }
+
+.sy-tools { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0 0 var(--space-2); }
+.sy-tools a.mm-btn, .sy-tools a.mm-btn:hover { color: var(--ink); text-decoration: none; }
+
+/* the diagram is a window: collapsed it scrolls inside a fixed height, expanded it shows the whole picture */
+.sy-diagram__host { min-height: 8rem; }
+.sy-diagram[data-expanded="false"] .ar-stage { max-height: 26rem; overflow: auto; }
+.sy-diagram[data-expanded="true"] .ar-stage { max-height: none; overflow: visible; }
+
+/* ---- steps under a diagram, and the anatomy stepper */
+.sy-steps__h { margin: var(--space-5) 0 var(--space-2); }
+.sy-steps { margin: 0; padding-left: var(--space-5); }
+.sy-steps__i { margin: 0 0 var(--space-4); padding-left: var(--space-2); scroll-margin-top: calc(var(--topbar-h, 3rem) + var(--space-4)); }
+.sy-steps__i--gate { border-left: 4px double var(--gate); padding-left: var(--space-3); }
+.sy-steps__top { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.sy-steps__what, .sy-step__what { max-width: 72ch; margin: var(--space-1) 0; }
+.sy-code { margin: var(--space-2) 0; padding: 0; list-style: none; }
+.sy-code__i { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); margin: 0 0 var(--space-1); font-size: var(--fs-sm); }
+.sy-gate { margin: var(--space-2) 0; color: var(--gate); font-size: var(--fs-sm); }
+.sy-conflicts { margin: var(--space-3) 0; border-left: 4px solid var(--gate); }
+.sy-conflicts h3 { margin: 0 0 var(--space-1); font-size: var(--fs-md); }
+.sy-missingflow { margin: var(--space-3) 0; padding: var(--space-2) var(--space-3); border: 1px dashed var(--gate); border-radius: var(--radius-2); font-size: var(--fs-sm); }
+.sy-refs { margin: var(--space-3) 0 0; font-size: var(--fs-sm); }
+
+.sy-strip__list { margin: 0 0 var(--space-4); }
+.sy-strip__b { padding: 0.2rem 0.1rem; color: inherit; background: none; border: 0; font: inherit; text-align: left; cursor: pointer; }
+.sy-strip__b:hover { text-decoration: underline; text-underline-offset: 3px; }
+.sy-strip__b:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.sy-step { max-width: 80ch; }
+.sy-step--gate { border-left: 4px double var(--gate); }
+.sy-step__t { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); margin: 0 0 var(--space-2); font-size: var(--fs-lg); }
+.sy-step__n { font: var(--fs-xs) var(--font-mono); color: var(--ink-dim); }
+.sy-step__more { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: var(--space-2) 0; font-size: var(--fs-sm); }
+.sy-step__nav { display: flex; gap: var(--space-2); margin-top: var(--space-3); }
+
+/* ---- modules */
+.sy-dir__f { display: block; margin-top: var(--space-1); font-size: var(--fs-xs); font-weight: 400; }
+.sy-dir__k { display: block; margin: 0 0 var(--space-1); font-size: var(--fs-xs); }
+.sy-dir caption { text-align: left; padding: var(--space-2) 0; }
+.sy-dir .is-num { text-align: right; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 760px) {
+  .sy-diagram[data-expanded="false"] .ar-stage { max-height: 22rem; }
+  .sy-step__nav { position: sticky; bottom: 0; padding: var(--space-2) 0; background: var(--panel); }
+}
+@media print {
+  .sy-tools, .sy-step__nav, .sy-jump { display: none; }
+  .sy-diagram[data-expanded] .ar-stage { max-height: none; overflow: visible; }
+}

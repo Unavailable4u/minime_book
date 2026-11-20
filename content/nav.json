@@ -25,8 +25,8 @@
       "title": "System",
       "icon": "system",
       "items": [
-        { "id": "architecture", "title": "System map", "url": "architecture.html", "layout": "reader",
-          "blurb": "Architecture diagrams: request, task run, workspace, daemon approval", "keywords": "architecture diagrams system pipeline lifecycle archify" },
+        { "id": "architecture", "title": "System map", "url": "architecture.html", "layout": "workbench",
+          "blurb": "How the system runs: generated diagrams, request path, flows with the code behind each step", "keywords": "architecture system diagrams generated request path anatomy pipeline lifecycle approval gate protocol memory api surface modules flows stale fresh" },
     { "id": "arch-view", "title": "System views", "url": "arch-view.html", "layout": "workbench",
           "blurb": "Generated architecture views: structure, flows, lifecycles, API surface", "keywords": "architecture views generated flow sequence lifecycle api surface protocol memory unified" }
       ]

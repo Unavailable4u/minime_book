@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "intro": "How MiniMe is put together and how it runs. Every diagram on this page is generated: the structure is read from the code by a script and cannot go stale; the flows were traced by Copilot, and every step names the code it rests on, so the page can tell you when that code has changed.",
+  "order": ["system", "dataflow", "task-pipeline", "task-sequence", "taskrun-lifecycle", "workspace-lifecycle", "daemon-approval", "api-surface", "m2c-protocol", "memory", "unified"],
+  "legend": [
+    { "id": "flow", "label": "Cyan line", "text": "data or work moving from one part to another" },
+    { "id": "rel", "label": "Violet line", "text": "a relation: one folder imports another" },
+    { "id": "gate", "label": "Amber", "text": "an approval gate: nothing passes until someone or something allows it" },
+    { "id": "sel", "label": "Crimson", "text": "the box or step you selected" },
+    { "id": "stale", "label": "Dashed outline", "text": "the code this step cites has changed since it was written (stale)" }
+  ],
+  "views": {
+    "system": {
+      "what": "The whole repository as boxes: your machine on one side, the browser and the server on the other, and the protocol between them. A box's size is its amount of code; a line's width is how much one part uses another.",
+      "reading": "Start at Groups, then open Folders, then Parts to look inside the M2C client. Click a box to open its folder in the Explorer.",
+      "chapters": [
+        { "ref": "doc-minime-feature-guide#1-what-minime-is", "label": "What MiniMe is" },
+        { "ref": "doc-server-guide#phase-0-now-one-server-done-properly", "label": "The one-server baseline" }
+      ],
+      "pages": [{ "url": "explorer.html", "label": "Code Explorer" }]
+    },
+    "dataflow": {
+      "what": "Only the connections that carry data: browser to API, API to the database, the server to outside model providers, and the protocol to your machine. The same boxes as the system map with the code-import lines taken away.",
+      "reading": "Follow a line from the browser to the database to see which folder reads or writes what.",
+      "chapters": [
+        { "ref": "doc-minime-feature-guide#4-3-workspace-facts-and-durable-context", "label": "Workspace facts and durable context" }
+      ],
+      "pages": [{ "url": "tables.html", "label": "Database tables" }]
+    },
+    "task-pipeline": {
+      "what": "What happens to a task after the API accepts it: the fast first try, the classification, the plan the router draws, and the loop that executes and checks it. The list of stages that exists in the code is read from the code and compared with the steps.",
+      "reading": "Read the numbered steps from the top; the lanes show which part of the repository does each one.",
+      "chapters": [
+        { "ref": "doc-minime-feature-guide#5-the-agent-system", "label": "The agent system" },
+        { "ref": "doc-minime-feature-guide#5-1-general-routing", "label": "General routing" }
+      ],
+      "pages": [{ "url": "agents.html", "label": "Agents and roles" }]
+    },
+    "task-sequence": {
+      "what": "One chat message as a conversation between the parts: who calls whom, in what order, and what comes back. The same path as Anatomy of a request above, drawn with a lifeline per part.",
+      "reading": "Read downwards. An arrow to the right is a call; an arrow back is a result.",
+      "chapters": [
+        { "ref": "doc-minime-feature-guide#3-chat", "label": "Chat" },
+        { "ref": "doc-minime-feature-guide#3-4-agent-execution-and-live-progress", "label": "Agent execution and live progress" }
+      ],
+      "pages": [{ "url": "api.html", "label": "API reference" }]
+    },
+    "taskrun-lifecycle": {
+      "what": "The states a task run passes through, from queued to finished, failed or cancelled, and what moves it from one to the next.",
+      "reading": "Boxes are states, arrows are transitions; a double border marks an end state.",
+      "chapters": [
+        { "ref": "doc-minime-feature-guide#3-4-agent-execution-and-live-progress", "label": "Agent execution and live progress" }
+      ],
+      "pages": []
+    },
+    "workspace-lifecycle": {
+      "what": "The stages a workspace moves through, and the transitions the code allows between them.",
+      "reading": "A missing arrow is a move the code does not allow.",
+      "chapters": [
+        { "ref": "doc-minime-feature-guide#4-1-workspace-lifecycle", "label": "Workspace lifecycle" }
+      ],
+      "pages": []
+    },
+    "daemon-approval": {
+      "what": "How a change that touches your machine is proposed, shown to you and confirmed or denied before the local daemon acts. Amber marks the approval gates.",
+      "reading": "Every path to your files passes an amber gate. If you find one that does not, that is a finding.",
+      "chapters": [
+        { "ref": "doc-minime-feature-guide#19-2-approval-gates", "label": "Approval gates" },
+        { "ref": "doc-minime-feature-guide#17-2-local-workspace-bridge", "label": "The local workspace bridge" }
+      ],
+      "pages": []
+    },
+    "api-surface": {
+      "what": "Every route the backend serves, grouped by the router that includes it, with the handler and the response model of each. It is built from the code on every update.",
+      "reading": "Filter by method, path or handler; click a route to open its handler.",
+      "chapters": [
+        { "ref": "doc-minime-feature-guide#25-source-map", "label": "Source map" }
+      ],
+      "pages": [{ "url": "api.html", "label": "API reference" }]
+    },
+    "m2c-protocol": {
+      "what": "The conversation between the M2C client on your machine and the MiniMe server. The message types come from the protocol schema, so the list is exact.",
+      "reading": "The two lifelines are the two ends of the wire; each arrow is one message type.",
+      "chapters": [
+        { "ref": "doc-m2c-feature-guide#5-agent-loop-and-tools", "label": "Agent loop and tools" },
+        { "ref": "doc-m2c-feature-guide#6-safety-and-trust", "label": "Safety and trust" }
+      ],
+      "pages": [{ "url": "protocol.html", "label": "Protocol" }, { "url": "m2c.html", "label": "M2C client" }]
+    },
+    "memory": {
+      "what": "How what the system learns is written and read back: the memory bus, the conversation memory and the stores behind them.",
+      "reading": "Follow a write from the part that produces it to the store, then the read that brings it back into a later task.",
+      "chapters": [
+        { "ref": "doc-minime-feature-guide#4-3-workspace-facts-and-durable-context", "label": "Workspace facts and durable context" },
+        { "ref": "doc-m2c-feature-guide#7-hooks-skills-instructions-and-memory", "label": "M2C memory" }
+      ],
+      "pages": []
+    },
+    "unified": {
+      "what": "Everything in one picture, zoomable from the groups down to the parts of the M2C client. Lay any flow over it to see its path through the real folders.",
+      "reading": "Use the full-size view: the flow picker is in its toolbar.",
+      "chapters": [],
+      "pages": []
+    }
+  }
+}
