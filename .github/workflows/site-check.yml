@@ -72,6 +72,8 @@ jobs:
         run: python3 scripts/refresh_source.py --check
       - name: Protocol data (data/code/protocol.json) is at the census commit
         run: python3 scripts/refresh_protocol.py --check
+      - name: Coverage data (data/index/status.json) is current
+        run: python3 scripts/build_status.py --check
       - name: Vendored highlight.js (assets/vendor/highlight) is the pinned version
         run: python3 scripts/vendor_highlight.py --check
       - name: Unit tests
@@ -98,3 +100,4 @@ jobs:
           python3 scripts/test_codepages.py
           python3 scripts/test_refresh_protocol.py
           python3 scripts/test_project.py
+          python3 scripts/test_status.py

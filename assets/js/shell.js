@@ -439,6 +439,27 @@ async function getJSON(rel) {
   return r.json();
 }
 
+/* P22: the top-bar chip says how old the Atlas is and turns amber when its sources disagree. It is first drawn from stats.json
+   (commit only); once data/index/status.json arrives it becomes a link to coverage.html with the ages. The logic is in
+   coverage-core.js, which is fetched here only (a missing status.json or config leaves the plain chip as it was). */
+async function upgradeStatusChip() {
+  try {
+    const [status, cfg, core] = await Promise.all([getJSON("data/index/status.json"), getJSON("content/config.json").catch(() => ({})), import("./coverage-core.js")]);
+    const m = core.chipModel(status, cfg);
+    if (m.state === "unknown" || !S.top) return;
+    const stale = m.state === "stale";
+    const chip = el("a", { class: `mm-chip${stale ? " mm-chip--stale" : ""}`, href: new URL("coverage.html", BASE).href, title: m.title },
+      stale ? el("span", { class: "mm-chip__flag", "aria-hidden": "true" }, "\u25C6") : null,
+      stale ? el("span", { class: "mm-chip__w" }, "Out of step") : null,
+      "MiniMe ", el("code", {}, m.commit), ` \u00B7 ${m.text}`);
+    const old = S.top.querySelector(".mm-chip");
+    if (old) old.replaceWith(chip);
+    else { const k = S.top.querySelector(".mm-top__k"); if (k) k.before(chip); else S.top.append(chip); }
+  } catch (err) {
+    console.warn("[atlas status chip]", err);
+  }
+}
+
 async function load() {
   let cached = null;
   try { cached = JSON.parse(session.get(KEY_CACHE)); } catch { cached = null; }
@@ -451,10 +472,12 @@ async function load() {
       mount(fresh);
     }
     settleNav(fresh);
+    upgradeStatusChip();
   } catch (err) {
     if (!(cached && cached.nav)) mountFallback();
     console.warn("[atlas shell]", err);
     settleNav(cached && cached.nav ? cached : null);
+    if (cached && cached.nav) upgradeStatusChip();
   }
 }
 

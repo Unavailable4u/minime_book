@@ -1,0 +1,1620 @@
+{
+ "flow_order": [
+  "request-path",
+  "task-pipeline",
+  "taskrun-lifecycle",
+  "workspace-lifecycle",
+  "daemon-approval",
+  "memory",
+  "m2c-protocol"
+ ],
+ "flow_totals": {
+  "broken": 0,
+  "flows": 7,
+  "fresh": 0,
+  "missing": 7,
+  "stale": 0,
+  "unverified": 0,
+  "written": 0
+ },
+ "flows": {
+  "daemon-approval": {
+   "commit": null,
+   "counts": {},
+   "incomplete": [],
+   "items": 0,
+   "kind": "gated",
+   "status": "missing",
+   "title": "Daemon approval",
+   "views": [
+    "daemon-approval"
+   ]
+  },
+  "m2c-protocol": {
+   "commit": null,
+   "counts": {},
+   "incomplete": [],
+   "items": 0,
+   "kind": "sequence",
+   "status": "missing",
+   "title": "M2C protocol run",
+   "views": [
+    "m2c-protocol"
+   ]
+  },
+  "memory": {
+   "commit": null,
+   "counts": {},
+   "incomplete": [],
+   "items": 0,
+   "kind": "pipeline",
+   "status": "missing",
+   "title": "Memory",
+   "views": [
+    "memory"
+   ]
+  },
+  "request-path": {
+   "commit": null,
+   "counts": {},
+   "incomplete": [],
+   "items": 0,
+   "kind": "sequence",
+   "status": "missing",
+   "title": "Request path",
+   "views": [
+    "task-sequence"
+   ]
+  },
+  "task-pipeline": {
+   "commit": null,
+   "counts": {},
+   "incomplete": [],
+   "items": 0,
+   "kind": "pipeline",
+   "status": "missing",
+   "title": "Task pipeline",
+   "views": [
+    "task-pipeline"
+   ]
+  },
+  "taskrun-lifecycle": {
+   "commit": null,
+   "counts": {},
+   "incomplete": [],
+   "items": 0,
+   "kind": "lifecycle",
+   "status": "missing",
+   "title": "Task run lifecycle",
+   "views": [
+    "taskrun-lifecycle"
+   ]
+  },
+  "workspace-lifecycle": {
+   "commit": null,
+   "counts": {},
+   "incomplete": [],
+   "items": 0,
+   "kind": "lifecycle",
+   "status": "missing",
+   "title": "Workspace lifecycle",
+   "views": [
+    "workspace-lifecycle"
+   ]
+  }
+ },
+ "folders": {
+  ".githooks": {
+   "elig": 0,
+   "files": 1,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  ".github": {
+   "elig": 3,
+   "files": 4,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 30
+  },
+  ".github/scripts": {
+   "elig": 2,
+   "files": 3,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 30
+  },
+  ".github/workflows": {
+   "elig": 1,
+   "files": 1,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "backend": {
+   "elig": 286,
+   "files": 639,
+   "fresh": 69,
+   "noted": 69,
+   "stale": 0,
+   "symbols": 11764
+  },
+  "backend/agents": {
+   "elig": 76,
+   "files": 77,
+   "fresh": 1,
+   "noted": 1,
+   "stale": 0,
+   "symbols": 470
+  },
+  "backend/agents/data": {
+   "elig": 2,
+   "files": 2,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "backend/api": {
+   "elig": 23,
+   "files": 23,
+   "fresh": 22,
+   "noted": 22,
+   "stale": 0,
+   "symbols": 379
+  },
+  "backend/api/routes": {
+   "elig": 18,
+   "files": 18,
+   "fresh": 17,
+   "noted": 17,
+   "stale": 0,
+   "symbols": 327
+  },
+  "backend/codeagent": {
+   "elig": 20,
+   "files": 20,
+   "fresh": 20,
+   "noted": 20,
+   "stale": 0,
+   "symbols": 763
+  },
+  "backend/codeagent/adapters": {
+   "elig": 3,
+   "files": 3,
+   "fresh": 3,
+   "noted": 3,
+   "stale": 0,
+   "symbols": 82
+  },
+  "backend/config": {
+   "elig": 3,
+   "files": 3,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "backend/data": {
+   "elig": 0,
+   "files": 21,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "backend/data/chats": {
+   "elig": 0,
+   "files": 11,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "backend/data/exports": {
+   "elig": 0,
+   "files": 4,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "backend/data/graph": {
+   "elig": 0,
+   "files": 4,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "backend/data/study": {
+   "elig": 0,
+   "files": 2,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "backend/eo": {
+   "elig": 112,
+   "files": 113,
+   "fresh": 22,
+   "noted": 22,
+   "stale": 0,
+   "symbols": 1044
+  },
+  "backend/evals": {
+   "elig": 3,
+   "files": 13,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 14
+  },
+  "backend/evals/promptfoo": {
+   "elig": 3,
+   "files": 13,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 14
+  },
+  "backend/evals/promptfoo/compare": {
+   "elig": 0,
+   "files": 1,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "backend/evals/promptfoo/providers": {
+   "elig": 2,
+   "files": 2,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 7
+  },
+  "backend/evals/promptfoo/scripts": {
+   "elig": 1,
+   "files": 1,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 2
+  },
+  "backend/evals/promptfoo/tests": {
+   "elig": 0,
+   "files": 4,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 5
+  },
+  "backend/evals/promptfoo/tests/asserts": {
+   "elig": 0,
+   "files": 1,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 5
+  },
+  "backend/graph": {
+   "elig": 1,
+   "files": 1,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 6
+  },
+  "backend/memory": {
+   "elig": 2,
+   "files": 2,
+   "fresh": 2,
+   "noted": 2,
+   "stale": 0,
+   "symbols": 18
+  },
+  "backend/migrations": {
+   "elig": 15,
+   "files": 15,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "backend/relay": {
+   "elig": 2,
+   "files": 2,
+   "fresh": 1,
+   "noted": 1,
+   "stale": 0,
+   "symbols": 11
+  },
+  "backend/scripts": {
+   "elig": 14,
+   "files": 22,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 80
+  },
+  "backend/tests": {
+   "elig": 0,
+   "files": 307,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 8847
+  },
+  "backend/tests/canary": {
+   "elig": 0,
+   "files": 8,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 187
+  },
+  "backend/tests/integration": {
+   "elig": 0,
+   "files": 41,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 557
+  },
+  "backend/tests/manual": {
+   "elig": 0,
+   "files": 11,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 44
+  },
+  "backend/tests/manual/cassettes": {
+   "elig": 0,
+   "files": 1,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "backend/tests/static": {
+   "elig": 0,
+   "files": 20,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 177
+  },
+  "backend/tests/unit": {
+   "elig": 0,
+   "files": 225,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 7832
+  },
+  "backend/utils": {
+   "elig": 11,
+   "files": 11,
+   "fresh": 1,
+   "noted": 1,
+   "stale": 0,
+   "symbols": 131
+  },
+  "daemon": {
+   "elig": 7,
+   "files": 16,
+   "fresh": 7,
+   "noted": 7,
+   "stale": 0,
+   "symbols": 204
+  },
+  "daemon/tests": {
+   "elig": 0,
+   "files": 6,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 128
+  },
+  "docs": {
+   "elig": 0,
+   "files": 5,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "docs/decisions": {
+   "elig": 0,
+   "files": 4,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "frontend": {
+   "elig": 196,
+   "files": 251,
+   "fresh": 2,
+   "noted": 2,
+   "stale": 0,
+   "symbols": 1684
+  },
+  "frontend/app": {
+   "elig": 182,
+   "files": 233,
+   "fresh": 2,
+   "noted": 2,
+   "stale": 0,
+   "symbols": 1668
+  },
+  "frontend/app/app": {
+   "elig": 1,
+   "files": 1,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 1
+  },
+  "frontend/app/components": {
+   "elig": 102,
+   "files": 107,
+   "fresh": 1,
+   "noted": 1,
+   "stale": 0,
+   "symbols": 874
+  },
+  "frontend/app/components/__tests__": {
+   "elig": 0,
+   "files": 3,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 24
+  },
+  "frontend/app/components/auth": {
+   "elig": 3,
+   "files": 3,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 12
+  },
+  "frontend/app/components/mobile": {
+   "elig": 11,
+   "files": 12,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 14
+  },
+  "frontend/app/components/notebooks": {
+   "elig": 7,
+   "files": 7,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 29
+  },
+  "frontend/app/components/research": {
+   "elig": 1,
+   "files": 1,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 10
+  },
+  "frontend/app/components/tabs": {
+   "elig": 12,
+   "files": 12,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 298
+  },
+  "frontend/app/components/workbench": {
+   "elig": 24,
+   "files": 25,
+   "fresh": 1,
+   "noted": 1,
+   "stale": 0,
+   "symbols": 154
+  },
+  "frontend/app/components/workbench/__tests__": {
+   "elig": 0,
+   "files": 1,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 10
+  },
+  "frontend/app/context": {
+   "elig": 8,
+   "files": 8,
+   "fresh": 1,
+   "noted": 1,
+   "stale": 0,
+   "symbols": 69
+  },
+  "frontend/app/hooks": {
+   "elig": 11,
+   "files": 13,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 79
+  },
+  "frontend/app/hooks/__tests__": {
+   "elig": 0,
+   "files": 2,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 43
+  },
+  "frontend/app/lib": {
+   "elig": 55,
+   "files": 99,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 640
+  },
+  "frontend/app/lib/__tests__": {
+   "elig": 0,
+   "files": 4,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 22
+  },
+  "frontend/app/lib/preview": {
+   "elig": 12,
+   "files": 25,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 158
+  },
+  "frontend/app/lib/preview/__tests__": {
+   "elig": 0,
+   "files": 13,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 103
+  },
+  "frontend/app/lib/workbench": {
+   "elig": 27,
+   "files": 54,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 366
+  },
+  "frontend/app/lib/workbench/__tests__": {
+   "elig": 0,
+   "files": 27,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 111
+  },
+  "frontend/app/mm-inspector.js": {
+   "elig": 1,
+   "files": 1,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 1
+  },
+  "frontend/patches": {
+   "elig": 0,
+   "files": 1,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "frontend/public": {
+   "elig": 1,
+   "files": 3,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 8
+  },
+  "frontend/public/workers": {
+   "elig": 1,
+   "files": 1,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 8
+  },
+  "frontend/scripts": {
+   "elig": 1,
+   "files": 1,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 2
+  },
+  "m2c": {
+   "elig": 94,
+   "files": 215,
+   "fresh": 29,
+   "noted": 29,
+   "stale": 0,
+   "symbols": 5319
+  },
+  "m2c/src": {
+   "elig": 94,
+   "files": 94,
+   "fresh": 29,
+   "noted": 29,
+   "stale": 0,
+   "symbols": 1418
+  },
+  "m2c/src/m2c": {
+   "elig": 94,
+   "files": 94,
+   "fresh": 29,
+   "noted": 29,
+   "stale": 0,
+   "symbols": 1418
+  },
+  "m2c/src/m2c/auth": {
+   "elig": 3,
+   "files": 3,
+   "fresh": 1,
+   "noted": 1,
+   "stale": 0,
+   "symbols": 83
+  },
+  "m2c/src/m2c/context": {
+   "elig": 4,
+   "files": 4,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 75
+  },
+  "m2c/src/m2c/interact": {
+   "elig": 3,
+   "files": 3,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 20
+  },
+  "m2c/src/m2c/link": {
+   "elig": 3,
+   "files": 3,
+   "fresh": 3,
+   "noted": 3,
+   "stale": 0,
+   "symbols": 122
+  },
+  "m2c/src/m2c/policy": {
+   "elig": 5,
+   "files": 5,
+   "fresh": 5,
+   "noted": 5,
+   "stale": 0,
+   "symbols": 142
+  },
+  "m2c/src/m2c/protocol": {
+   "elig": 29,
+   "files": 29,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "m2c/src/m2c/protocol/v1": {
+   "elig": 29,
+   "files": 29,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "m2c/src/m2c/protocol/v1/tools": {
+   "elig": 11,
+   "files": 11,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "m2c/src/m2c/sandbox": {
+   "elig": 7,
+   "files": 7,
+   "fresh": 7,
+   "noted": 7,
+   "stale": 0,
+   "symbols": 174
+  },
+  "m2c/src/m2c/secrets": {
+   "elig": 3,
+   "files": 3,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 50
+  },
+  "m2c/src/m2c/store": {
+   "elig": 5,
+   "files": 5,
+   "fresh": 2,
+   "noted": 2,
+   "stale": 0,
+   "symbols": 43
+  },
+  "m2c/src/m2c/tools": {
+   "elig": 5,
+   "files": 5,
+   "fresh": 5,
+   "noted": 5,
+   "stale": 0,
+   "symbols": 169
+  },
+  "m2c/src/m2c/trust": {
+   "elig": 4,
+   "files": 4,
+   "fresh": 4,
+   "noted": 4,
+   "stale": 0,
+   "symbols": 46
+  },
+  "m2c/src/m2c/tui": {
+   "elig": 12,
+   "files": 12,
+   "fresh": 1,
+   "noted": 1,
+   "stale": 0,
+   "symbols": 208
+  },
+  "m2c/tests": {
+   "elig": 0,
+   "files": 118,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 3901
+  },
+  "m2c/tests/auth": {
+   "elig": 0,
+   "files": 7,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 225
+  },
+  "m2c/tests/context": {
+   "elig": 0,
+   "files": 5,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 204
+  },
+  "m2c/tests/headless": {
+   "elig": 0,
+   "files": 9,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 246
+  },
+  "m2c/tests/interact": {
+   "elig": 0,
+   "files": 3,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 59
+  },
+  "m2c/tests/link": {
+   "elig": 0,
+   "files": 9,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 277
+  },
+  "m2c/tests/policy": {
+   "elig": 0,
+   "files": 9,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 225
+  },
+  "m2c/tests/runner": {
+   "elig": 0,
+   "files": 8,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 237
+  },
+  "m2c/tests/sandbox": {
+   "elig": 0,
+   "files": 14,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 649
+  },
+  "m2c/tests/secret_handling": {
+   "elig": 0,
+   "files": 7,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 152
+  },
+  "m2c/tests/tools": {
+   "elig": 0,
+   "files": 11,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 526
+  },
+  "m2c/tests/trust": {
+   "elig": 0,
+   "files": 5,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 172
+  },
+  "m2c/tests/tui": {
+   "elig": 0,
+   "files": 15,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 436
+  },
+  "protocol": {
+   "elig": 1,
+   "files": 37,
+   "fresh": 1,
+   "noted": 1,
+   "stale": 0,
+   "symbols": 36
+  },
+  "protocol/fixtures": {
+   "elig": 0,
+   "files": 5,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "protocol/v1": {
+   "elig": 0,
+   "files": 29,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "protocol/v1/tools": {
+   "elig": 0,
+   "files": 11,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 0
+  },
+  "scripts": {
+   "elig": 9,
+   "files": 10,
+   "fresh": 0,
+   "noted": 0,
+   "stale": 0,
+   "symbols": 99
+  }
+ },
+ "next": {
+  "basis": "Preview. Tiers of files that already have a note are exact; the others are judged from the 12 strongest graph links of each file. `python scripts/notes.py todo` writes the authoritative batch.",
+  "files": [
+   {
+    "commits": 2,
+    "lines": 398,
+    "links": 131,
+    "path": "m2c/src/m2c/context/memory.py",
+    "reason": "new",
+    "symbols": 16,
+    "tier": 1,
+    "tier_exact": false
+   },
+   {
+    "commits": 11,
+    "lines": 1121,
+    "links": 123,
+    "path": "backend/eo/chat_store.py",
+    "reason": "new",
+    "symbols": 23,
+    "tier": 1,
+    "tier_exact": false
+   },
+   {
+    "commits": 5,
+    "lines": 575,
+    "links": 116,
+    "path": "backend/eo/workspace_facts.py",
+    "reason": "new",
+    "symbols": 17,
+    "tier": 1,
+    "tier_exact": false
+   },
+   {
+    "commits": 7,
+    "lines": 1151,
+    "links": 112,
+    "path": "backend/eo/workspace_code_files.py",
+    "reason": "new",
+    "symbols": 20,
+    "tier": 1,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 266,
+    "links": 112,
+    "path": "m2c/src/m2c/tui/render.py",
+    "reason": "new",
+    "symbols": 14,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 2,
+    "lines": 275,
+    "links": 109,
+    "path": "m2c/src/m2c/tui/approval.py",
+    "reason": "new",
+    "symbols": 19,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 10,
+    "lines": 778,
+    "links": 108,
+    "path": "backend/eo/conversation_memory.py",
+    "reason": "new",
+    "symbols": 17,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 3,
+    "lines": 481,
+    "links": 107,
+    "path": "m2c/src/m2c/doctor.py",
+    "reason": "new",
+    "symbols": 18,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 11,
+    "lines": 1401,
+    "links": 103,
+    "path": "backend/utils/rate_ledger.py",
+    "reason": "new",
+    "symbols": 26,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 9,
+    "lines": 429,
+    "links": 102,
+    "path": "backend/eo/semantic_cache.py",
+    "reason": "new",
+    "symbols": 7,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 7,
+    "lines": 952,
+    "links": 101,
+    "path": "backend/eo/mech_cutouts.py",
+    "reason": "new",
+    "symbols": 10,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 8,
+    "lines": 1664,
+    "links": 97,
+    "path": "backend/eo/mech_validator.py",
+    "reason": "new",
+    "symbols": 20,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 8,
+    "lines": 1152,
+    "links": 93,
+    "path": "backend/eo/mech_repair.py",
+    "reason": "new",
+    "symbols": 12,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 4,
+    "lines": 687,
+    "links": 93,
+    "path": "backend/eo/user_profile.py",
+    "reason": "new",
+    "symbols": 13,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 160,
+    "links": 92,
+    "path": "m2c/src/m2c/store/sessions.py",
+    "reason": "new",
+    "symbols": 8,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 6,
+    "lines": 532,
+    "links": 90,
+    "path": "backend/eo/quota_sentinel.py",
+    "reason": "new",
+    "symbols": 8,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 3,
+    "lines": 396,
+    "links": 89,
+    "path": "backend/eo/local_workspace.py",
+    "reason": "new",
+    "symbols": 11,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 203,
+    "links": 87,
+    "path": "m2c/src/m2c/interact/question.py",
+    "reason": "new",
+    "symbols": 8,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 2,
+    "lines": 241,
+    "links": 84,
+    "path": "backend/utils/llm_errors.py",
+    "reason": "new",
+    "symbols": 5,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 98,
+    "links": 83,
+    "path": "m2c/src/m2c/tui/safe.py",
+    "reason": "new",
+    "symbols": 5,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 2,
+    "lines": 397,
+    "links": 79,
+    "path": "backend/eo/secondary_data.py",
+    "reason": "new",
+    "symbols": 7,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 190,
+    "links": 78,
+    "path": "m2c/src/m2c/logging_setup.py",
+    "reason": "new",
+    "symbols": 9,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 6,
+    "lines": 539,
+    "links": 77,
+    "path": "backend/eo/panel_content.py",
+    "reason": "new",
+    "symbols": 9,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 2,
+    "lines": 813,
+    "links": 76,
+    "path": "backend/eo/devices.py",
+    "reason": "new",
+    "symbols": 39,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 301,
+    "links": 75,
+    "path": "backend/eo/data_store.py",
+    "reason": "new",
+    "symbols": 6,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 2,
+    "lines": 133,
+    "links": 74,
+    "path": "backend/eo/audit_log.py",
+    "reason": "new",
+    "symbols": 4,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 789,
+    "links": 74,
+    "path": "m2c/src/m2c/auth/login.py",
+    "reason": "new",
+    "symbols": 19,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 12,
+    "lines": 766,
+    "links": 72,
+    "path": "backend/eo/sga.py",
+    "reason": "new",
+    "symbols": 7,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 6,
+    "lines": 603,
+    "links": 72,
+    "path": "backend/eo/mech_enclosure.py",
+    "reason": "new",
+    "symbols": 6,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 145,
+    "links": 72,
+    "path": "m2c/src/m2c/paths.py",
+    "reason": "new",
+    "symbols": 4,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 492,
+    "links": 71,
+    "path": "m2c/src/m2c/context/rules.py",
+    "reason": "new",
+    "symbols": 18,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 6,
+    "lines": 385,
+    "links": 70,
+    "path": "backend/eo/concurrency_gate.py",
+    "reason": "new",
+    "symbols": 7,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 657,
+    "links": 70,
+    "path": "m2c/src/m2c/secrets/redact.py",
+    "reason": "new",
+    "symbols": 27,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 4,
+    "lines": 486,
+    "links": 68,
+    "path": "backend/eo/mcp_client.py",
+    "reason": "new",
+    "symbols": 18,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 205,
+    "links": 67,
+    "path": "backend/eo/mech_sections.py",
+    "reason": "new",
+    "symbols": 3,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 2,
+    "lines": 239,
+    "links": 66,
+    "path": "backend/eo/note_candidates.py",
+    "reason": "new",
+    "symbols": 5,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 8,
+    "lines": 503,
+    "links": 64,
+    "path": "backend/eo/skill_library.py",
+    "reason": "new",
+    "symbols": 7,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 2,
+    "lines": 254,
+    "links": 62,
+    "path": "backend/eo/source_index.py",
+    "reason": "new",
+    "symbols": 5,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 432,
+    "links": 62,
+    "path": "backend/eo/code_findings.py",
+    "reason": "new",
+    "symbols": 9,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 518,
+    "links": 62,
+    "path": "m2c/src/m2c/context/instructions.py",
+    "reason": "new",
+    "symbols": 23,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 10,
+    "lines": 666,
+    "links": 60,
+    "path": "backend/eo/panel.py",
+    "reason": "new",
+    "symbols": 9,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 6,
+    "lines": 458,
+    "links": 59,
+    "path": "backend/eo/dynamic_chain.py",
+    "reason": "new",
+    "symbols": 10,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 2,
+    "lines": 374,
+    "links": 58,
+    "path": "m2c/src/m2c/store/migrations.py",
+    "reason": "new",
+    "symbols": 6,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 169,
+    "links": 58,
+    "path": "backend/eo/mech_subsections.py",
+    "reason": "new",
+    "symbols": 3,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 2,
+    "lines": 116,
+    "links": 57,
+    "path": "backend/eo/scratchpad.py",
+    "reason": "new",
+    "symbols": 4,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 122,
+    "links": 57,
+    "path": "m2c/src/m2c/context/__init__.py",
+    "reason": "new",
+    "symbols": 3,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 413,
+    "links": 57,
+    "path": "m2c/src/m2c/session_setup.py",
+    "reason": "new",
+    "symbols": 20,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 6,
+    "lines": 225,
+    "links": 55,
+    "path": "backend/eo/memory_batch.py",
+    "reason": "new",
+    "symbols": 9,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 171,
+    "links": 54,
+    "path": "m2c/src/m2c/tui/status.py",
+    "reason": "new",
+    "symbols": 9,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 7,
+    "lines": 444,
+    "links": 53,
+    "path": "backend/agents/structure_architect.py",
+    "reason": "new",
+    "symbols": 5,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 4,
+    "lines": 87,
+    "links": 53,
+    "path": "backend/eo/worker_pool.py",
+    "reason": "new",
+    "symbols": 1,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 20,
+    "lines": 1179,
+    "links": 51,
+    "path": "backend/agents/generic_worker.py",
+    "reason": "new",
+    "symbols": 7,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 7,
+    "lines": 468,
+    "links": 50,
+    "path": "m2c/src/m2c/cli.py",
+    "reason": "new",
+    "symbols": 7,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 47,
+    "links": 50,
+    "path": "backend/eo/errors.py",
+    "reason": "new",
+    "symbols": 1,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 5,
+    "lines": 312,
+    "links": 49,
+    "path": "backend/eo/result_render.py",
+    "reason": "new",
+    "symbols": 8,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 2,
+    "lines": 506,
+    "links": 49,
+    "path": "backend/eo/mech_device.py",
+    "reason": "new",
+    "symbols": 6,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 2,
+    "lines": 1190,
+    "links": 49,
+    "path": "m2c/src/m2c/headless.py",
+    "reason": "new",
+    "symbols": 40,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 6,
+    "lines": 1207,
+    "links": 48,
+    "path": "backend/eo/code_proposals.py",
+    "reason": "new",
+    "symbols": 23,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 4,
+    "lines": 502,
+    "links": 48,
+    "path": "backend/agents/mech_section_pool.py",
+    "reason": "new",
+    "symbols": 7,
+    "tier": 2,
+    "tier_exact": false
+   },
+   {
+    "commits": 1,
+    "lines": 229,
+    "links": 48,
+    "path": "m2c/src/m2c/secrets/env.py",
+    "reason": "new",
+    "symbols": 4,
+    "tier": 2,
+    "tier_exact": false
+   }
+  ],
+  "needing": 488,
+  "per_tier": {
+   "1": 4,
+   "2": 242,
+   "3": 242
+  }
+ },
+ "notes": {
+  "blobs_known": true,
+  "tiers": {
+   "1": {
+    "files": 108,
+    "fresh": 108,
+    "missing": 0,
+    "noted": 108,
+    "stale": 0,
+    "symbols_covered": 1875,
+    "symbols_wanted": 1875
+   },
+   "2": {
+    "files": 246,
+    "fresh": 0,
+    "missing": 246,
+    "noted": 0,
+    "stale": 0,
+    "symbols_covered": 0,
+    "symbols_wanted": 1320
+   },
+   "3": {
+    "files": 242,
+    "fresh": 0,
+    "missing": 242,
+    "noted": 0,
+    "stale": 0,
+    "symbols_covered": 0,
+    "symbols_wanted": 852
+   },
+   "4": {
+    "files": 501,
+    "fresh": 0,
+    "missing": 501,
+    "noted": 0,
+    "stale": 0,
+    "symbols_covered": 0,
+    "symbols_wanted": 0
+   }
+  },
+  "totals": {
+   "files": 596,
+   "fresh": 108,
+   "missing": 488,
+   "noted": 108,
+   "stale": 0,
+   "symbols_covered": 1875,
+   "symbols_wanted": 4047
+  }
+ },
+ "schema": 1,
+ "sources": {
+  "arch": {
+   "commit": "3727ae323c26919558a3b5f6db73c81a578537fb",
+   "flow_commits": []
+  },
+  "census": {
+   "commit": "3727ae3",
+   "date": "2026-11-19"
+  },
+  "docs": {
+   "date": "2026-11-14"
+  },
+  "graph": {
+   "commit": "3727ae3",
+   "date": "2026-11-17"
+  },
+  "notes": {
+   "commit": "3727ae323c26919558a3b5f6db73c81a578537fb",
+   "date": "2026-11-18"
+  }
+ },
+ "stale": [],
+ "totals": {
+  "files": 1190,
+  "symbols": 19136
+ }
+}

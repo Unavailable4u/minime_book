@@ -6,7 +6,7 @@ The Atlas has six kinds of generated content:
 |---|---|---|
 | `data/census.json` (MiniMe's `scripts/codebase_census.py`) | `scripts/refresh_atlas.py` | Overview, Files, Functions, History, Map, Explore, `data/code/routes.json` (API), `data/code/agents.json` (Agents) and `data/code/infra.json` (Infra, a shell drawn by `assets/js/infra.js`), `data/summary.md`, the search index (`data/index/*.json`) |
 | The Graphify graph (`MiniMe/graphify-out/`) | `scripts/refresh_graph.py` | Graph and its viewer, Overview graph numbers and hubs, Explore connections, the "callers" half of `data/code/routes.json` (API "Frontend callers"), `data/summary.md` graph line |
-| AI-written notes (`MiniMe/graphify-out/atlas-notes/`, written by Copilot: what each file and function is for) | `scripts/notes.py ingest` | `data/notes/` and `data/index/notes.json` (coverage and freshness; read by the Explorer and Coverage pages when they land) |
+| AI-written notes (`MiniMe/graphify-out/atlas-notes/`, written by Copilot: what each file and function is for) | `scripts/notes.py ingest` | `data/notes/` and `data/index/notes.json` (coverage and freshness; read by the Explorer and, through `data/index/status.json`, the Coverage page) |
 | MiniMe's source code, as committed at the census commit | `scripts/refresh_source.py` | `data/src/<path>.txt` and `data/src/manifest.json` (the Explorer's Source tab shows the real lines next to the explanations; see "Embedded source" below) |
 | MiniMe's `protocol/` folder (the M2C wire contract), `m2c/`, and `docs/decisions/`, as committed at the census commit | `scripts/refresh_protocol.py` | `data/code/protocol.json`: the Protocol, M2C client and Decision records pages (see "Protocol, M2C and decision records" below) |
 | The architecture model: structure from the census and `data/code/*.json` (script, never stale), flows written by Copilot into `MiniMe/graphify-out/atlas-arch/`, layout in `content/arch-layout.json` | `scripts/arch.py ingest` | `data/arch/` (`derived.json`, `model.json`, `flows/`, `views/`) and `data/index/arch.json` (per-flow status). Step 2c below |
@@ -184,10 +184,21 @@ Do not ask me questions unless something blocks you.
 5. `refresh_source.py --minime <MiniMe>`: copies MiniMe's source into `data/src/` (see "Embedded source"). A file that fails the secret scan is not copied and is printed as `REFUSED`; that never stops the run. Skipped with `--no-embed-source`, or when `content/config.json` has `"embedSource": false`.
 6. `refresh_protocol.py --minime <MiniMe>`: rebuilds `data/code/protocol.json` from `protocol/`, `m2c/` and `docs/decisions/` at the census commit (see "Protocol, M2C and decision records"). It stops with a message if MiniMe has no `protocol/v1` at that commit.
 7. `refresh_schema.py`, then `arch.py ingest --minime <MiniMe>`: derives the architecture structure and ingests the flows Copilot wrote (Step 2c). A flow with an error stops it; stale or missing flows only show in `arch.py status`. (It runs after the schema step because the derived structure reads `data/code/schema.json`.)
-8. Both scripts with `--check` (the first also proves the search index is current), `notes.py ingest --check`, `notes.py validate`, `arch.py ingest --check`, `arch.py validate`, `refresh_source.py --check` and `refresh_protocol.py --check`, then the unit tests, including the index builder, the palette, the chapter reader, the notes pipeline, the architecture model, the source copier and the protocol pages.
-9. With `--push`: `git add -A`, commit, `git pull --rebase`, `git push`.
+8. `build_status.py`: writes `data/index/status.json` for the Coverage page and the top-bar chip (see "Coverage and freshness"). It only reads files this repo already holds.
+9. Both scripts with `--check` (the first also proves the search index is current), `notes.py ingest --check`, `notes.py validate`, `arch.py ingest --check`, `arch.py validate`, `build_status.py --check`, `refresh_source.py --check` and `refresh_protocol.py --check`, then the unit tests, including the index builder, the palette, the chapter reader, the notes pipeline, the architecture model, the source copier and the protocol pages.
+10. With `--push`: `git add -A`, commit, `git pull --rebase`, `git push`.
 
 The GitHub Action (`refresh-atlas.yml`) still runs when `data/census.json` is pushed. After this routine it finds nothing to change, so it commits nothing.
+
+## Coverage and freshness (P22)
+
+`coverage.html` (Project wing) answers three questions: how old is everything the Atlas shows, how much of MiniMe has a note (and how much of it you have reviewed), and what should Copilot do next. The small chip in the top bar says the first part on every page and turns amber when a source is too old or when the census, graph and notes come from different commits; clicking it opens the page.
+
+* **Data:** `scripts/build_status.py` writes `data/index/status.json` from files that are already committed here (`stats.json`, `vitals.json`, `notes.json`, `arch.json`, `book.json`, the census and `file-links.json`), so CI and every contributor get the same bytes with or without a MiniMe checkout. `update_all.py` runs it after the notes and flows are ingested and checks it with `build_status.py --check`. There are no timestamps in the file: ages are worked out in the browser from the dates in it.
+* **Amber thresholds:** `content/config.json`, `freshness.warnDays` (census 14, graph 14, notes 30, book 60 days). A single number applies to all four.
+* **"Annotate next" is a preview.** It lists the next files that need a note, ordered like `notes.py todo` (tier, graph links, churn), but it only knows each file's 12 strongest graph links, so a file near a tier's cut-off can differ. `python scripts/notes.py todo` writes the authoritative batch; the page says so. Its prompts come from `content/copilot-prompts.json`, which must equal prompts A to D in this file (`scripts/test_status.py` checks that: edit both together).
+* **Audit marks** shown in the folder heatmap are the ones in this browser (`minime_audit_v1`). Shared (live-sync) marks are not read here; the Explorer's audit page shows those. "Check my reviews against the code" compares the marks with the census so changed code shows as needing re-review.
+* **Tests:** `python scripts/test_status.py` (the pure logic in `assets/js/coverage-core.js`, the script, the wiring) and, with jsdom installed, `scripts/explorer_tests/coverage.mjs` (the page and the chip).
 
 ## Protocol, M2C and decision records (P24)
 

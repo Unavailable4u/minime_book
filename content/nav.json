@@ -127,6 +127,8 @@
           "blurb": "Section-by-section map of the book", "keywords": "journey path sections progress chips" },
         { "id": "tests", "title": "Tests & coverage", "url": "tests.html", "layout": "workbench",
           "blurb": "Automated tests and coverage", "keywords": "tests unit integration security coverage" },
+        { "id": "coverage", "title": "Coverage", "url": "coverage.html", "layout": "workbench",
+          "blurb": "How much code is explained and reviewed, and how fresh the Atlas is", "keywords": "coverage freshness notes audit stale annotate next copilot prompt flows" },
         { "id": "health", "title": "Health", "url": "health.html", "layout": "workbench",
           "blurb": "Largest files, hotspots and audit risks", "keywords": "health audit risks complexity hotspots" },
         { "id": "finance", "title": "Finance", "url": "finance.html", "layout": "reader",

@@ -39,9 +39,12 @@ What it runs, in order, stopping at the first problem:
                                                  filled, and data/arch/ plus data/index/arch.json are rewritten. A malformed flow stops here;
                                                  stale, broken and unverified flows only warn
     9. both scripts with --check (refresh_atlas.py --check covers the search index, data/code/infra.json and the rest of data/code too),
-       refresh_schema.py --check, notes.py ingest --check, notes.py validate, refresh_source.py --check, refresh_protocol.py --check,
+       build_status.py --check, refresh_schema.py --check, notes.py ingest --check, notes.py validate, refresh_source.py --check, refresh_protocol.py --check,
        arch.py ingest --check, arch.py validate, and the unit tests, to prove nothing is left stale
-   10. with --push: git add, commit and push
+   10. build_status.py                          (P22) data/index/status.json, the small file the Coverage page and the top-bar chip read:
+                                                 sources and their ages, notes and flow coverage, stale notes, a preview of the next files to
+                                                 annotate. It only reads files this repo already holds, so it runs after steps 2 to 8
+   11. with --push: git add, commit and push
 
 Standard library only (the census itself needs tree-sitter and PyYAML, see --install-deps).
 """
@@ -140,9 +143,12 @@ def main(argv=None):
     arch = [PY, "scripts/arch.py", "ingest", "--minime", minime]
     run(*arch)                             # P25: after the census, protocol.json and schema.json it reads; a malformed flow stops here
 
+    run(PY, "scripts/build_status.py")     # P22: after notes, arch and the graph files it reads; changes nothing when it is already current
+
     print("\n== Verifying nothing is stale ==")
     run(PY, "scripts/refresh_atlas.py", "--check")
     run(PY, "scripts/refresh_schema.py", "--check")
+    run(PY, "scripts/build_status.py", "--check")
     run(*(graph + ["--check"] + (["--allow-stale-graph"] if args.allow_stale_graph else [])))
     run(*(notes + ["--check"]))
     run(PY, "scripts/notes.py", "validate")
@@ -175,6 +181,7 @@ def main(argv=None):
     run(PY, "scripts/test_refresh_schema.py")
     run(PY, "scripts/test_todo_api.py")
     run(PY, "scripts/test_project.py")
+    run(PY, "scripts/test_status.py")
 
     print("\n== Result ==")
     run("git", "status", "--short")

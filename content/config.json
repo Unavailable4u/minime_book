@@ -1,5 +1,17 @@
 {
-  "github": { "repo": "Unavailable4u/MiniMe" },
-  "editor": { "scheme": "vscode" },
-  "embedSource": true
+  "github": {
+    "repo": "Unavailable4u/MiniMe"
+  },
+  "editor": {
+    "scheme": "vscode"
+  },
+  "embedSource": true,
+  "freshness": {
+    "warnDays": {
+      "census": 14,
+      "graph": 14,
+      "notes": 30,
+      "docs": 60
+    }
+  }
 }
