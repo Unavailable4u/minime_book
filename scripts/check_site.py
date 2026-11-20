@@ -734,8 +734,10 @@ def check_topology(root, spec, files, add, problem, census):
 FIG_ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
 FIG_ARCHIFY_SRC = re.compile(r"^architecture/[A-Za-z0-9._-]+\.html$")
 FIG_CONTENT_SRC = re.compile(r"^content/figures/(?!.*\.\.)[A-Za-z0-9._/-]+$")
-FIG_TYPES = ("arch", "archify", "svg", "mermaid")
-FIG_RESERVED = ("chart", "graph-slice")             # P20
+FIG_TYPES = ("arch", "archify", "svg", "mermaid", "graph-slice")
+FIG_RESERVED = ("chart",)
+FIG_SLICE_FOCUS = re.compile(r"^[A-Za-z0-9._@+-]+(?:/[A-Za-z0-9._@+-]+)*/?$")   # P20: same rule as assets/js/graphslice.js (SLICE_FOCUS)
+FIG_SLICE_MIN, FIG_SLICE_MAX = 3, 24
 SVG_HEAD = re.compile(r"^\s*(?:<\?xml[^>]*\?>\s*)?(?:<!--[\s\S]*?-->\s*)*<svg[\s>]", re.I)
 SVG_UNSAFE = [
     (re.compile(r"<\s*(?:script|foreignObject|iframe|object|embed|image|set|animate)\b", re.I), "contains {m} (script, foreignObject, iframe, object, embed, image, set and animate elements are not allowed)"),
@@ -784,6 +786,18 @@ class _HeadingIds(HTMLParser):
 
 def _fig_str(v):
     return isinstance(v, str) and v.strip() != ""
+
+
+REPO_PATHS = "data/index/paths.json"
+
+
+def _repo_paths(root, files):
+    """The set of MiniMe file paths of data/index/paths.json, or None when that file is missing or unreadable."""
+    if REPO_PATHS not in files:
+        return None
+    doc = _read_json(root, REPO_PATHS)
+    items = doc.get("paths") if isinstance(doc, dict) else None
+    return set(items) if isinstance(items, list) else None
 
 
 def check_figures(root, files, ids_of, add):
@@ -888,6 +902,20 @@ def check_figures(root, files, ids_of, add):
                         bad("figure-bad-src", f'flow "{flow}" is not a flow of {ARCH_REGISTRY}', "flow")
                 if f.get("focus") is not None and not _fig_str(f.get("focus")):
                     bad("figure-bad-entry", '"focus" must be text', "focus")
+                continue
+            if ftype == "graph-slice":                   # P20: the graph neighbourhood of one file or folder
+                focus, limit = f.get("focus"), f.get("limit")
+                if not _fig_str(focus):
+                    bad("figure-bad-entry", 'needs "focus": a file or folder path from data/index/paths.json', "focus")
+                elif not FIG_SLICE_FOCUS.match(focus.strip()) or any(seg in (".", "..") for seg in focus.strip().split("/")):
+                    bad("figure-bad-entry", '"focus" must be a repo-relative path of letters, digits and . _ @ + - separated by /, with no . or .. segment', "focus")
+                else:
+                    known = _repo_paths(root, files)
+                    want = focus.strip().strip("/")
+                    if known is not None and want not in known and not any(p.startswith(want + "/") for p in known):
+                        bad("figure-bad-src", f'"focus" is "{want}", which is neither a file nor a folder of data/index/paths.json', "focus")
+                if limit is not None and (isinstance(limit, bool) or not isinstance(limit, int) or not FIG_SLICE_MIN <= limit <= FIG_SLICE_MAX):
+                    bad("figure-bad-entry", f'"limit" must be a whole number from {FIG_SLICE_MIN} to {FIG_SLICE_MAX}', "limit")
                 continue
             if ftype == "archify":
                 if not (_fig_str(src) and FIG_ARCHIFY_SRC.match(src)):

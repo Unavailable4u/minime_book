@@ -1,32 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-layout="bare">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>MiniMe Constellation</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap">
+<title>Constellation · MiniMe Atlas</title>
+<meta name="robots" content="noindex">
+<script src="assets/js/theme.js"></script>
+<script>
+/* ?embed=1 hides the page chrome and keeps the page's hands off the keyboard (it sits in an iframe); ?theme=dark|paper picks the
+   theme for this frame only (nothing is saved), like the architecture pages. Runs before first paint. */
+(function () {
+  var r = document.documentElement, q = location.search;
+  if (/[?&]embed=1(&|$)/.test(q)) r.classList.add("embed");
+  var m = /[?&]theme=(dark|paper)(&|$)/.exec(q);
+  if (m) r.dataset.theme = m[1];
+})();
+</script>
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
 <style>
 /* Layout: one full-bleed canvas world (folders as halos, files as stars) under floating glass panels:
    brand + level switch top-left, search top-right, folder list bottom-left, file details slide in from the right. */
 :root {
-  --bg: #060912;
-  --bg-2: #0a1020;
-  --panel: rgba(10, 16, 32, 0.78);
-  --panel-solid: #0b1121;
-  --line: rgba(150, 175, 255, 0.14);
-  --line-2: rgba(150, 175, 255, 0.28);
-  --fg: #e6ecfa;
-  --muted: #8a96b6;
-  --faint: #5d6a8c;
-  --out: #ff7a96;
-  --in: #a78bfa;
-  --hot: #ffd27a;
-  --display: 'Syne', 'Helvetica Neue', Arial, sans-serif;
-  --body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  color-scheme: dark;
+  /* P20: colours come from the Atlas tokens (assets/css/tokens.css, Dark and Paper); these are the viewer's own names for them. */
+  --bg-2: var(--panel-2);
+  --panel-solid: var(--panel);
+  --glass: color-mix(in srgb, var(--panel) 84%, transparent);
+  --line-2: var(--line-strong);
+  --fg: var(--ink);
+  --muted: var(--ink-dim);
+  --faint: var(--ink-dim);
+  --out: var(--brand);
+  --in: var(--graph);
+  --hot: var(--gate);
+  --tint: color-mix(in srgb, var(--graph) 13%, transparent);
+  --tint-2: color-mix(in srgb, var(--graph) 22%, transparent);
+  --display: var(--font-ui);
+  --body: var(--font-ui);
+  --mono: var(--font-mono);
+}
+/* What the canvas paints with. Plain colours (a canvas cannot read var()); the script re-reads them when the theme changes. */
+:root, [data-theme="dark"] {
+  --cv-bg0: #15151c; --cv-bg1: #0c0c10; --cv-bg2: #050507; --cv-star: #c9c8d8;
+  --cv-folder-name: 86%; --cv-folder-sub: #a9a8b8; --cv-label: #dcdbe6; --cv-label-bg: rgba(10,10,12,0.74); --cv-label-hot: #ffffff;
+  --cv-out: #ff5c80; --cv-in: #a78bfa; --cv-out-dot: #ffd0da; --cv-in-dot: #e0d6ff; --cv-ring: #ffffff;
+}
+[data-theme="paper"] {
+  --cv-bg0: #ffffff; --cv-bg1: #fbfaf6; --cv-bg2: #efece1; --cv-star: #8a8678;
+  --cv-folder-name: 28%; --cv-folder-sub: #5d5b55; --cv-label: #1b1b1f; --cv-label-bg: rgba(251,250,246,0.82); --cv-label-hot: #000000;
+  --cv-out: #d3103f; --cv-in: #6d28d9; --cv-out-dot: #d3103f; --cv-in-dot: #6d28d9; --cv-ring: #1b1b1f;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -49,10 +71,10 @@ body {
 #ui > * { pointer-events: auto; }
 button, select, input { font: inherit; color: inherit; }
 button { cursor: pointer; }
-:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
 .glass {
-  background: var(--panel);
+  background: var(--glass);
   border: 1px solid var(--line);
   border-radius: 12px;
   -webkit-backdrop-filter: blur(14px) saturate(1.3);
@@ -63,12 +85,12 @@ button { cursor: pointer; }
 /* top bar */
 #top { position: absolute; top: 12px; left: 0; right: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; pointer-events: none; }
 #top > * { pointer-events: auto; }
-#brand h1 { margin: 2px 0 8px; font-family: var(--display); font-weight: 800; font-size: 30px; letter-spacing: -0.02em; line-height: 1; text-wrap: balance; }
-#brand h1 span { background: linear-gradient(90deg, #5be3d0, #7aa7ff 45%, #c08cff 75%, #ff8fa8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+#brand h1 { margin: 2px 0 8px; font-family: var(--display); font-weight: 700; font-size: 30px; letter-spacing: -0.02em; line-height: 1; text-wrap: balance; }
+#brand h1 span { background: linear-gradient(90deg, var(--flow), var(--graph) 55%, var(--brand)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 #ctrls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 10px; }
 .seg button { border: 0; background: transparent; color: var(--muted); padding: 6px 14px; border-radius: 8px; font-weight: 500; letter-spacing: 0.01em; transition: background .2s, color .2s; }
-.seg button[aria-pressed="true"] { background: rgba(130, 160, 255, 0.2); color: var(--fg); box-shadow: inset 0 0 0 1px var(--line-2); }
+.seg button[aria-pressed="true"] { background: var(--tint-2); color: var(--fg); box-shadow: inset 0 0 0 1px var(--line-2); }
 .seg button:hover { color: var(--fg); }
 .sel { display: inline-flex; align-items: center; gap: 8px; padding: 0 10px 0 12px; height: 36px; border-radius: 10px; }
 .sel label { color: var(--muted); }
@@ -78,10 +100,10 @@ button { cursor: pointer; }
 #searchBtn:hover { border-color: var(--line-2); color: var(--fg); }
 #searchBtn svg { flex: none; }
 #searchBtn .ph { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-kbd { font-family: var(--mono); font-size: 10.5px; padding: 2px 6px; border-radius: 5px; border: 1px solid var(--line-2); color: var(--muted); background: rgba(255, 255, 255, 0.03); }
+kbd { font-family: var(--mono); font-size: 10.5px; padding: 2px 6px; border-radius: 5px; border: 1px solid var(--line-2); color: var(--muted); background: var(--panel-2); }
 #crumb { display: none; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; border-radius: 999px; font-family: var(--mono); font-size: 11.5px; }
 #crumb.on { display: inline-flex; }
-#crumb button { border: 0; background: rgba(255, 255, 255, 0.08); width: 22px; height: 22px; border-radius: 50%; color: var(--fg); line-height: 1; }
+#crumb button { border: 0; background: var(--panel-2); width: 22px; height: 22px; border-radius: 50%; color: var(--fg); line-height: 1; }
 #qchip { display: none; }
 #qchip.on { display: inline-flex; }
 
@@ -93,11 +115,11 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 2px 6px; border-radi
 #side .body { overflow-y: auto; padding: 6px; min-height: 0; overscroll-behavior: contain; }
 #side .opts { padding: 8px 12px; display: flex; flex-direction: column; gap: 4px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
 #side .opts label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-#side .opts input { accent-color: #7aa7ff; }
+#side .opts input { accent-color: var(--graph); }
 .row { display: flex; align-items: center; gap: 8px; width: 100%; padding: 4px 6px; border: 0; background: transparent; text-align: left; border-radius: 7px; min-height: 28px; }
-.row:hover { background: rgba(130, 160, 255, 0.1); }
+.row:hover { background: var(--tint); }
 .row.off { opacity: 0.38; }
-.row.on { background: rgba(130, 160, 255, 0.16); }
+.row.on { background: var(--tint-2); }
 .sw { flex: none; width: 12px; height: 12px; border-radius: 50%; border: 0; padding: 0; box-shadow: 0 0 10px 1px currentColor; }
 .row .nm { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .row .nm i { font-style: normal; color: var(--faint); }
@@ -112,37 +134,57 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 2px 6px; border-radi
 #stats b { color: var(--fg); font-weight: 500; }
 #zoom { display: flex; gap: 2px; }
 #zoom button { width: 30px; height: 30px; border: 0; border-radius: 50%; background: transparent; color: var(--fg); font-size: 16px; line-height: 1; }
-#zoom button:hover { background: rgba(130, 160, 255, 0.16); }
+#zoom button:hover { background: var(--tint-2); }
 
 /* details */
 #detail { position: absolute; right: 0; top: 74px; bottom: 12px; width: min(392px, 100%); overflow-y: auto; padding: 18px 18px 22px; transform: translateX(calc(100% + 24px)); transition: transform .42s cubic-bezier(.2,.8,.2,1); overscroll-behavior: contain; z-index: 5; }
 #detail.open { transform: none; }
-#detail .x { position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(255,255,255,0.07); color: var(--fg); }
+#detail .x { position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: var(--panel-2); color: var(--fg); }
 #detail h2 { margin: 6px 28px 2px 0; font-family: var(--display); font-weight: 700; font-size: 23px; letter-spacing: -0.01em; line-height: 1.12; overflow-wrap: anywhere; text-wrap: balance; }
 #detail .path { font-family: var(--mono); font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
-#detail .doc { margin: 12px 0 0; color: #b7c2dd; }
+#detail .doc { margin: 12px 0 0; color: var(--ink-dim); }
 .pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; }
-.pill { font-family: var(--mono); font-size: 11px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line-2); color: #c6d0ea; white-space: nowrap; }
+.pill { font-family: var(--mono); font-size: 11px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--ink); white-space: nowrap; }
 .pill.dot::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; background: currentColor; }
 #detail h3 { margin: 20px 0 6px; font-family: var(--mono); font-weight: 500; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 8px; }
 #detail h3 em { font-style: normal; color: var(--fg); }
 #detail h3::after { content: ''; flex: 1; height: 1px; background: var(--line); }
 .lnk { display: grid; grid-template-columns: 1fr 64px; align-items: center; gap: 8px; width: 100%; padding: 4px 6px; border: 0; background: transparent; text-align: left; border-radius: 6px; min-height: 28px; }
-.lnk:hover { background: rgba(130, 160, 255, 0.1); }
+.lnk:hover { background: var(--tint); }
 .lnk span.n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lnk span.n i { font-style: normal; color: var(--faint); font-size: 11px; margin-left: 6px; }
 .lnk .bar { height: 4px; border-radius: 2px; background: var(--c, var(--out)); width: var(--w, 10%); min-width: 6px; justify-self: end; opacity: .85; }
 .fnr { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; padding: 3px 6px; font-family: var(--mono); font-size: 11.5px; }
 .fnr span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fnr span + span { color: var(--muted); font-variant-numeric: tabular-nums; }
-.act { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 7px 12px; border-radius: 9px; border: 1px solid var(--line-2); background: rgba(130, 160, 255, 0.1); color: var(--fg); }
-.act:hover { background: rgba(130, 160, 255, 0.2); }
+.act { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 7px 12px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--tint); color: var(--fg); }
+.act:hover { background: var(--tint-2); }
 a.act { text-decoration: none; color: var(--fg); }
 .stat4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 14px; }
 .stat4 div { padding: 8px 10px; border-radius: 9px; border: 1px solid var(--line); }
 .stat4 b { display: block; font-family: var(--display); font-size: 20px; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
 .stat4 span { font-size: 11px; color: var(--muted); }
 .none { color: var(--faint); padding: 2px 6px; }
+a.fnr { color: inherit; text-decoration: none; border-radius: 6px; }
+a.fnr:hover { background: var(--tint); }
+.act.primary { background: var(--brand); border-color: var(--brand); color: var(--on-brand); font-weight: 600; }
+.act.primary:hover { background: color-mix(in srgb, var(--brand) 86%, var(--ink)); }
+a.act.primary { color: var(--on-brand); }
+.badge { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 1px 6px; margin-right: 6px; border-radius: 4px; border: 1px solid var(--line-2); color: var(--muted); vertical-align: 1px; }
+.badge.warn { color: var(--gate); border-color: var(--gate); }
+#detail .doc.ai { color: var(--fg); }
+#detail .doc small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+#boot { position: fixed; inset: 0; display: grid; place-content: center; gap: 8px; text-align: center; color: var(--muted); font-family: var(--mono); font-size: 12px; pointer-events: none; z-index: 5; padding: 24px; }
+#boot b { color: var(--fg); font-family: var(--display); font-size: 16px; font-weight: 600; }
+#boot.err { pointer-events: auto; }
+#boot code { color: var(--fg); }
+#themeBtn, #homeLink { display: inline-flex; align-items: center; justify-content: center; height: 36px; min-width: 36px; padding: 0 12px; border-radius: 10px; color: var(--muted); text-decoration: none; }
+#themeBtn:hover, #homeLink:hover { color: var(--fg); border-color: var(--line-2); }
+
+/* ?embed=1: a frame inside a page. No title, search, folder list or stats, so the graph gets the room; links open in a new tab. */
+.embed #brand .eyebrow, .embed #brand h1, .embed #searchBtn, .embed #side, .embed #sideBtn, .embed #stats, .embed #themeBtn, .embed #homeLink { display: none !important; }
+.embed #top { top: 8px; }
+.embed #detail { top: 56px; }
 
 /* tooltip */
 #tip { position: fixed; left: 0; top: 0; z-index: 9; pointer-events: none; opacity: 0; transition: opacity .12s; padding: 8px 10px; border-radius: 9px; max-width: 280px; font-size: 12px; }
@@ -150,16 +192,16 @@ a.act { text-decoration: none; color: var(--fg); }
 #tip span { color: var(--muted); font-family: var(--mono); font-size: 10.5px; display: block; overflow-wrap: anywhere; }
 
 /* search palette */
-#pal { position: fixed; inset: 0; z-index: 20; display: none; align-items: flex-start; justify-content: center; padding: max(72px, 10vh) 16px 16px; background: rgba(3, 5, 12, 0.6); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
+#pal { position: fixed; inset: 0; z-index: 20; display: none; align-items: flex-start; justify-content: center; padding: max(72px, 10vh) 16px 16px; background: var(--scrim); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
 #pal.open { display: flex; }
-#palbox { width: min(640px, 100%); max-height: min(560px, calc(100% - 20px)); display: flex; flex-direction: column; overflow: hidden; background: rgba(10, 16, 32, 0.96); box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(150, 175, 255, 0.08); }
+#palbox { width: min(640px, 100%); max-height: min(560px, calc(100% - 20px)); display: flex; flex-direction: column; overflow: hidden; background: var(--panel); box-shadow: var(--shadow-3); }
 #palin { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
 #q { flex: 1; min-width: 0; background: transparent; border: 0; outline: none; font-size: 17px; }
 #q::placeholder { color: var(--faint); }
 #res { overflow-y: auto; padding: 6px; min-height: 0; }
 #res h4 { margin: 10px 8px 4px; font-family: var(--mono); font-weight: 500; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
 .hit { display: flex; align-items: center; gap: 10px; width: 100%; padding: 7px 10px; border: 0; background: transparent; border-radius: 8px; text-align: left; }
-.hit.act2, .hit:hover { background: rgba(130, 160, 255, 0.16); }
+.hit.act2, .hit:hover { background: var(--tint-2); }
 .hit .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hit .nm i { font-style: normal; color: var(--faint); font-size: 11.5px; margin-left: 8px; font-family: var(--mono); }
 .hit mark { background: transparent; color: var(--hot); font-weight: 600; }
@@ -181,11 +223,13 @@ a.act { text-decoration: none; color: var(--fg); }
   kbd { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { #detail { transition: none; } }
+@media print { #ui, #tip, #pal, #boot { display: none; } }
 </style>
 
 </head>
 <body>
 <canvas id="cv" aria-label="Interactive graph of MiniMe source files grouped by folder"></canvas>
+<div id="boot" role="status"><b>Constellation</b><span>Loading the graph...</span></div>
 
 <div id="ui">
   <div id="top">
@@ -204,6 +248,8 @@ a.act { text-decoration: none; color: var(--fg); }
             <option value="recent">by last change</option>
           </select>
         </div>
+        <button id="themeBtn" class="glass" type="button" aria-label="Switch between the Dark and Paper theme" title="Theme (t)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v16" /><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+        <a id="homeLink" class="glass" href="graph.html" target="_top">&larr; Graph</a>
         <div id="crumb" class="glass"><span id="crumbT"></span><button id="crumbX" aria-label="Leave folder">&times;</button></div>
         <div id="qchip" class="glass sel"><span id="qchipT" style="font-family:var(--mono);font-size:11.5px"></span><button id="qchipX" class="row" style="width:auto;min-height:0;padding:2px 8px" aria-label="Clear search">&times;</button></div>
       </div>
@@ -257,10 +303,24 @@ a.act { text-decoration: none; color: var(--fg); }
 
 <script>
 (() => {
-const D = __DATA__;
+/* P20: the graph is data/graph/viewer.json, fetched when the page opens (it used to be inlined, 870 KB of the page). */
+const DATA_URL = 'data/graph/viewer.json';
+const boot = document.getElementById('boot');
+fetch(DATA_URL).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(d => { boot.remove(); start(d); }).catch(err => {
+  boot.classList.add('err');
+  boot.innerHTML = '<b>The graph could not be loaded.</b><span>' + String(err.message || err).replace(/[<>&]/g, '') + ' for <code>' + DATA_URL + '</code></span>' +
+    (location.protocol === 'file:' ? '<span>Pages that fetch data need a web server: run <code>python scripts/serve.py</code> and open <code>http://localhost:8000/graph-viewer.html</code>.</span>' : '<span>Run <code>python scripts/refresh_graph.py</code> to write it.</span>');
+});
+function start(D) {
 const G = D.groups, F = D.files, E = D.edges, FNS = D.fns, TOP = D.top, ROUTES = D.routes;
 const NF = F.length, NG = G.length;
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const EMBED = document.documentElement.classList.contains('embed');
+const encPath = p => p.split('/').map(encodeURIComponent).join('/');
+const explorerFile = (path, line) => 'explorer.html#/f/' + encPath(path) + (line ? '@' + line : '');    // the Explorer's hash route (assets/js/explorer/router.js)
+const explorerDir = g => 'explorer.html#/d/' + encPath(g);
+const LINK_TARGET = EMBED ? '_blank' : '_top';                                                          // from inside graph.html's frame, leave the frame
+const NOTES = new Map((D.notes || []).map(([i, text, st]) => [i, { text, st }]));
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const base = p => p.slice(p.lastIndexOf('/') + 1);
@@ -298,7 +358,8 @@ const dMin = Math.min(...dates.filter(Boolean)), dMax = Math.max(...dates);
 
 /* ---------- colors ---------- */
 const FAM = { backend: [148, 232], frontend: [262, 318], m2c: [22, 46], protocol: [338, 372], daemon: [72, 104], scripts: [196, 196], docs: [188, 188], root: [218, 218] };
-const gCol = new Array(NG);
+const gColD = new Array(NG);                        // folder colours as Dark paints them; gCol is the same, toned for the current theme
+let gCol = gColD;
 (() => {
   const fam = {};
   G.forEach((g, i) => { const k = g.split('/')[0]; (fam[k] = fam[k] || []).push(i); });
@@ -307,19 +368,30 @@ const gCol = new Array(NG);
     l.forEach((gi, j) => {
       const h = ((lo + (hi - lo) * (l.length > 1 ? j / (l.length - 1) : 0.5)) % 360 + 360) % 360;
       const neutral = (k === 'root' || k === 'scripts' || k === 'docs');
-      gCol[gi] = `${Math.round(h)} ${neutral ? 22 : 82}% ${j % 2 ? 72 : 64}%`;
+      gColD[gi] = `${Math.round(h)} ${neutral ? 22 : 82}% ${j % 2 ? 72 : 64}%`;
     });
   }
 })();
+/* ---------- theme: the canvas paints with the --cv-* colours of the current theme ---------- */
+const CV = { paper: false, glow: 'lighter', ui: '"Sora", system-ui, sans-serif', mono: '"JetBrains Mono", ui-monospace, monospace' };
+function readTheme() {
+  const cs = getComputedStyle(document.documentElement), v = n => cs.getPropertyValue(n).trim();
+  CV.paper = document.documentElement.dataset.theme === 'paper';
+  CV.glow = CV.paper ? 'multiply' : 'lighter';            // light glows vanish on paper; dark ones tint it
+  for (const k of ['bg0', 'bg1', 'bg2', 'star', 'folder-name', 'folder-sub', 'label', 'label-bg', 'label-hot', 'out', 'in', 'out-dot', 'in-dot', 'ring']) CV[k] = v('--cv-' + k);
+}
+const tone = c => CV.paper ? c.replace(/(\d+)%$/, (m, l) => Math.max(18, Math.round(l * 0.6)) + '%') : c;   // paper wants darker stars
+function skin() { readTheme(); gCol = gColD.map(tone); recolor(); sprites.clear(); }
+readTheme();
 let colorMode = 'folder';
 const ncs = new Array(NF);
 function recolor() {
   for (let i = 0; i < NF; i++) {
     if (colorMode === 'folder') ncs[i] = gCol[F[i][7]];
-    else if (colorMode === 'lang') ncs[i] = LANGC[F[i][1]] || LANGC.ot;
+    else if (colorMode === 'lang') ncs[i] = tone(LANGC[F[i][1]] || LANGC.ot);
     else {
       const t = Math.round(clamp((dates[i] - dMin) / ((dMax - dMin) || 1), 0, 1) * 24) / 24;
-      ncs[i] = `${Math.round(225 + (400 - 225) * Math.pow(t, 0.8)) % 360} ${Math.round(60 + 40 * t)}% ${Math.round(46 + 30 * t)}%`;
+      ncs[i] = tone(`${Math.round(225 + (400 - 225) * Math.pow(t, 0.8)) % 360} ${Math.round(60 + 40 * t)}% ${Math.round(46 + 30 * t)}%`);
     }
   }
 }
@@ -328,7 +400,7 @@ function sprite(c) {
   let s = sprites.get(c); if (s) return s;
   const z = 64, cv = document.createElement('canvas'); cv.width = cv.height = z;
   const x = cv.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
-  g.addColorStop(0, 'rgba(255,255,255,0.6)');
+  g.addColorStop(0, CV.paper ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.6)');
   g.addColorStop(0.1, `hsl(${c} / 1)`);
   g.addColorStop(0.3, `hsl(${c} / 0.42)`);
   g.addColorStop(0.58, `hsl(${c} / 0.07)`);
@@ -438,7 +510,7 @@ function resize() {
 }
 function usable() {
   const wide = W > 760;
-  return { l: wide ? 300 : 0, r: wide && selOpen() ? 410 : 0, t: wide ? 90 : 140, b: wide ? 60 : (selOpen() ? H * 0.62 : 60) };
+  return { l: wide && !EMBED ? 300 : 0, r: wide && selOpen() ? 410 : 0, t: EMBED ? 60 : wide ? 90 : 140, b: wide ? 60 : (selOpen() ? H * 0.62 : 60) };   // the folder list is not there in a frame (?embed=1)
 }
 const selOpen = () => $('detail').classList.contains('open');
 function fitTo(minx, miny, maxx, maxy, instant, maxK = 6) {
@@ -496,18 +568,18 @@ function frame(now) {
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   const bg = ctx.createRadialGradient(W * 0.5, H * 0.45, 0, W * 0.5, H * 0.5, Math.max(W, H) * 0.75);
-  bg.addColorStop(0, '#0d1530'); bg.addColorStop(0.55, '#070b18'); bg.addColorStop(1, '#04060d');
+  bg.addColorStop(0, CV.bg0); bg.addColorStop(0.55, CV.bg1); bg.addColorStop(1, CV.bg2);
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
   for (const s of stars) {
     const tw = REDUCED ? 0.5 : 0.35 + 0.35 * Math.sin(t * 0.8 + s[3]);
-    ctx.globalAlpha = tw * 0.5; ctx.fillStyle = '#9db4ff'; ctx.fillRect(s[0] * W, s[1] * H, s[2], s[2]);
+    ctx.globalAlpha = tw * 0.5; ctx.fillStyle = CV.star; ctx.fillRect(s[0] * W, s[1] * H, s[2], s[2]);
   }
   ctx.globalAlpha = 1;
   for (let i = 0; i < NF; i++) {
     const target = !isVis(i) ? 0 : (hl && !hl[i] ? 0.3 : 1);
     na[i] += (target - na[i]) * 0.2;
   }
-  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalCompositeOperation = CV.glow;
 
   /* folder halos / bubbles */
   for (let g = 0; g < NG; g++) {
@@ -567,7 +639,7 @@ function frame(now) {
       const [sx, sy] = toS(ax, ay), [ex, ey] = toS(bx, by);
       if ((sx < -50 && ex < -50) || (sx > W + 50 && ex > W + 50) || (sy < -50 && ey < -50) || (sy > H + 50 && ey > H + 50)) continue;
       ctx.globalAlpha = al;
-      ctx.strokeStyle = touch ? (s === hlCenter ? '#ff7a96' : '#a78bfa') : `hsl(${ncs[s]})`;
+      ctx.strokeStyle = touch ? (s === hlCenter ? CV.out : CV['in']) : `hsl(${ncs[s]})`;
       ctx.lineWidth = touch ? 1.2 + Math.min(2, Math.log2(1 + w) * 0.35) : 0.6;
       ctx.beginPath(); ctx.moveTo(sx, sy);
       if (F[s][7] !== F[d][7]) ctx.quadraticCurveTo((sx + ex) / 2 - (ey - sy) * 0.08, (sy + ey) / 2 + (ex - sx) * 0.08, ex, ey); else ctx.lineTo(ex, ey);
@@ -579,7 +651,7 @@ function frame(now) {
           const u = (t * 0.45 + ph + q * 0.5) % 1, v = 1 - u;
           const qx = curved ? v * v * sx + 2 * v * u * ccx + u * u * ex : sx + (ex - sx) * u;
           const qy = curved ? v * v * sy + 2 * v * u * ccy + u * u * ey : sy + (ey - sy) * u;
-          ctx.globalAlpha = 0.9; ctx.fillStyle = s === hlCenter ? '#ffd0da' : '#e0d6ff';
+          ctx.globalAlpha = 0.9; ctx.fillStyle = s === hlCenter ? CV['out-dot'] : CV['in-dot'];
           ctx.beginPath(); ctx.arc(qx, qy, 1.7, 0, 6.2832); ctx.fill();
         }
       }
@@ -600,7 +672,7 @@ function frame(now) {
     if (F[i][6] && r > 2.2) { ctx.globalAlpha = a * mix * 0.6; ctx.strokeStyle = `hsl(${ncs[i]})`; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.arc(sx, sy, r * 1.15, 0, 6.2832); ctx.stroke(); }
     if (i === selI) {
       const pr = r * (1.8 + (REDUCED ? 0 : 0.35 * Math.sin(t * 3)));
-      ctx.globalAlpha = 0.9; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(sx, sy, pr + 3, 0, 6.2832); ctx.stroke();
+      ctx.globalAlpha = 0.9; ctx.strokeStyle = CV.ring; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(sx, sy, pr + 3, 0, 6.2832); ctx.stroke();
     }
     if (mix > 0.6 && a > 0.4) {
       const want = isC || (hlCenter >= 0 && hl && hl[i]) || (qset && qset.has(i) && qset.size < 40) || (cam.k > 2.4 && r > 3.2) || (cam.k > 1.15 && nr[i] > 7.5 && !hl) || (cam.k > 0.55 && deg[i] > 60 && !hl);
@@ -622,27 +694,27 @@ function frame(now) {
     const cy = sy * (1 - mix) + (sy - R * 0.98 - 13) * mix;
     ctx.textAlign = 'center';
     ctx.globalAlpha = (0.95 - 0.35 * mix) * dim * (cam.k > 2.8 ? 0.5 : 1);
-    ctx.fillStyle = `hsl(${gCol[g].replace(/\d+%$/, '86%')})`;
-    ctx.font = `700 ${fs * (1 - 0.12 * mix)}px Syne, "Helvetica Neue", Arial, sans-serif`;
+    ctx.fillStyle = `hsl(${gCol[g].replace(/\d+%$/, CV['folder-name'])})`;
+    ctx.font = `700 ${fs * (1 - 0.12 * mix)}px ${CV.ui}`;
     ctx.fillText(mix > 0.5 ? name : (nm === '' ? name : nm), sx, cy - (par && mix < 0.5 ? 6 * (1 - mix) : 0) + (par ? 0 : 0));
     if (par && mix < 0.6) {
-      ctx.globalAlpha = (1 - mix) * 0.7 * dim; ctx.font = `400 10px "JetBrains Mono", monospace`; ctx.fillStyle = '#9fb0d6';
+      ctx.globalAlpha = (1 - mix) * 0.7 * dim; ctx.font = `400 10px ${CV.mono}`; ctx.fillStyle = CV['folder-sub'];
       ctx.fillText(par + '/', sx, cy - fs * 1.1 - 1);
     }
     if (mix < 0.6) {
-      ctx.globalAlpha = (1 - mix * 1.6) * 0.8 * dim; ctx.font = `400 10.5px "JetBrains Mono", monospace`; ctx.fillStyle = '#b8c4e4';
+      ctx.globalAlpha = (1 - mix * 1.6) * 0.8 * dim; ctx.font = `400 10.5px ${CV.mono}`; ctx.fillStyle = CV['folder-sub'];
       ctx.fillText(`${gF[g].length} files`, sx, cy + fs * 0.85 + 4);
     }
   }
-  ctx.font = '500 11px "IBM Plex Sans", system-ui, sans-serif'; ctx.textAlign = 'left';
+  ctx.font = `500 11px ${CV.ui}`; ctx.textAlign = 'left';
   lab.sort((p, q) => nr[q[0]] - nr[p[0]]);
   const boxes = [];
   for (const [i, sx, sy, r] of lab.slice(0, 90)) {
     const txt = base(F[i][0]), w = ctx.measureText(txt).width + 10, x = sx + r * 1.5 + 4, y = sy;
     if (i !== hlCenter && boxes.some(b => x < b[0] + b[2] && x + w > b[0] && y - 8 < b[1] + 16 && y + 8 > b[1])) continue;
     boxes.push([x, y - 8, w]);
-    ctx.globalAlpha = 0.9; ctx.fillStyle = 'rgba(6,9,18,0.72)'; ctx.fillRect(x - 3, y - 8, w, 16);
-    ctx.fillStyle = i === hlCenter ? '#fff' : '#d3dcf3'; ctx.fillText(txt, x + 2, y);
+    ctx.globalAlpha = 0.9; ctx.fillStyle = CV['label-bg']; ctx.fillRect(x - 3, y - 8, w, 16);
+    ctx.fillStyle = i === hlCenter ? CV['label-hot'] : CV.label; ctx.fillText(txt, x + 2, y);
   }
   ctx.globalAlpha = 1;
   requestAnimationFrame(frame);
@@ -727,6 +799,19 @@ function showTip(x, y) {
 /* ---------- selection and details ---------- */
 const det = $('detail');
 function openDetail(html) { det.innerHTML = `<button class="x" aria-label="Close details">&times;</button>${html}`; det.classList.add('open'); det.scrollTop = 0; det.querySelector('.x').onclick = clearSel; }
+/* A file's description: its AI note when there is one (labelled, and flagged when the code changed since), else its docstring line. */
+function noteHtml(i, f) {
+  const n = NOTES.get(i);
+  if (n) return `<p class="doc ai"><span class="badge">AI-written</span>${n.st === 'stale' ? '<span class="badge warn">code changed since</span>' : ''}${esc(n.text)}</p>`;
+  return f[8] ? `<p class="doc">${esc(f[8])}</p>` : '';
+}
+/* A folder has no note of its own, so it shows the note of its best-connected file that has one, and says so. */
+const gHub = new Array(NG).fill(-1);
+for (const i of NOTES.keys()) { if (/(^|\/)__init__\.py$/.test(F[i][0])) continue; const g = F[i][7]; if (gHub[g] < 0 || deg[i] > deg[gHub[g]]) gHub[g] = i; }   // an empty package marker says nothing about the folder
+function blurbHtml(g) {
+  const i = gHub[g]; if (i < 0) return '';
+  return `<p class="doc ai"><span class="badge">AI-written</span>${esc(NOTES.get(i).text)}<small>from the note on ${esc(base(F[i][0]))}, the best-connected file here that has one</small></p>`;
+}
 function selectFile(i, fly) {
   selI = i; selG = -1; recomputeHL();
   if (mixT < 1) setLevel('files', true);
@@ -739,7 +824,7 @@ function selectFile(i, fly) {
     <div class="eyebrow">${esc(G[g])}</div>
     <h2>${esc(base(f[0]))}</h2>
     <div class="path">${esc(f[0])}</div>
-    ${f[8] ? `<p class="doc">${esc(f[8])}</p>` : ''}
+    ${noteHtml(i, f)}
     <div class="pills">
       <span class="pill dot" style="color:hsl(${ncs[i]})">${esc(LANG[f[1]] || f[1])}</span>
       <span class="pill">${fmt(f[2])} code lines</span><span class="pill">${f[3]} functions</span>
@@ -747,11 +832,11 @@ function selectFile(i, fly) {
     </div>
     <h3>Links out <em>${o.length}</em></h3>${lst(o, 'var(--out)')}
     <h3>Links in <em>${n.length}</em></h3>${lst(n, 'var(--in)')}
-    ${tops.length ? `<h3>Largest functions</h3>${tops.map(t => `<div class="fnr"><span>${esc(t[0])}</span><span>line ${t[1]}</span><span>${t[2]} ln</span></div>`).join('')}` : ''}
+    ${tops.length ? `<h3>Largest functions</h3>${tops.map(t => `<a class="fnr" href="${explorerFile(f[0], t[1])}" target="${LINK_TARGET}" title="Open this function in the Explorer"><span>${esc(t[0])}</span><span>line ${t[1]}</span><span>${t[2]} ln</span></a>`).join('')}` : ''}
     ${rts.length ? `<h3>Routes defined <em>${rts.length}</em></h3><div class="pills" style="margin-top:0">${rts.slice(0, 12).map(r => `<span class="pill">${esc(r[0])} ${esc(r[1])}</span>`).join('')}</div>` : ''}
     ${tests.length ? `<h3>Related tests</h3>${tests.map(([t, j]) => `<button class="lnk" data-f="${j}" style="--w:0%"><span class="n">${esc(base(t[0]))}</span><span></span></button>`).join('')}` : ''}
-    <button class="act" data-g="${g}">Open folder ${esc(G[g])}</button>
-    <a class="act" style="margin-left:6px" href="explore.html#${encodeURIComponent(f[0])}" target="_top">Explore page &#8599;</a>
+    <a class="act primary" href="${explorerFile(f[0])}" target="${LINK_TARGET}">Open in Explorer &#8599;</a>
+    <button class="act" style="margin-left:6px" data-g="${g}">Show folder ${esc(G[g])}</button>
   `);
   if (fly) { const ids = [i, ...o.map(x => x[0]), ...n.map(x => x[0])]; const [a, b, c, d] = bounds(ids, 40); fitTo(a, b, c, d, false, 3.2); }
 }
@@ -763,6 +848,7 @@ function openFolderDetail(g) {
     <div class="eyebrow">Folder</div>
     <h2>${esc(base(G[g]) || G[g])}</h2>
     <div class="path">${esc(G[g])}/</div>
+    ${blurbHtml(g)}
     <div class="stat4">
       <div><b>${gF[g].length}</b><span>files</span></div><div><b>${fmt(gLoc[g])}</b><span>lines of code</span></div>
       <div><b>${fmt(gFn[g])}</b><span>functions</span></div><div><b>${gTest[g]}</b><span>test files</span></div>
@@ -772,6 +858,7 @@ function openFolderDetail(g) {
     <h3>Largest files</h3>
     ${big.map(i => `<button class="lnk" data-f="${i}" style="--w:0%"><span class="n">${esc(base(F[i][0]))}<i>${fmt(F[i][2])} lines</i></span><span></span></button>`).join('')}
     <button class="act" data-g="${g}">Zoom into the files</button>
+    ${G[g] === 'root' ? '' : `<a class="act primary" style="margin-left:6px" href="${explorerDir(G[g])}" target="${LINK_TARGET}">Open in Explorer &#8599;</a>`}
   `);
 }
 function clearSel() { selI = -1; selG = -1; det.classList.remove('open'); recomputeHL(); }
@@ -814,7 +901,7 @@ function renderSide() {
     sideBody.innerHTML = '<div class="none" style="padding:10px">Each folder has its own color. Related folders share a hue family: backend in teal to blue, frontend in violet, m2c in amber, protocol in rose, daemon in lime.</div>';
   } else if (colorMode === 'lang') {
     const cnt = {}; F.forEach(f => cnt[f[1]] = (cnt[f[1]] || 0) + 1);
-    sideBody.innerHTML = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]).map(k => `<div class="row"><span class="sw" style="background:hsl(${LANGC[k] || LANGC.ot});color:hsl(${LANGC[k] || LANGC.ot})"></span><span class="nm">${esc(LANG[k] || k)}</span><span class="ct">${cnt[k]}</span></div>`).join('');
+    sideBody.innerHTML = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]).map(k => `<div class="row"><span class="sw" style="background:hsl(${tone(LANGC[k] || LANGC.ot)});color:hsl(${tone(LANGC[k] || LANGC.ot)})"></span><span class="nm">${esc(LANG[k] || k)}</span><span class="ct">${cnt[k]}</span></div>`).join('');
   } else {
     sideBody.innerHTML = `<div class="ramp"></div><div class="rampl"><span>${new Date(dMin).toISOString().slice(0, 10)}</span><span>${new Date(dMax).toISOString().slice(0, 10)}</span></div><div class="none" style="padding:6px 10px">Brighter and warmer means changed more recently.</div>`;
   }
@@ -890,7 +977,11 @@ res.addEventListener('click', e => {
 pal.addEventListener('pointerdown', e => { if (e.target === pal) closePal(!!qset); });
 $('searchBtn').onclick = openPal;
 $('qchipX').onclick = () => { qset = null; qtext = ''; chip(); recomputeHL(); };
+$('themeBtn').onclick = () => window.minimeTheme && window.minimeTheme.cycle();
+document.addEventListener('minime:theme', () => skin());          // theme.js announces the switch
 addEventListener('keydown', e => {
+  if (EMBED) return;                                              // a frame inside a page leaves the keyboard to the page
+  if (e.key === 't' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.target.matches('input, select, textarea') && !pal.classList.contains('open')) { window.minimeTheme && window.minimeTheme.cycle(); return; }
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openPal(); return; }
   if (pal.classList.contains('open')) return;
   if (e.target.matches('input, select, textarea')) return;
@@ -908,11 +999,18 @@ function stats() {
   $('stats').innerHTML = `<span><b>${fmt(NF)}</b> files</span><span><b>${NG}</b> folders</span><span><b>${fmt(E.length)}</b> links</span><span><b>${fmt(FNS.length)}</b> functions</span>`;
 }
 addEventListener('resize', () => { resize(); if (mixT < 1) fitAll(true); });
-resize(); recolor(); updateHalos(0); renderSide(); stats(); fitAll(true);
+resize(); skin(); updateHalos(0); renderSide(); stats(); fitAll(true);
 if (!REDUCED) { mix = 0; setTimeout(() => { mixT = 1; }, 650); } else mix = 1;
 mixT = REDUCED ? 1 : 0; if (!REDUCED) mixT = 0;
+/* ?focus=<file path or folder>: open with that file (or folder) selected, so a page can link straight to a place in the graph. */
+const focusArg = new URLSearchParams(location.search).get('focus');
+if (focusArg) {
+  const fi = F.findIndex(f => f[0] === focusArg), gi = G.indexOf(focusArg.replace(/\/+$/, ''));
+  if (fi >= 0) setTimeout(() => selectFile(fi, true), REDUCED ? 0 : 700); else if (gi >= 0) setTimeout(() => drill(gi), REDUCED ? 0 : 700);
+}
 requestAnimationFrame(frame);
 window.__atlas = { setLevel, selectFile, drill, runSearch, openPal, state: () => ({ mix, mixT, cam, NF, NG }) };
+}
 })();
 </script>
 </body>

@@ -21,7 +21,7 @@ rg = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(rg)
 ra = rg.ra
 
-PAGES = ["graph.html", "graph-viewer.html", "data/summary.md", "data/index/vitals.json", "data/code/routes.json"]
+PAGES = ["graph.html", "graph-viewer.html", "data/summary.md", "data/index/vitals.json", "data/code/routes.json"]   # (data/graph/viewer.json is written, not copied: P20)
 COMMIT = "a" * 40
 
 
@@ -287,20 +287,24 @@ class Between(unittest.TestCase):
 
 class Viewer(Fixture):
     def data(self):
+        """(graph-viewer.html, the parsed data/graph/viewer.json) after one refresh. Since P20 the page holds no data."""
         self.apply()
-        html = read(self.book / "graph-viewer.html")
-        return html, ra.read_literal(html, "const D = ")
+        return read(self.book / "graph-viewer.html"), json.loads(read(self.book / rg.VIEWER_REL))
 
-    def test_viewer_is_a_complete_page_with_the_graph_embedded(self):
+    def test_viewer_is_a_complete_page_that_fetches_its_graph(self):
         html, d = self.data()
         self.assertTrue(html.startswith("<!DOCTYPE html>"))
         self.assertNotIn("__DATA__", html)
+        self.assertNotIn("const D =", html)                      # P20: the graph is not inlined any more
+        self.assertIn("data/graph/viewer.json", html)
+        self.assertLess(len(html.encode("utf-8")), 200 * 1024)   # it was 1.3 MB with the data in it
         self.assertNotIn("RAW_NODES", html)                      # no longer Graphify's viewer
         self.assertEqual({"date": self.graph().date, "commit": "aaaaaaa"}, d["meta"])
         rows, fns = rg.viewer_rows(rg.code_files(self.book))
         self.assertEqual(len(rows), len(d["files"]))
         self.assertEqual(len(fns), len(d["fns"]))
         self.assertEqual(len(rg.code_routes(self.book)), len(d["routes"]))
+        self.assertEqual([], d["notes"])                         # this fixture has no data/index/notes.json
 
     def test_links_are_counted_from_the_graph_without_the_explore_cap(self):
         _, d = self.data()
@@ -356,18 +360,87 @@ class Viewer(Fixture):
         self.assertLess(len(d["routes"]), len(routes))
         self.assertEqual(len(rg.code_routes(self.book)), len(rg.viewer_data(g, rg.code_files(self.book), routes)["routes"]))
 
-    def test_a_template_without_the_data_placeholder_is_refused(self):
+    def test_a_template_that_still_inlines_its_data_is_refused(self):
         bad = self.tmp / "bad.html"
-        bad.write_text("<html></html>", encoding="utf-8")
+        bad.write_text("<script>const D = __DATA__;</script>", encoding="utf-8")
         with self.assertRaises(ValueError):
-            rg.viewer_html({}, template=bad)
+            rg.viewer_html(template=bad)
 
-    def test_text_that_could_close_the_script_tag_is_escaped(self):
-        tpl = self.tmp / "t.html"
-        tpl.write_text("<script>const D = __DATA__;</script>", encoding="utf-8")
-        out = rg.viewer_html({"x": "</script><b>"}, template=tpl)
-        self.assertEqual(1, out.count("</script>"))
-        self.assertEqual({"x": "</script><b>"}, ra.read_literal(out, "const D = "))
+    def test_the_page_is_the_template_as_it_is(self):
+        self.assertEqual((ROOT / "scripts" / "graph_viewer_template.html").read_text(encoding="utf-8"), rg.viewer_html())
+        self.apply()
+        self.assertEqual(rg.viewer_html(), read(self.book / "graph-viewer.html"))
+
+    def test_viewer_json_is_compact_deterministic_and_ends_with_a_newline(self):
+        self.apply()
+        raw = (self.book / rg.VIEWER_REL).read_bytes().decode("utf-8")
+        self.assertTrue(raw.endswith("}\n"))
+        self.assertNotIn("\r", raw)
+        self.assertEqual(1, raw.count("\n"))                      # one line: a script reads it, nobody diffs it by eye
+        self.assertEqual(raw, rg.viewer_json(json.loads(raw)))
+        self.apply()                                              # a second run changes nothing
+        self.assertEqual({}, {p: 1 for p in rg.refresh_all(self.book, self.graph(), self.minime) if p.name == "viewer.json"})
+
+    def test_viewer_json_is_part_of_the_check(self):
+        self.apply()
+        (self.book / rg.VIEWER_REL).write_text("{}\n", encoding="utf-8")
+        self.assertIn(self.book / rg.VIEWER_REL, rg.refresh_all(self.book, self.graph(), self.minime))
+
+    # ------------------------------------------------------------- P20: AI note summaries in the viewer
+    def write_notes(self, files):
+        (self.book / "data" / "index").mkdir(parents=True, exist_ok=True)
+        (self.book / rg.NOTES_REL).write_text(json.dumps({"schema": 1, "files": files}), encoding="utf-8")
+
+    def test_note_summaries_are_listed_by_file_index_with_their_status(self):
+        paths = [f["path"] for f in rg.code_files(self.book)]
+        a, b = paths[3], paths[1]
+        self.write_notes({a: {"summary": "Does  a\n thing.", "status": "fresh"}, b: {"summary": "Other.", "status": "stale"},
+                          "gone/not-in-the-census.py": {"summary": "Orphan.", "status": "fresh"}, paths[5]: {"summary": "  ", "status": "fresh"}})
+        self.assertEqual([[1, "Other.", "stale"], [3, "Does a thing.", "fresh"]], rg.viewer_notes(self.book, paths))
+
+    def test_a_long_summary_is_cut_and_no_notes_file_means_no_notes(self):
+        paths = [f["path"] for f in rg.code_files(self.book)]
+        self.assertEqual([], rg.viewer_notes(self.book, paths))
+        self.write_notes({paths[0]: {"summary": "w" * 1000, "status": "fresh"}})
+        self.assertEqual(rg.VIEWER_NOTE_MAX, len(rg.viewer_notes(self.book, paths)[0][1]))
+        (self.book / rg.NOTES_REL).write_text("[not an object", encoding="utf-8")
+        self.assertEqual([], rg.viewer_notes(self.book, paths))
+
+    def test_refresh_puts_the_notes_into_viewer_json(self):
+        paths = [f["path"] for f in rg.code_files(self.book)]
+        self.write_notes({paths[2]: {"summary": "Explains itself.", "status": "fresh"}})
+        _, d = self.data()
+        self.assertEqual([[2, "Explains itself.", "fresh"]], d["notes"])
+
+    # ------------------------------------------------------------- P20: what the template promises
+    def template(self):
+        return (ROOT / "scripts" / "graph_viewer_template.html").read_text(encoding="utf-8")
+
+    def test_the_viewer_uses_the_atlas_tokens_and_self_hosted_fonts(self):
+        t = self.template()
+        for needle in ("assets/css/tokens.css", "assets/css/base.css", "assets/js/theme.js", 'data-layout="bare"', 'data-theme="paper"'):
+            self.assertIn(needle, t)
+        for host in ("googleapis", "gstatic", "cdnfonts", "https://", "@import"):
+            self.assertNotIn(host, t, f"the viewer must not load anything from {host}")
+        self.assertNotRegex(t, r'(?:src|href)="https?:')           # (the one http:// in the text is the address a person types after serve.py)
+        self.assertNotRegex(t, r"IBM Plex|Syne")                  # the fonts it used to ask Google for
+
+    def test_selecting_something_leads_to_the_explorer_not_the_retired_explore_page(self):
+        t = self.template()
+        self.assertIn("explorer.html#/f/", t)
+        self.assertIn("explorer.html#/d/", t)
+        self.assertNotIn("explore.html", t)
+
+    def test_embed_and_focus_arguments_are_read(self):
+        t = self.template()
+        for needle in ("embed=1", "classList.add(\"embed\")", ".embed #side", "get('focus')", "theme=(dark|paper)"):
+            self.assertIn(needle, t)
+
+    def test_the_canvas_follows_the_theme(self):
+        t = self.template()
+        self.assertIn("minime:theme", t)
+        self.assertIn("--cv-bg0", t)
+        self.assertNotRegex(t, r"addColorStop\(\d(?:\.\d+)?, '#")      # no hard-coded dark background left in the paint code
 
 
 class ApiCallers(Fixture):

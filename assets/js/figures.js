@@ -17,7 +17,9 @@
               archify   an iframe of architecture/<x>.html?embed=1&theme=...  (needs size: [width, height] of its SVG)
               svg       an inline SVG from src (content/figures/**.svg) or code; inherits the page's colour tokens
               mermaid   a Mermaid diagram from code (or src *.mmd); the library is loaded only when one is on the page
-              (chart and graph-slice are reserved for P20 and are skipped with a console warning)
+              graph-slice (P20) the graph neighbourhood of one file or folder, drawn inline from data/graph/file-links.json: focus = a path
+                        from data/index/paths.json, optional limit (3 to 24 neighbours, default 12); needs neither src nor size
+              (chart is reserved and is skipped with a console warning)
      caption  shown under the figure and in the viewer;   alt   what the figure shows, for screen readers (required;
               scripts/check_site.py enforces it, here a missing alt falls back to the caption)
      wide     true: use the whole ~100ch track instead of the 72ch text column
@@ -35,12 +37,15 @@
 const BASE = new URL("../../", import.meta.url);
 const CSS_PATH = "assets/css/figures.css";
 export const MERMAID_SRC = "assets/vendor/mermaid/mermaid.min.js";   // written by scripts/vendor_mermaid.py (pinned)
-export const TYPES = ["arch", "archify", "svg", "mermaid"];
-export const RESERVED_TYPES = ["chart", "graph-slice"];
+export const TYPES = ["arch", "archify", "svg", "mermaid", "graph-slice"];
+export const RESERVED_TYPES = ["chart"];
 export const ARCHIFY_PAD = 24;            // px the diagram page adds around its SVG in embed mode (16 padding + 8 slack)
 export const ZOOM_MAX = 8;
 
 const ID_RE = /^[a-z0-9][a-z0-9-]{0,62}$/;
+/* graph-slice (P20): the same rules as assets/js/graphslice.js, which is only loaded when a figure needs drawing (this file has no imports) */
+const SLICE_FOCUS = /^[A-Za-z0-9._@+-]+(?:\/[A-Za-z0-9._@+-]+)*\/?$/;
+const SLICE_MIN = 3, SLICE_MAX = 24;
 const ARCHIFY_SRC = /^architecture\/[A-Za-z0-9._-]+\.html$/;
 const CONTENT_SRC = /^content\/figures\/(?!.*\.\.)[A-Za-z0-9._/-]+$/;
 
@@ -74,6 +79,12 @@ export function normalizeManifest(raw) {
       if (f.flow != null && (typeof f.flow !== "string" || !ID_RE.test(f.flow))) return bad('"flow" must be a flow id');
       if (f.focus != null && !str(f.focus)) return bad('"focus" must be text');
       out.view = f.view; out.flow = f.flow || null; out.focus = f.focus || null;
+    } else if (f.type === "graph-slice") {
+      if (!str(f.focus)) return bad('needs "focus": a file or folder path from data/index/paths.json');
+      const focus = f.focus.trim();
+      if (!SLICE_FOCUS.test(focus) || focus.split("/").some((x) => x === "." || x === "..")) return bad('"focus" must be a repo-relative path of letters, digits and . _ @ + - separated by /, with no . or .. segment');
+      if (f.limit != null && (!Number.isInteger(f.limit) || f.limit < SLICE_MIN || f.limit > SLICE_MAX)) return bad(`"limit" must be a whole number from ${SLICE_MIN} to ${SLICE_MAX}`);
+      out.focus = focus.replace(/\/+$/, ""); out.limit = f.limit == null ? null : f.limit;
     } else if (f.type === "archify") {
       if (!str(f.src) || !ARCHIFY_SRC.test(f.src)) return bad('needs "src": "architecture/<name>.html"');
       const s = f.size;
@@ -343,6 +354,13 @@ function buildFigure(fig) {
     rec.href = `arch-view.html?view=${encodeURIComponent(fig.view)}${fig.flow ? `&flow=${encodeURIComponent(fig.flow)}` : ""}`;
     tools.append(copyButton("mm-btn fg__tool", () => rec.source), h("a", { class: "mm-btn fg__tool", href: rec.href, target: "_blank", rel: "noopener" }, h("span", { html: ICON.open }), h("span", {}, "Open interactive diagram")));
     rec.print = h("p", { class: "fg__print" }, `Interactive diagram: ${new URL(rec.href, location.href).href}`);
+  } else if (fig.type === "graph-slice") {
+    rec.holder = h("div", { class: "fg__svg", role: "img", "aria-label": fig.alt });
+    rec.holder.append(h("p", { class: "fg__wait" }, "Diagram loads as you scroll to it."));
+    rec.canvas.append(rec.holder);
+    rec.expand.disabled = true;                                        // until the diagram is drawn
+    tools.append(copyButton("mm-btn fg__tool", () => rec.source));     // Open in Explorer / Open in graph are added once the data says whether the focus is a file or a folder
+    rec.tools = tools;
   } else if (fig.type === "archify") {
     rec.size = { w: fig.size[0] + 16, h: fig.size[1] + ARCHIFY_PAD };
     rec.iframe = h("iframe", { class: "fg__iframe", src: archifyUrl(fig.src, F.theme), loading: "lazy", tabindex: "-1", "aria-hidden": "true", title: fig.alt });
@@ -416,10 +434,30 @@ async function renderArch(rec) {
     rec.expand.disabled = false;
   } catch (err) { fail(rec, err, null); }
 }
+/* A graph-slice figure: the neighbourhood of one file or folder, drawn as SVG by graphslice.js from data/graph/file-links.json. The SVG
+   paints with the page's tokens, so the theme needs no redraw; its links are real <a>s, and a list of the same links sits under it
+   for keyboard and screen-reader users (the SVG itself is aria-hidden like every figure). */
+async function renderSlice(rec) {
+  try {
+    const { loadSlice, explorerHref, viewerHref } = await import("./graphslice.js");
+    const { model, svg, note } = await loadSlice(rec.fig, BASE);
+    const node = new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;     // generated here from escaped data, so it skips the author-SVG safety check
+    if (!node || node.nodeName.toLowerCase() !== "svg") throw new Error("the diagram could not be built");
+    showSvg(rec, document.importNode(node, true), svg);
+    const items = [model.centre, ...model.nodes].map((n, i) => h("li", {}, h("a", { href: explorerHref(n.kind, n.path) }, n.path), i === 0 ? " (this one)" : ` \u2014 ${n.links} link${n.links === 1 ? "" : "s"}${n.kind === "folder" ? `, ${n.files} file${n.files === 1 ? "" : "s"}` : ""}`));
+    rec.canvas.append(h("details", { class: "fg__slicelist" }, h("summary", {}, `List the ${model.nodes.length} neighbour${model.nodes.length === 1 ? "" : "s"}`), h("ul", {}, ...items), h("p", { class: "fg__slicenote" }, note)));
+    const where = explorerHref(model.centre.kind, model.centre.path);
+    rec.tools.append(h("a", { class: "mm-btn fg__tool", href: where }, h("span", { html: ICON.open }), h("span", {}, "Open in Explorer")),
+                     h("a", { class: "mm-btn fg__tool", href: viewerHref(model.centre.path), target: "_blank", rel: "noopener" }, h("span", { html: ICON.open }), h("span", {}, "Open in graph")));
+    rec.print = rec.print || h("p", { class: "fg__print" }, `Explorer: ${new URL(where, location.href).href}`);
+    rec.el.append(rec.print);
+    rec.expand.disabled = false;
+  } catch (err) { fail(rec, err, null); }
+}
 function lazyRender() {
-  const todo = F.recs.filter((r) => r.kind === "mermaid" || r.kind === "arch");
+  const todo = F.recs.filter((r) => r.kind === "mermaid" || r.kind === "arch" || r.kind === "graph-slice");
   if (!todo.length) return;
-  const run = (rec) => { if (!rec.queued) { rec.queued = true; if (rec.kind === "arch") renderArch(rec); else renderMermaid(rec); } };
+  const run = (rec) => { if (!rec.queued) { rec.queued = true; if (rec.kind === "arch") renderArch(rec); else if (rec.kind === "graph-slice") renderSlice(rec); else renderMermaid(rec); } };
   if (!("IntersectionObserver" in window)) { todo.forEach(run); return; }
   const io = new IntersectionObserver((entries) => {
     for (const e of entries) if (e.isIntersecting) { io.unobserve(e.target); run(todo.find((r) => r.el === e.target)); }

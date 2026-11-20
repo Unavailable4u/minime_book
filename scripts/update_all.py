@@ -158,6 +158,7 @@ def main(argv=None):
     run(PY, "scripts/test_reader.py")
     run(PY, "scripts/test_library.py")
     run(PY, "scripts/test_figures.py")
+    run(PY, "scripts/test_graphslice.py")
     run(PY, "scripts/test_overview.py")
     run(PY, "scripts/test_build_code.py")
     run(PY, "scripts/test_topology.py")

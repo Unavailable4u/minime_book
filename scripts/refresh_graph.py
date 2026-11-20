@@ -16,6 +16,7 @@ Only the Python standard library is used.
 What it refreshes, and where each number comes from:
 
     graph-viewer.html   the "Constellation" viewer shown on graph.html, generated from scripts/graph_viewer_template.html
+    data/graph/viewer.json  (P20) the viewer's files, links, functions, routes and AI note summaries; graph-viewer.html fetches it when it opens
                         plus the file-level graph (files and functions from data/code/files/*.json, routes from
                         data/code/routes.json, and every file-to-file link counted from graph.json, not just the top 14
                         per file). Since P19 it no longer reads explore.html: that page is a redirect to the Explorer now
@@ -293,6 +294,8 @@ def refresh_graph_page(html, g):
 VIEWER_TEMPLATE = ROOT / "scripts" / "graph_viewer_template.html"
 VIEWER_TOP_FUNCTIONS = 6                # largest functions listed in a file's details panel
 VIEWER_DESC_MAX = 110                   # characters of a file's docstring kept in the viewer
+VIEWER_NOTE_MAX = 240                   # characters of an AI note summary kept in the viewer
+VIEWER_REL = "data/graph/viewer.json"    # P20: the viewer's data, fetched when graph-viewer.html opens (it used to be inlined, 870 KB)
 
 
 def viewer_group(path):
@@ -340,7 +343,28 @@ def viewer_rows(files):
     return rows, fns
 
 
-def viewer_data(g, files, routes):
+NOTES_REL = "data/index/notes.json"
+
+
+def viewer_notes(root, paths):
+    """[[file index, summary, status], ...] for every file of `paths` that has an AI note (data/index/notes.json), sorted by index.
+
+    The viewer shows the summary in a file's panel, labelled AI-written, and uses the summary of a folder's best-connected noted file as
+    that folder's blurb. Notes are optional: no notes.json (or no note for a file) just means nothing is shown. Orphan notes, whose
+    file is not in the census, are skipped."""
+    idx = ra.read_json(root, NOTES_REL) if root is not None else None
+    if not isinstance(idx, dict) or not isinstance(idx.get("files"), dict):
+        return []
+    pos = {p: i for i, p in enumerate(paths)}
+    out = []
+    for path, n in idx["files"].items():
+        s = re.sub(r"\s+", " ", str((n or {}).get("summary") or "")).strip()
+        if path in pos and s:
+            out.append([pos[path], s[:VIEWER_NOTE_MAX], str(n.get("status") or "")])
+    return sorted(out)
+
+
+def viewer_data(g, files, routes, notes=()):
     """Everything the viewer shows, as one JSON-able dict.
 
     Files, functions and routes come from data/code (which refresh_atlas.py builds from the census), so the viewer always lists the same
@@ -377,16 +401,21 @@ def viewer_data(g, files, routes):
         "fns": [[f[0], f[1], f[2]] for f in fns],
         "top": top,
         "routes": routes,
+        "notes": list(notes),
     }
 
 
-def viewer_html(data, template=VIEWER_TEMPLATE):
+def viewer_json(data):
+    """The text of data/graph/viewer.json: compact (it is read by a script, not by people), sorted nothing else, one trailing newline."""
+    return json.dumps(data, separators=(",", ":"), ensure_ascii=False) + "\n"
+
+
+def viewer_html(template=VIEWER_TEMPLATE):
+    """graph-viewer.html: the template as it is. Since P20 the page holds no data; it fetches data/graph/viewer.json."""
     html = Path(template).read_text(encoding="utf-8")
-    if html.count("__DATA__") != 1:
-        raise ValueError(f"{template} must contain exactly one __DATA__ placeholder")
-    blob = json.dumps(data, separators=(",", ":"), ensure_ascii=False)
-    blob = blob.replace("</", "<\\/").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")   # keep it safe inside <script>
-    return html.replace("__DATA__", blob)
+    if "__DATA__" in html:
+        raise ValueError(f"{template} still contains a __DATA__ placeholder; the viewer fetches {VIEWER_REL} now")
+    return html
 
 
 # ----------------------------------------------------------------------------- api
@@ -625,10 +654,16 @@ def refresh_all(root, g, minime):
     old, crlf = ra.read_lf(lp) if lp.exists() else (None, False)
     if new != old:
         changes[lp] = ra.to_native(new, crlf).encode("utf-8")
+    files = code_files(root)
+    vj = root / VIEWER_REL                                         # P20: the viewer's data, fetched lazily by the page
+    new = viewer_json(viewer_data(g, files, code_routes(root) if routes is None else routes, viewer_notes(root, [f["path"] for f in files])))
+    old, crlf = ra.read_lf(vj) if vj.exists() else (None, False)
+    if new != old:
+        changes[vj] = ra.to_native(new, crlf).encode("utf-8")
     target = root / "graph-viewer.html"
-    data = viewer_html(viewer_data(g, code_files(root), code_routes(root) if routes is None else routes)).encode("utf-8")
-    if not target.exists() or target.read_bytes() != data:
-        changes[target] = data
+    page = viewer_html().encode("utf-8")
+    if not target.exists() or target.read_bytes() != page:
+        changes[target] = page
     return changes
 
 

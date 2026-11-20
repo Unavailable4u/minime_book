@@ -84,7 +84,7 @@ BAD = [
     ({"id": "x", "type": "svg", "code": "<svg/>", "caption": "c", "alt": "a"}, "after"),
     ({"id": "x", "after": "h", "type": "svg", "code": "<svg/>", "alt": "a"}, "caption"),
     ({"id": "x", "after": "h", "type": "chart", "code": "{}", "caption": "c", "alt": "a"}, "not available yet"),
-    ({"id": "x", "after": "h", "type": "graph-slice", "caption": "c", "alt": "a"}, "not available yet"),
+    ({"id": "x", "after": "h", "type": "graph-slice", "caption": "c", "alt": "a"}, "focus"),
     ({"id": "x", "after": "h", "type": "gif", "caption": "c", "alt": "a"}, "unknown type"),
     ({"id": "x", "after": "h", "type": "archify", "src": "architecture/x.html", "caption": "c", "alt": "a"}, "size"),
     ({"id": "x", "after": "h", "type": "archify", "src": "architecture/x.html", "size": [50, 50], "caption": "c", "alt": "a"}, "size"),
@@ -141,6 +141,17 @@ class PureHelpers(unittest.TestCase):
         self.assertEqual((a["place"], a["wide"], a["size"], a["src"]), ("end", False, [1200, 620], "architecture/x.html"))
         self.assertEqual((b["place"], b["wide"], b["code"]), ("start", True, None))
         self.assertEqual((c["type"], c["src"], c["code"].startswith("flowchart")), ("mermaid", None, True))
+
+    def test_graph_slice_entries_are_normalised_and_checked(self):
+        good = [{"id": "g", "after": "x", "type": "graph-slice", "focus": " backend/agents/ ", "limit": 8, "caption": "c", "alt": "a"},
+                {"id": "h", "after": "x", "type": "graph-slice", "focus": "README.md", "caption": "c", "alt": "a"}]
+        out = run_node("console.log(JSON.stringify(F.normalizeManifest({figures: data})));", good)
+        self.assertEqual([], out["problems"])
+        self.assertEqual([("backend/agents", 8), ("README.md", None)], [(f["focus"], f["limit"]) for f in out["figures"]])
+        bad = [dict(good[0], id=f"b{i}", **kw) for i, kw in enumerate(({"focus": None}, {"focus": "../x"}, {"focus": "a/./b"}, {"focus": "has space"}, {"limit": 2}, {"limit": 25}, {"limit": 4.5}))]
+        out = run_node("console.log(JSON.stringify(F.normalizeManifest({figures: data})));", bad)
+        self.assertEqual([], out["figures"])
+        self.assertEqual(len(bad), len(out["problems"]))
 
     def test_arch_figures_need_a_view_and_nothing_else(self):
         out = run_node("console.log(JSON.stringify(F.normalizeManifest({figures: data})));", ARCH_GOOD)
@@ -299,7 +310,7 @@ class CommittedFigures(unittest.TestCase):
         self.assertIn("pricing-tiers", got.get("doc-rulebook", []))
         self.assertIn("tech-chain", got.get("doc-tech-roadmap", []))
         self.assertEqual(sorted(got.get("doc-minime-feature-guide", [])),
-                         sorted(["system-architecture", "task-run-lifecycle", "workspace-lifecycle", "task-pipeline", "approval-gate", "api-surface"]))
+                         sorted(["system-architecture", "task-run-lifecycle", "workspace-lifecycle", "task-pipeline", "approval-gate", "api-surface", "agents-graph"]))
 
     def test_every_manifest_is_for_a_real_chapter(self):
         chapters = chapter_ids()
@@ -453,6 +464,11 @@ class Wiring(unittest.TestCase):
         self.assertNotIn("https://", s)
         self.assertNotRegex(s, r"\beval\(|new Function\(")
 
+    def test_figures_js_does_not_import_graphslice_statically(self):
+        """graphslice.js is loaded by renderSlice only; figures.js must stay importable alone (the Node tests copy just that file)."""
+        s = FIGURES_JS.read_text(encoding="utf-8")
+        self.assertIn('import("./graphslice.js")', s)
+
     def test_figures_js_exports_what_the_tests_use(self):
         s = FIGURES_JS.read_text(encoding="utf-8")
         for name in ("initFigures", "normalizeManifest", "svgLooksSafe", "withSemanticClasses", "mermaidThemeVariables", "MERMAID_SRC"):
@@ -515,6 +531,7 @@ class CheckSiteFigureRules(tcs.SiteCase):
             "architecture/x.html": "<html></html>",
             "content/nav.json": self.NAV,
             "content/figures/svg/a.svg": self.SVG,
+            "data/index/paths.json": json.dumps({"paths": ["backend/agents/a.py", "README.md"]}),
         }
         if figures is not None:
             f["content/figures/doc-a.json"] = json.dumps({"figures": figures})
@@ -538,6 +555,11 @@ class CheckSiteFigureRules(tcs.SiteCase):
         r = self.run_site(figures=[self.fig(), archify, self.fig(id="three", src=None, code=self.SVG, place="start", wide=True)])
         self.assertEqual([], self.codes(r))
 
+    def test_graph_slice_accepts_a_file_or_a_folder_that_exists(self):
+        ok = [self.fig(id="a", type="graph-slice", src=None, focus=f, **kw) for f, kw in
+              (("backend/agents", {}), ("backend/agents/", {"limit": 24}), ("backend/agents/a.py", {"limit": 3}), ("README.md", {}))]
+        self.assertEqual([], self.codes(self.run_site(figures=[dict(x, id=f"s{i}") for i, x in enumerate(ok)])))
+
     def test_no_figures_at_all_is_fine(self):
         self.assertEqual([], self.codes(self.run_site()))
 
@@ -550,6 +572,12 @@ class CheckSiteFigureRules(tcs.SiteCase):
             (self.fig(caption=None), "figure-bad-entry"),
             (self.fig(id="Bad Id"), "figure-bad-entry"),
             (self.fig(type="chart"), "figure-bad-entry"),
+            (self.fig(type="graph-slice", src=None), "figure-bad-entry"),
+            (self.fig(type="graph-slice", src=None, focus="../etc/passwd"), "figure-bad-entry"),
+            (self.fig(type="graph-slice", src=None, focus="a b"), "figure-bad-entry"),
+            (self.fig(type="graph-slice", src=None, focus="backend/agents", limit=2), "figure-bad-entry"),
+            (self.fig(type="graph-slice", src=None, focus="backend/agents", limit="9"), "figure-bad-entry"),
+            (self.fig(type="graph-slice", src=None, focus="backend/nowhere"), "figure-bad-src"),
             (self.fig(type="gif"), "figure-bad-entry"),
             (self.fig(place="middle"), "figure-bad-entry"),
             (self.fig(wide="yes"), "figure-bad-entry"),

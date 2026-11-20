@@ -18,6 +18,15 @@ html[data-reader] .doc article > .mm-figure.fg { margin-block: var(--space-6); }
 .fg__arch { margin: 0 auto; color: var(--ink); font-family: var(--font-ui); }
 .fg__arch .ar-card[data-state="idle"] { display: none; }
 .fg__svg > svg { display: block; width: 100%; height: auto; max-height: 85vh; margin: 0 auto; overflow: visible; }
+/* graph-slice (P20): the diagram's links are real <a>s inside the SVG (the SVG is aria-hidden, so they are not in the tab order); the list under it is the accessible copy */
+.fg--graph-slice .fg__svg a { cursor: pointer; }
+.fg--graph-slice .fg__svg a:hover text:first-of-type { text-decoration: underline; }
+.fg--graph-slice .fg__svg a:hover path { stroke-opacity: 1; }
+.fg__slicelist { font-family: var(--font-ui); margin: var(--space-3) 0 0; font-size: var(--fs-sm); color: var(--ink-dim); }
+.fg__slicelist summary { cursor: pointer; color: var(--ink); }
+.fg__slicelist ul { margin: var(--space-2) 0 0; padding-left: 1.25em; }
+.fg__slicelist a { font-family: var(--font-mono); font-size: var(--fs-xs); }
+.fg__slicenote { margin: var(--space-2) 0 0; font-size: var(--fs-xs); }
 .fg__wait { margin: 0; padding: var(--space-6) 0; text-align: center; color: var(--ink-dim); font-size: var(--fs-sm); }
 .fg__fail { padding: var(--space-4); border: 1px dashed var(--line-strong); border-radius: var(--radius-2); color: var(--ink-dim); font-size: var(--fs-sm); }
 .fg__failmsg { margin: 0 0 var(--space-2); color: var(--ink); }
@@ -73,7 +82,7 @@ html.mm-lb-open { overflow: hidden; }
 /* ============================================================ 4. print: a page cannot hold a live diagram */
 @media print {
   .fg__tools, .fg__hit, .mm-lb { display: none !important; }
-  .fg__frame { display: none; }
+  .fg__frame, .fg__slicelist { display: none; }
   .fg__print { display: block; margin: 0; padding: var(--space-3) var(--space-4); border: 1px dashed #666; color: #000; font-size: 9pt; word-break: break-all; }
   .mm-figure.fg { border-color: #999; background: #fff; }
   .fg .mm-figure__canvas { background-image: none; }

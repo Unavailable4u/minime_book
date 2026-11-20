@@ -75,6 +75,17 @@
       "wide": true,
       "caption": "The backend API surface: server.py and its 12 routers, 162 endpoints in all.",
       "alt": "Map of the backend routes: a thin server.py hub with CORS, lifespan and exception handling, connected to 12 router files such as workspace_data with 28 routes, notebooks with 23 and tasks with 21, plus the WebSocket to the local daemon."
+    },
+    {
+      "id": "agents-graph",
+      "after": "5-2-representative-specialist-abilities",
+      "place": "end",
+      "type": "graph-slice",
+      "focus": "backend/agents",
+      "limit": 10,
+      "wide": true,
+      "caption": "Where the agent modules sit in the code graph: the folders backend/agents is most linked to, strongest first.",
+      "alt": "Neighbourhood diagram with backend/agents in the middle and the ten folders or files it shares the most code-graph links with fanned out on both sides, each with its link count; every one opens in the Explorer."
     }
   ]
 }
