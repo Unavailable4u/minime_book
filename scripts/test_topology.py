@@ -47,6 +47,7 @@ def run_node(body, data=None):
     try:
         shutil.copy(TOPOLOGY_JS, tmp / "topology.js")
         shutil.copy(LIBRARY_JS, tmp / "library.js")
+        shutil.copy(JS / "svgview.js", tmp / "svgview.js")
         (tmp / "package.json").write_text('{"type":"module"}', encoding="utf-8")        # no "reparsing as ES module" warning on stderr
         (tmp / "data.json").write_text(json.dumps(data if data is not None else {}), encoding="utf-8")
         (tmp / "run.mjs").write_text("import * as M from './topology.js'; import fs from 'node:fs';\n"
@@ -417,11 +418,14 @@ class Page(unittest.TestCase):
 
     def test_replaceChildren_only_ever_gets_a_filtered_list(self):
         """replaceChildren(null) writes the text 'null' (a real bug of the first P08 cut: it showed above the card text).
-        Every call goes through put(), which filters; the comments are not counted."""
-        src = re.sub(r"/\*.*?\*/", "", text(TOPOLOGY_JS), flags=re.S)
-        calls = [src[:m.start()].count("\n") + 1 for m in re.finditer(r"\.replaceChildren\(", src)]
-        self.assertEqual(1, len(calls), f"call put(parent, ...kids) instead of replaceChildren (line(s) {calls})")
-        self.assertIn("function put(parent, ...kids) { parent.replaceChildren(...liveKids(kids)); }", src)
+        Every call goes through put(), which filters; the comments are not counted. Since P26 put() lives in svgview.js, shared by
+        topology.js and the architecture views: topology.js must not call replaceChildren itself, svgview.js calls it once, in put()."""
+        strip = lambda path: re.sub(r"/\*.*?\*/", "", text(path), flags=re.S)
+        topo, shared = strip(TOPOLOGY_JS), strip(JS / "svgview.js")
+        self.assertEqual([], [m.start() for m in re.finditer(r"\.replaceChildren\(", topo)], "call put(parent, ...kids) instead of replaceChildren")
+        self.assertEqual(1, len(re.findall(r"\.replaceChildren\(", shared)))
+        self.assertIn("function put(parent, ...kids) { parent.replaceChildren(...liveKids(kids)); }", shared)
+        self.assertIn('from "./svgview.js"', topo)
 
     def test_the_card_closes_on_escape_even_though_focus_left_the_svg(self):
         src = text(TOPOLOGY_JS)

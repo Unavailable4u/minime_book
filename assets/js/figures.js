@@ -12,7 +12,9 @@
      after    id of the heading the figure follows
      place    "end" (default): last thing in that heading's section, i.e. just before the next heading (h1-h4)
               "start": right under the heading
-     type     archify   an iframe of architecture/<x>.html?embed=1&theme=...  (needs size: [width, height] of its SVG)
+     type     arch      (P26) a generated architecture view drawn inline, no iframe: view = a view id of data/arch/model.json, optional
+              flow (a flow id to lay over the unified view) and focus (a step / box key to open); needs neither src nor size
+              archify   an iframe of architecture/<x>.html?embed=1&theme=...  (needs size: [width, height] of its SVG)
               svg       an inline SVG from src (content/figures/**.svg) or code; inherits the page's colour tokens
               mermaid   a Mermaid diagram from code (or src *.mmd); the library is loaded only when one is on the page
               (chart and graph-slice are reserved for P20 and are skipped with a console warning)
@@ -33,7 +35,7 @@
 const BASE = new URL("../../", import.meta.url);
 const CSS_PATH = "assets/css/figures.css";
 export const MERMAID_SRC = "assets/vendor/mermaid/mermaid.min.js";   // written by scripts/vendor_mermaid.py (pinned)
-export const TYPES = ["archify", "svg", "mermaid"];
+export const TYPES = ["arch", "archify", "svg", "mermaid"];
 export const RESERVED_TYPES = ["chart", "graph-slice"];
 export const ARCHIFY_PAD = 24;            // px the diagram page adds around its SVG in embed mode (16 padding + 8 slack)
 export const ZOOM_MAX = 8;
@@ -67,7 +69,12 @@ export function normalizeManifest(raw) {
       caption: f.caption.trim(), alt: str(f.alt) ? f.alt.trim() : f.caption.trim(), wide: f.wide === true, size: null,
     };
     if (!str(f.alt)) problems.push(`figure ${at}: has no "alt"; the caption is used instead`);
-    if (f.type === "archify") {
+    if (f.type === "arch") {
+      if (typeof f.view !== "string" || !ID_RE.test(f.view)) return bad('needs "view": the id of a view of data/arch/model.json');
+      if (f.flow != null && (typeof f.flow !== "string" || !ID_RE.test(f.flow))) return bad('"flow" must be a flow id');
+      if (f.focus != null && !str(f.focus)) return bad('"focus" must be text');
+      out.view = f.view; out.flow = f.flow || null; out.focus = f.focus || null;
+    } else if (f.type === "archify") {
       if (!str(f.src) || !ARCHIFY_SRC.test(f.src)) return bad('needs "src": "architecture/<name>.html"');
       const s = f.size;
       if (!Array.isArray(s) || s.length !== 2 || !s.every((n) => Number.isFinite(n) && n >= 100 && n <= 20000)) return bad('needs "size": [width, height], the pixel size of the diagram\'s SVG');
@@ -328,7 +335,15 @@ function buildFigure(fig) {
   rec.canvas = h("div", { class: "mm-figure__canvas fg__canvas" });
   rec.el = h("figure", { class: `mm-figure fg fg--${fig.type}${fig.wide ? " fg--wide" : ""}`, id: `fig-${fig.id}`, "data-fig": fig.id });
 
-  if (fig.type === "archify") {
+  if (fig.type === "arch") {
+    rec.holder = h("div", { class: "fg__arch", role: "group", "aria-label": fig.alt });
+    rec.holder.append(h("p", { class: "fg__wait" }, "Diagram loads as you scroll to it."));
+    rec.canvas.append(rec.holder);
+    rec.expand.disabled = true;                                        // until the diagram is drawn
+    rec.href = `arch-view.html?view=${encodeURIComponent(fig.view)}${fig.flow ? `&flow=${encodeURIComponent(fig.flow)}` : ""}`;
+    tools.append(copyButton("mm-btn fg__tool", () => rec.source), h("a", { class: "mm-btn fg__tool", href: rec.href, target: "_blank", rel: "noopener" }, h("span", { html: ICON.open }), h("span", {}, "Open interactive diagram")));
+    rec.print = h("p", { class: "fg__print" }, `Interactive diagram: ${new URL(rec.href, location.href).href}`);
+  } else if (fig.type === "archify") {
     rec.size = { w: fig.size[0] + 16, h: fig.size[1] + ARCHIFY_PAD };
     rec.iframe = h("iframe", { class: "fg__iframe", src: archifyUrl(fig.src, F.theme), loading: "lazy", tabindex: "-1", "aria-hidden": "true", title: fig.alt });
     const frame = h("div", { class: "fg__frame", role: "img", "aria-label": fig.alt, style: `--fig-r:${ratioOf(fig.size)};--fig-w:${fig.size[0]};--fig-h:${fig.size[1]}` }, rec.iframe);
@@ -384,10 +399,27 @@ function fail(rec, err, source) {
 }
 
 /* ------------------------------------------------------------------ mermaid (library loaded on first use) */
+/* An arch figure draws itself with assets/js/arch/render.js (loaded only when a chapter has one), embedded: no toolbar, the details card under the diagram. */
+async function renderArch(rec) {
+  try {
+    if (!document.querySelector('link[data-arch-css]')) {
+      const link = h("link", { rel: "stylesheet", href: new URL("assets/css/arch.css", BASE).href, "data-arch-css": "" });
+      await new Promise((ok) => { link.addEventListener("load", ok, { once: true }); link.addEventListener("error", ok, { once: true }); document.head.append(link); });
+    }
+    const { mountArch } = await import("./arch/render.js");
+    const ctl = await mountArch(rec.holder, { view: rec.fig.view, flow: rec.fig.flow || "", focus: rec.fig.focus || "", embed: true });
+    if (!ctl) throw new Error(`view "${rec.fig.view}" could not be loaded`);
+    rec.ctl = ctl;
+    const [w, hh] = ctl.size();
+    rec.size = { w, h: hh };
+    rec.source = ctl.mermaid();
+    rec.expand.disabled = false;
+  } catch (err) { fail(rec, err, null); }
+}
 function lazyRender() {
-  const todo = F.recs.filter((r) => r.kind === "mermaid");
+  const todo = F.recs.filter((r) => r.kind === "mermaid" || r.kind === "arch");
   if (!todo.length) return;
-  const run = (rec) => { if (!rec.queued) { rec.queued = true; renderMermaid(rec); } };
+  const run = (rec) => { if (!rec.queued) { rec.queued = true; if (rec.kind === "arch") renderArch(rec); else renderMermaid(rec); } };
   if (!("IntersectionObserver" in window)) { todo.forEach(run); return; }
   const io = new IntersectionObserver((entries) => {
     for (const e of entries) if (e.isIntersecting) { io.unobserve(e.target); run(todo.find((r) => r.el === e.target)); }
@@ -437,12 +469,22 @@ function onTheme(next) {
   F.theme = next === "paper" ? "paper" : "dark";
   for (const rec of F.recs) {
     if (rec.kind === "archify" && rec.iframe) rec.iframe.src = archifyUrl(rec.fig.src, F.theme);
-    else if (rec.kind === "mermaid" && rec.queued && !rec.failed) renderMermaid(rec);
+    else if (rec.kind === "mermaid" && rec.queued && !rec.failed) renderMermaid(rec);   // an arch figure follows the page's CSS variables: nothing to redo
   }
 }
 
 /* ------------------------------------------------------------------ the viewer (Expand) */
 function viewerContent(rec) {
+  if (rec.kind === "arch") {                                           // a copy of what is drawn now: the lightbox gives it zoom and pan
+    const live = rec.ctl && rec.ctl.svg();
+    if (!live) return null;
+    const c = live.cloneNode(true);
+    c.removeAttribute("style");
+    rec.size = { w: +live.dataset.w || rec.size.w, h: +live.dataset.h || rec.size.h };
+    c.setAttribute("width", String(rec.size.w));
+    c.setAttribute("height", String(rec.size.h));
+    return { node: c, size: rec.size };
+  }
   if (rec.kind === "archify") {
     const f = h("iframe", { class: "mm-lb__iframe", src: archifyUrl(rec.fig.src, F.theme), tabindex: "-1", "aria-hidden": "true", title: rec.fig.alt, style: `width:${rec.size.w}px;height:${rec.size.h}px` });
     return { node: f, size: rec.size, iframe: f };

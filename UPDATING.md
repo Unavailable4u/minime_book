@@ -90,6 +90,8 @@ python scripts/arch.py ingest --minime ../MiniMe
 python scripts/arch.py status
 ```
 
+**Seeing it.** `arch-view.html` (System, "System views") draws every view of the model from `data/arch/views/*.json`: `?view=<id>`, plus `&flow=<flow id>` on the unified view, `&level=0|1|2`, `&embed=1&theme=paper|dark`. A flow that is not written yet shows the derived part and says so. `?edit=1` lets you drag boxes on the structure views and **Copy JSON** for `content/arch-layout.json` (only `pins` change). In a chapter, a figure `{"type": "arch", "view": "<id>"}` (optional `"flow"`, `"focus"`) draws the same view inline. The code is `assets/js/arch/` (`render.js`) on `assets/js/svgview.js`; `scripts/test_arch_render.py` tests it, and `scripts/arch_render_fixtures.py` makes miniature flows to look at before the real ones exist.
+
 `ingest` rejects a flow that has an error (add `--skip-invalid` to take the rest): a schema or actor id that is wrong, a step without evidence, a bad `next`, a step id that was renumbered or reused, a secret, or a **symbol that does not exist** in a flow written at the current commit. Warnings (over-long text, a stage the code registers that has no step, a citation of removed code) are printed and do not stop it. Do not commit in MiniMe between `todo` and `ingest`: a flow records the commit it was written at.
 
 **Prompt C: write flows**

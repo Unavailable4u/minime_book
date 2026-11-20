@@ -4,12 +4,8 @@
       "id": "system-architecture",
       "after": "1-what-minime-is",
       "place": "end",
-      "type": "archify",
-      "src": "architecture/system.html",
-      "size": [
-        1790,
-        676
-      ],
+      "type": "arch",
+      "view": "system",
       "wide": true,
       "caption": "System architecture: from the browser down to the data layer.",
       "alt": "Layered diagram of the whole system. Users reach the Next.js frontend, which calls the FastAPI server and its 12 routers over HTTPS and WebSocket; the server uses the EO orchestration layer, 73 agent modules, LLM providers, Postgres, Redis and Upstash Vector, with an optional local daemon and external MCP servers."
@@ -74,12 +70,8 @@
       "id": "api-surface",
       "after": "25-source-map",
       "place": "start",
-      "type": "archify",
-      "src": "architecture/api-surface.html",
-      "size": [
-        1370,
-        908
-      ],
+      "type": "arch",
+      "view": "api-surface",
       "wide": true,
       "caption": "The backend API surface: server.py and its 12 routers, 162 endpoints in all.",
       "alt": "Map of the backend routes: a thin server.py hub with CORS, lifespan and exception handling, connected to 12 router files such as workspace_data with 28 routes, notebooks with 23 and tasks with 21, plus the WebSocket to the local daemon."

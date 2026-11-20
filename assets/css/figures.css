@@ -15,6 +15,8 @@ html[data-reader] .doc article > .mm-figure.fg { margin-block: var(--space-6); }
 .fg .mm-figure__canvas { position: relative; padding: var(--space-4); }
 
 .fg__svg { margin: 0 auto; color: var(--ink); font-family: var(--font-ui); }
+.fg__arch { margin: 0 auto; color: var(--ink); font-family: var(--font-ui); }
+.fg__arch .ar-card[data-state="idle"] { display: none; }
 .fg__svg > svg { display: block; width: 100%; height: auto; max-height: 85vh; margin: 0 auto; overflow: visible; }
 .fg__wait { margin: 0; padding: var(--space-6) 0; text-align: center; color: var(--ink-dim); font-size: var(--fs-sm); }
 .fg__fail { padding: var(--space-4); border: 1px dashed var(--line-strong); border-radius: var(--radius-2); color: var(--ink-dim); font-size: var(--fs-sm); }

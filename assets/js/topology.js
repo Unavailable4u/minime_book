@@ -12,22 +12,23 @@
    Box size = code lines. Line width = graph links between the two parts. A dashed line is a relationship declared in topology.json
    because the graph has no links across it (HTTP, a WebSocket, an approval). Nothing here is a number typed by hand.
    Add ?edit=1 to the page address to drag boxes and copy the new layout as JSON.
+   Zoom, pan, drag, line geometry and the DOM builders live in svgview.js (P26); they are re-exported here so nothing that imports them from this file changes.
    Pure helpers are exported so scripts/test_topology.py can run them in Node with no browser. */
 
 import { fmtN, fmtDate } from "./library.js";
+import { ZOOM, clampZoom, clipToRect, edgePath, nearestInDirection, liveKids, h, svg, put, isSheet, reduced, createZoom, wirePan, startDrag } from "./svgview.js";   // P26: shared with assets/js/arch/*.js
 
 const GITHUB = "https://github.com/Unavailable4u/MiniMe";
 const BASE = typeof document !== "undefined" ? new URL("../../", import.meta.url) : null;
 
 /* ================================================================== pure helpers (no DOM) */
 
-export { fmtN, fmtDate };
+export { fmtN, fmtDate, ZOOM, clampZoom, clipToRect, edgePath, nearestInDirection, liveKids };
 
 export const BOX = { w0: 112, w1: 156, h0: 44, h1: 60 };      // a box grows from w0 x h0 to w1 x h1 with its code lines
 export const CHILD = { w: 72, h: 42 };                          // the parts of an opened node are all the same height; the width grows if a label needs it
 export const LABEL_PAD = 10;                                    // room left and right of a label inside a box
 export const KID_PAD = 6;                                       // the same for the small parts, which sit in a tight grid
-export const ZOOM = { min: 1, max: 4, step: 1.25 };
 
 export const sameCommit = (a, b) => !!a && !!b && (String(a).startsWith(String(b)) || String(b).startsWith(String(a)));
 
@@ -52,8 +53,6 @@ export function edgeWidth(links, max) {
 
 /* Box width: the size from code lines, or wider when the widest text (measured in diagram units) would not fit with pad each side. */
 export const fitWidth = (w, textWidth, pad = LABEL_PAD) => Math.max(w, Math.ceil((Number(textWidth) || 0) + 2 * pad));
-
-export const clampZoom = (z) => Math.min(ZOOM.max, Math.max(ZOOM.min, Math.round((Number(z) || 1) * 100) / 100));
 
 /* The node a folder belongs to: the longest "folders" prefix wins. `nodes` is the list to choose from (the top-level ones). */
 export function nodeOf(folder, nodes) {
@@ -97,29 +96,6 @@ export function buildModel(spec, counts, folders) {
   return { nodes, top, byId: new Map(nodes.map((n) => [n.id, n])), maxCode, kidMax, edges, maxLinks, io };
 }
 
-/* Where a line from the middle of rect a towards (tx, ty) leaves it. Rects are {x, y, w, h} with x, y the centre. */
-export function clipToRect(r, tx, ty) {
-  const dx = tx - r.x, dy = ty - r.y;
-  if (!dx && !dy) return { x: r.x, y: r.y };
-  const t = Math.min(dx ? r.w / 2 / Math.abs(dx) : Infinity, dy ? r.h / 2 / Math.abs(dy) : Infinity);
-  return { x: r.x + dx * t, y: r.y + dy * t };
-}
-
-/* The SVG path of an edge between two rects. bend (optional) pushes the middle of the line sideways, in diagram units.
-   at (0..1, default the middle) is where along the line, from a to b, the label sits: mid is that point. */
-export function edgePath(a, b, bend = 0, at = 0.5) {
-  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-  const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
-  const cx = mx + (-(b.y - a.y) / len) * bend, cy = my + ((b.x - a.x) / len) * bend;
-  const p = clipToRect(a, bend ? cx : b.x, bend ? cy : b.y), q = clipToRect(b, bend ? cx : a.x, bend ? cy : a.y);
-  const r = (v) => Math.round(v * 10) / 10;
-  const t = Math.min(1, Math.max(0, Number.isFinite(at) ? at : 0.5)), u = 1 - t;
-  const mid = bend
-    ? { x: u * u * p.x + 2 * u * t * cx + t * t * q.x, y: u * u * p.y + 2 * u * t * cy + t * t * q.y }
-    : { x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t };
-  return { d: bend ? `M${r(p.x)} ${r(p.y)}Q${r(cx)} ${r(cy)} ${r(q.x)} ${r(q.y)}` : `M${r(p.x)} ${r(p.y)}L${r(q.x)} ${r(q.y)}`, mid: { x: r(mid.x), y: r(mid.y) } };
-}
-
 /* The box around the opened parts of a node: their bounding box plus a margin, with extra room on top for the title. */
 export function frameRect(kids, pad = 12, title = 26) {
   if (!kids.length) return null;
@@ -145,23 +121,6 @@ export function pathSequence(stepList) {
   const out = [];
   for (const s of stepList) for (const id of s.nodes) if (out[out.length - 1] !== id) out.push(id);
   return out;
-}
-
-/* Arrow keys: the nearest node in a direction ("left", "right", "up", "down"), or null. Candidates are {id, x, y}. */
-export function nearestInDirection(cands, fromId, dir) {
-  const from = cands.find((c) => c.id === fromId);
-  if (!from) return null;
-  const v = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] }[dir];
-  if (!v) return null;
-  let best = null, bestScore = Infinity;
-  for (const c of cands) {
-    if (c.id === fromId) continue;
-    const dx = c.x - from.x, dy = c.y - from.y, along = dx * v[0] + dy * v[1], across = Math.abs(dx * v[1] + dy * v[0]);
-    if (along <= 0) continue;
-    const score = along + 2 * across;
-    if (score < bestScore) { best = c.id; bestScore = score; }
-  }
-  return best;
 }
 
 /* "82 % of 461 Python functions have a docstring", or why there is no figure. */
@@ -203,32 +162,6 @@ export function exportSpec(spec, pos) {
 
 /* ================================================================== DOM */
 
-const NS = "http://www.w3.org/2000/svg";
-const MQ_SHEET = "(max-width: 959px)";                 // below this the details card is a bottom sheet and hover does nothing
-const reduced = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-function h(tag, attrs = {}, ...kids) {
-  const n = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)) {
-    if (v == null || v === false) continue;
-    if (k === "on") for (const [ev, fn] of Object.entries(v)) n.addEventListener(ev, fn);
-    else n.setAttribute(k, v === true ? "" : v);
-  }
-  n.append(...kids.flat().filter((c) => c != null && c !== false).map((c) => (c.nodeType ? c : document.createTextNode(String(c)))));
-  return n;
-}
-
-/* parent.replaceChildren(...kids), minus the null / false entries a conditional leaves behind: replaceChildren(null) writes the text "null". */
-export const liveKids = (kids) => kids.flat(Infinity).filter((c) => c != null && c !== false);
-function put(parent, ...kids) { parent.replaceChildren(...liveKids(kids)); }
-
-function svg(tag, attrs = {}, ...kids) {
-  const n = document.createElementNS(NS, tag);
-  for (const [k, v] of Object.entries(attrs)) if (v != null) n.setAttribute(k, v);
-  for (const c of kids) if (c != null) n.append(c.nodeType ? c : document.createTextNode(String(c)));
-  return n;
-}
-
 async function getJSON(rel) {
   const r = await fetch(new URL(rel, BASE));
   if (!r.ok) throw new Error(`${rel}: ${r.status}`);
@@ -238,11 +171,10 @@ const soft = (rel) => getJSON(rel).catch((err) => { console.warn("[atlas topolog
 
 const S = {
   spec: null, vitals: null, folders: null, steps: null, stats: {}, model: null, stepList: [],
-  pos: {}, fit: new Map(), expanded: false, selected: null, preview: null, path: { on: false, step: -1 }, edit: false, zoom: 1,
+  pos: {}, fit: new Map(), expanded: false, selected: null, preview: null, path: { on: false, step: -1 }, edit: false,
 };
 const E = { root: null, wrap: null, stage: null, svg: null, card: null, nodes: new Map(), edges: [], frame: null, pathLayer: null, groups: null };
 
-const isSheet = () => matchMedia(MQ_SHEET).matches;
 /* The nodes drawn now: every top-level node, and the parts of an opened one (the opened node itself becomes a frame). */
 function drawn() {
   const out = [];
@@ -467,7 +399,7 @@ function draw() {
   svgEl.addEventListener("keydown", onKeys);
   put(E.stage, svgEl);
   E.svg = svgEl;
-  setZoom(S.zoom);
+  Z.set(Z.value());
   S.fit = new Map();
   fitLabels();
   place();
@@ -484,7 +416,7 @@ function wireNode(g, n) {
   g.addEventListener("keydown", (ev) => {
     if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); if (!S.edit) select(S.selected === n.id ? null : n.id); }
   });
-  g.addEventListener("pointerdown", (ev) => { if (S.edit) startDrag(ev, g, n); });
+  g.addEventListener("pointerdown", (ev) => { if (S.edit) dragNode(ev, g, n); });
 }
 
 /* Arrow keys move to the nearest box in that direction; Escape closes the card. */
@@ -498,61 +430,12 @@ function onKeys(ev) {
   } else if (ev.key === "Escape" && S.selected) select(null);
 }
 
-/* ---- zoom: the SVG is drawn wider inside a box that scrolls, so touch, trackpad and scrollbars all pan it */
-function setZoom(z, ax = 0.5, ay = 0.5) {
-  const old = S.zoom, st = E.stage;
-  const fx = (st.scrollLeft + st.clientWidth * ax) / (st.scrollWidth || 1), fy = (st.scrollTop + st.clientHeight * ay) / (st.scrollHeight || 1);
-  S.zoom = clampZoom(z);
-  E.svg.style.width = `${S.zoom * 100}%`;
-  E.stage.dataset.zoomed = S.zoom > 1 ? "true" : "false";
-  if (S.zoom !== old) {
-    st.scrollLeft = fx * st.scrollWidth - st.clientWidth * ax;
-    st.scrollTop = fy * st.scrollHeight - st.clientHeight * ay;
-  }
-  const label = E.root.querySelector(".tp-zoomv");
-  if (label) label.textContent = `${Math.round(S.zoom * 100)} %`;
-  for (const b of E.root.querySelectorAll("[data-zoom]")) b.disabled = (b.dataset.zoom === "in" && S.zoom >= ZOOM.max) || (b.dataset.zoom === "out" && S.zoom <= ZOOM.min) || (b.dataset.zoom === "reset" && S.zoom === 1);
-}
-
-function wireStage() {
-  const st = E.stage;
-  st.addEventListener("wheel", (ev) => {                 // only Ctrl/pinch zooms, so the page still scrolls under the diagram
-    if (!ev.ctrlKey && !ev.metaKey) return;
-    ev.preventDefault();
-    const r = st.getBoundingClientRect();
-    setZoom(S.zoom * (ev.deltaY < 0 ? ZOOM.step : 1 / ZOOM.step), (ev.clientX - r.left) / r.width, (ev.clientY - r.top) / r.height);
-  }, { passive: false });
-  let drag = null;                                       // a mouse drag on empty space scrolls a zoomed diagram
-  st.addEventListener("pointerdown", (ev) => {
-    if (ev.pointerType !== "mouse" || ev.button !== 0 || S.zoom === 1 || S.edit || ev.target.closest(".tp-node")) return;
-    drag = { x: ev.clientX, y: ev.clientY, l: st.scrollLeft, t: st.scrollTop };
-    st.setPointerCapture(ev.pointerId);
-    st.dataset.drag = "true";
-  });
-  st.addEventListener("pointermove", (ev) => { if (drag) { st.scrollLeft = drag.l - (ev.clientX - drag.x); st.scrollTop = drag.t - (ev.clientY - drag.y); } });
-  const end = () => { drag = null; st.dataset.drag = "false"; };
-  st.addEventListener("pointerup", end);
-  st.addEventListener("pointercancel", end);
-}
+/* ---- zoom, pan and drag are shared code (svgview.js); Z is this page's zoom controller */
+let Z = null;
 
 /* ---- edit mode (?edit=1): drag the boxes, copy the JSON */
-function startDrag(ev, g, n) {
-  ev.preventDefault();
-  const inv = E.svg.getScreenCTM().inverse();
-  const pt = (e) => { const p = E.svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(inv); };
-  const start = pt(ev), orig = { ...S.pos[n.id] };
-  E.dragged = false;
-  g.setPointerCapture(ev.pointerId);
-  const move = (e) => {
-    const p = pt(e);
-    if (Math.abs(p.x - start.x) + Math.abs(p.y - start.y) > 2) E.dragged = true;
-    S.pos[n.id] = { x: Math.round(orig.x + p.x - start.x), y: Math.round(orig.y + p.y - start.y) };
-    place();
-  };
-  const up = () => { g.removeEventListener("pointermove", move); g.removeEventListener("pointerup", up); g.removeEventListener("pointercancel", up); };
-  g.addEventListener("pointermove", move);
-  g.addEventListener("pointerup", up);
-  g.addEventListener("pointercancel", up);
+function dragNode(ev, g, n) {
+  startDrag(ev, { svgEl: E.svg, el: g, getPos: () => S.pos[n.id], state: E, setPos: (p) => { S.pos[n.id] = p; place(); } });
 }
 
 async function copyJSON(out) {
@@ -624,10 +507,10 @@ function toolbar() {
     btn("path", "Follow one request", { "aria-pressed": "false", on: { click: () => setPath(!S.path.on) } }),
     kids ? btn("expand", "Show the M2C parts", { "aria-pressed": "false", on: { click: () => setExpanded(!S.expanded) } }) : null,
     h("span", { class: "tp-zoom", role: "group", "aria-label": "Zoom" },
-      h("button", { class: "mm-btn", type: "button", "data-zoom": "out", "aria-label": "Zoom out", on: { click: () => setZoom(S.zoom / ZOOM.step) } }, "−"),
+      h("button", { class: "mm-btn", type: "button", "data-zoom": "out", "aria-label": "Zoom out", on: { click: () => Z.out() } }, "−"),
       h("span", { class: "tp-zoomv", "aria-live": "polite" }, "100 %"),
-      h("button", { class: "mm-btn", type: "button", "data-zoom": "in", "aria-label": "Zoom in", on: { click: () => setZoom(S.zoom * ZOOM.step) } }, "+"),
-      h("button", { class: "mm-btn", type: "button", "data-zoom": "reset", on: { click: () => setZoom(1) } }, "Reset")));
+      h("button", { class: "mm-btn", type: "button", "data-zoom": "in", "aria-label": "Zoom in", on: { click: () => Z.in() } }, "+"),
+      h("button", { class: "mm-btn", type: "button", "data-zoom": "reset", on: { click: () => Z.reset() } }, "Reset")));
   if (S.edit) {
     bar.append(h("span", { class: "tp-edit" }, h("b", {}, "Edit mode: "), "drag the boxes, then ",
       h("button", { class: "mm-btn mm-btn--primary", type: "button", on: { click: () => copyJSON(msg) } }, "Copy JSON"),
@@ -672,7 +555,8 @@ async function boot(root) {
     h("p", { class: "tp-keys", id: "tp-keys" }, "Keyboard: Tab moves between boxes, the arrow keys jump to the nearest neighbour, Enter keeps a box open, Escape closes it. Zoom with the buttons or Ctrl and the mouse wheel; on a phone, swipe the diagram to move around it."),
     S.spec.not_drawn ? h("p", { class: "tp-keys" }, S.spec.not_drawn) : null,
     legend(), renderList());
-  wireStage();
+  Z = createZoom({ stage: E.stage, getSvg: () => E.svg, root, labelSel: ".tp-zoomv" });
+  wirePan(E.stage, Z, { blocked: () => S.edit, skip: ".tp-node" });
   draw();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (E.svg && E.svg.isConnected) fitLabels(); });
 }

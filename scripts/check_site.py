@@ -734,7 +734,7 @@ def check_topology(root, spec, files, add, problem, census):
 FIG_ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
 FIG_ARCHIFY_SRC = re.compile(r"^architecture/[A-Za-z0-9._-]+\.html$")
 FIG_CONTENT_SRC = re.compile(r"^content/figures/(?!.*\.\.)[A-Za-z0-9._/-]+$")
-FIG_TYPES = ("archify", "svg", "mermaid")
+FIG_TYPES = ("arch", "archify", "svg", "mermaid")
 FIG_RESERVED = ("chart", "graph-slice")             # P20
 SVG_HEAD = re.compile(r"^\s*(?:<\?xml[^>]*\?>\s*)?(?:<!--[\s\S]*?-->\s*)*<svg[\s>]", re.I)
 SVG_UNSAFE = [
@@ -872,6 +872,23 @@ def check_figures(root, files, ids_of, add):
                 bad("figure-bad-entry", f"the anchor fig-{fid} is already used in {url}", "anchor")
 
             src = f.get("src")
+            if ftype == "arch":                          # P26: a generated architecture view, drawn inline
+                reg = _read_json(root, ARCH_REGISTRY) if ARCH_REGISTRY in files else None
+                views = {v.get("id") for v in (reg or {}).get("views", []) if isinstance(v, dict)}
+                flows = {x.get("id") for x in (reg or {}).get("flows", []) if isinstance(x, dict)}
+                view, flow = f.get("view"), f.get("flow")
+                if not (isinstance(view, str) and FIG_ID.match(view)):
+                    bad("figure-bad-entry", 'needs "view": the id of a view of content/arch-flows.json', "view")
+                elif reg is not None and view not in views:
+                    bad("figure-bad-src", f'view "{view}" is not a view of {ARCH_REGISTRY}', "view")
+                if flow is not None:
+                    if not (isinstance(flow, str) and FIG_ID.match(flow)):
+                        bad("figure-bad-entry", '"flow" must be a flow id', "flow")
+                    elif reg is not None and flow not in flows:
+                        bad("figure-bad-src", f'flow "{flow}" is not a flow of {ARCH_REGISTRY}', "flow")
+                if f.get("focus") is not None and not _fig_str(f.get("focus")):
+                    bad("figure-bad-entry", '"focus" must be text', "focus")
+                continue
             if ftype == "archify":
                 if not (_fig_str(src) and FIG_ARCHIFY_SRC.match(src)):
                     bad("figure-bad-src", 'needs "src": "architecture/<name>.html"', "src")

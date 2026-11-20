@@ -163,6 +163,7 @@ def main(argv=None):
     run(PY, "scripts/test_topology.py")
     run(PY, "scripts/test_notes.py")
     run(PY, "scripts/test_arch.py")
+    run(PY, "scripts/test_arch_render.py")
     run(PY, "scripts/test_refresh_source.py")
     run(PY, "scripts/test_links.py")
     run(PY, "scripts/test_chapter_links.py")

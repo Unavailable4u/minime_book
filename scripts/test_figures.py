@@ -69,6 +69,13 @@ GOOD = [
     {"id": "a1", "after": "intro", "type": "archify", "src": "architecture/x.html", "size": [1200, 620], "caption": "C", "alt": "A"},
     {"id": "b-2", "after": "intro", "type": "svg", "src": "content/figures/svg/b.svg", "caption": "C", "alt": "A", "wide": True, "place": "start"},
     {"id": "c3", "after": "intro", "type": "mermaid", "code": "flowchart LR\n A-->B", "caption": "C", "alt": "A"},
+
+]
+
+# P26: the arch type (a generated architecture view): view is required, flow and focus are optional
+ARCH_GOOD = [
+    {"id": "d4", "after": "intro", "type": "arch", "view": "system", "caption": "C", "alt": "A", "wide": True},
+    {"id": "e5", "after": "intro", "type": "arch", "view": "unified", "flow": "task-pipeline", "focus": "backend/eo", "caption": "C", "alt": "A"},
 ]
 
 # (entry, a piece of the message that must appear in `problems`)
@@ -90,6 +97,10 @@ BAD = [
     ({"id": "x", "after": "h", "type": "svg", "src": "assets/x.svg", "caption": "c", "alt": "a"}, ".svg"),
     ({"id": "x", "after": "h", "type": "svg", "code": "<div>no</div>", "caption": "c", "alt": "a"}, "<svg"),
     ({"id": "x", "after": "h", "type": "mermaid", "src": "content/figures/a.svg", "caption": "c", "alt": "a"}, ".mmd"),
+    ({"id": "x", "after": "h", "type": "arch", "caption": "c", "alt": "a"}, "view"),
+    ({"id": "x", "after": "h", "type": "arch", "view": "Bad View", "caption": "c", "alt": "a"}, "view"),
+    ({"id": "x", "after": "h", "type": "arch", "view": "system", "flow": "no good", "caption": "c", "alt": "a"}, "flow"),
+    ({"id": "x", "after": "h", "type": "arch", "view": "system", "focus": "", "caption": "c", "alt": "a"}, "focus"),
     ("not an object", "not an object"),
 ]
 
@@ -130,6 +141,15 @@ class PureHelpers(unittest.TestCase):
         self.assertEqual((a["place"], a["wide"], a["size"], a["src"]), ("end", False, [1200, 620], "architecture/x.html"))
         self.assertEqual((b["place"], b["wide"], b["code"]), ("start", True, None))
         self.assertEqual((c["type"], c["src"], c["code"].startswith("flowchart")), ("mermaid", None, True))
+
+    def test_arch_figures_need_a_view_and_nothing_else(self):
+        out = run_node("console.log(JSON.stringify(F.normalizeManifest({figures: data})));", ARCH_GOOD)
+        self.assertEqual([], out["problems"])
+        a, b = out["figures"]
+        self.assertEqual(("system", None, None), (a["view"], a["flow"], a["focus"]))
+        self.assertEqual(("unified", "task-pipeline", "backend/eo"), (b["view"], b["flow"], b["focus"]))
+        self.assertTrue(a["wide"])
+        self.assertIsNone(a["src"]); self.assertIsNone(a["size"])
 
     def test_a_bare_list_works_like_the_wrapped_form(self):
         out = run_node("console.log(JSON.stringify([F.normalizeManifest(data).figures.length, F.normalizeManifest({figures: data}).figures.length]));", GOOD)
@@ -338,7 +358,7 @@ class CommittedFigures(unittest.TestCase):
                 self.assertIsNotNone(m, f["src"])
                 self.assertEqual(f["size"], [int(m.group(1)), int(m.group(2))], f"{p.name}/{f['id']}: size does not match {f['src']}")
                 checked += 1
-        self.assertGreaterEqual(checked, 6)
+        self.assertGreaterEqual(checked, 4)          # P26 replaces the derived ones (system, api-surface) with arch figures; the flow ones follow when their flow is written
 
     def test_every_archify_page_supports_embed_and_theme(self):
         for p in manifests():
@@ -546,6 +566,9 @@ class CheckSiteFigureRules(tcs.SiteCase):
             (self.fig(type="archify", src="architecture/x.html"), "figure-bad-entry"),
             (self.fig(type="archify", src="architecture/x.html", size=[5, 5]), "figure-bad-entry"),
             (self.fig(type="archify", src="architecture/x.html", size=[True, True]), "figure-bad-entry"),
+            (self.fig(type="arch", src=None), "figure-bad-entry"),
+            (self.fig(type="arch", src=None, view="Not A View"), "figure-bad-entry"),
+            (self.fig(type="arch", src=None, view="system", flow="bad flow"), "figure-bad-entry"),
             ("a string", "figure-bad-entry"),
         ]
         for entry, code in cases:
