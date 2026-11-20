@@ -144,6 +144,23 @@ export function classifyCallout(text, compiled) {
   return null;
 }
 
+/* Where a callout's reference link goes. A plain `href` is used as it is. A rule with `hrefTemplate` (for example
+   "decisions.html#G-{nn}") takes the first number of the matched label ("Golden Rule 7:" -> 7); {n} is 7 and {nn} is 07.
+   A missing number, or one above `hrefMax`, falls back to the plain `href`. Returns { href, label } or null. */
+export function calloutRef(rule, text) {
+  if (!rule) return null;
+  const fallback = rule.href ? { href: rule.href, label: rule.hrefLabel || rule.href } : null;
+  if (typeof rule.hrefTemplate !== "string" || !rule.re) return fallback;
+  const t = String(text).replace(/\s+/g, " ").trim().slice(0, 120);
+  const m = rule.re.exec(t);
+  const d = m && /\d+/.exec(m[0]);
+  const n = d ? parseInt(d[0], 10) : 0;
+  const max = Number.isInteger(rule.hrefMax) ? rule.hrefMax : 99;
+  if (!(n >= 1 && n <= max)) return fallback;
+  const fill = (tpl) => String(tpl).replace(/\{nn\}/g, String(n).padStart(2, "0")).replace(/\{n\}/g, String(n));
+  return { href: fill(rule.hrefTemplate), label: typeof rule.hrefLabelTemplate === "string" ? fill(rule.hrefLabelTemplate) : rule.hrefLabel || fill(rule.hrefTemplate) };
+}
+
 /* Does a table row's text contain every word of the query? (case-insensitive, any order) */
 export function matchesAll(rowText, query) {
   const q = String(query).toLowerCase().split(/\s+/).filter(Boolean);
@@ -435,7 +452,8 @@ function applyCallouts() {
     p.classList.add("mm-callout", `mm-callout--${rule.type}`, "rd-callout");   // the P01 component, applied in place
     if (rule.muted) p.classList.add("rd-callout--muted");
     p.setAttribute("role", "note");
-    p.prepend(h("span", { class: "mm-callout__title" }, rule.label, rule.href ? h("a", { class: "rd-callout__ref", href: rule.href }, rule.hrefLabel || rule.href) : null));
+    const ref = calloutRef(rule, p.textContent);
+    p.prepend(h("span", { class: "mm-callout__title" }, rule.label, ref ? h("a", { class: "rd-callout__ref", href: ref.href }, ref.label) : null));
   }
 }
 

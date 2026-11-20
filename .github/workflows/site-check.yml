@@ -16,6 +16,7 @@
 #     python scripts/test_topology.py
 #     python scripts/test_arch_render.py
 #     python scripts/test_system.py
+#     python scripts/test_project.py
 #     python scripts/test_codemod_shell.py
 #     python scripts/build_code.py --check
 #     python scripts/test_build_code.py
@@ -96,3 +97,4 @@ jobs:
           python3 scripts/test_todo_api.py
           python3 scripts/test_codepages.py
           python3 scripts/test_refresh_protocol.py
+          python3 scripts/test_project.py

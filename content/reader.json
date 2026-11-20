@@ -15,7 +15,7 @@
     { "pattern": "^Purpose\\s*:", "type": "note", "label": "Purpose" },
     { "pattern": "^Status basis\\s*:", "type": "note", "label": "Status basis", "muted": true },
     { "pattern": "^(?:Invariants?|Locks?)\\s*:", "type": "invariant", "label": "Invariant" },
-    { "pattern": "^(?:Golden Rule|Rule)(?:\\s+\\d+)?\\s*:", "type": "rule", "label": "Rule", "href": "decisions.html", "hrefLabel": "Decisions" },
+    { "pattern": "^(?:Golden Rule|Rule)(?:\\s+\\d+)?\\s*:", "type": "rule", "label": "Rule", "href": "decisions.html", "hrefLabel": "Decisions", "hrefTemplate": "decisions.html#G-{nn}", "hrefLabelTemplate": "G-{nn}", "hrefMax": 15 },
     { "pattern": "^Definition\\s*:", "type": "definition", "label": "Definition" },
     { "pattern": "^(?:Warning|Risk|Caution)\\s*:", "type": "warning", "label": "Warning" },
     { "pattern": "^Decision\\s*:", "type": "decision", "label": "Decision" }

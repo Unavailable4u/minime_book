@@ -174,6 +174,7 @@ def main(argv=None):
     run(PY, "scripts/test_dataviews.py")
     run(PY, "scripts/test_refresh_schema.py")
     run(PY, "scripts/test_todo_api.py")
+    run(PY, "scripts/test_project.py")
 
     print("\n== Result ==")
     run("git", "status", "--short")
