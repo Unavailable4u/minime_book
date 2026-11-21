@@ -242,7 +242,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/components.css">
 <link rel="stylesheet" href="assets/css/shell.css">
-</head><body data-page="doc-tech-roadmap"><main><h1>Technical Implementation Roadmap</h1><p class="sub">MiniMe core. 4,186 words. <a href="data/docs/minime_technical_roadmap.md" download>Download .md</a></p><div class="bk-banner">
+</head><body data-page="doc-tech-roadmap"><main><h1>Technical Implementation Roadmap</h1><p class="sub">MiniMe core. 5,307 words. <a href="data/docs/minime_technical_roadmap.md" download>Download .md</a></p><div class="bk-banner">
   <div class="bk-top">
     <div>
       <span class="bk-part">Part I · Strategy, Governance & Master Sequence</span>
@@ -257,13 +257,14 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
   </div>
   <p class="bk-desc">Tech-A to Tech-H: what gets built, in what order, gated by what evidence, synced across all tracks.</p>
   <div class="bk-meta">
-    <span><b>4,186</b> words (~19 min read)</span><span>·</span><span><b>27</b> sections</span><span>·</span><span><b>2</b> tables</span>
+    <span><b>5,307</b> words (~24 min read)</span><span>·</span><span><b>29</b> sections</span><span>·</span><span><b>4</b> tables</span>
   </div>
   <div class="bk-prevnext"><a href="doc-rulebook.html" class="bk-nav-btn">← Ch. 1: Financial & Model Strategy Rulebook</a><a href="doc-server-guide.html" class="bk-nav-btn bk-next">Ch. 3: Server Management & Splitting Guide →</a></div>
 </div><div class="doc"><article><h1 id="minime-technical-implementation-roadmap">MiniMe — Technical Implementation Roadmap</h1>
 <p><strong>Companion to:</strong> <code>MiniMe — Complete Production &amp; Market Roadmap</code> (business plan), <code>MiniMe_Financial_Strategy_Rulebook.md</code> (money, model, pricing &amp; cap constitution), <code>minime_feature_guide.md</code> (MiniMe Web 25-subsystem catalog), <code>m2c_feature_guide.md</code> &amp; <code>m2c_build_plan.md</code> (M2C local-first terminal coding agent), <code>menux_feature_guide.md</code> &amp; <code>Menux___Build_Execution_Guide.md</code> (Menux local-first automation agent), <code>minime_server_management_guide.md</code> (gated server topology), and <code>fbebc-research-program-guide.md</code> (FBEBC research track).
 <strong>Scope of this document:</strong> engineering only — what gets built, in what order, gated by what evidence, mapped against (but tracked separately from) the business roadmap's Phase 0 → 3b.</p>
 <p><strong>How to read this doc:</strong> every technical phase below (Tech-A, Tech-B, ...) names which Business Phase it runs alongside, and what business-side gate (if any) has to clear before it can start. Nothing here changes the business roadmap's timeline, funding logic, or phase names — this is the "what do I actually build, this week, in what order" layer underneath it.</p>
+<p><strong>Revision 1.1 (2026-11-21).</strong> Written after reading the code at MiniMe <code>3727ae3</code>, the Migration Guide (Appendix A) and the Provider Consolidation Guide (Appendix B). What changed: (1) §2 and §3 now say what is <strong>already built</strong> and what is not (Tech-A items 1 and 2 exist; the report layer does not); (2) the free-tier-to-paid provider move is no longer a one-line Tech-B item: it is Appendix B, with its own patches (<code>PV-00</code> to <code>PV-20</code>), and it comes <strong>before</strong> the rest of Tech-A's measurements, because dollar figures from free keys are meaningless; (3) §10 and §12 dates are marked as order, not schedule, because they predate the Rust decision gate (Appendix A, <code>MG-Z10</code>) and Appendix B; (4) new §13 gives the current execution order in two lanes. Phases Tech-C to Tech-H are unchanged.</p>
 <hr/>
 <h2 id="0-recommendation-where-brain-design-starts">0. Recommendation: where Brain design starts</h2>
 <p>You asked for my call on this, so here it is, with the reasoning:</p>
@@ -298,14 +299,52 @@ Instrument Basic-harden   [gap: live &amp;      Brain proto      Moderate       
 <p><strong>Runs alongside:</strong> Business Phase 0 (Foundation)
 <strong>Starts:</strong> now
 <strong>Gate to start:</strong> none — this is explicitly the first thing to build, per your own roadmap's checklist item #1.
-<strong>Gate to exit:</strong> cost-per-task and latency data flowing for every agent call, queryable, before Phase 1's pilot begins.</p>
+<strong>Gate to exit:</strong> cost-per-task and latency data flowing for every agent call, queryable, before Phase 1's pilot begins. <em>(Revision 1.1: the data must come from the paid production keys, that is, after the Provider Consolidation Guide's go-live patch <code>PV-19</code>. Figures measured on free-tier keys are not the figures the product will have.)</em></p>
 <h3 id="what-gets-built">What gets built</h3>
 <ol>
 <li><strong>Per-call logging</strong>, on every agent invocation regardless of role: provider, model, tokens in/out, wall-clock time, agent_key, role, tier/path, cost (computed from provider's real per-token pricing, not estimated). This hooks into wherever agent calls already funnel through today (the relay/emitter event stream) — you're not building a new call path, just attaching a logger to the existing one.</li>
 <li><strong>A queryable store for it (<code>llm_call_log</code> + unified <code>usage_ledger</code> in migration <code>0012</code>)</strong> — the codebase already has <code>llm_call_log</code>; in Tech-A/B and M2C <code>S01</code>, extend/pair it with the single shared <code>usage_ledger</code> and <code>user_plans</code> schema (<code>surface in ('web', 'm2c', 'menux', 'system')</code>) so the ledger is <strong>built once</strong> and shared across MiniMe Web, M2C CLI, and Menux Node (<code>m2c_build_plan.md</code> O2, <code>Menux___Build_Execution_Guide.md</code> O2, Rulebook Rule 4). This becomes the dataset Tech-D's Brain prototype trains its judgment against later, and the dataset Business Phase 1's real cost-per-task validation depends on.</li>
-<li><strong>Model roster hygiene (Rulebook §2.3 &amp; §6.7)</strong> — replace retired Groq model IDs (<code>llama-3.1-8b-instant</code>, <code>llama-3.3-70b-versatile</code>) in <code>backend/utils/llm_client.py</code> (fallback chains, <code>QUOTA_CONFIG</code>, pricing table) and in the agents that still carry them in their own chains (<code>backend/agents/extraction_table_builder.py</code>, <code>backend/agents/note_table_builder.py</code>) with active pinned IDs (<code>llama-4-scout</code>, <code>gpt-oss-120b</code>), and ensure all image generation routes to <code>gemini-3.1-flash-lite-image</code> / <code>gemini-3.1-flash-image</code> (following the 2026-10-02 Gemini 2.5 Flash Image shutdown).</li>
+<li><strong>Model roster hygiene (Rulebook §2.3 &amp; §6.7)</strong> — replace retired Groq model IDs (<code>llama-3.1-8b-instant</code>, <code>llama-3.3-70b-versatile</code>) in <code>backend/utils/llm_client.py</code> (fallback chains, <code>QUOTA_CONFIG</code>, pricing table) and in the agents that still carry them in their own chains (<code>backend/agents/extraction_table_builder.py</code>, <code>backend/agents/note_table_builder.py</code>) with active pinned IDs (<code>llama-4-scout</code>, <code>gpt-oss-120b</code>), and ensure all image generation routes to <code>gemini-3.1-flash-lite-image</code> / <code>gemini-3.1-flash-image</code> (following the 2026-10-02 Gemini 2.5 Flash Image shutdown). <strong>Superseded in part (revision 1.1):</strong> the replacement text-model list in this item (<code>llama-4-scout</code>, <code>gpt-oss-120b</code>) is replaced by the four-model decision in the Provider Consolidation Guide (Appendix B: <code>openai/gpt-oss-120b</code> and <code>openai/gpt-oss-20b</code> on Groq, <code>claude-haiku-5-5</code>, <code>gemini-3.1-flash-lite</code>), and the retired IDs are removed by its patches, not by a separate edit. The image-routing half of this item is not covered by Appendix B: check it separately.</li>
 <li><strong>A basic query/report layer</strong> — even a script that dumps "cost per task, p50/p95 latency per agent, per tier" is enough. This is the thing that replaces every placeholder dollar figure in the business roadmap's Part 7 earnings model with real numbers.</li>
 </ol>
+<h3 id="status-at-minime-3727ae3-revision-1-1">Status at MiniMe <code>3727ae3</code> (revision 1.1)</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+<th>Evidence and what is left</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Per-call logging</td>
+<td><strong>Built</strong></td>
+<td><code>utils/llm_client.py</code> writes a row per call to <code>llm_call_log</code> (migration <code>0008</code>) with cost and latency.</td>
+</tr>
+<tr>
+<td>2. Queryable store, shared ledger</td>
+<td><strong>Built</strong> (not re-audited in depth)</td>
+<td><code>llm_call_log</code> (<code>0008</code>) and the unified <code>usage_ledger</code> (<code>0012</code>).</td>
+</tr>
+<tr>
+<td>4. Model roster hygiene</td>
+<td><strong>Not done; moved to Appendix B</strong></td>
+<td>The retired Groq IDs are still referenced in 12 non-test files at <code>3727ae3</code>, and <code>-latest</code> aliases remain (18 occurrences; against Rulebook rule 3). Appendix B removes them.</td>
+</tr>
+<tr>
+<td>3. Query / report layer</td>
+<td><strong>Not found</strong></td>
+<td>No script or route computing cost per task or p50/p95 latency per agent and tier was found in <code>scripts/</code> or <code>api/routes/usage.py</code>. Check once more, then build it <strong>after</strong> <code>PV-19</code>.</td>
+</tr>
+<tr>
+<td>5. <em>(new)</em> Correct prices in the meter</td>
+<td><strong>Not done; in Appendix B (<code>PV-06</code>)</strong></td>
+<td>The price table in <code>llm_client.py</code> is wrong for at least two of the four models (Appendix B, hazard H8). A cost report built before <code>PV-06</code> would report wrong dollars.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Order inside Tech-A (revision 1.1):</strong> hygiene and prices and paid keys first (Appendix B), then the report layer, then the exit gate. The report layer is small; building it first only produces tidy-looking numbers that are wrong.</p>
 <h3 id="explicitly-not-in-scope-here">Explicitly not in scope here</h3>
 <ul>
 <li>Dashboards, admin panels, polish — those are Business Phase 2 deliverables once real billing exists. Tech-A is instrumentation for <em>your</em> decisions, not a user-facing feature.</li>
@@ -322,7 +361,7 @@ Instrument Basic-harden   [gap: live &amp;      Brain proto      Moderate       
 <h3 id="what-gets-built-2">What gets built</h3>
 <ol>
 <li><strong>Real multi-tenancy</strong> — per-user isolation in the relational DB and vector memory store, identity + active tier carried through the full call chain (agents → memory bus → relay → billing meter). This was already correctly scoped as non-negotiable in your business roadmap's Part 4.1 — it belongs here, not later.</li>
-<li><strong>Provider migration</strong>: move the free-tier keys for Basic's five providers to paid accounts, at the counts your own roadmap flags as a working estimate to replace with real numbers — don't over-build the reserve/rotation logic for throughput reasons paid keys may no longer have; keep 2 keys per provider for failover, and only add more once Tech-A's real concurrency data says you need to.</li>
+<li><strong>Provider migration: superseded (revision 1.1).</strong> This item is now the <strong>Provider Consolidation Guide</strong> (Appendix B, <code>data/docs/provider_consolidation_guide.md</code>): four paid models, production keys under new <code>PROD_</code> names so no old free key can stay on a production path, Perplexity Search as the only search provider, and per-lane key pools you grow by adding accounts. It covers <strong>Basic and Free only</strong>; Moderate and Ultimate are not launched on this stack (its decision PD-6). Pool sizes and failover follow that guide, not the earlier "2 keys per provider" estimate. Because it must finish before real users and before the Tech-A measurements mean anything, it is scheduled in Tech-A's window (§13), not here.</li>
 <li><strong>Billing plumbing &amp; cross-surface cap enforcement (Rulebook §7.8 &amp; §19.1)</strong> — tier (<code>free</code>, <code>basic</code>, <code>moderate</code>, <code>ultimate</code>) and <code>surface</code> (<code>web</code>, <code>m2c</code>, <code>menux</code>, <code>system</code>) as first-class fields in <code>user_plans</code> and <code>usage_ledger</code> from day one. Because a Bangladesh Pvt Ltd cannot open a direct Stripe account without a foreign entity, wire <strong>SSLCommerz + bKash + Nagad</strong> for local BDT plans (<code>৳799</code> / <code>৳2,499</code> / <code>৳6,999</code>) and <strong>Paddle / Lemon Squeezy (Merchant of Record) or Payoneer</strong> for international USD plans (<code>$9</code> / <code>$29</code> / <code>$79</code>). Also execute the <strong>Phase 0 Browser Cut (<code>MK_B00–B12</code>)</strong> to remove Browser Python Run, Browser Terminal, and Browser Local-Folder mode in favor of the local-first M2C CLI and shared <code>minicore/</code> package.</li>
 <li><strong>Usage/cost dashboard, admin panel, audit logging</strong> — matches your business roadmap's Phase 2 technical work exactly; no changes needed to that plan.</li>
 <li><strong>Decomposition-vs-consolidation empirical testing (business roadmap 3.3)</strong>, run for the first time here against Basic's actual paid models, using Tech-A's cost/latency data as the scoring signal — this is where "test it, don't assume it" gets its first real evidence.</li>
@@ -430,7 +469,19 @@ Instrument Basic-harden   [gap: live &amp;      Brain proto      Moderate       
 <td>A — Instrumentation &amp; baseline</td>
 <td>Phase 0</td>
 <td>Now</td>
-<td>Cost/latency data flowing for every agent call</td>
+<td>Cost/latency data flowing for every agent call, measured on paid keys</td>
+</tr>
+<tr>
+<td>A′ — Provider consolidation <em>(Appendix B, new in rev 1.1)</em></td>
+<td>Phase 0</td>
+<td>The paid accounts are open and funded</td>
+<td>No free key on any production path; dollars per call correct (<code>PV-19</code> go-live)</td>
+</tr>
+<tr>
+<td>Z — Conformance vectors and the Rust gate <em>(Appendix A, new in rev 1.1)</em></td>
+<td>Phase 0</td>
+<td><code>MG-Z00</code> can start today</td>
+<td><code>MG-Z10</code> records PROCEED or STAY PYTHON</td>
 </tr>
 <tr>
 <td>B — Harden Basic for real users</td>
@@ -482,6 +533,7 @@ Instrument Basic-harden   [gap: live &amp;      Brain proto      Moderate       
 </tr>
 </tbody>
 </table></div>
+<p><em>Revision 1.1:</em> the table gives the <strong>order</strong>. The calendar windows in §12 predate the Rust gate and Appendix B and should not be read as promises (§13).</p>
 <hr/>
 <h2 id="11-what-this-roadmap-deliberately-does-not-inclu">11. What this roadmap deliberately does not include</h2>
 <p>Matching your business roadmap's own discipline of naming what's out of scope, not just what's in:</p>
@@ -517,6 +569,18 @@ Instrument Basic-harden   [gap: live &amp;      Brain proto      Moderate       
 <td><code>minime_technical_roadmap.md</code> §2, <code>MiniMe_Financial_Strategy_Rulebook.md</code> Rule 4</td>
 </tr>
 <tr>
+<td><strong>Provider consolidation (Appendix B)</strong></td>
+<td>Starts when paid accounts are funded; ordered before the rest of Tech-A</td>
+<td>Four paid models, <code>PROD_</code> keys, one search provider; Basic and Free only</td>
+<td><code>provider_consolidation_guide.md</code></td>
+</tr>
+<tr>
+<td><strong>Rust decision gate and conformance vectors (Appendix A)</strong></td>
+<td>Starts now (<code>MG-Z00</code>); the gate is <code>MG-Z10</code></td>
+<td>Vectors in <code>protocol/conformance/</code>; spike decides whether the client and node are Rust</td>
+<td><code>migration_guide.md</code> §1.1</td>
+</tr>
+<tr>
 <td><strong>Cross-Product Architecture &amp; Ledger Lock</strong></td>
 <td>Nov 2026 (<code>S0</code> Gate)</td>
 <td>Locks single account, single <code>usage_ledger</code> (<code>surface in ('web','m2c','menux','system')</code>), and <code>minicore/</code> extraction</td>
@@ -530,7 +594,7 @@ Instrument Basic-harden   [gap: live &amp;      Brain proto      Moderate       
 </tr>
 <tr>
 <td><strong>Menux (Local-First Automation Agent)</strong></td>
-<td>Mar – Jun 2027 (<code>S0</code>, 59 WPs, 16 waves)</td>
+<td>Mar – Jun 2027 (<code>S0</code>, 59 WPs, 16 waves, plus 5 recommended Phase 4U WPs; see §13 for why dates are order, not schedule)</td>
 <td>Reuses <code>minicore/</code>, device-code auth, and <code>usage_ledger</code>; mounts <code>/api/menux/*</code> on existing backend</td>
 <td><code>menux_feature_guide.md</code>, <code>Menux___Build_Execution_Guide.md</code></td>
 </tr>
@@ -553,7 +617,41 @@ Instrument Basic-harden   [gap: live &amp;      Brain proto      Moderate       
 <td><code>minime_technical_roadmap.md</code> §4–§8, <code>minime_feature_guide.md</code> §20</td>
 </tr>
 </tbody>
-</table></div><div class="bk-footer">
+</table></div>
+<hr/>
+<h2 id="13-current-execution-order-revision-1-1">13. Current execution order (revision 1.1)</h2>
+<p><strong>What is complete.</strong> This roadmap is complete <strong>as a plan</strong>: Tech-A to Tech-H are defined with start and exit gates. It is <strong>not</strong> complete as work. Tech-A is partly built (§2 status table); Tech-B was not audited in revision 1.1 beyond its provider item; Tech-C to Tech-H have not started and start only when their gates clear (business gates and real data), not on a date.</p>
+<p><strong>The windows in §10 and §12 are an order, not a schedule.</strong> They were written before the Rust decision gate (<code>MG-Z10</code>) and before Appendix B, and the M2C windows assume work that is still ahead (the remaining M2C packages and, if the gate passes, the Rust client). Update the dates in <code>MG-Z09</code> (if the gate passes) or when Appendix B finishes, whichever comes first.</p>
+<p><strong>Two lanes. One person can switch lanes, but never edit the same file in both.</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Lane</th>
+<th>Order</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Backend</strong></td>
+<td>1. Appendix B (<code>PV-00</code> to <code>PV-20</code>) → 2. Tech-A report layer → 3. Tech-B (multi-tenancy, billing, admin)</td>
+<td>Appendix B goes first on the files it names as shared (Appendix A §9.1). Run the load baseline (<code>MG-B01</code>) only after <code>PV-19</code>.</td>
+</tr>
+<tr>
+<td><strong>Client</strong></td>
+<td>1. <code>MG-Z00</code>, <code>MG-Z02</code> to <code>MG-Z07</code> → 2. <strong><code>MG-Z10</code> (the Rust gate)</strong> → 3a. on <code>PROCEED</code>: the <code>MG-R*</code> packages, with the remaining M2C packages built in Rust; or 3b. on <code>STAY PYTHON</code>: the remaining M2C packages in Python → 4. Menux Phase 0</td>
+<td>Nothing in the client lane touches the backend files Appendix B edits. The F (frontend) and D (daemon) tracks of Appendix A are fillers between bigger items.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>While waiting for the paid accounts</strong> (nothing here edits a file Appendix B edits):</p>
+<ol>
+<li>Open the paid accounts, one organisation or project per key, and read each account's real rate limits from its console. Appendix B lists the limits it could not verify (its section 12).</li>
+<li>Get a green backend baseline: the unit, integration, static and canary suites, plus the real-Postgres tests that are skipped without a database.</li>
+<li>Do <code>MG-Z00</code>, <code>MG-Z02</code> and the vector packages <code>MG-Z03</code> to <code>MG-Z06</code> (Appendix A).</li>
+<li>Write the evaluation set the slot assignments need: real tasks per role class with expected outcomes, as new files only.</li>
+</ol>
+<p><strong>What this order deliberately avoids.</strong> Growing the free key pools; building more of M2C in Python before the gate decides the language; starting the Menux node or the Brain before paid-key measurements and the client lane's gate exist.</p><div class="bk-footer">
   <div class="bk-footer-hdr">
     <span>End of <b>Chapter 2: Technical Implementation Roadmap</b></span>
     <a href="docs.html">View all 14 chapters in Docs →</a>
@@ -567,7 +665,7 @@ Instrument Basic-harden   [gap: live &amp;      Brain proto      Moderate       
       <b>Server Management & Splitting Guide</b>
       <span>Part I · Strategy</span>
     </a></div>
-</div></article><div class="toc"><b>On this page</b><a class="t2" href="#0-recommendation-where-brain-design-starts">0. Recommendation: where Brain design starts</a><a class="t2" href="#1-the-two-track-view">1. The two-track view</a><a class="t2" href="#2-tech-a-instrumentation-baseline">2. Tech-A — Instrumentation &amp; Baseline</a><a class="t3" href="#what-gets-built">What gets built</a><a class="t3" href="#explicitly-not-in-scope-here">Explicitly not in scope here</a><a class="t3" href="#why-this-is-first-unconditionally">Why this is first, unconditionally</a><a class="t2" href="#3-tech-b-harden-basic-for-real-users">3. Tech-B — Harden Basic for Real Users</a><a class="t3" href="#what-gets-built-2">What gets built</a><a class="t3" href="#what-explicitly-does-not-happen-in-tech-b">What explicitly does NOT happen in Tech-B</a><a class="t2" href="#4-tech-c-moderate-scaffolding-the-deferred-work-">4. Tech-C — Moderate Scaffolding (the deferred work, now due)</a><a class="t3" href="#what-gets-built-3">What gets built</a><a class="t3" href="#why-this-order-specifically">Why this order, specifically</a><a class="t2" href="#5-tech-d-brain-prototype-internal-only">5. Tech-D — Brain Prototype (internal only)</a><a class="t3" href="#what-gets-built-4">What gets built</a><a class="t3" href="#explicitly-out-of-scope-for-tech-d">Explicitly out of scope for Tech-D</a><a class="t3" href="#exit-criteria-concretely">Exit criteria, concretely</a><a class="t2" href="#6-tech-e-brain-integration-into-moderate">6. Tech-E — Brain Integration into Moderate</a><a class="t3" href="#what-gets-built-5">What gets built</a><a class="t2" href="#7-tech-f-monitor-v2-closed-loop-stream-based">7. Tech-F — Monitor v2 (closed-loop, stream-based)</a><a class="t3" href="#what-gets-built-6">What gets built</a><a class="t2" href="#8-tech-g-ultimate-s-brain-tier">8. Tech-G — Ultimate's Brain Tier</a><a class="t3" href="#what-gets-built-7">What gets built</a><a class="t2" href="#9-tech-h-executable-code-authoring-gated-no-fixe">9. Tech-H — Executable Code-Authoring (gated, no fixed date)</a><a class="t3" href="#what-gets-built-when-this-phase-actually-starts">What gets built, when this phase actually starts</a><a class="t2" href="#10-master-technical-timeline">10. Master Technical Timeline</a><a class="t2" href="#11-what-this-roadmap-deliberately-does-not-inclu">11. What this roadmap deliberately does not include</a><a class="t2" href="#12-ecosystem-synchronization-how-minime-web-mini">12. Ecosystem Synchronization: How MiniMe Web, M2C, MiniM</a></div></div></main><small class="mm-built">Private. Built 2026-10-07 from commit febb685.</small><script id="bk-chapter-script">
+</div></article><div class="toc"><b>On this page</b><a class="t2" href="#0-recommendation-where-brain-design-starts">0. Recommendation: where Brain design starts</a><a class="t2" href="#1-the-two-track-view">1. The two-track view</a><a class="t2" href="#2-tech-a-instrumentation-baseline">2. Tech-A — Instrumentation &amp; Baseline</a><a class="t3" href="#what-gets-built">What gets built</a><a class="t3" href="#status-at-minime-3727ae3-revision-1-1">Status at MiniMe 3727ae3 (revision 1.1)</a><a class="t3" href="#explicitly-not-in-scope-here">Explicitly not in scope here</a><a class="t3" href="#why-this-is-first-unconditionally">Why this is first, unconditionally</a><a class="t2" href="#3-tech-b-harden-basic-for-real-users">3. Tech-B — Harden Basic for Real Users</a><a class="t3" href="#what-gets-built-2">What gets built</a><a class="t3" href="#what-explicitly-does-not-happen-in-tech-b">What explicitly does NOT happen in Tech-B</a><a class="t2" href="#4-tech-c-moderate-scaffolding-the-deferred-work-">4. Tech-C — Moderate Scaffolding (the deferred work, now due)</a><a class="t3" href="#what-gets-built-3">What gets built</a><a class="t3" href="#why-this-order-specifically">Why this order, specifically</a><a class="t2" href="#5-tech-d-brain-prototype-internal-only">5. Tech-D — Brain Prototype (internal only)</a><a class="t3" href="#what-gets-built-4">What gets built</a><a class="t3" href="#explicitly-out-of-scope-for-tech-d">Explicitly out of scope for Tech-D</a><a class="t3" href="#exit-criteria-concretely">Exit criteria, concretely</a><a class="t2" href="#6-tech-e-brain-integration-into-moderate">6. Tech-E — Brain Integration into Moderate</a><a class="t3" href="#what-gets-built-5">What gets built</a><a class="t2" href="#7-tech-f-monitor-v2-closed-loop-stream-based">7. Tech-F — Monitor v2 (closed-loop, stream-based)</a><a class="t3" href="#what-gets-built-6">What gets built</a><a class="t2" href="#8-tech-g-ultimate-s-brain-tier">8. Tech-G — Ultimate's Brain Tier</a><a class="t3" href="#what-gets-built-7">What gets built</a><a class="t2" href="#9-tech-h-executable-code-authoring-gated-no-fixe">9. Tech-H — Executable Code-Authoring (gated, no fixed date)</a><a class="t3" href="#what-gets-built-when-this-phase-actually-starts">What gets built, when this phase actually starts</a><a class="t2" href="#10-master-technical-timeline">10. Master Technical Timeline</a><a class="t2" href="#11-what-this-roadmap-deliberately-does-not-inclu">11. What this roadmap deliberately does not include</a><a class="t2" href="#12-ecosystem-synchronization-how-minime-web-mini">12. Ecosystem Synchronization: How MiniMe Web, M2C, MiniM</a><a class="t2" href="#13-current-execution-order-revision-1-1">13. Current execution order (revision 1.1)</a></div></div></main><small class="mm-built">Private. Built 2026-11-21 from commit d7d9f56.</small><script id="bk-chapter-script">
 (function(){
   // Reading progress bar
   var bar = document.querySelector('.bk-progress');

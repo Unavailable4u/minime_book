@@ -227,7 +227,7 @@ class Data(unittest.TestCase):
         book = load_json("data/index/book.json")
         self.assertEqual([c["id"] for c in book["chapters"]], [it["id"] for it in nav_chapters()])
         self.assertEqual(book["totals"]["chapters"], 14)
-        self.assertEqual(book["totals"]["appendices"], 1)
+        self.assertEqual(book["totals"]["appendices"], 2)
         for c in book["chapters"]:
             self.assertTrue(c["desc"], c["id"])
             self.assertRegex(c["built"], r"^\d{4}-\d{2}-\d{2}$", c["id"])

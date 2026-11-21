@@ -242,7 +242,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/components.css">
 <link rel="stylesheet" href="assets/css/shell.css">
-</head><body data-page="doc-migration-guide"><main><h1>Migration Guide: Rust, TypeScript and a Hardened Python Backend</h1><p class="sub">Appendix A. 12,289 words. <a href="data/docs/migration_guide.md" download>Download .md</a></p><div class="bk-banner">
+</head><body data-page="doc-migration-guide"><main><h1>Migration Guide: Rust, TypeScript and a Hardened Python Backend</h1><p class="sub">Appendix A. 15,490 words. <a href="data/docs/migration_guide.md" download>Download .md</a></p><div class="bk-banner">
   <div class="bk-top">
     <div>
       <span class="bk-part">Appendix A · Migration</span>
@@ -254,17 +254,18 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
       <a href="data/docs/migration_guide.md" download class="bk-pill-link">⬇ Download .md</a>
     </div>
   </div>
-  <p class="bk-desc">42 patch-sized work packages (114 effort points, 9 dependency waves) to move the M2C client and Menux to Rust, the frontend to TypeScript, keep the backend in Python and harden it, and retire the old daemon.</p>
+  <p class="bk-desc">43 patch-sized work packages (118 effort points, 10 dependency waves) behind a Rust go/no-go spike (MG-Z10): move the M2C client and Menux to Rust, the frontend to TypeScript, keep the backend in Python and harden it, and retire the old daemon.</p>
   <div class="bk-meta">
-    <span><b>12,289</b> words (~56 min read)</span><span>·</span><span><b>61</b> sections</span><span>·</span><span><b>10</b> tables</span>
+    <span><b>15,490</b> words (~70 min read)</span><span>·</span><span><b>64</b> sections</span><span>·</span><span><b>14</b> tables</span>
   </div>
   <div class="bk-prevnext"><a href="docs.html" class="bk-nav-btn">← Back to the book</a><a href="doc-m2c-plan.html" class="bk-nav-btn bk-next">Ch. 6: M2C L26 Build Execution Guide →</a></div>
 </div><div class="doc"><article><h1 id="migration-guide-rust-typescript-and-a-hardened-python-backend">Migration Guide: Rust, TypeScript and a Hardened Python Backend</h1>
 <p><em>Minime agentic automation: what to convert, what to keep, and the order to do it</em></p>
-<p><strong>Version 1.0 · 2026-11-14 · Appendix A of the connected book (it is not one of the 14 chapters).</strong> Companion to <code>m2c_build_plan.md</code> (rev 1.2), <code>m2c_feature_guide.md</code> (rev 1.2), <code>Menux___Build_Execution_Guide.md</code> (rev 1.2) and <code>protocol/README.md</code> in the MiniMe repo. Where this guide and one of those disagree about <strong>which language something is written in</strong>, this guide wins; on everything else they win.</p>
+<p><strong>Version 1.1 · 2026-11-21 (first issued 2026-11-14) · Appendix A of the connected book (it is not one of the 14 chapters).</strong> Companion to <code>m2c_build_plan.md</code> (rev 1.2), <code>m2c_feature_guide.md</code> (rev 1.2), <code>Menux___Build_Execution_Guide.md</code> (rev 1.2) and <code>protocol/README.md</code> in the MiniMe repo. Where this guide and one of those disagree about <strong>which language something is written in</strong>, this guide wins; on everything else they win.</p>
 <blockquote>
-<p><strong>What this guide does.</strong> It turns one decision into work: the M2C client and the Menux node are rebuilt in <strong>Rust</strong>, the web frontend and the Menux controller move to <strong>TypeScript</strong>, and the <strong>backend stays Python</strong> and is hardened and measured. It lists 42 patch-sized work packages (<code>MG-*</code>), their order, how each is proven correct, and what to do with the old <code>daemon/</code>.</p>
-<p><strong>Evidence basis.</strong> Read from the MiniMe repo at commit <code>94af156</code> ("wave 9 part 2 complete") and the book at <code>aaca7f1</code>. <strong>No tests were run, nothing was built, and no crate or package version was checked.</strong> Line numbers and counts are from those commits and will drift. Where a statement depends on something that was not verified, the work package that verifies it is named.</p>
+<p><strong>What this guide does.</strong> It turns one decision into work: the M2C client and the Menux node are rebuilt in <strong>Rust</strong>, the web frontend and the Menux controller move to <strong>TypeScript</strong>, and the <strong>backend stays Python</strong> and is hardened and measured. It lists 43 patch-sized work packages (<code>MG-*</code>), their order, how each is proven correct, and what to do with the old <code>daemon/</code>.</p>
+<p><strong>Revision 1.1 (2026-11-21): the Rust decision is now a gate, not a given.</strong> The benefits of the Rust client were argued in revision 1.0, not measured. Revision 1.1 adds a time-boxed spike, <code>MG-Z10</code>, with written pass criteria and three possible outcomes (<code>PROCEED</code>, <code>STAY PYTHON</code>, <code>EXTEND ONCE</code>); decisions <code>DM-2</code>, <code>DM-3</code> and <code>DM-9</code> are provisional until it records <code>PROCEED</code> (§1.1). Every <code>MG-R*</code> package, and the book edits in <code>MG-Z09</code>, now wait for it. Revision 1.1 also adds §9.1, which orders this migration against the <strong>Provider Consolidation Guide</strong> (Appendix B) so the two never edit the same file at once. Everything in the <strong>Z</strong> track except <code>MG-Z09</code>, and the <strong>F</strong>, <strong>D</strong> and <strong>B</strong> tracks, is unaffected by the gate.</p>
+<p><strong>Evidence basis.</strong> Read from the MiniMe repo at commit <code>94af156</code> ("wave 9 part 2 complete") and the book at <code>aaca7f1</code>. <strong>No tests were run, nothing was built, and no crate or package version was checked</strong> (revision 1.1 adds one run: see §13). Line numbers and counts are from those commits and will drift. Where a statement depends on something that was not verified, the work package that verifies it is named.</p>
 <p><strong>No calendar.</strong> Work is ordered by dependency, not by date. Sizes use the book's scale (S = 1, M = 2, L = 4, XL = 8 points) and are estimates.</p>
 </blockquote>
 <hr />
@@ -272,6 +273,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <ul>
 <li><strong>Read §1 to §4 once.</strong> They are the decisions, the target picture, the facts the plan rests on, and the rules that stop the migration from going wrong.</li>
 <li><strong>Work from §5.</strong> Pick a work package whose dependencies are done, open its entry in §6, generate one patch with the template in §11.</li>
+<li><strong>Start with the gate.</strong> Do <code>MG-Z00</code> to <code>MG-Z07</code> first, then <code>MG-Z10</code> (§1.1). Do not start any <code>MG-R*</code> package until <code>MG-Z10</code> has written <code>PROCEED</code> in a decision record.</li>
 <li><strong>The patch workflow is the one in <code>m2c_build_plan.md</code> §0</strong>: one work package is one patch, tests first, one writer per shared file, log each patch in <code>PATCHES.md</code>, regenerate rather than hand-edit hunks.</li>
 <li><strong>Prefix.</strong> Work packages are <code>MG-&lt;track&gt;&lt;nn&gt;</code> (for example <code>MG-R03</code>). <strong>Always write the <code>MG-</code> prefix.</strong> The M2C build plan already has <code>B00</code> to <code>B12</code> (browser cleanup), the Menux guide has <code>R05</code> and <code>D02</code>, and both books number their decisions <code>D1</code> to <code>D38</code>, so a bare <code>B03</code>, <code>R05</code> or <code>D04</code> is ambiguous. Tracks: <strong>Z</strong> foundations, <strong>F</strong> frontend, <strong>D</strong> daemon retirement, <strong>B</strong> backend hardening, <strong>R</strong> Rust client.</li>
 </ul>
@@ -295,21 +297,21 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td><strong>DM-2</strong></td>
-<td><strong>The M2C client is rebuilt in Rust</strong>, as a Cargo workspace whose shared crates are named <code>minicore-*</code> from day one.</td>
+<td><strong>Provisional until <code>MG-Z10</code> records <code>PROCEED</code>.</strong> The M2C client is rebuilt in Rust, as a Cargo workspace whose shared crates are named <code>minicore-*</code> from day one.</td>
 <td>It runs on the user's machine: one static-ish binary, no Python to install, small idle footprint, and compile-time checking where the safety code lives (policy, paths, redaction, sandbox).</td>
-<td>Never for the safety crates; the TUI library is an open choice (§12).</td>
+<td><code>MG-Z10</code> (§1.1). After <code>PROCEED</code>: never for the safety crates; the TUI library is an open choice (§12).</td>
 </tr>
 <tr>
 <td><strong>DM-3</strong></td>
-<td><strong>The Menux node is built in Rust</strong> on the same crates; the <strong>phone/web controller is TypeScript</strong>; <strong>browser automation is a TypeScript sidecar</strong> process behind <code>ControlBackend</code> (MX9).</td>
+<td><strong>Provisional until <code>MG-Z10</code> records <code>PROCEED</code>.</strong> The Menux node is built in Rust on the same crates; the <strong>phone/web controller is TypeScript</strong>; <strong>browser automation is a TypeScript sidecar</strong> process behind <code>ControlBackend</code> (MX9).</td>
 <td>Menux has not started (planned after M2C reaches M2), so nothing is ported: it is built right the first time. Playwright's supported bindings are Node, Python, Java and .NET, not Rust.</td>
-<td>Per connector in Phase 3 (§8).</td>
+<td><code>MG-Z10</code> (§1.1); after <code>PROCEED</code>, per connector in Phase 3 (§8). If the gate says <code>STAY PYTHON</code>, the Menux node follows the file names the Menux build guide already uses (<code>.py</code>).</td>
 </tr>
 <tr>
 <td><strong>DM-4</strong></td>
-<td><strong>The frontend moves to TypeScript, leaf-first and file by file.</strong> No big-bang, no freeze.</td>
+<td><strong>The frontend moves to TypeScript, leaf-first and file by file.</strong> No big-bang, no freeze. Independent of the Rust gate.</td>
 <td>109 <code>.jsx</code> and 73 <code>.js</code> files in Next.js 14; Next compiles TypeScript natively, and JS and TS can coexist.</td>
-<td>Never.</td>
+<td>At the <code>MG-F02</code> checkpoint (§6.2): each converted file stands alone, so the track can stop at any point.</td>
 </tr>
 <tr>
 <td><strong>DM-5</strong></td>
@@ -337,9 +339,15 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td><strong>DM-9</strong></td>
-<td><strong>From now on, client work packages not yet built are built in Rust</strong>, never in Python first (§7). Server halves stay Python.</td>
-<td>Building in Python and porting later is paying twice.</td>
-<td>Never.</td>
+<td><strong>After <code>MG-Z10</code> records <code>PROCEED</code>, client work packages not yet built are built in Rust</strong>, never in Python first (§7). Server halves stay Python. Until then, and if the gate says <code>STAY PYTHON</code>, they are built in Python as the build plan says.</td>
+<td>Building in Python and porting later is paying twice, once the language is settled.</td>
+<td><code>MG-Z10</code>.</td>
+</tr>
+<tr>
+<td><strong>DM-11</strong></td>
+<td><strong>The Rust choice is a gate.</strong> <code>DM-2</code>, <code>DM-3</code> and <code>DM-9</code> stand only after a time-boxed spike (<code>MG-Z10</code>) meets criteria written down <strong>before</strong> the spike starts. The outcome is <code>PROCEED</code>, <code>STAY PYTHON</code> or <code>EXTEND ONCE</code>, and it is recorded in an ADR.</td>
+<td>The benefits of Rust here (install, footprint, compile-time checks) were argued, not measured, and the port is about 55 points. A spike costs a small fraction of that and turns an opinion into a recorded result.</td>
+<td>Only through a new, dated ADR.</td>
 </tr>
 <tr>
 <td><strong>DM-10</strong></td>
@@ -349,6 +357,45 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 </tbody>
 </table></div>
+<h3 id="11-the-rust-decision-gate-mg-z10">1.1 The Rust decision gate (<code>MG-Z10</code>)</h3>
+<p><strong>What is being decided.</strong> Whether the M2C client and the Menux node are built in Rust (<code>DM-2</code>, <code>DM-3</code>, <code>DM-9</code>), or stay in Python. The F, D and B tracks and the conformance vectors do not depend on the answer: the vectors are a language-neutral specification and are worth having either way.</p>
+<p><strong>What the spike is.</strong> A time-boxed port of <code>minicore-secrets</code> (the redaction code, <code>m2c/src/m2c/secrets/redact.py</code> and <code>env.py</code>) in Rust, run against the <code>MG-Z04</code> vectors and a differential corpus. It is chosen because it is the hardest small piece: it is security code, it uses regex features Rust's <code>regex</code> crate is said not to support (lookaround, possessive quantifiers), it has a ready-made oracle (the Python reference) and it is small enough to finish. Full procedure: <code>MG-Z10</code> in §6.1.</p>
+<p><strong>The three outcomes.</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Outcome</th>
+<th>When</th>
+<th>What changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PROCEED</strong></td>
+<td>All hard criteria (C1 to C3) pass <strong>and</strong> at least one benefit criterion (B1 to B3) passes.</td>
+<td><code>DM-2</code>, <code>DM-3</code>, <code>DM-9</code> become final. <code>MG-Z09</code> runs (the guides are edited to say Rust). The <code>MG-R*</code> packages start. The spike's code becomes the first draft of <code>MG-R02</code>.</td>
+</tr>
+<tr>
+<td><strong>STAY PYTHON</strong></td>
+<td>A hard criterion fails, or no benefit criterion passes.</td>
+<td><code>DM-2</code>, <code>DM-3</code> and <code>DM-9</code> are reversed by ADR. The Python client stays the product. The Menux node is built in Python on the <code>minicore</code> package, as the Menux build guide already describes. <code>MG-Z09</code> does not run; the list below does instead. The conformance vectors stay and run on the Python client.</td>
+</tr>
+<tr>
+<td><strong>EXTEND ONCE</strong></td>
+<td>The result is inconclusive for a reason you can name (for example, one pattern family is still unresolved and the rest passed).</td>
+<td>One more time-box, with the reason written in the ADR. A second <code>EXTEND ONCE</code> is not allowed: the next result must be <code>PROCEED</code> or <code>STAY PYTHON</code>.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>If the outcome is <code>STAY PYTHON</code>, apply these edits</strong> (a short patch; nothing else in this guide needs to change):</p>
+<ol>
+<li>Mark <code>DM-2</code>, <code>DM-3</code>, <code>DM-9</code> as <strong>reversed by ADR-xxxx</strong> and set <code>DM-8</code> to "Not applicable".</li>
+<li>In §5, mark every <code>MG-R*</code> package and <code>MG-Z08</code>'s Rust half, <code>MG-Z07</code> and <code>MG-Z09</code> as <strong>dropped</strong>, and keep <code>MG-Z08</code>'s TypeScript half.</li>
+<li>In <code>m2c_build_plan.md</code> and <code>Menux___Build_Execution_Guide.md</code>, leave the Python wording as it is. Add one line to each, pointing at the ADR.</li>
+<li>Keep <code>protocol/conformance/</code> and its Python runner. They become the regression suite for the Python client.</li>
+<li>Record, in the ADR, which Rust benefits were still wanted and what the Python alternatives are (for example: shipping the client as a single-file bundle with its own interpreter, if install friction was the reason).</li>
+</ol>
+<p><strong>Who decides.</strong> You. The gate is a method for not deciding from opinion: the criteria are written first (§6.1, <code>MG-Z10</code>, step 1), the measurements are taken, and the outcome follows from the table.</p>
 <hr />
 <h2 id="2-target-architecture">2. Target architecture</h2>
 <pre><code>                         ┌────────────────────────────────────────────────┐
@@ -408,7 +455,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td><strong>Secret redaction</strong></td>
-<td><code>secrets/redact.py</code> uses <strong>11 lookaround assertions</strong> (<code>(?&lt;!…)</code>, <code>(?!…)</code>) and <strong>2 possessive quantifiers</strong> (<code>{0,64}+</code>, <code>{20,200}+</code>). Rust's <code>regex</code> crate supports neither. <code>context/instructions.py</code> also uses a lookbehind and a backreference (the code-span pattern <code>(`+).+?\1</code>).</td>
+<td><code>secrets/redact.py</code> uses <strong>11 lookaround assertions</strong> (<code>(?&lt;!…)</code>, <code>(?!…)</code>) and <strong>2 possessive quantifiers</strong> (<code>{0,64}+</code>, <code>{20,200}+</code>). Rust's <code>regex</code> crate <strong>rejects lookaround at compile time</strong> and <strong>accepts the possessive quantifiers without error but gives them a different meaning</strong> (checked in revision 1.2, §13): <code>[a-z]{2,5}+a</code> never matches <code>aaaa</code> in Python 3.11 and later, and matches it in Rust. <code>context/instructions.py</code> also uses a lookbehind and a backreference (the code-span pattern <code>(`+).+?\1</code>).</td>
 <td>The most surprising cost of the port (see <code>MG-R02</code>, <code>MG-R08</code>).</td>
 </tr>
 <tr>
@@ -471,6 +518,8 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <li><strong>One writer per shared file at a time</strong>, as in the existing plan. Shared files in this migration: <code>.github/workflows/ci.yml</code>, <code>protocol/validate.py</code>, <code>backend/api/server.py</code>, <code>frontend/package.json</code>.</li>
 <li><strong>No <code>// @ts-nocheck</code> outside the allowlist</strong> <code>frontend/ts-nocheck-allowlist.txt</code>, and that list may only shrink.</li>
 <li><strong>Do not delete a Python module until its Rust replacement has passed <code>MG-R12</code></strong>, and do not delete the Python client until one release after <code>MG-R13</code> (DM-8).</li>
+<li><strong>No <code>MG-R*</code> package starts, and <code>MG-Z09</code> does not run, until <code>MG-Z10</code> has recorded <code>PROCEED</code></strong> in an ADR. The criteria in that ADR are written before the spike starts and are not edited afterwards (§1.1).</li>
+<li><strong>Follow §9.1 when this migration and the Provider Consolidation Guide are both in flight</strong>: the backend files they share have one writer at a time, and the Consolidation Guide goes first on them.</li>
 </ol>
 <hr />
 <h2 id="5-work-package-index">5. Work-package index</h2>
@@ -550,10 +599,17 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td><strong>MG-Z09</strong></td>
-<td>Book edits for the new plan</td>
+<td>Book edits for the new plan (runs only on <code>PROCEED</code>)</td>
 <td>S</td>
-<td>MG-Z00</td>
-<td>2</td>
+<td>MG-Z10</td>
+<td>5</td>
+</tr>
+<tr>
+<td><strong>MG-Z10</strong></td>
+<td>Rust decision gate: the <code>minicore-secrets</code> spike</td>
+<td>L</td>
+<td>MG-Z04, MG-Z07</td>
+<td>4</td>
 </tr>
 <tr>
 <td><strong>MG-F00</strong></td>
@@ -685,99 +741,99 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td><strong>MG-R00</strong></td>
 <td>minicore-protocol</td>
 <td>M</td>
-<td>MG-Z08</td>
-<td>4</td>
+<td>MG-Z08, MG-Z10</td>
+<td>5</td>
 </tr>
 <tr>
 <td><strong>MG-R01</strong></td>
 <td>minicore-paths</td>
 <td>M</td>
-<td>MG-Z05, MG-Z07</td>
-<td>4</td>
+<td>MG-Z05, MG-Z07, MG-Z10</td>
+<td>5</td>
 </tr>
 <tr>
 <td><strong>MG-R02</strong></td>
-<td>minicore-secrets</td>
+<td>minicore-secrets (starts from the <code>MG-Z10</code> spike)</td>
 <td>L</td>
-<td>MG-Z04, MG-Z07</td>
-<td>4</td>
+<td>MG-Z04, MG-Z07, MG-Z10</td>
+<td>5</td>
 </tr>
 <tr>
 <td><strong>MG-R03</strong></td>
 <td>minicore-policy</td>
 <td>XL</td>
 <td>MG-Z03, MG-R01</td>
-<td>5</td>
+<td>6</td>
 </tr>
 <tr>
 <td><strong>MG-R04</strong></td>
 <td>minicore-store</td>
 <td>M</td>
-<td>MG-Z06, MG-Z07</td>
-<td>3</td>
+<td>MG-Z06, MG-Z07, MG-Z10</td>
+<td>5</td>
 </tr>
 <tr>
 <td><strong>MG-R05</strong></td>
 <td>minicore-link and minicore-auth</td>
 <td>L</td>
 <td>MG-R00, MG-R04</td>
-<td>5</td>
+<td>6</td>
 </tr>
 <tr>
 <td><strong>MG-R06</strong></td>
 <td>minicore-sandbox</td>
 <td>XL</td>
 <td>MG-R01, MG-Z07</td>
-<td>5</td>
+<td>6</td>
 </tr>
 <tr>
 <td><strong>MG-R07</strong></td>
 <td>m2c-tools and the tool runner</td>
 <td>L</td>
 <td>MG-R00, MG-R01, MG-R02, MG-R03, MG-R05, MG-R06</td>
-<td>6</td>
+<td>7</td>
 </tr>
 <tr>
 <td><strong>MG-R08</strong></td>
 <td>m2c-context, trust and interact</td>
 <td>M</td>
 <td>MG-R03, MG-R04</td>
-<td>6</td>
+<td>7</td>
 </tr>
 <tr>
 <td><strong>MG-R09</strong></td>
 <td>m2c-checkpoints</td>
 <td>M</td>
 <td>MG-R01, MG-R04</td>
-<td>5</td>
+<td>6</td>
 </tr>
 <tr>
 <td><strong>MG-R10</strong></td>
 <td>m2c-headless, cli and doctor</td>
 <td>L</td>
 <td>MG-R07, MG-R08, MG-R09</td>
-<td>7</td>
+<td>8</td>
 </tr>
 <tr>
 <td><strong>MG-R11</strong></td>
 <td>m2c-tui</td>
 <td>XL</td>
 <td>MG-R07, MG-R08, MG-R09</td>
-<td>7</td>
+<td>8</td>
 </tr>
 <tr>
 <td><strong>MG-R12</strong></td>
 <td>Parity suite and install test</td>
 <td>L</td>
 <td>MG-R10, MG-R11</td>
-<td>8</td>
+<td>9</td>
 </tr>
 <tr>
 <td><strong>MG-R13</strong></td>
 <td>Cutover to the Rust client</td>
 <td>S</td>
 <td>MG-R12</td>
-<td>9</td>
+<td>10</td>
 </tr>
 </tbody>
 </table></div>
@@ -793,8 +849,8 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <tbody>
 <tr>
 <td>Z · Foundations</td>
-<td>10</td>
-<td>18</td>
+<td>11</td>
+<td>22</td>
 </tr>
 <tr>
 <td>F · Frontend to TypeScript</td>
@@ -818,8 +874,8 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td><strong>All</strong></td>
-<td><strong>42</strong></td>
-<td><strong>114</strong></td>
+<td><strong>43</strong></td>
+<td><strong>118</strong></td>
 </tr>
 </tbody>
 </table></div>
@@ -838,39 +894,43 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td>2</td>
-<td>MG-Z02, MG-Z06, MG-Z07, MG-Z09, MG-F01, MG-D01, MG-B01</td>
+<td>MG-Z02, MG-Z06, MG-Z07, MG-F01, MG-D01, MG-B01</td>
 </tr>
 <tr>
 <td>3</td>
-<td>MG-Z03, MG-Z04, MG-Z05, MG-Z08, MG-F02, MG-D02, MG-B02, MG-B04, MG-R04</td>
+<td>MG-Z03, MG-Z04, MG-Z05, MG-Z08, MG-F02, MG-D02, MG-B02, MG-B04</td>
 </tr>
 <tr>
 <td>4</td>
-<td>MG-F03, MG-D03, MG-B03, MG-R00, MG-R01, MG-R02</td>
+<td>MG-F03, MG-D03, MG-B03, <strong>MG-Z10 (the gate)</strong></td>
 </tr>
 <tr>
 <td>5</td>
-<td>MG-F04, MG-D04, MG-B06, MG-R03, MG-R05, MG-R06, MG-R09</td>
+<td>MG-F04, MG-D04, MG-B06, MG-Z09, MG-R00, MG-R01, MG-R02, MG-R04 (all <code>MG-R*</code> and <code>MG-Z09</code> only on <code>PROCEED</code>)</td>
 </tr>
 <tr>
 <td>6</td>
-<td>MG-F05, MG-R07, MG-R08</td>
+<td>MG-F05, MG-R03, MG-R05, MG-R06, MG-R09</td>
 </tr>
 <tr>
 <td>7</td>
-<td>MG-R10, MG-R11</td>
+<td>MG-R07, MG-R08</td>
 </tr>
 <tr>
 <td>8</td>
-<td>MG-R12</td>
+<td>MG-R10, MG-R11</td>
 </tr>
 <tr>
 <td>9</td>
+<td>MG-R12</td>
+</tr>
+<tr>
+<td>10</td>
 <td>MG-R13</td>
 </tr>
 </tbody>
 </table></div>
-<p>Sizes are estimates on the book's scale. By points, the critical path is <code>MG-Z00 → MG-Z02 → MG-Z03 → MG-R03 → MG-R07 → MG-R11 → MG-R12 → MG-R13</code> (32 of the 114 points): the policy vectors and the policy crate are the longest pole, then the tool runner and the TUI. By count, the longest chain is nine work packages (the nine waves). The <strong>F</strong>, <strong>D</strong> and <strong>B</strong> tracks run beside it and do not block it, except that <code>MG-D04</code> needs <code>MG-Z05</code> (the daemon's path-guard cases must be harvested before <code>daemon/</code> is deleted).</p>
+<p>Sizes are estimates on the book's scale. By points, the critical path is <code>MG-Z00 → MG-Z02 → MG-Z04 → MG-Z10 → MG-R01 → MG-R03 → MG-R07 → MG-R11 → MG-R12 → MG-R13</code> (36 of the 118 points): the gate comes first, then the policy crate, then the tool runner and the TUI. (Without the gate, as in revision 1.0, it was 32 of 114.) The policy vectors (<code>MG-Z03</code>) are the longest pole <em>before</em> the gate, and they run in parallel with it. By count, the longest chain is ten work packages (the ten waves). The <strong>F</strong>, <strong>D</strong> and <strong>B</strong> tracks run beside it and do not block it, except that <code>MG-D04</code> needs <code>MG-Z05</code> (the daemon's path-guard cases must be harvested before <code>daemon/</code> is deleted).</p>
 <hr />
 <h2 id="6-work-packages-in-detail">6. Work packages in detail</h2>
 <h3 id="61-track-z-foundations">6.1 Track Z · Foundations</h3>
@@ -989,7 +1049,8 @@ A race (a symlink swapped between check and use) cannot be a static row; it beco
 <li><strong>Sync target.</strong> <code>validate.py --sync-client</code> copies the schemas into <code>m2c/src/m2c/protocol/v1/</code>. Add the Rust crate's <code>schemas/</code> directory as a second target with the same byte-identical check. Keep the Python target until <code>MG-R13</code>.</li>
 </ol>
 <p><em>Done when:</em> Rust and TypeScript replay all four transcripts, reject all 60 invalid rows for the named reason, and the regenerate-and-diff check is green.</p>
-<h4 id="mg-z09-book-edits-for-the-new-plan-s-wave-2">MG-Z09 · Book edits for the new plan · S · Wave 2</h4>
+<h4 id="mg-z09-book-edits-for-the-new-plan-runs-only-on-proceed-s-wave-5">MG-Z09 · Book edits for the new plan (runs only on <code>PROCEED</code>) · S · Wave 5</h4>
+<p><em>Precondition (revision 1.1):</em> <code>MG-Z10</code> has recorded <code>PROCEED</code>. Until then the existing guides keep their current wording, which already says Python for M2C and uses <code>.py</code> file names for Menux. If the gate records <code>STAY PYTHON</code>, this package does not run; apply the short edit list in §1.1 instead.</p>
 <p><em>Files (in this book repo):</em> <code>data/docs/m2c_feature_guide.md</code> (and its mirror in <code>docs/</code>), <code>data/docs/m2c_build_plan.md</code>, <code>data/docs/Menux___Build_Execution_Guide.md</code>, <code>data/docs/menux_feature_guide.md</code>, <code>docs.html</code>, <code>llms.txt</code>, <code>data/summary.md</code>, <code>consistency.html</code>.</p>
 <p><em>What:</em> make the existing guides agree with DM-1 to DM-10.</p>
 <ul>
@@ -1000,6 +1061,82 @@ A race (a symlink swapped between check and use) cannot be a static row; it beco
 <li><strong>In the MiniMe repo (not this book), at <code>MG-D04</code>:</strong> mark the daemon entry in <code>DEFERRED.md</code> <code>[RESOLVED]</code> with how it closed (the file's own convention), and add a "Superseded" note to <code>docs/decisions/0003-cli-attach-daemon-dir.md</code>. Do not delete decision records.</li>
 </ul>
 <p><em>Done when:</em> a search of the three guides for "Python 3.11", "<code>uv tool install m2c</code>" and "<code>minicore/</code>" finds only intentional mentions, and the consistency page lists this guide.</p>
+<h4 id="mg-z10-rust-decision-gate-the-minicore-secrets-spike-l-wave-4">MG-Z10 · Rust decision gate: the <code>minicore-secrets</code> spike · L · Wave 4</h4>
+<p><em>Files:</em> <code>rust/crates/minicore-secrets/</code> (on a spike branch), <code>rust/spikes/idle-daemon/</code>, <code>scripts/spikes/idle_daemon.py</code>, <code>protocol/conformance/secrets/</code> (the <code>MG-Z04</code> vectors, read-only here), and a new decision record <code>docs/decisions/&lt;next number&gt;-rust-client-gate.md</code> in the MiniMe repo.</p>
+<p><em>Why this and not a smaller test:</em> it is security code, it needs the regex features that Rust's <code>regex</code> crate is said to lack (§3, §13), it has a built-in oracle (the Python reference through <code>run_python.py --oracle</code>) and a vector set (<code>MG-Z04</code>), and it is small enough to finish. It also decides whether the pieces that follow, <code>minicore-paths</code> and <code>minicore-policy</code>, are worth porting.</p>
+<p><em>What:</em></p>
+<ol>
+<li><strong>Write the criteria first.</strong> Create the decision record. Put in it: the date, the time box (default <strong>5 working days</strong>, counted from step 3), the thresholds below (or your own), and the sentence "the outcome follows from the table in §1.1". <strong>Commit it before writing any Rust</strong> (rule 10). Do not edit the thresholds afterwards; if they were wrong, write a new record.</li>
+<li><strong>Classify the patterns.</strong> List every regular expression in <code>secrets/redact.py</code> and <code>secrets/env.py</code> and mark each as <em>portable</em> (plain <code>regex</code> syntax), <em>lookaround</em>, <em>possessive</em>, <em>backreference</em> or <em>other</em>. §3 counts 11 lookaround assertions and 2 possessive quantifiers; <strong>re-count them</strong> and record the numbers. Re-run the check recorded in §13 on the <code>regex</code> version you will pin, and record that version: lookaround must fail to compile, and a possessive quantifier must be listed as a <strong>silent</strong> difference (it compiles and means an ordinary repeat), so it needs a lint, not only a rewrite (step 4).</li>
+<li><strong>Port the portable group first</strong> in <code>minicore-secrets</code> using the exact version in <code>rust/deps-allowlist.toml</code>. Run the <code>MG-Z04</code> vectors for those detectors.</li>
+<li><strong>Port the rest</strong> with the approach in <code>MG-R02</code>: an explicit check of the character before and after the match instead of <code>(?&lt;!X)</code> and <code>(?!X)</code>, and a bounded equivalent for each possessive quantifier. Add a test that fails the build if any pattern source in the Rust crate contains a possessive quantifier (<code>*+</code>, <code>++</code>, <code>?+</code> or <code>}+</code> outside a character class or an escape), because the <code>regex</code> crate compiles those without error. Use a backtracking engine only if a rewrite is impossible, and then only with a backtrack limit. For each pattern, record which technique was used.</li>
+<li><strong>Stream carry-over.</strong> Port the chunk-boundary behaviour (the <code>MG-Z04</code> stream rows).</li>
+<li><strong>Differential run.</strong> Generate a corpus from the fake-secret builders plus mutations and near-misses (see C1), run both implementations, and triage every divergence as a Rust bug, a Python bug (write a <code>known-fail-python</code> vector) or an accepted difference with a note.</li>
+<li><strong>Measure</strong> the benefit criteria, even if a hard criterion has already failed, because the numbers decide what the <code>STAY PYTHON</code> alternatives should be.</li>
+<li><strong>Decide.</strong> Fill in the table below in the record, write the outcome, and apply the edits in §1.1 that go with it.</li>
+</ol>
+<p><strong>Hard criteria (all must pass):</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Criterion</th>
+<th>Suggested threshold (write yours in step 1)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>C1</strong></td>
+<td><strong>Correctness.</strong></td>
+<td>100% of the <code>MG-Z04</code> rows pass. Zero divergences where Rust redacts <strong>less</strong> than Python, over a differential corpus of at least 20,000 inputs, at least 2,000 of them near-misses for each detector family. (Rust redacting more is allowed with a note, DM-10.)</td>
+</tr>
+<tr>
+<td><strong>C2</strong></td>
+<td><strong>Effort.</strong></td>
+<td>Finished inside the time box, <strong>or</strong> the work left, estimated from the detector families already done, is at most 40% of the time box.</td>
+</tr>
+<tr>
+<td><strong>C3</strong></td>
+<td><strong>Reviewability and safety.</strong></td>
+<td><code>#![forbid(unsafe_code)]</code> holds. Every replacement of a lookaround or possessive pattern has its own named test and a comment naming the Python line. Worst-case time on the adversarial corpus (long near-matches, repeated characters) is <strong>no worse than the Python reference's</strong>; record both.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Benefit criteria (at least one must pass; each is measured, not argued):</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Criterion</th>
+<th>How to measure</th>
+<th>Suggested threshold</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>B1</strong></td>
+<td><strong>Install friction.</strong></td>
+<td>On a clean Ubuntu 22.04 container and a default WSL2 Ubuntu, write down the exact commands needed to run the Python M2C (including how to obtain a Python at or above the version <code>pyproject.toml</code> requires) and to run a Rust binary. <code>bubblewrap</code> and <code>ripgrep</code> are needed by <strong>both</strong>, so do not count them.</td>
+<td>The Python path needs at least one extra step the binary does not (for example adding a package source or installing a separate Python). The package index already shows why (§13): Ubuntu 22.04 ships Python 3.10 and <code>pyproject.toml</code> requires 3.11 or later. Record the exact commands from a real container anyway.</td>
+</tr>
+<tr>
+<td><strong>B2</strong></td>
+<td><strong>Idle footprint.</strong></td>
+<td>Build two stubs that do nothing but hold an open SQLite file and one idle WebSocket client: <code>scripts/spikes/idle_daemon.py</code> (asyncio) and <code>rust/spikes/idle-daemon/</code>. After 10 minutes idle, record resident memory and wake-ups per minute. This is the figure that matters for a daemon that runs 24 hours a day (Menux).</td>
+<td>Rust uses at most half the resident memory of Python.</td>
+</tr>
+<tr>
+<td><strong>B3</strong></td>
+<td><strong>Defects found.</strong></td>
+<td>Count the divergences in step 6 where <strong>Python</strong> was the wrong one (each becomes a <code>known-fail-python</code> vector).</td>
+<td>At least one real Python bug or ambiguity. (This pays off even if the outcome is <code>STAY PYTHON</code>: fix it in Python.)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Not counted as benefits:</strong> raw speed (it is recorded, not a goal), binary size by itself, and "Rust is safer" as a general statement. Only what this spike measured counts.</p>
+<p><strong>What this spike cannot tell you.</strong> It covers about 900 of the client's 27,000 source lines and none of the policy crate, the sandbox crate or the terminal UI, which are the three largest packages (<code>XL</code>, <code>XL</code>, <code>XL</code>). C2 is therefore a <strong>lower bound</strong> on the cost of the port. That is why <code>MG-R03</code> carries a checkpoint (§6.5): if the policy crate takes more than twice its estimate, run this gate again as a new dated record.</p>
+<p><em>Done when:</em> the record lists a measured value for every criterion, states the outcome (<code>PROCEED</code>, <code>STAY PYTHON</code> or <code>EXTEND ONCE</code> with its reason), and the matching edits are applied (<code>MG-Z09</code> unblocked, or the §1.1 list applied).</p>
+<p><em>Rollback:</em> none; the spike lives on a branch. On <code>STAY PYTHON</code>, keep the branch for reference and remove the Rust jobs that <code>MG-Z07</code> added to CI.</p>
 <hr />
 <h3 id="62-track-f-frontend-to-typescript">6.2 Track F · Frontend to TypeScript</h3>
 <h4 id="mg-f00-typescript-foundation-and-test-runner-spike-m-wave-1">MG-F00 · TypeScript foundation and test-runner spike · M · Wave 1</h4>
@@ -1040,6 +1177,7 @@ A race (a symlink swapped between check and use) cannot be a static row; it beco
 <p><em>Order:</em> modules that touch backend data first (<code>authFetch</code>, <code>devices</code>, <code>usage</code>, <code>streamTicket</code>, <code>ingestDispatch</code>, <code>pusherClient</code>, <code>chatMessageCache</code>, <code>latestRequest</code>), then the rest (<code>notebookAffinities</code>, <code>notebookCapabilities</code>, <code>highlightCode</code>, <code>clearLocalAppState</code>, <code>langfuseTraceId</code>, <code>pyodideRunner</code>, <code>supabaseClient</code>, <code>supabaseServer</code>, then <code>preview/</code> and <code>workbench/</code>).</p>
 <p><em>What:</em> rename <code>.js</code> to <code>.ts</code>, type the exports from <code>schema.d.ts</code> and <code>events.ts</code>, update the import specifiers in tests to <code>.ts</code>. Convert at most about ten files per patch.</p>
 <p><em>Done when:</em> <code>app/lib</code> has no <code>.js</code> (except where a file must stay JavaScript, with the reason in a comment), and <code>typecheck</code>, <code>build</code> and <code>test</code> are green.</p>
+<p><em>Checkpoint (revision 1.1):</em> count the real bugs the type checker found in this package and compare them with the time it took. <code>MG-F03</code> to <code>MG-F05</code> are optional: each converted file stands alone, so the track can stop here or continue one directory at a time. Record the choice in <code>PATCHES.md</code>. This decision does not depend on the Rust gate.</p>
 <h4 id="mg-f03-convert-hooks-and-context-providers-m-wave-4">MG-F03 · Convert hooks and context providers · M · Wave 4</h4>
 <p><em>Files:</em> <code>frontend/app/hooks/</code> (11 files), <code>frontend/app/context/</code> (8 files).</p>
 <p><em>What:</em> <strong>do not convert <code>hooks/useDaemonStatus.js</code>; <code>MG-D02</code> deletes it.</strong> <code>SessionContext.jsx</code> (2,718 lines) and <code>WorkspaceDockContext.jsx</code> (1,590) go on the no-check allowlist first; before removing the comment, extract their reducers, selectors and pure helpers into <code>.ts</code> modules and type those. That is also where hidden bugs sit.</p>
@@ -1127,62 +1265,65 @@ A race (a symlink swapped between check and use) cannot be a static row; it beco
 <p><em>Done when:</em> the record exists with its inputs attached.</p>
 <hr />
 <h3 id="65-track-r-m2c-client-to-rust">6.5 Track R · M2C client to Rust</h3>
+<p><strong>Gate.</strong> Nothing in this track starts until <code>MG-Z10</code> has recorded <code>PROCEED</code> (rule 10). If it records <code>STAY PYTHON</code>, this whole track is dropped (§1.1).</p>
 <p><strong>How every port works.</strong> (1) Read the Python module and write a one-page behavior inventory in the patch description. (2) Export or reuse the vectors (<code>MG-Z03</code>–<code>MG-Z06</code>). (3) Write the Rust tests first. (4) Implement. (5) For security code, run a differential fuzzer against the Python reference through <code>run_python.py --oracle</code>. (6) A divergence is either a Rust bug or a Python bug; Python bugs get a <code>known-fail-python</code> vector and the Rust follows the safe answer (DM-10).</p>
-<h4 id="mg-r00-minicore-protocol-m-wave-4">MG-R00 · <code>minicore-protocol</code> · M · Wave 4</h4>
+<h4 id="mg-r00-minicore-protocol-m-wave-5">MG-R00 · <code>minicore-protocol</code> · M · Wave 5</h4>
 <p><em>Python source:</em> <code>protocol/validate.py</code>, <code>m2c/src/m2c/protocol/</code> (client schema copy).</p>
 <p><em>What:</em> generated or hand-written types from <code>MG-Z08</code>; <code>validate_message</code> strict by default and a tolerant mode that relaxes <strong>exactly one thing</strong> (unknown optional properties outside tool input), as <code>validate.py</code> does; <code>check_transcript</code>; the schemas embedded with <code>include_str!</code> from the synced copy.</p>
 <p><em>Done when:</em> all four transcripts replay, all 60 invalid examples are rejected for the named reason, the byte-identical schema check is in CI, and a <code>cargo-fuzz</code> target over the envelope parser finds no panic.</p>
-<h4 id="mg-r01-minicore-paths-m-wave-4">MG-R01 · <code>minicore-paths</code> · M · Wave 4</h4>
+<h4 id="mg-r01-minicore-paths-m-wave-5">MG-R01 · <code>minicore-paths</code> · M · Wave 5</h4>
 <p><em>Python source:</em> <code>tools/paths.py</code> (ported from <code>daemon/path_guard.py</code>).</p>
 <p><em>What:</em> normalization, root containment, and no-follow opens done <strong>relative to a directory descriptor</strong> (<code>openat2</code> with <code>RESOLVE_BENEATH</code>/<code>RESOLVE_NO_SYMLINKS</code> where the kernel has it, component-by-component <code>O_NOFOLLOW</code> otherwise), through <code>rustix</code> or <code>nix</code>. The Python guard checks then opens; Rust should not copy that race. Handle names as bytes or <code>OsStr</code>, not <code>String</code>: a Linux file name need not be UTF-8.</p>
 <p><em>Tests:</em> the <code>MG-Z05</code> vectors, plus Rust-only tests that swap a symlink in a loop between check and use.</p>
 <p><em>Done when:</em> all <code>MG-Z05</code> vectors pass, the race tests pass, and <code>forbid(unsafe_code)</code> holds (or the exception is recorded).</p>
-<h4 id="mg-r02-minicore-secrets-l-wave-4">MG-R02 · <code>minicore-secrets</code> · L · Wave 4</h4>
+<h4 id="mg-r02-minicore-secrets-l-wave-5">MG-R02 · <code>minicore-secrets</code> · L · Wave 5</h4>
 <p><em>Python source:</em> <code>secrets/redact.py</code>, <code>secrets/env.py</code> (932 lines).</p>
-<p><em>The problem:</em> Rust's <code>regex</code> crate has no lookaround and no possessive quantifiers, and the detectors use both (§3).</p>
+<p><em>The problem:</em> Rust's <code>regex</code> crate has no lookaround (it refuses to compile it) and no possessive quantifiers (it accepts the syntax and treats it as an ordinary repeat, which is <strong>worse</strong>, because nothing fails), and the detectors use both (§3). Ban the possessive syntax with a test before porting any pattern.</p>
+<p><em>Start from the spike.</em> On <code>PROCEED</code>, the <code>MG-Z10</code> branch is the first draft of this package, and its decision record already lists the technique chosen for each pattern.</p>
 <p><em>Approach:</em> keep the <code>regex</code> crate, because it matches in linear time and cannot be sent into catastrophic backtracking. Rewrite <code>(?&lt;!X)</code> and <code>(?!X)</code> as an explicit check of the character before and after a match, and each possessive quantifier as an equivalent bounded form. <strong>Equivalence is proven by the vectors and the fuzzer, not assumed.</strong> <code>fancy-regex</code> supports lookaround, but it backtracks (a denial-of-service risk on every tool result and stream chunk), so use it only if a rewrite is impossible, with a backtrack limit.</p>
 <p><em>Also:</em> redaction runs across stream chunk boundaries (<code>MG-Z04</code> rows); the Rust version keeps that carry-over.</p>
 <p><em>Tests:</em> the <code>MG-Z04</code> vectors; a differential fuzzer that generates text from the corpus plus mutations and compares findings with the Python oracle; a benchmark (recorded, not a goal).</p>
 <p><em>Done when:</em> all vectors pass and the fuzzer runs to the agreed length with every divergence triaged.</p>
-<h4 id="mg-r03-minicore-policy-xl-wave-5">MG-R03 · <code>minicore-policy</code> · XL · Wave 5</h4>
+<h4 id="mg-r03-minicore-policy-xl-wave-6">MG-R03 · <code>minicore-policy</code> · XL · Wave 6</h4>
+<p><em>Checkpoint (revision 1.1):</em> the <code>MG-Z10</code> spike did not cover this package. If it takes more than <strong>twice its estimate</strong>, stop and run the gate in §1.1 again as a new, dated record, using this package's own numbers.</p>
 <p><em>Python source:</em> <code>policy/</code> (3,115 lines): <code>rules.py</code>, <code>modes.py</code>, <code>shellparse.py</code> (<code>parse</code>), <code>decide.py</code> (<code>decide</code>).</p>
 <p><em>What:</em> port in dependency order: <code>rules</code> (parsing and matching, layers), <code>modes</code>, <code>shellparse</code>, then <code>decide</code>. The public surface stays <code>decide(Request, Context) -&gt; Decision</code>, pure, with no environment access. Port the invariant and robustness tests as <code>proptest</code> properties (deny beats ask beats allow; a protected path always asks; a compound command is as bad as its worst part).</p>
 <p><em>Differential fuzzing:</em> generate commands from a grammar and by mutating the Q07 corpus; compare <code>action</code>, <code>risk</code> and <code>basis</code> with the Python oracle. Run it for a fixed time in CI nightly and for longer before <code>MG-R13</code>. <strong>Every divergence is triaged.</strong> Rust must not be more permissive than Python anywhere (DM-10).</p>
 <p><em>Done when:</em> all <code>MG-Z03</code> vectors pass, every Q07 group passes (including the <code>known-fail-python</code> rows), the fuzzer is clean for the agreed time, and the crate holds no <code>unsafe</code>.</p>
-<h4 id="mg-r04-minicore-store-m-wave-3">MG-R04 · <code>minicore-store</code> · M · Wave 3</h4>
+<h4 id="mg-r04-minicore-store-m-wave-5">MG-R04 · <code>minicore-store</code> · M · Wave 5</h4>
 <p><em>Python source:</em> <code>store/</code> (1,233 lines; tables <code>sessions</code>, <code>events</code>, <code>approvals</code>, <code>checkpoints</code>, <code>schema_version</code>).</p>
 <p><em>What:</em> <code>rusqlite</code> with bundled SQLite. <strong>Same schema, same migration numbers, same SQL text, and the same pragmas as the Python migrations</strong> (read <code>store/migrations.py</code> and copy them; do not guess). One writer task; reads through a pool.</p>
 <p><em>Done when:</em> Rust opens the <code>MG-Z06</code> golden database; a database created by Python at the tag is read, appended to by Rust, and read back by Python.</p>
-<h4 id="mg-r05-minicore-link-and-minicore-auth-l-wave-5">MG-R05 · <code>minicore-link</code> and <code>minicore-auth</code> · L · Wave 5</h4>
+<h4 id="mg-r05-minicore-link-and-minicore-auth-l-wave-6">MG-R05 · <code>minicore-link</code> and <code>minicore-auth</code> · L · Wave 6</h4>
 <p><em>Python source:</em> <code>link/</code> (1,959 lines: <code>client.py</code>, <code>reconnect.py</code>) and <code>auth/</code> (1,420 lines: device-code login, credential storage).</p>
 <p><em>What:</em> a WebSocket client (<code>tokio-tungstenite</code> is the candidate) with reconnect, backoff and <code>run.resume{last_seq}</code>; the handshake limits (hello within 10 s, 1 MiB messages); a table mapping every close code (1008, 1009, 1011, 4400, 4401, 4403, 4408, 4409, 4426, 4429) to the same client behavior as <code>reconnect.py</code>, with one test per code; TLS through <code>rustls</code> (no OpenSSL dependency, to be confirmed by the spike). Auth: the device-code login over HTTPS (choose a small HTTP client, <code>ureq</code> or <code>reqwest</code>, in the spike); credential in a <code>0600</code> file, or the OS keyring as an optional feature, in the <strong>same file format the Python client wrote</strong> (<code>MG-Z06</code>).</p>
 <p><em>Spike (decides §12):</em> glibc versus musl. The keyring backends differ (a C <code>libdbus</code> binding versus a pure-Rust one) and that decides whether a static musl build is possible.</p>
 <p><em>Done when:</em> fixture 03 (disconnect and resume) passes against a fake server, Rust reads a Python-written credential and the reverse, <code>logout</code> removes it, and 4401/4403 produce the documented behavior.</p>
-<h4 id="mg-r06-minicore-sandbox-xl-wave-5">MG-R06 · <code>minicore-sandbox</code> · XL · Wave 5</h4>
+<h4 id="mg-r06-minicore-sandbox-xl-wave-6">MG-R06 · <code>minicore-sandbox</code> · XL · Wave 6</h4>
 <p><em>Python source:</em> <code>sandbox/</code> (3,193 lines): <code>bwrap.py</code> (argument builder), <code>profile.py</code>, <code>probe.py</code>, <code>netpolicy.py</code>, <code>netproxy.py</code> (CONNECT proxy), <code>bridge.py</code>.</p>
 <p><em>What:</em> first export the <strong>pure</strong> parts as vectors from <code>tests/sandbox/</code> (14 test files): a policy in, the exact <code>bwrap</code> argument list out; a network policy in, an allow or deny decision per host, port and IP literal out. Prove them on Python, then implement. <code>bwrap</code> stays an external binary and <code>doctor</code> still checks for it. The proxy and bridge are <code>tokio</code> tasks. Helper processes the sandbox starts get an environment with no tokens or keys. <strong>D17 holds:</strong> a sandboxed command still follows the permission flow, and auto-allow is refused when the probe fails. Tests that need a real <code>bwrap</code> run only where it is installed, the same condition as today.</p>
 <p><em>Done when:</em> the exported vectors pass, the sandbox tests that need <code>bwrap</code> pass on a runner that has it, and the Q07 sandbox rows (protected <code>.m2c/</code> files, the shared git directory of a worktree) pass.</p>
-<h4 id="mg-r07-m2c-tools-and-the-tool-runner-l-wave-6">MG-R07 · <code>m2c-tools</code> and the tool runner · L · Wave 6</h4>
+<h4 id="mg-r07-m2c-tools-and-the-tool-runner-l-wave-7">MG-R07 · <code>m2c-tools</code> and the tool runner · L · Wave 7</h4>
 <p><em>Python source:</em> <code>tools/</code> (3,581 lines: <code>files.py</code>, <code>search.py</code>, <code>shell.py</code>, <code>paths.py</code>) and <code>runner.py</code> (1,146 lines, <code>C24</code>).</p>
 <p><em>What:</em> the 11 tools of <code>protocol/v1/tools/</code> (<code>read_file</code>, <code>list_dir</code>, <code>glob</code>, <code>grep</code>, <code>edit_file</code>, <code>write_file</code>, <code>delete_path</code>, <code>bash</code>, <code>plan_exit</code>, <code>ask_user</code>, <code>tasks</code>). <code>glob</code> and <code>grep</code> keep shelling out to <code>rg</code>, which the README already requires. The runner executes server-proposed calls under the policy, redacts results, streams <code>tool_stream</code>, and returns <code>tool_result</code>. Port the nine <code>tests/tools/</code> files as Rust tests with the same inputs. Watch: Python's <code>fnmatch</code> and Rust glob crates do not agree on every pattern, so the policy's glob handling must go through the <code>MG-Z03</code> vectors, not an assumption.</p>
 <p><em>Done when:</em> transcripts 01 to 04 pass end to end against a fake server, and every case in <code>tests/tools/</code> has a Rust equivalent.</p>
-<h4 id="mg-r08-m2c-context-trust-and-interact-m-wave-6">MG-R08 · <code>m2c-context</code>, trust and interact · M · Wave 6</h4>
+<h4 id="mg-r08-m2c-context-trust-and-interact-m-wave-7">MG-R08 · <code>m2c-context</code>, trust and interact · M · Wave 7</h4>
 <p><em>Python source:</em> <code>context/</code> (1,530 lines, <code>C12</code>), <code>trust/</code> (836 lines, <code>C26</code>), <code>interact/</code> (408 lines).</p>
 <p><em>What:</em> the instruction loader, whose <code>@path</code> import and code-span rules use a lookbehind and a backreference in Python; write them as small hand-built scanners and cover them with vectors (add a <code>context</code> area to <code>protocol/conformance/</code>). Folder trust: the fingerprint <strong>coverage set</strong> (<code>.m2c/hooks</code>, <code>.m2c/skills</code>, <code>.agents/skills</code>, <code>.claude/skills</code>, and every file that can change policy) must be identical to Python's; the hash values need not be, because a different value only makes the user trust a folder once more, which fails closed. <code>ask_user</code> and <code>tasks</code>.</p>
 <p><em>Done when:</em> the instruction vectors pass, a vector lists the fingerprint coverage set, and an untrusted folder's project settings and hooks are ignored.</p>
-<h4 id="mg-r09-m2c-checkpoints-m-wave-5">MG-R09 · <code>m2c-checkpoints</code> · M · Wave 5</h4>
+<h4 id="mg-r09-m2c-checkpoints-m-wave-6">MG-R09 · <code>m2c-checkpoints</code> · M · Wave 6</h4>
 <p><em>Python source:</em> <code>checkpoints.py</code> (1,301 lines, <code>C08</code>/<code>C10</code>).</p>
 <p><em>What:</em> start with a one-page behavior inventory (this file was not read in detail for this guide). Keep shelling out to <code>git</code>, as today: <code>git</code> is already a hard requirement. A checkpoint made by Python at the tag must be restorable by Rust and the reverse if they share an on-disk format; if they do not, say so in <code>PARITY.md</code> and handle it at cutover.</p>
 <p><em>Done when:</em> <code>/rewind</code> round-trips in both directions on the golden fixtures, and a checkpoint is never half written (the <code>Q09</code> crash rows pass).</p>
-<h4 id="mg-r10-m2c-headless-cli-and-doctor-l-wave-7">MG-R10 · <code>m2c-headless</code>, cli and doctor · L · Wave 7</h4>
+<h4 id="mg-r10-m2c-headless-cli-and-doctor-l-wave-8">MG-R10 · <code>m2c-headless</code>, cli and doctor · L · Wave 8</h4>
 <p><em>Python source:</em> <code>headless.py</code> (1,190), <code>cli.py</code> (468), <code>doctor.py</code> (481), <code>session_setup.py</code> (413), <code>repl.py</code> (421).</p>
 <p><em>What:</em> <code>clap</code> for the command line. Commands and flags exactly as in <code>PARITY.md</code>: <code>login [--device-name]</code>, <code>logout</code>, <code>doctor [--project PATH]</code>, <code>trust [--list|--forget PATH]</code>, <code>-p/--print</code> with <code>--output-format text|json</code>, <code>--mode plan|ask|accept-edits</code>, <code>--allow</code>, <code>--deny</code>, <code>--sandbox auto|required|off</code>, <code>--cwd</code>, <code>--plain</code>, <code>--version</code>. Exit codes 0, 1, 2, 3, 4, 5, 130, 143 with SIGINT and SIGTERM cancelling the run first (<code>tokio::signal</code>). <code>doctor</code> drops the Python check and adds an architecture line; it keeps the checks for <code>git</code>, <code>rg</code>, <code>bwrap</code>, the project location (warn on <code>/mnt/c</code>) and the config directory. In headless mode a call that would ask ends the run with exit code 3.</p>
 <p><em>Done when:</em> every <code>PARITY.md</code> row for commands, flags, exit codes and environment variables passes, and <code>-p --output-format json</code> output equals the Python client's on the golden runs after a normalizer removes timestamps and ids.</p>
-<h4 id="mg-r11-m2c-tui-xl-wave-7">MG-R11 · <code>m2c-tui</code> · XL · Wave 7</h4>
+<h4 id="mg-r11-m2c-tui-xl-wave-8">MG-R11 · <code>m2c-tui</code> · XL · Wave 8</h4>
 <p><em>Python source:</em> <code>tui/</code> (3,004 lines, <code>prompt_toolkit</code> and <code>rich</code>).</p>
 <p><em>What:</em> a rewrite on <code>ratatui</code> and <code>crossterm</code>, not a line-by-line port. Behavior parity checklist: streaming reply text; the approval prompt and its keys; <code>/help</code>, <code>/rewind</code>, <code>/exit</code>; the <code>--plain</code> line-by-line fallback; terminal resize; Ctrl-C semantics; <strong>terminal safety</strong> (control characters in file names, paths, tool output and <code>-p</code> text are neutralized before they reach the terminal, the Q07 terminal rows); WSL2 terminals. Snapshot tests with <code>insta</code> over <code>ratatui</code>'s test backend.</p>
 <p><em>Done when:</em> the checklist is green, the snapshot tests cover the approval and diff views, and the <code>--plain</code> mode works with no TTY.</p>
-<h4 id="mg-r12-parity-suite-and-install-test-l-wave-8">MG-R12 · Parity suite and install test · L · Wave 8</h4>
+<h4 id="mg-r12-parity-suite-and-install-test-l-wave-9">MG-R12 · Parity suite and install test · L · Wave 9</h4>
 <p><em>What:</em></p>
 <ol>
 <li><strong>Golden-run parity.</strong> Run the same scenario scripts through the Python client (at the tag) and the Rust client against the same fake server; compare the normalized event streams, the local store, and exit codes.</li>
@@ -1194,12 +1335,12 @@ A race (a symlink swapped between check and use) cannot be a static row; it beco
 <li>A long differential-fuzz run of <code>MG-R02</code> and <code>MG-R03</code>.</li>
 </ol>
 <p><em>Done when:</em> all of the above are green and the numbers are recorded.</p>
-<h4 id="mg-r13-cutover-to-the-rust-client-s-wave-9">MG-R13 · Cutover to the Rust client · S · Wave 9</h4>
+<h4 id="mg-r13-cutover-to-the-rust-client-s-wave-10">MG-R13 · Cutover to the Rust client · S · Wave 10</h4>
 <p><em>What:</em> tag the first Rust release; switch the <code>m2c-test</code> and <code>canary</code> jobs to <code>cargo</code>; update the README, <code>§2.2</code> and <code>C22</code> (release binaries, checksums, signing, the installer script that already checks for <code>bubblewrap</code>); retire <code>m2c/pyproject.toml</code> from the default build. <strong>Keep the Python tree and the <code>m2c-py-ref</code> tag for one release</strong> (DM-8), then delete the Python client.</p>
 <p><em>Done when:</em> a fresh install from the release artifact passes <code>MG-R12</code>'s install test and <code>PARITY.md</code> is fully ticked.</p>
 <hr />
 <h2 id="7-m2c-work-packages-not-built-yet-where-each-lands">7. M2C work packages not built yet: where each lands</h2>
-<p>From <code>m2c_build_plan.md</code> §0.6 (rev 1.2). <strong>Client halves are built in Rust (DM-9); server halves stay Python; web halves are TypeScript.</strong></p>
+<p>From <code>m2c_build_plan.md</code> §0.6 (rev 1.2). <strong>Client halves are built in Rust (DM-9, once <code>MG-Z10</code> records <code>PROCEED</code>); server halves stay Python; web halves are TypeScript.</strong> If the gate records <code>STAY PYTHON</code>, the client halves are built in Python as the build plan says.</p>
 <div class="tw"><table>
 <thead>
 <tr>
@@ -1316,7 +1457,7 @@ A race (a symlink swapped between check and use) cannot be a static row; it beco
 </table></div>
 <hr />
 <h2 id="8-menux-phase-3">8. Menux (Phase 3)</h2>
-<p>Menux starts when the Rust M2C reaches M2, the same milestone as before. Nothing in Menux is built yet, so nothing is ported. What changes in the Menux guide:</p>
+<p>Menux starts when the Rust M2C reaches M2, the same milestone as before (if <code>MG-Z10</code> records <code>STAY PYTHON</code>, when the Python M2C reaches M2, and the rest of this section reverts to the Menux build guide's own wording). Nothing in Menux is built yet, so nothing is ported. What changes in the Menux guide:</p>
 <div class="tw"><table>
 <thead>
 <tr>
@@ -1466,6 +1607,42 @@ A race (a symlink swapped between check and use) cannot be a static row; it beco
 </tr>
 </tbody>
 </table></div>
+<h3 id="91-sequencing-with-the-provider-consolidation-guide-revision-11">9.1 Sequencing with the Provider Consolidation Guide (revision 1.1)</h3>
+<p>The <strong>Provider Consolidation Guide</strong> (Appendix B, <code>PV-00</code> to <code>PV-20</code>) replaces the free-tier providers with four paid models and a paid search service. It edits backend files that this migration also touches. Order the two like this.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>The Consolidation Guide goes first on every file it names as shared</strong>: <code>backend/utils/llm_client.py</code>, <code>backend/eo/model_catalog.py</code>, <code>backend/utils/key_balancer.py</code>, <code>backend/config/provider_limits.json</code>, <code>backend/eo/registry.py</code>, <code>backend/eo/dynamic_chain.py</code>, <code>backend/agents/generic_worker.py</code>, <code>backend/utils/web_search.py</code>, <code>backend/requirements.txt</code>, <code>backend/.env.example</code>, <code>backend/config/*.json</code>, <code>.github/workflows/ci.yml</code>.</td>
+<td>One writer per shared file (rule 7). Its patches replace large parts of these files.</td>
+</tr>
+<tr>
+<td><strong>Land the CI edits of <code>MG-Z01</code>, <code>MG-Z07</code> and <code>MG-Z08</code> before <code>PV-00</code> starts, or after <code>PV-18</code>, not in between.</strong></td>
+<td>Both change <code>ci.yml</code>, and <code>MG-Z01</code> changes how requirements are installed.</td>
+</tr>
+<tr>
+<td><strong><code>MG-B04</code> (blocking-call audit) and <code>MG-B05</code> (typing ratchet) wait for <code>PV-14</code>.</strong></td>
+<td><code>llm_client.py</code> contains blocking sleeps that <code>PV-14</code> rewrites; auditing it first wastes the audit.</td>
+</tr>
+<tr>
+<td><strong>Do not convert <code>TokenUsageTab.jsx</code> (<code>PV-16</code>) or <code>LandingPage.jsx</code> (<code>PV-18</code>) to TypeScript before those packages are done.</strong></td>
+<td>The Consolidation Guide edits both.</td>
+</tr>
+<tr>
+<td><strong>Run <code>MG-B01</code> (the load baseline) only after the <code>PV-19</code> go-live.</strong></td>
+<td>Numbers measured against free-tier keys are not the numbers the product will have.</td>
+</tr>
+<tr>
+<td><strong>These may run at any time, in parallel with the Consolidation Guide:</strong> <code>MG-Z00</code>, <code>MG-Z02</code> to <code>MG-Z06</code>, <code>MG-Z10</code>, <code>MG-D00</code> to <code>MG-D04</code>, <code>MG-F00</code> to <code>MG-F02</code> (except the two files above), and the whole <strong>R</strong> track.</td>
+<td>They touch no file the Consolidation Guide names.</td>
+</tr>
+</tbody>
+</table></div>
 <hr />
 <h2 id="10-risks">10. Risks</h2>
 <div class="tw"><table>
@@ -1536,6 +1713,16 @@ A race (a symlink swapped between check and use) cannot be a static row; it beco
 <td><strong>TypeScript giant files stall.</strong></td>
 <td><code>MG-F04</code></td>
 <td>Two-step conversion with the allowlist that only shrinks.</td>
+</tr>
+<tr>
+<td><strong>The gate is skipped, or its criteria are bent after the fact.</strong></td>
+<td><code>MG-Z10</code></td>
+<td>The criteria are committed in a decision record before the spike (rule 10) and the outcome follows from the table in §1.1.</td>
+</tr>
+<tr>
+<td><strong>The spike passes but the full port is much bigger.</strong> It covers about 900 of 27,000 client lines and none of the policy, sandbox or TUI crates.</td>
+<td><code>MG-R03</code> and later</td>
+<td>The checkpoint in <code>MG-R03</code>: more than twice the estimate means run the gate again as a new record.</td>
 </tr>
 <tr>
 <td><strong>Rust learning curve.</strong></td>
@@ -1637,14 +1824,33 @@ package is wrong against the real code, STOP and report.
 <td>The smallest box that can reach the target connection count</td>
 <td><code>MG-B01</code></td>
 </tr>
+<tr>
+<td>11</td>
+<td>The gate's thresholds (C1 to C3, B1 to B3) and the time box</td>
+<td>Use the suggested defaults in <code>MG-Z10</code>; write them into the decision record before the spike</td>
+<td><code>MG-Z10</code>, step 1</td>
+</tr>
+<tr>
+<td>12</td>
+<td>If the gate says <code>STAY PYTHON</code>: how users get the Python client without installing a separate Python</td>
+<td>Decide from the <code>B1</code> measurement (for example a single-file bundle that carries its own interpreter)</td>
+<td><code>MG-Z10</code></td>
+</tr>
 </tbody>
 </table></div>
 <hr />
 <h2 id="13-evidence-and-what-was-not-checked">13. Evidence and what was not checked</h2>
 <p><strong>Read:</strong> the MiniMe repo at <code>94af156</code>: <code>m2c/</code> (layout, line counts, <code>pyproject.toml</code>, README, the policy, secrets and store entry points and their test file lists), <code>protocol/</code> (README, <code>validate.py</code> header, schemas list, fixtures), <code>backend/codeagent/</code> (module headers, <code>ws.py</code> constants, <code>connections.py</code>, <code>buffer.py</code>), <code>backend/</code> (daemon-related files and their cross-references, dependency list, blocking-call grep), <code>frontend/</code> (package files, directory and file counts, largest files, test layout), <code>.github/workflows/ci.yml</code>, <code>backend.Dockerfile</code>, <code>DEFERRED.md</code>; the book at <code>aaca7f1</code>: the three guides' changed sections, <code>UPDATING.md</code>, <code>llms.txt</code>.</p>
 <p><strong>Measured:</strong> the Python client's startup, in a cloud sandbox, five runs per command (§3). Not on your machine.</p>
-<p><strong>Not done:</strong> no test was run (Python, Rust or TypeScript); nothing was built; no crate, package or tool version was verified, and none is recommended by number; <code>checkpoints.py</code>, <code>link/</code>, <code>auth/</code>, <code>sandbox/</code> and <code>tui/</code> were sized but not read in detail (their work packages begin with a behavior inventory for that reason); the policy and redaction function bodies were not reviewed; the claim that Rust's <code>regex</code> crate lacks lookaround and possessive quantifiers is from general knowledge and should be confirmed in <code>MG-R02</code>'s first commit; the Node type-stripping claim rests on the release notes cited in <code>MG-F00</code> and must be confirmed on your Node 22.22.0 by that work package's spike; the size of every work package is an estimate.</p>
-<p><strong>Sources:</strong> <a href="https://nodejs.org/blog/release/v22.18.0">Node.js v22.18.0 release notes</a> (native type stripping on by default).</p></article><div class="toc"><b>On this page</b><a class="t2" href="#0-how-to-use-this-guide">0. How to use this guide</a><a class="t2" href="#1-decisions">1. Decisions</a><a class="t2" href="#2-target-architecture">2. Target architecture</a><a class="t2" href="#3-what-the-code-says-today">3. What the code says today</a><a class="t2" href="#4-rules-of-the-migration-stop-the-line">4. Rules of the migration (stop the line)</a><a class="t2" href="#5-work-package-index">5. Work-package index</a><a class="t2" href="#6-work-packages-in-detail">6. Work packages in detail</a><a class="t3" href="#61-track-z-foundations">6.1 Track Z · Foundations</a><a class="t3" href="#mg-z00-freeze-and-tag-the-python-m2c-reference-s-wave-1">MG-Z00 · Freeze and tag the Python M2C reference · S · Wave 1</a><a class="t3" href="#mg-z01-switch-python-ci-and-docker-installs-to-uv-s-wave-1">MG-Z01 · Switch Python CI and Docker installs to uv · S · Wave 1</a><a class="t3" href="#mg-z02-conformance-vector-format-and-python-runner-m-wave-2">MG-Z02 · Conformance vector format and Python runner · M · Wa...</a><a class="t3" href="#mg-z03-policy-vectors-l-wave-3">MG-Z03 · Policy vectors · L · Wave 3</a><a class="t3" href="#mg-z04-secret-redaction-vectors-m-wave-3">MG-Z04 · Secret-redaction vectors · M · Wave 3</a><a class="t3" href="#mg-z05-path-guard-vectors-m-wave-3">MG-Z05 · Path-guard vectors · M · Wave 3</a><a class="t3" href="#mg-z06-local-store-compatibility-fixtures-s-wave-2">MG-Z06 · Local-store compatibility fixtures · S · Wave 2</a><a class="t3" href="#mg-z07-rust-workspace-toolchain-and-ci-m-wave-2">MG-Z07 · Rust workspace, toolchain and CI · M · Wave 2</a><a class="t3" href="#mg-z08-protocol-codegen-and-fixture-replay-m-wave-3">MG-Z08 · Protocol codegen and fixture replay · M · Wave 3</a><a class="t3" href="#mg-z09-book-edits-for-the-new-plan-s-wave-2">MG-Z09 · Book edits for the new plan · S · Wave 2</a><a class="t3" href="#62-track-f-frontend-to-typescript">6.2 Track F · Frontend to TypeScript</a><a class="t3" href="#mg-f00-typescript-foundation-and-test-runner-spike-m-wave-1">MG-F00 · TypeScript foundation and test-runner spike · M · Wa...</a><a class="t3" href="#mg-f01-generate-api-types-from-fastapis-openapi-m-wave-2">MG-F01 · Generate API types from FastAPI&#x27;s OpenAPI · M · Wave 2</a><a class="t3" href="#mg-f02-convert-applib-modules-l-wave-3">MG-F02 · Convert app/lib modules · L · Wave 3</a><a class="t3" href="#mg-f03-convert-hooks-and-context-providers-m-wave-4">MG-F03 · Convert hooks and context providers · M · Wave 4</a><a class="t3" href="#mg-f04-convert-components-directory-by-directory-xl-wave-5">MG-F04 · Convert components, directory by directory · XL · Wa...</a><a class="t3" href="#mg-f05-strict-everywhere-drop-allowjs-m-wave-6">MG-F05 · Strict everywhere, drop allowJs · M · Wave 6</a><a class="t3" href="#63-track-d-retire-the-daemon">6.3 Track D · Retire the daemon</a><a class="t3" href="#mg-d00-decide-the-fate-of-the-shared-action-gate-s-wave-1">MG-D00 · Decide the fate of the shared action gate · S · Wave 1</a><a class="t3" href="#mg-d01-extract-the-neutral-action-gate-m-wave-2">MG-D01 · Extract the neutral action gate · M · Wave 2</a><a class="t3" href="#mg-d02-remove-frontend-daemon-surfaces-s-wave-3">MG-D02 · Remove frontend daemon surfaces · S · Wave 3</a><a class="t3" href="#mg-d03-remove-backend-daemon-routes-registry-and-events-m-wave-4">MG-D03 · Remove backend daemon routes, registry and events · ...</a><a class="t3" href="#mg-d04-delete-daemon-and-its-ci-job-s-wave-5">MG-D04 · Delete daemon/ and its CI job · S · Wave 5</a><a class="t3" href="#64-track-b-backend-hardening-python">6.4 Track B · Backend hardening (Python)</a><a class="t3" href="#mg-b00-load-test-harness-m-wave-1">MG-B00 · Load-test harness · M · Wave 1</a><a class="t3" href="#mg-b01-baseline-run-numbers-recorded-in-the-book-s-wave-2">MG-B01 · Baseline run, numbers recorded in the book · S · Wave 2</a><a class="t3" href="#mg-b02-redis-backed-presence-and-handshake-limiter-m-wave-3">MG-B02 · Redis-backed presence and handshake limiter · M · Wa...</a><a class="t3" href="#mg-b03-gateway-process-split-l-wave-4">MG-B03 · Gateway process split · L · Wave 4</a><a class="t3" href="#mg-b04-blocking-call-audit-on-hot-paths-m-wave-3">MG-B04 · Blocking-call audit on hot paths · M · Wave 3</a><a class="t3" href="#mg-b05-typing-ratchet-and-response-models-m-wave-1">MG-B05 · Typing ratchet and response models · M · Wave 1</a><a class="t3" href="#mg-b06-gateway-language-decision-record-s-wave-5">MG-B06 · Gateway language decision record · S · Wave 5</a><a class="t3" href="#65-track-r-m2c-client-to-rust">6.5 Track R · M2C client to Rust</a><a class="t3" href="#mg-r00-minicore-protocol-m-wave-4">MG-R00 · minicore-protocol · M · Wave 4</a><a class="t3" href="#mg-r01-minicore-paths-m-wave-4">MG-R01 · minicore-paths · M · Wave 4</a><a class="t3" href="#mg-r02-minicore-secrets-l-wave-4">MG-R02 · minicore-secrets · L · Wave 4</a><a class="t3" href="#mg-r03-minicore-policy-xl-wave-5">MG-R03 · minicore-policy · XL · Wave 5</a><a class="t3" href="#mg-r04-minicore-store-m-wave-3">MG-R04 · minicore-store · M · Wave 3</a><a class="t3" href="#mg-r05-minicore-link-and-minicore-auth-l-wave-5">MG-R05 · minicore-link and minicore-auth · L · Wave 5</a><a class="t3" href="#mg-r06-minicore-sandbox-xl-wave-5">MG-R06 · minicore-sandbox · XL · Wave 5</a><a class="t3" href="#mg-r07-m2c-tools-and-the-tool-runner-l-wave-6">MG-R07 · m2c-tools and the tool runner · L · Wave 6</a><a class="t3" href="#mg-r08-m2c-context-trust-and-interact-m-wave-6">MG-R08 · m2c-context, trust and interact · M · Wave 6</a><a class="t3" href="#mg-r09-m2c-checkpoints-m-wave-5">MG-R09 · m2c-checkpoints · M · Wave 5</a><a class="t3" href="#mg-r10-m2c-headless-cli-and-doctor-l-wave-7">MG-R10 · m2c-headless, cli and doctor · L · Wave 7</a><a class="t3" href="#mg-r11-m2c-tui-xl-wave-7">MG-R11 · m2c-tui · XL · Wave 7</a><a class="t3" href="#mg-r12-parity-suite-and-install-test-l-wave-8">MG-R12 · Parity suite and install test · L · Wave 8</a><a class="t3" href="#mg-r13-cutover-to-the-rust-client-s-wave-9">MG-R13 · Cutover to the Rust client · S · Wave 9</a><a class="t2" href="#7-m2c-work-packages-not-built-yet-where-each-lands">7. M2C work packages not built yet: where each lands</a><a class="t2" href="#8-menux-phase-3">8. Menux (Phase 3)</a><a class="t2" href="#9-ci-after-the-migration">9. CI after the migration</a><a class="t2" href="#10-risks">10. Risks</a><a class="t2" href="#11-prompt-template-for-one-port-patch">11. Prompt template for one port patch</a><a class="t2" href="#12-decisions-that-are-still-yours">12. Decisions that are still yours</a><a class="t2" href="#13-evidence-and-what-was-not-checked">13. Evidence and what was not checked</a></div></div></main><small class="mm-built">Private. Added 2026-11-14 on commit aaca7f1.</small><script id="bk-chapter-script">
+<p><strong>Not done:</strong> no test was run (Python, Rust or TypeScript); nothing was built; no crate, package or tool version was verified, and none is recommended by number; <code>checkpoints.py</code>, <code>link/</code>, <code>auth/</code>, <code>sandbox/</code> and <code>tui/</code> were sized but not read in detail (their work packages begin with a behavior inventory for that reason); the policy and redaction function bodies were not reviewed; the claim that Rust's <code>regex</code> crate lacks lookaround and possessive quantifiers was confirmed and corrected in revision 1.2 (below), but only for the one version tested; the Node type-stripping claim rests on the release notes cited in <code>MG-F00</code> and must be confirmed on your Node 22.22.0 by that work package's spike; the size of every work package is an estimate.</p>
+<p><strong>Revision 1.1 additions (2026-11-21).</strong> Read from the MiniMe repo at <code>3727ae3</code>: <code>secrets/redact.py</code> (657 lines; a text search found 10 lines with lookaround syntax and 2 with possessive quantifiers; §3's count of 11 and 2 counts assertions, so re-count in <code>MG-Z10</code>), the secret-handling test folder (84 test functions in files whose path contains "secret"), and the policy module layout. <strong>Run once:</strong> the M2C test suite, in a cloud sandbox as root, with <code>ripgrep</code> and <code>bubblewrap</code> not installed: 6,401 passed, 134 skipped (the skips are the tests that need those two tools; they run in CI, which installs them). <strong>Read in part:</strong> the Provider Consolidation Guide (its hazards, decisions, patch index, <code>PV-06</code> and <code>PV-18</code>). <strong>Not done in revision 1.1:</strong> the <code>MG-Z10</code> spike itself; no Rust was written or built; Rust's <code>regex</code> limits and the Python version on a clean Ubuntu 22.04 were not checked and are <code>MG-Z10</code> steps.</p>
+<p><strong>Revision 1.2 checks (2026-11-21, run in a Linux sandbox; none of this replaces <code>MG-Z10</code>).</strong></p>
+<ul>
+<li><strong>Rust <code>regex</code> limits, run.</strong> A small program was built against <code>regex</code> 1.13.2 (<code>regex-syntax</code> 0.8.12) with Rust 1.75 (the Ubuntu 24.04 package). Lookahead and lookbehind (<code>(?&lt;!x)</code>, <code>(?&lt;=x)</code>, <code>(?!x)</code>, <code>(?=x)</code>) fail to compile with "look-around, including look-ahead and look-behind, is not supported". Backreferences (<code>(a)\1</code>) fail with "backreferences are not supported". Atomic groups (<code>(?&gt;a+)</code>) fail as an unrecognized flag. <strong>Possessive quantifiers do not fail:</strong> <code>a*+</code>, <code>a++</code>, <code>a?+</code> and the bounded form <code>{n,m}+</code> all compile, and they behave as an ordinary greedy repeat. <code>a*+a</code> matches <code>aaa</code> in Rust and does not match in Python 3.12. The two real patterns in <code>secrets/redact.py</code> were tested as fragments (<code>[A-Za-z0-9_.-]{0,64}+</code> on line 337 and <code>[A-Za-z0-9+/_-]{20,200}+={0,2}</code> on line 351 of the copy in <code>data/src/</code>): both compile in Rust, and a pattern that adds the lookahead from line 351 is rejected. So lookaround is a loud failure and possessive is a silent one; the lint in <code>MG-Z10</code> step 4 exists for that reason.</li>
+<li><strong>Python on Ubuntu 22.04, read from the package index, not from a container.</strong> The <code>jammy</code> and <code>jammy-updates</code> indexes list <code>python3</code> as 3.10.4 and 3.10.6 (the <code>python3.10</code> package is 3.10.12). The only 3.11 is <code>python3.11</code> 3.11.0~rc1 in <code>jammy-updates/universe</code>, a release candidate. There is no <code>python3.12</code>. <code>bubblewrap</code> 0.6.1 is in <code>main</code> and <code>ripgrep</code> 13.0.0 is in <code>universe</code>. M2C declares <code>requires-python &gt;=3.11</code> (decision D1), so a clean 22.04 needs another Python source (a third-party repository, <code>uv</code>, <code>pyenv</code> or a build from source) before the Python client runs, and that is the extra step <code>B1</code> expects. Not run: an actual 22.04 container, so the exact commands and the default WSL2 Ubuntu image are still <code>MG-Z10</code> work.</li>
+<li><strong>Not checked in revision 1.2:</strong> Rust behaviour on other <code>regex</code> versions, Python 3.11 versus 3.12 differences in the possessive syntax beyond the one example, and anything on Windows or macOS.</li>
+</ul>
+<p><strong>Sources:</strong> <a href="https://nodejs.org/blog/release/v22.18.0">Node.js v22.18.0 release notes</a> (native type stripping on by default).</p></article><div class="toc"><b>On this page</b><a class="t2" href="#0-how-to-use-this-guide">0. How to use this guide</a><a class="t2" href="#1-decisions">1. Decisions</a><a class="t3" href="#11-the-rust-decision-gate-mg-z10">1.1 The Rust decision gate (MG-Z10)</a><a class="t2" href="#2-target-architecture">2. Target architecture</a><a class="t2" href="#3-what-the-code-says-today">3. What the code says today</a><a class="t2" href="#4-rules-of-the-migration-stop-the-line">4. Rules of the migration (stop the line)</a><a class="t2" href="#5-work-package-index">5. Work-package index</a><a class="t2" href="#6-work-packages-in-detail">6. Work packages in detail</a><a class="t3" href="#61-track-z-foundations">6.1 Track Z · Foundations</a><a class="t3" href="#mg-z00-freeze-and-tag-the-python-m2c-reference-s-wave-1">MG-Z00 · Freeze and tag the Python M2C reference · S · Wave 1</a><a class="t3" href="#mg-z01-switch-python-ci-and-docker-installs-to-uv-s-wave-1">MG-Z01 · Switch Python CI and Docker installs to uv · S · Wave 1</a><a class="t3" href="#mg-z02-conformance-vector-format-and-python-runner-m-wave-2">MG-Z02 · Conformance vector format and Python runner · M · Wa...</a><a class="t3" href="#mg-z03-policy-vectors-l-wave-3">MG-Z03 · Policy vectors · L · Wave 3</a><a class="t3" href="#mg-z04-secret-redaction-vectors-m-wave-3">MG-Z04 · Secret-redaction vectors · M · Wave 3</a><a class="t3" href="#mg-z05-path-guard-vectors-m-wave-3">MG-Z05 · Path-guard vectors · M · Wave 3</a><a class="t3" href="#mg-z06-local-store-compatibility-fixtures-s-wave-2">MG-Z06 · Local-store compatibility fixtures · S · Wave 2</a><a class="t3" href="#mg-z07-rust-workspace-toolchain-and-ci-m-wave-2">MG-Z07 · Rust workspace, toolchain and CI · M · Wave 2</a><a class="t3" href="#mg-z08-protocol-codegen-and-fixture-replay-m-wave-3">MG-Z08 · Protocol codegen and fixture replay · M · Wave 3</a><a class="t3" href="#mg-z09-book-edits-for-the-new-plan-runs-only-on-proceed-s-wave-5">MG-Z09 · Book edits for the new plan (runs only on PROCEED) ·...</a><a class="t3" href="#mg-z10-rust-decision-gate-the-minicore-secrets-spike-l-wave-4">MG-Z10 · Rust decision gate: the minicore-secrets spike · L ·...</a><a class="t3" href="#62-track-f-frontend-to-typescript">6.2 Track F · Frontend to TypeScript</a><a class="t3" href="#mg-f00-typescript-foundation-and-test-runner-spike-m-wave-1">MG-F00 · TypeScript foundation and test-runner spike · M · Wa...</a><a class="t3" href="#mg-f01-generate-api-types-from-fastapis-openapi-m-wave-2">MG-F01 · Generate API types from FastAPI&#x27;s OpenAPI · M · Wave 2</a><a class="t3" href="#mg-f02-convert-applib-modules-l-wave-3">MG-F02 · Convert app/lib modules · L · Wave 3</a><a class="t3" href="#mg-f03-convert-hooks-and-context-providers-m-wave-4">MG-F03 · Convert hooks and context providers · M · Wave 4</a><a class="t3" href="#mg-f04-convert-components-directory-by-directory-xl-wave-5">MG-F04 · Convert components, directory by directory · XL · Wa...</a><a class="t3" href="#mg-f05-strict-everywhere-drop-allowjs-m-wave-6">MG-F05 · Strict everywhere, drop allowJs · M · Wave 6</a><a class="t3" href="#63-track-d-retire-the-daemon">6.3 Track D · Retire the daemon</a><a class="t3" href="#mg-d00-decide-the-fate-of-the-shared-action-gate-s-wave-1">MG-D00 · Decide the fate of the shared action gate · S · Wave 1</a><a class="t3" href="#mg-d01-extract-the-neutral-action-gate-m-wave-2">MG-D01 · Extract the neutral action gate · M · Wave 2</a><a class="t3" href="#mg-d02-remove-frontend-daemon-surfaces-s-wave-3">MG-D02 · Remove frontend daemon surfaces · S · Wave 3</a><a class="t3" href="#mg-d03-remove-backend-daemon-routes-registry-and-events-m-wave-4">MG-D03 · Remove backend daemon routes, registry and events · ...</a><a class="t3" href="#mg-d04-delete-daemon-and-its-ci-job-s-wave-5">MG-D04 · Delete daemon/ and its CI job · S · Wave 5</a><a class="t3" href="#64-track-b-backend-hardening-python">6.4 Track B · Backend hardening (Python)</a><a class="t3" href="#mg-b00-load-test-harness-m-wave-1">MG-B00 · Load-test harness · M · Wave 1</a><a class="t3" href="#mg-b01-baseline-run-numbers-recorded-in-the-book-s-wave-2">MG-B01 · Baseline run, numbers recorded in the book · S · Wave 2</a><a class="t3" href="#mg-b02-redis-backed-presence-and-handshake-limiter-m-wave-3">MG-B02 · Redis-backed presence and handshake limiter · M · Wa...</a><a class="t3" href="#mg-b03-gateway-process-split-l-wave-4">MG-B03 · Gateway process split · L · Wave 4</a><a class="t3" href="#mg-b04-blocking-call-audit-on-hot-paths-m-wave-3">MG-B04 · Blocking-call audit on hot paths · M · Wave 3</a><a class="t3" href="#mg-b05-typing-ratchet-and-response-models-m-wave-1">MG-B05 · Typing ratchet and response models · M · Wave 1</a><a class="t3" href="#mg-b06-gateway-language-decision-record-s-wave-5">MG-B06 · Gateway language decision record · S · Wave 5</a><a class="t3" href="#65-track-r-m2c-client-to-rust">6.5 Track R · M2C client to Rust</a><a class="t3" href="#mg-r00-minicore-protocol-m-wave-5">MG-R00 · minicore-protocol · M · Wave 5</a><a class="t3" href="#mg-r01-minicore-paths-m-wave-5">MG-R01 · minicore-paths · M · Wave 5</a><a class="t3" href="#mg-r02-minicore-secrets-l-wave-5">MG-R02 · minicore-secrets · L · Wave 5</a><a class="t3" href="#mg-r03-minicore-policy-xl-wave-6">MG-R03 · minicore-policy · XL · Wave 6</a><a class="t3" href="#mg-r04-minicore-store-m-wave-5">MG-R04 · minicore-store · M · Wave 5</a><a class="t3" href="#mg-r05-minicore-link-and-minicore-auth-l-wave-6">MG-R05 · minicore-link and minicore-auth · L · Wave 6</a><a class="t3" href="#mg-r06-minicore-sandbox-xl-wave-6">MG-R06 · minicore-sandbox · XL · Wave 6</a><a class="t3" href="#mg-r07-m2c-tools-and-the-tool-runner-l-wave-7">MG-R07 · m2c-tools and the tool runner · L · Wave 7</a><a class="t3" href="#mg-r08-m2c-context-trust-and-interact-m-wave-7">MG-R08 · m2c-context, trust and interact · M · Wave 7</a><a class="t3" href="#mg-r09-m2c-checkpoints-m-wave-6">MG-R09 · m2c-checkpoints · M · Wave 6</a><a class="t3" href="#mg-r10-m2c-headless-cli-and-doctor-l-wave-8">MG-R10 · m2c-headless, cli and doctor · L · Wave 8</a><a class="t3" href="#mg-r11-m2c-tui-xl-wave-8">MG-R11 · m2c-tui · XL · Wave 8</a><a class="t3" href="#mg-r12-parity-suite-and-install-test-l-wave-9">MG-R12 · Parity suite and install test · L · Wave 9</a><a class="t3" href="#mg-r13-cutover-to-the-rust-client-s-wave-10">MG-R13 · Cutover to the Rust client · S · Wave 10</a><a class="t2" href="#7-m2c-work-packages-not-built-yet-where-each-lands">7. M2C work packages not built yet: where each lands</a><a class="t2" href="#8-menux-phase-3">8. Menux (Phase 3)</a><a class="t2" href="#9-ci-after-the-migration">9. CI after the migration</a><a class="t3" href="#91-sequencing-with-the-provider-consolidation-guide-revision-11">9.1 Sequencing with the Provider Consolidation Guide (revisio...</a><a class="t2" href="#10-risks">10. Risks</a><a class="t2" href="#11-prompt-template-for-one-port-patch">11. Prompt template for one port patch</a><a class="t2" href="#12-decisions-that-are-still-yours">12. Decisions that are still yours</a><a class="t2" href="#13-evidence-and-what-was-not-checked">13. Evidence and what was not checked</a></div></div></main><small class="mm-built">Private. Built 2026-11-21 from commit d7d9f56.</small><script id="bk-chapter-script">
 (function(){
   // Reading progress bar
   var bar = document.querySelector('.bk-progress');

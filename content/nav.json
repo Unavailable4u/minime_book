@@ -97,6 +97,8 @@
           "blurb": "What has been built and run so far", "keywords": "fbebc status tests bug fixes d1 d4 capset" },
         { "id": "doc-migration-guide", "title": "Migration Guide: Rust, TypeScript and a Hardened Python Backend", "url": "doc-migration-guide.html", "layout": "reader", "part": "appendix", "chapter": "A",
           "blurb": "Current versus target stack", "keywords": "migration rust typescript python uv m2c menux daemon retire conformance vectors codegen frontend backend hardening load test" },
+        { "id": "doc-provider-consolidation", "title": "Provider Consolidation Guide: Four Paid Models, Key Pools, One Search Key", "url": "doc-provider-consolidation.html", "layout": "reader", "part": "appendix", "chapter": "B",
+          "blurb": "Paid key pools and one search provider", "keywords": "provider consolidation groq google anthropic perplexity search key pool rate limit reasoning effort model catalog free tier llm_client retire" },
         { "id": "tables", "title": "Tables", "url": "tables.html", "layout": "workbench",
           "blurb": "Every table in the book, searchable", "keywords": "tables search reference" }
       ]

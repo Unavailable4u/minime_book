@@ -194,7 +194,7 @@ class PureHelpers(unittest.TestCase):
         self.assertEqual(out["last"], [ids[-2], None, ids[-1]])
         self.assertIsNone(out["none"])
         self.assertIsNone(out["empty"])
-        self.assertEqual(len(ids), 15)
+        self.assertEqual(len(ids), 16)
 
 
 @unittest.skipUnless(NODE, "node is not installed")

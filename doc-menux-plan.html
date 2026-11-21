@@ -242,7 +242,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/components.css">
 <link rel="stylesheet" href="assets/css/shell.css">
-</head><body data-page="doc-menux-plan"><main><h1>Menux Build Execution Guide</h1><p class="sub">Menux. 10,705 words. <a href="data/docs/Menux___Build_Execution_Guide.md" download>Download .md</a></p><div class="bk-banner">
+</head><body data-page="doc-menux-plan"><main><h1>Menux Build Execution Guide</h1><p class="sub">Menux. 25,255 words. <a href="data/docs/Menux___Build_Execution_Guide.md" download>Download .md</a></p><div class="bk-banner">
   <div class="bk-top">
     <div>
       <span class="bk-part">Part IV · Menux (Local-First Personal Automation Agent)</span>
@@ -255,21 +255,28 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
       <a href="data/docs/Menux___Build_Execution_Guide.md" download class="bk-pill-link">⬇ Download .md</a>
     </div>
   </div>
-  <p class="bk-desc">59 ordered, patch-sized work packages across 16 waves (133 effort points) from contracts to GA.</p>
+  <p class="bk-desc">Phases 0–4: 59 work packages, 133 points, 16 waves. Phase 4U adds 5 usability packages. Phase 5 adds 69 (208 points, waves 17–34): native control, eyes and hands, companion, remote mesh and platforms.</p>
   <div class="bk-meta">
-    <span><b>10,705</b> words (~49 min read)</span><span>·</span><span><b>92</b> sections</span><span>·</span><span><b>16</b> tables</span>
+    <span><b>25,255</b> words (~115 min read)</span><span>·</span><span><b>109</b> sections</span><span>·</span><span><b>24</b> tables</span>
   </div>
   <div class="bk-prevnext"><a href="doc-menux-feature-guide.html" class="bk-nav-btn">← Ch. 8: Menux — Complete Feature & Product Guide</a><a href="doc-menux-product.html" class="bk-nav-btn bk-next">Ch. 10: Menux Product & Build Guide (Initial Spec) →</a></div>
 </div><div class="doc"><article><h1 id="menux-build-execution-guide">Menux — Build Execution Guide</h1>
 <p><em>Minime agentic automation</em></p>
 <h3 id="from-m2c-is-done-to-a-personal-automation-s">From "M2C is done" to a personal automation system: ordered, parallelizable, patch-sized work packages</h3>
-<p><em>Version 1.0 · 2026-10-02 · companion to <code>menux_guide.md</code> (what to build), <code>m2c_build_plan.md</code> (how M2C is built, whose patch workflow this guide reuses) and <code>m2c_guide.md</code>. Where this guide and <code>menux_guide.md</code> disagree, </em><em>this guide wins</em><em> (§2).</em></p>
+<p><em>Version 1.3 · 2026-11-21 (1.2: 2026-11-14) · companion to <code>menux_guide.md</code> (what to build), <code>m2c_build_plan.md</code> (how M2C is built, whose patch workflow this guide reuses) and <code>m2c_guide.md</code>. Where this guide and <code>menux_guide.md</code> disagree, </em><em>this guide wins</em><em> (§2).</em></p>
+<blockquote>
+<p><strong>Revision 1.1 (2026-10-26): the Companion Expansion.</strong> Phase 5 is rewritten and split into <strong>5A (native control), 5B (eyes and hands) and 5C (companion)</strong> (§10); new tracks <code>X</code>, <code>V</code> and <code>S</code> (§4.2); new decisions D15–D25 (§3); extensions CX1–CX7 and the Companion trust copy (§2); new reserved numbers (§4.5); new waves 17–27 (§4.6); new tests, risks and index rows. <strong>Phases 0–4 are unchanged: 59 work packages, 16 waves, 133 points.</strong> Phase 5 adds 45 work packages and about 133 points and starts only after <code>MT-I04</code>. The user-facing description is in <code>menux_feature_guide.md</code> §17–§27.</p>
+<p><strong>Revision 1.2 (2026-11-14): the device mesh and cross-platform control.</strong> Two new phases after 5C: <strong>5R (remote control and the device mesh)</strong> and <strong>5P (platforms and satellites)</strong> (§10.6, §10.7). A phone, a browser, a chat app or a second computer linked to the MiniMe account can control, approve and sync with a node; Windows and macOS are reached through <strong>satellites</strong> that use agent-desktop as the accessibility backend. New extensions MX1–MX9 and the mesh trust copy (§2); new decisions D26–D38 (§3); new track <code>P</code> (§4.2); reserved migrations <code>0022</code> and <code>0023</code>, a separate protocol namespace <code>protocol/mesh/v1</code> and the route <code>WS /v1/mate/mesh</code> (§4.5); waves 28–34 (§4.6). <strong>The Windows-side helper (<code>D07</code>, <code>D08</code>) is replaced by the Windows satellite <code>P03</code>; <code>D02</code> is re-scoped from M to L; <code>R05</code> gains the new candidates.</strong> <strong>Phases 0–4 are unchanged: 59 work packages, 16 waves, 133 points.</strong> Phase 5 is now 68 work packages and about 204 points (5A 13/34, 5B 21/67, 5C 10/32, 5R 17/49, 5P 7/22). One M2C follow-up is needed first: <code>S03b</code>, device self-revoke (§1). The user-facing description is in <code>menux_feature_guide.md</code> §28–§37.</p>
+<p><strong>Revision 1.3 (2026-11-21): usability, reach and evidence.</strong> Written after reading the shipped open-source agent Mercury Agent (<code>menux_feature_guide.md</code> §40), the M2C code at <code>3727ae3</code>, the Migration Guide (Appendix A) and the Provider Consolidation Guide (Appendix B). It closes the gaps that comparison found without touching the safety design. <strong>New track <code>U</code></strong> (§4.2) and a new <strong>Phase 4U</strong> (§9.1): <code>U01</code> recipes (automations that need no model), <code>U02</code> starter templates and a guided <code>menux init</code>, <code>U03</code> degraded mode, <code>U06</code> the security evidence pack, and <code>Q11</code> a scripted-model scenario harness: 5 work packages, 8 points, <strong>recommended before <code>MT-I04</code> and not counted in the 59 work packages and 133 points of Phases 0–4, which are unchanged (16 waves)</strong>. <strong>Phase 5P gains <code>U05</code></strong>, a limited native Windows and macOS node that is built only if <code>P06</code> passes written criteria (§10.7); Phase 5 is now 69 work packages and about 208 points. <code>D06</code> (voice) is extended, not duplicated. <strong>New decisions D39–D46</strong> (§3); the matching user-facing rules <code>UX1–UX6</code> are in <code>menux_feature_guide.md</code>. <strong>Language:</strong> file names ending <code>.py</code> in this guide are the Python reference names; whether the node is built in Rust is decided by the gate <code>MG-Z10</code> in Appendix A (§1.1), and nothing in this guide changes either way except the file extensions.</p>
+</blockquote>
 <hr/>
 <h2 id="0-how-to-use-this-guide">0. How to use this guide</h2>
 <p>The patch workflow is the one in <code>m2c_build_plan.md</code> §0 (one work package = one patch, tests first, git worktrees for parallel patches, apply in wave order, log in <code>PATCHES.md</code>, regenerate rather than hand-edit hunks, stop-the-line rules in §13 there). Differences for Menux:</p>
 <ul>
 <li><strong>IDs use the prefix <code>MT-</code></strong> (for example <code>MT-N02</code>). Patch files: <code>MT_N02_scheduler.patch</code>, kept in <code>patches/</code>.</li>
 <li><strong>Most new code lives in new packages</strong> (<code>minicore/</code>, <code>menux/</code>, <code>backend/mate/</code>), so conflicts are rare; §4.4 lists the few shared files.</li>
+<li><strong>Companion work packages (Phase 5)</strong> reuse the existing track letters where they fit (<code>D</code>, <code>M</code>, <code>T</code>, <code>Q</code>, <code>R</code>, <code>K</code>, <code>N</code>, <code>E</code>, <code>W</code>, <code>I</code>) and add three: <code>X</code> (control), <code>V</code> (virtual desktop and the control panel) and <code>S</code> (screen memory and vision). Revision 1.2 adds a fourth, <code>P</code> (platforms and satellites). Size labels map to points roughly as S=1, M=2, L=4, XL=8; this is an approximation of how the 133 points of Phases 0–4 were counted.</li>
+<li><strong>Third-party components are candidates, not dependencies,</strong> until <code>R05</code> has recorded a licence decision (CX7). A WP that needs one must say so and wait for <code>R05</code>.</li>
 <li><strong>I have not seen your finished M2C code.</strong> This guide assumes the module layout from <code>m2c_build_plan.md</code>. The <strong>first patch (MT-K00) is a read-only inventory</strong> that records the real paths and APIs; every later patch should be told to read that inventory first. If reality differs from this guide, fix the inventory, not the plan.</li>
 </ul>
 <p><strong>Prompt template</strong> (copy; fill the brackets):</p>
@@ -313,6 +320,11 @@ against the real code, STOP and report.
 <td>Device pairing, JWT, revocation</td>
 <td>S03, C03</td>
 <td>Same login and device</td>
+</tr>
+<tr>
+<td>Device <strong>self-revoke</strong> endpoint (<code>POST /v1/code/devices/revoke</code>, proposed in <code>m2c/src/m2c/auth/login.py</code>; today <code>m2c logout</code> only deletes the local credential)</td>
+<td><strong>S03b</strong> (new M2C follow-up, not counted in Menux's totals)</td>
+<td><code>menux logout</code> revoking the device, and the mesh distrusting it (Phase 5R, <code>E04</code>, <code>N11</code>)</td>
 </tr>
 <tr>
 <td>Device socket, resume, run manager, ephemeral buffer</td>
@@ -502,9 +514,9 @@ against the real code, STOP and report.
 <li><strong>WSL2:</strong> a scheduler is only useful while the WSL instance is running, and <strong>WSL2 stops the instance shortly after the last terminal closes</strong>. Community reports show settings such as <code>vmIdleTimeout=-1</code> and <code>instanceIdleTimeout=-1</code> help on some versions but not all, and the reliable workaround is a persistent process started at Windows login (for example a scheduled task running <code>wsl.exe</code> with a long sleep). I did not test this; confirm against current WSL docs.</li>
 <li>So Menux on WSL2 ships with a <strong>guided keep-alive setup</strong>, and <code>menux doctor</code> warns clearly when it is missing. Missed runs are handled by a spec-level policy (§MT-A04).</li>
 <li>Be honest in the docs: <strong>automations run only while the WSL instance is up.</strong> For true always-on use, recommend a small Linux machine (a mini-PC or Raspberry Pi) running the node.</li>
-<li><strong>Desktop control on WSL2 only reaches Linux GUI apps inside WSLg, not Windows applications.</strong> Do not promise Windows automation.</li>
+<li><strong>Desktop control on WSL2 only reaches Linux GUI apps inside WSLg, not Windows applications.</strong> Do not promise Windows automation. The Companion Expansion keeps this limit at launch. Revision 1.2 replaces the planned Windows-side helper (<code>D07</code>, <code>D08</code>) with the <strong>Windows satellite</strong> <code>P03</code> (Phase 5P, using agent-desktop), paired to the WSL2 node over loopback or the relay (CX2, D36). The node itself stays Linux.</li>
 <li>Windows folders (<code>/mnt/c/...</code>) can be granted <strong>read-only by default</strong>, with a warning about speed and permission quirks.</li>
-<li>macOS and native Windows: not supported.</li>
+<li>macOS and native Windows <strong>nodes</strong>: not supported (a time-boxed spike, <code>P06</code>, studies it). Windows and macOS <strong>satellites</strong> are planned in Phase 5P.</li>
 </ul>
 <h3 id="o4-packages">O4. Packages</h3>
 <ul>
@@ -564,6 +576,139 @@ against the real code, STOP and report.
 <h3 id="o8-trust-copy-for-menux-more-sensitive-than-m">O8. Trust copy for Menux (more sensitive than M2C)</h3>
 <blockquote>
 <p><strong>Where your data lives.</strong> Your automations, memory, skills and connector credentials are stored on your device. When an automation runs, the content it needs (for example today's calendar entries and email subjects) is sent to our servers and our model providers to produce the result; we don't keep it after the run ends. If you connect Telegram, messages to your bot pass through Telegram. We keep only usage numbers so your plan's limit applies across the web app, M2C and Menux. Messages from people you haven't paired are treated as data, never as instructions. You can pause everything with one button.</p>
+</blockquote>
+<h3 id="companion-extensions-cx1-cx7">Companion extensions (CX1–CX7)</h3>
+<p>Added in revision 1.1. They govern Phase 5 and sit beside O1–O8; they never relax O1–O8, the T0–T5 tiers or the shared pool.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Extension</th>
+<th>Rule</th>
+<th>Where it is built</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CX1</strong></td>
+<td>Reach levels and the control ladder</td>
+<td>Reach 0–4. For every task use the most reliable method that can do the job: commands, application scripting, accessibility tree, keyboard shortcuts, vision and pointer, with a registered specialist tool first for the operations it covers. Every method inherits tiers, approvals, panic and audit. Guide mode is the end of the line, never a silent failure</td>
+<td>X01–X05, X06, X07, X08</td>
+</tr>
+<tr>
+<td><strong>CX2</strong></td>
+<td>Linux first, WSL2 second</td>
+<td>Native Linux gets everything. WSL2 gets everything that runs inside Linux. Windows and macOS applications are controlled through a <strong>satellite</strong> paired to a node (<code>P02–P04</code>, Phase 5P, using agent-desktop); the Windows-side helper (<code>D07</code>, <code>D08</code>) is replaced by <code>P03</code>. A Windows-only or Mac-only user still needs a node. No promise before 5P</td>
+<td>P02, P03, P04, N08</td>
+</tr>
+<tr>
+<td><strong>CX3</strong></td>
+<td>The user always wins</td>
+<td>Pointer work defaults to the virtual desktop (Background). On the real screen Menux takes turns and yields on any user input. The user can watch, take over and hand back</td>
+<td>D04, V01–V03</td>
+</tr>
+<tr>
+<td><strong>CX4</strong></td>
+<td>Screen memory: local, off by default, visible</td>
+<td>Event-driven, text first, raw images deleted after extraction, sensitive apps excluded, encrypted with a vault-derived key, never stored on the server, indicator always visible, one-key pause</td>
+<td>S01–S04, Q08</td>
+</tr>
+<tr>
+<td><strong>CX5</strong></td>
+<td>Two perception paths</td>
+<td>Everything that sees has a CPU-only path (accessibility and CPU OCR, cloud grounding only with consent) and a GPU path (local models). <code>doctor</code> recommends one; the user can override</td>
+<td>N08, S05, E03</td>
+</tr>
+<tr>
+<td><strong>CX6</strong></td>
+<td>Skills shared as sanitized, signed templates</td>
+<td>Real automations and data never leave the device. Templates are stripped, parameterized, scanned, trialled with canary secrets, signed, installed disabled</td>
+<td>M12 (curated), M08 (marketplace)</td>
+</tr>
+<tr>
+<td><strong>CX7</strong></td>
+<td>Reuse or build, after a licence check</td>
+<td>No candidate is imported before <code>R05</code> records a decision; every candidate sits behind a Menux interface with an own-build fallback</td>
+<td>R05</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Tier follows effect and context (T10).</strong> The capability registry may assign a tier by context. <code>input.contained</code> (pointer and keyboard input inside a disposable virtual desktop with no accounts, no real files and allowlisted egress only) is T1; the same input on a logged-in profile or the real desktop is T3–T4. Unknown context takes the higher tier. <strong>Grants</strong> (scoped, time-limited, revocable) substitute for per-step approval of T3–T4 inside their scope and never cover the <strong>always-confirm list</strong>: payments; passwords, keys and vault export; deleting files outside staging or granted scratch; sending to a new third party or destination; changing the dial, grants, policy or logging; installing software, tools or skills; any unrecognized capability or context. This rule must be validated by the GUI red-team suite (Q07) before Phase 5B is released.</p>
+<h3 id="trust-copy-for-the-companion-addendum-to-o8">Trust copy for the Companion (addendum to O8)</h3>
+<blockquote>
+<p><strong>What Menux sees.</strong> Screen awareness and screen memory are off until you turn them on, and an indicator is visible whenever they run. Menux reads text from your screen on your device and keeps it, encrypted, on your device. Password managers, banking pages and private windows are excluded by default. When a task needs a model to look at a screenshot, only that image, or a text description of it, is sent, only with your permission, and we don't keep it after the run ends. Menux works on its own virtual desktop by default and steps aside the moment you use your mouse or keyboard. Some actions, such as payments, deleting files, using passwords and sending to someone new, always need your confirmation. You can pause, search, export or delete everything Menux remembers at any time.</p>
+</blockquote>
+<h3 id="mesh-extensions-mx1-mx9">Mesh extensions (MX1–MX9)</h3>
+<p>Added in revision 1.2. They govern the device mesh (Phases 5R and 5P) and sit beside O1–O8 and CX1–CX7; they never relax them. The user-facing description is <code>menux_feature_guide.md</code> §28–§37.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Extension</th>
+<th>Rule</th>
+<th>Where it is built</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MX1</strong></td>
+<td>Three roles</td>
+<td>A device is a <strong>node</strong> (the full Menux and the only place a run lives), a <strong>satellite</strong> (executes a limited set of capabilities for a node) or a <strong>controller</strong> (sends commands and approvals, executes nothing). A device may hold more than one role</td>
+<td>K06, N10, P02</td>
+</tr>
+<tr>
+<td><strong>MX2</strong></td>
+<td>Local policy is final</td>
+<td>The device that executes an action applies its own tiers, grants and dial. A remote origin can keep or raise a tier, never lower it. A satellite's dial can only narrow what the node may do</td>
+<td>T12, T13, P02</td>
+</tr>
+<tr>
+<td><strong>MX3</strong></td>
+<td>The server is a pipe</td>
+<td>The relay forwards end-to-end encrypted, signed frames. It cannot read them, forge a command, replay one, add a controller or approve at T4 or above. It sees metadata only</td>
+<td>K06, T12, E04, Q09</td>
+</tr>
+<tr>
+<td><strong>MX4</strong></td>
+<td>Node-approved pairing</td>
+<td>Adding a controller or satellite needs approval <strong>on the node</strong> (or from an already-trusted trusted-display controller with step-up, never above its own ceiling). A stolen MiniMe login is not enough</td>
+<td>N11, K06</td>
+</tr>
+<tr>
+<td><strong>MX5</strong></td>
+<td>Controller classes cap remote power</td>
+<td>Local, trusted display, web, chat. The web class is capped at T3 and chat approvals at T3 because their code or transport is not ours to trust; T4 needs a trusted display with step-up; T5 and vault export are local only</td>
+<td>T13, T14, G05, W11</td>
+</tr>
+<tr>
+<td><strong>MX6</strong></td>
+<td>Panic and deny always work</td>
+<td>From every controller, with no step-up, reaching every node in the mesh, surviving restart and retried until acknowledged</td>
+<td>T12, N10</td>
+</tr>
+<tr>
+<td><strong>MX7</strong></td>
+<td>Sync is opt-in and never moves secrets</td>
+<td>Per category, off by default. The vault, connector tokens, screen memory and the knowledge index never sync. Records are encrypted with a mesh key; an offline peer gets an encrypted mailbox of at most 24 hours</td>
+<td>M13, E04, Q10</td>
+</tr>
+<tr>
+<td><strong>MX8</strong></td>
+<td>Tighten at once, loosen with care</td>
+<td>Panic, lower ceilings, new exclusions and paused devices propagate immediately from any controller. Raising a limit does not propagate; it is done on the device or from a trusted display with step-up</td>
+<td>T13, M13</td>
+</tr>
+<tr>
+<td><strong>MX9</strong></td>
+<td>Backends behind interfaces</td>
+<td>agent-desktop and every other control backend sit behind <code>ControlBackend</code> (CX7), run as a pinned separate process, and have every command in the capability registry; an unknown command is T5 and denied</td>
+<td>D02, P03, P04, R05</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="trust-copy-for-the-mesh-addendum-to-o8">Trust copy for the mesh (addendum to O8)</h3>
+<blockquote>
+<p><strong>Your devices.</strong> Linking a phone, tablet or another computer lets it send commands to your Menux node, up to the limit you set for that device. Every new device must also be approved on your node, so the website alone cannot add one. Commands and approvals are signed on your device and encrypted end to end; our servers pass them along but cannot read or forge them, and they see only that a device talked to another and when. A phone or browser can approve routine actions; actions that change your system need a device that shows you exactly what you are approving, and the most dangerous ones can only be approved at the node itself. If you turn on sync, your automations, skills and notes are encrypted before they leave your device, and a copy waits on our servers for at most 24 hours if your other device is offline. Your vault, passwords and screen memory never sync. You can pause, limit or remove any device, and Panic works from all of them.</p>
 </blockquote>
 <hr/>
 <h2 id="3-decisions-to-lock-before-the-first-patch">3. Decisions to lock before the first patch</h2>
@@ -661,8 +806,203 @@ against the real code, STOP and report.
 <td><strong>Local IPC to the installed <code>m2c</code> CLI</strong> (headless mode)</td>
 <td>Keeps code tasks under M2C's sandbox and policy</td>
 </tr>
+<tr>
+<td>D15</td>
+<td>Companion scope and order</td>
+<td><strong>Phase 5A, 5B, 5C after <code>MT-I04</code>; Phases 0–4 stay at 59 WPs / 133 pts</strong></td>
+<td>Each sub-phase is releasable on its own</td>
+</tr>
+<tr>
+<td>D16</td>
+<td>Control ladder and selector</td>
+<td><strong>Specialist tool first for its operations, then rungs 1–5 in order (commands, application scripting, accessibility, shortcuts, vision and pointer); Guide mode last</strong></td>
+<td>Reliability first; never a silent failure</td>
+</tr>
+<tr>
+<td>D17</td>
+<td>Where pointer work happens</td>
+<td><strong>Background on a virtual desktop by default; Shared mode yields to the user on any input; live view with take-over</strong></td>
+<td>The user always wins (CX3)</td>
+</tr>
+<tr>
+<td>D18</td>
+<td>Screen memory defaults</td>
+<td><strong>Off; event-driven; text first; raw images deleted after extraction; text kept 30 days and thumbnails 24 hours (proposed, to confirm in testing)</strong></td>
+<td>Local only; FTS5 only (D9)</td>
+</tr>
+<tr>
+<td>D19</td>
+<td>Perception paths</td>
+<td><strong>Both: CPU-only path (cloud grounding with consent) and GPU path (local models); <code>doctor</code> recommends, the user overrides</strong></td>
+<td>CPU-only users are first-class</td>
+</tr>
+<tr>
+<td>D20</td>
+<td>Reuse or build</td>
+<td><strong>Candidates are reviewed by the owner against their licence text; use if the licence permits, otherwise build our own</strong></td>
+<td><code>R05</code>; candidates in feature guide §27</td>
+</tr>
+<tr>
+<td>D21</td>
+<td>Skill sharing</td>
+<td><strong>Curated first-party library and opt-in submit-for-review in 5C (<code>M12</code>); open marketplace in Phase 6 (<code>M08</code>), off by default</strong></td>
+<td>Templates only (CX6)</td>
+</tr>
+<tr>
+<td>D22</td>
+<td>Distribution</td>
+<td><strong>Menux session image (package or script first, VM or image later); no full distribution before GA</strong></td>
+<td>Revisit after GA</td>
+</tr>
+<tr>
+<td>D23</td>
+<td>Windows</td>
+<td><strong>WSL2 at launch with honest limits; Windows reached through a satellite (<code>P03</code>, Phase 5P); the earlier helper spike and build (<code>D07</code>, <code>D08</code>) are replaced</strong></td>
+<td>CX2; see D35 and D36</td>
+</tr>
+<tr>
+<td>D24</td>
+<td>Games</td>
+<td><strong>Opt-in game profile; strategy, turn-based and slow live tasks; no anti-cheat circumvention; notice shown</strong></td>
+<td>Real-time action titles are out of scope</td>
+</tr>
+<tr>
+<td>D25</td>
+<td>Context-based tiering</td>
+<td><strong>Tier follows effect and context; contained input in a disposable session is T1; grants are scoped and time-limited; always-confirm list is a hard floor</strong></td>
+<td><code>T10</code>; validated by <code>Q07</code></td>
+</tr>
+<tr>
+<td>D26</td>
+<td>Device roles</td>
+<td><strong>Node, satellite and controller (MX1).</strong> A computer node is Linux, WSL2 or a mini-PC; satellites are Windows, macOS or a second Linux box; controllers are phone or browser, <code>menux remote</code> and chat</td>
+<td>A satellite needs a node</td>
+</tr>
+<tr>
+<td>D27</td>
+<td>Mesh transport and protocol</td>
+<td><strong>A separate namespace <code>protocol/mesh/v1</code> and a separate socket <code>WS /v1/mate/mesh</code></strong>; the M2C v1 envelope is not touched. Relay by default; a direct local link (loopback on by default, LAN off by default) when available</td>
+<td>M2C's v1 envelope enum is closed, so mesh messages must not be added to it</td>
+</tr>
+<tr>
+<td>D28</td>
+<td>Pairing</td>
+<td><strong>Node-approved</strong>, with a six-word fingerprint shown on both sides and the ceiling chosen on the node. A trusted-display controller with step-up may approve a new controller below its own ceiling</td>
+<td>MX4</td>
+</tr>
+<tr>
+<td>D29</td>
+<td>Crypto</td>
+<td><strong>Per-device identity keys and an authenticated key exchange with end-to-end encrypted frames.</strong> Candidates: Ed25519, X25519, a Noise-style handshake; library chosen in <code>R05</code> behind a Menux interface with an own-build fallback</td>
+<td>No custom primitives</td>
+</tr>
+<tr>
+<td>D30</td>
+<td>Controller classes and ceilings</td>
+<td><strong>Local up to T5; trusted display up to T4; web up to T3 (never a trusted display); chat approvals up to T3 and no T4</strong>; T5, vault export, key changes and loosening the dial are local only</td>
+<td>MX5</td>
+</tr>
+<tr>
+<td>D31</td>
+<td>Step-up</td>
+<td><strong>WebAuthn passkey assertion bound to the approval ID, nonce, action digest and expiry, verified by the node</strong> against the public key stored at pairing</td>
+<td>T14</td>
+</tr>
+<tr>
+<td>D32</td>
+<td>Sync</td>
+<td><strong>Opt-in per category, off by default; mesh key; encrypted mailbox of at most 24 hours (proposed); tombstones kept 30 days (proposed); never the vault, connector tokens, screen memory or the knowledge index</strong></td>
+<td>MX7</td>
+</tr>
+<tr>
+<td>D33</td>
+<td>Leases and failover</td>
+<td><strong>One writer per scheduled automation, held by a short server-kept lease (proposed 90 seconds, renewed every 30); failover is off unless the spec says <code>failover: true</code>; when the server is unreachable a node skips rather than duplicates</strong></td>
+<td>N12</td>
+</tr>
+<tr>
+<td>D34</td>
+<td>Command lifetimes</td>
+<td><strong>Status and pause may wait up to 10 minutes; anything T2 or above is never queued and never replayed after expiry; clock-skew window 120 seconds (all proposed)</strong></td>
+<td>T12</td>
+</tr>
+<tr>
+<td>D35</td>
+<td>agent-desktop</td>
+<td><strong>Use it as the accessibility rung on Linux, Windows and macOS, as a pinned separate process behind <code>ControlBackend</code>, after <code>R05</code> clears its licence; our own AT-SPI reader stays as the fallback on Linux</strong></td>
+<td>MX9; supersedes the "build our own Windows helper" path in D23</td>
+</tr>
+<tr>
+<td>D36</td>
+<td>Windows and macOS strategy</td>
+<td><strong>Satellites paired to a node, not a native node in v1.</strong> A Windows-only or Mac-only user needs WSL2, a Linux box or a mini-PC. <code>P06</code> is a time-boxed spike on a native node; <strong>revision 1.3: it has written acceptance criteria and may unlock a limited native node (<code>U05</code>, decision D43)</strong></td>
+<td>Replaces <code>D07</code> and <code>D08</code></td>
+</tr>
+<tr>
+<td>D37</td>
+<td>Mobile</td>
+<td><strong>The installable web app is the phone controller (web class, up to T3, passkey step-up). No native mobile app in this plan</strong>; <code>menux remote</code> on a computer is the trusted-display controller</td>
+<td>Revisit after 5R</td>
+</tr>
+<tr>
+<td>D38</td>
+<td>Remote live view</td>
+<td><strong>View only for the web class; take-over needs a trusted display with step-up; end-to-end encrypted; nothing recorded or stored on the server; a visible indicator on the desktop; own security review</strong></td>
+<td><code>V06</code></td>
+</tr>
+<tr>
+<td>D39</td>
+<td>Security does not depend on the model</td>
+<td><strong>Tiers, approvals, the reader/actor requirement, unattended taint denial and the always-confirm list are enforced in code and never vary with the model, its size or its plan. No setting, flag or "strong model" mode relaxes them</strong></td>
+<td><code>Q11</code> proves identical decisions across model labels. Prior art: another agent relaxed its injection prompts for strong models and later had to tighten them for unattended runs (<code>menux_feature_guide.md</code> §40)</td>
+</tr>
+<tr>
+<td>D40</td>
+<td>Recipes</td>
+<td><strong><code>kind: recipe</code> automations run a fixed list of steps from a closed action catalogue: no model call, zero credits, no server needed. Same tiers, dry run and graduation; the unattended ceiling stays T2</strong></td>
+<td><code>U01</code></td>
+</tr>
+<tr>
+<td>D41</td>
+<td>Degraded mode</td>
+<td><strong>The node never stops silently. With no server, an exhausted pool or a paused account, recipes keep running, model runs follow the spec's missed-run policy, and the owner is told once per state change</strong></td>
+<td><code>U03</code></td>
+</tr>
+<tr>
+<td>D42</td>
+<td>First value</td>
+<td><strong>Six signed starter templates and a guided <code>menux init</code>. Templates install disabled, run a dry run, then run attended, and graduate like any automation. The docs publish the measured number of owner actions from install to first success</strong></td>
+<td><code>U02</code></td>
+</tr>
+<tr>
+<td>D43</td>
+<td>Native Windows and macOS</td>
+<td><strong><code>P06</code> gets written acceptance criteria. If it passes, a limited native node (<code>U05</code>) is built: scheduler, OS key-store vault, channels, read connectors, recipes and sealed tools. No shell tool, skill scripts or browser sidecar, and nothing above T2, until an OS sandbox exists. If <code>P06</code> fails, D36 stands</strong></td>
+<td>Refines D36</td>
+</tr>
+<tr>
+<td>D44</td>
+<td>Openness and evidence</td>
+<td><strong>Decide by <code>R05</code> whether the node, satellites and protocol are published as source under a licence the owner chooses (recommendation: publish them, keep the server private). Publish a security evidence pack with every release (<code>U06</code>)</strong></td>
+<td>Proposed; M2C's own licence decision (its D11) is still open</td>
+</tr>
+<tr>
+<td>D45</td>
+<td>Channels beyond Telegram, Slack and Discord</td>
+<td><strong>WhatsApp and Signal are not planned until a licence and terms review (the <code>R05</code> pattern) finds a permitted path. No unofficial client library is used on an owner's personal account</strong></td>
+<td><code>menux_feature_guide.md</code> §15.7</td>
+</tr>
+<tr>
+<td>D46</td>
+<td>Model classes by plan</td>
+<td><strong>Menux on Basic and Free runs on the four paid models of the Provider Consolidation Guide (Appendix B), the Standard class. Advanced, Expert and the Brain exist only when Moderate and Ultimate launch (its PD-6). Cost estimates (<code>E02</code>) and budgets name the class</strong></td>
+<td><code>menux_feature_guide.md</code> §12.5</td>
+</tr>
 </tbody>
 </table></div>
+<p>D15–D25 are Companion decisions. They can wait until the beta is under way, but must be locked before the first Phase 5 patch.</p>
+<p>D26–D38 are mesh decisions. They must be locked before the first Phase 5R patch.</p>
+<p>D39–D46 are revision 1.3 decisions. Lock D39 before the first Phase 2 patch (<code>T02</code>); D40 and D41 before <code>U01</code>; D42 before <code>U02</code>; D43 before <code>P06</code>; D44 and D45 before <code>R05</code>; D46 before <code>E02</code>.</p>
 <hr/>
 <h2 id="4-the-map">4. The map</h2>
 <h3 id="4-1-phases-and-milestones">4.1 Phases and milestones</h3>
@@ -707,10 +1047,40 @@ against the real code, STOP and report.
 <td><strong>MT-I04 (invite-only beta)</strong></td>
 </tr>
 <tr>
-<td><strong>5</strong></td>
-<td>Desktop and voice</td>
-<td>Browser profile, AT-SPI, ydotool, headless desktop container, voice, extra connectors</td>
-<td><strong>MT-I05</strong></td>
+<td><strong>4U</strong></td>
+<td>Usability and reach (revision 1.3)</td>
+<td>Recipes, starter templates and guided first run, degraded mode, scripted-model scenario harness, security evidence pack</td>
+<td>Recommended before <strong>MT-I04</strong>; not counted in Phases 0–4</td>
+</tr>
+<tr>
+<td><strong>5A</strong></td>
+<td>Native control (Reach 1–2)</td>
+<td>Licence record, hardware probe, protocol 1.2, context-based tiering and grants, shell and file tool, application registry and ladder selector, LibreOffice and app adapters, AT-SPI, shortcut and input maps, browser profile, reliability benchmark</td>
+<td><strong>MT-I05a</strong></td>
+</tr>
+<tr>
+<td><strong>5B</strong></td>
+<td>Eyes and hands (Reach 3)</td>
+<td>Screenshots and input, virtual desktop with live view and take-over, shared mode, tray dial, screen memory, dual-path grounding, pointer layer with verification, guide mode, Menux Map, GUI red-team and privacy suites</td>
+<td><strong>MT-I05b</strong></td>
+</tr>
+<tr>
+<td><strong>5C</strong></td>
+<td>Companion (Reach 4)</td>
+<td>Specialist tool kit and self-built tools, experience memory, learning by demonstration, self-repair, skill templates and curated library, game loop, session image</td>
+<td><strong>MT-I05c</strong></td>
+</tr>
+<tr>
+<td><strong>5R</strong></td>
+<td>Remote control and the device mesh</td>
+<td>Mesh protocol and device identity, signed commands, controller classes and the remote trust ladder, passkey step-up, node-approved pairing, mesh relay, Devices page, phone and web controller, chat hardening, sync spaces, placement and leases, remote live view, mesh red-team and privacy suites</td>
+<td><strong>MT-I05r</strong></td>
+</tr>
+<tr>
+<td><strong>5P</strong></td>
+<td>Platforms and satellites</td>
+<td>Platform abstraction, satellite runtime, Windows and macOS satellites on agent-desktop, per-OS benchmark, native-node spike</td>
+<td><strong>MT-I05p</strong></td>
 </tr>
 <tr>
 <td><strong>6</strong></td>
@@ -763,11 +1133,31 @@ against the real code, STOP and report.
 </tr>
 <tr>
 <td><strong>D</strong></td>
-<td>Desktop and voice</td>
+<td>Desktop: browser profile, accessibility, screenshots and input, virtual desktop container, voice</td>
+</tr>
+<tr>
+<td><strong>X</strong></td>
+<td>Control: shell tool, application registry and ladder selector, application adapters, input maps, pointer layer, guide mode, specialist tools, games</td>
+</tr>
+<tr>
+<td><strong>V</strong></td>
+<td>Virtual desktop sessions, live view, shared mode, the tray control panel</td>
+</tr>
+<tr>
+<td><strong>S</strong></td>
+<td>Screen memory and vision: capture, extraction, store, search, grounding</td>
+</tr>
+<tr>
+<td><strong>P</strong></td>
+<td>Platforms: platform abstraction, satellite runtime, Windows and macOS satellites, native-node spike (revision 1.2)</td>
+</tr>
+<tr>
+<td><strong>U</strong></td>
+<td>Usability and reach (revision 1.3): recipes, starter templates and the guided first run, degraded mode, security evidence, and the limited native node</td>
 </tr>
 <tr>
 <td><strong>E</strong></td>
-<td>Server-side economics and abuse controls</td>
+<td>Server-side economics and abuse controls, and (revision 1.2) the mesh relay</td>
 </tr>
 <tr>
 <td><strong>Q</strong></td>
@@ -807,10 +1197,36 @@ PHASE 3   M01 ──► M02, M03, M06, M07        M04 ──► M05
 PHASE 4   K04 ──► W01..W07      A07 (delegate to M2C)     N07 (doctor + keep-alive)
           E02   Q05   R02 (docs)  ──► I04
 
-PHASE 5   D01 ──► D04      D02, D03 ──► D05      D06      H09–H11, H13
+PHASE 5A  R05, N08, K05, T10 (first, in parallel)
+          T10 ──► X01      T10+H02 ──► X02 ──► X03, X04, X05 (X05 also needs D02)
+          R05+T04+T06 ──► D01 (browser profile)     N08+R05 ──► D02 (AT-SPI)
+          X03+X04+D02 ──► Q06 ──► I05a
 
-PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
-          audit, R01 (packaging), R03, R04 ──► GA
+PHASE 5B  N08+R05 ──► D03        N08 ──► D04        D03+D04+T10 ──► V01 ──► V02, V03 ──► V05
+          N08+D03+K05+R05 ──► S05 ──► X06 (also X02, D03, T10)      T10+T07 ──► V04
+          D02+D03+N05 ──► S01 ──► S02 ──► S03 ──► S04, W09, Q08      S02+X02 ──► X07
+          T04+S05 ──► T11            X06+T11+V01 ──► Q07            E01+K05 ──► E03
+          K04+A06+M04+X02 ──► W08                                     all of 5B ──► I05b
+
+PHASE 5C  X02+R05 ──► X08 ──► X09 (also M05, T10)       M01+X02 ──► M09 ──► M11 (also A06, X06)
+          S03+M05+X06 ──► M10          X05+X06 ──► X10
+          M04+M05+Q02+T11+R05 ──► M12      N08+V01+D03 ──► N09
+          R02+S03+V04 ──► R06          all of 5C ──► I05c
+
+PHASE 5R  K03+R05 ──► K06     A01+A07 ──► A08      K06+T02+T07 ──► T12      K06+E01+S03b ──► E04
+          T12+T10 ──► T13      T12+T03 ──► T14      T12+N02+E04 ──► N10      K06+E04+T12 ──► N11
+          E04+N11+K04 ──► W10  T13+T14+E04+N10+K04 ──► W11      T13+G02+T12 ──► G05
+          N10+T12+M01+M04 ──► M13      N10+E04+A08 ──► N12
+          V02+N10+T13+T12 ──► V06      E04+M13+Q04 ──► Q10
+          T12+T13+T14+W11+G05+N12+M13+V06 ──► Q09      all of 5R ──► I05r
+
+PHASE 5P  K01+N07 ──► P01 ──► P06 (also N08)      T12+N10+P01+T10 ──► P02
+          P02+D02+R05+T10 ──► P03      P02+D02+R05 ──► P04      P03+P04+Q06 ──► P05      all of 5P ──► I05p
+
+INDEPENDENT   D06 (voice), H09–H11, H13
+
+PHASE 6   M08 (marketplace, builds on M12),
+          T09 (team policy), H12 (Google, if approved), audit, R01 (packaging), R03, R04 ──► GA
 </code></pre>
 <h3 id="4-4-conflict-map-files-more-than-one-wp-touches">4.4 Conflict map (files more than one WP touches)</h3>
 <div class="tw"><table>
@@ -843,11 +1259,67 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 </tr>
 <tr>
 <td><code>menux/src/menux/node/service.py</code></td>
-<td>N01 → N02 → N04 → N03 → N07 (each extends the node's event loop)</td>
+<td>N01 → N02 → N04 → N03 → N07 → U03 (each extends the node's event loop; <code>U03</code> adds the degraded-mode state machine last)</td>
 </tr>
 <tr>
 <td><code>backend/migrations/</code></td>
 <td>Numbers are <strong>reserved</strong> (§4.5)</td>
+</tr>
+<tr>
+<td><code>minicore/src/minicore/tiers/registry.py</code></td>
+<td>T01 owns it; T10 adds context-based tiering and the always-confirm list; later WPs only register capabilities</td>
+</tr>
+<tr>
+<td><code>menux/src/menux/control/**</code> (application profiles, selector)</td>
+<td>X02 owns the registry and selector; X03–X05, X08 and X09 add profiles and tools</td>
+</tr>
+<tr>
+<td><code>menux/src/menux/desktop/**</code> (capture, input, sessions)</td>
+<td>D02 → D03 → D04 → V01; S01 and S05 add modules; V02–V04 are separate modules</td>
+</tr>
+<tr>
+<td><code>protocol/v1/*</code></td>
+<td>K03 (1.1) and K05 (1.2) are additive new files</td>
+</tr>
+<tr>
+<td><code>backend/mate/</code></td>
+<td>E03 adds <code>vision</code>; M12 adds <code>skills</code>; neither edits existing routes</td>
+</tr>
+<tr>
+<td><code>protocol/mesh/v1/*</code></td>
+<td>K06 only; later additions are new files. The M2C <code>protocol/v1</code> envelope is never touched by mesh work</td>
+</tr>
+<tr>
+<td><code>backend/mate/mesh/**</code></td>
+<td>E04 owns the relay, registry, presence, leases and mailbox; N12 and M13 add handlers through registries</td>
+</tr>
+<tr>
+<td><code>menux/src/menux/mesh/**</code></td>
+<td>K06 (keys, trust edges) → T12 (signed commands) → N10 (client) → N11 (pairing), M13 (sync), N12 (placement)</td>
+</tr>
+<tr>
+<td><code>menux/src/menux/satellite/**</code></td>
+<td>P02 owns the runtime; P03 and P04 add platform backends</td>
+</tr>
+<tr>
+<td><code>minicore/src/minicore/platform/**</code></td>
+<td>P01 owns it; later WPs add implementations (<code>U05</code> adds the native Windows and macOS node backends). Must pass both products' tests</td>
+</tr>
+<tr>
+<td>MiniMe Devices page (frontend, from M2C <code>X01</code>)</td>
+<td>W10 extends it; it does not add a second page</td>
+</tr>
+<tr>
+<td><code>minicore/src/minicore/automation/**</code> (spec, schema)</td>
+<td>A01 owns the spec and schema. <code>U01</code> adds the <code>recipe</code> kind and its <code>steps</code> in <strong>new files</strong> referenced from the schema; no existing field changes</td>
+</tr>
+<tr>
+<td><code>menux/src/menux/cli/**</code> (<code>init</code>, <code>doctor</code>)</td>
+<td>N07 owns <code>doctor</code>; <code>U02</code> adds <code>init</code> after it; <code>U06</code> adds <code>evidence</code></td>
+</tr>
+<tr>
+<td><code>menux/tests/</code> harnesses</td>
+<td>Q01 → Q11 (Q11 adds <code>menux/tests/scenarios/</code>; it edits nothing that exists)</td>
 </tr>
 </tbody>
 </table></div>
@@ -873,12 +1345,28 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 <td><strong>0019</strong> (M08)</td>
 </tr>
 <tr>
+<td>Migration: skill templates (curated library)</td>
+<td><strong>0020</strong> (M12)</td>
+</tr>
+<tr>
+<td>Migration: vision usage, only if <code>usage_ledger</code> cannot carry it</td>
+<td><strong>0021</strong> (E03)</td>
+</tr>
+<tr>
+<td>Migration: mesh registry (device roles, trust edges as device IDs, states, remote ceilings)</td>
+<td><strong>0022</strong> (E04)</td>
+</tr>
+<tr>
+<td>Migration: encrypted mailbox (ciphertext, size, recipient, expiry)</td>
+<td><strong>0023</strong> (E04)</td>
+</tr>
+<tr>
 <td>Protocol</td>
-<td>additive revision <strong>1.1</strong> (K03)</td>
+<td>additive revision <strong>1.1</strong> (K03), additive revision <strong>1.2</strong> (K05); the mesh uses its <strong>own namespace <code>protocol/mesh/v1</code></strong> (K06), not the M2C envelope</td>
 </tr>
 <tr>
 <td>Server routes</td>
-<td><code>/v1/mate/*</code> (planner, relay, webhooks)</td>
+<td><code>/v1/mate/*</code> (planner, relay, webhooks), <code>/v1/mate/vision/*</code> (E03), <code>/v1/mate/skills/*</code> (M12), <code>WS /v1/mate/mesh</code> and <code>/v1/mate/devices/*</code> (E04)</td>
 </tr>
 </tbody>
 </table></div>
@@ -973,12 +1461,104 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 <td>Phase 4</td>
 </tr>
 <tr>
-<td><strong>17+</strong></td>
-<td>Phase 5 and 6 items</td>
+<td><strong>17</strong></td>
+<td>R05, N08, K05, T10</td>
+<td>Phase 4 (I04) and the earlier waves named in §10</td>
+</tr>
+<tr>
+<td><strong>18</strong></td>
+<td>X01, X02, D01, D02</td>
+<td>per WP (§10 lists each dependency)</td>
+</tr>
+<tr>
+<td><strong>19</strong></td>
+<td>X03, X04, X05, D03, D04</td>
+<td>per WP (§10 lists each dependency)</td>
+</tr>
+<tr>
+<td><strong>20</strong></td>
+<td>Q06, S05, V01, S01, E03</td>
+<td>per WP (§10 lists each dependency)</td>
+</tr>
+<tr>
+<td><strong>21</strong></td>
+<td>I05a, S02, V02, V03, X06, T11, V04</td>
+<td>per WP (§10 lists each dependency)</td>
+</tr>
+<tr>
+<td><strong>22</strong></td>
+<td>V05, S03, X07, Q07</td>
+<td>per WP (§10 lists each dependency)</td>
+</tr>
+<tr>
+<td><strong>23</strong></td>
+<td>S04, W08, W09, Q08</td>
+<td>per WP (§10 lists each dependency)</td>
+</tr>
+<tr>
+<td><strong>24</strong></td>
+<td>I05b</td>
+<td>per WP (§10 lists each dependency)</td>
+</tr>
+<tr>
+<td><strong>25</strong></td>
+<td>X08, M09, N09</td>
+<td>per WP (§10 lists each dependency)</td>
+</tr>
+<tr>
+<td><strong>26</strong></td>
+<td>X09, X10, M10, M11, M12, R06</td>
+<td>per WP (§10 lists each dependency)</td>
+</tr>
+<tr>
+<td><strong>27</strong></td>
+<td>I05c</td>
+<td>per WP (§10 lists each dependency)</td>
+</tr>
+<tr>
+<td><strong>28</strong></td>
+<td>K06, A08, P01</td>
+<td>K03+R05; A01+A07; K01+N07</td>
+</tr>
+<tr>
+<td><strong>29</strong></td>
+<td>T12, E04, P06</td>
+<td>K06+T02+T07; K06+E01+S03b; P01+N08</td>
+</tr>
+<tr>
+<td><strong>30</strong></td>
+<td>T13, T14, N10, N11</td>
+<td>T12+T10; T12+T03; T12+N02+E04; K06+E04+T12</td>
+</tr>
+<tr>
+<td><strong>31</strong></td>
+<td>W10, W11, G05, M13, N12, P02</td>
+<td>per WP (§10.6 and §10.7 list each dependency)</td>
+</tr>
+<tr>
+<td><strong>32</strong></td>
+<td>V06, Q10, P03, P04</td>
 <td>per WP</td>
+</tr>
+<tr>
+<td><strong>33</strong></td>
+<td>Q09, P05</td>
+<td>per WP</td>
+</tr>
+<tr>
+<td><strong>34</strong></td>
+<td>I05r, I05p</td>
+<td>per WP</td>
+</tr>
+<tr>
+<td><strong>35+</strong></td>
+<td>M08, T09, H12, R01, R03, R04, audit (Phase 6)</td>
+<td>I05c and I05r; M12 for M08</td>
 </tr>
 </tbody>
 </table></div>
+<p><strong>Phase 4U earliest waves (revision 1.3).</strong> These do not renumber the waves above. A 4U work package may start in the wave its dependencies allow: <code>U01</code> 9, <code>U03</code> 10, <code>Q11</code> 11, <code>U02</code> 16, <code>U06</code> 16. <code>U05</code> (Phase 5P) can start in wave 30, after the <code>P06</code> decision in wave 29.</p>
+<p>Phase 5 waves overlap on purpose: a 5B work package may start as soon as its own dependencies exist. Waves 28–34 (5R and 5P) can start as soon as their dependencies exist, including alongside 5A–5C. The acceptance milestones <code>I05a</code>, <code>I05b</code>, <code>I05c</code>, <code>I05r</code> and <code>I05p</code> gate the <strong>release</strong> of each sub-phase, not the work. <code>D06</code> (voice) and <code>H09–H11</code>, <code>H13</code> are independent and unscheduled.</p>
 <hr/>
 <h2 id="5-phase-0-foundations">5. Phase 0 — Foundations</h2>
 <h3 id="mt-k00-inventory-of-the-finished-m2c-s-wave">MT-K00 · Inventory of the finished M2C · S · Wave 1 (read-only)</h3>
@@ -1156,9 +1736,499 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 <li>[ ] Red-team, soak and canary suites green on the beta build.</li>
 <li>[ ] Support runbook: revoke device, panic from the web, read a content-free diagnostics bundle.</li>
 </ul>
+<h3 id="9-1-phase-4u-usability-and-reach-revision-1-3">9.1 Phase 4U — Usability and reach (revision 1.3)</h3>
+<p>Added in revision 1.3 after comparing Menux with a shipped open-source agent (<code>menux_feature_guide.md</code> §40). It is <strong>recommended before <code>MT-I04</code></strong> and <strong>not counted</strong> in the 59 work packages and 133 points of Phases 0–4. The user-facing rules are <code>UX1–UX6</code> and the decisions are D39–D43 and D46. File names are the Python reference names (see the language note in the revision 1.3 header). Sizes use the same scale (S=1, M=2, L=4, XL=8): 5 work packages, 8 points.</p>
+<h3 id="mt-u01-no-model-automations-recipes-m-earliest-w">MT-U01 · No-model automations (recipes) · M · Earliest wave 9</h3>
+<p><em>Depends on:</em> A01, N04, T05, A05. <em>Decision:</em> D40.</p>
+<p><em>Why:</em> some useful automations need no reasoning: move a download, copy a backup, append to a log, notify when a file changes or a page differs. Running them through a model costs credits, needs the server, and adds a prompt-injection surface for no benefit.</p>
+<p><em>What:</em> a second automation kind, <code>kind: recipe</code>, whose body is an ordered list of <code>steps</code> from a <strong>closed action catalogue</strong> (<code>minicore/src/minicore/automation/recipe.py</code>): <code>move_file</code>, <code>copy_file</code>, <code>append_text</code>, <code>read_file</code> (inside a folder grant), <code>http_get</code> (egress allowlist only), <code>diff_against_last</code>, <code>when</code> (simple comparisons on earlier step outputs: equals, contains, changed, size above), and the sealed tools <code>notify_owner</code> and <code>save_report</code> (<code>T05</code>). <strong>Not in the catalogue:</strong> a shell, a permanent delete (a delete moves the file to a recoverable folder), a write to a new recipient, and any model call. Every step has a tier in the capability registry (<code>T01</code>); the recipe's effective tier is the highest of its steps; the unattended ceiling is T2 (O6). Data read from an untrusted source (a web page, a downloaded file) is tainted (<code>T06</code>) and may reach only the sealed tools. The schema rejects an unknown action (fail closed). The dry run (<code>A03</code>) lists exactly what would happen; versions and graduation (<code>A06</code>) apply unchanged, and the anomaly detector (<code>T08</code>) still watches run counts and runtimes. A recipe makes <strong>no planner call at run time</strong>. The Planner may still <em>draft</em> a recipe when asked; the draft is validated like any spec.</p>
+<p><em>Done when:</em> a folder-watch → move → notify recipe runs with the network disabled and writes zero <code>usage_ledger</code> rows; the schema rejects a step outside the catalogue and any attempt to raise a tier in YAML; the dry run lists each action; a tainted read cannot reach <code>http_get</code> or a <code>move_file</code> outside its grant.</p>
+<p><em>Tests:</em> spec validation vectors; the <code>T06</code> taint tests applied to recipes; the <code>Q04</code> canary shows no recipe content on the server.</p>
+<h3 id="mt-u03-degraded-mode-s-earliest-wave-10">MT-U03 · Degraded mode · S · Earliest wave 10</h3>
+<p><em>Depends on:</em> U01, N04, K02, A05. <em>Decision:</em> D41.</p>
+<p><em>What:</em> one state machine in the node: <code>online</code>, <code>degraded(reason)</code> or <code>paused</code>, where the reason is one of: server unreachable, sign-in expired, pool exhausted, account paused, plan changed. While <code>degraded</code>: recipes keep running on schedule; model runs follow the spec's missed-run policy (skip, run once when back, or ask); local heartbeat pre-checks still run (<code>A05</code>). The owner gets <strong>one</strong> message per state change through the primary channel, not one per run, and <code>menux status</code>, <code>doctor</code> and the inbox show the reason and what is affected. Nothing at T2 or above is replayed when the state returns (the D34 rule). There is no infinite retry (§16 of the feature guide).</p>
+<p><em>Done when:</em> with the network cut, a recipe runs on schedule, a model run is skipped or queued as its spec says, exactly one notification is sent, and nothing above T2 is replayed on reconnect; a fake-clock test covers a three-day outage.</p>
+<h3 id="mt-q11-scripted-model-scenario-harness-m-earlies">MT-Q11 · Scripted-model scenario harness · M · Earliest wave 11</h3>
+<p><em>Depends on:</em> Q01, T02, T04, T06. <em>Decision:</em> D39.</p>
+<p><em>What:</em> a deterministic fake model adapter that replays a scripted sequence of model outputs and tool calls, including hostile ones, so every policy, taint, reader/actor, approval and budget scenario can be replayed in CI with <strong>no model call and no credits</strong>. The scenarios cover the <code>Q02</code> corpus categories at the decision level (for example: "an unattended run with tainted context requests an egress tool: the decision is deny"). Includes the <strong>model-independence test for D39</strong>: each scenario runs under several model labels and size classes (Standard, Advanced, Expert, unknown) and requires <strong>identical</strong> policy decisions. Adds <code>menux/tests/scenarios/</code>; <code>Q01</code> (live-model evals) and <code>Q02</code> (red-team fixtures) are unchanged and still run.</p>
+<p><em>Done when:</em> the scenario suite runs offline and fast enough to run on every patch; a test-only flag that deliberately weakens the policy is caught by at least one scenario; the identical-decision test is green.</p>
+<h3 id="mt-u02-starter-templates-and-the-guided-first-ru">MT-U02 · Starter templates and the guided first run · M · Earliest wave 16</h3>
+<p><em>Depends on:</em> U01, A03, A06, H03, N07. <em>Decision:</em> D42.</p>
+<p><em>What:</em> (1) <strong>Six signed starter specs</strong> shipped with the node (<code>menux/src/menux/templates/*.yaml</code>): <em>morning brief</em> (calendar and mail read, digest to Telegram), <em>download sorter</em> (recipe), <em>folder watcher</em> (recipe), <em>site-change or feed digest</em> (<code>H07</code>), <em>calendar reminder</em> (<code>H05</code>) and <em>weekly summary of a knowledge folder</em> (<code>M06</code>, needs Phase 3). Each states its tier, capabilities, egress and cost estimate (<code>E02</code>, or zero for a recipe). A template installs <strong>disabled</strong>, runs a dry run, then runs attended; graduation (<code>A06</code>) is unchanged. A template is an ordinary spec: it gets no privilege a user-written spec cannot get. (2) <strong><code>menux init</code>:</strong> one guided command that checks the platform (<code>N07</code> probes), explains and helps set up the WSL2 keep-alive if needed, signs in with the device code, walks through creating the owner's Telegram bot and pairing (<code>H03</code>), installs one template, shows its dry run, runs it attended and prints what to do next. Each step says what is stored where (the O8 copy). It never edits Windows settings itself.</p>
+<p><em>Done when:</em> on a fresh WSL2 Ubuntu and on a fresh Linux machine, a tester who follows only the printed steps reaches a successful attended run; the number of owner actions and the time taken are <strong>measured and recorded</strong> in the <code>R02</code> docs (not promised in advance); every template passes validation and its dry run cannot write.</p>
+<h3 id="mt-u06-security-evidence-pack-s-earliest-wave-16">MT-U06 · Security evidence pack · S · Earliest wave 16</h3>
+<p><em>Depends on:</em> Q02, Q03, Q04, R02. <em>Decision:</em> D44.</p>
+<p><em>What:</em> <code>menux evidence</code> (and a docs page) emits, for the release build: the version and signing information; the dependency and licence list (<code>docs/menux/third_party.md</code> and the lockfile); the red-team, canary and scenario suite results as <strong>counts and suite names, never payloads</strong>; the <code>doctor</code> sandbox probe results; and the open-findings list from the latest external review.</p>
+<p><em>Done when:</em> a release cannot be tagged without the evidence file, and every number in it matches the CI run that produced the build (<code>menux evidence --check</code>).</p>
 <hr/>
-<h2 id="10-phase-5-desktop-voice-and-more-connectors">10. Phase 5 — Desktop, voice and more connectors</h2>
-<p>All of this is <strong>attended-first</strong> and Linux-native. On WSL2 only Linux GUI apps are reachable.</p>
+<h2 id="10-phase-5-the-companion-expansion">10. Phase 5 — The Companion Expansion</h2>
+<p>Phase 5 starts only after the beta milestone <strong>MT-I04</strong>. It grows Menux from Reach 0 (observe and notify) to Reach 4 (specialist tools and learning) and is split into five releases (5A, 5B and 5C, then the mesh work 5R and 5P added in revision 1.2), each with its own acceptance milestone, so the plan can stop after any of them. The user-facing description is <code>menux_feature_guide.md</code> §17–§37; the rules are CX1–CX7 and MX1–MX9 (§2) and decisions D15–D38 (§3).</p>
+<p>5A–5C are <strong>Linux-native</strong>. On WSL2 only Linux GUI apps are reachable until the Windows satellite (5P) exists (CX2). 5R adds controllers and the mesh; 5P adds satellites for Windows and macOS. Third-party components named below are <strong>candidates</strong>: no WP imports one until <code>R05</code> has recorded a licence decision (CX7). Sizes map roughly to points as S=1, M=2, L=4, XL=8.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Release</th>
+<th>Reach</th>
+<th>Work packages</th>
+<th>Points</th>
+<th>Waves</th>
+<th>Milestone</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5A Native control</td>
+<td>1–2</td>
+<td>13</td>
+<td>34</td>
+<td>17–21</td>
+<td>MT-I05a</td>
+</tr>
+<tr>
+<td>5B Eyes and hands</td>
+<td>3</td>
+<td>21</td>
+<td>67</td>
+<td>19–24</td>
+<td>MT-I05b</td>
+</tr>
+<tr>
+<td>5C Companion</td>
+<td>4</td>
+<td>10</td>
+<td>32</td>
+<td>25–27</td>
+<td>MT-I05c</td>
+</tr>
+<tr>
+<td>5R Remote control and mesh</td>
+<td>–</td>
+<td>17</td>
+<td>49</td>
+<td>28–34</td>
+<td>MT-I05r</td>
+</tr>
+<tr>
+<td>5P Platforms and satellites</td>
+<td>–</td>
+<td>8</td>
+<td>26</td>
+<td>28–34 (<code>U05</code> from 30)</td>
+<td>MT-I05p</td>
+</tr>
+<tr>
+<td><strong>Phase 5 total</strong></td>
+<td></td>
+<td><strong>69</strong></td>
+<td><strong>208</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p>For scale: Phases 0–4 are 59 WPs and 133 points. Phase 5 is now about one and a half times that. Revision 1.2 changed the 5A–5C numbers (<code>D07</code> removed, <code>D02</code> re-sized from M to L) and added 5R and 5P; revision 1.1 counted 45 WPs and about 133 points. Revision 1.3 added <code>U05</code> to 5P (68 → 69 work packages, about 204 → about 208 points); the separate Phase 4U (§9.1, 5 work packages, 8 points) is counted in neither Phases 0–4 nor Phase 5.</p>
+<h3 id="10-1-phase-5a-native-control-reach-1-2">10.1 Phase 5A — Native control (Reach 1–2)</h3>
+<p>Commands, files, application scripting, accessibility and the safety layer that everything later depends on. No screenshots and no pointer yet.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>WP</th>
+<th>Title</th>
+<th>Size</th>
+<th>Wave</th>
+<th>Depends on</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>R05</strong></td>
+<td>Reuse-or-build licence review</td>
+<td>S</td>
+<td>17</td>
+<td>–</td>
+<td>Feature guide §27 (CX7). Read the licence of every candidate in the §27 table, classify it, and record a decision (dependency, separate process, study only, or build our own) in <code>docs/menux/third_party.md</code>; add <code>NOTICE</code> entries, pin versions, and write the own-build fallback plan for each. <strong>Blocks</strong> D01, D02, D03, S01, S02, S05, X03, X04, X08 and M12, and from revision 1.2 K06, T14, P03 and P04, from importing any candidate. The §27 table of the feature guide now also lists agent-desktop and the mesh crypto and WebAuthn libraries. <em>Done when:</em> every candidate has a recorded decision and CI fails if a dependency is missing from the record.</td>
+</tr>
+<tr>
+<td><strong>N08</strong></td>
+<td>Hardware and display probe for <code>doctor</code></td>
+<td>M</td>
+<td>17</td>
+<td>N07</td>
+<td>Extends N07. Reports CPU features, RAM, GPU and VRAM, display server (Wayland or X11), compositor, screencast and RemoteDesktop portals, <code>/dev/uinput</code> access, AT-SPI state and container runtime, then recommends the perception path (CPU-only or GPU) and explains every warning with a fix. <em>Done when:</em> fixtures for GNOME, KDE, Hyprland, i3, X11, no-GPU and GPU machines.</td>
+</tr>
+<tr>
+<td><strong>K05</strong></td>
+<td>Protocol 1.2 (vision and session messages)</td>
+<td>S</td>
+<td>17</td>
+<td>K03</td>
+<td>Additive revision: image and element-list message parts with a <code>consent</code> field and size limits, <code>perception_path</code> in run metadata, event types for screen actions, and <code>mode</code> (<code>background</code>, <code>shared</code>, <code>takeover</code>). New files only. <em>Done when:</em> golden fixtures; M2C and Menux tests stay green.</td>
+</tr>
+<tr>
+<td><strong>T10</strong></td>
+<td>Context-based tiering, grants and the always-confirm list</td>
+<td>L</td>
+<td>17</td>
+<td>T02, T03, T07</td>
+<td>Feature guide §6.6 and §22. A capability's tier may depend on context (for example <code>input.contained</code> is T1 inside a disposable virtual desktop with no accounts and T3–T4 on a profile with logged-in accounts or real files); scoped, time-limited, revocable <strong>grants</strong> replace step-by-step approval for T3–T4 inside their scope; the <strong>always-confirm list</strong> is a hard floor that grants and the dial cannot lower; unknown context is treated as the higher tier. <em>Done when:</em> tests for every row of the floor, grant expiry and revocation, panic revoking grants, and "a user cannot lower a tier by editing YAML" still holding.</td>
+</tr>
+<tr>
+<td><strong>X01</strong></td>
+<td>Shell and file tool in the sandbox (Reach 1)</td>
+<td>M</td>
+<td>18</td>
+<td>K01, T10</td>
+<td>Runs commands through the <code>minicore</code> sandbox (<code>bubblewrap</code>); classifies each command by effect (read-only T0–T1, writes inside granted folders T2–T3, system changes T4, destructive T5); allow and deny lists, output caps, timeouts, dry run, and no network unless the automation's egress list allows it. Reuses M2C's shell tool through <code>minicore</code>. <em>Done when:</em> red-team cases for command injection, path escapes and destructive commands pass.</td>
+</tr>
+<tr>
+<td><strong>X02</strong></td>
+<td>Application control registry and ladder selector (Reach 2)</td>
+<td>L</td>
+<td>18</td>
+<td>T01, H02, T10</td>
+<td>Per-application control profiles (id, window match, rungs available, tools, shortcut map, per-operation tier, quirks, measured reliability) and the selector from feature guide §18.3: highest reliable rung first, precondition and postcondition checks, one retry, step down, outcome recorded, Guide mode at the end of the line. New package <code>menux/src/menux/control/</code>. <em>Done when:</em> selector tests with fake apps for every rung, including "all rungs fail" ending in a message to the owner, never a silent failure.</td>
+</tr>
+<tr>
+<td><strong>D01</strong></td>
+<td>Dedicated browser profile (Playwright, optional install)</td>
+<td>M</td>
+<td>18</td>
+<td>R05, T04, T06</td>
+<td>Unchanged from the earlier plan: separate profile, never the user's daily one; sandboxed; domains through the proxy allowlist; page text is untrusted and tainting. <strong>Reuse (MiniLocker, <code>m2c_build_plan.md</code> §11.6):</strong> URL-scheme refusal, page text returned as data with scan and fence, and <code>attacks/browser_attacks.py</code> as tests; the Docker and proxy parts are not reused, and approve-before-submit is new work. Registered in X02 as the application-native rung for web pages.</td>
+</tr>
+<tr>
+<td><strong>D02</strong></td>
+<td>Accessibility backend (agent-desktop behind <code>ControlBackend</code>, own AT-SPI reader as the Linux fallback)</td>
+<td>L</td>
+<td>18</td>
+<td>N08, R05</td>
+<td>Accessibility tree first: role plus name targeting; element references that expire; <code>doctor</code> reports whether accessibility is enabled and warns if a screen reader must be stopped. <strong>Revision 1.2:</strong> the primary backend is <strong>agent-desktop</strong> (Apache-2.0 as reported on 2026-11-14; confirm in R05) run as a pinned separate process, one session per run, its state directory relocated under <code>~/.menux/control/</code> (<code>0700</code>), text passed on standard input, trace screenshots off by default and traces redacted before the audit log. Every agent-desktop command is entered in the capability registry with a tier (feature guide §34.5); an unknown command is T5 and denied; a batch takes the highest tier among its entries; held-input commands are denied. Delivery states (<code>delivered_verified</code>, <code>delivered_unverified</code>, <code>not_delivered</code>) feed the selector's retry rule: <strong>retry only when a retry is safe, and check the postcondition first when delivery is unverified</strong> (<code>X02</code>). Skills store locators (application, role, name, native ID), never references. The same backend is reused by the Windows and macOS satellites (<code>P03</code>, <code>P04</code>). <strong>Fallback:</strong> our own AT-SPI reader on Linux (the <code>computer-use-linux</code> MCP server remains a candidate), behind the same <code>ControlBackend</code> interface. <em>Done when:</em> the Linux task suite passes on both backends and an unregistered command is refused.</td>
+</tr>
+<tr>
+<td><strong>X03</strong></td>
+<td>LibreOffice control</td>
+<td>L</td>
+<td>19</td>
+<td>X02</td>
+<td>Documents, spreadsheets and presentations through LibreOffice's headless UNO interface and macros: read, edit, convert, export to PDF, with no GUI and no pointer. <em>Done when:</em> a sample automation edits a spreadsheet while the user works in another window.</td>
+</tr>
+<tr>
+<td><strong>X04</strong></td>
+<td>Scriptable application adapters</td>
+<td>L</td>
+<td>19</td>
+<td>X02</td>
+<td>FreeCAD, Blender and OpenSCAD through their Python or command-line interfaces; Inkscape and GIMP batch modes as optional adapters. Each adapter is a control profile plus a tested tool. Menux may draft further adapters itself later (X09).</td>
+</tr>
+<tr>
+<td><strong>X05</strong></td>
+<td>Shortcut maps and input maps</td>
+<td>M</td>
+<td>19</td>
+<td>X02, D02</td>
+<td>Per-application shortcut tables and user-defined key maps (for example movement keys for a game); validation of maps; conflicts with the user's own shortcuts reported by <code>doctor</code>.</td>
+</tr>
+<tr>
+<td><strong>Q06</strong></td>
+<td>Control reliability benchmark</td>
+<td>M</td>
+<td>20</td>
+<td>X03, X04, D02</td>
+<td>A fixed task set per application, per rung and per compositor, run on the reference machines; results published in <code>doctor</code> and in the docs. A rung below its published threshold is marked "ask first" by default.</td>
+</tr>
+<tr>
+<td><strong>I05a</strong></td>
+<td>Native control (acceptance)</td>
+<td>M</td>
+<td>21</td>
+<td>R05, N08, K05, T10, X01, X02, X03, X04, X05, D01, D02, Q06</td>
+<td>See §10.5.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="10-2-phase-5b-eyes-and-hands-reach-3">10.2 Phase 5B — Eyes and hands (Reach 3)</h3>
+<p>The virtual desktop, live view and take-over, screen memory, vision grounding and the pointer layer, behind the dial and the GUI red-team suite. <code>D05</code> (attended control of the real desktop) is replaced by <code>V03</code> (Shared mode).</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>WP</th>
+<th>Title</th>
+<th>Size</th>
+<th>Wave</th>
+<th>Depends on</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>D03</strong></td>
+<td>Screenshots and input</td>
+<td>L</td>
+<td>19</td>
+<td>N08, R05</td>
+<td>Screencast portal for screenshots (may prompt each time); on Wayland the RemoteDesktop portal where available with <code>ydotool</code>/<code>uinput</code> as the fallback, <code>xdotool</code> on X11; per-compositor support matrix in <code>doctor</code>. <strong>Reuse candidates:</strong> <code>computer-use-linux</code> (portal and <code>ydotool</code> handling) and <code>ydotool</code> itself, both subject to R05 (<code>ydotool</code> is believed to be copyleft: verify, and if it does not fit, write to <code>uinput</code> directly or use the portal).</td>
+</tr>
+<tr>
+<td><strong>D04</strong></td>
+<td>Headless virtual desktop in a container</td>
+<td>L</td>
+<td>19</td>
+<td>N08</td>
+<td>Xvfb or a headless Wayland compositor in a Podman container; disposable; no access to the real session; separate browser profile and files; egress through the allowlist. The substrate for V01.</td>
+</tr>
+<tr>
+<td><strong>S05</strong></td>
+<td>Vision grounding adapter, dual path</td>
+<td>L</td>
+<td>20</td>
+<td>N08, D03, K05, R05</td>
+<td>Feature guide §21. One interface, <code>ground(screenshot, target) → element</code>, with a <strong>CPU path</strong> (accessibility first, CPU OCR, cloud grounding on a downscaled and cropped image, per-task consent) and a <strong>GPU path</strong> (local grounding model). Chosen by the <code>doctor</code> probe and overridable. Candidates: OmniParser, UI-TARS, GTA1, Holo, Moondream (licences and weights through R05). <em>Done when:</em> the same task suite passes on both paths on the reference machines.</td>
+</tr>
+<tr>
+<td><strong>V01</strong></td>
+<td>Virtual desktop session manager</td>
+<td>L</td>
+<td>20</td>
+<td>D03, D04, T10</td>
+<td>Create, list, snapshot and destroy Menux sessions on D04; launch applications; separate profiles; resource limits; logged-in accounts only through explicit per-site grants (T10); <code>menux session</code> commands. <em>Done when:</em> two sessions run side by side without touching the user's own session.</td>
+</tr>
+<tr>
+<td><strong>S01</strong></td>
+<td>Screen capture engine</td>
+<td>L</td>
+<td>20</td>
+<td>D02, D03, N05</td>
+<td>Event-driven capture (window focus, navigation, click, scroll or typing pause), de-duplication, throttling, idle and battery pause, exclusions (password managers, banking and payment pages, private windows, password fields), a visible indicator, a one-key pause. Local only. <strong>Off by default.</strong> Screenpipe is a design reference; its licence is reported inconsistently, so no code is copied before R05 decides.</td>
+</tr>
+<tr>
+<td><strong>E03</strong></td>
+<td>Server: vision metering and limits</td>
+<td>M</td>
+<td>20</td>
+<td>E01, K05</td>
+<td><code>/v1/mate/vision/*</code>; metering of cloud vision calls under <code>surface='menux'</code> through the shared <code>usage_ledger</code> (reserve migration <code>0021</code> only if the ledger cannot carry the new kind); per-user image-size and rate limits; no image stored after the run (extends the Q04 canary).</td>
+</tr>
+<tr>
+<td><strong>S02</strong></td>
+<td>Text extraction pipeline</td>
+<td>L</td>
+<td>21</td>
+<td>S01, R05</td>
+<td>Accessibility text first, CPU OCR fallback (a Tesseract-class engine, licence through R05), optional local vision; secrets and card-number redaction before anything is stored; thumbnails kept at most 24 hours unless pinned; raw images deleted after extraction.</td>
+</tr>
+<tr>
+<td><strong>V02</strong></td>
+<td>Live view and take-over</td>
+<td>L</td>
+<td>21</td>
+<td>V01</td>
+<td>An authenticated viewer bound to localhost for a Background session: watch, take over (the user's input goes to the virtual desktop) and hand back; every handover is logged. Remote viewing through the relay is not part of this WP.</td>
+</tr>
+<tr>
+<td><strong>V03</strong></td>
+<td>Shared mode and input arbitration (replaces D05)</td>
+<td>L</td>
+<td>21</td>
+<td>V01, D03</td>
+<td>User-activity detector; Menux yields on any user input; a visible ghost cursor; resume after idle; automatic move to Background on conflict with a notification; every action visible; kill switch; never unattended on the real session.</td>
+</tr>
+<tr>
+<td><strong>X06</strong></td>
+<td>Pointer and keyboard action layer with verification</td>
+<td>L</td>
+<td>21</td>
+<td>X02, D03, S05, T10</td>
+<td>Actions bound to element references from S05 or D02; stale-reference protection (a failed extraction clears cached elements); precondition and postcondition checks; checkpoints between steps; bounded multi-step plans where every step is verified. <em>Done when:</em> a fake-app suite and a real-app suite pass, and failure falls back to Guide mode.</td>
+</tr>
+<tr>
+<td><strong>T11</strong></td>
+<td>Reader/actor for pixels and the task-scope guard</td>
+<td>L</td>
+<td>21</td>
+<td>T04, S05</td>
+<td>Feature guide §26. A tool-less Reader pass turns screenshots and screen text into a typed result (elements, roles, names, visible text as quoted data); the Actor sees only that. The run keeps its original task, and any off-task action (new domain, new application, terminal, download-and-run, permission dialog, credential field) escalates to approval.</td>
+</tr>
+<tr>
+<td><strong>V04</strong></td>
+<td>The tray control panel (the dial)</td>
+<td>L</td>
+<td>21</td>
+<td>T10, T07</td>
+<td>Tray or hidden icon with quick toggles (screen awareness, screen memory, browser capture, mode, pause, panic), per-app allow/ask/block, global ceiling, active grants and hotkeys; a <code>menux dial</code> CLI where no tray exists; settings stored locally and surviving restart.</td>
+</tr>
+<tr>
+<td><strong>V05</strong></td>
+<td>Multi-pointer X11 spike (research)</td>
+<td>S</td>
+<td>22</td>
+<td>V03</td>
+<td>Time-boxed. Can two independent pointers and focus points coexist on the user's screen? Output is a findings note only; the product does not depend on it.</td>
+</tr>
+<tr>
+<td><strong>S03</strong></td>
+<td>Screen memory store and search</td>
+<td>M</td>
+<td>22</td>
+<td>S02, M01, N05</td>
+<td><code>~/.menux/screen/</code> SQLite with FTS5 (no embeddings, decision D9), encrypted with a key derived from the vault key; provenance fields (time, app, window title, URL, source, trust label); retention defaults (proposed: text 30 days, thumbnails 24 hours); disk cap; "forget last N minutes", "forget app", "forget everything"; export.</td>
+</tr>
+<tr>
+<td><strong>X07</strong></td>
+<td>Guide mode</td>
+<td>M</td>
+<td>22</td>
+<td>S02, X02</td>
+<td>When Menux may not or cannot act, it looks (if screen awareness is allowed) and tells the user the next step in words or as an on-screen hint. It sends no input and needs only T0–T1.</td>
+</tr>
+<tr>
+<td><strong>Q07</strong></td>
+<td>GUI red-team suite</td>
+<td>L</td>
+<td>22</td>
+<td>X06, T11, V01</td>
+<td><strong>Blocks release.</strong> Hostile web pages, fake dialogs and permission prompts, on-screen instructions, clipboard attacks, look-alike windows and drag-and-drop traps; pointer actions must stop when the target cannot be verified.</td>
+</tr>
+<tr>
+<td><strong>S04</strong></td>
+<td>Screen-memory tool for runs</td>
+<td>M</td>
+<td>23</td>
+<td>S03, T04</td>
+<td>"What was that article I read on Tuesday?" queries S03; results pass through the Reader (T04), carry provenance and an untrusted label, and become durable memory only through M03 review.</td>
+</tr>
+<tr>
+<td><strong>W08</strong></td>
+<td>The Menux Map page</td>
+<td>L</td>
+<td>23</td>
+<td>K04, A06, M04, X02</td>
+<td>Web page through the UI relay (K04): applications, connectors, channels, skills, automations and grants with their links, tier, last run and health; click through to open and edit the local spec or skill (edits go to the device, not the server); highlights grants wider than recent use.</td>
+</tr>
+<tr>
+<td><strong>W09</strong></td>
+<td>Screen-memory timeline and settings</td>
+<td>M</td>
+<td>23</td>
+<td>S03, K04</td>
+<td>A scrollable timeline and search over S03, the indicator state, exclusions, retention settings and forget controls. Live relay only.</td>
+</tr>
+<tr>
+<td><strong>Q08</strong></td>
+<td>Screen-memory privacy and canary tests</td>
+<td>M</td>
+<td>23</td>
+<td>S03, Q04</td>
+<td>Nothing from screen memory at rest on the server; exclusions hold; deletion is real (including indexes and backups); encryption at rest verified; a run cannot hide the indicator.</td>
+</tr>
+<tr>
+<td><strong>I05b</strong></td>
+<td>Eyes and hands (acceptance)</td>
+<td>M</td>
+<td>24</td>
+<td>D03, D04, S05, V01, S01, E03, S02, V02, V03, X06, T11, V04, V05, S03, X07, Q07, S04, W08, W09, Q08</td>
+<td>See §10.5.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="10-3-phase-5c-companion-reach-4">10.3 Phase 5C — Companion (Reach 4)</h3>
+<p>Specialist tools, learning, sharing and games. (Revision 1.2 removed the Windows-helper design spike <code>D07</code>; Windows is handled by <code>P03</code>.)</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>WP</th>
+<th>Title</th>
+<th>Size</th>
+<th>Wave</th>
+<th>Depends on</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>X08</strong></td>
+<td>Specialist tool kit</td>
+<td>L</td>
+<td>25</td>
+<td>X02, R05</td>
+<td>A template and test harness for building a purpose-made tool for an application that has no scripting interface or an unreliable one (tool manifest, tier per operation, fixtures, sandboxed tests, versioning). First targets are chosen by user demand; CAD is the leading candidate. <em>Done when:</em> one tool for a listed application passes its fixtures.</td>
+</tr>
+<tr>
+<td><strong>M09</strong></td>
+<td>Experience memory</td>
+<td>M</td>
+<td>25</td>
+<td>M01, X02</td>
+<td>Records which rung and steps worked for which application and task, with outcome and cost; consulted by the selector; local, viewable and deletable; labelled untrusted until confirmed by repeated success.</td>
+</tr>
+<tr>
+<td><strong>N09</strong></td>
+<td>Menux session image (optional)</td>
+<td>L</td>
+<td>25</td>
+<td>N08, V01, D03</td>
+<td>An installable session (package or script first, later a VM or bootable image) with the display session, portals, <code>uinput</code> permission, accessibility and virtual-desktop tooling preconfigured. A full distribution is out of scope until after GA (D22).</td>
+</tr>
+<tr>
+<td><strong>X09</strong></td>
+<td>Self-built tools and adapters</td>
+<td>L</td>
+<td>26</td>
+<td>X08, M05, T10</td>
+<td>Menux drafts an adapter script or tool for an application, tests it in the sandbox, and proposes it as a reviewed skill install (T4). Never self-activating.</td>
+</tr>
+<tr>
+<td><strong>X10</strong></td>
+<td>Game loop runner and input maps</td>
+<td>L</td>
+<td>26</td>
+<td>X05, X06</td>
+<td>Opt-in game profile; a fast local loop (frame sampling, small decisions) with the large model as strategist; engine tools (for example a chess engine) run as separate processes after R05; runs on the virtual desktop; shows the anti-cheat notice; no circumvention.</td>
+</tr>
+<tr>
+<td><strong>M10</strong></td>
+<td>Learn by demonstration</td>
+<td>L</td>
+<td>26</td>
+<td>S03, M05, X06</td>
+<td>Record mode captures the user doing a task (accessibility events and screen memory); Menux drafts a parameterized skill, dry-runs it, and queues it for review (M05).</td>
+</tr>
+<tr>
+<td><strong>M11</strong></td>
+<td>GUI skill self-repair</td>
+<td>M</td>
+<td>26</td>
+<td>M09, A06, X06</td>
+<td>When a postcondition fails after a UI change, try another rung, propose a patched skill version, review it, and keep versions with rollback (A06).</td>
+</tr>
+<tr>
+<td><strong>M12</strong></td>
+<td>Skill templates and the curated library</td>
+<td>L</td>
+<td>26</td>
+<td>M04, M05, Q02, T11, R05</td>
+<td>Sanitizer (strip paths, names, emails, tokens, IDs, URLs), parameterization, permission manifest, static scan, canary-secret sandbox trial, publisher identity and signature. The server stores only the template (migration <code>0020</code>), never the user's runs or data. Installing a template on another device shows the manifest, tier, egress and applications and stays disabled until the owner enables it. First-party curated library plus opt-in "submit for review"; the open marketplace is M08 (Phase 6).</td>
+</tr>
+<tr>
+<td><strong>R06</strong></td>
+<td>Companion docs and trust pages</td>
+<td>M</td>
+<td>26</td>
+<td>R02, S03, V04</td>
+<td>The screen-memory trust copy, the perception-path explanation, the dial and grants guide, the WSL2, satellite and Windows or macOS honesty page, and the licences page.</td>
+</tr>
+<tr>
+<td><strong>I05c</strong></td>
+<td>Companion (acceptance)</td>
+<td>M</td>
+<td>27</td>
+<td>X08, M09, N09, X09, X10, M10, M11, M12, R06</td>
+<td>See §10.5.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="10-4-independent-phase-5-items">10.4 Independent Phase 5 items</h3>
+<p>Not part of 5A–5C; schedule them when wanted, after <code>MT-I04</code>.</p>
 <div class="tw"><table>
 <thead>
 <tr>
@@ -1169,34 +2239,9 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 </thead>
 <tbody>
 <tr>
-<td><strong>D01</strong></td>
-<td>Dedicated browser profile (Playwright, optional install)</td>
-<td>Separate profile, never the user's daily one; sandboxed; domains through the proxy allowlist; page text is untrusted and tainting. <strong>Reuse (MiniLocker, <code>m2c_build_plan.md</code> §11.6):</strong> URL-scheme refusal, page text returned as data with scan and fence, and <code>attacks/browser_attacks.py</code> as tests; the Docker and proxy parts are not reused, and approve-before-submit is new work.</td>
-</tr>
-<tr>
-<td><strong>D02</strong></td>
-<td>AT-SPI reader</td>
-<td>Accessibility tree first: role plus name targeting; <code>doctor</code> reports whether accessibility is enabled and warns if a screen reader must be stopped.</td>
-</tr>
-<tr>
-<td><strong>D03</strong></td>
-<td>Screenshots and input</td>
-<td>Screencast portal for screenshots (may prompt each time); <code>ydotool</code> on Wayland, <code>xdotool</code> on X11; per-compositor support matrix in <code>doctor</code>.</td>
-</tr>
-<tr>
-<td><strong>D04</strong></td>
-<td>Headless virtual desktop in a container</td>
-<td>For unattended GUI tasks: Xvfb or headless Wayland in a Podman container; disposable; no access to the real session.</td>
-</tr>
-<tr>
-<td><strong>D05</strong></td>
-<td>Attended desktop control</td>
-<td>Runs on the real desktop only while the user is present; every action is shown; kill switch; never unattended.</td>
-</tr>
-<tr>
 <td><strong>D06</strong></td>
 <td>Voice</td>
-<td>Push-to-talk and voice notes through channels first; transcripts are treated as normal owner messages only from the paired device or channel.</td>
+<td>Push-to-talk and voice notes through channels first; transcripts are treated as normal owner messages only from the paired device or channel. <em>Revision 1.3:</em> voice notes through Telegram come first and are <strong>opt-in</strong>; the audio and transcript leave the device to a speech-to-text provider through the server (metered under <code>surface='menux'</code>); the audio is deleted after transcription; a voice note from anyone but the paired owner is a stranger message (<code>G02</code>). The speech provider is not covered by the Provider Consolidation Guide and is chosen when this item is scheduled.</td>
 </tr>
 <tr>
 <td><strong>H09</strong></td>
@@ -1220,7 +2265,288 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 </tr>
 </tbody>
 </table></div>
-<p>Exit (<strong>MT-I05</strong>): reliability numbers per compositor published in <code>doctor</code>; no unattended control of the real session; browser automation passes the red-team suite.</p>
+<h3 id="10-5-exits">10.5 Exits</h3>
+<p><strong>MT-I05a · Native control (acceptance)</strong></p>
+<ul>
+<li>[ ] An automation runs a sandboxed shell command and a LibreOffice edit end to end, with tiers and approvals unchanged.</li>
+<li>[ ] The ladder selector uses the highest supported rung, steps down on failure, and ends in a message to the owner, never a silent failure.</li>
+<li>[ ] <code>menux doctor</code> reports hardware, display server, compositor, portals, <code>uinput</code> access, accessibility state and the recommended perception path, and explains each warning.</li>
+<li>[ ] The reliability benchmark (<code>Q06</code>) is published per application, rung and compositor.</li>
+<li>[ ] Browser automation passes the red-team suite.</li>
+<li>[ ] Every third-party component in use has a recorded licence decision and an own-build fallback (<code>R05</code>).</li>
+<li>[ ] No unattended control of the real session.</li>
+</ul>
+<p><strong>MT-I05b · Eyes and hands (acceptance)</strong></p>
+<ul>
+<li>[ ] The user can watch, take over and hand back a Background session; in Shared mode Menux yields on user input within the agreed target.</li>
+<li>[ ] Screen memory is off by default, the indicator is visible, exclusions hold, "forget" really deletes, and encryption at rest is verified (<code>Q08</code>).</li>
+<li>[ ] The CPU-only and GPU paths pass the same task suite on the reference machines; the CPU path never sends an image without consent.</li>
+<li>[ ] The GUI red-team suite (<code>Q07</code>) is green and the canary shows no screen content at rest on the server.</li>
+<li>[ ] Panic suspends the virtual desktop, stops input and revokes all grants, and survives a restart.</li>
+<li>[ ] The Menux Map shows every application, connector, automation and grant, and edits round-trip to the local specifications.</li>
+<li>[ ] The always-confirm list holds in every mode, with and without grants.</li>
+</ul>
+<p><strong>MT-I05c · Companion (acceptance)</strong></p>
+<ul>
+<li>[ ] A skill learned by demonstration is replayed, repaired after a UI change, and rolled back.</li>
+<li>[ ] A skill template installs on a second device only after review, stays disabled until enabled, and contains no personal string from the seeded canary.</li>
+<li>[ ] The game loop completes a chess game and a user-defined input-map task on the virtual desktop, shows the anti-cheat notice, and does not bypass anything.</li>
+<li>[ ] The specialist tool kit produces at least one working tool for a listed application.</li>
+<li>[ ] The trust pages match the system's behavior (<code>R06</code>).</li>
+</ul>
+<h3 id="10-6-phase-5r-remote-control-and-the-device-mesh">10.6 Phase 5R — Remote control and the device mesh</h3>
+<p>Added in revision 1.2. Controllers, signed commands, node-approved pairing, sync, placement and the web or chat approval paths. The user-facing description is <code>menux_feature_guide.md</code> §28–§33 and §36; the rules are MX1–MX9 (§2) and the decisions are D26–D34, D37 and D38 (§3). It starts only after <code>MT-I04</code>, can overlap 5A–5C once its dependencies exist, and is releasable on its own. It also needs the M2C follow-up <code>S03b</code> (device self-revoke, §1), which is an M2C patch and is not counted here.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>WP</th>
+<th>Title</th>
+<th>Size</th>
+<th>Wave</th>
+<th>Depends on</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>K06</strong></td>
+<td>Mesh protocol, device identity and trust edges</td>
+<td>L</td>
+<td>28</td>
+<td>K03, R05</td>
+<td>New namespace <code>protocol/mesh/v1</code> (new files only; the M2C v1 envelope is not touched): hello with roles and capability names, signed command, acknowledgement, presence, lease, sync-record and mailbox frames, with limits and golden fixtures. Node-side device identity key (OS key store, vault fallback), trust-edge store, six-word fingerprint, mesh-key wrapping. Crypto choices go through <code>R05</code> behind a Menux interface. <em>Done when:</em> fixtures validate; key rotation and revocation tests pass; M2C and Menux tests stay green.</td>
+</tr>
+<tr>
+<td><strong>A08</strong></td>
+<td>Placement fields in the automation spec</td>
+<td>S</td>
+<td>28</td>
+<td>A01, A07</td>
+<td>Additive revision of the <code>A01</code> schema: <code>runs_on</code>, <code>prefer</code>, <code>requires</code>, <code>failover</code> (default <code>false</code>). The Planner sees capability names only. <em>Done when:</em> old specs still validate and a spec cannot lower a tier through the new fields.</td>
+</tr>
+<tr>
+<td><strong>T12</strong></td>
+<td>Signed command channel and replay protection</td>
+<td>L</td>
+<td>29</td>
+<td>K06, T02, T07</td>
+<td>Feature guide §31.5. Every remote command is signed by the controller's device key and carries ID, endpoints, command, argument digest, issue time, lifetime and counter. Checks in order: signature, not revoked, lifetime and skew, counter, known command (unknown fails closed), class and ceiling, then the normal policy. Idempotent by command ID; accepted, refused and done acknowledgements. Approvals travel as signed commands, which closes the Phase 2 gap in feature guide §31.8. <em>Done when:</em> replay, reorder, expired, wrong-endpoint and unknown-command cases are refused.</td>
+</tr>
+<tr>
+<td><strong>E04</strong></td>
+<td>Server: mesh relay, device registry, presence, leases and mailbox</td>
+<td>XL</td>
+<td>29</td>
+<td>K06, E01, S03b</td>
+<td><code>WS /v1/mate/mesh</code> and <code>/v1/mate/devices/*</code>; migration <code>0022</code> (roles, trust edges as device IDs, states, remote ceilings) and <code>0023</code> (mailbox ciphertext with size, recipient and expiry); presence; leases in Redis with opaque IDs; per-device and per-account rate limits; revocation closes sockets. Stores no frame bodies and no content. <em>Done when:</em> the extended canary (<code>Q10</code>) passes and a relay that drops or reorders frames cannot cause a wrong action.</td>
+</tr>
+<tr>
+<td><strong>T13</strong></td>
+<td>Controller classes, ceilings and the remote trust ladder</td>
+<td>M</td>
+<td>30</td>
+<td>T12, T10</td>
+<td>Feature guide §30–§31. Class and ceiling per device, the approval table by tier and class, travel mode, session limits, tighten-at-once propagation. A controller cannot raise its own class or ceiling. <em>Done when:</em> every cell of the table in §31.2 has a test.</td>
+</tr>
+<tr>
+<td><strong>T14</strong></td>
+<td>Passkey step-up</td>
+<td>M</td>
+<td>30</td>
+<td>T12, T03</td>
+<td>WebAuthn assertion bound to approval ID, nonce, action digest and expiry; the node stores the public key and verifies it itself; assertions are single-use and expire in minutes.</td>
+</tr>
+<tr>
+<td><strong>N10</strong></td>
+<td>Mesh client in the node</td>
+<td>M</td>
+<td>30</td>
+<td>T12, N02, E04</td>
+<td>Connects, reconnects with backoff, presence, applies commands through the normal policy, fans Panic out to every node in the mesh until acknowledged (survives restart), local link (loopback on, LAN off).</td>
+</tr>
+<tr>
+<td><strong>N11</strong></td>
+<td>Pairing commands and flows</td>
+<td>M</td>
+<td>30</td>
+<td>K06, E04, T12</td>
+<td><code>menux pair controller</code>, <code>menux pair satellite</code>, <code>menux remote pair</code>, <code>menux devices</code>, <code>menux logout</code> (self-revoke through <code>S03b</code>). Node-approved pairing with the six-word check and the ceiling chosen on the node; approval from a trusted-display controller with step-up; every other controller is notified.</td>
+</tr>
+<tr>
+<td><strong>W10</strong></td>
+<td>Devices page for the mesh</td>
+<td>M</td>
+<td>31</td>
+<td>E04, N11, K04</td>
+<td>Extends the MiniMe Devices page built for M2C (<code>X01</code>); does not add a second one. Add-a-device choices, roles, capabilities, last seen, linked node, remote ceiling, pause, revoke, content-free activity, and the mesh trust copy.</td>
+</tr>
+<tr>
+<td><strong>W11</strong></td>
+<td>Phone and web controller (installable web app)</td>
+<td>M</td>
+<td>31</td>
+<td>T13, T14, E04, N10, K04</td>
+<td>Status, inbox, approvals with passkey step-up, Panic, run now, pause and resume, proposals. Web class only: T3 at most; T4 requests are forwarded to a trusted display. Optional Web Push through migration <code>0018</code> with minimal text. Its code is served by the server, which is why the class is capped.</td>
+</tr>
+<tr>
+<td><strong>G05</strong></td>
+<td>Chat controller hardening</td>
+<td>M</td>
+<td>31</td>
+<td>T13, G02, T12</td>
+<td>Owner-pinned chat identity, signed approvals for T3 with nonce, T4 refused with a pointer to a trusted display, status, pause and run-now only. Telegram first; Slack and Discord (<code>H10</code>) reuse it.</td>
+</tr>
+<tr>
+<td><strong>M13</strong></td>
+<td>Sync spaces</td>
+<td>L</td>
+<td>31</td>
+<td>N10, T12, M01, M04</td>
+<td>Feature guide §32. Categories, mesh key, versioned content-addressed records, conflicts keep both, tombstones and "forget", encrypted mailbox client, initial snapshot, items arrive disabled. Never vault, connector tokens, screen memory or the knowledge index.</td>
+</tr>
+<tr>
+<td><strong>N12</strong></td>
+<td>Placement, leases and failover</td>
+<td>M</td>
+<td>31</td>
+<td>N10, E04, A08</td>
+<td>Feature guide §33. <code>runs_on</code> and <code>requires</code> routing, the lease protocol, takeover only with <code>failover: true</code> after the missed-run policy, fire time as idempotency key, a node that cannot reach the server skips rather than duplicates.</td>
+</tr>
+<tr>
+<td><strong>V06</strong></td>
+<td>Remote live view (view only)</td>
+<td>L</td>
+<td>32</td>
+<td>V02, N10, T13, T12</td>
+<td>End-to-end encrypted remote path for the <code>V02</code> viewer; web class view only, take-over from a trusted display with step-up; visible indicator on the desktop; nothing recorded or stored on the server; its own security review.</td>
+</tr>
+<tr>
+<td><strong>Q10</strong></td>
+<td>Mesh privacy and canary extension</td>
+<td>M</td>
+<td>32</td>
+<td>E04, M13, Q04</td>
+<td><strong>Blocks release.</strong> At rest the server holds only ciphertext for at most 24 hours, deleted on delivery; no frame bodies or run content in logs; notification text minimal; sync never carries secrets or screen memory.</td>
+</tr>
+<tr>
+<td><strong>Q09</strong></td>
+<td>Mesh red-team suite</td>
+<td>L</td>
+<td>33</td>
+<td>T12, T13, T14, W11, G05, N12, M13, V06</td>
+<td><strong>Blocks release.</strong> Server forges, replays or reorders commands; server adds a controller; hostile web controller code; stolen phone; compromised satellite returns poisoned data; relay man-in-the-middle; revoked device lingers; sync injection; flooding; account takeover.</td>
+</tr>
+<tr>
+<td><strong>I05r</strong></td>
+<td>Remote control and mesh (acceptance)</td>
+<td>M</td>
+<td>34</td>
+<td>K06, A08, T12, E04, T13, T14, N10, N11, W10, W11, G05, M13, N12, V06, Q09, Q10</td>
+<td>See the exits below.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>MT-I05r · Remote control and mesh (acceptance)</strong></p>
+<ul>
+<li>[ ] A phone controller pairs through the node, approves a T3 action with a passkey and is refused a T4 action, which goes to a trusted display and succeeds there.</li>
+<li>[ ] The server, modified to forge, replay, drop or reorder frames, cannot cause an action the node did not approve (<code>Q09</code>).</li>
+<li>[ ] A stolen-phone drill: revoke from the web account and from another controller; the node distrusts the key and rotates the mesh key even when the server is told to lie.</li>
+<li>[ ] Panic from the web, from chat and from a trusted display stops every node, survives a restart and is not undone by a reconnect.</li>
+<li>[ ] Two nodes: a lease prevents a double run; failover happens only when the spec allows it; a node without server contact skips instead of duplicating.</li>
+<li>[ ] Sync moves a spec, a skill and a note, which arrive disabled; the canary shows only ciphertext for at most 24 hours on the server and no vault, token or screen memory anywhere in sync (<code>Q10</code>).</li>
+<li>[ ] The Devices page and the mesh trust copy match the system's behavior.</li>
+</ul>
+<h3 id="10-7-phase-5p-platforms-and-satellites">10.7 Phase 5P — Platforms and satellites</h3>
+<p>Added in revision 1.2. Windows and macOS control through satellites, and the platform layer they need. It replaces the Windows-side helper (<code>D07</code>, <code>D08</code>). The user-facing description is <code>menux_feature_guide.md</code> §34–§35; the rules are MX1, MX2 and MX9 and the decisions are D35 and D36. The satellite runtime needs the mesh (<code>T12</code>, <code>N10</code>), so 5P starts after those exist.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>WP</th>
+<th>Title</th>
+<th>Size</th>
+<th>Wave</th>
+<th>Depends on</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P01</strong></td>
+<td>Platform abstraction in <code>minicore</code></td>
+<td>L</td>
+<td>28</td>
+<td>K01, N07</td>
+<td>Interfaces for paths, key store, service manager, process control and capability flags per operating system, with Linux as the reference implementation. Additive: <code>minicore</code> changes must pass both products' tests. <em>Done when:</em> Linux behavior is unchanged and a stub backend runs the interface tests.</td>
+</tr>
+<tr>
+<td><strong>P06</strong></td>
+<td>Native-node feasibility spike (research)</td>
+<td>M</td>
+<td>29</td>
+<td>P01, N08</td>
+<td>Time-boxed. What would it take to run a node natively on Windows or macOS (sandbox, vault, service manager, scheduler)? Output is a findings note and a go or no-go; the product does not depend on it. <strong>Revision 1.3: write these acceptance criteria into the note before starting.</strong> <em>Go</em> only if (a) a vault design on the OS key store passes the vault tests adapted per OS; (b) a background-task design survives logout and restart without elevation; (c) the scheduler's missed-run and DST tests pass on the OS; (d) the subset of the red-team and canary suites that applies passes on a CI runner for each OS; and (e) the note lists every feature the limited node would lack. A <em>go</em> unlocks <code>U05</code> (decision D43).</td>
+</tr>
+<tr>
+<td><strong>P02</strong></td>
+<td>Satellite runtime</td>
+<td>L</td>
+<td>31</td>
+<td>T12, N10, P01, T10</td>
+<td>A small daemon that pairs with a node, offers named capabilities, applies its <strong>own</strong> dial and grants (it can only narrow what the node may do), shows an always-visible tray indicator that goes red while controlled, and returns results labelled <code>origin: satellite:&lt;name&gt;</code>.</td>
+</tr>
+<tr>
+<td><strong>P03</strong></td>
+<td>Windows satellite</td>
+<td>L</td>
+<td>32</td>
+<td>P02, D02, R05, T10</td>
+<td>agent-desktop (Windows UI Automation) behind <code>ControlBackend</code>; signed installer and updater; runs in the user's interactive session; no elevated windows or UAC; notification mirroring; pairing with a WSL2 node over loopback or the relay. Physical input stays off until the Shared-mode arbiter (<code>V03</code>) is ported. <strong>Replaces <code>D07</code> and <code>D08</code>.</strong></td>
+</tr>
+<tr>
+<td><strong>P04</strong></td>
+<td>macOS satellite</td>
+<td>L</td>
+<td>32</td>
+<td>P02, D02, R05</td>
+<td>agent-desktop (AX) behind <code>ControlBackend</code>; signed and notarized package; guided Accessibility and Screen Recording permissions that Menux never grants itself; notification mirroring.</td>
+</tr>
+<tr>
+<td><strong>P05</strong></td>
+<td>Control benchmark per operating system</td>
+<td>M</td>
+<td>33</td>
+<td>P03, P04, Q06</td>
+<td>The fixed task set of <code>Q06</code> on Windows and macOS satellites, plus agent-desktop version-pin checks (release notes, command list against the capability registry); results published in <code>doctor</code>. <strong>Blocks the 5P release.</strong></td>
+</tr>
+<tr>
+<td><strong>U05</strong></td>
+<td>Limited native node for Windows and macOS</td>
+<td>L</td>
+<td>30</td>
+<td>P06 (go), P01, N02, N05, U01, U02, U03</td>
+<td>Only if <code>P06</code> ends <em>go</em> (D43). A node that runs natively with: the scheduler as a per-user background task (Task Scheduler, launchd), a vault on the OS key store (Credential Manager, Keychain), Telegram (<code>H03</code>), connectors that need no sandbox (IMAP read and draft, CalDAV and ICS, poll and RSS, files inside grants, the webhook relay), recipes (<code>U01</code>), sealed tools (<code>T05</code>), the <code>doctor</code> subset and degraded mode (<code>U03</code>). <strong>Not offered, and <code>doctor</code> says so:</strong> the shell tool, skill scripts, the browser sidecar, and anything above T2 that needs the Linux sandbox. The trust copy says plainly that without an OS sandbox the node cannot run code from skills. If the node is built in Rust (Appendix A, <code>MG-Z10</code> = PROCEED) it reuses the same crates; if it stays Python, <code>P06</code> must cost a Python build for each OS. <em>Done when:</em> a Windows-only user with no WSL2 completes <code>menux init</code>, a recipe and a Telegram digest; the applicable red-team and canary suites are green on Windows and macOS runners; the docs list exactly what is missing.</td>
+</tr>
+<tr>
+<td><strong>I05p</strong></td>
+<td>Platforms and satellites (acceptance)</td>
+<td>M</td>
+<td>34</td>
+<td>P01, P02, P03, P04, P05, P06</td>
+<td>See the exits below.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>MT-I05p · Platforms and satellites (acceptance)</strong></p>
+<ul>
+<li>[ ] A Windows satellite paired to a WSL2 node runs an automation that drives a Windows application through accessibility, under the node's tiers, with the satellite's own dial able to refuse it.</li>
+<li>[ ] A macOS satellite paired to a Linux node does the same.</li>
+<li>[ ] Every agent-desktop command is in the capability registry; an unregistered command is denied; a batch takes the highest tier among its entries.</li>
+<li>[ ] An action reported as delivered but unverified is not retried until its postcondition has been checked.</li>
+<li>[ ] Session traces are redacted before they reach the audit log and are deleted with the run.</li>
+<li>[ ] The control benchmark (<code>P05</code>) is published per operating system and rung.</li>
+<li>[ ] The documentation says plainly what a satellite cannot do (elevated windows, locked screens, applications with no accessibility tree) and that a Windows-only or Mac-only user still needs a node (<code>P06</code> records the outlook).</li>
+<li>[ ] If <code>U05</code> was built: a Windows-only user with no WSL2 completes the guided first run; the node refuses the shell tool, skill scripts and anything above T2 and says why; the docs list what is missing.</li>
+</ul>
 <hr/>
 <h2 id="11-phase-6-ecosystem-and-release">11. Phase 6 — Ecosystem and release</h2>
 <div class="tw"><table>
@@ -1233,9 +2559,14 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 </thead>
 <tbody>
 <tr>
+<td><strong>—</strong></td>
+<td>Windows-side helper (<code>D07</code>, <code>D08</code>)</td>
+<td><strong>Replaced in revision 1.2</strong> by the Windows satellite <code>P03</code> (Phase 5P). Kept here only so old references resolve.</td>
+</tr>
+<tr>
 <td><strong>M08</strong></td>
 <td>Marketplace with scanning and signing</td>
-<td>Migration <code>0019</code>; permission manifests required; static scan, sandboxed trial with canary secrets, publisher verification, signing, yanking; <strong>community content off by default</strong>.</td>
+<td>Migration <code>0019</code>; permission manifests required; static scan, sandboxed trial with canary secrets, publisher verification, signing, yanking; <strong>community content off by default</strong>. Builds on the template pipeline and curated library from <code>M12</code> (Phase 5C).</td>
 </tr>
 <tr>
 <td><strong>T09</strong></td>
@@ -1310,6 +2641,14 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 <td>H06, N02</td>
 </tr>
 <tr>
+<td>Download sorter or folder watcher with no model (a recipe)</td>
+<td>U01, H06, N03; keeps working with the server down (U03)</td>
+</tr>
+<tr>
+<td>Any scheduled recipe while the server is unreachable</td>
+<td>U01, U03</td>
+</tr>
+<tr>
 <td>CI-failure responder</td>
 <td>H08 or H09, A07</td>
 </tr>
@@ -1332,6 +2671,78 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 <tr>
 <td>Install a tool for me</td>
 <td>Attended only (T4)</td>
+</tr>
+<tr>
+<td>Tidy my spreadsheet in LibreOffice while I work</td>
+<td>X01, X02, X03 (no pointer, no conflict with the user)</td>
+</tr>
+<tr>
+<td>What was that article I read on Tuesday?</td>
+<td>S01, S02, S03, S04, T04</td>
+</tr>
+<tr>
+<td>Build me a part in FreeCAD or OpenSCAD</td>
+<td>X02, X04 (specialist tool via X08 for harder CAD)</td>
+</tr>
+<tr>
+<td>Fill in this web form, and ask me before submitting</td>
+<td>D01, X02, T10 (approve-before-submit is T4)</td>
+</tr>
+<tr>
+<td>Do this task in an app I can't script</td>
+<td>D02, D03, S05, X06, V01 (Background), T11</td>
+</tr>
+<tr>
+<td>Learn this by watching me do it once</td>
+<td>S03, M05, M10, then M11 for repairs</td>
+</tr>
+<tr>
+<td>Play a chess game with me</td>
+<td>X05, X06, X10</td>
+</tr>
+<tr>
+<td>Show me what Menux is connected to, and let me edit it</td>
+<td>W08, K04, A06</td>
+</tr>
+<tr>
+<td>Tell me the next step in an app Menux can't control</td>
+<td>S02, X07 (Guide mode)</td>
+</tr>
+<tr>
+<td>Approve or deny an action from my phone</td>
+<td>K06, T12, T13, T14, E04, N10, N11, W11 (T3 at most from the browser; T4 needs a trusted display)</td>
+</tr>
+<tr>
+<td>Press Panic from my phone or chat</td>
+<td>T12, N10, E04, W11 or G05 (works from every controller, no step-up)</td>
+</tr>
+<tr>
+<td>Get Telegram approvals that cannot be forged by the server</td>
+<td>T12, G05</td>
+</tr>
+<tr>
+<td>Add, limit, pause and revoke my devices from my MiniMe account</td>
+<td>E04, N11, W10 (and S03b for <code>menux logout</code>)</td>
+</tr>
+<tr>
+<td>Control a Windows app from my WSL2 or Linux node</td>
+<td>P01, P02, P03, D02, X02, T10, T12, N10</td>
+</tr>
+<tr>
+<td>Control a Mac from my Linux node</td>
+<td>P01, P02, P04, D02, X02, T10, T12, N10</td>
+</tr>
+<tr>
+<td>Same automations and skills on my laptop and my Raspberry Pi</td>
+<td>M13, N12, A08</td>
+</tr>
+<tr>
+<td>Let the Pi run my morning brief when the laptop sleeps</td>
+<td>N12, E04, A08 (spec <code>failover: true</code>)</td>
+</tr>
+<tr>
+<td>Watch a Background session from my phone</td>
+<td>V06 (view only; take-over from a trusted display)</td>
 </tr>
 </tbody>
 </table></div>
@@ -1369,7 +2780,7 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 <tr>
 <td>Protocol</td>
 <td><code>python protocol/validate.py</code></td>
-<td>Includes the 1.1 fixtures</td>
+<td>Includes the 1.1 fixtures; the mesh v1 fixtures (K06) are added as a separate set</td>
 </tr>
 <tr>
 <td>Frontend</td>
@@ -1395,6 +2806,51 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 <td>Soak</td>
 <td><code>pytest menux/tests/soak -v</code></td>
 <td>Fake clock; slow</td>
+</tr>
+<tr>
+<td>GUI red team</td>
+<td><code>pytest menux/tests/redteam_gui -v</code></td>
+<td>Q07; blocks Phase 5B release</td>
+</tr>
+<tr>
+<td>Screen-memory privacy</td>
+<td><code>pytest menux/tests/screen_privacy -v</code> and the extended canary</td>
+<td>Q08, Q04; blocks Phase 5B release</td>
+</tr>
+<tr>
+<td>Control reliability</td>
+<td><code>python -m evals.menux.run --suite control</code></td>
+<td>Q06; costs real credits on the CPU path; results go to <code>doctor</code></td>
+</tr>
+<tr>
+<td>Licence record</td>
+<td><code>python scripts/check_third_party.py</code></td>
+<td>R05; fails if a dependency is missing from <code>docs/menux/third_party.md</code> (agent-desktop and the mesh crypto libraries are now in the table)</td>
+</tr>
+<tr>
+<td>Mesh red team</td>
+<td><code>pytest menux/tests/redteam_mesh -v</code></td>
+<td>Q09 (command proposed); blocks Phase 5R release</td>
+</tr>
+<tr>
+<td>Mesh privacy</td>
+<td><code>pytest menux/tests/mesh_privacy -v</code> and the extended canary</td>
+<td>Q10 (command proposed); blocks Phase 5R release</td>
+</tr>
+<tr>
+<td>Platform control benchmark</td>
+<td><code>python -m evals.menux.run --suite control</code> on a Windows and a macOS satellite</td>
+<td>P05 (the OS option is proposed); blocks Phase 5P release</td>
+</tr>
+<tr>
+<td>Scenario harness</td>
+<td><code>pytest menux/tests/scenarios -v</code></td>
+<td>Q11 (command proposed); no model calls; runs on every patch</td>
+</tr>
+<tr>
+<td>Evidence pack</td>
+<td><code>menux evidence --check</code></td>
+<td>U06 (command proposed); blocks the release tag</td>
 </tr>
 </tbody>
 </table></div>
@@ -1446,11 +2902,111 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 </tr>
 <tr>
 <td>Scope explosion ("agentic OS")</td>
-<td>Phase gates; desktop and voice only after the beta</td>
+<td>Phase gates; Phase 5 starts only after the beta; 5A, 5B and 5C are separately releasable; Phases 0–4 stay at 59 WPs / 133 pts</td>
+</tr>
+<tr>
+<td>The Companion and the mesh are larger than all of v1</td>
+<td>Say so in planning (Phase 5 is now about 208 points against 133 for Phases 0–4, roughly one and a half times); do not schedule it inside the March–June 2027 window; stop after any sub-phase if needed; 5R and 5P are separately releasable</td>
+</tr>
+<tr>
+<td>Pointer and vision control is less reliable than users expect</td>
+<td>The ladder prefers reliable rungs; verification around every action; Guide mode; published benchmark (Q06); weak rungs default to "ask first"; the docs say plainly what is slow or fragile</td>
+</tr>
+<tr>
+<td>Screen memory becomes a privacy incident</td>
+<td>Off by default; visible indicator; text first; raw images deleted; exclusions; encryption with a vault-derived key; nothing on the server; Q08; trust copy and legal review (R03) updated before 5B ships</td>
+</tr>
+<tr>
+<td>Prompt injection through pixels or on-screen text</td>
+<td>Reader for pixels and the task-scope guard (T11); Q07; scoped, time-limited grants; always-confirm floor</td>
+</tr>
+<tr>
+<td>Tier-by-context is wrong somewhere and contained input is not really contained</td>
+<td>Default to the higher tier when context is unclear; Q07 tests escapes from the virtual desktop; the session has no accounts and allowlisted egress</td>
+</tr>
+<tr>
+<td>Wayland and compositor variability</td>
+<td><code>doctor</code> matrix; portals first, <code>uinput</code> fallback; X11 fallback; session image (N09); Q06 numbers per compositor</td>
+</tr>
+<tr>
+<td>A licence surprise (copyleft, AGPL weights, source-available)</td>
+<td><code>R05</code> first; interfaces around every candidate; own-build fallback written in advance</td>
+</tr>
+<tr>
+<td>Shared skills become a supply-chain attack</td>
+<td>Templates only; sanitizer; manifests; scan; canary trial; signing; installed disabled; community content off by default</td>
+</tr>
+<tr>
+<td>CPU-only users get a poor experience, or GPU users get a different product</td>
+<td>One interface with two implementations; the same task suite must pass on both; CPU path text-first with consent for images</td>
+</tr>
+<tr>
+<td>Users set "Full control" and get hurt</td>
+<td>The always-confirm floor; time-limited grants; panic; every action logged and reviewable</td>
+</tr>
+<tr>
+<td>The server, or a stolen MiniMe login, is used to command a node</td>
+<td>Signed commands, node-approved pairing, passkey step-up, local-only floor (T5, vault export); Q09 tests a forging, replaying and reordering server</td>
+</tr>
+<tr>
+<td>Earlier approval paths pass a bare nonce through the server (Phase 2 inbox and chat buttons)</td>
+<td>Until <code>T12</code> exists treat T3 approvals from the inbox as trusting the server; keep T4 off chat; <code>T12</code> moves approvals to signed commands</td>
+</tr>
+<tr>
+<td>Hostile or compromised web controller code (the server serves it)</td>
+<td>The web class is capped at T3 and a passkey is bound to the exact action; T4 needs a trusted display (<code>menux remote</code>)</td>
+</tr>
+<tr>
+<td>A lost or stolen phone</td>
+<td>Revoke from the web, another controller or the node; the node rotates the mesh key; sessions expire; Panic; travel mode</td>
+</tr>
+<tr>
+<td>Sync leaks secrets or lets a bad device inject content</td>
+<td>Opt-in categories; vault, tokens, screen memory and knowledge index excluded; items arrive disabled; memory keeps its trust label; Q10</td>
+</tr>
+<tr>
+<td>Two nodes run the same automation, or none does</td>
+<td>One-writer lease, fire time as idempotency key, skip when the server is unreachable, <code>failover</code> off by default; N12 tests</td>
+</tr>
+<tr>
+<td>agent-desktop changes, disappears or does not fit its licence</td>
+<td><code>R05</code> first; a pinned separate process behind <code>ControlBackend</code>; command list checked against the capability registry on every bump; own AT-SPI fallback on Linux; fixes written application-agnostic and offered upstream</td>
+</tr>
+<tr>
+<td>Windows and macOS accessibility is thinner than the Linux numbers suggest</td>
+<td>Per-OS benchmark (<code>P05</code>); a rung below its threshold is "ask first"; vision only where accessibility is weak; the docs list what a satellite cannot reach</td>
+</tr>
+<tr>
+<td>Windows-only and Mac-only users have no node</td>
+<td>Say so plainly; <code>P06</code> studies a native node; WSL2 or a small Linux machine is the advice until then</td>
+</tr>
+<tr>
+<td>The mesh doubles the surface to secure</td>
+<td>Separate protocol namespace; Q09 and Q10 block release; the mesh can ship after 5A–5C or not at all</td>
 </tr>
 <tr>
 <td>Solo-founder capacity</td>
 <td>Waves are a ceiling; Phase 0 to I01 is the proof; Phase 2 is the minimum before anyone else runs it</td>
+</tr>
+<tr>
+<td>Recipes become a second, weaker automation language</td>
+<td>A closed action catalogue; the same tiers, taint, dry run and graduation; no shell; the schema rejects unknown actions (<code>U01</code>)</td>
+</tr>
+<tr>
+<td>Starter templates hand new users privileges they have not earned</td>
+<td>A template is an ordinary spec, installs disabled, runs a dry run and then attended (<code>U02</code>)</td>
+</tr>
+<tr>
+<td>The limited native node is mistaken for the full node</td>
+<td><code>U05</code> only if <code>P06</code> passes; <code>doctor</code> and the docs list what is missing; the unattended ceiling is T2 (D43)</td>
+</tr>
+<tr>
+<td>Security prompts get relaxed for strong models later</td>
+<td>D39, and the identical-decision test in <code>Q11</code></td>
+</tr>
+<tr>
+<td>The evidence pack claims more than is true</td>
+<td>Counts and suite names only, produced by the CI run that built the release (<code>U06</code>)</td>
 </tr>
 </tbody>
 </table></div>
@@ -1950,18 +3506,610 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 <td>M</td>
 </tr>
 <tr>
-<td>D01–D06, H09–H11, H13</td>
-<td>Phase 5 items</td>
+<td>U01</td>
+<td>No-model automations (recipes)</td>
+<td>4U</td>
+<td>9+</td>
+<td>A01, N04, T05, A05</td>
+<td>M</td>
+</tr>
+<tr>
+<td>U03</td>
+<td>Degraded mode</td>
+<td>4U</td>
+<td>10+</td>
+<td>U01, N04, K02, A05</td>
+<td>S</td>
+</tr>
+<tr>
+<td>Q11</td>
+<td>Scripted-model scenario harness</td>
+<td>4U</td>
+<td>11+</td>
+<td>Q01, T02, T04, T06</td>
+<td>M</td>
+</tr>
+<tr>
+<td>U02</td>
+<td>Starter templates and guided first run</td>
+<td>4U</td>
+<td>16+</td>
+<td>U01, A03, A06, H03, N07</td>
+<td>M</td>
+</tr>
+<tr>
+<td>U06</td>
+<td>Security evidence pack</td>
+<td>4U</td>
+<td>16+</td>
+<td>Q02, Q03, Q04, R02</td>
+<td>S</td>
+</tr>
+<tr>
+<td>R05</td>
+<td>Reuse-or-build licence review</td>
+<td>5A</td>
+<td>17</td>
+<td>–</td>
+<td>S</td>
+</tr>
+<tr>
+<td>N08</td>
+<td>Hardware and display probe for <code>doctor</code></td>
+<td>5A</td>
+<td>17</td>
+<td>N07</td>
+<td>M</td>
+</tr>
+<tr>
+<td>K05</td>
+<td>Protocol 1.2 (vision and session messages)</td>
+<td>5A</td>
+<td>17</td>
+<td>K03</td>
+<td>S</td>
+</tr>
+<tr>
+<td>T10</td>
+<td>Context-based tiering, grants and the always-confirm list</td>
+<td>5A</td>
+<td>17</td>
+<td>T02, T03, T07</td>
+<td>L</td>
+</tr>
+<tr>
+<td>X01</td>
+<td>Shell and file tool in the sandbox (Reach 1)</td>
+<td>5A</td>
+<td>18</td>
+<td>K01, T10</td>
+<td>M</td>
+</tr>
+<tr>
+<td>X02</td>
+<td>Application control registry and ladder selector (Reach 2)</td>
+<td>5A</td>
+<td>18</td>
+<td>T01, H02, T10</td>
+<td>L</td>
+</tr>
+<tr>
+<td>D01</td>
+<td>Dedicated browser profile (Playwright, optional install)</td>
+<td>5A</td>
+<td>18</td>
+<td>R05, T04, T06</td>
+<td>M</td>
+</tr>
+<tr>
+<td>D02</td>
+<td>Accessibility backend (agent-desktop, own AT-SPI fallback)</td>
+<td>5A</td>
+<td>18</td>
+<td>N08, R05</td>
+<td>L</td>
+</tr>
+<tr>
+<td>X03</td>
+<td>LibreOffice control</td>
+<td>5A</td>
+<td>19</td>
+<td>X02</td>
+<td>L</td>
+</tr>
+<tr>
+<td>X04</td>
+<td>Scriptable application adapters</td>
+<td>5A</td>
+<td>19</td>
+<td>X02</td>
+<td>L</td>
+</tr>
+<tr>
+<td>X05</td>
+<td>Shortcut maps and input maps</td>
+<td>5A</td>
+<td>19</td>
+<td>X02, D02</td>
+<td>M</td>
+</tr>
+<tr>
+<td>Q06</td>
+<td>Control reliability benchmark</td>
+<td>5A</td>
+<td>20</td>
+<td>X03, X04, D02</td>
+<td>M</td>
+</tr>
+<tr>
+<td>I05a</td>
+<td>Native control (acceptance)</td>
+<td>5A</td>
+<td>21</td>
+<td>R05, N08, K05, T10, X01, X02, X03, X04, X05, D01, D02, Q06</td>
+<td>M</td>
+</tr>
+<tr>
+<td>D03</td>
+<td>Screenshots and input</td>
+<td>5B</td>
+<td>19</td>
+<td>N08, R05</td>
+<td>L</td>
+</tr>
+<tr>
+<td>D04</td>
+<td>Headless virtual desktop in a container</td>
+<td>5B</td>
+<td>19</td>
+<td>N08</td>
+<td>L</td>
+</tr>
+<tr>
+<td>S05</td>
+<td>Vision grounding adapter, dual path</td>
+<td>5B</td>
+<td>20</td>
+<td>N08, D03, K05, R05</td>
+<td>L</td>
+</tr>
+<tr>
+<td>V01</td>
+<td>Virtual desktop session manager</td>
+<td>5B</td>
+<td>20</td>
+<td>D03, D04, T10</td>
+<td>L</td>
+</tr>
+<tr>
+<td>S01</td>
+<td>Screen capture engine</td>
+<td>5B</td>
+<td>20</td>
+<td>D02, D03, N05</td>
+<td>L</td>
+</tr>
+<tr>
+<td>E03</td>
+<td>Server: vision metering and limits</td>
+<td>5B</td>
+<td>20</td>
+<td>E01, K05</td>
+<td>M</td>
+</tr>
+<tr>
+<td>S02</td>
+<td>Text extraction pipeline</td>
+<td>5B</td>
+<td>21</td>
+<td>S01, R05</td>
+<td>L</td>
+</tr>
+<tr>
+<td>V02</td>
+<td>Live view and take-over</td>
+<td>5B</td>
+<td>21</td>
+<td>V01</td>
+<td>L</td>
+</tr>
+<tr>
+<td>V03</td>
+<td>Shared mode and input arbitration (replaces D05)</td>
+<td>5B</td>
+<td>21</td>
+<td>V01, D03</td>
+<td>L</td>
+</tr>
+<tr>
+<td>X06</td>
+<td>Pointer and keyboard action layer with verification</td>
+<td>5B</td>
+<td>21</td>
+<td>X02, D03, S05, T10</td>
+<td>L</td>
+</tr>
+<tr>
+<td>T11</td>
+<td>Reader/actor for pixels and the task-scope guard</td>
+<td>5B</td>
+<td>21</td>
+<td>T04, S05</td>
+<td>L</td>
+</tr>
+<tr>
+<td>V04</td>
+<td>The tray control panel (the dial)</td>
+<td>5B</td>
+<td>21</td>
+<td>T10, T07</td>
+<td>L</td>
+</tr>
+<tr>
+<td>V05</td>
+<td>Multi-pointer X11 spike (research)</td>
+<td>5B</td>
+<td>22</td>
+<td>V03</td>
+<td>S</td>
+</tr>
+<tr>
+<td>S03</td>
+<td>Screen memory store and search</td>
+<td>5B</td>
+<td>22</td>
+<td>S02, M01, N05</td>
+<td>M</td>
+</tr>
+<tr>
+<td>X07</td>
+<td>Guide mode</td>
+<td>5B</td>
+<td>22</td>
+<td>S02, X02</td>
+<td>M</td>
+</tr>
+<tr>
+<td>Q07</td>
+<td>GUI red-team suite</td>
+<td>5B</td>
+<td>22</td>
+<td>X06, T11, V01</td>
+<td>L</td>
+</tr>
+<tr>
+<td>S04</td>
+<td>Screen-memory tool for runs</td>
+<td>5B</td>
+<td>23</td>
+<td>S03, T04</td>
+<td>M</td>
+</tr>
+<tr>
+<td>W08</td>
+<td>The Menux Map page</td>
+<td>5B</td>
+<td>23</td>
+<td>K04, A06, M04, X02</td>
+<td>L</td>
+</tr>
+<tr>
+<td>W09</td>
+<td>Screen-memory timeline and settings</td>
+<td>5B</td>
+<td>23</td>
+<td>S03, K04</td>
+<td>M</td>
+</tr>
+<tr>
+<td>Q08</td>
+<td>Screen-memory privacy and canary tests</td>
+<td>5B</td>
+<td>23</td>
+<td>S03, Q04</td>
+<td>M</td>
+</tr>
+<tr>
+<td>I05b</td>
+<td>Eyes and hands (acceptance)</td>
+<td>5B</td>
+<td>24</td>
+<td>D03, D04, S05, V01, S01, E03, S02, V02, V03, X06, T11, V04, V05, S03, X07, Q07, S04, W08, W09, Q08</td>
+<td>M</td>
+</tr>
+<tr>
+<td>X08</td>
+<td>Specialist tool kit</td>
+<td>5C</td>
+<td>25</td>
+<td>X02, R05</td>
+<td>L</td>
+</tr>
+<tr>
+<td>M09</td>
+<td>Experience memory</td>
+<td>5C</td>
+<td>25</td>
+<td>M01, X02</td>
+<td>M</td>
+</tr>
+<tr>
+<td>N09</td>
+<td>Menux session image (optional)</td>
+<td>5C</td>
+<td>25</td>
+<td>N08, V01, D03</td>
+<td>L</td>
+</tr>
+<tr>
+<td>X09</td>
+<td>Self-built tools and adapters</td>
+<td>5C</td>
+<td>26</td>
+<td>X08, M05, T10</td>
+<td>L</td>
+</tr>
+<tr>
+<td>X10</td>
+<td>Game loop runner and input maps</td>
+<td>5C</td>
+<td>26</td>
+<td>X05, X06</td>
+<td>L</td>
+</tr>
+<tr>
+<td>M10</td>
+<td>Learn by demonstration</td>
+<td>5C</td>
+<td>26</td>
+<td>S03, M05, X06</td>
+<td>L</td>
+</tr>
+<tr>
+<td>M11</td>
+<td>GUI skill self-repair</td>
+<td>5C</td>
+<td>26</td>
+<td>M09, A06, X06</td>
+<td>M</td>
+</tr>
+<tr>
+<td>M12</td>
+<td>Skill templates and the curated library</td>
+<td>5C</td>
+<td>26</td>
+<td>M04, M05, Q02, T11, R05</td>
+<td>L</td>
+</tr>
+<tr>
+<td>R06</td>
+<td>Companion docs and trust pages</td>
+<td>5C</td>
+<td>26</td>
+<td>R02, S03, V04</td>
+<td>M</td>
+</tr>
+<tr>
+<td>I05c</td>
+<td>Companion (acceptance)</td>
+<td>5C</td>
+<td>27</td>
+<td>X08, M09, N09, X09, X10, M10, M11, M12, R06</td>
+<td>M</td>
+</tr>
+<tr>
+<td>D06, H09–H11, H13</td>
+<td>Independent Phase 5 items</td>
 <td>5</td>
-<td>17+</td>
+<td>unscheduled</td>
 <td>per WP</td>
 <td>M–L</td>
+</tr>
+<tr>
+<td>K06</td>
+<td>Mesh protocol, device identity and trust edges</td>
+<td>5R</td>
+<td>28</td>
+<td>K03, R05</td>
+<td>L</td>
+</tr>
+<tr>
+<td>A08</td>
+<td>Placement fields in the automation spec</td>
+<td>5R</td>
+<td>28</td>
+<td>A01, A07</td>
+<td>S</td>
+</tr>
+<tr>
+<td>T12</td>
+<td>Signed command channel and replay protection</td>
+<td>5R</td>
+<td>29</td>
+<td>K06, T02, T07</td>
+<td>L</td>
+</tr>
+<tr>
+<td>E04</td>
+<td>Server: mesh relay, device registry, presence, leases and mailbox</td>
+<td>5R</td>
+<td>29</td>
+<td>K06, E01, S03b</td>
+<td>XL</td>
+</tr>
+<tr>
+<td>T13</td>
+<td>Controller classes, ceilings and the remote trust ladder</td>
+<td>5R</td>
+<td>30</td>
+<td>T12, T10</td>
+<td>M</td>
+</tr>
+<tr>
+<td>T14</td>
+<td>Passkey step-up</td>
+<td>5R</td>
+<td>30</td>
+<td>T12, T03</td>
+<td>M</td>
+</tr>
+<tr>
+<td>N10</td>
+<td>Mesh client in the node</td>
+<td>5R</td>
+<td>30</td>
+<td>T12, N02, E04</td>
+<td>M</td>
+</tr>
+<tr>
+<td>N11</td>
+<td>Pairing commands and flows</td>
+<td>5R</td>
+<td>30</td>
+<td>K06, E04, T12</td>
+<td>M</td>
+</tr>
+<tr>
+<td>W10</td>
+<td>Devices page for the mesh</td>
+<td>5R</td>
+<td>31</td>
+<td>E04, N11, K04</td>
+<td>M</td>
+</tr>
+<tr>
+<td>W11</td>
+<td>Phone and web controller (installable web app)</td>
+<td>5R</td>
+<td>31</td>
+<td>T13, T14, E04, N10, K04</td>
+<td>M</td>
+</tr>
+<tr>
+<td>G05</td>
+<td>Chat controller hardening</td>
+<td>5R</td>
+<td>31</td>
+<td>T13, G02, T12</td>
+<td>M</td>
+</tr>
+<tr>
+<td>M13</td>
+<td>Sync spaces</td>
+<td>5R</td>
+<td>31</td>
+<td>N10, T12, M01, M04</td>
+<td>L</td>
+</tr>
+<tr>
+<td>N12</td>
+<td>Placement, leases and failover</td>
+<td>5R</td>
+<td>31</td>
+<td>N10, E04, A08</td>
+<td>M</td>
+</tr>
+<tr>
+<td>V06</td>
+<td>Remote live view (view only)</td>
+<td>5R</td>
+<td>32</td>
+<td>V02, N10, T13, T12</td>
+<td>L</td>
+</tr>
+<tr>
+<td>Q10</td>
+<td>Mesh privacy and canary extension</td>
+<td>5R</td>
+<td>32</td>
+<td>E04, M13, Q04</td>
+<td>M</td>
+</tr>
+<tr>
+<td>Q09</td>
+<td>Mesh red-team suite</td>
+<td>5R</td>
+<td>33</td>
+<td>T12, T13, T14, W11, G05, N12, M13, V06</td>
+<td>L</td>
+</tr>
+<tr>
+<td>I05r</td>
+<td>Remote control and mesh (acceptance)</td>
+<td>5R</td>
+<td>34</td>
+<td>K06, A08, T12, E04, T13, T14, N10, N11, W10, W11, G05, M13, N12, V06, Q09, Q10</td>
+<td>M</td>
+</tr>
+<tr>
+<td>P01</td>
+<td>Platform abstraction in <code>minicore</code></td>
+<td>5P</td>
+<td>28</td>
+<td>K01, N07</td>
+<td>L</td>
+</tr>
+<tr>
+<td>P06</td>
+<td>Native-node feasibility spike (research)</td>
+<td>5P</td>
+<td>29</td>
+<td>P01, N08</td>
+<td>M</td>
+</tr>
+<tr>
+<td>U05</td>
+<td>Limited native node for Windows and macOS (only if P06 is <em>go</em>)</td>
+<td>5P</td>
+<td>30</td>
+<td>P06, P01, N02, N05, U01, U02, U03</td>
+<td>L</td>
+</tr>
+<tr>
+<td>P02</td>
+<td>Satellite runtime</td>
+<td>5P</td>
+<td>31</td>
+<td>T12, N10, P01, T10</td>
+<td>L</td>
+</tr>
+<tr>
+<td>P03</td>
+<td>Windows satellite (replaces D07 and D08)</td>
+<td>5P</td>
+<td>32</td>
+<td>P02, D02, R05, T10</td>
+<td>L</td>
+</tr>
+<tr>
+<td>P04</td>
+<td>macOS satellite</td>
+<td>5P</td>
+<td>32</td>
+<td>P02, D02, R05</td>
+<td>L</td>
+</tr>
+<tr>
+<td>P05</td>
+<td>Control benchmark per operating system</td>
+<td>5P</td>
+<td>33</td>
+<td>P03, P04, Q06</td>
+<td>M</td>
+</tr>
+<tr>
+<td>I05p</td>
+<td>Platforms and satellites (acceptance)</td>
+<td>5P</td>
+<td>34</td>
+<td>P01, P02, P03, P04, P05, P06, U05 (if built)</td>
+<td>M</td>
 </tr>
 <tr>
 <td>M08, T09, H12, R01, R03, R04, audit</td>
 <td>Phase 6 items</td>
 <td>6</td>
-<td>17+</td>
+<td>35+</td>
 <td>per WP</td>
 <td>M–XL</td>
 </tr>
@@ -1975,6 +4123,7 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
 <li><strong>Wave 1 in parallel:</strong> K00 (read-only), A01, T01.</li>
 <li><strong>Wave 2 in parallel:</strong> K01 (the careful one: run M2C's whole test suite before and after), K02, K03.</li>
 <li><strong>Then Phase 1.</strong> When "send me a good-morning message at 07:30" works end to end on your own machine, charged to your own pool, with nothing stored on your servers, the design is proven and Phase 2 (safety) is the next thing, not more features.</li>
+<li><strong>The Companion Expansion (Phase 5) is not part of your first week, or your first months.</strong> It starts only after the beta (<code>MT-I04</code>). When it does, begin with <code>R05</code> (licence record), <code>N08</code> (hardware probe), <code>K05</code> and <code>T10</code> (the safety layer), and release 5A before touching a screenshot. The device mesh (5R) and the Windows and macOS satellites (5P) are also after the beta; before 5R starts, ask for the M2C follow-up <code>S03b</code> (device self-revoke), lock D26–D38, and add agent-desktop and the crypto libraries to <code>R05</code>'s table.</li>
 </ol>
 <p><em>End of the Menux build guide.</em></p><div class="bk-footer">
   <div class="bk-footer-hdr">
@@ -1990,7 +4139,7 @@ PHASE 6   M08 (marketplace) , T09 (team policy), H12 (Google, if approved),
       <b>Menux Product & Build Guide (Initial Spec)</b>
       <span>Part IV · Menux</span>
     </a></div>
-</div></article><div class="toc"><b>On this page</b><a class="t3" href="#from-m2c-is-done-to-a-personal-automation-s">From "M2C is done" to a personal automation system: order</a><a class="t2" href="#0-how-to-use-this-guide">0. How to use this guide</a><a class="t2" href="#1-preconditions-what-must-already-exist-from-min">1. Preconditions: what must already exist from M2C</a><a class="t2" href="#2-overrides-what-changed-since-the-menux-prod">2. Overrides: what changed since the Menux product guide</a><a class="t3" href="#o1-topology-the-local-node-is-the-gateway-and-th">O1. Topology: the local node is the gateway and the scheduler</a><a class="t3" href="#o2-one-account-one-cap-same-as-m2c">O2. One account, one cap (same as M2C)</a><a class="t3" href="#o3-platforms-and-the-wsl2-reality">O3. Platforms, and the WSL2 reality</a><a class="t3" href="#o4-packages">O4. Packages</a><a class="t3" href="#o5-gmail-and-google-reality-affects-the-connecto">O5. Gmail and Google reality (affects the connector plan)</a><a class="t3" href="#o6-tiers-and-unattended-policy">O6. Tiers and unattended policy</a><a class="t3" href="#o7-the-profile">O7. The profile</a><a class="t3" href="#o8-trust-copy-for-menux-more-sensitive-than-m">O8. Trust copy for Menux (more sensitive than M2C)</a><a class="t2" href="#3-decisions-to-lock-before-the-first-patch">3. Decisions to lock before the first patch</a><a class="t2" href="#4-the-map">4. The map</a><a class="t3" href="#4-1-phases-and-milestones">4.1 Phases and milestones</a><a class="t3" href="#4-2-tracks">4.2 Tracks</a><a class="t3" href="#4-3-dependency-graph-arrows-mean-apply-first">4.3 Dependency graph (arrows mean "apply first")</a><a class="t3" href="#4-4-conflict-map-files-more-than-one-wp-touches">4.4 Conflict map (files more than one WP touches)</a><a class="t3" href="#4-5-reserved-numbers">4.5 Reserved numbers</a><a class="t3" href="#4-6-waves">4.6 Waves</a><a class="t2" href="#5-phase-0-foundations">5. Phase 0 — Foundations</a><a class="t3" href="#mt-k00-inventory-of-the-finished-m2c-s-wave">MT-K00 · Inventory of the finished M2C · S · Wave 1 (read</a><a class="t3" href="#mt-a01-automation-spec-schema-parser-validator-m">MT-A01 · Automation spec: schema, parser, validator · M · Wave</a><a class="t3" href="#mt-t01-tier-model-and-capability-registry-m-wave">MT-T01 · Tier model and capability registry · M · Wave 1</a><a class="t3" href="#mt-k01-extract-minicore-from-m2c-l-wave-2">MT-K01 · Extract minicore from M2C · L · Wave 2</a><a class="t3" href="#mt-k02-server-profile-support-m-wave-2">MT-K02 · Server profile support · M · Wave 2</a><a class="t3" href="#mt-k03-protocol-additions-revision-1-1-s-wave-2">MT-K03 · Protocol additions (revision 1.1) · S · Wave 2</a><a class="t2" href="#6-phase-1-first-automation-the-walking-skeleton">6. Phase 1 — First automation (the walking skeleton)</a><a class="t3" href="#mt-n01-node-skeleton-and-service-m-wave-3">MT-N01 · Node skeleton and service · M · Wave 3</a><a class="t3" href="#mt-n05-vault-m-wave-3">MT-N05 · Vault · M · Wave 3</a><a class="t3" href="#mt-g01-channel-abstraction-and-pairing-m-wave-3">MT-G01 · Channel abstraction and pairing · M · Wave 3</a><a class="t3" href="#mt-a02-planner-endpoint-and-client-l-wave-3">MT-A02 · Planner endpoint and client · L · Wave 3</a><a class="t3" href="#mt-a03-dry-run-engine-m-wave-3">MT-A03 · Dry-run engine · M · Wave 3</a><a class="t3" href="#mt-n02-scheduler-m-wave-4">MT-N02 · Scheduler · M · Wave 4</a><a class="t3" href="#mt-h01-connector-sdk-and-manifest-m-wave-4">MT-H01 · Connector SDK and manifest · M · Wave 4</a><a class="t3" href="#mt-n06-notifier-minimum-s-wave-4">MT-N06 · Notifier (minimum) · S · Wave 4</a><a class="t3" href="#mt-n04-run-orchestrator-l-wave-5">MT-N04 · Run orchestrator · L · Wave 5</a><a class="t3" href="#mt-h03-telegram-channel-and-connector-m-wave-5">MT-H03 · Telegram channel and connector · M · Wave 5</a><a class="t3" href="#mt-a04-run-lifecycle-m-wave-6">MT-A04 · Run lifecycle · M · Wave 6</a><a class="t3" href="#mt-i01-first-automation-acceptance-m-wave-6">MT-I01 · First automation (acceptance) · M · Wave 6</a><a class="t2" href="#7-phase-2-safe-unattended-automations">7. Phase 2 — Safe unattended automations</a><a class="t3" href="#mt-h02-connector-host-local-mcp-stances-trust-l-">MT-H02 · Connector host (local MCP, stances, trust) · L · Wave</a><a class="t3" href="#mt-t02-unattended-policy-layer-l-wave-7">MT-T02 · Unattended policy layer · L · Wave 7</a><a class="t3" href="#mt-t03-approvals-store-and-decision-flow-m-wave-">MT-T03 · Approvals store and decision flow · M · Wave 8</a><a class="t3" href="#mt-t05-sealed-tool-endpoints-m-wave-8">MT-T05 · Sealed tool endpoints · M · Wave 8</a><a class="t3" href="#mt-t06-taint-for-unattended-runs-m-wave-8">MT-T06 · Taint for unattended runs · M · Wave 8</a><a class="t3" href="#mt-t07-panic-button-and-kill-switch-s-wave-8">MT-T07 · Panic button and kill switch · S · Wave 8</a><a class="t3" href="#mt-h04-email-connector-imap-read-and-draft-l-wav">MT-H04 · Email connector (IMAP: read and draft) · L · Wave 8</a><a class="t3" href="#mt-h05-calendar-connector-caldav-and-ics-m-wave-">MT-H05 · Calendar connector (CalDAV and ICS) · M · Wave 8</a><a class="t3" href="#mt-h06-local-files-connector-m-wave-8">MT-H06 · Local files connector · M · Wave 8</a><a class="t3" href="#mt-a05-budgets-and-heartbeat-gating-m-wave-8">MT-A05 · Budgets and heartbeat gating · M · Wave 8</a><a class="t3" href="#mt-t04-reader-actor-split-runtime-l-wave-9">MT-T04 · Reader/actor split runtime · L · Wave 9</a><a class="t3" href="#mt-t08-anomaly-detection-m-wave-9">MT-T08 · Anomaly detection · M · Wave 9</a><a class="t3" href="#mt-g02-stranger-handling-and-rate-limits-s-wave-">MT-G02 · Stranger handling and rate limits · S · Wave 9</a><a class="t3" href="#mt-g04-approval-buttons-over-channels-s-wave-9">MT-G04 · Approval buttons over channels · S · Wave 9</a><a class="t3" href="#mt-k04-ui-relay-device-queries-from-the-browser-">MT-K04 · UI relay (device queries from the browser) · M · Wave</a><a class="t3" href="#mt-a06-versions-and-graduation-m-wave-9">MT-A06 · Versions and graduation · M · Wave 9</a><a class="t3" href="#mt-w01-mate-page-and-inbox-web-l-wave-10">MT-W01 · Mate page and inbox (web) · L · Wave 10</a><a class="t3" href="#mt-q01-automation-eval-harness-l-wave-10">MT-Q01 · Automation eval harness · L · Wave 10</a><a class="t3" href="#mt-q02-red-team-suite-v2-l-wave-10">MT-Q02 · Red-team suite v2 · L · Wave 10</a><a class="t3" href="#mt-q04-canary-test-extended-m-wave-10">MT-Q04 · Canary test, extended · M · Wave 10</a><a class="t3" href="#mt-i02-safe-unattended-acceptance-m-wave-11">MT-I02 · Safe unattended (acceptance) · M · Wave 11</a><a class="t2" href="#8-phase-3-memory-skills-and-triggers">8. Phase 3 — Memory, skills and triggers</a><a class="t3" href="#mt-m01-memory-files-and-search-m-wave-12">MT-M01 · Memory files and search · M · Wave 12</a><a class="t3" href="#mt-m03-memory-poisoning-defenses-m-wave-13">MT-M03 · Memory poisoning defenses · M · Wave 13</a><a class="t3" href="#mt-m02-consolidation-job-m-wave-13">MT-M02 · Consolidation job · M · Wave 13</a><a class="t3" href="#mt-m04-skills-v2-with-permission-manifests-l-wav">MT-M04 · Skills v2 with permission manifests · L · Wave 12</a><a class="t3" href="#mt-m05-skill-drafts-and-the-review-queue-l-wave-">MT-M05 · Skill drafts and the review queue · L · Wave 13</a><a class="t3" href="#mt-m06-knowledge-folders-index-m-wave-13">MT-M06 · Knowledge folders index · M · Wave 13</a><a class="t3" href="#mt-m07-export-and-import-s-wave-13">MT-M07 · Export and import · S · Wave 13</a><a class="t3" href="#mt-n03-event-triggers-m-wave-12">MT-N03 · Event triggers · M · Wave 12</a><a class="t3" href="#mt-h07-poll-and-rss-connector-s-wave-12">MT-H07 · Poll and RSS connector · S · Wave 12</a><a class="t3" href="#mt-h08-webhook-relay-l-wave-12">MT-H08 · Webhook relay · L · Wave 12</a><a class="t3" href="#mt-g03-digest-mode-and-formatting-s-wave-12">MT-G03 · Digest mode and formatting · S · Wave 12</a><a class="t3" href="#mt-e01-server-side-abuse-and-limits-m-wave-12">MT-E01 · Server-side abuse and limits · M · Wave 12</a><a class="t3" href="#mt-q03-soak-tests-m-wave-13">MT-Q03 · Soak tests · M · Wave 13</a><a class="t3" href="#mt-i03-memory-and-skills-acceptance-m-wave-14">MT-I03 · Memory and skills (acceptance) · M · Wave 14</a><a class="t2" href="#9-phase-4-beta">9. Phase 4 — Beta</a><a class="t3" href="#mt-a07-delegate-to-m2c-m-wave-15">MT-A07 · Delegate to M2C · M · Wave 15</a><a class="t3" href="#mt-w02-w07-web-surfaces-m-each-wave-15">MT-W02–W07 · Web surfaces · M each · Wave 15</a><a class="t3" href="#mt-n07-node-doctor-and-wsl-keep-alive-m-wave-15">MT-N07 · Node doctor and WSL keep-alive · M · Wave 15</a><a class="t3" href="#mt-e02-cost-estimates-s-wave-15">MT-E02 · Cost estimates · S · Wave 15</a><a class="t3" href="#mt-q05-cost-telemetry-s-wave-15">MT-Q05 · Cost telemetry · S · Wave 15</a><a class="t3" href="#mt-r02-docs-and-trust-pages-m-wave-15">MT-R02 · Docs and trust pages · M · Wave 15</a><a class="t3" href="#mt-i04-beta-acceptance-m-wave-16">MT-I04 · Beta acceptance · M · Wave 16</a><a class="t2" href="#10-phase-5-desktop-voice-and-more-connectors">10. Phase 5 — Desktop, voice and more connectors</a><a class="t2" href="#11-phase-6-ecosystem-and-release">11. Phase 6 — Ecosystem and release</a><a class="t2" href="#12-which-wps-unlock-which-automations">12. Which WPs unlock which automations</a><a class="t2" href="#13-tests-and-commands">13. Tests and commands</a><a class="t2" href="#14-risks-of-the-build-itself">14. Risks of the build itself</a><a class="t2" href="#15-work-package-index">15. Work-package index</a><a class="t2" href="#16-your-first-week-on-menux">16. Your first week on Menux</a></div></div></main><small class="mm-built">Private. Built 2026-10-07 from commit febb685.</small><script id="bk-chapter-script">
+</div></article><div class="toc"><b>On this page</b><a class="t3" href="#from-m2c-is-done-to-a-personal-automation-s">From "M2C is done" to a personal automation system: order</a><a class="t2" href="#0-how-to-use-this-guide">0. How to use this guide</a><a class="t2" href="#1-preconditions-what-must-already-exist-from-min">1. Preconditions: what must already exist from M2C</a><a class="t2" href="#2-overrides-what-changed-since-the-menux-prod">2. Overrides: what changed since the Menux product guide</a><a class="t3" href="#o1-topology-the-local-node-is-the-gateway-and-th">O1. Topology: the local node is the gateway and the scheduler</a><a class="t3" href="#o2-one-account-one-cap-same-as-m2c">O2. One account, one cap (same as M2C)</a><a class="t3" href="#o3-platforms-and-the-wsl2-reality">O3. Platforms, and the WSL2 reality</a><a class="t3" href="#o4-packages">O4. Packages</a><a class="t3" href="#o5-gmail-and-google-reality-affects-the-connecto">O5. Gmail and Google reality (affects the connector plan)</a><a class="t3" href="#o6-tiers-and-unattended-policy">O6. Tiers and unattended policy</a><a class="t3" href="#o7-the-profile">O7. The profile</a><a class="t3" href="#o8-trust-copy-for-menux-more-sensitive-than-m">O8. Trust copy for Menux (more sensitive than M2C)</a><a class="t3" href="#companion-extensions-cx1-cx7">Companion extensions (CX1–CX7)</a><a class="t3" href="#trust-copy-for-the-companion-addendum-to-o8">Trust copy for the Companion (addendum to O8)</a><a class="t3" href="#mesh-extensions-mx1-mx9">Mesh extensions (MX1–MX9)</a><a class="t3" href="#trust-copy-for-the-mesh-addendum-to-o8">Trust copy for the mesh (addendum to O8)</a><a class="t2" href="#3-decisions-to-lock-before-the-first-patch">3. Decisions to lock before the first patch</a><a class="t2" href="#4-the-map">4. The map</a><a class="t3" href="#4-1-phases-and-milestones">4.1 Phases and milestones</a><a class="t3" href="#4-2-tracks">4.2 Tracks</a><a class="t3" href="#4-3-dependency-graph-arrows-mean-apply-first">4.3 Dependency graph (arrows mean "apply first")</a><a class="t3" href="#4-4-conflict-map-files-more-than-one-wp-touches">4.4 Conflict map (files more than one WP touches)</a><a class="t3" href="#4-5-reserved-numbers">4.5 Reserved numbers</a><a class="t3" href="#4-6-waves">4.6 Waves</a><a class="t2" href="#5-phase-0-foundations">5. Phase 0 — Foundations</a><a class="t3" href="#mt-k00-inventory-of-the-finished-m2c-s-wave">MT-K00 · Inventory of the finished M2C · S · Wave 1 (read</a><a class="t3" href="#mt-a01-automation-spec-schema-parser-validator-m">MT-A01 · Automation spec: schema, parser, validator · M · Wave</a><a class="t3" href="#mt-t01-tier-model-and-capability-registry-m-wave">MT-T01 · Tier model and capability registry · M · Wave 1</a><a class="t3" href="#mt-k01-extract-minicore-from-m2c-l-wave-2">MT-K01 · Extract minicore from M2C · L · Wave 2</a><a class="t3" href="#mt-k02-server-profile-support-m-wave-2">MT-K02 · Server profile support · M · Wave 2</a><a class="t3" href="#mt-k03-protocol-additions-revision-1-1-s-wave-2">MT-K03 · Protocol additions (revision 1.1) · S · Wave 2</a><a class="t2" href="#6-phase-1-first-automation-the-walking-skeleton">6. Phase 1 — First automation (the walking skeleton)</a><a class="t3" href="#mt-n01-node-skeleton-and-service-m-wave-3">MT-N01 · Node skeleton and service · M · Wave 3</a><a class="t3" href="#mt-n05-vault-m-wave-3">MT-N05 · Vault · M · Wave 3</a><a class="t3" href="#mt-g01-channel-abstraction-and-pairing-m-wave-3">MT-G01 · Channel abstraction and pairing · M · Wave 3</a><a class="t3" href="#mt-a02-planner-endpoint-and-client-l-wave-3">MT-A02 · Planner endpoint and client · L · Wave 3</a><a class="t3" href="#mt-a03-dry-run-engine-m-wave-3">MT-A03 · Dry-run engine · M · Wave 3</a><a class="t3" href="#mt-n02-scheduler-m-wave-4">MT-N02 · Scheduler · M · Wave 4</a><a class="t3" href="#mt-h01-connector-sdk-and-manifest-m-wave-4">MT-H01 · Connector SDK and manifest · M · Wave 4</a><a class="t3" href="#mt-n06-notifier-minimum-s-wave-4">MT-N06 · Notifier (minimum) · S · Wave 4</a><a class="t3" href="#mt-n04-run-orchestrator-l-wave-5">MT-N04 · Run orchestrator · L · Wave 5</a><a class="t3" href="#mt-h03-telegram-channel-and-connector-m-wave-5">MT-H03 · Telegram channel and connector · M · Wave 5</a><a class="t3" href="#mt-a04-run-lifecycle-m-wave-6">MT-A04 · Run lifecycle · M · Wave 6</a><a class="t3" href="#mt-i01-first-automation-acceptance-m-wave-6">MT-I01 · First automation (acceptance) · M · Wave 6</a><a class="t2" href="#7-phase-2-safe-unattended-automations">7. Phase 2 — Safe unattended automations</a><a class="t3" href="#mt-h02-connector-host-local-mcp-stances-trust-l-">MT-H02 · Connector host (local MCP, stances, trust) · L · Wave</a><a class="t3" href="#mt-t02-unattended-policy-layer-l-wave-7">MT-T02 · Unattended policy layer · L · Wave 7</a><a class="t3" href="#mt-t03-approvals-store-and-decision-flow-m-wave-">MT-T03 · Approvals store and decision flow · M · Wave 8</a><a class="t3" href="#mt-t05-sealed-tool-endpoints-m-wave-8">MT-T05 · Sealed tool endpoints · M · Wave 8</a><a class="t3" href="#mt-t06-taint-for-unattended-runs-m-wave-8">MT-T06 · Taint for unattended runs · M · Wave 8</a><a class="t3" href="#mt-t07-panic-button-and-kill-switch-s-wave-8">MT-T07 · Panic button and kill switch · S · Wave 8</a><a class="t3" href="#mt-h04-email-connector-imap-read-and-draft-l-wav">MT-H04 · Email connector (IMAP: read and draft) · L · Wave 8</a><a class="t3" href="#mt-h05-calendar-connector-caldav-and-ics-m-wave-">MT-H05 · Calendar connector (CalDAV and ICS) · M · Wave 8</a><a class="t3" href="#mt-h06-local-files-connector-m-wave-8">MT-H06 · Local files connector · M · Wave 8</a><a class="t3" href="#mt-a05-budgets-and-heartbeat-gating-m-wave-8">MT-A05 · Budgets and heartbeat gating · M · Wave 8</a><a class="t3" href="#mt-t04-reader-actor-split-runtime-l-wave-9">MT-T04 · Reader/actor split runtime · L · Wave 9</a><a class="t3" href="#mt-t08-anomaly-detection-m-wave-9">MT-T08 · Anomaly detection · M · Wave 9</a><a class="t3" href="#mt-g02-stranger-handling-and-rate-limits-s-wave-">MT-G02 · Stranger handling and rate limits · S · Wave 9</a><a class="t3" href="#mt-g04-approval-buttons-over-channels-s-wave-9">MT-G04 · Approval buttons over channels · S · Wave 9</a><a class="t3" href="#mt-k04-ui-relay-device-queries-from-the-browser-">MT-K04 · UI relay (device queries from the browser) · M · Wave</a><a class="t3" href="#mt-a06-versions-and-graduation-m-wave-9">MT-A06 · Versions and graduation · M · Wave 9</a><a class="t3" href="#mt-w01-mate-page-and-inbox-web-l-wave-10">MT-W01 · Mate page and inbox (web) · L · Wave 10</a><a class="t3" href="#mt-q01-automation-eval-harness-l-wave-10">MT-Q01 · Automation eval harness · L · Wave 10</a><a class="t3" href="#mt-q02-red-team-suite-v2-l-wave-10">MT-Q02 · Red-team suite v2 · L · Wave 10</a><a class="t3" href="#mt-q04-canary-test-extended-m-wave-10">MT-Q04 · Canary test, extended · M · Wave 10</a><a class="t3" href="#mt-i02-safe-unattended-acceptance-m-wave-11">MT-I02 · Safe unattended (acceptance) · M · Wave 11</a><a class="t2" href="#8-phase-3-memory-skills-and-triggers">8. Phase 3 — Memory, skills and triggers</a><a class="t3" href="#mt-m01-memory-files-and-search-m-wave-12">MT-M01 · Memory files and search · M · Wave 12</a><a class="t3" href="#mt-m03-memory-poisoning-defenses-m-wave-13">MT-M03 · Memory poisoning defenses · M · Wave 13</a><a class="t3" href="#mt-m02-consolidation-job-m-wave-13">MT-M02 · Consolidation job · M · Wave 13</a><a class="t3" href="#mt-m04-skills-v2-with-permission-manifests-l-wav">MT-M04 · Skills v2 with permission manifests · L · Wave 12</a><a class="t3" href="#mt-m05-skill-drafts-and-the-review-queue-l-wave-">MT-M05 · Skill drafts and the review queue · L · Wave 13</a><a class="t3" href="#mt-m06-knowledge-folders-index-m-wave-13">MT-M06 · Knowledge folders index · M · Wave 13</a><a class="t3" href="#mt-m07-export-and-import-s-wave-13">MT-M07 · Export and import · S · Wave 13</a><a class="t3" href="#mt-n03-event-triggers-m-wave-12">MT-N03 · Event triggers · M · Wave 12</a><a class="t3" href="#mt-h07-poll-and-rss-connector-s-wave-12">MT-H07 · Poll and RSS connector · S · Wave 12</a><a class="t3" href="#mt-h08-webhook-relay-l-wave-12">MT-H08 · Webhook relay · L · Wave 12</a><a class="t3" href="#mt-g03-digest-mode-and-formatting-s-wave-12">MT-G03 · Digest mode and formatting · S · Wave 12</a><a class="t3" href="#mt-e01-server-side-abuse-and-limits-m-wave-12">MT-E01 · Server-side abuse and limits · M · Wave 12</a><a class="t3" href="#mt-q03-soak-tests-m-wave-13">MT-Q03 · Soak tests · M · Wave 13</a><a class="t3" href="#mt-i03-memory-and-skills-acceptance-m-wave-14">MT-I03 · Memory and skills (acceptance) · M · Wave 14</a><a class="t2" href="#9-phase-4-beta">9. Phase 4 — Beta</a><a class="t3" href="#mt-a07-delegate-to-m2c-m-wave-15">MT-A07 · Delegate to M2C · M · Wave 15</a><a class="t3" href="#mt-w02-w07-web-surfaces-m-each-wave-15">MT-W02–W07 · Web surfaces · M each · Wave 15</a><a class="t3" href="#mt-n07-node-doctor-and-wsl-keep-alive-m-wave-15">MT-N07 · Node doctor and WSL keep-alive · M · Wave 15</a><a class="t3" href="#mt-e02-cost-estimates-s-wave-15">MT-E02 · Cost estimates · S · Wave 15</a><a class="t3" href="#mt-q05-cost-telemetry-s-wave-15">MT-Q05 · Cost telemetry · S · Wave 15</a><a class="t3" href="#mt-r02-docs-and-trust-pages-m-wave-15">MT-R02 · Docs and trust pages · M · Wave 15</a><a class="t3" href="#mt-i04-beta-acceptance-m-wave-16">MT-I04 · Beta acceptance · M · Wave 16</a><a class="t3" href="#9-1-phase-4u-usability-and-reach-revision-1-3">9.1 Phase 4U — Usability and reach (revision 1.3)</a><a class="t3" href="#mt-u01-no-model-automations-recipes-m-earliest-w">MT-U01 · No-model automations (recipes) · M · Earliest wave 9</a><a class="t3" href="#mt-u03-degraded-mode-s-earliest-wave-10">MT-U03 · Degraded mode · S · Earliest wave 10</a><a class="t3" href="#mt-q11-scripted-model-scenario-harness-m-earlies">MT-Q11 · Scripted-model scenario harness · M · Earliest wave 1</a><a class="t3" href="#mt-u02-starter-templates-and-the-guided-first-ru">MT-U02 · Starter templates and the guided first run · M · Earl</a><a class="t3" href="#mt-u06-security-evidence-pack-s-earliest-wave-16">MT-U06 · Security evidence pack · S · Earliest wave 16</a><a class="t2" href="#10-phase-5-the-companion-expansion">10. Phase 5 — The Companion Expansion</a><a class="t3" href="#10-1-phase-5a-native-control-reach-1-2">10.1 Phase 5A — Native control (Reach 1–2)</a><a class="t3" href="#10-2-phase-5b-eyes-and-hands-reach-3">10.2 Phase 5B — Eyes and hands (Reach 3)</a><a class="t3" href="#10-3-phase-5c-companion-reach-4">10.3 Phase 5C — Companion (Reach 4)</a><a class="t3" href="#10-4-independent-phase-5-items">10.4 Independent Phase 5 items</a><a class="t3" href="#10-5-exits">10.5 Exits</a><a class="t3" href="#10-6-phase-5r-remote-control-and-the-device-mesh">10.6 Phase 5R — Remote control and the device mesh</a><a class="t3" href="#10-7-phase-5p-platforms-and-satellites">10.7 Phase 5P — Platforms and satellites</a><a class="t2" href="#11-phase-6-ecosystem-and-release">11. Phase 6 — Ecosystem and release</a><a class="t2" href="#12-which-wps-unlock-which-automations">12. Which WPs unlock which automations</a><a class="t2" href="#13-tests-and-commands">13. Tests and commands</a><a class="t2" href="#14-risks-of-the-build-itself">14. Risks of the build itself</a><a class="t2" href="#15-work-package-index">15. Work-package index</a><a class="t2" href="#16-your-first-week-on-menux">16. Your first week on Menux</a></div></div></main><small class="mm-built">Private. Built 2026-11-21 from commit d7d9f56.</small><script id="bk-chapter-script">
 (function(){
   // Reading progress bar
   var bar = document.querySelector('.bk-progress');

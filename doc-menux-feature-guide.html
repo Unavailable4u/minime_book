@@ -305,7 +305,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/components.css">
 <link rel="stylesheet" href="assets/css/shell.css">
-</head><body data-page="doc-menux-feature-guide"><main><h1>Menux — Complete Feature & Product Guide</h1><p class="sub">Menux. 6,095 words. <a href="data/docs/menux_feature_guide.md" download>Download .md</a></p><div class="bk-banner">
+</head><body data-page="doc-menux-feature-guide"><main><h1>Menux — Complete Feature & Product Guide</h1><p class="sub">Menux. 24,051 words. <a href="data/docs/menux_feature_guide.md" download>Download .md</a></p><div class="bk-banner">
   <div class="bk-top">
     <div>
       <span class="bk-part">Part IV · Menux (Local-First Personal Automation Agent)</span>
@@ -320,7 +320,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
   </div>
   <p class="bk-desc">Canonical specification for the local-first personal automation agent (`menux`), Run Engine, 4-tier approvals, 6 channels, 9 connectors & vault.</p>
   <div class="bk-meta">
-    <span><b>6,095</b> words (~28 min read)</span><span>·</span><span><b>83</b> sections</span><span>·</span><span><b>4</b> tables</span>
+    <span><b>24,051</b> words (~109 min read)</span><span>·</span><span><b>234</b> sections</span><span>·</span><span><b>29</b> tables</span>
   </div>
   <div class="bk-prevnext"><a href="doc-m2c-product.html" class="bk-nav-btn">← Ch. 7: M2C L26 Product & Build Guide (Initial Spec)</a><a href="doc-menux-plan.html" class="bk-nav-btn bk-next">Ch. 9: Menux Build Execution Guide →</a></div>
 </div><div class="doc"><article><h1 id="menux-feature-guide">Menux Feature Guide</h1>
@@ -331,6 +331,9 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <li><strong>Available or inherited:</strong> behavior provided by MiniMe/M2C foundations or already defined as a shared contract.</li>
 <li><strong>Planned:</strong> described in the current Menux build plan but not necessarily implemented.</li>
 <li><strong>Gated:</strong> requires M2C maturity, security review, legal review, credentials, or a later milestone.</li>
+<li><strong>Companion (planned, gated on Phase 4):</strong> the Companion Expansion in §17–§27: shell, application, accessibility and vision control, a virtual desktop, screen memory, and learned and shared skills. None of it is part of v1 or of the 59-work-package beta plan. It is designed here so that v1 does not close doors on it.</li>
+<li><strong>Mesh (planned, gated on Phase 4):</strong> the device mesh in §28–§37, added in revision 1.2: link your phone, tablet and other computers to your MiniMe account, control and approve from them, sync between them, and use Windows and macOS through satellites. It is not part of v1 and is counted separately from the 59-work-package beta plan.</li>
+<li><strong>Usability and reach (planned, revision 1.3):</strong> recipes (automations that need no model, §4.6), starter templates and a guided first run (§3.5), degraded mode (§13.5), a security evidence pack (§13.6), model classes by plan (§12.5), a limited native Windows and macOS node that exists only if a spike passes (§35), and an honest comparison with a shipped open-source agent (§40). Recommended before the beta as <strong>Phase 4U</strong>, counted separately from the 59 work packages of Phases 0–4 (§14).</li>
 </ul>
 <h3 id="architectural-synchronization-overrides-o1-o8-fr">Architectural Synchronization (Overrides O1–O8 from <code>Menux___Build_Execution_Guide.md</code>)</h3>
 <p>Where the earlier standalone design note (<code>doc-menux-product.html</code>) and this guide or <code>Menux___Build_Execution_Guide.md</code> differ, <strong>these 8 synchronized rules govern</strong>:</p>
@@ -375,13 +378,162 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td style="text-align: left;"><strong>O7 · Coding Delegated to M2C CLI</strong></td>
-<td style="text-align: left;">Menux never implements a second code editor; coding tasks invoke <code>m2c run --json</code> over local IPC (<code>MT-M07</code>)</td>
+<td style="text-align: left;">Menux never implements a second code editor; coding tasks invoke <code>m2c -p "task" --output-format json</code> (<code>stream-json</code> once M2C <code>C28</code> lands) over local IPC (<code>MT-M07</code>)</td>
 <td style="text-align: left;">Preserves M2C's git checkpoints and OS sandbox</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>O8 · Official Google Scopes Gated on CASA</strong></td>
 <td style="text-align: left;">Local CalDAV/IMAP/ICS work immediately; official Google OAuth scopes wait for verification &amp; legal gate (<code>MT-G03</code>)</td>
 <td style="text-align: left;">Matches <code>MiniMe_Financial_Strategy_Rulebook.md</code> compliance gates</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="companion-extensions-cx1-cx7-added-in-revision-1">Companion Extensions (CX1–CX7, added in revision 1.1)</h3>
+<p>These seven rules govern the Companion Expansion (§17–§27). They sit beside O1–O8 and never relax them: the local-first rules, the shared account and the T0–T5 tiers all still apply.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Extension</th>
+<th style="text-align: left;">Rule</th>
+<th style="text-align: left;">Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>CX1 · Reach Levels and the Control Ladder</strong></td>
+<td style="text-align: left;">Menux's reach grows in five levels (Reach 0–4). For every task it uses the most reliable method that can do the job (commands, application scripting, accessibility, shortcuts, vision and pointer), and every method inherits the same tiers, approvals, panic button and audit log</td>
+<td style="text-align: left;">§17, §18</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CX2 · Linux First, WSL2 Second</strong></td>
+<td style="text-align: left;">Native Linux gets the full feature set. WSL2 gets everything that works inside Linux. Windows and macOS applications are controlled through a <strong>satellite</strong> paired to a node (revision 1.2, Phase 5P, using agent-desktop); this replaces the Windows-side helper that earlier revisions planned. A Windows-only or Mac-only user still needs a node</td>
+<td style="text-align: left;">§25, §34, §35</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CX3 · The User Always Wins</strong></td>
+<td style="text-align: left;">Pointer and keyboard work runs on Menux's own virtual desktop by default. On the user's real screen Menux takes turns and yields the instant the user moves</td>
+<td style="text-align: left;">§19</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CX4 · Screen Memory Is Local, Off by Default and Visible</strong></td>
+<td style="text-align: left;">Text-first capture on events, raw images deleted after extraction, sensitive applications excluded, encrypted on the device, never stored on the server</td>
+<td style="text-align: left;">§20</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CX5 · Two Perception Paths</strong></td>
+<td style="text-align: left;">Everything that needs to "see" works on a CPU-only machine (with cloud help, by consent) and works faster and more privately on a machine with a GPU</td>
+<td style="text-align: left;">§21</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CX6 · Skills Are Shared as Sanitized, Signed Templates</strong></td>
+<td style="text-align: left;">The user's real automations and data stay on the device. Only a stripped, parameterized, scanned and signed template can be shared</td>
+<td style="text-align: left;">§23</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CX7 · Reuse or Build, After a Licence Check</strong></td>
+<td style="text-align: left;">A third-party component is used only after its licence has been reviewed and the decision recorded. If it does not fit, Menux builds its own</td>
+<td style="text-align: left;">§27</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="mesh-extensions-mx1-mx9-added-in-revision-1-2">Mesh Extensions (MX1–MX9, added in revision 1.2)</h3>
+<p>These nine rules govern the device mesh (§28–§37). They sit beside O1–O8 and CX1–CX7 and never relax them: the local-first rules, the shared account and the T0–T5 tiers all still apply.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Extension</th>
+<th style="text-align: left;">Rule</th>
+<th style="text-align: left;">Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>MX1 · Three Roles</strong></td>
+<td style="text-align: left;">A device is a <strong>node</strong> (the full Menux, the only place a run lives), a <strong>satellite</strong> (executes a limited set of capabilities for a node) or a <strong>controller</strong> (sends commands and approvals, executes nothing)</td>
+<td style="text-align: left;">§28</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MX2 · Local Policy Is Final</strong></td>
+<td style="text-align: left;">The device that executes an action applies its own tiers, grants and dial. A remote origin can keep or raise a tier, never lower it. A satellite's dial can only narrow what the node may do</td>
+<td style="text-align: left;">§31, §35</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MX3 · The Server Is a Pipe</strong></td>
+<td style="text-align: left;">The relay forwards end-to-end encrypted, signed frames. It cannot read them, forge or replay a command, add a controller, or approve at T4 or above</td>
+<td style="text-align: left;">§31.7</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MX4 · Node-Approved Pairing</strong></td>
+<td style="text-align: left;">A new controller or satellite must be approved on the node. A stolen MiniMe login is not enough</td>
+<td style="text-align: left;">§29</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MX5 · Controller Classes Cap Remote Power</strong></td>
+<td style="text-align: left;">Local, trusted display, web and chat. The web class is capped at T3, chat approvals at T3, T4 needs a trusted display with step-up, and T5 and vault export are local only</td>
+<td style="text-align: left;">§30, §31</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MX6 · Panic and Deny Always Work</strong></td>
+<td style="text-align: left;">From every controller, without step-up, reaching every node in the mesh</td>
+<td style="text-align: left;">§30.2</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MX7 · Sync Is Opt-In and Never Moves Secrets</strong></td>
+<td style="text-align: left;">Per category, off by default. The vault, connector tokens, screen memory and the knowledge index never sync. An offline peer gets an encrypted mailbox of at most 24 hours</td>
+<td style="text-align: left;">§32</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MX8 · Tighten at Once, Loosen with Care</strong></td>
+<td style="text-align: left;">Panic, lower ceilings and new exclusions spread immediately from any controller; raising a limit does not</td>
+<td style="text-align: left;">§31.6</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MX9 · Backends Behind Interfaces</strong></td>
+<td style="text-align: left;">agent-desktop and every other control backend run as a pinned separate process behind <code>ControlBackend</code>, after a licence decision; an unknown command is T5 and denied</td>
+<td style="text-align: left;">§34</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="usability-and-reach-extensions-ux1-ux6-added-in-">Usability and Reach Extensions (UX1–UX6, added in revision 1.3)</h3>
+<p>These six rules come from comparing Menux with a shipped open-source agent (§40). They sit beside O1–O8, CX1–CX7 and MX1–MX9 and never relax them.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Extension</th>
+<th style="text-align: left;">Rule</th>
+<th style="text-align: left;">Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>UX1 · Security Does Not Depend on the Model</strong></td>
+<td style="text-align: left;">Tiers, approvals, the reader/actor requirement, taint denial and the always-confirm list are enforced in code and never vary with the model, its size or the user's plan</td>
+<td style="text-align: left;">§6.7</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>UX2 · Some Automations Need No Model</strong></td>
+<td style="text-align: left;">A recipe runs a closed list of steps with no model call and zero credits, under the same tiers, dry run and graduation</td>
+<td style="text-align: left;">§4.6</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>UX3 · The Node Never Stops Silently</strong></td>
+<td style="text-align: left;">Without the server, recipes keep running, model runs follow the missed-run policy, and the owner is told once per state change</td>
+<td style="text-align: left;">§13.5</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>UX4 · First Value Fast, Privilege Never Faster</strong></td>
+<td style="text-align: left;">Starter templates and <code>menux init</code> shorten setup; a template has no privilege a user-written spec lacks</td>
+<td style="text-align: left;">§3.5</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>UX5 · Honest Reach</strong></td>
+<td style="text-align: left;">A limited native Windows or macOS node only if a spike passes written criteria; WhatsApp and Signal only after a terms review; voice is opt-in</td>
+<td style="text-align: left;">§15, §35</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>UX6 · Show the Evidence</strong></td>
+<td style="text-align: left;">Every release ships a security evidence pack of counts, not payloads; the node's source licence is a recorded decision</td>
+<td style="text-align: left;">§13.6</td>
 </tr>
 </tbody>
 </table></div>
@@ -402,6 +554,8 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <li>asking for approval before an external or irreversible action.</li>
 </ul>
 <p>The local node is the scheduler, connector host, credential vault, memory store, approval store, and tool executor. The MiniMe server supplies the model-driven Brain, planning, orchestration, metering, and account-level limits. The server is not intended to become the permanent home of automation specifications, connector tokens, or run history in v1.</p>
+<p><strong>Direction.</strong> Menux is designed to grow beyond notifications and small file changes into an agentic companion that can use the computer the way a person does, or better: running commands, driving applications, reading what is on the screen, remembering what the user was doing, and learning repeated work as skills. That growth is staged as five Reach levels (§17) and is built only after the beta (Phase 4). The v1 product described in §2–§16 is Reach 0 and is complete without it.</p>
+<p><strong>Your devices.</strong> Menux is also designed to reach across the devices a person links to their MiniMe account: a phone or browser that can check status, approve routine actions and press Panic; a second computer that can take over when the first sleeps; and Windows and macOS machines that Menux can operate through a small satellite program. That is the device mesh (§28–§37). Everything still lives on, and is decided by, the device that owns it.</p>
 <hr/>
 <h2 id="2-trust-and-data-placement">2. Trust and Data Placement</h2>
 <h3 id="2-1-device-as-source-of-truth">2.1 Device as source of truth</h3>
@@ -425,7 +579,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <p>The server persistently stores only the minimum account and economics information required to run the service:</p>
 <ul>
 <li>account identity;</li>
-<li>paired device registry and credential hash;</li>
+<li>paired device registry and credential hash (revision 1.2 adds device roles, links between device IDs, remote ceilings and presence states, §28);</li>
 <li>usage ledger entries;</li>
 <li>plan and quota;</li>
 <li>minimal error counters;</li>
@@ -434,6 +588,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <p>The persistent server ledger should not contain prompts, code, file paths, connector content, or tool outputs.</p>
 <h3 id="2-3-ephemeral-server-content">2.3 Ephemeral server content</h3>
 <p>During an active run, the server may hold an encrypted in-flight conversation buffer so the model loop can operate and prompt-cache prefixes remain stable. The intended limits are an idle timeout of about two hours and a hard cap of 24 hours. The buffer is deleted when the run ends or expires.</p>
+<p>If sync is turned on (§32), an offline peer's changes wait in an encrypted mailbox for at most 24 hours (proposed) and are deleted on delivery; the server holds only ciphertext, a size, a recipient and an expiry. Leases that stop two nodes running the same automation are short-lived content-free keys (§33.2).</p>
 <p>Webhook payloads use a short-lived delivery queue. The intended default is delivery within ten minutes or dropping the payload, with a maximum payload size of 64 KB.</p>
 <h3 id="2-4-third-parties">2.4 Third parties</h3>
 <p>Model providers receive the prompt content needed for a run. Telegram receives messages sent through the user's bot. Connectors receive the data required by their own APIs. Menux's honest privacy statement is therefore:</p>
@@ -495,6 +650,11 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <p>WSL2 is supported with an important limitation: automations run only while the WSL instance is alive. Menux is intended to provide guided keep-alive setup and a <code>doctor</code> warning when it is missing.</p>
 <p>For always-on use, the plan recommends a small Linux machine or other continuously running host. Menux does not promise Windows desktop automation from WSL2. Desktop control reaches Linux GUI applications inside WSLg only, not ordinary Windows applications.</p>
 <p>Native Linux receives the full intended feature set. Native Windows and macOS are deferred for the initial product.</p>
+<p>The same split applies to the Companion Expansion (§25). WSL2 users get everything that runs inside Linux: commands, files, Linux applications in WSLg, a browser inside WSL, automations and skills. Controlling Windows applications such as Microsoft Office or SolidWorks is not available until the <strong>Windows satellite</strong> exists (Phase 5P, <code>MT-P03</code>, using agent-desktop; revision 1.2 replaced the earlier Windows-side helper plan <code>D07</code>/<code>D08</code>). The satellite pairs with the WSL2 node, so the WSL2 limits above still apply to the node itself. The honest launch message for Windows users is: <em>Menux works on the Linux side of your PC and on your files today; controlling Windows apps comes later, through a satellite.</em> A Windows-only user with no WSL2, Linux box or mini-PC has no node and cannot run Menux in v1 (§35.5).</p>
+<h3 id="3-5-guided-first-run-and-starter-templates-revis">3.5 Guided first run and starter templates (revision 1.3)</h3>
+<p><code>menux init</code> is the single guided path from "installed" to "first successful run". It (1) runs the platform checks of <code>doctor</code> (§13.1) and says in plain words what it found; (2) on WSL2, explains the keep-alive (§3.4) and prints the exact Windows-side steps, without editing Windows settings itself; (3) signs in with the device code; (4) walks through creating the owner's own Telegram bot and pairing it (§8.3); (5) installs one <strong>starter template</strong>; (6) shows its dry run (§4.4); (7) runs it once <strong>attended</strong>; and (8) prints what to do next. Each step says what is stored where.</p>
+<p>Six signed starter templates ship with the node: a morning brief; a download sorter and a folder watcher (both recipes, §4.6); a site-change or feed digest; a calendar reminder; and a weekly summary of a knowledge folder (needs Phase 3). A template is an ordinary automation spec. It installs <strong>disabled</strong>, states its tier, capabilities, egress and cost estimate, runs a dry run and then attended, and graduates (§4.5) like any other spec. No template gets a privilege a user-written spec cannot get.</p>
+<p>The documentation publishes the <strong>measured</strong> number of owner actions and minutes from a fresh install to the first successful run. It is measured in testing, not promised in advance (<code>MT-U02</code>).</p>
 <hr/>
 <h2 id="4-automation-specifications">4. Automation Specifications</h2>
 <h3 id="4-1-declarative-automation-files">4.1 Declarative automation files</h3>
@@ -517,7 +677,8 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <li>monthly budget;</li>
 <li>quiet hours;</li>
 <li>missed-run behavior;</li>
-<li>failure notification policy.</li>
+<li>failure notification policy;</li>
+<li>(revision 1.3) <code>kind</code>: <code>automation</code> (the default) or <code>recipe</code> (§4.6). A recipe has a list of <code>steps</code> instead of agent instructions and a model class.</li>
 </ul>
 <p>A spec is not active merely because a file exists. It must parse, pass semantic validation, and be enabled by the owner.</p>
 <h3 id="4-2-validation-rules">4.2 Validation rules</h3>
@@ -583,6 +744,9 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <li>awaiting approval.</li>
 </ul>
 <p>An owner can inspect, enable, disable, pause, resume, and remove automations. The local store retains a per-automation timeline.</p>
+<h3 id="4-6-recipes-automations-that-need-no-model-revis">4.6 Recipes: automations that need no model (revision 1.3)</h3>
+<p>A recipe is an automation of <code>kind: recipe</code>. Its body is an ordered list of steps from a <strong>closed action catalogue</strong>: move or copy a file, append text, read a file inside a granted folder, fetch a page from an allowed domain, compare with the last result, a simple condition (equals, contains, changed, size above), and the sealed notify and save-report tools. There is no shell, no permanent delete (a delete moves the file to a recoverable folder), no write to a new recipient and no model call.</p>
+<p>Moving a download, or telling you that a page changed, needs no reasoning. A recipe costs <strong>zero credits</strong>, keeps working with no server (§13.5), and has no model to be tricked. Everything else is unchanged: each step has a tier and the recipe's effective tier is the highest of them; the unattended ceiling is T2; data read from an untrusted source is tainted and can reach only the sealed tools; the dry run lists every action; and graduation, versions and anomaly detection apply. A recipe cannot lower a tier by editing YAML, and an unknown action fails validation. The Planner can draft a recipe when you ask for one, and the draft is validated like any spec (<code>MT-U01</code>).</p>
 <hr/>
 <h2 id="5-triggers-and-scheduling">5. Triggers and Scheduling</h2>
 <h3 id="5-1-trigger-types">5.1 Trigger types</h3>
@@ -729,6 +893,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <li>the available decision;</li>
 <li>the expiry or cancellation state.</li>
 </ul>
+<p>Revision 1.2 adds the remote paths. Which tiers can be approved from a phone, a browser, a chat app or a trusted display is set by the controller class (§31.2), and approvals travel as signed commands (§31.5), not as a bare nonce through the server.</p>
 <h3 id="6-5-panic-button">6.5 Panic button</h3>
 <p>Menux is intended to provide a one-action pause for all automations. Panic behavior should:</p>
 <ul>
@@ -739,7 +904,17 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <li>notify the owner when the system is paused;</li>
 <li>require an explicit resume action.</li>
 </ul>
-<p>A panic state must survive a node restart until the owner clears it.</p>
+<p>A panic state must survive a node restart until the owner clears it. From revision 1.2, Panic can be pressed from any controller without step-up and reaches every node in the mesh (§30.2).</p>
+<h3 id="6-6-context-based-tiering-and-grants-companion">6.6 Context-based tiering and grants (Companion)</h3>
+<p>The tiers describe the <strong>effect</strong> of an action, not the mechanism that performs it. Two rules follow, both implemented by <code>MT-T10</code>:</p>
+<ul>
+<li><strong>Tier follows effect and context.</strong> Typing into a window is not always the same risk. <code>input.contained</code>, pointer and keyboard input inside a disposable virtual desktop that holds no accounts, no real files and only allowlisted network access, is T1. The same input on a profile that is logged into the user's accounts, or on the real desktop, is T3 or T4 by what it can change. When the context cannot be established, the higher tier applies.</li>
+<li><strong>Grants replace step-by-step approval only inside their scope.</strong> A grant is scoped (an application, a folder, a site or a session), time-limited, revocable, logged and visible in the tray. Inside its scope it stands in for the per-step approval that T3 and T4 normally need. It never covers the always-confirm list (§22.5) and it never raises the unattended ceiling by itself; raising a ceiling still goes through graduation (<code>MT-A06</code>).</li>
+</ul>
+<p>The panic button (§6.5) revokes every grant.</p>
+<h3 id="6-7-security-does-not-depend-on-the-model-revisi">6.7 Security does not depend on the model (revision 1.3)</h3>
+<p>Tiers, approvals, the reader/actor requirement for untrusted content, taint denial in unattended runs and the always-confirm list are enforced by code outside the model. They do not change with the model in use, its size or reputation, or the user's plan. There is no "trusted because it is a strong model" setting and no flag that skips a check for large models. Model-based judgements, such as the Reader's extraction, are extra layers and never replace the code checks. A scripted-model test suite runs every policy scenario under several model labels and requires <strong>identical</strong> decisions (<code>MT-Q11</code>).</p>
+<p>This is written down because another open-source agent relaxed its confirmation after reading outside content when a strong model was in use, then found that the relaxation also reached unattended bots, and restored full protection for bots and scheduled runs whatever the model (§40). Menux plans never to take that path.</p>
 <hr/>
 <h2 id="7-the-automation-run">7. The Automation Run</h2>
 <h3 id="7-1-run-kinds">7.1 Run kinds</h3>
@@ -890,7 +1065,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <tr>
 <td style="text-align: left;"><strong>M2C IPC Bridge (<code>MT-M07</code>)</strong></td>
 <td style="text-align: left;">Sibling Delegation</td>
-<td style="text-align: left;">Invoke <code>m2c run --json</code> on local repo</td>
+<td style="text-align: left;">Invoke <code>m2c -p "task" --output-format json</code> (<code>stream-json</code> once M2C <code>C28</code> lands) on local repo</td>
 <td style="text-align: left;"><code>T2</code> (Ask/Plan) · <code>T3</code> (Edit/Patch)</td>
 <td style="text-align: left;">Inherits M2C's <code>bubblewrap</code> sandbox, git checkpoints, and path guard</td>
 </tr>
@@ -939,6 +1114,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <h3 id="8-7-browser-automation">8.7 Browser automation</h3>
 <p>Playwright and headless Chromium are planned as an optional installation. Browser automation is disabled by default because it has a large dependency and can affect external systems. Sites, domains, credentials, and actions must be governed by capability and tier policy.</p>
 <p>The browser tool can reuse parts of MiniLocker's browsing design: refusing non-http(s) navigation, returning page text as data that is scanned and fenced before the model sees it, and a set of hostile-page attack scenarios used as tests. MiniLocker's browser runs in a Docker container behind an egress proxy; Menux uses a dedicated Playwright profile and the proxy allowlist instead (<code>D01</code>), so the container and proxy code is not reused. MiniLocker has no approve-before-submit step for web forms; the <code>T4</code> form submit (<code>MT-W01</code>) needs one, so that gate is new work. See <code>m2c_build_plan.md</code> §11.6.</p>
+<p>Under the Control Ladder (§18) Playwright is the <em>application-native</em> rung for web pages: it reads and drives pages through the browser's own interfaces, which is more reliable and more private than screenshots. Pointer-and-screenshot control of a browser is the last resort and runs on the virtual desktop (§19).</p>
 <h3 id="8-8-future-connectors">8.8 Future connectors</h3>
 <p>The connector host is intended to support additional services through manifests. Official Google connectors are gated by legal and compliance review because Gmail restricted scopes, CASA assessments, verification, Limited Use requirements, and model-provider handling of mail content create material obligations.</p>
 <p>A bring-your-own OAuth client may be available earlier for personal testing. It should not be described as the same thing as a generally available official Google integration.</p>
@@ -1029,6 +1205,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <li>it has not expired or already been decided;</li>
 <li>the requested decision is allowed.</li>
 </ul>
+<p>A bare nonce that passes through the server does not prove what the person saw. §31.8 explains the gap and how revision 1.2 closes it for the remote paths.</p>
 <hr/>
 <h2 id="11-menux-and-m2c-cooperation">11. Menux and M2C Cooperation</h2>
 <p>Menux can delegate coding tasks to the installed M2C CLI through local IPC. This allows an automation to say, for example:</p>
@@ -1077,7 +1254,16 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </ul>
 <p>When the shared pool is exhausted, scheduled runs are skipped and the owner is notified once. They are not retried in a loop.</p>
 <h3 id="12-4-cost-estimates">12.4 Cost estimates</h3>
-<p>The Planner and dry-run surfaces can provide an estimated credit range. Estimates are not guarantees. Final usage is recorded after the model call and shown in the shared usage view.</p>
+<p>The Planner and dry-run surfaces can provide an estimated credit range. Estimates are not guarantees. Final usage is recorded after the model call and shown in the shared usage view. Recipes (§4.6) use no model and cost zero credits.</p>
+<h3 id="12-5-model-classes-by-plan-revision-1-3">12.5 Model classes by plan (revision 1.3)</h3>
+<p>On the <strong>Free and Basic</strong> plans, the Planner and every model-driven run use the four paid models decided in the Provider Consolidation Guide (Appendix B): <code>openai/gpt-oss-120b</code> and <code>openai/gpt-oss-20b</code> on Groq, <code>claude-haiku-5-5</code> and <code>gemini-3.1-flash-lite</code>. That is the Standard class. The Advanced and Expert classes and the Brain exist only if and when the Moderate and Ultimate plans launch (that guide's decision PD-6). What follows for Menux:</p>
+<ul>
+<li>A plan's model class limits how much an automation can reason about. Cost estimates (§12.4) and budgets name the class.</li>
+<li>The safety design does not depend on the class (§6.7).</li>
+<li>Recipes (§4.6) use no model and no credits on any plan.</li>
+<li>Which concrete model serves a class is a backend decision, not part of an automation file: an automation asks for a class, not a model.</li>
+<li>The plan assumes most users cannot run a strong model on their own computer; that is one reason the reasoning runs on the server.</li>
+</ul>
 <hr/>
 <h2 id="13-operations-doctor-and-recovery">13. Operations, Doctor, and Recovery</h2>
 <h3 id="13-1-menux-doctor">13.1 <code>menux doctor</code></h3>
@@ -1097,6 +1283,9 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <li>systemd user service availability;</li>
 <li>sandbox and <code>bubblewrap</code>;</li>
 <li>Playwright installation if enabled;</li>
+<li><em>(Companion, Phase 5A)</em> CPU features, RAM, GPU and VRAM, and the recommended perception path (§21);</li>
+<li><em>(Companion)</em> display server, compositor, screencast and RemoteDesktop portals, <code>/dev/uinput</code> access, and accessibility state;</li>
+<li><em>(Companion)</em> measured control reliability per application and per rung;</li>
 <li>stale migrations;</li>
 <li>clock and time-zone configuration.</li>
 </ul>
@@ -1126,6 +1315,10 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <li>what notification was sent;</li>
 <li>why the run completed, failed, skipped, or paused.</li>
 </ul>
+<h3 id="13-5-degraded-mode-revision-1-3">13.5 Degraded mode (revision 1.3)</h3>
+<p>The node has three states: <strong>online</strong>, <strong>degraded</strong> and <strong>paused</strong>. It is degraded when the server is unreachable, the sign-in has expired, the credit pool is exhausted, the account is paused or the plan changed. Paused is the owner's own pause (§13.3) or the panic button. While degraded, recipes (§4.6) keep running on schedule, model-driven runs follow the spec's missed-run behavior (skip, run once when back, or ask the owner), and local heartbeat pre-checks (§5.4) continue. The owner is told <strong>once per state change</strong> on the primary channel, not once per run; <code>menux status</code>, <code>doctor</code> and the inbox show the reason and what is affected. Nothing at T2 or above is replayed when the node comes back, and nothing retries forever (<code>MT-U03</code>).</p>
+<h3 id="13-6-security-evidence-pack-revision-1-3">13.6 Security evidence pack (revision 1.3)</h3>
+<p>Every release carries a security evidence pack (<code>menux evidence</code>): the version and signing information; the dependency and licence list; the results of the red-team, canary and scenario suites as <strong>counts and suite names, never attack payloads</strong>; the <code>doctor</code> sandbox probe results; and the open findings of the latest external review. A release is not tagged without it, and its numbers must match the CI run that built the release (<code>MT-U06</code>). Whether the node, the satellites and the protocol are published as source is a recorded decision (D44 in the build guide); the recommendation is to publish them and keep the server private.</p>
 <hr/>
 <h2 id="14-product-phases">14. Product Phases</h2>
 <h3 id="phase-0-foundations">Phase 0: foundations</h3>
@@ -1148,10 +1341,24 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <p>Add memory search, memory poisoning defenses, skill manifests, reviewed skill drafts, file/webhook/poll triggers, and heartbeat gating.</p>
 <h3 id="phase-4-invite-only-beta">Phase 4: invite-only beta</h3>
 <p>Add planner chat, M2C delegation, WSL keep-alive guidance, cost estimates, browser automation surfaces, and complete operational documentation.</p>
-<h3 id="phase-5-desktop-and-voice">Phase 5: desktop and voice</h3>
-<p>Potential additions include Linux desktop control through AT-SPI or <code>ydotool</code>, a headless desktop container, voice input/output, and more connectors.</p>
+<h3 id="phase-4u-usability-and-reach-revision-1-3">Phase 4U: usability and reach (revision 1.3)</h3>
+<p>Recommended before the beta: recipes (automations with no model), starter templates and the guided <code>menux init</code>, degraded mode, a scripted-model scenario harness and the security evidence pack. They are counted separately from Phases 0–4, which remain 59 work packages and 133 points.</p>
+<h3 id="phase-5-the-companion-expansion-5a-5b-5c">Phase 5: the Companion Expansion (5A, 5B, 5C)</h3>
+<p>Phase 5 grows Menux from Reach 0 to Reach 4 (§17). It starts only after the beta milestone <code>MT-I04</code>, and each sub-phase ends with its own acceptance milestone and can be released on its own.</p>
+<ul>
+<li><strong>Phase 5A, native control (Reach 1–2):</strong> reuse-or-build licence review, hardware probe in <code>doctor</code>, protocol 1.2, context-based tiering and grants, shell and file tool in the sandbox, the application-control registry and ladder selector, LibreOffice and scriptable-application adapters, AT-SPI reader, shortcut and input maps, dedicated browser profile, control reliability benchmark. Milestone <code>MT-I05a</code>.</li>
+<li><strong>Phase 5B, eyes and hands (Reach 3):</strong> screenshots and input, headless virtual desktop with session manager, live view and take-over, shared mode with input arbitration, the tray control panel, screen memory (capture, extraction, store, search), dual-path vision grounding with server metering, the pointer-and-keyboard action layer with verification, guide mode, the Menux Map, and the GUI red-team and privacy suites. Milestone <code>MT-I05b</code>.</li>
+<li>
+<p><strong>Phase 5C, companion (Reach 4):</strong> specialist tool kit and self-built tools, experience memory, learning by demonstration, GUI skill self-repair, skill templates and a curated shared library, game loop runner, optional session image, companion docs. Milestone <code>MT-I05c</code>.</p>
+</li>
+<li>
+<p><strong>Phase 5R, remote control and the device mesh (revision 1.2):</strong> mesh protocol and device identity, signed commands, controller classes and the remote trust ladder, passkey step-up, node-approved pairing, the mesh relay, the Devices page, the phone and web controller, chat-controller hardening, sync spaces, placement and leases, remote live view, and the mesh red-team and privacy suites. Milestone <code>MT-I05r</code>.</p>
+</li>
+<li><strong>Phase 5P, platforms and satellites (revision 1.2):</strong> platform abstraction, the satellite runtime, the Windows and macOS satellites on agent-desktop, a per-OS control benchmark, and a native-node feasibility spike. Milestone <code>MT-I05p</code>.</li>
+</ul>
+<p>Voice (<code>D06</code>) and the other connectors (<code>H09–H11</code>, <code>H13</code>) are independent of 5A–5R and are scheduled separately.</p>
 <h3 id="phase-6-ecosystem-and-release">Phase 6: ecosystem and release</h3>
-<p>Potential additions include a scanned and signed skill marketplace, team features, official Google connectors if legally approved, external security audit, packaging, support, and general availability.</p>
+<p>Potential additions include a scanned and signed community skill marketplace (building on the curated library from Phase 5C), team features, official Google connectors if legally approved, external security audit, packaging, support, and general availability.</p>
 <div class="tw"><table>
 <thead>
 <tr>
@@ -1199,28 +1406,75 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td style="text-align: left;">Natural-language Planner draft (<code>MT-A07</code>), WSL2 keep-alive helper (<code>MT-N07</code>), cost estimator (<code>MT-E02</code>), 7-day unattended soak (<code>MT-I04</code>)</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Phases 5–6 · Desktop, Voice &amp; GA</strong></td>
-<td style="text-align: left;">Post-Beta</td>
-<td style="text-align: left;">Linux AT-SPI desktop, voice, signed marketplace, GA</td>
-<td style="text-align: left;">Gated on <code>MT-I04</code></td>
-<td style="text-align: left;">Headless desktop container, CASA verification for Google scopes, external security audit</td>
+<td style="text-align: left;"><strong>Phase 4U · Usability &amp; Reach (recommended before <code>MT-I04</code>)</strong></td>
+<td style="text-align: left;">Earliest waves 9–16</td>
+<td style="text-align: left;"><code>MT-U01</code>, <code>MT-U03</code>, <code>MT-Q11</code>, <code>MT-U02</code>, <code>MT-U06</code> (5 WPs)</td>
+<td style="text-align: left;">8 pts</td>
+<td style="text-align: left;">Recipes with no model, degraded mode, scripted-model scenario harness, starter templates and <code>menux init</code>, security evidence pack. <strong>Not counted in Phases 0–4</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Phase 5A · Native Control (<code>MT-I05a</code>)</strong></td>
+<td style="text-align: left;">Waves 17–21</td>
+<td style="text-align: left;"><code>MT-R05</code>, <code>MT-N08</code>, <code>MT-K05</code>, <code>MT-T10</code>, <code>MT-X01</code>, <code>MT-X02</code>, <code>MT-D01</code>, <code>MT-D02</code>, <code>MT-X03</code>, <code>MT-X04</code>, <code>MT-X05</code>, <code>MT-Q06</code>, <code>MT-I05a</code> (13 WPs)</td>
+<td style="text-align: left;">34 pts</td>
+<td style="text-align: left;">Licence record (<code>MT-R05</code>), hardware probe (<code>MT-N08</code>), context-based tiering and grants (<code>MT-T10</code>), ladder selector (<code>MT-X02</code>), LibreOffice and app adapters (<code>MT-X03–X04</code>), reliability benchmark (<code>MT-Q06</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Phase 5B · Eyes and Hands (<code>MT-I05b</code>)</strong></td>
+<td style="text-align: left;">Waves 19–24</td>
+<td style="text-align: left;"><code>MT-D03</code>, <code>MT-D04</code>, <code>MT-S05</code>, <code>MT-V01</code>, <code>MT-S01</code>, <code>MT-E03</code>, <code>MT-S02</code>, <code>MT-V02</code>, <code>MT-V03</code>, <code>MT-X06</code>, <code>MT-T11</code>, <code>MT-V04</code>, <code>MT-V05</code>, <code>MT-S03</code>, <code>MT-X07</code>, <code>MT-Q07</code>, <code>MT-S04</code>, <code>MT-W08</code>, <code>MT-W09</code>, <code>MT-Q08</code>, <code>MT-I05b</code> (21 WPs)</td>
+<td style="text-align: left;">67 pts</td>
+<td style="text-align: left;">Virtual desktop with live view (<code>MT-V01–V02</code>), shared mode (<code>MT-V03</code>), tray dial (<code>MT-V04</code>), screen memory (<code>MT-S01–S04</code>), dual-path grounding (<code>MT-S05</code>), GUI red-team (<code>MT-Q07</code>), privacy suite (<code>MT-Q08</code>), Menux Map (<code>MT-W08</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Phase 5C · Companion (<code>MT-I05c</code>)</strong></td>
+<td style="text-align: left;">Waves 25–27</td>
+<td style="text-align: left;"><code>MT-X08</code>, <code>MT-M09</code>, <code>MT-N09</code>, <code>MT-X09</code>, <code>MT-X10</code>, <code>MT-M10</code>, <code>MT-M11</code>, <code>MT-M12</code>, <code>MT-R06</code>, <code>MT-I05c</code> (10 WPs)</td>
+<td style="text-align: left;">32 pts</td>
+<td style="text-align: left;">Specialist tool kit (<code>MT-X08</code>), learning by demonstration (<code>MT-M10</code>), self-repair (<code>MT-M11</code>), skill templates and curated library (<code>MT-M12</code>), game loop (<code>MT-X10</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Phase 5R · Remote Control &amp; Mesh (<code>MT-I05r</code>)</strong></td>
+<td style="text-align: left;">Waves 28–34</td>
+<td style="text-align: left;"><code>MT-K06</code>, <code>MT-A08</code>, <code>MT-T12–T14</code>, <code>MT-E04</code>, <code>MT-N10–N12</code>, <code>MT-W10–W11</code>, <code>MT-G05</code>, <code>MT-M13</code>, <code>MT-V06</code>, <code>MT-Q09–Q10</code>, <code>MT-I05r</code> (17 WPs)</td>
+<td style="text-align: left;">49 pts</td>
+<td style="text-align: left;">Signed command channel (<code>MT-T12</code>), mesh relay (<code>MT-E04</code>), controller classes and trust ladder (<code>MT-T13</code>), phone and web controller (<code>MT-W11</code>), sync spaces (<code>MT-M13</code>), mesh red team (<code>MT-Q09</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Phase 5P · Platforms &amp; Satellites (<code>MT-I05p</code>)</strong></td>
+<td style="text-align: left;">Waves 28–34</td>
+<td style="text-align: left;"><code>MT-P01–P06</code>, <code>MT-U05</code> (only if <code>MT-P06</code> is <em>go</em>), <code>MT-I05p</code> (8 WPs)</td>
+<td style="text-align: left;">26 pts</td>
+<td style="text-align: left;">Satellite runtime (<code>MT-P02</code>), Windows and macOS satellites on agent-desktop (<code>MT-P03–P04</code>), per-OS benchmark (<code>MT-P05</code>), native-node spike (<code>MT-P06</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Phase 6 · Ecosystem &amp; GA</strong></td>
+<td style="text-align: left;">Post-5R</td>
+<td style="text-align: left;">Community marketplace (<code>MT-M08</code>), team policy, Google connectors if approved, packaging</td>
+<td style="text-align: left;">Gated on <code>MT-I05c</code></td>
+<td style="text-align: left;">CASA verification for Google scopes, external security audit</td>
 </tr>
 </tbody>
 </table></div>
+<p>Phases 0–4 total 59 work packages and 133 points and are unchanged by the Companion Expansion. Phase 5 is counted separately: 69 work packages and about 208 points on the same scale (S=1, M=2, L=4, XL=8, approximate): 5A 13 WPs and 34 pts, 5B 21 and 67, 5C 10 and 32, 5R 17 and 49, 5P 8 and 26. Phase 4U (revision 1.3) adds 5 work packages and 8 points beside Phases 0–4 and is counted in neither. That is roughly one and a half times the whole v1 plan (revision 1.1 counted 45 WPs and about 133 points; revision 1.2 removed <code>MT-D07</code>, re-sized <code>MT-D02</code> from M to L and added 5R and 5P). It is therefore scheduled after the beta and is not part of the March–June 2027 window; each sub-phase is releasable on its own and the plan can stop after any of them.</p>
 <hr/>
 <h2 id="15-future-and-gated-features">15. Future and Gated Features</h2>
 <h3 id="15-1-desktop-control">15.1 Desktop control</h3>
-<p>Desktop automation is not the first trust boundary. If added, it requires:</p>
+<p>Desktop control is no longer only a future idea: it is the Companion Expansion (§17–§27), planned for Phase 5 and gated on the beta. It is still not the first trust boundary. Every form of it requires:</p>
 <ul>
 <li>Linux desktop APIs or controlled input tooling;</li>
 <li>a headless desktop container where appropriate;</li>
 <li>explicit screen and input permissions;</li>
 <li>stronger T4/T5 approvals;</li>
-<li>protection against acting on the wrong window or account.</li>
+<li>protection against acting on the wrong window or account;</li>
+<li>context-based tiering, grants and the always-confirm list (§6.6, §22);</li>
+<li>the virtual desktop as the default place for pointer work (§19);</li>
+<li>the GUI red-team and screen-memory privacy suites green before any release (§26).</li>
 </ul>
-<p>WSL2 desktop control remains limited to Linux GUI applications in WSLg.</p>
+<p>WSL2 desktop control remains limited to Linux GUI applications in WSLg until a Windows satellite exists (§25, §35).</p>
 <h3 id="15-2-voice">15.2 Voice</h3>
 <p>Voice input and output are planned for a later phase. Voice introduces microphone permissions, audio retention decisions, transcription errors, speaker ambiguity, and another channel for prompt injection. It should inherit the same trust and approval model rather than bypass it.</p>
+<p><em>Revision 1.3:</em> the first step is <strong>voice notes through Telegram</strong>, and it is opt-in. The audio and its transcript leave the device for a speech-to-text provider through the server and are metered under <code>surface='menux'</code>; the audio is deleted after transcription; a voice note from anyone but the paired owner is a stranger message. The speech provider is not covered by the Provider Consolidation Guide and is chosen when this item is scheduled (<code>MT-D06</code>).</p>
 <h3 id="15-3-team-features">15.3 Team features</h3>
 <p>Team automation requires a new ownership model for:</p>
 <ul>
@@ -1245,16 +1499,21 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <li>update review;</li>
 <li>sandbox and reputation signals.</li>
 </ul>
+<p>A curated first-party skill library with an opt-in "submit for review" path (<code>MT-M12</code>, Phase 5C) comes first. The open community marketplace (<code>MT-M08</code>) stays in Phase 6 and is off by default.</p>
 <h3 id="15-5-official-google-integrations">15.5 Official Google integrations</h3>
 <p>Gmail and some Drive scopes may require verification, CASA assessment, Limited Use compliance, and legal review. Menux should not promise official OAuth connectors until those obligations are resolved.</p>
 <h3 id="15-6-menux-cloud">15.6 Menux Cloud</h3>
 <p>A cloud-hosted automation mode is explicitly not part of v1. It would require a separate trust model because automation specs, credentials, memory, and run content would no longer be device-only. It should be an opt-in product with separate disclosure and security review, not a silent change to the local node.</p>
+<h3 id="15-7-other-chat-channels-whatsapp-and-signal-rev">15.7 Other chat channels: WhatsApp and Signal (revision 1.3)</h3>
+<p>Other open-source agents ship WhatsApp and Signal today (§40). Menux does not plan them until a licence and terms review (the <code>MT-R05</code> pattern) finds a permitted path (build guide D45). Messaging apps may restrict automated clients, an unofficial client on a personal account can put that account at risk, and a client library that holds the owner's message history is another place for secrets and stranger input to collect. The plan stays: the owner's own Telegram bot, then Slack and Discord.</p>
+<h3 id="15-8-a-small-local-model-for-outages-research-on">15.8 A small local model for outages (research only)</h3>
+<p>The plan assumes most users cannot run a strong model on their own computer, so Menux does not depend on one. A small local model for narrow jobs (summarizing a file, sorting a message) when the server is unreachable is a research idea, not a plan: it would add a model whose output must still be treated as untrusted, a large download and hardware requirements. Recipes (§4.6) and degraded mode (§13.5) already cover the no-server case without any model.</p>
 <hr/>
 <h2 id="16-what-menux-does-not-promise">16. What Menux Does Not Promise</h2>
 <p>Menux does not promise:</p>
 <ul>
 <li>always-on operation when the device or WSL2 instance is stopped;</li>
-<li>Windows desktop automation from WSL2;</li>
+<li>Windows desktop automation from WSL2 itself: it needs a Windows satellite (§35), and a Windows-only or Mac-only user with no node cannot run Menux in v1;</li>
 <li>that messages from strangers become trusted instructions;</li>
 <li>unrestricted unattended shell, browser, email, or financial actions;</li>
 <li>that a connector token leaves the local vault;</li>
@@ -1264,11 +1523,1413 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <li>that a roadmap phase is already released;</li>
 <li>that an official Google integration exists before verification and legal gates pass;</li>
 <li>that cloud-hosted automations are available in v1;</li>
-<li>that a user can lower a capability's real trust tier by editing YAML.</li>
+<li>that a user can lower a capability's real trust tier by editing YAML;</li>
+<li>that Menux can operate every application: reliability differs by application and by control method, and <code>doctor</code> publishes the measured numbers;</li>
+<li>that pointer-and-screenshot control is as reliable or as fast as commands or application scripting;</li>
+<li>that screen memory exists unless the user turns it on, or that it records anything the user excluded;</li>
+<li>that screenshots never leave the device: on the CPU-only path an image may be sent to a model for a task, but only with the user's consent;</li>
+<li>that Menux works in real-time or competitive online games, or that it will bypass anti-cheat;</li>
+<li>that a shared skill is safe because it was shared: every shared skill is a template that is reviewed and enabled locally;</li>
+<li>that a third-party component is used when its licence does not allow it;</li>
+<li>that the Companion Expansion ships on any date: it is gated on Phase 4;</li>
+<li>that a phone can approve everything: a browser or phone can approve routine actions only, T4 needs a device that shows the exact action, and T5 needs the node itself (§31);</li>
+<li>that the server cannot interfere with the mesh: it cannot read or forge commands, but it can drop or delay them and see which devices talk and when (§31.7);</li>
+<li>that remote commands work while the node is off, asleep or offline: risky commands are never queued;</li>
+<li>that sync is on by default or ever carries the vault, passwords or screen memory;</li>
+<li>that a satellite can control elevated Windows windows, a locked screen or an application that exposes no accessibility tree (§35.3);</li>
+<li>that the device mesh ships on any date: it is gated on Phase 4;</li>
+<li>that model-driven runs work without the MiniMe server: recipes do (§4.6, §13.5); runs that need the Planner or a model do not;</li>
+<li>that a limited native Windows or macOS node, if one is ever built, has a shell tool, skill scripts, browser automation or anything above T2 (§35.5);</li>
+<li>that voice notes stay on the device: they go to a speech-to-text provider through the server, and only if the owner opts in (§15.2);</li>
+<li>that WhatsApp or Signal are supported (§15.7);</li>
+<li>that a stronger model, a bigger plan or a trusted setting relaxes any check (§6.7).</li>
 </ul>
-<p>The honest product promise is local storage and execution, controlled remote reasoning, explicit trust tiers, visible approvals, bounded budgets, and recoverable automation state.</p>
+<p>The honest product promise is local storage and execution, controlled remote reasoning, explicit trust tiers, visible approvals, bounded budgets, and recoverable automation state. For the Companion Expansion the promise adds: the user can always see what Menux sees, stop what Menux does, and delete what Menux remembers. For the mesh the promise adds: every device that can command Menux was approved on the node, can be limited or removed at any time, and cannot lower a safety rule, and Panic works from all of them.</p>
 <hr/>
-<h2 id="17-maintenance-checklist">17. Maintenance Checklist</h2>
+<h2 id="17-the-companion-vision-and-reach-levels">17. The Companion Vision and Reach Levels</h2>
+<p><em>Status: planned, gated on Phase 4 (<code>MT-I04</code>). Nothing in §17–§27 is part of v1.</em></p>
+<h3 id="17-1-what-the-companion-is">17.1 What the Companion is</h3>
+<p>The Companion Expansion turns Menux from an automation node that observes, drafts and notifies into an agentic companion that can use the user's computer the way a person does, or better. It can run commands, drive applications, read what is on the screen, remember what the user was doing, and turn repeated work into skills. The user decides how much of this is allowed, can see everything Menux sees and does, and can stop it with one action.</p>
+<p>The Companion is not a second product. It is the same node, the same account and credit pool, the same tiers (<code>T0–T5</code>), the same approvals, panic button and audit log, with more ways to act. Where an automation could previously only notify, it may now also act, within the limits the user sets (§22).</p>
+<h3 id="17-2-reach-levels">17.2 Reach levels</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Reach</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">What Menux can do</th>
+<th style="text-align: left;">Main mechanisms</th>
+<th style="text-align: left;">Phase</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>0</strong></td>
+<td style="text-align: left;">Observe and notify</td>
+<td style="text-align: left;">Schedules, triggers, drafts, notifications, approvals (§1–§16)</td>
+<td style="text-align: left;">Connectors, channels, reader/actor</td>
+<td style="text-align: left;">0–4 (v1)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>1</strong></td>
+<td style="text-align: left;">Commands, files and APIs</td>
+<td style="text-align: left;">Run shell commands and scripts in a sandbox; work with granted folders and web APIs</td>
+<td style="text-align: left;">Sandboxed shell tool, folder grants</td>
+<td style="text-align: left;">5A</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>2</strong></td>
+<td style="text-align: left;">Application and accessibility control</td>
+<td style="text-align: left;">Drive applications through their own scripting interfaces, the accessibility tree and keyboard shortcuts; automate web pages through Playwright</td>
+<td style="text-align: left;">LibreOffice, scriptable-application adapters, AT-SPI, shortcut maps</td>
+<td style="text-align: left;">5A</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>3</strong></td>
+<td style="text-align: left;">Vision and pointer</td>
+<td style="text-align: left;">See the screen, find elements by sight, click and type on a virtual desktop or in turns on the real one; remember what was on screen</td>
+<td style="text-align: left;">Capture, grounding, virtual desktop, screen memory</td>
+<td style="text-align: left;">5B</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>4</strong></td>
+<td style="text-align: left;">Specialist tools and learning</td>
+<td style="text-align: left;">Purpose-built tools for hard applications (for example CAD), tools Menux drafts for itself, skills learned from demonstration, shared skill templates, strategy games</td>
+<td style="text-align: left;">Tool kit, experience memory, skill templates</td>
+<td style="text-align: left;">5C</td>
+</tr>
+</tbody>
+</table></div>
+<p>A higher Reach level never replaces a lower one; it adds options. The reach a user actually has is also capped by the Control Dial (§22).</p>
+<h3 id="17-3-releases">17.3 Releases</h3>
+<p>Each Reach level ships as its own release with its own acceptance milestone (<code>MT-I05a</code>, <code>MT-I05b</code>, <code>MT-I05c</code>). A release is useful on its own and the plan can stop there. The order is deliberate: the most reliable and most private methods come first, and vision and screen memory, the most sensitive features, come only after the safety layer (context-based tiering, grants, the dial) exists.</p>
+<h3 id="17-4-what-the-companion-does-not-change">17.4 What the Companion does not change</h3>
+<ul>
+<li>The device stays the source of truth (O1). The server still stores only the account, the ledger and short-lived run buffers.</li>
+<li>One account and one credit pool (O2). Vision calls and longer runs are metered under <code>surface='menux'</code>.</li>
+<li>The unattended ceiling stays at T2 unless the owner raises it through graduation (<code>MT-A06</code>).</li>
+<li>Coding still goes to M2C (O7). Menux does not become a second code editor.</li>
+</ul>
+<hr/>
+<h2 id="18-the-control-ladder">18. The Control Ladder</h2>
+<h3 id="18-1-the-rule">18.1 The rule</h3>
+<p>For every task Menux uses the most reliable method that can do the job, and falls back one rung at a time. Reliability, privacy and cost all improve towards the top of the ladder.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Rung</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Examples</th>
+<th style="text-align: left;">Reliability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>1</strong></td>
+<td style="text-align: left;">Commands, files and APIs</td>
+<td style="text-align: left;">Convert a file, <code>git status</code>, rename 500 files, call a web API</td>
+<td style="text-align: left;">Highest</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>2</strong></td>
+<td style="text-align: left;">Application scripting</td>
+<td style="text-align: left;">LibreOffice through its UNO interface; FreeCAD, Blender and OpenSCAD through Python or the command line; web pages through Playwright</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>3</strong></td>
+<td style="text-align: left;">Accessibility tree</td>
+<td style="text-align: left;">Read and activate named controls (buttons, menus, fields) through AT-SPI</td>
+<td style="text-align: left;">Medium to high; depends on the application exposing them</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>4</strong></td>
+<td style="text-align: left;">Keyboard shortcuts</td>
+<td style="text-align: left;">Send known shortcuts such as save or export; per-application shortcut maps</td>
+<td style="text-align: left;">Medium; depends on window focus</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>5</strong></td>
+<td style="text-align: left;">Vision and pointer</td>
+<td style="text-align: left;">Find elements by appearance, move the pointer, type; for custom-drawn applications, games and anything without accessibility</td>
+<td style="text-align: left;">Lowest, slowest and most costly</td>
+</tr>
+</tbody>
+</table></div>
+<p>For an application with a registered <strong>specialist tool</strong> (§18.4), that tool is tried first for the operations it covers. When no rung can do the job, or the Control Dial does not allow it, Menux uses <strong>Guide mode</strong> (§18.6).</p>
+<h3 id="18-2-application-control-profiles">18.2 Application control profiles</h3>
+<p>Each application has a control profile: an identifier, how to recognize its window, which rungs are available, its tools and shortcut map, the tier of each operation, known quirks, and the last measured reliability. Profiles live in a local registry (<code>MT-X02</code>). Menux can draft a profile for a new application; the owner reviews it. Profiles contain no personal data and can be shared as templates (§23.6).</p>
+<h3 id="18-3-the-selector">18.3 The selector</h3>
+<ol>
+<li>Check that the Control Dial allows this application and this rung (§22).</li>
+<li>Pick the highest rung the profile supports.</li>
+<li>Check the preconditions: the target exists, is visible and enabled, and is in the expected window and account.</li>
+<li>Act.</li>
+<li>Verify the postcondition: the expected change is visible or readable.</li>
+<li>On failure, retry once, then step down one rung. Record the outcome (§23.2).</li>
+<li>If every allowed rung fails, stop and tell the owner what happened and what the next step would be. A silent failure is a defect.</li>
+</ol>
+<h3 id="18-4-specialist-tools">18.4 Specialist tools</h3>
+<p>Some applications cannot be driven well by scripting, accessibility or shortcuts: CAD is the leading example. For these Menux uses a specialist tool, a purpose-built tool for one application with a manifest, a tier per operation, fixtures and tests. Two sources:</p>
+<ul>
+<li><strong>Built by us</strong> for major sectors, chosen by user demand (<code>MT-X08</code>).</li>
+<li><strong>Drafted by Menux</strong> for an application the user needs (<code>MT-X09</code>). A drafted tool is a skill install, which is T4: it is tested in the sandbox, shown to the owner, versioned, and never self-activating.</li>
+</ul>
+<h3 id="18-5-verification">18.5 Verification</h3>
+<ul>
+<li><strong>Preconditions and postconditions</strong> around every action, as above.</li>
+<li><strong>Fresh element references.</strong> Pointer actions target an element reference from the latest accessibility or grounding result, not remembered coordinates. A failed extraction clears the cached elements so a stale reference cannot be clicked.</li>
+<li><strong>Checkpoints.</strong> Multi-step plans may be proposed several steps at a time to save model calls, but each step is still verified before the next runs.</li>
+<li><strong>Fail closed.</strong> If a target cannot be verified, the run stops; it does not guess.</li>
+</ul>
+<h3 id="18-6-guide-mode">18.6 Guide mode</h3>
+<p>When Menux may not act, cannot control the application, or the user simply prefers it, Menux can still <em>look</em> (if screen awareness is allowed, §20) and tell the user the next step in words or as an on-screen hint. Guide mode sends no input events and needs only T0–T1. It is the reason Menux is useful even in an application it cannot control.</p>
+<hr/>
+<h2 id="19-working-alongside-the-user">19. Working Alongside the User</h2>
+<h3 id="19-1-the-principle">19.1 The principle</h3>
+<p><strong>The user always wins.</strong> Menux must never fight the user for the mouse or keyboard, and the user must always be able to see and stop what Menux is doing.</p>
+<h3 id="19-2-three-modes">19.2 Three modes</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Mode</th>
+<th style="text-align: left;">Where Menux works</th>
+<th style="text-align: left;">When it is used</th>
+<th style="text-align: left;">What the user sees</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Background</strong> (default for pointer work)</td>
+<td style="text-align: left;">Menux's own virtual desktop</td>
+<td style="text-align: left;">Any task that needs the pointer or a graphical window</td>
+<td style="text-align: left;">Nothing, unless they open the live view; a notification says "working in the background"</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Shared</strong></td>
+<td style="text-align: left;">The user's real screen, in turns</td>
+<td style="text-align: left;">Tasks that must happen in an application the user already has open</td>
+<td style="text-align: left;">A visible ghost cursor; Menux acts only while the user is idle and yields the moment the user touches the mouse or keyboard</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Watch and take over</strong></td>
+<td style="text-align: left;">Menux's virtual desktop, shown live</td>
+<td style="text-align: left;">When the user wants to check on Menux, help it, or finish a step themselves</td>
+<td style="text-align: left;">A live window of Menux's desktop; the user can take control and hand it back</td>
+</tr>
+</tbody>
+</table></div>
+<p>Many tasks need no mode at all: commands, files, application scripting and browser automation do not touch the pointer (Reach 1–2), so they never conflict with the user.</p>
+<h3 id="19-3-the-virtual-desktop">19.3 The virtual desktop</h3>
+<p>A separate display session owned by Menux, disposable and isolated from the real session. It has its own browser profile and application instances, no access to the user's files except a granted staging folder, and network access only through the allowlist. Logged-in accounts exist there only if the user grants a specific site. Some applications refuse to run twice; for those Menux falls back to Shared mode or to application scripting.</p>
+<h3 id="19-4-live-view-and-take-over">19.4 Live view and take-over</h3>
+<p>A remote-desktop-style viewer, bound to localhost and authenticated, shows the virtual desktop. The user can watch, take over (their input goes to the virtual desktop) and hand back. Every handover is logged. Viewing from another device through the relay is not part of the first release; revision 1.2 plans it as <code>MT-V06</code> (view only for the web class, take-over from a trusted display, end-to-end encrypted, with its own security review; §33.4).</p>
+<h3 id="19-5-shared-mode-and-input-arbitration">19.5 Shared mode and input arbitration</h3>
+<p>Menux detects user activity on the real session. On any user input it stops its own input at once, and it resumes only after the user has been idle for a configurable time (the default is to be tuned in testing, starting at about three seconds). If Menux and the user would collide, Menux moves the task to the virtual desktop by itself and tells the user. Shared mode is never unattended.</p>
+<h3 id="19-6-the-tray-control-panel">19.6 The tray control panel</h3>
+<p>A tray icon (or hidden icon, where the desktop allows it) gives quick control without opening a terminal:</p>
+<ul>
+<li>pause or resume Menux, and the panic button;</li>
+<li>the current mode, and a button to open the live view;</li>
+<li>on/off switches for screen awareness, screen memory and browser capture;</li>
+<li>the Control Dial: global ceiling, per-application allow, ask or block, and the list of active grants (§22);</li>
+<li>a hotkey for pause and panic.</li>
+</ul>
+<p>Where a desktop has no tray, <code>menux dial</code> offers the same controls on the command line.</p>
+<h3 id="19-7-platform-notes">19.7 Platform notes</h3>
+<p>Wayland deliberately restricts screen capture and synthetic input, so the experience depends on the compositor. <code>menux doctor</code> reports a support matrix (GNOME, KDE, Hyprland, i3, COSMIC; Wayland and X11). Portal prompts may appear. An optional preconfigured session (§25.3) removes most of the setup. A research spike (<code>MT-V05</code>) will test whether two independent pointers can share the user's screen on X11; the product does not depend on the result.</p>
+<hr/>
+<h2 id="20-screen-awareness-and-screen-memory">20. Screen Awareness and Screen Memory</h2>
+<h3 id="20-1-two-different-features">20.1 Two different features</h3>
+<ul>
+<li><strong>Screen awareness</strong> is Menux looking at the screen <em>now</em>, for a task: "what is on this page", "which button do I press". It needs a grant for the task.</li>
+<li><strong>Screen memory</strong> is Menux remembering what was on screen <em>over time</em> so it can help later: "what was that article I read on Tuesday?". It is the most sensitive feature in the product.</li>
+</ul>
+<p>Each has its own switch. Both are <strong>off by default</strong>.</p>
+<h3 id="20-2-always-visible-always-pausable">20.2 Always visible, always pausable</h3>
+<p>Whenever capture is running an indicator is visible, and a single key or tray click pauses it. A run cannot hide the indicator.</p>
+<h3 id="20-3-what-is-captured-and-when">20.3 What is captured, and when</h3>
+<p>Capture is <strong>event-driven</strong>, not continuous: on window focus changes, navigation, clicks, and pauses in scrolling or typing. Identical or near-identical captures are dropped. Capture pauses when the user is idle and can be limited on battery.</p>
+<h3 id="20-4-text-first">20.4 Text first</h3>
+<ol>
+<li>Menux reads the <strong>accessibility text</strong> of the window.</li>
+<li>Where an application exposes none, it falls back to <strong>OCR</strong>.</li>
+<li>Secrets and card-number patterns are redacted before anything is stored.</li>
+<li>A small <strong>thumbnail</strong> may be kept for a short time (a proposed default is 24 hours) so the user can recognize a result. The <strong>raw image is deleted</strong> after extraction unless the user pins it.</li>
+</ol>
+<p>Most captures therefore store only text and metadata.</p>
+<h3 id="20-5-what-is-never-captured-by-default">20.5 What is never captured by default</h3>
+<p>Password managers; banking and payment pages and applications; private or incognito browser windows; windows that contain a password field; Menux's own vault and approval screens; and anything on the user's exclusion list (by application, site or window title).</p>
+<h3 id="20-6-storage">20.6 Storage</h3>
+<p>Screen memory lives only on the device, under <code>~/.menux/screen/</code>: a SQLite database with FTS5 search (no embeddings, consistent with decision D9), encrypted with a key derived from the vault key. Each record carries the time, application, window title, URL (for browsers), source (accessibility or OCR) and a trust label. Proposed defaults, to be confirmed in testing: text kept 30 days, thumbnails 24 hours, with a disk cap that evicts the oldest first. The user can forget the last N minutes, forget one application, forget everything, and export their data.</p>
+<h3 id="20-7-using-the-memory">20.7 Using the memory</h3>
+<p>Example: "what was that article I read on Tuesday about heat pumps?" The memory tool searches the local index and returns results with provenance. Results are <strong>untrusted data</strong>: they pass through the Reader (<code>MT-T04</code>), can never act as instructions, and become durable memory only through review (<code>MT-M03</code>).</p>
+<h3 id="20-8-what-leaves-the-device">20.8 What leaves the device</h3>
+<p>Nothing is stored on the server. Text or an image leaves the device only for a run that needs it, only within the user's permission, and is not kept after the run ends. A raw screen stream is never sent to the server. Audio capture is not part of this expansion; it belongs to the later voice work (§15.2) and would be opt-in on its own.</p>
+<h3 id="20-9-the-timeline">20.9 The timeline</h3>
+<p>A web page and tray entry (<code>MT-W09</code>) let the user scroll and search their screen memory, see what is excluded, change retention, and delete.</p>
+<hr/>
+<h2 id="21-perception-paths-cpu-only-and-gpu">21. Perception Paths: CPU-Only and GPU</h2>
+<h3 id="21-1-one-interface-two-paths">21.1 One interface, two paths</h3>
+<p>Everything that needs Menux to "see" is built behind one interface so that a machine without a GPU is a first-class user, not an afterthought.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Step</th>
+<th style="text-align: left;">CPU-only path</th>
+<th style="text-align: left;">GPU path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Read text on screen</td>
+<td style="text-align: left;">Accessibility text; CPU OCR</td>
+<td style="text-align: left;">Same, with faster OCR</td>
+</tr>
+<tr>
+<td style="text-align: left;">Find an element to click</td>
+<td style="text-align: left;">Accessibility element if available; otherwise cloud grounding on a downscaled, cropped screenshot, with per-task consent</td>
+<td style="text-align: left;">A local grounding model on the device</td>
+</tr>
+<tr>
+<td style="text-align: left;">Understand a screen</td>
+<td style="text-align: left;">Cloud vision, on demand</td>
+<td style="text-align: left;">A local vision-language model (optional)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Privacy</td>
+<td style="text-align: left;">Text first; an image leaves the device only when a task needs it and the user has agreed</td>
+<td style="text-align: left;">Images stay on the device; only text descriptions go to the cloud</td>
+</tr>
+<tr>
+<td style="text-align: left;">Cost</td>
+<td style="text-align: left;">Cloud vision calls are metered in the shared credit pool</td>
+<td style="text-align: left;">Local work costs no vision credits; planning calls are still metered</td>
+</tr>
+<tr>
+<td style="text-align: left;">Speed</td>
+<td style="text-align: left;">Slower per step</td>
+<td style="text-align: left;">Faster per step</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="21-2-choosing-a-path">21.2 Choosing a path</h3>
+<p><code>menux doctor</code> probes the hardware (<code>MT-N08</code>) and recommends a path. The user can override it, and Menux falls back automatically if a local model is unavailable. Without consent for images, Menux runs in <strong>text-only mode</strong>: it can use accessibility text and Guide mode, and it says what it cannot do.</p>
+<h3 id="21-3-cost-and-consent">21.3 Cost and consent</h3>
+<p>Cloud vision is shown in cost estimates (<code>MT-E02</code>) and limited on the server (<code>MT-E03</code>). Consent is per task class, remembered locally, and revocable.</p>
+<h3 id="21-4-models-and-licences">21.4 Models and licences</h3>
+<p>Local models are an optional download with a clear size warning. The weights and code of each candidate model have their own licences, reviewed through <code>MT-R05</code> (§27) before anything is bundled or depended on.</p>
+<h3 id="21-5-honest-limits">21.5 Honest limits</h3>
+<p>Pointer-and-screenshot control is the slowest and least reliable rung, and slowest on the CPU path. The documentation says so, and the benchmark (<code>MT-Q06</code>) publishes the measured numbers.</p>
+<hr/>
+<h2 id="22-the-control-dial-permissions-grants-and-the-a">22. The Control Dial: Permissions, Grants and the Always-Confirm List</h2>
+<h3 id="22-1-the-global-ceiling">22.1 The global ceiling</h3>
+<p>The user chooses how much Menux may do on their own device:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Setting</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Observe only</strong></td>
+<td style="text-align: left;">Menux may read and notify. Nothing is changed.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Ask first</strong></td>
+<td style="text-align: left;">Every action that changes anything needs approval.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Trusted</strong> (default for Reach 0–2)</td>
+<td style="text-align: left;">Menux acts within the tier rules of §6: T0–T2 freely, T3–T4 with approval.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Full control</strong></td>
+<td style="text-align: left;">Menux may act on its own at T3–T4 <strong>inside the scope of the user's grants</strong> (§6.6). The always-confirm list (§22.5) still applies.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Raising the ceiling for an unattended automation uses graduation (<code>MT-A06</code>); it is never silent.</p>
+<h3 id="22-2-per-application-stance">22.2 Per-application stance</h3>
+<p>For every application and every rung the user can set <strong>allow</strong>, <strong>ask</strong> or <strong>block</strong>. Examples: allow LibreOffice at rungs 1–2; ask before any pointer control in a browser; block the password manager entirely. A blocked application cannot be seen, captured or controlled.</p>
+<h3 id="22-3-per-capability-switches">22.3 Per-capability switches</h3>
+<p>Screen awareness, screen memory (by source), browser capture, clipboard access, input synthesis, shell, and (later) audio each have their own switch, reachable from the tray.</p>
+<h3 id="22-4-grants">22.4 Grants</h3>
+<p>A grant is a scoped, time-limited, revocable permission: "let Menux use LibreOffice on this folder for the next hour". Inside its scope it replaces the per-step approval of T3–T4 actions. It is logged, shown in the tray, and revoked by panic. A grant can never cover the always-confirm list.</p>
+<h3 id="22-5-the-always-confirm-list">22.5 The always-confirm list</h3>
+<p>Whatever the dial or any grant says, Menux <strong>always</strong> asks the owner before it:</p>
+<ul>
+<li>makes a payment or completes a checkout;</li>
+<li>types, reads aloud or exports a password, key or vault entry;</li>
+<li>deletes files outside Menux's own staging area or an explicitly granted scratch folder;</li>
+<li>sends content to a new third party or a new destination that is not already inside a grant;</li>
+<li>changes Menux's own dial, grants, policy or logging, or turns off the audit log;</li>
+<li>installs software, a tool or a skill;</li>
+<li>performs any action in a capability or context that Menux does not recognize (treated as T5).</li>
+</ul>
+<h3 id="22-6-where-the-controls-live">22.6 Where the controls live</h3>
+<p>The tray or hidden icon, <code>menux dial</code>, the web inbox, and a hotkey for panic. Settings are stored locally and survive a restart; panic overrides everything.</p>
+<hr/>
+<h2 id="23-self-built-automations-learning-skill-sharing">23. Self-Built Automations, Learning, Skill Sharing and the Menux Map</h2>
+<h3 id="23-1-menux-builds-its-own-automations">23.1 Menux builds its own automations</h3>
+<p>When a task would benefit from a repeatable automation or skill, Menux can draft one, dry-run it, test it, and revise it later as needs change. A draft goes to the review queue (<code>MT-M05</code>); <strong>nothing becomes active until the owner enables it</strong>. An owner may opt in to automatic enabling for drafts whose capabilities are all T1 or lower. That option is off by default.</p>
+<h3 id="23-2-experience-memory">23.2 Experience memory</h3>
+<p>Menux records which rung and which steps worked for which application and task, with the outcome and cost, and uses it to pick a faster path next time. It is local, the owner can view and delete it, and it is labeled untrusted until repeated success confirms it (<code>MT-M09</code>).</p>
+<h3 id="23-3-learning-by-demonstration">23.3 Learning by demonstration</h3>
+<p>In record mode the user shows Menux a task once. Menux uses the accessibility events and screen memory to draft a parameterized skill, dry-runs it, and queues it for review (<code>MT-M10</code>).</p>
+<h3 id="23-4-self-repair">23.4 Self-repair</h3>
+<p>Graphical skills break when an application's interface changes. When a postcondition fails, Menux tries another rung, proposes a patched version of the skill, and keeps the old version for rollback after review (<code>MT-M11</code>, <code>MT-A06</code>).</p>
+<h3 id="23-5-the-menux-map">23.5 The Menux Map</h3>
+<p>An all-in-one map shows how Menux is connected to everything: applications, connectors, channels, skills, automations and grants, with the links between them, each automation's tier, last run and health. Clicking a node opens the local specification or skill for editing; edits go to the device, never to the server. The map is built from local data and served live through the UI relay (<code>MT-K04</code>), so it adds nothing to server storage. It also highlights grants that are wider than recent use (<code>MT-W08</code>).</p>
+<h3 id="23-6-sharing-skills">23.6 Sharing skills</h3>
+<p>Skills can be shared so that another user's Menux can build the same automation instantly, but <strong>only as a sanitized, signed template</strong>, never as the user's real automation or data:</p>
+<ol>
+<li><strong>Sanitize:</strong> strip file paths, names, email addresses, tokens, identifiers and URLs that contain them.</li>
+<li><strong>Parameterize:</strong> replace specifics with named parameters.</li>
+<li><strong>Permission manifest:</strong> list capabilities, tiers, egress and applications.</li>
+<li><strong>Scan and trial:</strong> static scan, then a sandboxed trial with canary secrets.</li>
+<li><strong>Sign:</strong> publisher identity and signature.</li>
+<li><strong>Store:</strong> the server keeps only the template (migration <code>0020</code>), never runs or personal data.</li>
+<li><strong>Install elsewhere:</strong> the receiving owner sees the manifest, tier, egress and applications, binds the parameters locally, and the skill stays disabled until enabled.</li>
+</ol>
+<p>Release order: a <strong>first-party curated library</strong> with an opt-in "submit for review" path (<code>MT-M12</code>, Phase 5C), then the open community marketplace (<code>MT-M08</code>, Phase 6, off by default).</p>
+<h3 id="23-7-why-this-strictness">23.7 Why this strictness</h3>
+<p>A skill runs with the user's permissions. Public registries for agent skills have already carried malicious skills, and memory and scheduler abuse are known attacks on always-on agents. Templates, manifests, scanning, signing and local enabling keep sharing useful without making it the easiest way to attack a user.</p>
+<hr/>
+<h2 id="24-games-and-input-maps">24. Games and Input Maps</h2>
+<h3 id="24-1-input-maps">24.1 Input maps</h3>
+<p>An input map names an application's actions and their keys: for example movement keys for a game, or an editor's shortcuts. Maps are user-defined, validated, stored per application, and usable by any automation (<code>MT-X05</code>).</p>
+<h3 id="24-2-scope">24.2 Scope</h3>
+<p>Menux can play and automate <strong>strategy and turn-based games</strong> (chess, board, card and puzzle games), and <strong>slow-paced live games</strong> such as idle or resource-management games. For these it can use an engine as a tool (for example a chess engine run as a separate process). For anything timed it splits the work: the large model is the strategist and a fast local loop is the executor (<code>MT-X10</code>).</p>
+<h3 id="24-3-out-of-scope">24.3 Out of scope</h3>
+<p>Real-time action titles at human-competitive speed, anything that bypasses anti-cheat, and competitive online play where automation is prohibited. Whether an online service allows automation is the user's responsibility. The game profile is <strong>off by default</strong>, shows a notice when enabled, and runs on the virtual desktop where possible.</p>
+<h3 id="24-4-tiering">24.4 Tiering</h3>
+<p>A game window in a disposable session with no accounts is contained input (T1, §6.6). A game account is an account: input into a logged-in online game is tiered by context (T3–T4).</p>
+<hr/>
+<h2 id="25-platforms-and-distribution">25. Platforms and Distribution</h2>
+<h3 id="25-1-linux-first">25.1 Linux first</h3>
+<p>Native Linux is the reference platform. Ubuntu, Debian and Fedora are the supported distributions for release testing (as in the GA checklist). GNOME and KDE are first-class; Hyprland, i3 and COSMIC are best effort, according to the <code>doctor</code> support matrix.</p>
+<h3 id="25-2-wayland-and-x11">25.2 Wayland and X11</h3>
+<p>Wayland requires portals for screen capture and synthetic input, and may prompt the user. <code>/dev/uinput</code> access and accessibility must be enabled; <code>doctor</code> explains how. An X11 session remains a fallback where Wayland is not workable.</p>
+<h3 id="25-3-the-menux-session-image">25.3 The Menux session image</h3>
+<p>To remove setup problems, an optional preconfigured <strong>Menux session</strong> (<code>MT-N09</code>) provides the display session, portals, <code>uinput</code> permission, accessibility settings and virtual-desktop tooling. It starts as a package or install script, later a VM or bootable image. <strong>A full Linux distribution is out of scope until after GA</strong>; the session image captures most of the benefit without the cost of maintaining drivers, updates and security for an operating system.</p>
+<h3 id="25-4-wsl2">25.4 WSL2</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Works on WSL2</th>
+<th style="text-align: left;">Does not work on WSL2 (yet)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Commands, files, scripts, Git; automations, memory, skills, approvals</td>
+<td style="text-align: left;">Controlling Windows applications such as Microsoft Office, SolidWorks or Windows games</td>
+</tr>
+<tr>
+<td style="text-align: left;">Reading and writing Windows files under <code>/mnt/c</code> (read-only by default)</td>
+<td style="text-align: left;">Seeing or capturing the Windows desktop</td>
+</tr>
+<tr>
+<td style="text-align: left;">Linux applications in WSLg; a browser inside WSL</td>
+<td style="text-align: left;">Sending keyboard and mouse input to Windows applications</td>
+</tr>
+<tr>
+<td style="text-align: left;">Everything in Reach 0–2 that runs inside Linux</td>
+<td style="text-align: left;">Always-on operation when the WSL instance is stopped</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="25-5-the-windows-satellite-replaces-the-windows-">25.5 The Windows satellite (replaces the Windows-side helper)</h3>
+<p>Revision 1.1 planned a small native Windows process (<code>MT-D07</code>, <code>MT-D08</code>). Revision 1.2 replaces it with the <strong>Windows satellite</strong> (<code>MT-P03</code>, Phase 5P): a signed program that runs in the user's interactive session, drives Windows applications through UI Automation using agent-desktop, and is paired to a node (often the WSL2 node on the same PC, over loopback or the relay). Reasoning, memory, tiers and approvals stay on the node and the satellite applies its own dial. See §34 and §35.</p>
+<h3 id="25-6-native-windows-and-macos">25.6 Native Windows and macOS</h3>
+<p>A <strong>node</strong> running natively on Windows or macOS is still deferred; <code>MT-P06</code> is a research spike only. Windows and macOS <strong>satellites</strong> are planned in Phase 5P (§35).</p>
+<hr/>
+<h2 id="26-companion-safety-additions">26. Companion Safety Additions</h2>
+<h3 id="26-1-screen-content-is-untrusted">26.1 Screen content is untrusted</h3>
+<p>Anything on the screen can contain instructions meant for an AI. The reader/actor split (§7.3) is extended to pixels (<code>MT-T11</code>): a tool-less Reader pass turns a screenshot or screen text into a typed result (elements, roles, names, and visible text as quoted data), and the Actor sees only that result. Visible text can describe the screen; it cannot instruct Menux.</p>
+<h3 id="26-2-the-task-scope-guard">26.2 The task-scope guard</h3>
+<p>Each run keeps its original task. An action that is off that task, such as a new domain, a new application, a terminal, a download-and-run, a permission dialog or a credential field, escalates to approval, even inside a grant.</p>
+<h3 id="26-3-spoofed-prompts">26.3 Spoofed prompts</h3>
+<p>Operating-system permission prompts and in-application dialogs can be faked. Menux never grants OS-level permissions to itself; permission prompts are shown to the user and answered by the user.</p>
+<h3 id="26-4-clipboard-and-file-dialogs">26.4 Clipboard and file dialogs</h3>
+<p>Clipboard contents are untrusted data. Clipboard access has its own switch (§22.3).</p>
+<h3 id="26-5-memory-poisoning">26.5 Memory poisoning</h3>
+<p>Screen memory and experience memory are labeled untrusted and reach durable memory only through review (<code>MT-M03</code>).</p>
+<h3 id="26-6-failure-behavior">26.6 Failure behavior</h3>
+<p>Everything fails closed. If a target cannot be verified, pointer actions stop. Panic suspends the virtual desktop session, stops new input and revokes all grants.</p>
+<h3 id="26-7-tests-that-block-release">26.7 Tests that block release</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Suite</th>
+<th style="text-align: left;">WP</th>
+<th style="text-align: left;">What it proves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">GUI red-team</td>
+<td style="text-align: left;"><code>MT-Q07</code></td>
+<td style="text-align: left;">Hostile pages, fake dialogs, on-screen instructions, clipboard attacks and look-alike windows cannot drive an unsafe action</td>
+</tr>
+<tr>
+<td style="text-align: left;">Screen-memory privacy and canary</td>
+<td style="text-align: left;"><code>MT-Q08</code>, <code>MT-Q04</code></td>
+<td style="text-align: left;">No screen content at rest on the server; exclusions hold; deletion is real; the indicator cannot be hidden</td>
+</tr>
+<tr>
+<td style="text-align: left;">Control reliability benchmark</td>
+<td style="text-align: left;"><code>MT-Q06</code></td>
+<td style="text-align: left;">Measured success per application, rung and compositor; weak rungs default to "ask first"</td>
+</tr>
+</tbody>
+</table></div>
+<hr/>
+<h2 id="27-reuse-or-build-licences-and-candidate-compone">27. Reuse or Build: Licences and Candidate Components</h2>
+<h3 id="27-1-the-rule">27.1 The rule</h3>
+<p>Several existing projects could save months of work, but their licences differ. Before any Menux package depends on, bundles or copies from a third-party component, <code>MT-R05</code> must record a decision for it in <code>docs/menux/third_party.md</code>:</p>
+<ol>
+<li>read the licence text itself, not a summary;</li>
+<li>classify it (permissive; weak copyleft; strong or network copyleft; source-available or non-commercial; unknown);</li>
+<li>decide: use as a dependency, use only as a separate process, study the design only, or build our own;</li>
+<li>add the <code>NOTICE</code> entry and pin the version;</li>
+<li>write the own-build fallback.</li>
+</ol>
+<p>The owner of the project reviews and signs off each decision. If a licence does not fit, Menux builds its own component; that is an accepted outcome, not a failure.</p>
+<h3 id="27-2-candidate-components">27.2 Candidate components</h3>
+<p>The licences below are what the project pages and package metadata reported when reviewed on 2026-10-26. They are <strong>not verified decisions</strong>. Items marked <em>believed</em> come from memory and were not checked.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Component</th>
+<th style="text-align: left;">Role in Menux</th>
+<th style="text-align: left;">Licence as reported</th>
+<th style="text-align: left;">Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>computer-use-linux</code></td>
+<td style="text-align: left;">Linux control layer: AT-SPI, portal screenshots, <code>ydotool</code> input, window targeting (<code>D02</code>, <code>D03</code>)</td>
+<td style="text-align: left;">MIT (crate metadata)</td>
+<td style="text-align: left;">Confirm; otherwise build our own behind <code>ControlBackend</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Screenpipe</td>
+<td style="text-align: left;">Reference for screen memory (<code>S01–S03</code>)</td>
+<td style="text-align: left;">Reported inconsistently: MIT on some of its pages, "source-available" in its repository</td>
+<td style="text-align: left;">Read its <code>LICENSE</code> file; <strong>copy no code</strong> until resolved; otherwise design reference only</td>
+</tr>
+<tr>
+<td style="text-align: left;">OmniParser</td>
+<td style="text-align: left;">Screen parsing for grounding (<code>S05</code>)</td>
+<td style="text-align: left;">Detection weights AGPL, caption weights MIT, as reported</td>
+<td style="text-align: left;">AGPL may restrict commercial or closed use; review; fallback is our own detector with OCR and accessibility</td>
+</tr>
+<tr>
+<td style="text-align: left;">UI-TARS, GTA1, Holo, Moondream and similar</td>
+<td style="text-align: left;">Local grounding models (<code>S05</code>, GPU path)</td>
+<td style="text-align: left;">Per model</td>
+<td style="text-align: left;">Review each model's licence before bundling or recommending</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ydotool</code></td>
+<td style="text-align: left;">Wayland input injection (<code>D03</code>)</td>
+<td style="text-align: left;"><em>Believed</em> copyleft</td>
+<td style="text-align: left;">Verify; if needed write to <code>uinput</code> directly or use the RemoteDesktop portal</td>
+</tr>
+<tr>
+<td style="text-align: left;">agent-desktop (Vercel Labs)</td>
+<td style="text-align: left;">Accessibility control on Linux, Windows and macOS behind <code>ControlBackend</code> (<code>D02</code>, <code>P03</code>, <code>P04</code>; §34)</td>
+<td style="text-align: left;">Apache-2.0 as reported when reviewed on 2026-11-14, version 1.3.0</td>
+<td style="text-align: left;">Read the <code>LICENSE</code> file; run it as a pinned separate process; keep our own AT-SPI reader as the Linux fallback; record the decision in <code>R05</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Mesh crypto and WebAuthn libraries</td>
+<td style="text-align: left;">Identity keys, key exchange, passkey verification (<code>K06</code>, <code>T14</code>)</td>
+<td style="text-align: left;">Per library; candidates are Ed25519, X25519 and a Noise-style handshake, and a WebAuthn verifier</td>
+<td style="text-align: left;">Choose in <code>R05</code> behind a Menux interface; no custom primitives</td>
+</tr>
+<tr>
+<td style="text-align: left;">Playwright</td>
+<td style="text-align: left;">Browser automation (<code>D01</code>)</td>
+<td style="text-align: left;"><em>Believed</em> permissive</td>
+<td style="text-align: left;">Verify</td>
+</tr>
+<tr>
+<td style="text-align: left;">OCR engine (Tesseract-class)</td>
+<td style="text-align: left;">CPU OCR (<code>S02</code>)</td>
+<td style="text-align: left;"><em>Believed</em> permissive</td>
+<td style="text-align: left;">Verify</td>
+</tr>
+<tr>
+<td style="text-align: left;">Chess or other game engines</td>
+<td style="text-align: left;">Engine tools (<code>X10</code>)</td>
+<td style="text-align: left;"><em>Believed</em> strong copyleft for some</td>
+<td style="text-align: left;">Use only as a separate process, after review</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="27-3-swap-boundaries">27.3 Swap boundaries</h3>
+<p>Each candidate sits behind a Menux interface (<code>ControlBackend</code>, <code>Capturer</code>, <code>Grounder</code>, <code>OcrEngine</code>, <code>GameEngine</code>), so replacing it with our own implementation touches one module. The CPU-only and GPU paths (§21) are two implementations of the same <code>Grounder</code>.</p>
+<hr/>
+<h2 id="28-the-device-mesh">28. The Device Mesh</h2>
+<p><em>Added in revision 1.2 (2026-11-14). Planned and gated on Phase 4, like the Companion Expansion. Phases 0–4 are unchanged.</em></p>
+<h3 id="28-1-what-the-mesh-is">28.1 What the mesh is</h3>
+<p>Every device a person links to their MiniMe account forms the <strong>mesh</strong>. A device holds one or more of three roles:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Role</th>
+<th style="text-align: left;">What it does</th>
+<th style="text-align: left;">What it holds</th>
+<th style="text-align: left;">Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Node</strong></td>
+<td style="text-align: left;">The full Menux: scheduler, Run Engine, approvals, vault, memory, connectors. It is the only role that talks to the server "brain" for a run</td>
+<td style="text-align: left;">Everything in <code>~/.menux/</code></td>
+<td style="text-align: left;">Native Linux machine, WSL2, a mini-PC or Raspberry Pi</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Satellite</strong></td>
+<td style="text-align: left;">Executes a limited set of capabilities for a node it is paired with (control a desktop, read granted files, mirror notifications). No scheduler, no vault, no memory</td>
+<td style="text-align: left;">Its own device key and its own control dial, nothing else</td>
+<td style="text-align: left;">A Windows PC, a Mac, a second Linux box</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Controller</strong></td>
+<td style="text-align: left;">Sends commands, approvals and queries and shows status. Executes nothing</td>
+<td style="text-align: left;">A device key, and a session</td>
+<td style="text-align: left;">A phone or tablet browser, the installable web app, <code>menux remote</code> on another computer, a Telegram or Slack chat</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code>                       ┌──────────────────────────────┐
+   Controllers         │  MiniMe server (relay only)  │         Nodes and satellites
+ ┌──────────────┐      │  account · device registry   │      ┌─────────────────────────┐
+ │ phone (web)  │◄────►│  forwards signed, encrypted  │◄────►│ NODE  (Linux / WSL2)    │
+ │ tablet       │      │  frames · cannot read them   │      │  scheduler · vault ·    │
+ │ menux remote │      │  cannot forge a command      │      │  memory · Run Engine    │
+ │ Telegram     │      └──────────────────────────────┘      └───────────┬─────────────┘
+ └──────────────┘                                                         │ signed requests
+        ▲  direct "local link" when on the same machine or LAN            ▼
+        └──────────────────────────────────────────────────────►  SATELLITES
+                                                                   Windows PC · Mac · 2nd Linux
+</code></pre>
+<p>The brain, metering and one shared credit pool stay exactly as in O1–O2. The mesh adds <em>where commands come from</em> and <em>where tools can run</em>; it does not add a second place where data lives.</p>
+<h3 id="28-2-the-rules-mx1-mx9">28.2 The rules (MX1–MX9)</h3>
+<p>The nine rules are in the table at the top of this guide and in <code>Menux___Build_Execution_Guide.md</code> §2. In short: the device that owns the data decides (local policy is final); the server is a pipe it cannot read or forge through; adding a controller or satellite always needs approval on the node itself; remote power is limited by controller class and never reaches T5; sync is opt-in and never moves secrets or screen memory; tighter settings spread instantly, looser ones do not.</p>
+<h3 id="28-3-the-devices-page">28.3 The Devices page</h3>
+<p>Today's MiniMe Devices page (built for M2C) lets a person approve a terminal with a short code, lists paired devices, and says that pairing does not let the website read files on the device. Menux extends the same page; it does not add a second one:</p>
+<ul>
+<li><strong>Add a device</strong>: a four-way choice (computer node, Windows or Mac satellite, phone or tablet controller, chat app). Each choice shows its own steps (§29).</li>
+<li><strong>Per device</strong>: name, platform and version, roles, capability names, last seen, which node it is linked to, and its <strong>remote ceiling</strong> (§31).</li>
+<li><strong>Controls</strong>: pause remote access for one device, change its ceiling (tightening is immediate; loosening needs step-up), revoke.</li>
+<li><strong>Activity</strong>: content-free counts and times ("12 commands, last at 21:40"). Never what the commands were.</li>
+</ul>
+<p>The M2C sentence "Pairing doesn't let this website read files" stays true for M2C devices. For Menux devices the page must say what is different, in plain words:</p>
+<blockquote>
+<p><strong>What a Menux controller can do.</strong> A controller you pair can ask your Menux node to run, pause and report on automations, and to approve or deny actions, up to the limit you set for that device. It cannot read your files or your screen unless you grant that separately. The node applies its own rules and can refuse any command. This website cannot add a controller on its own: every controller must also be approved on your node. You can revoke a device at any time, and Panic works from every controller.</p>
+</blockquote>
+<h3 id="28-4-device-states">28.4 Device states</h3>
+<p><code>pending</code> (paired, never connected) · <code>online</code> · <code>away</code> (connected, no recent activity) · <code>offline</code> · <code>paused</code> (remote access paused by the owner) · <code>revoked</code>. The registry stores only these states and timestamps. Presence is content-free and is used to decide where to send a notification first (§33.5).</p>
+<hr/>
+<h2 id="29-pairing-identity-and-revocation">29. Pairing, Identity and Revocation</h2>
+<h3 id="29-1-node-to-account">29.1 Node to account</h3>
+<p>Unchanged from M2C: <code>menux login</code> shows a short code, the person enters it on the Devices page, and the terminal receives a long-lived credential (stored in the OS keyring, or a <code>0600</code> file where there is none, as in D3). Revision 1.2 adds one step: the node generates a <strong>device identity key</strong> and registers only its public half.</p>
+<h3 id="29-2-controller-to-node-node-approved">29.2 Controller to node (node-approved)</h3>
+<ol>
+<li>On the controller (a browser signed in to MiniMe, or <code>menux remote pair</code>), a key pair is generated. In a browser the private key is non-extractable and stays in the browser's key store; on a native client it goes to the OS key store. The controller shows a short code and a <strong>fingerprint of six words</strong>.</li>
+<li>On the node the owner runs <code>menux pair controller</code> (or uses the tray, or a paired chat) and enters the code. The node shows the controller's name, its class (§30.1) and the six words, and the owner <strong>confirms on the node</strong> and chooses the ceiling.</li>
+<li>The node records a signed <strong>trust edge</strong> locally and tells the registry (device IDs only), so the Devices page shows the link.</li>
+</ol>
+<p>Why on the node: a stolen MiniMe password, or a compromised server, must not be enough to add a controller that can command the node. A controller can also be approved from an already trusted controller of the <strong>trusted-display</strong> class with step-up (§31), for the case where the owner is away from the node; the new controller never gets a higher ceiling than the one that approved it, and every other controller is notified.</p>
+<h3 id="29-3-satellite-to-node">29.3 Satellite to node</h3>
+<p>Same flow. The satellite's installer shows a code and lists the capabilities it can offer (for example <code>control.desktop</code>, <code>files.granted</code>, <code>notify.mirror</code>). The node owner approves <strong>each capability</strong>. Pointer, screenshot and file capabilities start off; the satellite also has its own dial (§35.2) that can only narrow what the node may do, never widen it.</p>
+<h3 id="29-4-keys">29.4 Keys</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Key</th>
+<th style="text-align: left;">Held by</th>
+<th style="text-align: left;">Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Device identity key</td>
+<td style="text-align: left;">Each device (OS key store or vault; never leaves)</td>
+<td style="text-align: left;">Signing commands and handshakes</td>
+</tr>
+<tr>
+<td style="text-align: left;">Session keys</td>
+<td style="text-align: left;">Two endpoints</td>
+<td style="text-align: left;">Authenticated key exchange per connection; encrypts frames end to end. The server relays ciphertext</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mesh key</td>
+<td style="text-align: left;">Nodes and any device the owner lets sync</td>
+<td style="text-align: left;">Encrypts sync records (§32). Wrapped separately for each trusted device; rotated when a device is revoked</td>
+</tr>
+<tr>
+<td style="text-align: left;">Passkey (WebAuthn)</td>
+<td style="text-align: left;">The person's authenticator</td>
+<td style="text-align: left;">Step-up approvals (§31.3). The <strong>node</strong> stores the public key and verifies the assertion itself</td>
+</tr>
+</tbody>
+</table></div>
+<p>Algorithms and libraries (Ed25519 and X25519 with a Noise-style handshake are the candidates) are chosen under <code>R05</code> behind a Menux interface, with an own-build fallback.</p>
+<h3 id="29-5-revocation">29.5 Revocation</h3>
+<ul>
+<li><strong>From the Devices page:</strong> the server marks the device revoked and closes its sockets. The node also records the key as distrusted and <strong>rotates the mesh key</strong>, so a lying server cannot keep a revoked device in the mesh.</li>
+<li><strong>From the node or any trusted-display controller</strong> with step-up.</li>
+<li><strong>Self-revoke:</strong> <code>menux logout</code> should revoke the device itself. M2C does not yet offer that endpoint: its <code>logout()</code> deletes the local credential and tells the user to revoke on the web page (<code>m2c/src/m2c/auth/login.py</code>, which proposes <code>POST /v1/code/devices/revoke</code> as a follow-up to S03). Menux needs it (<code>S03b</code>, §1 of the build guide).</li>
+<li><strong>Lost phone:</strong> revoke it from another controller with step-up, from the web account, or from the node. Panic first if in doubt (§30.2).</li>
+<li>A forged "add controller" from the server is rejected by the node (no local approval). A forged "revoke" only removes access.</li>
+</ul>
+<hr/>
+<h2 id="30-remote-control-controllers-and-what-they-can-">30. Remote Control: Controllers and What They Can Do</h2>
+<h3 id="30-1-controller-classes">30.1 Controller classes</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Class</th>
+<th style="text-align: left;">Examples</th>
+<th style="text-align: left;">How identity is proved</th>
+<th style="text-align: left;">Typical ceiling</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Local</strong></td>
+<td style="text-align: left;">CLI, tray or desktop notification on the node itself</td>
+<td style="text-align: left;">Being on the machine, plus re-auth for T5</td>
+<td style="text-align: left;">T0–T5</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Trusted display</strong></td>
+<td style="text-align: left;"><code>menux remote</code> on another computer; later a native mobile app</td>
+<td style="text-align: left;">Signed build, key in the OS key store, passkey or biometric; it shows the exact action it asks you to approve</td>
+<td style="text-align: left;">up to T4</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Web</strong></td>
+<td style="text-align: left;">A browser or the installable web app on MiniMe</td>
+<td style="text-align: left;">Account session, non-extractable key, passkey step-up. Its code is delivered by the server, so it <strong>cannot be a trusted display</strong></td>
+<td style="text-align: left;">up to T3</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Chat</strong></td>
+<td style="text-align: left;">Telegram (v1), Slack or Discord (<code>H10</code>)</td>
+<td style="text-align: left;">Owner-pinned chat identity. The chat provider relays the messages</td>
+<td style="text-align: left;">up to T3 approvals; commands limited to status, pause and run-now</td>
+</tr>
+</tbody>
+</table></div>
+<p>The class sets the ceiling. A controller cannot raise its own class or ceiling.</p>
+<h3 id="30-2-what-a-controller-can-do">30.2 What a controller can do</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Action</th>
+<th style="text-align: left;">Minimum class</th>
+<th style="text-align: left;">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">See status, inbox, run summaries, device health</td>
+<td style="text-align: left;">Any</td>
+<td style="text-align: left;">Live relay, nothing stored on the server</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Panic</strong> (stop everything)</td>
+<td style="text-align: left;">Any</td>
+<td style="text-align: left;">Never needs step-up. Reaches <strong>every node in the mesh</strong>, survives restart, and is retried until acknowledged</td>
+</tr>
+<tr>
+<td style="text-align: left;">Pause or resume one automation</td>
+<td style="text-align: left;">Any</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Resume after panic</td>
+<td style="text-align: left;">Web with passkey, trusted display or local</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Run an automation now</td>
+<td style="text-align: left;">Any</td>
+<td style="text-align: left;">Its own tiers and approvals still apply</td>
+</tr>
+<tr>
+<td style="text-align: left;">Approve or deny a pending action</td>
+<td style="text-align: left;">By tier (§31.2)</td>
+<td style="text-align: left;">A <strong>deny</strong> is always accepted from any class</td>
+</tr>
+<tr>
+<td style="text-align: left;">Ask for a one-off task or chat with the Planner</td>
+<td style="text-align: left;">Any</td>
+<td style="text-align: left;">Creates a draft or an interactive run; normal tiers apply</td>
+</tr>
+<tr>
+<td style="text-align: left;">Create, enable, edit or delete an automation</td>
+<td style="text-align: left;">Draft: any. Enable, edit, delete: trusted display or local</td>
+<td style="text-align: left;">The web can <em>propose</em>; a trusted display or the node enables</td>
+</tr>
+<tr>
+<td style="text-align: left;">Request a screenshot of a node or satellite</td>
+<td style="text-align: left;">Web with passkey</td>
+<td style="text-align: left;">Needs the screen-awareness setting; by default the desktop asks on-device and times out in 60 seconds</td>
+</tr>
+<tr>
+<td style="text-align: left;">Watch a Background session live</td>
+<td style="text-align: left;">Web (view only)</td>
+<td style="text-align: left;">§33.4; the take-over needs a trusted display</td>
+</tr>
+<tr>
+<td style="text-align: left;">Fetch or send a small file</td>
+<td style="text-align: left;">Trusted display</td>
+<td style="text-align: left;">Granted folders only, size-capped, end-to-end encrypted, tagged with its origin</td>
+</tr>
+<tr>
+<td style="text-align: left;">Tighten settings (lower the ceiling, add exclusions, pause a device)</td>
+<td style="text-align: left;">Any</td>
+<td style="text-align: left;">Applies at once on every device (§31.6)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Loosen settings (raise the ceiling, widen a grant, change the dial)</td>
+<td style="text-align: left;">Trusted display with step-up, or local</td>
+<td style="text-align: left;">Vault export and key changes are <strong>local only</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="30-3-when-the-node-is-not-reachable">30.3 When the node is not reachable</h3>
+<p>Every command carries a lifetime. If the node is offline the controller says so ("offline since 21:40"). Low-risk commands (status refresh, pause) may wait up to 10 minutes; anything at T2 or above is <strong>not queued</strong> and never replayed after it expires. The node never relaxes its rules because the network is down; with no server it keeps running local automations and refuses remote ones.</p>
+<h3 id="30-4-every-command-is-acknowledged">30.4 Every command is acknowledged</h3>
+<p>A command gets one of <code>accepted</code>, <code>refused</code> (with the node's reason, shown to the person) or <code>done</code>. Commands are idempotent by ID, so a retry over a flaky connection cannot run twice.</p>
+<h3 id="30-5-origin-in-the-audit-log">30.5 Origin in the audit log</h3>
+<p>Every event records where it came from: <code>local</code>, <code>remote:&lt;device&gt;</code> or <code>satellite:&lt;device&gt;</code>. The log shows it, and it is part of the tier context (§31.5): a remote origin can only keep or raise a tier, never lower it.</p>
+<h3 id="30-6-notifications-to-controllers">30.6 Notifications to controllers</h3>
+<p>Push goes through Web Push (the optional subscription table reserved as migration <code>0018</code>) and chat apps. The text is minimal by default ("An approval is waiting"); the details open over the relay. The notifier sends first to the device that was most recently active and to the rest after a delay.</p>
+<hr/>
+<h2 id="31-the-remote-trust-ladder">31. The Remote Trust Ladder</h2>
+<h3 id="31-1-why-classes">31.1 Why classes</h3>
+<p>A web page cannot prove to the node what the person saw, because the server that delivers the page could deliver a different one. End-to-end encryption protects the <em>transport</em>, not a page the server writes. So high-risk approvals need a <strong>trusted display</strong>: a signed client that shows the action itself. The ladder makes that explicit instead of pretending a phone browser is the same as the node.</p>
+<h3 id="31-2-who-can-approve-what">31.2 Who can approve what</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Tier</th>
+<th style="text-align: left;">Chat</th>
+<th style="text-align: left;">Web</th>
+<th style="text-align: left;">Trusted display</th>
+<th style="text-align: left;">Local</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">T0–T2</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;">T3</td>
+<td style="text-align: left;">Yes (owner-pinned identity, nonce)</td>
+<td style="text-align: left;">Yes, with passkey</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;">T4</td>
+<td style="text-align: left;"><strong>No</strong></td>
+<td style="text-align: left;"><strong>No</strong> (the request is sent to a trusted display)</td>
+<td style="text-align: left;">Yes, with parameter preview and step-up</td>
+<td style="text-align: left;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;">T5</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;"><strong>Only here</strong>, with interactive confirmation and re-auth</td>
+</tr>
+<tr>
+<td style="text-align: left;">Always-confirm list (§22.5), other than the last row</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Yes, with step-up</td>
+<td style="text-align: left;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;">Vault export, key changes, loosening the dial</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;"><strong>Only here</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>Deny is accepted from any class.</p>
+<h3 id="31-3-step-up">31.3 Step-up</h3>
+<p>A passkey (WebAuthn) or biometric assertion whose challenge is bound to the approval: the approval ID, nonce, a digest of the action and its expiry. The node verifies the assertion against the passkey public key it stored at pairing. An assertion cannot be reused for another approval and goes stale within minutes. A device that cannot do passkeys is limited to the trusted-display path.</p>
+<h3 id="31-4-remote-sessions">31.4 Remote sessions</h3>
+<p>A controller holds a session that ends on idle (proposed: 1 hour), on a maximum age (proposed: 12 hours), on revoke and on panic. <strong>Travel mode</strong>, a switch the owner sets, lowers every ceiling by one tier and requires step-up for every action at T2 or above until turned off.</p>
+<h3 id="31-5-what-the-node-checks">31.5 What the node checks</h3>
+<p>Every remote command is signed by the controller's device key and carries its ID, the controller and node IDs, the command, a digest of its arguments, the issue time, a lifetime and a counter. The node checks, in order: signature against a key it trusts, not revoked, inside its lifetime and clock-skew window (proposed 120 seconds), counter not seen, command known (unknown commands fail closed), command allowed for this class and ceiling, and then the <strong>normal</strong> policy: capability tiers, context-based tiering (§6.6, where origin is now part of the context), grants, the dial, approvals. Remote origin never lowers a tier.</p>
+<h3 id="31-6-tighten-at-once-loosen-with-care">31.6 Tighten at once, loosen with care</h3>
+<p>Panic, lowered ceilings, new exclusions and paused devices propagate to every device immediately, from any controller. Raising a limit does not propagate: it must be done on each device that is affected, or from a trusted display with step-up.</p>
+<h3 id="31-7-what-a-compromised-server-can-and-cannot-do">31.7 What a compromised server can and cannot do</h3>
+<p>It <strong>can</strong> drop or delay frames, see metadata (which device talked to which, when, and how large), refuse service, and serve a hostile web controller (limited to T3 and to what a passkey prompt will confirm). It <strong>cannot</strong> read frames, add a controller to a node, forge or replay a signed command, approve at T4 or above, or reach the local-only list.</p>
+<h3 id="31-8-a-known-gap-in-the-earlier-phases">31.8 A known gap in the earlier phases</h3>
+<p>Section 10.2 and 10.3 describe approvals through the browser inbox and chat buttons with an opaque ID and nonce. The inbox is a live relay, so that nonce passes through the server. Until the signed channel (<code>MT-T12</code>) exists, treat T3 approvals from the inbox as trusting the server. Revision 1.2 therefore keeps T4 off chat apps and replaces unsigned inbox approvals with signed ones.</p>
+<hr/>
+<h2 id="32-sync-spaces">32. Sync Spaces</h2>
+<h3 id="32-1-what-sync-is-for">32.1 What sync is for</h3>
+<p>A second node (a Raspberry Pi that takes over while the laptop sleeps), a controller that shows the same automations, the same skills on two machines. Sync is <strong>opt-in per category</strong> and <strong>off by default</strong>.</p>
+<h3 id="32-2-what-can-sync">32.2 What can sync</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Category</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Rules</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Non-secret settings</td>
+<td style="text-align: left;">Off</td>
+<td style="text-align: left;">Tighten-only settings (§31.6) propagate regardless</td>
+</tr>
+<tr>
+<td style="text-align: left;">Automation specs</td>
+<td style="text-align: left;">Off, per automation</td>
+<td style="text-align: left;">Versions (<code>A06</code>) are the unit. Conflicts keep both; the owner picks. YAML is never auto-merged. Arrives <strong>disabled</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Skills</td>
+<td style="text-align: left;">Off, per skill</td>
+<td style="text-align: left;">Arrives disabled until enabled on the target, so the target's own policy decides</td>
+</tr>
+<tr>
+<td style="text-align: left;">Memory notes</td>
+<td style="text-align: left;">Off, per note</td>
+<td style="text-align: left;">Provenance stays. An imported note keeps its trust label and gains an origin-device label; it is not upgraded. Conflicts keep both and the consolidation job (<code>M02</code>) reconciles</td>
+</tr>
+<tr>
+<td style="text-align: left;">Run summaries</td>
+<td style="text-align: left;">Off</td>
+<td style="text-align: left;">Summaries only, for controllers. Full event logs stay on their node</td>
+</tr>
+<tr>
+<td style="text-align: left;">Knowledge index</td>
+<td style="text-align: left;">Never</td>
+<td style="text-align: left;">Rebuilt locally from the folders</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Screen memory</strong></td>
+<td style="text-align: left;"><strong>Never</strong></td>
+<td style="text-align: left;">CX4: it never leaves the device it was captured on</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Vault and connector tokens</strong></td>
+<td style="text-align: left;"><strong>Never by sync</strong></td>
+<td style="text-align: left;">A secret moves only by an explicit transfer ceremony: node-approved, encrypted to the recipient's key, six-word fingerprint check, expires. Otherwise re-authorize on the new device</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="32-3-how">32.3 How</h3>
+<p>Records are versioned, content-addressed blobs identified by a record ID, a version counter per device and a parent hash. They are encrypted with the <strong>mesh key</strong> before they leave the device. Conflict detection uses version counters, not wall clocks. Deletes are tombstones kept for 30 days (proposed), and a "forget" command propagates to every device that holds the record.</p>
+<p>Transport: a live relay pipe when both ends are online; direct when on the same machine or LAN (the local link, §33.6); an <strong>encrypted mailbox</strong> for an offline peer, held for at most 24 hours (proposed default) and deleted on delivery. The server stores ciphertext, a size, a recipient ID and an expiry, and cannot search or read it. A person who does not want the mailbox can sync only when both ends are online or over the local link, or use the export and import of <code>M07</code>.</p>
+<h3 id="32-4-where-this-touches-o1">32.4 Where this touches O1</h3>
+<p>The mailbox is the only place the server holds something derived from user data beyond the run buffer: ciphertext for up to 24 hours. It is why sync is opt-in, why it appears in the trust copy (§28.3, build guide §2), and why the canary suite is extended (<code>MT-Q10</code>).</p>
+<h3 id="32-5-setting-up-a-new-device">32.5 Setting up a new device</h3>
+<p>Pair it (§29), choose categories, receive an initial snapshot over the local link or the relay (size-capped), then see a checklist of what arrived disabled and what needs re-authorizing.</p>
+<hr/>
+<h2 id="33-placement-routing-leases-and-presence">33. Placement, Routing, Leases and Presence</h2>
+<h3 id="33-1-placement-fields">33.1 Placement fields</h3>
+<p>An automation spec gains four optional fields (an additive schema revision of <code>A01</code>): <code>runs_on</code> (a device name or <code>any</code>), <code>prefer</code>, <code>requires</code> (capability names such as <code>control.desktop.windows</code>) and <code>failover</code> (<code>false</code> by default). The Planner sees capability names only, never data, so it can draft <code>requires</code> correctly.</p>
+<h3 id="33-2-one-writer-with-a-lease">33.2 One writer, with a lease</h3>
+<p>A scheduled automation fires on <strong>one</strong> node. Where two nodes could run it, the node must hold a short <strong>lease</strong> kept by the server as a content-free key with an opaque ID (proposed: 90-second lifetime, renewed every 30 seconds). If the holder is gone (WSL stopped, laptop asleep), a standby node may take over only if the spec says <code>failover: true</code>, after the missed-run policy (§5.3), and the takeover is recorded. Each fire time is also an <strong>idempotency key</strong>, so a late holder and a new holder cannot both run it. If a node cannot reach the server it does <strong>not</strong> take over: when in doubt it skips rather than duplicates. This is also the answer to the WSL2 keep-alive problem (§3.4): an always-on Pi can run what the sleeping laptop would miss.</p>
+<h3 id="33-3-routing-a-tool-to-a-satellite">33.3 Routing a tool to a satellite</h3>
+<p>When a run on node N needs a capability that lives on satellite S, N's tool broker sends S a signed request (N is the "controller" for that link). S applies <strong>its own</strong> dial, tiers and grants and may refuse. The result comes back labelled <code>origin: satellite:&lt;name&gt;</code>; text or pixels from applications pass the Reader (<code>T11</code>) like any untrusted content. A timeout or refusal feeds the ladder (§18.3): another rung, then Guide mode, then a message to the owner. An offline satellite gives a defined outcome set by the spec: skip with a notice, wait up to the command lifetime, or fail the run.</p>
+<h3 id="33-4-remote-live-view">33.4 Remote live view</h3>
+<p>The localhost viewer of §19.4 gains an end-to-end encrypted remote path (<code>MT-V06</code>), with its own security review. The web class gets <strong>view only</strong>. Taking over from afar needs a trusted display and step-up. A visible indicator on the desktop shows while anyone is viewing, and nothing is recorded or stored on the server.</p>
+<h3 id="33-5-presence-and-triggers-from-devices">33.5 Presence and triggers from devices</h3>
+<p>Content-free presence (<code>online</code>, <code>away</code>, <code>offline</code>) routes notifications to the device in use. Devices can also raise event triggers: <code>device.online</code>, <code>device.offline</code>, and <code>notification.received</code> from a satellite that mirrors desktop notifications. The text of a notification is untrusted data, never an instruction.</p>
+<h3 id="33-6-the-local-link">33.6 The local link</h3>
+<p>When two devices are on the same machine (WSL2 and the Windows side) or the same network, they can talk directly, using mutual authentication with the pinned device keys, so frames never leave the building and latency drops. Loopback is on by default for the WSL2 case; LAN listening is off until enabled; a port is never open without authentication. If the direct path fails it falls back to the relay.</p>
+<hr/>
+<h2 id="34-cross-platform-control-with-agent-desktop">34. Cross-Platform Control with agent-desktop</h2>
+<h3 id="34-1-what-it-is">34.1 What it is</h3>
+<p><code>agent-desktop</code> (Vercel Labs, Apache-2.0 as reported when reviewed on 2026-11-14, version 1.3.0) is a Rust command-line tool and C library that a calling agent invokes. It reads the operating system's accessibility tree and returns JSON with element references. Backends: macOS (AX), Windows (UI Automation) and Linux (AT-SPI). It has about 60 commands (observation, element actions, scrolling, keyboard, mouse, clipboard, notifications, windows, waiting, sessions and traces, a sandbox command, batch) and a built-in MCP server. It contains <strong>no model</strong>: the observe-act loop belongs to the caller. It does not drive web pages and cannot see applications that expose no accessibility tree.</p>
+<h3 id="34-2-why-menux-uses-it">34.2 Why Menux uses it</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Menux needs</th>
+<th style="text-align: left;">agent-desktop gives</th>
+<th style="text-align: left;">Where in Menux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Accessibility control on Linux, Windows and macOS</td>
+<td style="text-align: left;">Three platform adapters behind one command set</td>
+<td style="text-align: left;">The <code>ControlBackend</code> behind rung 3 of the ladder (<code>D02</code>, <code>P03</code>, <code>P04</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Expiring element references</td>
+<td style="text-align: left;">Snapshot-scoped references; <code>STALE_REF</code> for zero matches and <code>AMBIGUOUS_TARGET</code> for several</td>
+<td style="text-align: left;">The ladder selector and self-repair (<code>X02</code>, <code>M11</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Checks around each action</td>
+<td style="text-align: left;">Waiting for an actionable element, post-action waiting</td>
+<td style="text-align: left;">Preconditions and postconditions (<code>X06</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Knowing whether an action landed</td>
+<td style="text-align: left;">Delivery states <code>delivered_verified</code>, <code>delivered_unverified</code>, <code>not_delivered</code>, with a retry hint</td>
+<td style="text-align: left;">The retry rule (§34.4)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Reading and handling OS notifications</td>
+<td style="text-align: left;">List, dismiss and act on notifications</td>
+<td style="text-align: left;">Notification mirroring and triggers (§33.5)</td>
+</tr>
+<tr>
+<td style="text-align: left;">A ghost cursor</td>
+<td style="text-align: left;">A cursor overlay</td>
+<td style="text-align: left;">Shared mode (<code>V03</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Context-sized observation</td>
+<td style="text-align: left;">Skeleton and compact snapshots, drill-down from a root, partial snapshots marked incomplete</td>
+<td style="text-align: left;">Cheaper runs and images kept on the device (CX5)</td>
+</tr>
+<tr>
+<td style="text-align: left;">A disposable desktop on a Mac</td>
+<td style="text-align: left;">A <code>sandbox</code> command with a macOS virtual-machine provider</td>
+<td style="text-align: left;">An optional <code>V01</code> backend on Apple Silicon (experimental)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="34-3-how-menux-runs-it">34.3 How Menux runs it</h3>
+<ul>
+<li>As a <strong>separate process</strong>, version-pinned with a checksum, behind the <code>ControlBackend</code> interface (CX7), with an own-build fallback. It is never linked into the node.</li>
+<li>One agent-desktop <strong>session per run</strong>, and its state directory (<code>AGENT_DESKTOP_HOME</code>) relocated to a private <code>0700</code> folder under <code>~/.menux/control/</code>, so snapshots and reference maps stay in Menux's encrypted area and are deleted with the run.</li>
+<li>Traces: events only; screenshots in traces are off by default. Trace and replay files are <strong>not redacted by agent-desktop</strong>, so Menux redacts before anything reaches its own audit log.</li>
+<li>Text to type is passed on standard input, not on the command line; secrets are never placed in batch files.</li>
+<li>Physical (headed) input is used only in Shared mode (<code>V03</code>), under the interaction rules of §19.5.</li>
+</ul>
+<h3 id="34-4-the-retry-rule-changes">34.4 The retry rule changes</h3>
+<p>§18.3 said "retry once, then step down". For actions this becomes: <strong>retry only when the result says a retry is safe.</strong> An action that is <code>delivered_unverified</code> may already have happened; Menux checks the postcondition before any retry, so a click or a send is not done twice. If it cannot tell, it asks the owner. The same field is written to the audit log.</p>
+<h3 id="34-5-command-tiers">34.5 Command tiers</h3>
+<p>Every agent-desktop command is entered in the capability registry. Unknown commands, including any added by a later version, are <strong>T5 and denied</strong> until registered. A batch takes the highest tier among its entries.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">agent-desktop commands</th>
+<th style="text-align: left;">Tier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Snapshot, find, get, is, list windows, apps, notifications and surfaces, status, permissions, version</td>
+<td style="text-align: left;">T0 (the text is untrusted data, §26.1)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Screenshot</td>
+<td style="text-align: left;">T0 when screen awareness is on for that application; otherwise it asks</td>
+</tr>
+<tr>
+<td style="text-align: left;">Element actions on a reference (click, type, set value, select, scroll, focus)</td>
+<td style="text-align: left;">By context (<code>T10</code>): T1 inside a contained session; T3–T4 on the real desktop or a logged-in profile</td>
+</tr>
+<tr>
+<td style="text-align: left;">Keyboard and mouse input</td>
+<td style="text-align: left;">As above; physical input only in Shared mode</td>
+</tr>
+<tr>
+<td style="text-align: left;">Clipboard read</td>
+<td style="text-align: left;">By the clipboard switch (§22.3). Clipboard write is T3</td>
+</tr>
+<tr>
+<td style="text-align: left;">Dismiss a notification</td>
+<td style="text-align: left;">T2. Act on a notification: T3</td>
+</tr>
+<tr>
+<td style="text-align: left;">Launch an application</td>
+<td style="text-align: left;">T3</td>
+</tr>
+<tr>
+<td style="text-align: left;">Close an application</td>
+<td style="text-align: left;">T4 (and never a protected process)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Sandbox create and exec</td>
+<td style="text-align: left;">T4</td>
+</tr>
+<tr>
+<td style="text-align: left;">Held-input commands (key-down, key-up, mouse-down, mouse-up)</td>
+<td style="text-align: left;">Denied. agent-desktop itself fails these closed</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="34-6-skills-store-locators-not-references">34.6 Skills store locators, not references</h3>
+<p>References die with their snapshot. Skills and learned procedures (<code>M04</code>, <code>M10</code>) store a <strong>locator</strong>: application, role, name and native ID where one exists. Each run re-resolves it, and <code>STALE_REF</code> or <code>AMBIGUOUS_TARGET</code> is the signal that triggers self-repair (<code>M11</code>).</p>
+<h3 id="34-7-snapshots-are-untrusted-data">34.7 Snapshots are untrusted data</h3>
+<p>Names and values in a snapshot come from arbitrary applications and can carry instructions. They go through the Reader pass (<code>T11</code>) before the Actor sees them. Do not rely on a "password field" marker alone: on Linux a GTK4 entry with hidden characters may still be readable, so Menux's own exclusions and redaction (§20.5) apply too.</p>
+<h3 id="34-8-known-limits-and-what-menux-does-about-them">34.8 Known limits and what Menux does about them</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Limit (as reported by its documentation when reviewed)</th>
+<th style="text-align: left;">What Menux does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Linux support was measured on Ubuntu 24.04+ with GNOME. Other distributions need a system-package fix</td>
+<td style="text-align: left;">Menux targets Debian and Fedora and KDE, Hyprland, i3, COSMIC: <code>Q06</code> measures them itself and <code>doctor</code> shows the matrix</td>
+</tr>
+<tr>
+<td style="text-align: left;">On Wayland the pointer cannot be aimed, so double-click, hover and drag are refused (X11 with headed input works)</td>
+<td style="text-align: left;">Fall to <code>D03</code> portal input, shortcuts or the virtual desktop</td>
+</tr>
+<tr>
+<td style="text-align: left;">On Windows and Linux identical twin controls have no reference path</td>
+<td style="text-align: left;">Re-resolve by a nearby container, else step down to vision</td>
+</tr>
+<tr>
+<td style="text-align: left;">Chromium and Qt applications need a launch flag to appear on the Linux accessibility bus</td>
+<td style="text-align: left;"><code>doctor</code> detects it and explains the fix</td>
+</tr>
+<tr>
+<td style="text-align: left;">Notification control on Linux is GNOME-only</td>
+<td style="text-align: left;"><code>notify.mirror</code> is offered only where it works</td>
+</tr>
+<tr>
+<td style="text-align: left;">On Windows it must run in the signed-in user's interactive session; elevated windows and UAC prompts are out of reach</td>
+<td style="text-align: left;">The satellite runs there; it never claims to control elevated apps (§35.3)</td>
+</tr>
+<tr>
+<td style="text-align: left;">On macOS it needs the Accessibility and Screen Recording permissions</td>
+<td style="text-align: left;">The guide walks the user through; Menux never grants them to itself</td>
+</tr>
+<tr>
+<td style="text-align: left;">Applications with no accessibility tree cannot be read</td>
+<td style="text-align: left;">Rung 5: vision (<code>S05</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Web pages are out of scope</td>
+<td style="text-align: left;">Playwright (<code>D01</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="34-9-version-and-licence-policy">34.9 Version and licence policy</h3>
+<p><code>R05</code> records the licence decision and the pin. A version bump is a reviewed change: the release notes, the command list against the capability registry, and the control benchmark. Fixes Menux needs are written to be application-agnostic (its maintainers require this) and offered upstream.</p>
+<hr/>
+<h2 id="35-platforms-satellites-and-honest-limits">35. Platforms, Satellites and Honest Limits</h2>
+<p>This section replaces §25.4 to §25.6 for Windows and macOS.</p>
+<h3 id="35-1-platform-tiers">35.1 Platform tiers</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Tier</th>
+<th style="text-align: left;">What</th>
+<th style="text-align: left;">Status in the plan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>A</strong></td>
+<td style="text-align: left;">Native Linux node</td>
+<td style="text-align: left;">Reference platform</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>B</strong></td>
+<td style="text-align: left;">WSL2 node plus a Windows satellite</td>
+<td style="text-align: left;">Phase 5P</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>C</strong></td>
+<td style="text-align: left;">Windows or macOS satellite paired to a node elsewhere (a Linux box, a Pi, WSL2)</td>
+<td style="text-align: left;">Phase 5P</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>D</strong></td>
+<td style="text-align: left;">Controllers: phone, tablet, any browser, <code>menux remote</code>, chat</td>
+<td style="text-align: left;">Phase 5R</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>E</strong></td>
+<td style="text-align: left;">A native node on Windows or macOS</td>
+<td style="text-align: left;"><strong>Gated</strong> (<code>MT-P06</code> has written acceptance criteria; a <em>go</em> unlocks a <strong>limited</strong> node, <code>MT-U05</code>: no shell, skill scripts or browser sidecar, and nothing above T2); no promise</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="35-2-what-works-where">35.2 What works where</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Linux node</th>
+<th style="text-align: left;">WSL2 node</th>
+<th style="text-align: left;">Windows satellite</th>
+<th style="text-align: left;">macOS satellite</th>
+<th style="text-align: left;">Controller</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Scheduler, automations, vault, memory</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Sandboxed shell tool</td>
+<td style="text-align: left;">Yes (bubblewrap)</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;"><strong>Not offered</strong> until a sandbox exists for that OS</td>
+<td style="text-align: left;"><strong>Not offered</strong></td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Accessibility control (agent-desktop)</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Linux apps in WSLg</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Screenshots and physical input</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">WSLg only</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Background virtual desktop</td>
+<td style="text-align: left;">Yes (Podman, <code>D04</code>)</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Experimental (VM provider, Apple Silicon)</td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Screen memory (§20)</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">WSLg only</td>
+<td style="text-align: left;">Not in this plan</td>
+<td style="text-align: left;">Not in this plan</td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Notification mirroring</td>
+<td style="text-align: left;">GNOME</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Receives</td>
+</tr>
+<tr>
+<td style="text-align: left;">Remote approvals and panic</td>
+<td style="text-align: left;">Via controllers</td>
+<td style="text-align: left;">Via controllers</td>
+<td style="text-align: left;">Via controllers</td>
+<td style="text-align: left;">Via controllers</td>
+<td style="text-align: left;">Yes</td>
+</tr>
+</tbody>
+</table></div>
+<p>A satellite has its own <strong>dial</strong> (§22): a tray icon that is always visible while connected, goes red while it is being controlled, and lets the owner pause or disconnect. The dial can only narrow what the node may do.</p>
+<h3 id="35-3-per-os-honesty">35.3 Per-OS honesty</h3>
+<ul>
+<li><strong>Windows:</strong> runs in the user's interactive session, not as a service. It cannot drive elevated windows and the UAC secure desktop; the satellite is not elevated by default. A locked screen stops control.</li>
+<li><strong>macOS:</strong> Accessibility and Screen Recording are granted by the user in System Settings; Menux guides and checks but never grants them to itself (the same rule as §26.3). A locked screen stops control.</li>
+<li><strong>Linux:</strong> the accessibility bus must be on; Wayland limits apply (§34.8).</li>
+</ul>
+<h3 id="35-4-windows-with-wsl2">35.4 Windows with WSL2</h3>
+<p>The old plan was a Windows-side helper designed in 5C and built in Phase 6. The Windows satellite replaces it and comes earlier (5P). It pairs with the WSL2 node over the local link (loopback; localhost forwarding is usually on, to be verified) or the relay. If WSL stops, the satellite is idle; the always-on advice of §3.4 stands.</p>
+<h3 id="35-5-people-with-no-node">35.5 People with no node</h3>
+<p>A Windows-only or Mac-only user with no WSL2, Linux box or mini-PC has no node, so <strong>cannot run Menux in v1</strong>: satellites need a node to talk to. <code>MT-P06</code> studies what it would take to run a node natively (the sandbox, vault, service manager and scheduler all need OS-specific parts). Until it reports, the documentation says to use WSL2 or a small Linux machine. <em>Revision 1.3:</em> <code>MT-P06</code> now writes its acceptance criteria down before it starts. If it passes, <code>MT-U05</code> builds a <strong>limited</strong> native node: scheduler, a vault on the OS key store, Telegram, read connectors that need no sandbox, recipes (§4.6), sealed tools and degraded mode. It does <strong>not</strong> offer the shell tool, skill scripts or the browser sidecar and never goes above T2, and <code>doctor</code> and the documentation say exactly what is missing. A Windows-only user could then use Menux for everyday automations without WSL2, but not for anything that needs the Linux sandbox.</p>
+<h3 id="35-6-distribution">35.6 Distribution</h3>
+<p>Signed satellite installers (a signed installer for Windows, a signed and notarized package for macOS; the exact channels are chosen in <code>R01</code>), a visible updater with signature checks, and no "pipe a script into a shell" install.</p>
+<hr/>
+<h2 id="36-mesh-safety-additions">36. Mesh Safety Additions</h2>
+<h3 id="36-1-threats-and-answers">36.1 Threats and answers</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Threat</th>
+<th style="text-align: left;">Answer</th>
+<th style="text-align: left;">Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">The server forges or replays a command</td>
+<td style="text-align: left;">Signed commands, counters, lifetimes (§31.5)</td>
+<td style="text-align: left;"><code>Q09</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">The server adds a controller</td>
+<td style="text-align: left;">Node approval needed (§29.2)</td>
+<td style="text-align: left;"><code>Q09</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Hostile web controller code</td>
+<td style="text-align: left;">Web class limited to T3 and a passkey bound to the action</td>
+<td style="text-align: left;"><code>Q09</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Stolen phone</td>
+<td style="text-align: left;">Revoke from anywhere; passkey and device key needed; sessions expire; Panic</td>
+<td style="text-align: left;"><code>Q09</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">A satellite returns poisoned data</td>
+<td style="text-align: left;">Labelled untrusted, passes the Reader (<code>T11</code>)</td>
+<td style="text-align: left;"><code>Q07</code>, <code>Q09</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">A satellite or node tries to widen its own power</td>
+<td style="text-align: left;">Local policy is final; a satellite's dial can only narrow</td>
+<td style="text-align: left;"><code>Q09</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">A compromised device pushes a bad skill or spec through sync</td>
+<td style="text-align: left;">Arrives disabled; memory keeps its trust label; no secrets or screen memory travel</td>
+<td style="text-align: left;"><code>Q10</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Relay man-in-the-middle</td>
+<td style="text-align: left;">Authenticated key exchange with pinned device keys</td>
+<td style="text-align: left;"><code>Q09</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Account takeover (attacker has the MiniMe login)</td>
+<td style="text-align: left;">Cannot add a controller (no node approval) and has no key to sign commands</td>
+<td style="text-align: left;"><code>Q09</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">A revoked device lingers</td>
+<td style="text-align: left;">Node distrusts the key and rotates the mesh key even if the server lies</td>
+<td style="text-align: left;"><code>Q09</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Notification leaks content</td>
+<td style="text-align: left;">Minimal text by default; details only over the relay</td>
+<td style="text-align: left;"><code>Q10</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Flooding</td>
+<td style="text-align: left;">Per-device and per-account rate limits at the relay</td>
+<td style="text-align: left;"><code>E01</code>, <code>Q09</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="36-2-failure-behavior">36.2 Failure behavior</h3>
+<p>If the server is unreachable, local work continues and remote commands fail visibly. If a key does not verify, the command is refused and logged. If a device is unknown, it is treated as a stranger. Nothing relaxes on a failure.</p>
+<h3 id="36-3-tests-that-block-release">36.3 Tests that block release</h3>
+<p><code>MT-Q09</code> (mesh red team) and <code>MT-Q10</code> (mesh privacy, extending the canary: only ciphertext for at most 24 hours at rest, deleted on delivery, no run content or frame bodies in logs) block the 5R release. The control benchmark per operating system (<code>MT-P05</code>) and the pinned-backend checks block 5P.</p>
+<hr/>
+<h2 id="37-further-ideas-not-scheduled">37. Further Ideas (Not Scheduled)</h2>
+<p>These came out of the agent-desktop review and the mesh design. None is a commitment. "Source" says where each came from.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Idea</th>
+<th style="text-align: left;">What it would do</th>
+<th style="text-align: left;">Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Run hand-off</td>
+<td style="text-align: left;">Continue a run on another node: checkpoint, resume with its history, tiers re-evaluated on the target</td>
+<td style="text-align: left;">Mesh design (M2C already resumes runs from device-held history)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Notification mirroring</td>
+<td style="text-align: left;">Show a desktop notification on the phone, read-only and minimal</td>
+<td style="text-align: left;">agent-desktop's notification commands</td>
+</tr>
+<tr>
+<td style="text-align: left;">Clipboard and file drop between devices</td>
+<td style="text-align: left;">Explicit, per direction, T3, scanned for secrets</td>
+<td style="text-align: left;">Mesh design</td>
+</tr>
+<tr>
+<td style="text-align: left;">Wake a sleeping machine</td>
+<td style="text-align: left;">A peer node on the same network wakes it (T3)</td>
+<td style="text-align: left;">Mesh design</td>
+</tr>
+<tr>
+<td style="text-align: left;">Capability leasing</td>
+<td style="text-align: left;">"Let this laptop be controlled for an hour", then it closes by itself</td>
+<td style="text-align: left;">Mesh design</td>
+</tr>
+<tr>
+<td style="text-align: left;">Two-person rule</td>
+<td style="text-align: left;">Always-confirm items need two controllers (team policy, <code>T09</code>)</td>
+<td style="text-align: left;">Mesh design</td>
+</tr>
+<tr>
+<td style="text-align: left;">App-readiness score in <code>doctor</code></td>
+<td style="text-align: left;">Share of interactive elements that have names and native IDs predicts how well the accessibility rung will work, and recommends vision only where it is low</td>
+<td style="text-align: left;">agent-desktop review</td>
+</tr>
+<tr>
+<td style="text-align: left;">Trace to audit and trace to skill</td>
+<td style="text-align: left;">Redacted session traces feed the audit log, and a successful recorded session becomes a parameterized skill draft (<code>M10</code>)</td>
+<td style="text-align: left;">agent-desktop review</td>
+</tr>
+<tr>
+<td style="text-align: left;">An interaction lease for physical input</td>
+<td style="text-align: left;">Only one automation at a time uses the real pointer and keyboard</td>
+<td style="text-align: left;">agent-desktop review</td>
+</tr>
+<tr>
+<td style="text-align: left;">Panic releases held input</td>
+<td style="text-align: left;">A key-up and mouse-up sweep on panic</td>
+<td style="text-align: left;">agent-desktop review</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mesh <code>doctor</code></td>
+<td style="text-align: left;">Cross-device checks, for example "the Windows satellite has been offline for three days"</td>
+<td style="text-align: left;">Mesh design</td>
+</tr>
+<tr>
+<td style="text-align: left;">Planner knows the mesh</td>
+<td style="text-align: left;">The Planner drafts <code>requires</code> from capability names</td>
+<td style="text-align: left;">Mesh design</td>
+</tr>
+<tr>
+<td style="text-align: left;">Bring your own sync transport</td>
+<td style="text-align: left;">The same encrypted records over a user's own folder (NAS, Syncthing)</td>
+<td style="text-align: left;">Mesh design</td>
+</tr>
+</tbody>
+</table></div>
+<hr/>
+<h2 id="38-maintenance-checklist">38. Maintenance Checklist</h2>
 <p>For every Menux release, verify:</p>
 <ul>
 <li>[ ] <code>menux doctor</code> identifies platform, WSL, service, vault, account, and sandbox problems.</li>
@@ -1297,8 +2958,51 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <li>[ ] Legal and compliance gates are visible for Google and marketplace features.</li>
 <li>[ ] Planned and gated capabilities remain labeled accurately.</li>
 </ul>
+<p><strong>Companion Expansion releases (5A, 5B, 5C) also verify:</strong></p>
+<ul>
+<li>[ ] Every third-party component is in <code>docs/menux/third_party.md</code> with a recorded licence decision and an own-build fallback.</li>
+<li>[ ] The ladder selector uses the highest supported rung, steps down on failure, and ends in a message to the owner, never a silent failure.</li>
+<li>[ ] Every pointer or keyboard action checks its preconditions and verifies its postconditions; failed verification stops the run.</li>
+<li>[ ] Context-based tiering holds: contained input is T1 only in a disposable session with no accounts; unknown context takes the higher tier.</li>
+<li>[ ] Grants are scoped, expire, can be revoked, are logged, and never cover the always-confirm list.</li>
+<li>[ ] Panic stops the virtual desktop, revokes all grants and survives a restart.</li>
+<li>[ ] In Shared mode the user's input always wins and Menux yields.</li>
+<li>[ ] Screen memory is off by default, an indicator is visible whenever capture runs, exclusions hold, and "forget" really deletes (indexes and backups included).</li>
+<li>[ ] No screen content, screenshot or extracted text is at rest on the server (canary).</li>
+<li>[ ] The CPU-only path never sends an image without consent; the GPU path keeps images on the device.</li>
+<li>[ ] The GUI red-team suite (<code>MT-Q07</code>) is green on the release build.</li>
+<li>[ ] A shared skill template contains no personal strings from the seeded canary and installs disabled.</li>
+<li>[ ] The game profile is off by default and shows the anti-cheat notice.</li>
+<li>[ ] Reliability numbers per application, rung and compositor are published and match the benchmark.</li>
+<li>[ ] WSL2 and Windows documentation says plainly what is and is not controllable.</li>
+</ul>
+<p><strong>Mesh releases (5R, 5P) also verify:</strong></p>
+<ul>
+<li>[ ] A new controller or satellite cannot be added without approval on the node.</li>
+<li>[ ] A server that forges, replays, drops or reorders frames cannot cause an action the node did not approve (<code>MT-Q09</code>).</li>
+<li>[ ] The web class never approves above T3, chat never above T3, and T5, vault export and loosening the dial are local only.</li>
+<li>[ ] Panic and deny work from every controller without step-up, reach every node and survive a restart.</li>
+<li>[ ] Remote origin never lowers a tier, and a satellite's dial can only narrow.</li>
+<li>[ ] Commands at T2 or above are never queued or replayed after they expire.</li>
+<li>[ ] Revoking a device makes the node distrust its key and rotate the mesh key even if the server lies.</li>
+<li>[ ] Sync is off by default, items arrive disabled, and no vault, token or screen memory is in it; only ciphertext, for at most 24 hours, is at rest on the server (<code>MT-Q10</code>).</li>
+<li>[ ] Two nodes never run the same scheduled automation twice, and a node without server contact skips instead of duplicating.</li>
+<li>[ ] Every agent-desktop command is in the capability registry, an unregistered command is denied, and its version pin and licence record are current.</li>
+<li>[ ] An action that was delivered but unverified is not retried before its postcondition is checked.</li>
+<li>[ ] Satellite documentation says plainly what a satellite cannot do and that a node is still required.</li>
+</ul>
+<p><strong>Revision 1.3 releases (Phase 4U and <code>MT-U05</code>) also verify:</strong></p>
+<ul>
+<li>[ ] A recipe contains only catalogue actions, cannot raise a tier, runs with the network off and writes no <code>usage_ledger</code> rows.</li>
+<li>[ ] Degraded mode sends one notification per state change and replays nothing at T2 or above.</li>
+<li>[ ] Policy decisions are identical under every model label (<code>MT-Q11</code>).</li>
+<li>[ ] Starter templates install disabled, dry-run first, run attended, and have no privilege a user-written spec lacks.</li>
+<li>[ ] The evidence pack's numbers match the CI run that built the release and contain no payloads.</li>
+<li>[ ] If the limited native node exists: it refuses the shell tool, skill scripts and anything above T2, and <code>doctor</code> lists what is missing.</li>
+<li>[ ] The comparison in §40 was re-checked against the other agent's current release.</li>
+</ul>
 <hr/>
-<h2 id="18-source-map">18. Source Map</h2>
+<h2 id="39-source-map">39. Source Map</h2>
 <p>The main planning sources for this manual are:</p>
 <ul>
 <li><code>data/docs/Menux___Build_Execution_Guide.md</code>;</li>
@@ -1307,7 +3011,112 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <li>the planned <code>minicore/</code>, <code>menux/</code>, and <code>backend/mate/</code> packages;</li>
 <li>the protocol, policy, sandbox, connector, memory, and quality work packages described by the build guide.</li>
 </ul>
-<p>This document is the user-facing feature layer. The build guide remains authoritative for patch order, exact modules, tests, dependency gates, and implementation status.</p><div class="bk-footer">
+<p>This document is the user-facing feature layer. The build guide remains authoritative for patch order, exact modules, tests, dependency gates, and implementation status.</p>
+<p><strong>Design references for the Companion Expansion (§17–§27).</strong> These projects were reviewed on 2026-10-26 for design ideas only. They are not dependencies, and none of their code is used until <code>MT-R05</code> records a licence decision (§27):</p>
+<ul>
+<li>Microsoft UFO2: a host agent with application-specialized agents, a unified GUI-and-API action layer, hybrid accessibility-plus-vision control detection, and a Picture-in-Picture virtual desktop so agent and user can work at the same time.</li>
+<li>Agent S (Simular): experience-augmented hierarchical planning, continual memory of past tasks, an agent-computer interface, and the split between a planning model and a grounding model.</li>
+<li>Screenpipe: event-driven screen capture, accessibility text first with OCR fallback, local SQLite storage, content-type switches, and local-model support.</li>
+<li><code>computer-use-linux</code> and similar Linux MCP servers: AT-SPI accessibility trees, screencast-portal screenshots, RemoteDesktop-portal and <code>ydotool</code> input, and window targeting across GNOME, KDE, Hyprland, i3 and COSMIC.</li>
+<li>OmniParser, UI-TARS and Cua: screen parsing and grounding models, and pairing a local grounding model with a cloud planner so that screenshots stay on the device.</li>
+<li>OpenClaw: skills as plain readable files, a heartbeat, layered memory, and one gateway for many channels; also the cautionary tale of malicious skills in a public registry, exposed instances, memory poisoning and heartbeat abuse (the reasons for CX6 and §26).</li>
+<li>AIOS: kernel-style services for agents (scheduler, context, memory, storage, tools and an access manager), a useful checklist for what a local agent runtime needs.</li>
+</ul>
+<p><strong>Design references for the mesh and cross-platform control (§28–§37).</strong> Reviewed on 2026-11-14. They were read, not built or run:</p>
+<ul>
+<li>agent-desktop (Vercel Labs): an accessibility-tree command-line tool, C library and MCP server for macOS, Windows and Linux, with snapshot-scoped element references, strict resolution errors, delivery states with a retry hint, notification commands and a macOS sandbox command. It contains no model. A candidate component (§27), not a dependency, until <code>MT-R05</code> records a licence decision.</li>
+<li>MiniMe and M2C device pairing: the device-code flow, the device registry, the device socket with revoked and superseded close codes, the closed v1 protocol envelope, and the logout that does not yet revoke on the server (<code>m2c/src/m2c/auth/login.py</code>). The mesh extends the same Devices page and uses a separate protocol namespace for that reason.</li>
+</ul>
+<p><strong>Design references for revision 1.3 (§40).</strong> Reviewed on 2026-11-21: Mercury Agent (<code>cosmicstack-labs/mercury-agent</code>, MIT licence, version 1.5.4, 1,195 commits at the time). The repository was cloned and its source, <code>README.md</code>, <code>SECURITY.md</code>, <code>DECISIONS.md</code> and <code>CHANGELOG.md</code> were read. On the same day the table's rows were checked a second time against a fresh clone (1,197 commits, 58 after the <code>v1.5.4</code> tag): each was matched to source, and two rows were corrected (OS-level isolation, testing). Its six security test files (<code>src/security/</code>) were run and passed (91 tests); see the note under the table for the full suite. <strong>Its Optimus plugin was not tried.</strong> It is not a dependency and none of its code is used. The Provider Consolidation Guide (Appendix B) and the Migration Guide (Appendix A) are the other sources for §12.5 and §35.</p>
+<hr/>
+<h2 id="40-where-menux-sits-among-personal-agents-revisi">40. Where Menux Sits Among Personal Agents (revision 1.3)</h2>
+<p>This section records, as of 2026-11-21, what one shipped open-source personal agent does, what Menux takes from it, and what Menux does differently. That agent moved fast (about 550 commits in the month before the review), so re-check a row before relying on it (§38). The statements about Mercury are from reading its source and documents, not from running it.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Area</th>
+<th style="text-align: left;">Mercury Agent (shipped, version 1.5.4)</th>
+<th style="text-align: left;">Menux (as planned)</th>
+<th style="text-align: left;">What Menux takes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Distribution and licence</td>
+<td style="text-align: left;">MIT; one-line install; desktop, Android and iOS app sources in the repository (the phone apps were not yet in the app stores at the 1.5.3 release)</td>
+<td style="text-align: left;">Node on Linux and WSL2; satellites for Windows and macOS; the phone is an installable web app</td>
+<td style="text-align: left;"><code>MT-U02</code> (guided first run); D44 (openness); D43 (limited native node)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Brain and keys</td>
+<td style="text-align: left;">Local runtime; the user's own provider keys (cloud or local models); an optional hosted router</td>
+<td style="text-align: left;">Hybrid: a local node, with the model loop on the MiniMe server under one shared pool</td>
+<td style="text-align: left;">Nothing: a deliberate difference, based on the assumption that most users cannot run a strong local model (§12.5)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Untrusted content</td>
+<td style="text-align: left;">Code-level provenance and injection guard: turn-scoped taint, tools that send or control need an explicit owner yes, fail-closed when unattended. It relaxed confirmation for strong models in attended chat and kept full protection for bots and scheduled runs</td>
+<td style="text-align: left;">Reader/actor split (the Reader has no tools), sealed tools, taint, tiers fixed in code</td>
+<td style="text-align: left;"><code>UX1</code> and D39: never vary by model</td>
+</tr>
+<tr>
+<td style="text-align: left;">OS-level isolation</td>
+<td style="text-align: left;">No OS-level isolation for shell commands or skills was found (no <code>bubblewrap</code>, seccomp, Landlock or similar in <code>src/</code> or <code>crates/</code>). Mercury uses the word "sandbox" for a per-bot workspace folder, which is a directory boundary, not isolation. A skill's <code>SKILL.md</code> carries an <code>allowed-tools</code> field, but there are no declared file or network scopes, hash or signature to check at install</td>
+<td style="text-align: left;"><code>bubblewrap</code> sandbox, skill manifests, encrypted vault</td>
+<td style="text-align: left;">Keep: a Menux strength</td>
+</tr>
+<tr>
+<td style="text-align: left;">Computer use</td>
+<td style="text-align: left;">The Optimus plugin sees the screen and drives mouse and keyboard on macOS, Windows and Linux (vision-based; Wayland input is limited)</td>
+<td style="text-align: left;">The control ladder: commands, application scripting, accessibility, shortcuts, then pixels; a virtual desktop</td>
+<td style="text-align: left;">Keep the ladder; the reliability benchmark (<code>MT-Q06</code>, <code>MT-P05</code>) is how Menux shows it beats a pixels-first approach</td>
+</tr>
+<tr>
+<td style="text-align: left;">Automation</td>
+<td style="text-align: left;">Conversational scheduling, a Kanban board, a persistent fleet of specialist bots on one machine</td>
+<td style="text-align: left;">Declarative audited specs with dry run, graduation and rollback</td>
+<td style="text-align: left;"><code>MT-U01</code> (no-model recipes); a bot fleet is not a goal</td>
+</tr>
+<tr>
+<td style="text-align: left;">Coding</td>
+<td style="text-align: left;">A built-in coding terminal with a completion contract that requires a passing build or test</td>
+<td style="text-align: left;">Delegated to M2C</td>
+<td style="text-align: left;">Nothing; coding stays in M2C</td>
+</tr>
+<tr>
+<td style="text-align: left;">Multi-device</td>
+<td style="text-align: left;">A tunnel plus approval of paired devices; one daemon</td>
+<td style="text-align: left;">A signed, end-to-end encrypted mesh with controller classes and failover leases</td>
+<td style="text-align: left;">Keep</td>
+</tr>
+<tr>
+<td style="text-align: left;">Channels and voice</td>
+<td style="text-align: left;">Telegram, Discord, Slack, Signal, a WhatsApp plugin, a voice engine</td>
+<td style="text-align: left;">Telegram first, then Slack and Discord; opt-in voice notes (<code>MT-D06</code>)</td>
+<td style="text-align: left;">D45 (terms review first); <code>MT-D06</code> extended</td>
+</tr>
+<tr>
+<td style="text-align: left;">Memory</td>
+<td style="text-align: left;">Local SQLite; typed facts about the user with decay; editable personality files</td>
+<td style="text-align: left;">Human-editable files with provenance, poisoning defenses and undo</td>
+<td style="text-align: left;">Nothing</td>
+</tr>
+<tr>
+<td style="text-align: left;">Testing</td>
+<td style="text-align: left;">A deterministic scripted-model evaluation harness and 394 test files (counted by <code>.test</code> and <code>.spec</code> file names in the 2026-11-21 clone; the first review recorded about 380)</td>
+<td style="text-align: left;">Red-team, canary, soak and live-model suites</td>
+<td style="text-align: left;"><code>MT-Q11</code> (scripted-model scenario harness)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Offline use</td>
+<td style="text-align: left;">Can run fully local with a local model</td>
+<td style="text-align: left;">Model runs need the server; recipes and degraded mode work without it</td>
+<td style="text-align: left;"><code>MT-U01</code>, <code>MT-U03</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Checks run on 2026-11-21.</strong> Confirmed in source: version 1.5.4 and the MIT licence; 549 commits in the month to 2026-11-21 (the review said about 550); strong-model relaxation is <code>relaxed = isStrongModel(model) &amp;&amp; !unattended</code>, so bots and scheduled runs keep the full gate; the changelog records that release 1.5.2 relaxed bots by mistake and a later release made "bots are never relaxed" (this is the history behind <code>D39</code>); the Optimus plugin, the Signal, Telegram, Discord and Slack channels, the WhatsApp plugin, the tunnel with device approval and the completion contract all exist. <strong>Tests:</strong> the root suite (356 test files outside <code>apps/</code>, which the repository's own <code>vitest</code> config excludes) was run in three batches: 3,255 tests passed, 48 were skipped and none failed. A single-process run of the whole suite hung partway on the same machine, so the batches were used; the cause of the hang was not investigated. <strong>Not run:</strong> the Optimus plugin on a real screen, and the separate <code>apps/</code> workspaces (desktop and mobile), whose dependencies were not installed. The repository's <code>SECURITY.md</code> still lists <code>1.3.x</code> as the supported version, so read its security claims from the code, as this review did.</p>
+<p><strong>Where the shipped agent is ahead today:</strong> it exists, installs in one line, runs natively on every desktop operating system, has phone apps, more channels and an open licence. <strong>Where Menux's design is ahead:</strong> structural defenses against prompt injection, OS-level sandboxing of tools and skills, a tiered control ladder and a signed mesh. The first list is a product; the second is a plan, and Menux earns it only when <code>MT-Q02</code>, <code>MT-Q09</code> and the evidence pack (<code>MT-U06</code>) show it.</p><div class="bk-footer">
   <div class="bk-footer-hdr">
     <span>End of <b>Chapter 8: Menux — Complete Feature & Product Guide</b></span>
     <a href="docs.html">View all 14 chapters in Docs →</a>
@@ -1321,7 +3130,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
       <b>Menux Build Execution Guide</b>
       <span>Part IV · Menux</span>
     </a></div>
-</div></article><div class="toc"><b>On this page</b><a class="t3" href="#architectural-synchronization-overrides-o1-o8-fr">Architectural Synchronization (Overrides O1–O8 from Menux__</a><a class="t2" href="#1-what-menux-is">1. What Menux Is</a><a class="t2" href="#2-trust-and-data-placement">2. Trust and Data Placement</a><a class="t3" href="#2-1-device-as-source-of-truth">2.1 Device as source of truth</a><a class="t3" href="#2-2-server-persistence">2.2 Server persistence</a><a class="t3" href="#2-3-ephemeral-server-content">2.3 Ephemeral server content</a><a class="t3" href="#2-4-third-parties">2.4 Third parties</a><a class="t2" href="#3-installation-and-node-lifecycle">3. Installation and Node Lifecycle</a><a class="t3" href="#3-1-prerequisite">3.1 Prerequisite</a><a class="t3" href="#3-2-node-commands">3.2 Node commands</a><a class="t3" href="#3-3-foreground-and-service-operation">3.3 Foreground and service operation</a><a class="t3" href="#3-4-wsl2-behavior">3.4 WSL2 behavior</a><a class="t2" href="#4-automation-specifications">4. Automation Specifications</a><a class="t3" href="#4-1-declarative-automation-files">4.1 Declarative automation files</a><a class="t3" href="#4-2-validation-rules">4.2 Validation rules</a><a class="t3" href="#4-3-drafting-with-the-planner">4.3 Drafting with the Planner</a><a class="t3" href="#4-4-dry-run">4.4 Dry run</a><a class="t3" href="#4-5-automation-lifecycle">4.5 Automation lifecycle</a><a class="t2" href="#5-triggers-and-scheduling">5. Triggers and Scheduling</a><a class="t3" href="#5-1-trigger-types">5.1 Trigger types</a><a class="t3" href="#5-2-cron-and-interval-scheduling">5.2 Cron and interval scheduling</a><a class="t3" href="#5-3-missed-runs">5.3 Missed runs</a><a class="t3" href="#5-4-heartbeat-gating">5.4 Heartbeat gating</a><a class="t3" href="#5-5-webhooks">5.5 Webhooks</a><a class="t2" href="#6-trust-tiers-and-unattended-work">6. Trust Tiers and Unattended Work</a><a class="t3" href="#6-1-t0-to-t5-model">6.1 T0 to T5 model</a><a class="t3" href="#6-2-effective-tier">6.2 Effective tier</a><a class="t3" href="#6-3-unattended-ceiling">6.3 Unattended ceiling</a><a class="t3" href="#6-4-approvals">6.4 Approvals</a><a class="t3" href="#6-5-panic-button">6.5 Panic button</a><a class="t2" href="#7-the-automation-run">7. The Automation Run</a><a class="t3" href="#7-1-run-kinds">7.1 Run kinds</a><a class="t3" href="#7-2-run-orchestration">7.2 Run orchestration</a><a class="t3" href="#7-3-reader-and-actor-pipeline">7.3 Reader and actor pipeline</a><a class="t3" href="#7-4-retry-and-failure-behavior">7.4 Retry and failure behavior</a><a class="t3" href="#7-5-local-event-log">7.5 Local event log</a><a class="t2" href="#8-connectors-and-channels">8. Connectors and Channels</a><a class="t3" href="#8-1-connector-manifests">8.1 Connector manifests</a><a class="t3" href="#8-2-connector-stances">8.2 Connector stances</a><a class="t3" href="#8-3-telegram">8.3 Telegram</a><a class="t3" href="#8-4-email">8.4 Email</a><a class="t3" href="#8-5-calendar">8.5 Calendar</a><a class="t3" href="#8-6-files">8.6 Files</a><a class="t3" href="#8-7-browser-automation">8.7 Browser automation</a><a class="t3" href="#8-8-future-connectors">8.8 Future connectors</a><a class="t2" href="#9-memory-and-knowledge">9. Memory and Knowledge</a><a class="t3" href="#9-1-local-memory">9.1 Local memory</a><a class="t3" href="#9-2-search">9.2 Search</a><a class="t3" href="#9-3-memory-poisoning-defenses">9.3 Memory poisoning defenses</a><a class="t3" href="#9-4-skills">9.4 Skills</a><a class="t2" href="#10-notifications-and-inbox">10. Notifications and Inbox</a><a class="t3" href="#10-1-owner-notifications">10.1 Owner notifications</a><a class="t3" href="#10-2-browser-inbox">10.2 Browser inbox</a><a class="t3" href="#10-3-channel-approval-callbacks">10.3 Channel approval callbacks</a><a class="t2" href="#11-menux-and-m2c-cooperation">11. Menux and M2C Cooperation</a><a class="t2" href="#12-economics-and-budgets">12. Economics and Budgets</a><a class="t3" href="#12-1-one-account-and-one-pool">12.1 One account and one pool</a><a class="t3" href="#12-2-local-budgets">12.2 Local budgets</a><a class="t3" href="#12-3-server-limits">12.3 Server limits</a><a class="t3" href="#12-4-cost-estimates">12.4 Cost estimates</a><a class="t2" href="#13-operations-doctor-and-recovery">13. Operations, Doctor, and Recovery</a><a class="t3" href="#13-1-menux-doctor">13.1 menux doctor</a><a class="t3" href="#13-2-restart-recovery">13.2 Restart recovery</a><a class="t3" href="#13-3-pause-and-resume">13.3 Pause and resume</a><a class="t3" href="#13-4-logs-and-audits">13.4 Logs and audits</a><a class="t2" href="#14-product-phases">14. Product Phases</a><a class="t3" href="#phase-0-foundations">Phase 0: foundations</a><a class="t3" href="#phase-1-first-automation">Phase 1: first automation</a><a class="t3" href="#phase-2-safe-unattended-operation">Phase 2: safe unattended operation</a><a class="t3" href="#phase-3-memory-skills-and-triggers">Phase 3: memory, skills, and triggers</a><a class="t3" href="#phase-4-invite-only-beta">Phase 4: invite-only beta</a><a class="t3" href="#phase-5-desktop-and-voice">Phase 5: desktop and voice</a><a class="t3" href="#phase-6-ecosystem-and-release">Phase 6: ecosystem and release</a><a class="t2" href="#15-future-and-gated-features">15. Future and Gated Features</a><a class="t3" href="#15-1-desktop-control">15.1 Desktop control</a><a class="t3" href="#15-2-voice">15.2 Voice</a><a class="t3" href="#15-3-team-features">15.3 Team features</a><a class="t3" href="#15-4-skill-marketplace">15.4 Skill marketplace</a><a class="t3" href="#15-5-official-google-integrations">15.5 Official Google integrations</a><a class="t3" href="#15-6-menux-cloud">15.6 Menux Cloud</a><a class="t2" href="#16-what-menux-does-not-promise">16. What Menux Does Not Promise</a><a class="t2" href="#17-maintenance-checklist">17. Maintenance Checklist</a><a class="t2" href="#18-source-map">18. Source Map</a></div></div></main><small class="mm-built">Private. Built 2026-10-07 from commit febb685.</small><script id="bk-chapter-script">
+</div></article><div class="toc"><b>On this page</b><a class="t3" href="#architectural-synchronization-overrides-o1-o8-fr">Architectural Synchronization (Overrides O1–O8 from Menux__</a><a class="t3" href="#companion-extensions-cx1-cx7-added-in-revision-1">Companion Extensions (CX1–CX7, added in revision 1.1)</a><a class="t3" href="#mesh-extensions-mx1-mx9-added-in-revision-1-2">Mesh Extensions (MX1–MX9, added in revision 1.2)</a><a class="t3" href="#usability-and-reach-extensions-ux1-ux6-added-in-">Usability and Reach Extensions (UX1–UX6, added in revision 1.3</a><a class="t2" href="#1-what-menux-is">1. What Menux Is</a><a class="t2" href="#2-trust-and-data-placement">2. Trust and Data Placement</a><a class="t3" href="#2-1-device-as-source-of-truth">2.1 Device as source of truth</a><a class="t3" href="#2-2-server-persistence">2.2 Server persistence</a><a class="t3" href="#2-3-ephemeral-server-content">2.3 Ephemeral server content</a><a class="t3" href="#2-4-third-parties">2.4 Third parties</a><a class="t2" href="#3-installation-and-node-lifecycle">3. Installation and Node Lifecycle</a><a class="t3" href="#3-1-prerequisite">3.1 Prerequisite</a><a class="t3" href="#3-2-node-commands">3.2 Node commands</a><a class="t3" href="#3-3-foreground-and-service-operation">3.3 Foreground and service operation</a><a class="t3" href="#3-4-wsl2-behavior">3.4 WSL2 behavior</a><a class="t3" href="#3-5-guided-first-run-and-starter-templates-revis">3.5 Guided first run and starter templates (revision 1.3)</a><a class="t2" href="#4-automation-specifications">4. Automation Specifications</a><a class="t3" href="#4-1-declarative-automation-files">4.1 Declarative automation files</a><a class="t3" href="#4-2-validation-rules">4.2 Validation rules</a><a class="t3" href="#4-3-drafting-with-the-planner">4.3 Drafting with the Planner</a><a class="t3" href="#4-4-dry-run">4.4 Dry run</a><a class="t3" href="#4-5-automation-lifecycle">4.5 Automation lifecycle</a><a class="t3" href="#4-6-recipes-automations-that-need-no-model-revis">4.6 Recipes: automations that need no model (revision 1.3)</a><a class="t2" href="#5-triggers-and-scheduling">5. Triggers and Scheduling</a><a class="t3" href="#5-1-trigger-types">5.1 Trigger types</a><a class="t3" href="#5-2-cron-and-interval-scheduling">5.2 Cron and interval scheduling</a><a class="t3" href="#5-3-missed-runs">5.3 Missed runs</a><a class="t3" href="#5-4-heartbeat-gating">5.4 Heartbeat gating</a><a class="t3" href="#5-5-webhooks">5.5 Webhooks</a><a class="t2" href="#6-trust-tiers-and-unattended-work">6. Trust Tiers and Unattended Work</a><a class="t3" href="#6-1-t0-to-t5-model">6.1 T0 to T5 model</a><a class="t3" href="#6-2-effective-tier">6.2 Effective tier</a><a class="t3" href="#6-3-unattended-ceiling">6.3 Unattended ceiling</a><a class="t3" href="#6-4-approvals">6.4 Approvals</a><a class="t3" href="#6-5-panic-button">6.5 Panic button</a><a class="t3" href="#6-6-context-based-tiering-and-grants-companion">6.6 Context-based tiering and grants (Companion)</a><a class="t3" href="#6-7-security-does-not-depend-on-the-model-revisi">6.7 Security does not depend on the model (revision 1.3)</a><a class="t2" href="#7-the-automation-run">7. The Automation Run</a><a class="t3" href="#7-1-run-kinds">7.1 Run kinds</a><a class="t3" href="#7-2-run-orchestration">7.2 Run orchestration</a><a class="t3" href="#7-3-reader-and-actor-pipeline">7.3 Reader and actor pipeline</a><a class="t3" href="#7-4-retry-and-failure-behavior">7.4 Retry and failure behavior</a><a class="t3" href="#7-5-local-event-log">7.5 Local event log</a><a class="t2" href="#8-connectors-and-channels">8. Connectors and Channels</a><a class="t3" href="#8-1-connector-manifests">8.1 Connector manifests</a><a class="t3" href="#8-2-connector-stances">8.2 Connector stances</a><a class="t3" href="#8-3-telegram">8.3 Telegram</a><a class="t3" href="#8-4-email">8.4 Email</a><a class="t3" href="#8-5-calendar">8.5 Calendar</a><a class="t3" href="#8-6-files">8.6 Files</a><a class="t3" href="#8-7-browser-automation">8.7 Browser automation</a><a class="t3" href="#8-8-future-connectors">8.8 Future connectors</a><a class="t2" href="#9-memory-and-knowledge">9. Memory and Knowledge</a><a class="t3" href="#9-1-local-memory">9.1 Local memory</a><a class="t3" href="#9-2-search">9.2 Search</a><a class="t3" href="#9-3-memory-poisoning-defenses">9.3 Memory poisoning defenses</a><a class="t3" href="#9-4-skills">9.4 Skills</a><a class="t2" href="#10-notifications-and-inbox">10. Notifications and Inbox</a><a class="t3" href="#10-1-owner-notifications">10.1 Owner notifications</a><a class="t3" href="#10-2-browser-inbox">10.2 Browser inbox</a><a class="t3" href="#10-3-channel-approval-callbacks">10.3 Channel approval callbacks</a><a class="t2" href="#11-menux-and-m2c-cooperation">11. Menux and M2C Cooperation</a><a class="t2" href="#12-economics-and-budgets">12. Economics and Budgets</a><a class="t3" href="#12-1-one-account-and-one-pool">12.1 One account and one pool</a><a class="t3" href="#12-2-local-budgets">12.2 Local budgets</a><a class="t3" href="#12-3-server-limits">12.3 Server limits</a><a class="t3" href="#12-4-cost-estimates">12.4 Cost estimates</a><a class="t3" href="#12-5-model-classes-by-plan-revision-1-3">12.5 Model classes by plan (revision 1.3)</a><a class="t2" href="#13-operations-doctor-and-recovery">13. Operations, Doctor, and Recovery</a><a class="t3" href="#13-1-menux-doctor">13.1 menux doctor</a><a class="t3" href="#13-2-restart-recovery">13.2 Restart recovery</a><a class="t3" href="#13-3-pause-and-resume">13.3 Pause and resume</a><a class="t3" href="#13-4-logs-and-audits">13.4 Logs and audits</a><a class="t3" href="#13-5-degraded-mode-revision-1-3">13.5 Degraded mode (revision 1.3)</a><a class="t3" href="#13-6-security-evidence-pack-revision-1-3">13.6 Security evidence pack (revision 1.3)</a><a class="t2" href="#14-product-phases">14. Product Phases</a><a class="t3" href="#phase-0-foundations">Phase 0: foundations</a><a class="t3" href="#phase-1-first-automation">Phase 1: first automation</a><a class="t3" href="#phase-2-safe-unattended-operation">Phase 2: safe unattended operation</a><a class="t3" href="#phase-3-memory-skills-and-triggers">Phase 3: memory, skills, and triggers</a><a class="t3" href="#phase-4-invite-only-beta">Phase 4: invite-only beta</a><a class="t3" href="#phase-4u-usability-and-reach-revision-1-3">Phase 4U: usability and reach (revision 1.3)</a><a class="t3" href="#phase-5-the-companion-expansion-5a-5b-5c">Phase 5: the Companion Expansion (5A, 5B, 5C)</a><a class="t3" href="#phase-6-ecosystem-and-release">Phase 6: ecosystem and release</a><a class="t2" href="#15-future-and-gated-features">15. Future and Gated Features</a><a class="t3" href="#15-1-desktop-control">15.1 Desktop control</a><a class="t3" href="#15-2-voice">15.2 Voice</a><a class="t3" href="#15-3-team-features">15.3 Team features</a><a class="t3" href="#15-4-skill-marketplace">15.4 Skill marketplace</a><a class="t3" href="#15-5-official-google-integrations">15.5 Official Google integrations</a><a class="t3" href="#15-6-menux-cloud">15.6 Menux Cloud</a><a class="t3" href="#15-7-other-chat-channels-whatsapp-and-signal-rev">15.7 Other chat channels: WhatsApp and Signal (revision 1.3)</a><a class="t3" href="#15-8-a-small-local-model-for-outages-research-on">15.8 A small local model for outages (research only)</a><a class="t2" href="#16-what-menux-does-not-promise">16. What Menux Does Not Promise</a><a class="t2" href="#17-the-companion-vision-and-reach-levels">17. The Companion Vision and Reach Levels</a><a class="t3" href="#17-1-what-the-companion-is">17.1 What the Companion is</a><a class="t3" href="#17-2-reach-levels">17.2 Reach levels</a><a class="t3" href="#17-3-releases">17.3 Releases</a><a class="t3" href="#17-4-what-the-companion-does-not-change">17.4 What the Companion does not change</a><a class="t2" href="#18-the-control-ladder">18. The Control Ladder</a><a class="t3" href="#18-1-the-rule">18.1 The rule</a><a class="t3" href="#18-2-application-control-profiles">18.2 Application control profiles</a><a class="t3" href="#18-3-the-selector">18.3 The selector</a><a class="t3" href="#18-4-specialist-tools">18.4 Specialist tools</a><a class="t3" href="#18-5-verification">18.5 Verification</a><a class="t3" href="#18-6-guide-mode">18.6 Guide mode</a><a class="t2" href="#19-working-alongside-the-user">19. Working Alongside the User</a><a class="t3" href="#19-1-the-principle">19.1 The principle</a><a class="t3" href="#19-2-three-modes">19.2 Three modes</a><a class="t3" href="#19-3-the-virtual-desktop">19.3 The virtual desktop</a><a class="t3" href="#19-4-live-view-and-take-over">19.4 Live view and take-over</a><a class="t3" href="#19-5-shared-mode-and-input-arbitration">19.5 Shared mode and input arbitration</a><a class="t3" href="#19-6-the-tray-control-panel">19.6 The tray control panel</a><a class="t3" href="#19-7-platform-notes">19.7 Platform notes</a><a class="t2" href="#20-screen-awareness-and-screen-memory">20. Screen Awareness and Screen Memory</a><a class="t3" href="#20-1-two-different-features">20.1 Two different features</a><a class="t3" href="#20-2-always-visible-always-pausable">20.2 Always visible, always pausable</a><a class="t3" href="#20-3-what-is-captured-and-when">20.3 What is captured, and when</a><a class="t3" href="#20-4-text-first">20.4 Text first</a><a class="t3" href="#20-5-what-is-never-captured-by-default">20.5 What is never captured by default</a><a class="t3" href="#20-6-storage">20.6 Storage</a><a class="t3" href="#20-7-using-the-memory">20.7 Using the memory</a><a class="t3" href="#20-8-what-leaves-the-device">20.8 What leaves the device</a><a class="t3" href="#20-9-the-timeline">20.9 The timeline</a><a class="t2" href="#21-perception-paths-cpu-only-and-gpu">21. Perception Paths: CPU-Only and GPU</a><a class="t3" href="#21-1-one-interface-two-paths">21.1 One interface, two paths</a><a class="t3" href="#21-2-choosing-a-path">21.2 Choosing a path</a><a class="t3" href="#21-3-cost-and-consent">21.3 Cost and consent</a><a class="t3" href="#21-4-models-and-licences">21.4 Models and licences</a><a class="t3" href="#21-5-honest-limits">21.5 Honest limits</a><a class="t2" href="#22-the-control-dial-permissions-grants-and-the-a">22. The Control Dial: Permissions, Grants and the Always-Confi</a><a class="t3" href="#22-1-the-global-ceiling">22.1 The global ceiling</a><a class="t3" href="#22-2-per-application-stance">22.2 Per-application stance</a><a class="t3" href="#22-3-per-capability-switches">22.3 Per-capability switches</a><a class="t3" href="#22-4-grants">22.4 Grants</a><a class="t3" href="#22-5-the-always-confirm-list">22.5 The always-confirm list</a><a class="t3" href="#22-6-where-the-controls-live">22.6 Where the controls live</a><a class="t2" href="#23-self-built-automations-learning-skill-sharing">23. Self-Built Automations, Learning, Skill Sharing and the Me</a><a class="t3" href="#23-1-menux-builds-its-own-automations">23.1 Menux builds its own automations</a><a class="t3" href="#23-2-experience-memory">23.2 Experience memory</a><a class="t3" href="#23-3-learning-by-demonstration">23.3 Learning by demonstration</a><a class="t3" href="#23-4-self-repair">23.4 Self-repair</a><a class="t3" href="#23-5-the-menux-map">23.5 The Menux Map</a><a class="t3" href="#23-6-sharing-skills">23.6 Sharing skills</a><a class="t3" href="#23-7-why-this-strictness">23.7 Why this strictness</a><a class="t2" href="#24-games-and-input-maps">24. Games and Input Maps</a><a class="t3" href="#24-1-input-maps">24.1 Input maps</a><a class="t3" href="#24-2-scope">24.2 Scope</a><a class="t3" href="#24-3-out-of-scope">24.3 Out of scope</a><a class="t3" href="#24-4-tiering">24.4 Tiering</a><a class="t2" href="#25-platforms-and-distribution">25. Platforms and Distribution</a><a class="t3" href="#25-1-linux-first">25.1 Linux first</a><a class="t3" href="#25-2-wayland-and-x11">25.2 Wayland and X11</a><a class="t3" href="#25-3-the-menux-session-image">25.3 The Menux session image</a><a class="t3" href="#25-4-wsl2">25.4 WSL2</a><a class="t3" href="#25-5-the-windows-satellite-replaces-the-windows-">25.5 The Windows satellite (replaces the Windows-side helper)</a><a class="t3" href="#25-6-native-windows-and-macos">25.6 Native Windows and macOS</a><a class="t2" href="#26-companion-safety-additions">26. Companion Safety Additions</a><a class="t3" href="#26-1-screen-content-is-untrusted">26.1 Screen content is untrusted</a><a class="t3" href="#26-2-the-task-scope-guard">26.2 The task-scope guard</a><a class="t3" href="#26-3-spoofed-prompts">26.3 Spoofed prompts</a><a class="t3" href="#26-4-clipboard-and-file-dialogs">26.4 Clipboard and file dialogs</a><a class="t3" href="#26-5-memory-poisoning">26.5 Memory poisoning</a><a class="t3" href="#26-6-failure-behavior">26.6 Failure behavior</a><a class="t3" href="#26-7-tests-that-block-release">26.7 Tests that block release</a><a class="t2" href="#27-reuse-or-build-licences-and-candidate-compone">27. Reuse or Build: Licences and Candidate Components</a><a class="t3" href="#27-1-the-rule">27.1 The rule</a><a class="t3" href="#27-2-candidate-components">27.2 Candidate components</a><a class="t3" href="#27-3-swap-boundaries">27.3 Swap boundaries</a><a class="t2" href="#28-the-device-mesh">28. The Device Mesh</a><a class="t3" href="#28-1-what-the-mesh-is">28.1 What the mesh is</a><a class="t3" href="#28-2-the-rules-mx1-mx9">28.2 The rules (MX1–MX9)</a><a class="t3" href="#28-3-the-devices-page">28.3 The Devices page</a><a class="t3" href="#28-4-device-states">28.4 Device states</a><a class="t2" href="#29-pairing-identity-and-revocation">29. Pairing, Identity and Revocation</a><a class="t3" href="#29-1-node-to-account">29.1 Node to account</a><a class="t3" href="#29-2-controller-to-node-node-approved">29.2 Controller to node (node-approved)</a><a class="t3" href="#29-3-satellite-to-node">29.3 Satellite to node</a><a class="t3" href="#29-4-keys">29.4 Keys</a><a class="t3" href="#29-5-revocation">29.5 Revocation</a><a class="t2" href="#30-remote-control-controllers-and-what-they-can-">30. Remote Control: Controllers and What They Can Do</a><a class="t3" href="#30-1-controller-classes">30.1 Controller classes</a><a class="t3" href="#30-2-what-a-controller-can-do">30.2 What a controller can do</a><a class="t3" href="#30-3-when-the-node-is-not-reachable">30.3 When the node is not reachable</a><a class="t3" href="#30-4-every-command-is-acknowledged">30.4 Every command is acknowledged</a><a class="t3" href="#30-5-origin-in-the-audit-log">30.5 Origin in the audit log</a><a class="t3" href="#30-6-notifications-to-controllers">30.6 Notifications to controllers</a><a class="t2" href="#31-the-remote-trust-ladder">31. The Remote Trust Ladder</a><a class="t3" href="#31-1-why-classes">31.1 Why classes</a><a class="t3" href="#31-2-who-can-approve-what">31.2 Who can approve what</a><a class="t3" href="#31-3-step-up">31.3 Step-up</a><a class="t3" href="#31-4-remote-sessions">31.4 Remote sessions</a><a class="t3" href="#31-5-what-the-node-checks">31.5 What the node checks</a><a class="t3" href="#31-6-tighten-at-once-loosen-with-care">31.6 Tighten at once, loosen with care</a><a class="t3" href="#31-7-what-a-compromised-server-can-and-cannot-do">31.7 What a compromised server can and cannot do</a><a class="t3" href="#31-8-a-known-gap-in-the-earlier-phases">31.8 A known gap in the earlier phases</a><a class="t2" href="#32-sync-spaces">32. Sync Spaces</a><a class="t3" href="#32-1-what-sync-is-for">32.1 What sync is for</a><a class="t3" href="#32-2-what-can-sync">32.2 What can sync</a><a class="t3" href="#32-3-how">32.3 How</a><a class="t3" href="#32-4-where-this-touches-o1">32.4 Where this touches O1</a><a class="t3" href="#32-5-setting-up-a-new-device">32.5 Setting up a new device</a><a class="t2" href="#33-placement-routing-leases-and-presence">33. Placement, Routing, Leases and Presence</a><a class="t3" href="#33-1-placement-fields">33.1 Placement fields</a><a class="t3" href="#33-2-one-writer-with-a-lease">33.2 One writer, with a lease</a><a class="t3" href="#33-3-routing-a-tool-to-a-satellite">33.3 Routing a tool to a satellite</a><a class="t3" href="#33-4-remote-live-view">33.4 Remote live view</a><a class="t3" href="#33-5-presence-and-triggers-from-devices">33.5 Presence and triggers from devices</a><a class="t3" href="#33-6-the-local-link">33.6 The local link</a><a class="t2" href="#34-cross-platform-control-with-agent-desktop">34. Cross-Platform Control with agent-desktop</a><a class="t3" href="#34-1-what-it-is">34.1 What it is</a><a class="t3" href="#34-2-why-menux-uses-it">34.2 Why Menux uses it</a><a class="t3" href="#34-3-how-menux-runs-it">34.3 How Menux runs it</a><a class="t3" href="#34-4-the-retry-rule-changes">34.4 The retry rule changes</a><a class="t3" href="#34-5-command-tiers">34.5 Command tiers</a><a class="t3" href="#34-6-skills-store-locators-not-references">34.6 Skills store locators, not references</a><a class="t3" href="#34-7-snapshots-are-untrusted-data">34.7 Snapshots are untrusted data</a><a class="t3" href="#34-8-known-limits-and-what-menux-does-about-them">34.8 Known limits and what Menux does about them</a><a class="t3" href="#34-9-version-and-licence-policy">34.9 Version and licence policy</a><a class="t2" href="#35-platforms-satellites-and-honest-limits">35. Platforms, Satellites and Honest Limits</a><a class="t3" href="#35-1-platform-tiers">35.1 Platform tiers</a><a class="t3" href="#35-2-what-works-where">35.2 What works where</a><a class="t3" href="#35-3-per-os-honesty">35.3 Per-OS honesty</a><a class="t3" href="#35-4-windows-with-wsl2">35.4 Windows with WSL2</a><a class="t3" href="#35-5-people-with-no-node">35.5 People with no node</a><a class="t3" href="#35-6-distribution">35.6 Distribution</a><a class="t2" href="#36-mesh-safety-additions">36. Mesh Safety Additions</a><a class="t3" href="#36-1-threats-and-answers">36.1 Threats and answers</a><a class="t3" href="#36-2-failure-behavior">36.2 Failure behavior</a><a class="t3" href="#36-3-tests-that-block-release">36.3 Tests that block release</a><a class="t2" href="#37-further-ideas-not-scheduled">37. Further Ideas (Not Scheduled)</a><a class="t2" href="#38-maintenance-checklist">38. Maintenance Checklist</a><a class="t2" href="#39-source-map">39. Source Map</a><a class="t2" href="#40-where-menux-sits-among-personal-agents-revisi">40. Where Menux Sits Among Personal Agents (revision 1.3)</a></div></div></main><small class="mm-built">Private. Built 2026-11-21 from commit d7d9f56.</small><script id="bk-chapter-script">
 (function(){
   // Reading progress bar
   var bar = document.querySelector('.bk-progress');
