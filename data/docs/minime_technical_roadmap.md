@@ -5,6 +5,8 @@
 
 **How to read this doc:** every technical phase below (Tech-A, Tech-B, ...) names which Business Phase it runs alongside, and what business-side gate (if any) has to clear before it can start. Nothing here changes the business roadmap's timeline, funding logic, or phase names — this is the "what do I actually build, this week, in what order" layer underneath it.
 
+**Revision 1.1 (2026-11-21).** Written after reading the code at MiniMe `3727ae3`, the Migration Guide (Appendix A) and the Provider Consolidation Guide (Appendix B). What changed: (1) §2 and §3 now say what is **already built** and what is not (Tech-A items 1 and 2 exist; the report layer does not); (2) the free-tier-to-paid provider move is no longer a one-line Tech-B item: it is Appendix B, with its own patches (`PV-00` to `PV-20`), and it comes **before** the rest of Tech-A's measurements, because dollar figures from free keys are meaningless; (3) §10 and §12 dates are marked as order, not schedule, because they predate the Rust decision gate (Appendix A, `MG-Z10`) and Appendix B; (4) new §13 gives the current execution order in two lanes. Phases Tech-C to Tech-H are unchanged.
+
 ---
 
 ## 0. Recommendation: where Brain design starts
@@ -51,14 +53,26 @@ The gap between Tech-B and Tech-C is deliberate — you chose to defer scaffoldi
 **Runs alongside:** Business Phase 0 (Foundation)
 **Starts:** now
 **Gate to start:** none — this is explicitly the first thing to build, per your own roadmap's checklist item #1.
-**Gate to exit:** cost-per-task and latency data flowing for every agent call, queryable, before Phase 1's pilot begins.
+**Gate to exit:** cost-per-task and latency data flowing for every agent call, queryable, before Phase 1's pilot begins. *(Revision 1.1: the data must come from the paid production keys, that is, after the Provider Consolidation Guide's go-live patch `PV-19`. Figures measured on free-tier keys are not the figures the product will have.)*
 
 ### What gets built
 
 1. **Per-call logging**, on every agent invocation regardless of role: provider, model, tokens in/out, wall-clock time, agent_key, role, tier/path, cost (computed from provider's real per-token pricing, not estimated). This hooks into wherever agent calls already funnel through today (the relay/emitter event stream) — you're not building a new call path, just attaching a logger to the existing one.
 2. **A queryable store for it (`llm_call_log` + unified `usage_ledger` in migration `0012`)** — the codebase already has `llm_call_log`; in Tech-A/B and M2C `S01`, extend/pair it with the single shared `usage_ledger` and `user_plans` schema (`surface in ('web', 'm2c', 'menux', 'system')`) so the ledger is **built once** and shared across MiniMe Web, M2C CLI, and Menux Node (`m2c_build_plan.md` O2, `Menux___Build_Execution_Guide.md` O2, Rulebook Rule 4). This becomes the dataset Tech-D's Brain prototype trains its judgment against later, and the dataset Business Phase 1's real cost-per-task validation depends on.
-4. **Model roster hygiene (Rulebook §2.3 & §6.7)** — replace retired Groq model IDs (`llama-3.1-8b-instant`, `llama-3.3-70b-versatile`) in `backend/utils/llm_client.py` (fallback chains, `QUOTA_CONFIG`, pricing table) and in the agents that still carry them in their own chains (`backend/agents/extraction_table_builder.py`, `backend/agents/note_table_builder.py`) with active pinned IDs (`llama-4-scout`, `gpt-oss-120b`), and ensure all image generation routes to `gemini-3.1-flash-lite-image` / `gemini-3.1-flash-image` (following the 2026-10-02 Gemini 2.5 Flash Image shutdown).
+4. **Model roster hygiene (Rulebook §2.3 & §6.7)** — replace retired Groq model IDs (`llama-3.1-8b-instant`, `llama-3.3-70b-versatile`) in `backend/utils/llm_client.py` (fallback chains, `QUOTA_CONFIG`, pricing table) and in the agents that still carry them in their own chains (`backend/agents/extraction_table_builder.py`, `backend/agents/note_table_builder.py`) with active pinned IDs (`llama-4-scout`, `gpt-oss-120b`), and ensure all image generation routes to `gemini-3.1-flash-lite-image` / `gemini-3.1-flash-image` (following the 2026-10-02 Gemini 2.5 Flash Image shutdown). **Superseded in part (revision 1.1):** the replacement text-model list in this item (`llama-4-scout`, `gpt-oss-120b`) is replaced by the four-model decision in the Provider Consolidation Guide (Appendix B: `openai/gpt-oss-120b` and `openai/gpt-oss-20b` on Groq, `claude-haiku-5-5`, `gemini-3.1-flash-lite`), and the retired IDs are removed by its patches, not by a separate edit. The image-routing half of this item is not covered by Appendix B: check it separately.
 3. **A basic query/report layer** — even a script that dumps "cost per task, p50/p95 latency per agent, per tier" is enough. This is the thing that replaces every placeholder dollar figure in the business roadmap's Part 7 earnings model with real numbers.
+
+### Status at MiniMe `3727ae3` (revision 1.1)
+
+| Item | Status | Evidence and what is left |
+|---|---|---|
+| 1. Per-call logging | **Built** | `utils/llm_client.py` writes a row per call to `llm_call_log` (migration `0008`) with cost and latency. |
+| 2. Queryable store, shared ledger | **Built** (not re-audited in depth) | `llm_call_log` (`0008`) and the unified `usage_ledger` (`0012`). |
+| 4. Model roster hygiene | **Not done; moved to Appendix B** | The retired Groq IDs are still referenced in 12 non-test files at `3727ae3`, and `-latest` aliases remain (18 occurrences; against Rulebook rule 3). Appendix B removes them. |
+| 3. Query / report layer | **Not found** | No script or route computing cost per task or p50/p95 latency per agent and tier was found in `scripts/` or `api/routes/usage.py`. Check once more, then build it **after** `PV-19`. |
+| 5. *(new)* Correct prices in the meter | **Not done; in Appendix B (`PV-06`)** | The price table in `llm_client.py` is wrong for at least two of the four models (Appendix B, hazard H8). A cost report built before `PV-06` would report wrong dollars. |
+
+**Order inside Tech-A (revision 1.1):** hygiene and prices and paid keys first (Appendix B), then the report layer, then the exit gate. The report layer is small; building it first only produces tidy-looking numbers that are wrong.
 
 ### Explicitly not in scope here
 
@@ -82,7 +96,7 @@ This phase is **deliberately not** about the Brain/EO-authoring ideas from our d
 ### What gets built
 
 1. **Real multi-tenancy** — per-user isolation in the relational DB and vector memory store, identity + active tier carried through the full call chain (agents → memory bus → relay → billing meter). This was already correctly scoped as non-negotiable in your business roadmap's Part 4.1 — it belongs here, not later.
-2. **Provider migration**: move the free-tier keys for Basic's five providers to paid accounts, at the counts your own roadmap flags as a working estimate to replace with real numbers — don't over-build the reserve/rotation logic for throughput reasons paid keys may no longer have; keep 2 keys per provider for failover, and only add more once Tech-A's real concurrency data says you need to.
+2. **Provider migration: superseded (revision 1.1).** This item is now the **Provider Consolidation Guide** (Appendix B, `data/docs/provider_consolidation_guide.md`): four paid models, production keys under new `PROD_` names so no old free key can stay on a production path, Perplexity Search as the only search provider, and per-lane key pools you grow by adding accounts. It covers **Basic and Free only**; Moderate and Ultimate are not launched on this stack (its decision PD-6). Pool sizes and failover follow that guide, not the earlier "2 keys per provider" estimate. Because it must finish before real users and before the Tech-A measurements mean anything, it is scheduled in Tech-A's window (§13), not here.
 3. **Billing plumbing & cross-surface cap enforcement (Rulebook §7.8 & §19.1)** — tier (`free`, `basic`, `moderate`, `ultimate`) and `surface` (`web`, `m2c`, `menux`, `system`) as first-class fields in `user_plans` and `usage_ledger` from day one. Because a Bangladesh Pvt Ltd cannot open a direct Stripe account without a foreign entity, wire **SSLCommerz + bKash + Nagad** for local BDT plans (`৳799` / `৳2,499` / `৳6,999`) and **Paddle / Lemon Squeezy (Merchant of Record) or Payoneer** for international USD plans (`$9` / `$29` / `$79`). Also execute the **Phase 0 Browser Cut (`MK_B00–B12`)** to remove Browser Python Run, Browser Terminal, and Browser Local-Folder mode in favor of the local-first M2C CLI and shared `minicore/` package.
 4. **Usage/cost dashboard, admin panel, audit logging** — matches your business roadmap's Phase 2 technical work exactly; no changes needed to that plan.
 5. **Decomposition-vs-consolidation empirical testing (business roadmap 3.3)**, run for the first time here against Basic's actual paid models, using Tech-A's cost/latency data as the scoring signal — this is where "test it, don't assume it" gets its first real evidence.
@@ -208,7 +222,9 @@ Structurally, nothing new — this is Tech-E/F's mechanism, with Ultimate's pack
 
 | Tech Phase | Business Phase alongside | Starts when | Exit gate |
 |---|---|---|---|
-| A — Instrumentation & baseline | Phase 0 | Now | Cost/latency data flowing for every agent call |
+| A — Instrumentation & baseline | Phase 0 | Now | Cost/latency data flowing for every agent call, measured on paid keys |
+| A′ — Provider consolidation *(Appendix B, new in rev 1.1)* | Phase 0 | The paid accounts are open and funded | No free key on any production path; dollars per call correct (`PV-19` go-live) |
+| Z — Conformance vectors and the Rust gate *(Appendix A, new in rev 1.1)* | Phase 0 | `MG-Z00` can start today | `MG-Z10` records PROCEED or STAY PYTHON |
 | B — Harden Basic for real users | Phase 0 (late) → 1 → 2 | Tech-A exit | Business Phase 2's own exit criteria |
 | *(deferred window — no new tech work)* | Phase 2, live | — | — |
 | C — Moderate scaffolding | End of Phase 2 → start of 3a | Business gate 3.5 clears | Scaffolding live, zero behavior change to Basic |
@@ -217,6 +233,8 @@ Structurally, nothing new — this is Tech-E/F's mechanism, with Ultimate's pack
 | F — Monitor v2 (closed-loop) | Phase 3a, shortly after E | Tech-E live with real traffic | Monitor catches a real problem live that v1 would've missed |
 | G — Ultimate's Brain tier | Phase 3b | Business Phase 3b gates clear | Config/model-swap only, if C-F were built correctly |
 | H — Code-authoring | Unscheduled | Tech-E/F proven trustworthy in production | Never fully autonomous — permanent human gate on new external access |
+
+*Revision 1.1:* the table gives the **order**. The calendar windows in §12 predate the Rust gate and Appendix B and should not be read as promises (§13).
 
 ---
 
@@ -239,10 +257,35 @@ To ensure every guide in the MiniMe Book stays in lockstep, this roadmap governs
 |---|---|---|---|
 | **FBEBC Stage 1 (Preprint)** | Sep – Oct 2026 (`S0`, `$0` cost) | Standalone `fbebc-research` repo; zero changes to `minime` backend | `fbebc-research-program-guide.md`, `fbebc-phase1-implementation-guide.md`, `STATUS.md` |
 | **Tech-A (Instrumentation & Baseline)** | Oct 2026 – Apr 2027 (`S0`) | Builds unified cost/token telemetry (`llm_call_log` + `usage_ledger` `0012`) & model hygiene | `minime_technical_roadmap.md` §2, `MiniMe_Financial_Strategy_Rulebook.md` Rule 4 |
+| **Provider consolidation (Appendix B)** | Starts when paid accounts are funded; ordered before the rest of Tech-A | Four paid models, `PROD_` keys, one search provider; Basic and Free only | `provider_consolidation_guide.md` |
+| **Rust decision gate and conformance vectors (Appendix A)** | Starts now (`MG-Z00`); the gate is `MG-Z10` | Vectors in `protocol/conformance/`; spike decides whether the client and node are Rust | `migration_guide.md` §1.1 |
 | **Cross-Product Architecture & Ledger Lock** | Nov 2026 (`S0` Gate) | Locks single account, single `usage_ledger` (`surface in ('web','m2c','menux','system')`), and `minicore/` extraction | `m2c_build_plan.md` O1–O8, `Menux___Build_Execution_Guide.md` O1–O8 |
 | **M2C (Local-First Coding Agent)** | Jan – Feb 2027 (`S0`, 64 WPs, 12 waves) | Phase 0 cuts browser bloat (`B00–B12`), extracts `minicore/` (`P00`), mounts `/api/codeagent/*` on existing backend | `m2c_feature_guide.md`, `m2c_build_plan.md` |
-| **Menux (Local-First Automation Agent)** | Mar – Jun 2027 (`S0`, 59 WPs, 16 waves) | Reuses `minicore/`, device-code auth, and `usage_ledger`; mounts `/api/menux/*` on existing backend | `menux_feature_guide.md`, `Menux___Build_Execution_Guide.md` |
+| **Menux (Local-First Automation Agent)** | Mar – Jun 2027 (`S0`, 59 WPs, 16 waves, plus 5 recommended Phase 4U WPs; see §13 for why dates are order, not schedule) | Reuses `minicore/`, device-code auth, and `usage_ledger`; mounts `/api/menux/*` on existing backend | `menux_feature_guide.md`, `Menux___Build_Execution_Guide.md` |
 | **Tech-B & S1 Pilot → S2 Public Launch** | Mar 2027 – Jan 2028 (`S1` → `S2`) | Hardens auth, RLS, BD+USD billing rails, and shared plan caps for public Basic + Free launch | `minime_feature_guide.md`, `MiniMe_Financial_Strategy_Rulebook.md` §11.1 |
 | **FBEBC Stage 2 (MiniMe-Integrated)** | Mar 2028+ (Gated on `G1–G4`) | Ports `EvolutionEngine` into `backend/agents/evolution/` once Basic is live and ops are green | `fbebc-research-program-guide.md` §2 |
 | **Tech-C/D/E/F/G (Moderate, Brain & Ultimate)** | Jul 2028 – Dec 2030 (`S2` → `S3a` → `S3b`) | Unlocks Moderate (`$29`), Brain batch/real-time tiers, Monitor v2, and Ultimate (`$79`) across Web, M2C, and Menux | `minime_technical_roadmap.md` §4–§8, `minime_feature_guide.md` §20 |
 
+---
+
+## 13. Current execution order (revision 1.1)
+
+**What is complete.** This roadmap is complete **as a plan**: Tech-A to Tech-H are defined with start and exit gates. It is **not** complete as work. Tech-A is partly built (§2 status table); Tech-B was not audited in revision 1.1 beyond its provider item; Tech-C to Tech-H have not started and start only when their gates clear (business gates and real data), not on a date.
+
+**The windows in §10 and §12 are an order, not a schedule.** They were written before the Rust decision gate (`MG-Z10`) and before Appendix B, and the M2C windows assume work that is still ahead (the remaining M2C packages and, if the gate passes, the Rust client). Update the dates in `MG-Z09` (if the gate passes) or when Appendix B finishes, whichever comes first.
+
+**Two lanes. One person can switch lanes, but never edit the same file in both.**
+
+| Lane | Order | Notes |
+|---|---|---|
+| **Backend** | 1. Appendix B (`PV-00` to `PV-20`) → 2. Tech-A report layer → 3. Tech-B (multi-tenancy, billing, admin) | Appendix B goes first on the files it names as shared (Appendix A §9.1). Run the load baseline (`MG-B01`) only after `PV-19`. |
+| **Client** | 1. `MG-Z00`, `MG-Z02` to `MG-Z07` → 2. **`MG-Z10` (the Rust gate)** → 3a. on `PROCEED`: the `MG-R*` packages, with the remaining M2C packages built in Rust; or 3b. on `STAY PYTHON`: the remaining M2C packages in Python → 4. Menux Phase 0 | Nothing in the client lane touches the backend files Appendix B edits. The F (frontend) and D (daemon) tracks of Appendix A are fillers between bigger items. |
+
+**While waiting for the paid accounts** (nothing here edits a file Appendix B edits):
+
+1. Open the paid accounts, one organisation or project per key, and read each account's real rate limits from its console. Appendix B lists the limits it could not verify (its section 12).
+2. Get a green backend baseline: the unit, integration, static and canary suites, plus the real-Postgres tests that are skipped without a database.
+3. Do `MG-Z00`, `MG-Z02` and the vector packages `MG-Z03` to `MG-Z06` (Appendix A).
+4. Write the evaluation set the slot assignments need: real tasks per role class with expected outcomes, as new files only.
+
+**What this order deliberately avoids.** Growing the free key pools; building more of M2C in Python before the gate decides the language; starting the Menux node or the Brain before paid-key measurements and the client lane's gate exist.

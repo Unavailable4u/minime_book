@@ -4,11 +4,13 @@
 
 ### From "M2C is done" to a personal automation system: ordered, parallelizable, patch-sized work packages
 
-*Version 1.2 · 2026-11-14 · companion to `menux_guide.md` (what to build), `m2c_build_plan.md` (how M2C is built, whose patch workflow this guide reuses) and `m2c_guide.md`. Where this guide and `menux_guide.md` disagree, **this guide wins** (§2).*
+*Version 1.3 · 2026-11-21 (1.2: 2026-11-14) · companion to `menux_guide.md` (what to build), `m2c_build_plan.md` (how M2C is built, whose patch workflow this guide reuses) and `m2c_guide.md`. Where this guide and `menux_guide.md` disagree, **this guide wins** (§2).*
 
 > **Revision 1.1 (2026-10-26): the Companion Expansion.** Phase 5 is rewritten and split into **5A (native control), 5B (eyes and hands) and 5C (companion)** (§10); new tracks `X`, `V` and `S` (§4.2); new decisions D15–D25 (§3); extensions CX1–CX7 and the Companion trust copy (§2); new reserved numbers (§4.5); new waves 17–27 (§4.6); new tests, risks and index rows. **Phases 0–4 are unchanged: 59 work packages, 16 waves, 133 points.** Phase 5 adds 45 work packages and about 133 points and starts only after `MT-I04`. The user-facing description is in `menux_feature_guide.md` §17–§27.
 
 > **Revision 1.2 (2026-11-14): the device mesh and cross-platform control.** Two new phases after 5C: **5R (remote control and the device mesh)** and **5P (platforms and satellites)** (§10.6, §10.7). A phone, a browser, a chat app or a second computer linked to the MiniMe account can control, approve and sync with a node; Windows and macOS are reached through **satellites** that use agent-desktop as the accessibility backend. New extensions MX1–MX9 and the mesh trust copy (§2); new decisions D26–D38 (§3); new track `P` (§4.2); reserved migrations `0022` and `0023`, a separate protocol namespace `protocol/mesh/v1` and the route `WS /v1/mate/mesh` (§4.5); waves 28–34 (§4.6). **The Windows-side helper (`D07`, `D08`) is replaced by the Windows satellite `P03`; `D02` is re-scoped from M to L; `R05` gains the new candidates.** **Phases 0–4 are unchanged: 59 work packages, 16 waves, 133 points.** Phase 5 is now 68 work packages and about 204 points (5A 13/34, 5B 21/67, 5C 10/32, 5R 17/49, 5P 7/22). One M2C follow-up is needed first: `S03b`, device self-revoke (§1). The user-facing description is in `menux_feature_guide.md` §28–§37.
+
+> **Revision 1.3 (2026-11-21): usability, reach and evidence.** Written after reading the shipped open-source agent Mercury Agent (`menux_feature_guide.md` §40), the M2C code at `3727ae3`, the Migration Guide (Appendix A) and the Provider Consolidation Guide (Appendix B). It closes the gaps that comparison found without touching the safety design. **New track `U`** (§4.2) and a new **Phase 4U** (§9.1): `U01` recipes (automations that need no model), `U02` starter templates and a guided `menux init`, `U03` degraded mode, `U06` the security evidence pack, and `Q11` a scripted-model scenario harness: 5 work packages, 8 points, **recommended before `MT-I04` and not counted in the 59 work packages and 133 points of Phases 0–4, which are unchanged (16 waves)**. **Phase 5P gains `U05`**, a limited native Windows and macOS node that is built only if `P06` passes written criteria (§10.7); Phase 5 is now 69 work packages and about 208 points. `D06` (voice) is extended, not duplicated. **New decisions D39–D46** (§3); the matching user-facing rules `UX1–UX6` are in `menux_feature_guide.md`. **Language:** file names ending `.py` in this guide are the Python reference names; whether the node is built in Rust is decided by the gate `MG-Z10` in Appendix A (§1.1), and nothing in this guide changes either way except the file extensions.
 
 ---
 
@@ -237,13 +239,23 @@ Added in revision 1.2. They govern the device mesh (Phases 5R and 5P) and sit be
 | D33 | Leases and failover | **One writer per scheduled automation, held by a short server-kept lease (proposed 90 seconds, renewed every 30); failover is off unless the spec says `failover: true`; when the server is unreachable a node skips rather than duplicates** | N12 |
 | D34 | Command lifetimes | **Status and pause may wait up to 10 minutes; anything T2 or above is never queued and never replayed after expiry; clock-skew window 120 seconds (all proposed)** | T12 |
 | D35 | agent-desktop | **Use it as the accessibility rung on Linux, Windows and macOS, as a pinned separate process behind `ControlBackend`, after `R05` clears its licence; our own AT-SPI reader stays as the fallback on Linux** | MX9; supersedes the "build our own Windows helper" path in D23 |
-| D36 | Windows and macOS strategy | **Satellites paired to a node, not a native node in v1.** A Windows-only or Mac-only user needs WSL2, a Linux box or a mini-PC. `P06` is a time-boxed spike on a native node and promises nothing | Replaces `D07` and `D08` |
+| D36 | Windows and macOS strategy | **Satellites paired to a node, not a native node in v1.** A Windows-only or Mac-only user needs WSL2, a Linux box or a mini-PC. `P06` is a time-boxed spike on a native node; **revision 1.3: it has written acceptance criteria and may unlock a limited native node (`U05`, decision D43)** | Replaces `D07` and `D08` |
 | D37 | Mobile | **The installable web app is the phone controller (web class, up to T3, passkey step-up). No native mobile app in this plan**; `menux remote` on a computer is the trusted-display controller | Revisit after 5R |
 | D38 | Remote live view | **View only for the web class; take-over needs a trusted display with step-up; end-to-end encrypted; nothing recorded or stored on the server; a visible indicator on the desktop; own security review** | `V06` |
+| D39 | Security does not depend on the model | **Tiers, approvals, the reader/actor requirement, unattended taint denial and the always-confirm list are enforced in code and never vary with the model, its size or its plan. No setting, flag or "strong model" mode relaxes them** | `Q11` proves identical decisions across model labels. Prior art: another agent relaxed its injection prompts for strong models and later had to tighten them for unattended runs (`menux_feature_guide.md` §40) |
+| D40 | Recipes | **`kind: recipe` automations run a fixed list of steps from a closed action catalogue: no model call, zero credits, no server needed. Same tiers, dry run and graduation; the unattended ceiling stays T2** | `U01` |
+| D41 | Degraded mode | **The node never stops silently. With no server, an exhausted pool or a paused account, recipes keep running, model runs follow the spec's missed-run policy, and the owner is told once per state change** | `U03` |
+| D42 | First value | **Six signed starter templates and a guided `menux init`. Templates install disabled, run a dry run, then run attended, and graduate like any automation. The docs publish the measured number of owner actions from install to first success** | `U02` |
+| D43 | Native Windows and macOS | **`P06` gets written acceptance criteria. If it passes, a limited native node (`U05`) is built: scheduler, OS key-store vault, channels, read connectors, recipes and sealed tools. No shell tool, skill scripts or browser sidecar, and nothing above T2, until an OS sandbox exists. If `P06` fails, D36 stands** | Refines D36 |
+| D44 | Openness and evidence | **Decide by `R05` whether the node, satellites and protocol are published as source under a licence the owner chooses (recommendation: publish them, keep the server private). Publish a security evidence pack with every release (`U06`)** | Proposed; M2C's own licence decision (its D11) is still open |
+| D45 | Channels beyond Telegram, Slack and Discord | **WhatsApp and Signal are not planned until a licence and terms review (the `R05` pattern) finds a permitted path. No unofficial client library is used on an owner's personal account** | `menux_feature_guide.md` §15.7 |
+| D46 | Model classes by plan | **Menux on Basic and Free runs on the four paid models of the Provider Consolidation Guide (Appendix B), the Standard class. Advanced, Expert and the Brain exist only when Moderate and Ultimate launch (its PD-6). Cost estimates (`E02`) and budgets name the class** | `menux_feature_guide.md` §12.5 |
 
 D15–D25 are Companion decisions. They can wait until the beta is under way, but must be locked before the first Phase 5 patch.
 
 D26–D38 are mesh decisions. They must be locked before the first Phase 5R patch.
+
+D39–D46 are revision 1.3 decisions. Lock D39 before the first Phase 2 patch (`T02`); D40 and D41 before `U01`; D42 before `U02`; D43 before `P06`; D44 and D45 before `R05`; D46 before `E02`.
 
 ---
 
@@ -258,6 +270,7 @@ D26–D38 are mesh decisions. They must be locked before the first Phase 5R patc
 | **2** | Safe unattended | Tiers, unattended policy, approvals, reader/actor split, taint, panic button, inbox, email/calendar/files read | **MT-I02** |
 | **3** | Memory, skills, triggers | Memory files and search, poisoning defenses, skills with manifests, skill drafts for review, file/webhook/poll triggers, heartbeat gating | **MT-I03** |
 | **4** | Beta | Web inbox and planner chat, delegation to M2C, doctor with WSL keep-alive, cost estimates, docs | **MT-I04 (invite-only beta)** |
+| **4U** | Usability and reach (revision 1.3) | Recipes, starter templates and guided first run, degraded mode, scripted-model scenario harness, security evidence pack | Recommended before **MT-I04**; not counted in Phases 0–4 |
 | **5A** | Native control (Reach 1–2) | Licence record, hardware probe, protocol 1.2, context-based tiering and grants, shell and file tool, application registry and ladder selector, LibreOffice and app adapters, AT-SPI, shortcut and input maps, browser profile, reliability benchmark | **MT-I05a** |
 | **5B** | Eyes and hands (Reach 3) | Screenshots and input, virtual desktop with live view and take-over, shared mode, tray dial, screen memory, dual-path grounding, pointer layer with verification, guide mode, Menux Map, GUI red-team and privacy suites | **MT-I05b** |
 | **5C** | Companion (Reach 4) | Specialist tool kit and self-built tools, experience memory, learning by demonstration, self-repair, skill templates and curated library, game loop, session image | **MT-I05c** |
@@ -282,6 +295,7 @@ D26–D38 are mesh decisions. They must be locked before the first Phase 5R patc
 | **V** | Virtual desktop sessions, live view, shared mode, the tray control panel |
 | **S** | Screen memory and vision: capture, extraction, store, search, grounding |
 | **P** | Platforms: platform abstraction, satellite runtime, Windows and macOS satellites, native-node spike (revision 1.2) |
+| **U** | Usability and reach (revision 1.3): recipes, starter templates and the guided first run, degraded mode, security evidence, and the limited native node |
 | **E** | Server-side economics and abuse controls, and (revision 1.2) the mesh relay |
 | **Q** | Quality |
 | **R** | Release |
@@ -354,7 +368,7 @@ PHASE 6   M08 (marketplace, builds on M12),
 | `backend/codeagent/loop.py`, `tools_schema.py` | K02 only: it adds the profile hook and the tool-catalog registry. Everything else registers tools from `backend/mate/tools/*.json` |
 | `backend/api/server.py` | K02 adds one `include_router` for `/v1/mate`; later routers are added inside `backend/mate/` |
 | `frontend` navigation and the Mate page shell | W01 creates the page and the nav entry; W02–W07 are components inside it |
-| `menux/src/menux/node/service.py` | N01 → N02 → N04 → N03 → N07 (each extends the node's event loop) |
+| `menux/src/menux/node/service.py` | N01 → N02 → N04 → N03 → N07 → U03 (each extends the node's event loop; `U03` adds the degraded-mode state machine last) |
 | `backend/migrations/` | Numbers are **reserved** (§4.5) |
 | `minicore/src/minicore/tiers/registry.py` | T01 owns it; T10 adds context-based tiering and the always-confirm list; later WPs only register capabilities |
 | `menux/src/menux/control/**` (application profiles, selector) | X02 owns the registry and selector; X03–X05, X08 and X09 add profiles and tools |
@@ -365,8 +379,11 @@ PHASE 6   M08 (marketplace, builds on M12),
 | `backend/mate/mesh/**` | E04 owns the relay, registry, presence, leases and mailbox; N12 and M13 add handlers through registries |
 | `menux/src/menux/mesh/**` | K06 (keys, trust edges) → T12 (signed commands) → N10 (client) → N11 (pairing), M13 (sync), N12 (placement) |
 | `menux/src/menux/satellite/**` | P02 owns the runtime; P03 and P04 add platform backends |
-| `minicore/src/minicore/platform/**` | P01 owns it; later WPs add implementations. Must pass both products' tests |
+| `minicore/src/minicore/platform/**` | P01 owns it; later WPs add implementations (`U05` adds the native Windows and macOS node backends). Must pass both products' tests |
 | MiniMe Devices page (frontend, from M2C `X01`) | W10 extends it; it does not add a second page |
+| `minicore/src/minicore/automation/**` (spec, schema) | A01 owns the spec and schema. `U01` adds the `recipe` kind and its `steps` in **new files** referenced from the schema; no existing field changes |
+| `menux/src/menux/cli/**` (`init`, `doctor`) | N07 owns `doctor`; `U02` adds `init` after it; `U06` adds `evidence` |
+| `menux/tests/` harnesses | Q01 → Q11 (Q11 adds `menux/tests/scenarios/`; it edits nothing that exists) |
 
 ### 4.5 Reserved numbers
 
@@ -421,6 +438,8 @@ PHASE 6   M08 (marketplace, builds on M12),
 | **33** | Q09, P05 | per WP |
 | **34** | I05r, I05p | per WP |
 | **35+** | M08, T09, H12, R01, R03, R04, audit (Phase 6) | I05c and I05r; M12 for M08 |
+
+**Phase 4U earliest waves (revision 1.3).** These do not renumber the waves above. A 4U work package may start in the wave its dependencies allow: `U01` 9, `U03` 10, `Q11` 11, `U02` 16, `U06` 16. `U05` (Phase 5P) can start in wave 30, after the `P06` decision in wave 29.
 
 Phase 5 waves overlap on purpose: a 5B work package may start as soon as its own dependencies exist. Waves 28–34 (5R and 5P) can start as soon as their dependencies exist, including alongside 5A–5C. The acceptance milestones `I05a`, `I05b`, `I05c`, `I05r` and `I05p` gate the **release** of each sub-phase, not the work. `D06` (voice) and `H09–H11`, `H13` are independent and unscheduled.
 
@@ -722,6 +741,54 @@ Install and quick start; **what runs where** (device vs server) with the §2 O8 
 - [ ] Red-team, soak and canary suites green on the beta build.
 - [ ] Support runbook: revoke device, panic from the web, read a content-free diagnostics bundle.
 
+### 9.1 Phase 4U — Usability and reach (revision 1.3)
+
+Added in revision 1.3 after comparing Menux with a shipped open-source agent (`menux_feature_guide.md` §40). It is **recommended before `MT-I04`** and **not counted** in the 59 work packages and 133 points of Phases 0–4. The user-facing rules are `UX1–UX6` and the decisions are D39–D43 and D46. File names are the Python reference names (see the language note in the revision 1.3 header). Sizes use the same scale (S=1, M=2, L=4, XL=8): 5 work packages, 8 points.
+
+### MT-U01 · No-model automations (recipes) · M · Earliest wave 9
+
+*Depends on:* A01, N04, T05, A05. *Decision:* D40.
+
+*Why:* some useful automations need no reasoning: move a download, copy a backup, append to a log, notify when a file changes or a page differs. Running them through a model costs credits, needs the server, and adds a prompt-injection surface for no benefit.
+
+*What:* a second automation kind, `kind: recipe`, whose body is an ordered list of `steps` from a **closed action catalogue** (`minicore/src/minicore/automation/recipe.py`): `move_file`, `copy_file`, `append_text`, `read_file` (inside a folder grant), `http_get` (egress allowlist only), `diff_against_last`, `when` (simple comparisons on earlier step outputs: equals, contains, changed, size above), and the sealed tools `notify_owner` and `save_report` (`T05`). **Not in the catalogue:** a shell, a permanent delete (a delete moves the file to a recoverable folder), a write to a new recipient, and any model call. Every step has a tier in the capability registry (`T01`); the recipe's effective tier is the highest of its steps; the unattended ceiling is T2 (O6). Data read from an untrusted source (a web page, a downloaded file) is tainted (`T06`) and may reach only the sealed tools. The schema rejects an unknown action (fail closed). The dry run (`A03`) lists exactly what would happen; versions and graduation (`A06`) apply unchanged, and the anomaly detector (`T08`) still watches run counts and runtimes. A recipe makes **no planner call at run time**. The Planner may still *draft* a recipe when asked; the draft is validated like any spec.
+
+*Done when:* a folder-watch → move → notify recipe runs with the network disabled and writes zero `usage_ledger` rows; the schema rejects a step outside the catalogue and any attempt to raise a tier in YAML; the dry run lists each action; a tainted read cannot reach `http_get` or a `move_file` outside its grant.
+
+*Tests:* spec validation vectors; the `T06` taint tests applied to recipes; the `Q04` canary shows no recipe content on the server.
+
+### MT-U03 · Degraded mode · S · Earliest wave 10
+
+*Depends on:* U01, N04, K02, A05. *Decision:* D41.
+
+*What:* one state machine in the node: `online`, `degraded(reason)` or `paused`, where the reason is one of: server unreachable, sign-in expired, pool exhausted, account paused, plan changed. While `degraded`: recipes keep running on schedule; model runs follow the spec's missed-run policy (skip, run once when back, or ask); local heartbeat pre-checks still run (`A05`). The owner gets **one** message per state change through the primary channel, not one per run, and `menux status`, `doctor` and the inbox show the reason and what is affected. Nothing at T2 or above is replayed when the state returns (the D34 rule). There is no infinite retry (§16 of the feature guide).
+
+*Done when:* with the network cut, a recipe runs on schedule, a model run is skipped or queued as its spec says, exactly one notification is sent, and nothing above T2 is replayed on reconnect; a fake-clock test covers a three-day outage.
+
+### MT-Q11 · Scripted-model scenario harness · M · Earliest wave 11
+
+*Depends on:* Q01, T02, T04, T06. *Decision:* D39.
+
+*What:* a deterministic fake model adapter that replays a scripted sequence of model outputs and tool calls, including hostile ones, so every policy, taint, reader/actor, approval and budget scenario can be replayed in CI with **no model call and no credits**. The scenarios cover the `Q02` corpus categories at the decision level (for example: "an unattended run with tainted context requests an egress tool: the decision is deny"). Includes the **model-independence test for D39**: each scenario runs under several model labels and size classes (Standard, Advanced, Expert, unknown) and requires **identical** policy decisions. Adds `menux/tests/scenarios/`; `Q01` (live-model evals) and `Q02` (red-team fixtures) are unchanged and still run.
+
+*Done when:* the scenario suite runs offline and fast enough to run on every patch; a test-only flag that deliberately weakens the policy is caught by at least one scenario; the identical-decision test is green.
+
+### MT-U02 · Starter templates and the guided first run · M · Earliest wave 16
+
+*Depends on:* U01, A03, A06, H03, N07. *Decision:* D42.
+
+*What:* (1) **Six signed starter specs** shipped with the node (`menux/src/menux/templates/*.yaml`): *morning brief* (calendar and mail read, digest to Telegram), *download sorter* (recipe), *folder watcher* (recipe), *site-change or feed digest* (`H07`), *calendar reminder* (`H05`) and *weekly summary of a knowledge folder* (`M06`, needs Phase 3). Each states its tier, capabilities, egress and cost estimate (`E02`, or zero for a recipe). A template installs **disabled**, runs a dry run, then runs attended; graduation (`A06`) is unchanged. A template is an ordinary spec: it gets no privilege a user-written spec cannot get. (2) **`menux init`:** one guided command that checks the platform (`N07` probes), explains and helps set up the WSL2 keep-alive if needed, signs in with the device code, walks through creating the owner's Telegram bot and pairing (`H03`), installs one template, shows its dry run, runs it attended and prints what to do next. Each step says what is stored where (the O8 copy). It never edits Windows settings itself.
+
+*Done when:* on a fresh WSL2 Ubuntu and on a fresh Linux machine, a tester who follows only the printed steps reaches a successful attended run; the number of owner actions and the time taken are **measured and recorded** in the `R02` docs (not promised in advance); every template passes validation and its dry run cannot write.
+
+### MT-U06 · Security evidence pack · S · Earliest wave 16
+
+*Depends on:* Q02, Q03, Q04, R02. *Decision:* D44.
+
+*What:* `menux evidence` (and a docs page) emits, for the release build: the version and signing information; the dependency and licence list (`docs/menux/third_party.md` and the lockfile); the red-team, canary and scenario suite results as **counts and suite names, never payloads**; the `doctor` sandbox probe results; and the open-findings list from the latest external review.
+
+*Done when:* a release cannot be tagged without the evidence file, and every number in it matches the CI run that produced the build (`menux evidence --check`).
+
 ---
 
 ## 10. Phase 5 — The Companion Expansion
@@ -736,10 +803,10 @@ Phase 5 starts only after the beta milestone **MT-I04**. It grows Menux from Rea
 | 5B Eyes and hands | 3 | 21 | 67 | 19–24 | MT-I05b |
 | 5C Companion | 4 | 10 | 32 | 25–27 | MT-I05c |
 | 5R Remote control and mesh | – | 17 | 49 | 28–34 | MT-I05r |
-| 5P Platforms and satellites | – | 7 | 22 | 28–34 | MT-I05p |
-| **Phase 5 total** | | **68** | **204** | | |
+| 5P Platforms and satellites | – | 8 | 26 | 28–34 (`U05` from 30) | MT-I05p |
+| **Phase 5 total** | | **69** | **208** | | |
 
-For scale: Phases 0–4 are 59 WPs and 133 points. Phase 5 is now about one and a half times that. Revision 1.2 changed the 5A–5C numbers (`D07` removed, `D02` re-sized from M to L) and added 5R and 5P; revision 1.1 counted 45 WPs and about 133 points.
+For scale: Phases 0–4 are 59 WPs and 133 points. Phase 5 is now about one and a half times that. Revision 1.2 changed the 5A–5C numbers (`D07` removed, `D02` re-sized from M to L) and added 5R and 5P; revision 1.1 counted 45 WPs and about 133 points. Revision 1.3 added `U05` to 5P (68 → 69 work packages, about 204 → about 208 points); the separate Phase 4U (§9.1, 5 work packages, 8 points) is counted in neither Phases 0–4 nor Phase 5.
 
 ### 10.1 Phase 5A — Native control (Reach 1–2)
 
@@ -812,7 +879,7 @@ Not part of 5A–5C; schedule them when wanted, after `MT-I04`.
 
 | WP | Title | Notes |
 | --- | --- | --- |
-| **D06** | Voice | Push-to-talk and voice notes through channels first; transcripts are treated as normal owner messages only from the paired device or channel. |
+| **D06** | Voice | Push-to-talk and voice notes through channels first; transcripts are treated as normal owner messages only from the paired device or channel. *Revision 1.3:* voice notes through Telegram come first and are **opt-in**; the audio and transcript leave the device to a speech-to-text provider through the server (metered under `surface='menux'`); the audio is deleted after transcription; a voice note from anyone but the paired owner is a stranger message (`G02`). The speech provider is not covered by the Provider Consolidation Guide and is chosen when this item is scheduled. |
 | **H09** | GitHub connector (token) | Read issues, PRs and CI; PR creation is T3 with approval. |
 | **H10** | Slack and Discord | Owner-paired; stranger rules apply; group chats are untrusted. |
 | **H11** | Home Assistant | Local network only; actions above T2 need approval. |
@@ -889,11 +956,12 @@ Added in revision 1.2. Windows and macOS control through satellites, and the pla
 | WP | Title | Size | Wave | Depends on | Notes |
 | --- | --- | --- | --- | --- | --- |
 | **P01** | Platform abstraction in `minicore` | L | 28 | K01, N07 | Interfaces for paths, key store, service manager, process control and capability flags per operating system, with Linux as the reference implementation. Additive: `minicore` changes must pass both products' tests. *Done when:* Linux behavior is unchanged and a stub backend runs the interface tests. |
-| **P06** | Native-node feasibility spike (research) | M | 29 | P01, N08 | Time-boxed. What would it take to run a node natively on Windows or macOS (sandbox, vault, service manager, scheduler)? Output is a findings note and a go or no-go; the product does not depend on it. |
+| **P06** | Native-node feasibility spike (research) | M | 29 | P01, N08 | Time-boxed. What would it take to run a node natively on Windows or macOS (sandbox, vault, service manager, scheduler)? Output is a findings note and a go or no-go; the product does not depend on it. **Revision 1.3: write these acceptance criteria into the note before starting.** *Go* only if (a) a vault design on the OS key store passes the vault tests adapted per OS; (b) a background-task design survives logout and restart without elevation; (c) the scheduler's missed-run and DST tests pass on the OS; (d) the subset of the red-team and canary suites that applies passes on a CI runner for each OS; and (e) the note lists every feature the limited node would lack. A *go* unlocks `U05` (decision D43). |
 | **P02** | Satellite runtime | L | 31 | T12, N10, P01, T10 | A small daemon that pairs with a node, offers named capabilities, applies its **own** dial and grants (it can only narrow what the node may do), shows an always-visible tray indicator that goes red while controlled, and returns results labelled `origin: satellite:<name>`. |
 | **P03** | Windows satellite | L | 32 | P02, D02, R05, T10 | agent-desktop (Windows UI Automation) behind `ControlBackend`; signed installer and updater; runs in the user's interactive session; no elevated windows or UAC; notification mirroring; pairing with a WSL2 node over loopback or the relay. Physical input stays off until the Shared-mode arbiter (`V03`) is ported. **Replaces `D07` and `D08`.** |
 | **P04** | macOS satellite | L | 32 | P02, D02, R05 | agent-desktop (AX) behind `ControlBackend`; signed and notarized package; guided Accessibility and Screen Recording permissions that Menux never grants itself; notification mirroring. |
 | **P05** | Control benchmark per operating system | M | 33 | P03, P04, Q06 | The fixed task set of `Q06` on Windows and macOS satellites, plus agent-desktop version-pin checks (release notes, command list against the capability registry); results published in `doctor`. **Blocks the 5P release.** |
+| **U05** | Limited native node for Windows and macOS | L | 30 | P06 (go), P01, N02, N05, U01, U02, U03 | Only if `P06` ends *go* (D43). A node that runs natively with: the scheduler as a per-user background task (Task Scheduler, launchd), a vault on the OS key store (Credential Manager, Keychain), Telegram (`H03`), connectors that need no sandbox (IMAP read and draft, CalDAV and ICS, poll and RSS, files inside grants, the webhook relay), recipes (`U01`), sealed tools (`T05`), the `doctor` subset and degraded mode (`U03`). **Not offered, and `doctor` says so:** the shell tool, skill scripts, the browser sidecar, and anything above T2 that needs the Linux sandbox. The trust copy says plainly that without an OS sandbox the node cannot run code from skills. If the node is built in Rust (Appendix A, `MG-Z10` = PROCEED) it reuses the same crates; if it stays Python, `P06` must cost a Python build for each OS. *Done when:* a Windows-only user with no WSL2 completes `menux init`, a recipe and a Telegram digest; the applicable red-team and canary suites are green on Windows and macOS runners; the docs list exactly what is missing. |
 | **I05p** | Platforms and satellites (acceptance) | M | 34 | P01, P02, P03, P04, P05, P06 | See the exits below. |
 
 **MT-I05p · Platforms and satellites (acceptance)**
@@ -905,6 +973,7 @@ Added in revision 1.2. Windows and macOS control through satellites, and the pla
 - [ ] Session traces are redacted before they reach the audit log and are deleted with the run.
 - [ ] The control benchmark (`P05`) is published per operating system and rung.
 - [ ] The documentation says plainly what a satellite cannot do (elevated windows, locked screens, applications with no accessibility tree) and that a Windows-only or Mac-only user still needs a node (`P06` records the outlook).
+- [ ] If `U05` was built: a Windows-only user with no WSL2 completes the guided first run; the node refuses the shell tool, skill scripts and anything above T2 and says why; the docs list what is missing.
 
 ---
 
@@ -936,6 +1005,8 @@ GA checklist: audit findings closed; red-team, soak and canary suites green on t
 | Receipt-to-spreadsheet | H06, M04 (for a spreadsheet skill) |
 | Log and uptime watcher | H07 or local checks, A05, G03 |
 | Backup verifier | H06, N02 |
+| Download sorter or folder watcher with no model (a recipe) | U01, H06, N03; keeps working with the server down (U03) |
+| Any scheduled recipe while the server is unreachable | U01, U03 |
 | CI-failure responder | H08 or H09, A07 |
 | Research digest | C17 (web tools), T04, G03 |
 | Meeting prep | H05, H04, M01 |
@@ -984,6 +1055,8 @@ GA checklist: audit findings closed; red-team, soak and canary suites green on t
 | Mesh red team | `pytest menux/tests/redteam_mesh -v` | Q09 (command proposed); blocks Phase 5R release |
 | Mesh privacy | `pytest menux/tests/mesh_privacy -v` and the extended canary | Q10 (command proposed); blocks Phase 5R release |
 | Platform control benchmark | `python -m evals.menux.run --suite control` on a Windows and a macOS satellite | P05 (the OS option is proposed); blocks Phase 5P release |
+| Scenario harness | `pytest menux/tests/scenarios -v` | Q11 (command proposed); no model calls; runs on every patch |
+| Evidence pack | `menux evidence --check` | U06 (command proposed); blocks the release tag |
 
 ---
 
@@ -1001,7 +1074,7 @@ GA checklist: audit findings closed; red-team, soak and canary suites green on t
 | Heartbeat costs | Local pre-checks, zero-call skips, quiet hours, 60-minute default, budgets |
 | Marketplace or skill supply-chain incident | No marketplace before Phase 6; manifests enforced; canary trials |
 | Scope explosion ("agentic OS") | Phase gates; Phase 5 starts only after the beta; 5A, 5B and 5C are separately releasable; Phases 0–4 stay at 59 WPs / 133 pts |
-| The Companion and the mesh are larger than all of v1 | Say so in planning (Phase 5 is now about 204 points against 133 for Phases 0–4, roughly one and a half times); do not schedule it inside the March–June 2027 window; stop after any sub-phase if needed; 5R and 5P are separately releasable |
+| The Companion and the mesh are larger than all of v1 | Say so in planning (Phase 5 is now about 208 points against 133 for Phases 0–4, roughly one and a half times); do not schedule it inside the March–June 2027 window; stop after any sub-phase if needed; 5R and 5P are separately releasable |
 | Pointer and vision control is less reliable than users expect | The ladder prefers reliable rungs; verification around every action; Guide mode; published benchmark (Q06); weak rungs default to "ask first"; the docs say plainly what is slow or fragile |
 | Screen memory becomes a privacy incident | Off by default; visible indicator; text first; raw images deleted; exclusions; encryption with a vault-derived key; nothing on the server; Q08; trust copy and legal review (R03) updated before 5B ships |
 | Prompt injection through pixels or on-screen text | Reader for pixels and the task-scope guard (T11); Q07; scoped, time-limited grants; always-confirm floor |
@@ -1022,6 +1095,11 @@ GA checklist: audit findings closed; red-team, soak and canary suites green on t
 | Windows-only and Mac-only users have no node | Say so plainly; `P06` studies a native node; WSL2 or a small Linux machine is the advice until then |
 | The mesh doubles the surface to secure | Separate protocol namespace; Q09 and Q10 block release; the mesh can ship after 5A–5C or not at all |
 | Solo-founder capacity | Waves are a ceiling; Phase 0 to I01 is the proof; Phase 2 is the minimum before anyone else runs it |
+| Recipes become a second, weaker automation language | A closed action catalogue; the same tiers, taint, dry run and graduation; no shell; the schema rejects unknown actions (`U01`) |
+| Starter templates hand new users privileges they have not earned | A template is an ordinary spec, installs disabled, runs a dry run and then attended (`U02`) |
+| The limited native node is mistaken for the full node | `U05` only if `P06` passes; `doctor` and the docs list what is missing; the unattended ceiling is T2 (D43) |
+| Security prompts get relaxed for strong models later | D39, and the identical-decision test in `Q11` |
+| The evidence pack claims more than is true | Counts and suite names only, produced by the CI run that built the release (`U06`) |
 
 **Stop the line:** any red-team or canary failure; a patch that weakens a policy, tier or vault check; an M2C test turning red; a migration number used twice; two applied patches disagreeing about the protocol.
 
@@ -1091,6 +1169,11 @@ GA checklist: audit findings closed; red-team, soak and canary suites green on t
 | Q05 | Cost telemetry | 4 | 15 | I01 | S |
 | R02 | Docs and trust pages | 4 | 15 | I01 | M |
 | I04 | Beta acceptance | 4 | 16 | Phase 4 | M |
+| U01 | No-model automations (recipes) | 4U | 9+ | A01, N04, T05, A05 | M |
+| U03 | Degraded mode | 4U | 10+ | U01, N04, K02, A05 | S |
+| Q11 | Scripted-model scenario harness | 4U | 11+ | Q01, T02, T04, T06 | M |
+| U02 | Starter templates and guided first run | 4U | 16+ | U01, A03, A06, H03, N07 | M |
+| U06 | Security evidence pack | 4U | 16+ | Q02, Q03, Q04, R02 | S |
 | R05 | Reuse-or-build licence review | 5A | 17 | – | S |
 | N08 | Hardware and display probe for `doctor` | 5A | 17 | N07 | M |
 | K05 | Protocol 1.2 (vision and session messages) | 5A | 17 | K03 | S |
@@ -1155,11 +1238,12 @@ GA checklist: audit findings closed; red-team, soak and canary suites green on t
 | I05r | Remote control and mesh (acceptance) | 5R | 34 | K06, A08, T12, E04, T13, T14, N10, N11, W10, W11, G05, M13, N12, V06, Q09, Q10 | M |
 | P01 | Platform abstraction in `minicore` | 5P | 28 | K01, N07 | L |
 | P06 | Native-node feasibility spike (research) | 5P | 29 | P01, N08 | M |
+| U05 | Limited native node for Windows and macOS (only if P06 is *go*) | 5P | 30 | P06, P01, N02, N05, U01, U02, U03 | L |
 | P02 | Satellite runtime | 5P | 31 | T12, N10, P01, T10 | L |
 | P03 | Windows satellite (replaces D07 and D08) | 5P | 32 | P02, D02, R05, T10 | L |
 | P04 | macOS satellite | 5P | 32 | P02, D02, R05 | L |
 | P05 | Control benchmark per operating system | 5P | 33 | P03, P04, Q06 | M |
-| I05p | Platforms and satellites (acceptance) | 5P | 34 | P01, P02, P03, P04, P05, P06 | M |
+| I05p | Platforms and satellites (acceptance) | 5P | 34 | P01, P02, P03, P04, P05, P06, U05 (if built) | M |
 | M08, T09, H12, R01, R03, R04, audit | Phase 6 items | 6 | 35+ | per WP | M–XL |
 
 ---

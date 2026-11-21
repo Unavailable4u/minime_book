@@ -6,6 +6,8 @@
 > This is a rulebook, not a forecast. Every rule answers one question: *"I am at point X — what do I do?"*
 > Every number carries a confidence label (Part 0.3). When a label says **[V]**, it was read from a provider's pricing page or a dated source on the snapshot date. When it says **[A]**, it is my planning assumption and must be replaced by measured data from Tech-A instrumentation as soon as that data exists.
 
+> **Superseded for Basic and Free (2026-11-21).** The **Provider Consolidation Guide** (book Appendix B, `data/docs/provider_consolidation_guide.md`, version 2026-11-18) decides that Basic and Free run on four paid models (`openai/gpt-oss-120b` and `openai/gpt-oss-20b` on Groq, `claude-haiku-5-5`, `gemini-3.1-flash-lite`) and that Perplexity Search is the only search provider. Where this rulebook names other Basic models or Tavily, Exa or Brave as the search provider (the model rosters, the search lines and the sub-processor list), **that guide wins** until its patches `PV-06` and `PV-18` update the lines. This note changes no number: the figures below are unchanged until those patches apply them and the 2026-12-15 re-verification is done. Moderate and Ultimate rows are untouched (the guide's decision PD-6).
+
 ---
 
 # TABLE OF CONTENTS
@@ -573,6 +575,7 @@ Trigger any of: (a) a gate fails for two consecutive months; (b) a provider chan
 **Add-ons:** search $0.008 each · sandbox run $0.0018 · image $0.034 / $0.067 / $0.134 · TTS about $0.16 per 10K characters.
 
 ## 8.2 Cost stack per plan when the user uses **100% of every pool** (COGS at cap)
+> *Superseded for the Basic column (2026-11-21), pending `PV-06` and `PV-18` of the Provider Consolidation Guide.* The guide recomputes Basic's LLM line at about **$1.19** (not 1.69) under an **assumed** token mix, and prices search at Perplexity's $0.005 per request (not Tavily's $0.008), which gives a Basic total at cap of about 28.7% to 35.6% of the local price. Those are the guide's figures, labelled assumptions there, and are replaced by measured numbers after its `PV-19` go-live. Until then the table below is the old figure.
 | $ per user per month | Basic | Moderate | Ultimate |
 |---|---|---|---|
 | Standard pool | 1.69 | 2.11 | 2.53 |
@@ -1719,6 +1722,7 @@ Record every financial decision (date, rule referenced, alternatives considered,
 |---|---|---|
 | 1.0 | 2026-09-19 | First edition: providers, price sheet, model roster, escalation rules, plans and prices, unit economics, 36-month model, infrastructure |
 | 1.1 | 2026-09-20 | Added: capital plan by stage, funding sources, equity/valuation, profit and reserve policy, statements, fallback trees, team/office plan, FBEBC program, lessons from other startups, governance, risk register, open items, corrections; rebuilt Part 9 around Plan A / Plan B and pre-launch costs |
+| 1.1a | 2026-11-21 | Notes only (no figure changed): Basic and Free models and the search provider are superseded by the Provider Consolidation Guide (book Appendix B); see the note under the header and under 8.2 |
 
 ---
 

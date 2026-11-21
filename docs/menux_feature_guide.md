@@ -11,6 +11,7 @@
 - **Gated:** requires M2C maturity, security review, legal review, credentials, or a later milestone.
 - **Companion (planned, gated on Phase 4):** the Companion Expansion in §17–§27: shell, application, accessibility and vision control, a virtual desktop, screen memory, and learned and shared skills. None of it is part of v1 or of the 59-work-package beta plan. It is designed here so that v1 does not close doors on it.
 - **Mesh (planned, gated on Phase 4):** the device mesh in §28–§37, added in revision 1.2: link your phone, tablet and other computers to your MiniMe account, control and approve from them, sync between them, and use Windows and macOS through satellites. It is not part of v1 and is counted separately from the 59-work-package beta plan.
+- **Usability and reach (planned, revision 1.3):** recipes (automations that need no model, §4.6), starter templates and a guided first run (§3.5), degraded mode (§13.5), a security evidence pack (§13.6), model classes by plan (§12.5), a limited native Windows and macOS node that exists only if a spike passes (§35), and an honest comparison with a shipped open-source agent (§40). Recommended before the beta as **Phase 4U**, counted separately from the 59 work packages of Phases 0–4 (§14).
 
 ### Architectural Synchronization (Overrides O1–O8 from `Menux___Build_Execution_Guide.md`)
 
@@ -24,7 +25,7 @@ Where the earlier standalone design note (`doc-menux-product.html`) and this gui
 | **O4 · Built on `minicore/` After M2C M2** | Starts once M2C reaches Invite-Only Beta (`M2`), reusing `minicore/`, device-code auth, and `bubblewrap` | Planned window on Master Timeline: **Mar – Jun 2027** (59 WPs, 16 waves, 133 pts) |
 | **O5 · Backend Route Namespace** | Server routes mount under `/api/menux/*` (`backend/menux/` / `backend/mate/`) with `profile="mate"` | Shares brain turn loop with `/api/codeagent/*` |
 | **O6 · Reader / Actor Pipeline for Untrusted Data** | Any run ingesting untrusted emails, web pages, or stranger messages runs a tool-less Reader pass before the Actor pass | Blocks indirect prompt injection (`MT-T04`, `MT-Q02`) |
-| **O7 · Coding Delegated to M2C CLI** | Menux never implements a second code editor; coding tasks invoke `m2c run --json` over local IPC (`MT-M07`) | Preserves M2C's git checkpoints and OS sandbox |
+| **O7 · Coding Delegated to M2C CLI** | Menux never implements a second code editor; coding tasks invoke `m2c -p "task" --output-format json` (`stream-json` once M2C `C28` lands) over local IPC (`MT-M07`) | Preserves M2C's git checkpoints and OS sandbox |
 | **O8 · Official Google Scopes Gated on CASA** | Local CalDAV/IMAP/ICS work immediately; official Google OAuth scopes wait for verification & legal gate (`MT-G03`) | Matches `MiniMe_Financial_Strategy_Rulebook.md` compliance gates |
 
 ### Companion Extensions (CX1–CX7, added in revision 1.1)
@@ -56,6 +57,19 @@ These nine rules govern the device mesh (§28–§37). They sit beside O1–O8 a
 | **MX7 · Sync Is Opt-In and Never Moves Secrets** | Per category, off by default. The vault, connector tokens, screen memory and the knowledge index never sync. An offline peer gets an encrypted mailbox of at most 24 hours | §32 |
 | **MX8 · Tighten at Once, Loosen with Care** | Panic, lower ceilings and new exclusions spread immediately from any controller; raising a limit does not | §31.6 |
 | **MX9 · Backends Behind Interfaces** | agent-desktop and every other control backend run as a pinned separate process behind `ControlBackend`, after a licence decision; an unknown command is T5 and denied | §34 |
+
+### Usability and Reach Extensions (UX1–UX6, added in revision 1.3)
+
+These six rules come from comparing Menux with a shipped open-source agent (§40). They sit beside O1–O8, CX1–CX7 and MX1–MX9 and never relax them.
+
+| Extension | Rule | Where |
+| :--- | :--- | :--- |
+| **UX1 · Security Does Not Depend on the Model** | Tiers, approvals, the reader/actor requirement, taint denial and the always-confirm list are enforced in code and never vary with the model, its size or the user's plan | §6.7 |
+| **UX2 · Some Automations Need No Model** | A recipe runs a closed list of steps with no model call and zero credits, under the same tiers, dry run and graduation | §4.6 |
+| **UX3 · The Node Never Stops Silently** | Without the server, recipes keep running, model runs follow the missed-run policy, and the owner is told once per state change | §13.5 |
+| **UX4 · First Value Fast, Privilege Never Faster** | Starter templates and `menux init` shorten setup; a template has no privilege a user-written spec lacks | §3.5 |
+| **UX5 · Honest Reach** | A limited native Windows or macOS node only if a spike passes written criteria; WhatsApp and Signal only after a terms review; voice is opt-in | §15, §35 |
+| **UX6 · Show the Evidence** | Every release ships a security evidence pack of counts, not payloads; the node's source licence is a recorded decision | §13.6 |
 
 ---
 
@@ -201,6 +215,14 @@ Native Linux receives the full intended feature set. Native Windows and macOS ar
 
 The same split applies to the Companion Expansion (§25). WSL2 users get everything that runs inside Linux: commands, files, Linux applications in WSLg, a browser inside WSL, automations and skills. Controlling Windows applications such as Microsoft Office or SolidWorks is not available until the **Windows satellite** exists (Phase 5P, `MT-P03`, using agent-desktop; revision 1.2 replaced the earlier Windows-side helper plan `D07`/`D08`). The satellite pairs with the WSL2 node, so the WSL2 limits above still apply to the node itself. The honest launch message for Windows users is: *Menux works on the Linux side of your PC and on your files today; controlling Windows apps comes later, through a satellite.* A Windows-only user with no WSL2, Linux box or mini-PC has no node and cannot run Menux in v1 (§35.5).
 
+### 3.5 Guided first run and starter templates (revision 1.3)
+
+`menux init` is the single guided path from "installed" to "first successful run". It (1) runs the platform checks of `doctor` (§13.1) and says in plain words what it found; (2) on WSL2, explains the keep-alive (§3.4) and prints the exact Windows-side steps, without editing Windows settings itself; (3) signs in with the device code; (4) walks through creating the owner's own Telegram bot and pairing it (§8.3); (5) installs one **starter template**; (6) shows its dry run (§4.4); (7) runs it once **attended**; and (8) prints what to do next. Each step says what is stored where.
+
+Six signed starter templates ship with the node: a morning brief; a download sorter and a folder watcher (both recipes, §4.6); a site-change or feed digest; a calendar reminder; and a weekly summary of a knowledge folder (needs Phase 3). A template is an ordinary automation spec. It installs **disabled**, states its tier, capabilities, egress and cost estimate, runs a dry run and then attended, and graduates (§4.5) like any other spec. No template gets a privilege a user-written spec cannot get.
+
+The documentation publishes the **measured** number of owner actions and minutes from a fresh install to the first successful run. It is measured in testing, not promised in advance (`MT-U02`).
+
 ---
 
 ## 4. Automation Specifications
@@ -226,7 +248,8 @@ An automation is a declarative YAML specification validated against a JSON Schem
 - monthly budget;
 - quiet hours;
 - missed-run behavior;
-- failure notification policy.
+- failure notification policy;
+- (revision 1.3) `kind`: `automation` (the default) or `recipe` (§4.6). A recipe has a list of `steps` instead of agent instructions and a model class.
 
 A spec is not active merely because a file exists. It must parse, pass semantic validation, and be enabled by the owner.
 
@@ -301,6 +324,12 @@ Automations move through states such as:
 - awaiting approval.
 
 An owner can inspect, enable, disable, pause, resume, and remove automations. The local store retains a per-automation timeline.
+
+### 4.6 Recipes: automations that need no model (revision 1.3)
+
+A recipe is an automation of `kind: recipe`. Its body is an ordered list of steps from a **closed action catalogue**: move or copy a file, append text, read a file inside a granted folder, fetch a page from an allowed domain, compare with the last result, a simple condition (equals, contains, changed, size above), and the sealed notify and save-report tools. There is no shell, no permanent delete (a delete moves the file to a recoverable folder), no write to a new recipient and no model call.
+
+Moving a download, or telling you that a page changed, needs no reasoning. A recipe costs **zero credits**, keeps working with no server (§13.5), and has no model to be tricked. Everything else is unchanged: each step has a tier and the recipe's effective tier is the highest of them; the unattended ceiling is T2; data read from an untrusted source is tainted and can reach only the sealed tools; the dry run lists every action; and graduation, versions and anomaly detection apply. A recipe cannot lower a tier by editing YAML, and an unknown action fails validation. The Planner can draft a recipe when you ask for one, and the draft is validated like any spec (`MT-U01`).
 
 ---
 
@@ -456,6 +485,12 @@ The tiers describe the **effect** of an action, not the mechanism that performs 
 
 The panic button (§6.5) revokes every grant.
 
+### 6.7 Security does not depend on the model (revision 1.3)
+
+Tiers, approvals, the reader/actor requirement for untrusted content, taint denial in unattended runs and the always-confirm list are enforced by code outside the model. They do not change with the model in use, its size or reputation, or the user's plan. There is no "trusted because it is a strong model" setting and no flag that skips a check for large models. Model-based judgements, such as the Reader's extraction, are extra layers and never replace the code checks. A scripted-model test suite runs every policy scenario under several model labels and requires **identical** decisions (`MT-Q11`).
+
+This is written down because another open-source agent relaxed its confirmation after reading outside content when a strong model was in use, then found that the relaxation also reached unattended bots, and restored full protection for bots and scheduled runs whatever the model (§40). Menux plans never to take that path.
+
 ---
 
 ## 7. The Automation Run
@@ -575,7 +610,7 @@ A connector cannot access an undeclared domain or use a credential outside its d
 | **Local Watched Folders (`MT-H03`)** | Connector + Trigger | Read granted folder / Write to staging dir | `T1` (staging) · `T3` (outside staging) | Explicit per-automation `folder_grants`; blocks `~/.ssh`, `~/.menux/vault.enc`, `.env*` |
 | **Playwright Browser (`MT-W01`)** | Headless Automation | Read allowed domains / Fill & click (`T4`) | `T1` (read-only) · `T4` (stateful act) | Ephemeral context per run; blocks `file://`, RFC1918 local IPs, and password/payment fields |
 | **Inbound Webhooks (`MT-H08`, `MT-G04`)** | Trigger | Receive signed JSON payload (≤ 64 KB, 10m TTL) | `T1` (ingest via Reader) | HMAC-SHA256 verification; payload deleted from server relay immediately after node pull |
-| **M2C IPC Bridge (`MT-M07`)** | Sibling Delegation | Invoke `m2c run --json` on local repo | `T2` (Ask/Plan) · `T3` (Edit/Patch) | Inherits M2C's `bubblewrap` sandbox, git checkpoints, and path guard |
+| **M2C IPC Bridge (`MT-M07`)** | Sibling Delegation | Invoke `m2c -p "task" --output-format json` (`stream-json` once M2C `C28` lands) on local repo | `T2` (Ask/Plan) · `T3` (Edit/Patch) | Inherits M2C's `bubblewrap` sandbox, git checkpoints, and path guard |
 | **Official Google Workspace (`MT-G03`)** | Gated OAuth Connector | Gmail / Drive / Calendar official OAuth scopes | **Gated (Phase 6)** | Requires Google CASA security audit, Limited Use compliance, and legal sign-off |
 
 ### 8.3 Telegram
@@ -801,7 +836,17 @@ When the shared pool is exhausted, scheduled runs are skipped and the owner is n
 
 ### 12.4 Cost estimates
 
-The Planner and dry-run surfaces can provide an estimated credit range. Estimates are not guarantees. Final usage is recorded after the model call and shown in the shared usage view.
+The Planner and dry-run surfaces can provide an estimated credit range. Estimates are not guarantees. Final usage is recorded after the model call and shown in the shared usage view. Recipes (§4.6) use no model and cost zero credits.
+
+### 12.5 Model classes by plan (revision 1.3)
+
+On the **Free and Basic** plans, the Planner and every model-driven run use the four paid models decided in the Provider Consolidation Guide (Appendix B): `openai/gpt-oss-120b` and `openai/gpt-oss-20b` on Groq, `claude-haiku-5-5` and `gemini-3.1-flash-lite`. That is the Standard class. The Advanced and Expert classes and the Brain exist only if and when the Moderate and Ultimate plans launch (that guide's decision PD-6). What follows for Menux:
+
+- A plan's model class limits how much an automation can reason about. Cost estimates (§12.4) and budgets name the class.
+- The safety design does not depend on the class (§6.7).
+- Recipes (§4.6) use no model and no credits on any plan.
+- Which concrete model serves a class is a backend decision, not part of an automation file: an automation asks for a class, not a model.
+- The plan assumes most users cannot run a strong model on their own computer; that is one reason the reasoning runs on the server.
 
 ---
 
@@ -862,6 +907,14 @@ Local logs should record the event sequence without exposing secrets. Audit view
 - what notification was sent;
 - why the run completed, failed, skipped, or paused.
 
+### 13.5 Degraded mode (revision 1.3)
+
+The node has three states: **online**, **degraded** and **paused**. It is degraded when the server is unreachable, the sign-in has expired, the credit pool is exhausted, the account is paused or the plan changed. Paused is the owner's own pause (§13.3) or the panic button. While degraded, recipes (§4.6) keep running on schedule, model-driven runs follow the spec's missed-run behavior (skip, run once when back, or ask the owner), and local heartbeat pre-checks (§5.4) continue. The owner is told **once per state change** on the primary channel, not once per run; `menux status`, `doctor` and the inbox show the reason and what is affected. Nothing at T2 or above is replayed when the node comes back, and nothing retries forever (`MT-U03`).
+
+### 13.6 Security evidence pack (revision 1.3)
+
+Every release carries a security evidence pack (`menux evidence`): the version and signing information; the dependency and licence list; the results of the red-team, canary and scenario suites as **counts and suite names, never attack payloads**; the `doctor` sandbox probe results; and the open findings of the latest external review. A release is not tagged without it, and its numbers must match the CI run that built the release (`MT-U06`). Whether the node, the satellites and the protocol are published as source is a recorded decision (D44 in the build guide); the recommendation is to publish them and keep the server private.
+
 ---
 
 ## 14. Product Phases
@@ -896,6 +949,10 @@ Add memory search, memory poisoning defenses, skill manifests, reviewed skill dr
 
 Add planner chat, M2C delegation, WSL keep-alive guidance, cost estimates, browser automation surfaces, and complete operational documentation.
 
+### Phase 4U: usability and reach (revision 1.3)
+
+Recommended before the beta: recipes (automations with no model), starter templates and the guided `menux init`, degraded mode, a scripted-model scenario harness and the security evidence pack. They are counted separately from Phases 0–4, which remain 59 work packages and 133 points.
+
 ### Phase 5: the Companion Expansion (5A, 5B, 5C)
 
 Phase 5 grows Menux from Reach 0 to Reach 4 (§17). It starts only after the beta milestone `MT-I04`, and each sub-phase ends with its own acceptance milestone and can be released on its own.
@@ -920,14 +977,15 @@ Potential additions include a scanned and signed community skill marketplace (bu
 | **Phase 2 · Safe Unattended Operation (`MT-I02`)** | Waves 6–9 | `MT-H02`, `MT-H04–H06`, `MT-T02–T08`, `MT-A05–A06`, `MT-K04`, `MT-G02`, `MT-G04`, `MT-W01`, `MT-Q01–Q02`, `MT-Q04`, `MT-I02` (21 WPs) | 49 pts | Telegram inline approvals (`MT-H02`), Reader/Actor pipeline (`MT-T04`), panic switch (`MT-T07`), Playwright (`MT-W01`), prompt-injection & canary tests (`MT-I02`) |
 | **Phase 3 · Memory, Skills & Triggers (`MT-I03`)** | Waves 10–12 | `MT-M01–M07`, `MT-N03`, `MT-H07–H08`, `MT-G03`, `MT-E01`, `MT-Q03`, `MT-I03` (14 WPs) | 30 pts | Provenance-tagged memory (`MT-M01`), poisoning defense (`MT-M02`), signed skill manifests (`MT-M04`), M2C delegation (`MT-M07`) |
 | **Phase 4 · Invite-Only Beta (`MT-I04`)** | Waves 13–16 | `MT-A07`, `MT-N07`, `MT-E02`, `MT-Q05`, `MT-R02`, `MT-I04` (6 WPs) | 14 pts | Natural-language Planner draft (`MT-A07`), WSL2 keep-alive helper (`MT-N07`), cost estimator (`MT-E02`), 7-day unattended soak (`MT-I04`) |
+| **Phase 4U · Usability & Reach (recommended before `MT-I04`)** | Earliest waves 9–16 | `MT-U01`, `MT-U03`, `MT-Q11`, `MT-U02`, `MT-U06` (5 WPs) | 8 pts | Recipes with no model, degraded mode, scripted-model scenario harness, starter templates and `menux init`, security evidence pack. **Not counted in Phases 0–4** |
 | **Phase 5A · Native Control (`MT-I05a`)** | Waves 17–21 | `MT-R05`, `MT-N08`, `MT-K05`, `MT-T10`, `MT-X01`, `MT-X02`, `MT-D01`, `MT-D02`, `MT-X03`, `MT-X04`, `MT-X05`, `MT-Q06`, `MT-I05a` (13 WPs) | 34 pts | Licence record (`MT-R05`), hardware probe (`MT-N08`), context-based tiering and grants (`MT-T10`), ladder selector (`MT-X02`), LibreOffice and app adapters (`MT-X03–X04`), reliability benchmark (`MT-Q06`) |
 | **Phase 5B · Eyes and Hands (`MT-I05b`)** | Waves 19–24 | `MT-D03`, `MT-D04`, `MT-S05`, `MT-V01`, `MT-S01`, `MT-E03`, `MT-S02`, `MT-V02`, `MT-V03`, `MT-X06`, `MT-T11`, `MT-V04`, `MT-V05`, `MT-S03`, `MT-X07`, `MT-Q07`, `MT-S04`, `MT-W08`, `MT-W09`, `MT-Q08`, `MT-I05b` (21 WPs) | 67 pts | Virtual desktop with live view (`MT-V01–V02`), shared mode (`MT-V03`), tray dial (`MT-V04`), screen memory (`MT-S01–S04`), dual-path grounding (`MT-S05`), GUI red-team (`MT-Q07`), privacy suite (`MT-Q08`), Menux Map (`MT-W08`) |
 | **Phase 5C · Companion (`MT-I05c`)** | Waves 25–27 | `MT-X08`, `MT-M09`, `MT-N09`, `MT-X09`, `MT-X10`, `MT-M10`, `MT-M11`, `MT-M12`, `MT-R06`, `MT-I05c` (10 WPs) | 32 pts | Specialist tool kit (`MT-X08`), learning by demonstration (`MT-M10`), self-repair (`MT-M11`), skill templates and curated library (`MT-M12`), game loop (`MT-X10`) |
 | **Phase 5R · Remote Control & Mesh (`MT-I05r`)** | Waves 28–34 | `MT-K06`, `MT-A08`, `MT-T12–T14`, `MT-E04`, `MT-N10–N12`, `MT-W10–W11`, `MT-G05`, `MT-M13`, `MT-V06`, `MT-Q09–Q10`, `MT-I05r` (17 WPs) | 49 pts | Signed command channel (`MT-T12`), mesh relay (`MT-E04`), controller classes and trust ladder (`MT-T13`), phone and web controller (`MT-W11`), sync spaces (`MT-M13`), mesh red team (`MT-Q09`) |
-| **Phase 5P · Platforms & Satellites (`MT-I05p`)** | Waves 28–34 | `MT-P01–P06`, `MT-I05p` (7 WPs) | 22 pts | Satellite runtime (`MT-P02`), Windows and macOS satellites on agent-desktop (`MT-P03–P04`), per-OS benchmark (`MT-P05`), native-node spike (`MT-P06`) |
+| **Phase 5P · Platforms & Satellites (`MT-I05p`)** | Waves 28–34 | `MT-P01–P06`, `MT-U05` (only if `MT-P06` is *go*), `MT-I05p` (8 WPs) | 26 pts | Satellite runtime (`MT-P02`), Windows and macOS satellites on agent-desktop (`MT-P03–P04`), per-OS benchmark (`MT-P05`), native-node spike (`MT-P06`) |
 | **Phase 6 · Ecosystem & GA** | Post-5R | Community marketplace (`MT-M08`), team policy, Google connectors if approved, packaging | Gated on `MT-I05c` | CASA verification for Google scopes, external security audit |
 
-Phases 0–4 total 59 work packages and 133 points and are unchanged by the Companion Expansion. Phase 5 is counted separately: 68 work packages and about 204 points on the same scale (S=1, M=2, L=4, XL=8, approximate): 5A 13 WPs and 34 pts, 5B 21 and 67, 5C 10 and 32, 5R 17 and 49, 5P 7 and 22. That is roughly one and a half times the whole v1 plan (revision 1.1 counted 45 WPs and about 133 points; revision 1.2 removed `MT-D07`, re-sized `MT-D02` from M to L and added 5R and 5P). It is therefore scheduled after the beta and is not part of the March–June 2027 window; each sub-phase is releasable on its own and the plan can stop after any of them.
+Phases 0–4 total 59 work packages and 133 points and are unchanged by the Companion Expansion. Phase 5 is counted separately: 69 work packages and about 208 points on the same scale (S=1, M=2, L=4, XL=8, approximate): 5A 13 WPs and 34 pts, 5B 21 and 67, 5C 10 and 32, 5R 17 and 49, 5P 8 and 26. Phase 4U (revision 1.3) adds 5 work packages and 8 points beside Phases 0–4 and is counted in neither. That is roughly one and a half times the whole v1 plan (revision 1.1 counted 45 WPs and about 133 points; revision 1.2 removed `MT-D07`, re-sized `MT-D02` from M to L and added 5R and 5P). It is therefore scheduled after the beta and is not part of the March–June 2027 window; each sub-phase is releasable on its own and the plan can stop after any of them.
 
 ---
 
@@ -951,6 +1009,8 @@ WSL2 desktop control remains limited to Linux GUI applications in WSLg until a W
 ### 15.2 Voice
 
 Voice input and output are planned for a later phase. Voice introduces microphone permissions, audio retention decisions, transcription errors, speaker ambiguity, and another channel for prompt injection. It should inherit the same trust and approval model rather than bypass it.
+
+*Revision 1.3:* the first step is **voice notes through Telegram**, and it is opt-in. The audio and its transcript leave the device for a speech-to-text provider through the server and are metered under `surface='menux'`; the audio is deleted after transcription; a voice note from anyone but the paired owner is a stranger message. The speech provider is not covered by the Provider Consolidation Guide and is chosen when this item is scheduled (`MT-D06`).
 
 ### 15.3 Team features
 
@@ -989,6 +1049,14 @@ Gmail and some Drive scopes may require verification, CASA assessment, Limited U
 
 A cloud-hosted automation mode is explicitly not part of v1. It would require a separate trust model because automation specs, credentials, memory, and run content would no longer be device-only. It should be an opt-in product with separate disclosure and security review, not a silent change to the local node.
 
+### 15.7 Other chat channels: WhatsApp and Signal (revision 1.3)
+
+Other open-source agents ship WhatsApp and Signal today (§40). Menux does not plan them until a licence and terms review (the `MT-R05` pattern) finds a permitted path (build guide D45). Messaging apps may restrict automated clients, an unofficial client on a personal account can put that account at risk, and a client library that holds the owner's message history is another place for secrets and stranger input to collect. The plan stays: the owner's own Telegram bot, then Slack and Discord.
+
+### 15.8 A small local model for outages (research only)
+
+The plan assumes most users cannot run a strong model on their own computer, so Menux does not depend on one. A small local model for narrow jobs (summarizing a file, sorting a message) when the server is unreachable is a research idea, not a plan: it would add a model whose output must still be treated as untrusted, a large download and hardware requirements. Recipes (§4.6) and degraded mode (§13.5) already cover the no-server case without any model.
+
 ---
 
 ## 16. What Menux Does Not Promise
@@ -1020,7 +1088,12 @@ Menux does not promise:
 - that remote commands work while the node is off, asleep or offline: risky commands are never queued;
 - that sync is on by default or ever carries the vault, passwords or screen memory;
 - that a satellite can control elevated Windows windows, a locked screen or an application that exposes no accessibility tree (§35.3);
-- that the device mesh ships on any date: it is gated on Phase 4.
+- that the device mesh ships on any date: it is gated on Phase 4;
+- that model-driven runs work without the MiniMe server: recipes do (§4.6, §13.5); runs that need the Planner or a model do not;
+- that a limited native Windows or macOS node, if one is ever built, has a shell tool, skill scripts, browser automation or anything above T2 (§35.5);
+- that voice notes stay on the device: they go to a speech-to-text provider through the server, and only if the owner opts in (§15.2);
+- that WhatsApp or Signal are supported (§15.7);
+- that a stronger model, a bigger plan or a trusted setting relaxes any check (§6.7).
 
 The honest product promise is local storage and execution, controlled remote reasoning, explicit trust tiers, visible approvals, bounded budgets, and recoverable automation state. For the Companion Expansion the promise adds: the user can always see what Menux sees, stop what Menux does, and delete what Menux remembers. For the mesh the promise adds: every device that can command Menux was approved on the node, can be limited or removed at any time, and cannot lower a safety rule, and Panic works from all of them.
 
@@ -1788,7 +1861,7 @@ This section replaces §25.4 to §25.6 for Windows and macOS.
 | **B** | WSL2 node plus a Windows satellite | Phase 5P |
 | **C** | Windows or macOS satellite paired to a node elsewhere (a Linux box, a Pi, WSL2) | Phase 5P |
 | **D** | Controllers: phone, tablet, any browser, `menux remote`, chat | Phase 5R |
-| **E** | A native node on Windows or macOS | **Research spike only** (`MT-P06`); no promise |
+| **E** | A native node on Windows or macOS | **Gated** (`MT-P06` has written acceptance criteria; a *go* unlocks a **limited** node, `MT-U05`: no shell, skill scripts or browser sidecar, and nothing above T2); no promise |
 
 ### 35.2 What works where
 
@@ -1817,7 +1890,7 @@ The old plan was a Windows-side helper designed in 5C and built in Phase 6. The 
 
 ### 35.5 People with no node
 
-A Windows-only or Mac-only user with no WSL2, Linux box or mini-PC has no node, so **cannot run Menux in v1**: satellites need a node to talk to. `MT-P06` studies what it would take to run a node natively (the sandbox, vault, service manager and scheduler all need OS-specific parts). Until it reports, the documentation says to use WSL2 or a small Linux machine.
+A Windows-only or Mac-only user with no WSL2, Linux box or mini-PC has no node, so **cannot run Menux in v1**: satellites need a node to talk to. `MT-P06` studies what it would take to run a node natively (the sandbox, vault, service manager and scheduler all need OS-specific parts). Until it reports, the documentation says to use WSL2 or a small Linux machine. *Revision 1.3:* `MT-P06` now writes its acceptance criteria down before it starts. If it passes, `MT-U05` builds a **limited** native node: scheduler, a vault on the OS key store, Telegram, read connectors that need no sandbox, recipes (§4.6), sealed tools and degraded mode. It does **not** offer the shell tool, skill scripts or the browser sidecar and never goes above T2, and `doctor` and the documentation say exactly what is missing. A Windows-only user could then use Menux for everyday automations without WSL2, but not for anything that needs the Linux sandbox.
 
 ### 35.6 Distribution
 
@@ -1939,6 +2012,16 @@ For every Menux release, verify:
 - [ ] An action that was delivered but unverified is not retried before its postcondition is checked.
 - [ ] Satellite documentation says plainly what a satellite cannot do and that a node is still required.
 
+**Revision 1.3 releases (Phase 4U and `MT-U05`) also verify:**
+
+- [ ] A recipe contains only catalogue actions, cannot raise a tier, runs with the network off and writes no `usage_ledger` rows.
+- [ ] Degraded mode sends one notification per state change and replays nothing at T2 or above.
+- [ ] Policy decisions are identical under every model label (`MT-Q11`).
+- [ ] Starter templates install disabled, dry-run first, run attended, and have no privilege a user-written spec lacks.
+- [ ] The evidence pack's numbers match the CI run that built the release and contain no payloads.
+- [ ] If the limited native node exists: it refuses the shell tool, skill scripts and anything above T2, and `doctor` lists what is missing.
+- [ ] The comparison in §40 was re-checked against the other agent's current release.
+
 ---
 
 ## 39. Source Map
@@ -1967,3 +2050,28 @@ This document is the user-facing feature layer. The build guide remains authorit
 
 - agent-desktop (Vercel Labs): an accessibility-tree command-line tool, C library and MCP server for macOS, Windows and Linux, with snapshot-scoped element references, strict resolution errors, delivery states with a retry hint, notification commands and a macOS sandbox command. It contains no model. A candidate component (§27), not a dependency, until `MT-R05` records a licence decision.
 - MiniMe and M2C device pairing: the device-code flow, the device registry, the device socket with revoked and superseded close codes, the closed v1 protocol envelope, and the logout that does not yet revoke on the server (`m2c/src/m2c/auth/login.py`). The mesh extends the same Devices page and uses a separate protocol namespace for that reason.
+
+**Design references for revision 1.3 (§40).** Reviewed on 2026-11-21: Mercury Agent (`cosmicstack-labs/mercury-agent`, MIT licence, version 1.5.4, 1,195 commits at the time). The repository was cloned and its source, `README.md`, `SECURITY.md`, `DECISIONS.md` and `CHANGELOG.md` were read. **Its tests were not run and its Optimus plugin was not tried.** It is not a dependency and none of its code is used. The Provider Consolidation Guide (Appendix B) and the Migration Guide (Appendix A) are the other sources for §12.5 and §35.
+
+---
+
+## 40. Where Menux Sits Among Personal Agents (revision 1.3)
+
+This section records, as of 2026-11-21, what one shipped open-source personal agent does, what Menux takes from it, and what Menux does differently. That agent moved fast (about 550 commits in the month before the review), so re-check a row before relying on it (§38). The statements about Mercury are from reading its source and documents, not from running it.
+
+| Area | Mercury Agent (shipped, version 1.5.4) | Menux (as planned) | What Menux takes |
+| :--- | :--- | :--- | :--- |
+| Distribution and licence | MIT; one-line install; desktop, Android and iOS app sources in the repository (the phone apps were not yet in the app stores at the 1.5.3 release) | Node on Linux and WSL2; satellites for Windows and macOS; the phone is an installable web app | `MT-U02` (guided first run); D44 (openness); D43 (limited native node) |
+| Brain and keys | Local runtime; the user's own provider keys (cloud or local models); an optional hosted router | Hybrid: a local node, with the model loop on the MiniMe server under one shared pool | Nothing: a deliberate difference, based on the assumption that most users cannot run a strong local model (§12.5) |
+| Untrusted content | Code-level provenance and injection guard: turn-scoped taint, tools that send or control need an explicit owner yes, fail-closed when unattended. It relaxed confirmation for strong models in attended chat and kept full protection for bots and scheduled runs | Reader/actor split (the Reader has no tools), sealed tools, taint, tiers fixed in code | `UX1` and D39: never vary by model |
+| OS-level isolation | No sandbox for shell commands or skills was found; installing a skill has no manifest | `bubblewrap` sandbox, skill manifests, encrypted vault | Keep: a Menux strength |
+| Computer use | The Optimus plugin sees the screen and drives mouse and keyboard on macOS, Windows and Linux (vision-based; Wayland input is limited) | The control ladder: commands, application scripting, accessibility, shortcuts, then pixels; a virtual desktop | Keep the ladder; the reliability benchmark (`MT-Q06`, `MT-P05`) is how Menux shows it beats a pixels-first approach |
+| Automation | Conversational scheduling, a Kanban board, a persistent fleet of specialist bots on one machine | Declarative audited specs with dry run, graduation and rollback | `MT-U01` (no-model recipes); a bot fleet is not a goal |
+| Coding | A built-in coding terminal with a completion contract that requires a passing build or test | Delegated to M2C | Nothing; coding stays in M2C |
+| Multi-device | A tunnel plus approval of paired devices; one daemon | A signed, end-to-end encrypted mesh with controller classes and failover leases | Keep |
+| Channels and voice | Telegram, Discord, Slack, Signal, a WhatsApp plugin, a voice engine | Telegram first, then Slack and Discord; opt-in voice notes (`MT-D06`) | D45 (terms review first); `MT-D06` extended |
+| Memory | Local SQLite; typed facts about the user with decay; editable personality files | Human-editable files with provenance, poisoning defenses and undo | Nothing |
+| Testing | A deterministic scripted-model evaluation harness and about 380 test files | Red-team, canary, soak and live-model suites | `MT-Q11` (scripted-model scenario harness) |
+| Offline use | Can run fully local with a local model | Model runs need the server; recipes and degraded mode work without it | `MT-U01`, `MT-U03` |
+
+**Where the shipped agent is ahead today:** it exists, installs in one line, runs natively on every desktop operating system, has phone apps, more channels and an open licence. **Where Menux's design is ahead:** structural defenses against prompt injection, OS-level sandboxing of tools and skills, a tiered control ladder and a signed mesh. The first list is a product; the second is a plan, and Menux earns it only when `MT-Q02`, `MT-Q09` and the evidence pack (`MT-U06`) show it.
