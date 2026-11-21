@@ -543,7 +543,7 @@ async function boot(root) {
   const src = sourceLine(census, S.folders);
   E.root = root;
   E.stage = h("div", { class: "tp-stage", tabindex: -1 });
-  E.card = h("aside", { class: "tp-card", tabindex: -1, "aria-live": "polite", "aria-labelledby": "tp-card-title", "data-state": "idle",
+  E.card = h("div", { class: "tp-card", role: "group", tabindex: -1, "aria-live": "polite", "aria-labelledby": "tp-card-title", "data-state": "idle",
     on: { keydown: (ev) => { if (ev.key === "Escape" && S.selected) { ev.preventDefault(); select(null); } } } });
   E.wrap = h("div", { class: "tp-grid" }, h("div", { class: "tp-stagewrap" }, E.stage), E.card);
   const [bar, msg] = toolbar();

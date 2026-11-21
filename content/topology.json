@@ -54,7 +54,7 @@
       "y": 88,
       "what": "The React screens: chat, workspaces, the stage tabs, notebooks and the code workbench.",
       "chapter": "doc-minime-feature-guide#2-the-main-user-experience",
-      "diagram": "architecture/system.html"
+      "diagram": "architecture.html#system"
     },
     {
       "id": "web-lib",
@@ -81,7 +81,7 @@
       "y": 262,
       "what": "The JWT-checked HTTP and WebSocket edge, and the task runner that starts a request.",
       "chapter": "doc-minime-feature-guide#3-chat",
-      "diagram": "architecture/api-surface.html"
+      "diagram": "architecture.html#api-surface"
     },
     {
       "id": "eo",
@@ -124,7 +124,7 @@
       "y": 262,
       "what": "The JSON bus, the realtime emitter, the model-provider client with its rate ledger, and configuration.",
       "chapter": "doc-minime-feature-guide#16-knowledge-graph-and-structured-data",
-      "diagram": "architecture/dataflow.html"
+      "diagram": "architecture.html#dataflow"
     },
     {
       "id": "db",

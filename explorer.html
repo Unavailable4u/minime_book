@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Explorer · MiniMe Atlas</title>
 <script src="assets/js/theme.js"></script>
-<script data-mm="prepaint">(function(d,w){var r=d.documentElement,s=null,v=w.innerWidth;try{s=localStorage.getItem("minime_sidebar")}catch(e){}if(/[?&]legacy=1(&|$)/.test(w.location.search))return;r.dataset.sidebar=v<=760?"drawer":s==="open"||s==="collapsed"?s:r.dataset.layout==="workbench"||v<1100?"collapsed":"open"})(document,window)</script>
+<script data-mm="prepaint">(function(d,w){var r=d.documentElement,s=null,v=w.innerWidth;try{s=localStorage.getItem("minime_sidebar")}catch(e){}r.dataset.sidebar=v<=760?"drawer":s==="open"||s==="collapsed"?s:r.dataset.layout==="workbench"||v<1100?"collapsed":"open"})(document,window)</script>
 <link rel="preload" href="assets/fonts/sora-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/jetbrains-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/tokens.css">
@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="assets/css/shell.css">
 <link rel="stylesheet" href="assets/css/explorer.css">
 </head>
-<body data-page="explorer"><main class="ex" id="ex">
+<body data-page="explorer" class="mm"><main class="ex" id="ex">
   <aside class="ex-side" id="ex-side" aria-label="Files">
     <div class="ex-side__head">
       <input id="ex-q" class="ex-q" type="search" placeholder="Filter files ( / )" aria-label="Filter files by path" autocomplete="off">

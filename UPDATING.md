@@ -263,6 +263,25 @@ Audit marks are the reader's own data, not generated data: nothing in `update_al
 * **Where they are:** `localStorage` key `minime_audit_v1` in each browser (move them with Export / Import on the audit page), or, if someone switches **Share marks with the team** on, in the To-do store (`api/todo.js`, record kind `audit`, one record per symbol, id = hash of `path::qual`). Records stay in the shared store like every other kind (deletes are tombstones, and the daily snapshots include them). Every poll of the To-do pages downloads the whole store, so a very large number of shared marks makes those pages heavier; export and clear if that ever matters.
 * **Tests:** `python scripts/test_todo_api.py` proves the API accepts `audit` and nothing else new; `python scripts/test_explorer.py` covers the rules and the pages.
 
+## Quality gate, accessibility and budgets (P23)
+
+`python scripts/check_site.py` runs on every pull request. Besides links, anchors, titles and JSON it enforces:
+
+- **Size:** a non-chapter page is at most 200 KB (`page-budget`, error), a chapter at most 300 KB (`chapter-budget`, warning), and no page is over 1 MB (`page-too-big`). `journey.html` and `tables.html` are builder aggregates and are allow-listed in `scripts/check_site.allow`; the follow-up is to have the builder emit JSON instead of inline HTML.
+- **Vendors load lazily** only on pages that use them (`vendor-eager`).
+- **Accessibility basics:** `lang`, a `<main>`, image `alt`, labelled inputs, named buttons, no positive `tabindex`, no duplicate ids (`a11y-*` codes). Allow-list an exception with a reason: `code|file|detail  # why`.
+- Both themes keep text at 4.5:1 or better; `python scripts/test_a11y.py` pins the tokens and the Paper overrides in `assets/css/shell.css`. Motion is switched off under `prefers-reduced-motion`; print is white, without chrome.
+
+To change the thresholds for one run: `--page-kb`, `--chapter-kb`, `--max-page-kb`.
+
+### Old pages and the shell
+
+`python scripts/codemod_shell.py` moves a page onto the shell and prunes inline CSS the shell makes dead, one page at a time. It is idempotent, so run it again after the builder regenerates `doc-*.html`, `journey.html` or `tables.html`; `--check` changes nothing and exits 1 if a page needs it. `atlas-ui.js` and `?legacy=1` are gone.
+
+### Retiring the old architecture diagrams
+
+`python scripts/retire_legacy.py` lists the legacy `architecture/*.html` diagrams. When a flow for one is in `content/arch-flows.json`, `--apply` turns the page into a redirect to `architecture.html#<view>` and retargets the links; `--dry-run` shows the plan; `--check` fails CI if a page is ready but not retired. Three are retired; five wait for their flows. Once none remain, the `archify` figure type in `assets/js/figures.js` can be dropped.
+
 ## The search index
 
 `data/index/` feeds the command palette (Ctrl/Cmd+K). `scripts/build_index.py` writes it from `content/nav.json` (pages), the `h2`/`h3` headings of every chapter, the glossary and `data/census.json` (files, routes, functions). It is deterministic: same inputs, same bytes. `refresh_atlas.py` rebuilds it with the pages, so `update_all.py` and the GitHub Action keep it current. It also writes `data/index/book.json`, the library page's data (chapter descriptions, word, section and table counts and last-built date, read from each chapter's banner). Three things change it without the census changing: editing `content/nav.json`, editing a chapter (a new chapter build changes its counts) and editing `content/glossary.json` (the palette's `#` search lists its terms). After any of them, run:
@@ -295,6 +314,8 @@ Tests, Health, Data model, Tables, Roadmap, Finance, Decisions and the document 
 | `protocol: data/code/protocol.json is out of date` | Run `python scripts/refresh_protocol.py --minime ../MiniMe` (or `update_all.py`). In CI this means `data/code/protocol.json` was not committed together with the census it belongs to. |
 | `source: data/src is out of date` | Run `python scripts/refresh_source.py --minime ../MiniMe` (or `update_all.py`). In CI this means `data/src` was not committed together with the census it belongs to. |
 | `MiniMe has no commit abc1234 (the census commit)` | Your MiniMe checkout does not contain the commit the census was built from. `git fetch` in MiniMe, or refresh the census from this checkout. |
+| `page-budget` / `a11y-*` from `check_site.py` | The page grew past 200 KB or lost a label, `alt`, `lang` or `<main>`. Fix the page, or allow-list it with a reason in `scripts/check_site.allow`. |
+| `codemod_shell: ... needs the codemod` | A builder rewrote a page. Run `python scripts/codemod_shell.py` and commit. |
 | The VS Code button is missing | Set your MiniMe folder with the link icon in the top bar. |
 
 Single steps: `python scripts/build_index.py --check`, `python scripts/refresh_atlas.py --check`, `python scripts/refresh_graph.py --minime ../MiniMe --check` `python scripts/notes.py ingest --minime ../MiniMe --check` and `python scripts/arch.py ingest --minime ../MiniMe --check` change nothing and exit 1 if something is out of date.

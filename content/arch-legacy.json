@@ -1,0 +1,48 @@
+{
+ "version": 1,
+ "note": "The hand-made archify diagrams (generated 2026-10-07, never updated). 'pages' are still the real files; 'retired' are thin redirect pages to architecture.html#<view>. A page is retired by scripts/retire_legacy.py --apply once the generated view can stand in for it: the derived views (system, dataflow, api-surface) always can; the others only when their flow is written (Copilot prompt C, UPDATING.md Step 2c).",
+ "pages": [
+  {
+   "file": "architecture/daemon-approval.html",
+   "title": "MiniMe — Propose / Confirm / Deny Approval Gate Diagram",
+   "view": "daemon-approval"
+  },
+  {
+   "file": "architecture/task-pipeline.html",
+   "title": "MiniMe — Task Execution Pipeline Diagram",
+   "view": "task-pipeline"
+  },
+  {
+   "file": "architecture/task-sequence.html",
+   "title": "MiniMe — Task Request Sequence Diagram",
+   "view": "task-sequence"
+  },
+  {
+   "file": "architecture/taskrun-lifecycle.html",
+   "title": "MiniMe — Task Run Lifecycle Diagram",
+   "view": "taskrun-lifecycle"
+  },
+  {
+   "file": "architecture/workspace-lifecycle.html",
+   "title": "MiniMe — Workspace Stage Lifecycle Diagram",
+   "view": "workspace-lifecycle"
+  }
+ ],
+ "retired": [
+  {
+   "file": "architecture/api-surface.html",
+   "title": "MiniMe — Backend API Surface Diagram",
+   "view": "api-surface"
+  },
+  {
+   "file": "architecture/dataflow.html",
+   "title": "MiniMe — Data Flow Diagram",
+   "view": "dataflow"
+  },
+  {
+   "file": "architecture/system.html",
+   "title": "MiniMe — System Architecture Diagram",
+   "view": "system"
+  }
+ ]
+}

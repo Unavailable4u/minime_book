@@ -260,3 +260,50 @@ html.mmp-open { overflow: hidden; }
   html[data-sidebar] body { padding-left: 0; }
   html[data-sidebar] body > main { margin-top: 0; }
 }
+/* ============================================================ 5. Paper theme: old colours that miss WCAG AA (P23)
+   The old pages hard-code colours picked for the dark theme (#ff7a96 pink, #34d399 green, #f59e0b amber, white on tint).
+   On the Paper background they measure 1.6 to 3.6 : 1. These rules point them at the Paper tokens (all >= 4.5 : 1 on
+   the Paper surfaces, pinned by scripts/test_a11y.py). Dark is untouched. Inline style="color:#..." needs !important. */
+html[data-theme="paper"] { --fail: var(--brand); --late: var(--gate); }                      /* todo.html's own variables */
+html[data-theme="paper"] .sn,
+html[data-theme="paper"] .neg,
+html[data-theme="paper"] .fail,
+html[data-theme="paper"] .dt.fail,
+html[data-theme="paper"] [style*="color:#ff7a96"],
+html[data-theme="paper"] [style*="color:#ff6b86"] { color: var(--brand) !important; }
+html[data-theme="paper"] .pos,
+html[data-theme="paper"] .st-live,
+html[data-theme="paper"] [style*="color:#34d399"] { color: var(--ok) !important; }
+html[data-theme="paper"] .late,
+html[data-theme="paper"] .dt.late,
+html[data-theme="paper"] [style*="color:#f59e0b"] { color: var(--gate) !important; }
+html[data-theme="paper"] [style*="border-color:#34d399"] { border-color: var(--ok) !important; }
+html[data-theme="paper"] .btn { color: #b30d36; }                                           /* on the pink tint, 5.4 : 1 */
+html[data-theme="paper"] .chip.done,
+html[data-theme="paper"] .chip.prog,
+html[data-theme="paper"] .bd.late { color: #fff; }                                          /* white on --ok / --gate fills */
+html[data-theme="paper"] .bd.fail { background: var(--brand); color: #fff; }
+/* the same literal, still used on dark: #6d6b66 is 3.5 : 1 on the dark panel */
+html[data-theme="dark"] [style*="color:#6d6b66"] { color: var(--ink-dim) !important; }
+
+/* ============================================================ 6. Every page: reduced motion and a visible focus ring (P23)
+   base.css covers only body.mm; the old pages with their own inline CSS get the same two guarantees here. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 2px solid var(--focus, #38bdf8); outline-offset: 2px; }
+
+/* ============================================================ 7. Print, all pages (P23)
+   White paper, no chrome, nothing clipped: wide tables and code wrap instead of scrolling, blocks stay whole. */
+@media print {
+  html, body { background: #fff !important; color: #000 !important; }
+  body::before, body::after { display: none !important; }
+  main, .wrap, .page { max-width: none !important; width: auto !important; margin: 0 !important; }
+  * { overflow: visible !important; max-height: none !important; }
+  table { width: 100% !important; table-layout: auto; }
+  pre, code { white-space: pre-wrap !important; word-break: break-word; }
+  tr, figure, img, svg, pre, blockquote, .card { break-inside: avoid; }
+  h1, h2, h3, h4 { break-after: avoid; }
+  a[href^="http"]:not([href*="#"])::after { content: " (" attr(href) ")"; font-size: .85em; word-break: break-all; }
+  input, select, button, [role="tablist"], .no-print { display: none !important; }
+}

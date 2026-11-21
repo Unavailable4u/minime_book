@@ -123,8 +123,14 @@ export function anatomySteps(flow, draft, commit, nodes) {
 /* The view that replaces a legacy hand-made diagram ("architecture/task-sequence.html" -> "task-sequence"), or null. Lets a step of the
    hand-drafted request path keep its "See the diagram" link without pointing at a diagram that is no longer updated. */
 export function viewForLegacy(model, url) {
-  const v = arr(model && model.views).find((x) => x && x.replaces === url);
-  return v ? v.id : null;
+  const views = arr(model && model.views);
+  const known = (id) => views.some((x) => x && x.id === id);
+  const v = views.find((x) => x && x.replaces === url);
+  if (v) return v.id;
+  const u = String(url || "");
+  let m = /^architecture\.html#([a-z0-9-]+)$/.exec(u) || /^arch-view\.html\?view=([a-z0-9-]+)/.exec(u);   // a retired diagram's new address
+  if (!m) m = /^architecture\/([a-z0-9-]+)\.html$/.exec(u);                                                // a hand-made file named like its view
+  return m && known(m[1]) ? m[1] : null;
 }
 
 /* The first view that draws a flow (the page anchor of a flow that is not written yet), or null. */

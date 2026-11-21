@@ -79,7 +79,7 @@ class NavFile(unittest.TestCase):
             self.assertEqual(sorted(set(vals)), sorted(vals), f"duplicate {key}")
 
     def test_every_root_page_is_listed_and_every_listed_page_exists(self):
-        pages = {p.name for p in ROOT.glob("*.html")}
+        pages = {p.name for p in ROOT.glob("*.html")} - {"404.html"}   # the not-found page is not navigation
         listed = {it["url"] for it in self.everything}
         self.assertEqual(set(), pages - listed, "root pages missing from content/nav.json")
         self.assertEqual(set(), listed - pages, "nav.json lists pages that do not exist")
@@ -212,6 +212,60 @@ class OnACopy(unittest.TestCase):
         self.assertEqual(0, cm.main(["--root", str(self.tmp), "--check"]))
 
 
+class P23Cleanup(unittest.TestCase):
+    """P23: dead inline CSS goes, the pre-paint snippet loses ?legacy=1, and CSS-free pages opt in to base.css."""
+
+    def test_rules_that_only_styled_atlas_ui_elements_are_dropped_and_page_rules_stay(self):
+        css = ("nav{width:210px}nav a:hover{color:red}.nv{margin:1px}.m-topbar{display:none}.nav-sub:hover{color:#fff}"
+               ".cmd-box{width:1px}body.nav-open nav{transform:none}.card{padding:1px}.svg-scroll{overflow-x:auto}"
+               ".nav-mclose,.toc-mhdr{display:none}")
+        out = cm.prune_css(css)
+        self.assertEqual(out, ".card{padding:1px}.svg-scroll{overflow-x:auto}.nav-mclose,.toc-mhdr{display:none}")
+
+    def test_inside_media_and_empty_media_removed(self):
+        css = "@media(max-width:900px){nav{display:none}main{padding:20px}}@media(max-width:480px){.m-btn span{display:none}}@font-face{font-family:x;src:url(a.woff2)}"
+        self.assertEqual(cm.prune_css(css), "@media(max-width:900px){main{padding:20px}}@font-face{font-family:x;src:url(a.woff2)}")
+
+    def test_old_root_block_is_dropped_only_when_every_variable_is_bridged(self):
+        self.assertEqual(cm.prune_css(":root{--bg:#0a0a0c;--p:#121216;--m:#f06cb4}a{color:red}"), "a{color:red}")
+        self.assertEqual(cm.prune_css(":root{--bg:#0a0a0c;--mine:1}"), ":root{--bg:#0a0a0c;--mine:1}")
+
+    def test_strings_and_comments_do_not_confuse_the_splitter(self):
+        css = '/* nav{x} */a::after{content:"}{ nav{"}nav{x:1}.k{y:2}'
+        self.assertEqual(cm.prune_css(css), '/* nav{x} */a::after{content:"}{ nav{"}.k{y:2}')
+
+    def test_prune_is_idempotent_and_empty_style_is_removed(self):
+        html = "<head><style>nav{a:b}</style><style>.k{c:d}</style></head>"
+        once = cm.prune_styles(html)
+        self.assertEqual(once, "<head><style>.k{c:d}</style></head>")
+        self.assertEqual(cm.prune_styles(once), once)
+
+    def test_converted_page_has_no_legacy_switch_and_no_old_script(self):
+        out = cm.convert(PAGE, ITEM)
+        self.assertNotIn("legacy=1", out)
+        self.assertNotIn("atlas-ui.js", out)
+        self.assertFalse((ROOT / "atlas-ui.js").exists(), "atlas-ui.js was deleted in P23")
+
+    def test_stale_prepaint_snippet_is_refreshed(self):
+        stale = cm.convert(PAGE, ITEM).replace(cm.PREPAINT, '<script data-mm="prepaint">/*old*/if(/[?&]legacy=1/.test(1))return;</script>')
+        self.assertNotIn(cm.PREPAINT, stale)
+        fresh = cm.convert(stale, ITEM)
+        self.assertIn(cm.PREPAINT, fresh)
+        self.assertEqual(cm.convert(fresh, ITEM), fresh)
+
+    def test_page_without_inline_css_opts_in_to_base_css_and_page_with_css_does_not(self):
+        bare = cm.convert(PAGE.replace("<style>body{display:flex}nav{width:210px}</style>", ""), ITEM)
+        self.assertRegex(bare, r'<body[^>]*class="mm"')
+        keep = cm.convert(PAGE.replace("nav{width:210px}", "nav{width:210px}.card{padding:1px}"), ITEM)
+        self.assertNotRegex(keep, r'<body[^>]*class="[^"]*mm')
+        self.assertIn(".card{padding:1px}", keep)
+        self.assertNotIn("nav{width", keep)
+
+    def test_existing_body_classes_are_kept(self):
+        page = PAGE.replace("<style>body{display:flex}nav{width:210px}</style>", "").replace("<body>", '<body class="wide">')
+        self.assertRegex(cm.convert(page, ITEM), r'<body[^>]*class="wide mm"')
+
+
 class PrePaintMatchesShell(unittest.TestCase):
     """The inline snippet in <head> and pickSidebar() in shell.js are one rule written twice. They must never disagree,
     or the sidebar jumps when shell.js loads."""
@@ -234,7 +288,7 @@ class PrePaintMatchesShell(unittest.TestCase):
                 "  vm.runInNewContext(snippet, { document: { documentElement: { dataset } }, window: { innerWidth: c.w, location: { search } },\n"
                 "    localStorage: { getItem: () => c.saved } }); return dataset.sidebar ?? null; };\n"
                 "console.log(JSON.stringify(cases.map((c) => ({ ...c, pre: run(c, ''), fn: pickSidebar(c.w, c.saved, c.layout),\n"
-                "  legacy: run(c, '?x=1&legacy=1') }))));\n", encoding="utf-8")
+                "  }))));\n", encoding="utf-8")
             (tmp / "snippet.js").write_text(snippet, encoding="utf-8")
             (tmp / "cases.json").write_text(json.dumps(cases), encoding="utf-8")
             res = subprocess.run([NODE, "run.mjs"], cwd=tmp, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60)
@@ -245,7 +299,6 @@ class PrePaintMatchesShell(unittest.TestCase):
         self.assertEqual(len(cases), len(rows))
         for r in rows:
             self.assertEqual(r["fn"], r["pre"], f"pre-paint and shell.js disagree for {r}")
-            self.assertIsNone(r["legacy"], "?legacy=1 must leave html[data-sidebar] unset (shell off)")
         self.assertEqual({"open", "collapsed", "drawer"}, {r["pre"] for r in rows})
 
     def test_shell_uses_the_p03_palette_and_has_no_second_one(self):

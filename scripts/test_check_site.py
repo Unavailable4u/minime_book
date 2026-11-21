@@ -37,7 +37,7 @@ serve = load("serve")
 
 
 def page(title="Page - MiniMe Atlas", body="", head=""):
-    return f"<!doctype html><html><head><meta charset=utf-8><title>{title}</title>{head}</head><body>{body}</body></html>"
+    return f'<!doctype html><html lang="en"><head><meta charset=utf-8><title>{title}</title>{head}</head><body><main>{body}</main></body></html>'
 
 
 class Site:
@@ -69,8 +69,9 @@ class SiteCase(unittest.TestCase):
         self.addCleanup(s.close)
         return s
 
-    def codes(self, report, level=None):
-        return sorted(f.code for f in report.findings if level in (None, f.level))
+    def codes(self, report, level=None, a11y=False):
+        """a11y-* findings (P23) are left out unless asked for: older tests build bare pages on purpose."""
+        return sorted(f.code for f in report.findings if level in (None, f.level) and (a11y or not f.code.startswith("a11y-")))
 
 
 class RepoState(unittest.TestCase):
@@ -89,7 +90,7 @@ class Links(SiteCase):
     def test_clean_site_is_clean(self):
         s = self.site({
             "index.html": page("Home - MiniMe Atlas", '<a href="other.html">x</a><a href="other.html#sec">y</a><a href="#top">t</a>'),
-            "other.html": page("Other - MiniMe Atlas", '<h2 id="sec">s</h2><img src="img/a.png"><link rel=stylesheet href="/css/a.css">'),
+            "other.html": page("Other - MiniMe Atlas", '<h2 id="sec">s</h2><img src="img/a.png" alt=""><link rel=stylesheet href="/css/a.css">'),
             "img/a.png": b"\x89PNG", "css/a.css": "a{}",
         })
         r = s.check()
@@ -608,6 +609,75 @@ class WorkflowFile(unittest.TestCase):
                        "scripts/test_refresh_graph.py", "pull_request", "contents: read"):
             self.assertIn(needle, text)
         self.assertNotIn("refresh_atlas.py\n", text.replace("test_refresh_atlas.py", ""))   # the refresh has its own workflow
+
+
+class TestQualityChecks(SiteCase):
+    """P23: HTML budgets, lazy vendors and the accessibility of the markup."""
+
+    def errs(self, files, **kw):
+        s = self.site(files)
+        return self.codes(s.check(**kw), "ERROR", a11y=True)
+
+    def test_a_clean_page_passes(self):
+        self.assertEqual([], self.errs({"index.html": page(body='<label for="q">Q</label><input id="q" type="search"><button>Go</button><img src="a.png" alt="">'), "a.png": b"x"}))
+
+    def test_budget_for_pages_and_chapters(self):
+        big = page(body="x" * 210_000)
+        self.assertEqual(["page-budget"], self.errs({"api.html": big}))
+        s = self.site({"doc-x.html": page(body="x" * 310_000)})
+        self.assertEqual([("WARN", "chapter-budget")], [(f.level, f.code) for f in s.check().findings])
+        self.assertEqual([], self.errs({"api.html": big}, page_kb=300))
+
+    def test_no_html_file_over_a_megabyte_even_when_generated(self):
+        s = self.site({"index.html": page(), "architecture/x.html": page(body="x" * 1_100_000)})
+        self.assertEqual(["page-too-big"], self.codes(s.check(), "ERROR", a11y=True))
+
+    def test_big_page_can_be_allowed_with_a_reason(self):
+        s = self.site({"api.html": page(body="x" * 210_000)})
+        self.assertEqual([], self.codes(s.check("page-budget|api.html|-  # why"), "ERROR", a11y=True))
+
+    def test_vendored_libraries_load_only_on_demand(self):
+        head = '<script src="assets/vendor/mermaid/mermaid.min.js"></script>'
+        files = {"index.html": page(head=head), "assets/vendor/mermaid/mermaid.min.js": "1"}
+        self.assertEqual(["vendor-eager"], self.errs(files))
+        js = {"index.html": page(), "assets/js/a.js": 'import hljs from "../vendor/highlight/h.js";\n', "assets/vendor/highlight/h.js": "1"}
+        self.assertEqual(["vendor-eager"], self.errs(js))
+        lazy = {"index.html": page(), "assets/js/a.js": 'const m = await import("../vendor/highlight/h.js");\n', "assets/vendor/highlight/h.js": "1"}
+        self.assertEqual([], self.errs(lazy))
+
+    def test_markup_rules(self):
+        bare = "<!doctype html><html><head><title>T - MiniMe Atlas</title></head><body><h1>x</h1></body></html>"
+        self.assertEqual(["a11y-lang", "a11y-no-main"], self.errs({"index.html": bare}))
+        cases = {
+            "a11y-img-alt": '<img src="a.png">',
+            "a11y-input-label": '<input id="q" type="search">',
+            "a11y-button-name": '<button></button>',
+            "a11y-tabindex": '<div tabindex="3">x</div>',
+            "a11y-dup-id": '<p id="a">1</p><p id="a">2</p>',
+        }
+        for code, body in cases.items():
+            with self.subTest(code):
+                self.assertEqual([code], self.errs({"index.html": page(body=body), "a.png": b"x"}))
+
+    def test_things_that_do_name_a_control(self):
+        ok = ('<label>Name <input type="text"></label><label for="b">B</label><input id="b">'
+              '<input aria-label="C"><select title="D"></select><button aria-label="E"><svg></svg></button>'
+              '<button><img src="a.png" alt="F"></button><button>Text</button><input type="hidden"><input type="file" hidden>'
+              '<template><input><button></button><p id="t"></p><p id="t"></p></template>')
+        self.assertEqual([], self.errs({"index.html": page(body=ok), "a.png": b"x"}))
+
+    def test_repeated_style_ids_from_the_chapter_builder_are_not_duplicates(self):
+        self.assertEqual([], self.errs({"index.html": page(head='<style id="s">a{}</style><style id="s">b{}</style>')}))
+
+
+class RepoQuality(unittest.TestCase):
+    def test_the_committed_site_meets_its_budgets_and_the_allow_list_has_reasons(self):
+        report = cs.run_checks(ROOT, allow=cs.load_allow(cs.DEFAULT_ALLOW))
+        self.assertEqual([], [str(f) for f in report.errors])
+        text = cs.DEFAULT_ALLOW.read_text(encoding="utf-8")
+        for line in text.splitlines():
+            if line.startswith(("page-budget|", "a11y-")):
+                self.assertIn("#", line, f"allow line without a reason: {line}")
 
 
 if __name__ == "__main__":

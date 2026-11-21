@@ -49,3 +49,10 @@ B. Provider Consolidation Guide: Four Paid Models, Key Pools, One Search Key (`d
 - `consistency.html` — Cross-book governance & reconciliation matrix
 - `explorer.html` (every file, function and class, with explanations and source; `explore.html`, `code.html` and `functions.html` forward to it), `map.html`, `graph.html`, `api.html`, `agents.html`, `data.html`, `infra.html`, `history.html`, `architecture.html`, `tests.html`, `health.html`, `finance.html`, `rulebook.html`, `tables.html`
 - `protocol.html`, `m2c.html`, `adrs.html` — The M2C wire contract (message types, fields, tools, risk levels, real examples), the device client's package map and commands, and MiniMe's architecture decision records; all drawn from `data/code/protocol.json`
+
+## Site structure (P23)
+- Every page loads one shell (`assets/js/shell.js`): sidebar, top bar, theme, search (Ctrl/Cmd+K). Themes are `data-theme="dark|paper"` on `<html>`.
+- `architecture.html` is the home of the architecture. `architecture/*.html` pages that were retired are thin redirects to `architecture.html#<view>`; `arch-view.html` draws every view of the model in `data/arch/`.
+- `404.html` is the not-found page.
+- Machine-readable data: `data/index/*.json` (`arch`, `book`, `link-report`, `linkables`, `mentions`, `notes`, `paths`, `routes`, `search`, `stats`, `status`, `symbols`, `vitals`, plus one `symbols-<area>.json` per code area), `data/arch/` (architecture model), `data/code/` (code and protocol data), `data/src/` (embedded source), `data/summary.md`.
+- Quality gate: `python3 scripts/check_site.py` (links, anchors, JSON, size budgets, accessibility basics).

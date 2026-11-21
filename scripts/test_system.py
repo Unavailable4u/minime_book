@@ -148,6 +148,8 @@ class PureHelpers(unittest.TestCase):
         model = load("data/arch/model.json")
         out = run_node("console.log(JSON.stringify([S.viewForLegacy(data, 'architecture/task-sequence.html'), S.viewForLegacy(data, 'architecture/none.html'), S.viewIdForFlow(data, 'request-path'), S.viewIdForFlow(data, 'nope')]))", model)
         self.assertEqual(out, ["task-sequence", None, "task-sequence", None])
+        out = run_node("console.log(JSON.stringify([S.viewForLegacy(data, 'architecture/system.html'), S.viewForLegacy(data, 'architecture.html#dataflow'), S.viewForLegacy(data, 'arch-view.html?view=api-surface'), S.viewForLegacy(data, 'architecture.html#nope')]))", model)
+        self.assertEqual(out, ["system", "dataflow", "api-surface", None], "a retired diagram's old and new address both find its view")
 
 
 class Content(unittest.TestCase):
@@ -198,7 +200,7 @@ class Page(unittest.TestCase):
         self.assertIn('assets/css/arch.css', self.html)
         self.assertIn('assets/css/system.css', self.html)
         self.assertLess(self.html.index("arch.css"), self.html.index("system.css"), "system.css must load after arch.css so it can size the diagram window")
-        self.assertIn('<body data-page="architecture">', self.html)
+        self.assertIn('<body data-page="architecture" class="mm">', self.html)
         self.assertNotIn("<style", self.html, "the old per-page CSS is gone")
 
     def test_layout_matches_the_nav(self):
@@ -206,14 +208,16 @@ class Page(unittest.TestCase):
         item = next(i for w in nav["wings"] for i in w["items"] if i["id"] == "architecture")
         self.assertIn(f'data-layout="{item["layout"]}"', self.html)
 
-    def test_legacy_diagrams_are_a_collapsed_block_of_links(self):
-        m = re.search(r'<details class="sy-legacy">(.*?)</details>', self.html, re.S)
-        self.assertIsNotNone(m)
-        self.assertIn("not updated", m.group(1))
-        files = sorted(p.name for p in (ROOT / "architecture").glob("*.html"))
-        linked = sorted(re.findall(r'href="architecture/([^"]+)"', m.group(1)))
-        self.assertEqual(linked, files)
+    def test_legacy_diagrams_come_from_the_registry_and_are_a_collapsed_block_of_links(self):
+        self.assertNotIn('id="legacy"', self.html, "the block is drawn by system.js from content/arch-legacy.json, only while pages remain")
+        self.assertIn("content/arch-legacy.json", self.js)
+        self.assertRegex(self.js, r'<details|"details", \{ class: "sy-legacy"')
+        self.assertIn("not updated", self.js)
+        self.assertRegex(self.js, r"legacy\.length \? h\(\"li\"", "the nav item exists only while there is a #legacy section to jump to")
         self.assertNotIn("<iframe", self.html, "legacy diagrams are links, never loaded into the page")
+        reg = load("content/arch-legacy.json")
+        on_disk = sorted(p.name for p in (ROOT / "architecture").glob("*.html"))
+        self.assertEqual(sorted(Path(e["file"]).name for e in reg["pages"] + reg["retired"]), on_disk)
 
     def test_section_ids_are_view_ids_because_the_palette_links_there(self):
         self.assertIn("id: sec.id", self.js)

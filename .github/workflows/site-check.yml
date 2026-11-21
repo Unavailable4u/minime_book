@@ -18,6 +18,10 @@
 #     python scripts/test_system.py
 #     python scripts/test_project.py
 #     python scripts/test_codemod_shell.py
+#     python scripts/codemod_shell.py --check
+#     python scripts/retire_legacy.py --check
+#     python scripts/test_retire_legacy.py
+#     python scripts/test_a11y.py
 #     python scripts/build_code.py --check
 #     python scripts/test_build_code.py
 #     python scripts/notes.py validate
@@ -74,6 +78,10 @@ jobs:
         run: python3 scripts/refresh_protocol.py --check
       - name: Coverage data (data/index/status.json) is current
         run: python3 scripts/build_status.py --check
+      - name: Pages carry the shell and no dead inline CSS
+        run: python3 scripts/codemod_shell.py --check
+      - name: Retired legacy architecture pages are thin redirects
+        run: python3 scripts/retire_legacy.py --check
       - name: Vendored highlight.js (assets/vendor/highlight) is the pinned version
         run: python3 scripts/vendor_highlight.py --check
       - name: Unit tests
@@ -101,3 +109,5 @@ jobs:
           python3 scripts/test_refresh_protocol.py
           python3 scripts/test_project.py
           python3 scripts/test_status.py
+          python3 scripts/test_retire_legacy.py
+          python3 scripts/test_a11y.py

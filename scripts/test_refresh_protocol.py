@@ -592,7 +592,7 @@ class Pages(unittest.TestCase):
         for name, (nav_id, app) in self.PAGES.items():
             html = (ROOT / name).read_text(encoding="utf-8")
             self.assertLess(len(html), 4000, name)
-            self.assertIn(f'<body data-page="{nav_id}">', html, name)
+            self.assertIn(f'<body data-page="{nav_id}" class="mm">', html, name)
             self.assertIn(f'id="{app}"', html, name)
             self.assertIn("noindex", html, name)
             self.assertIn('src="assets/js/protocol.js"', html, name)

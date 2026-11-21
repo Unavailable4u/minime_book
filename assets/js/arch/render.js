@@ -353,7 +353,7 @@ export async function mountArch(root, opts = {}) {
 
   const ctx = makeCtx(A);
   const stage = h("div", { class: "ar-stage", tabindex: -1 });
-  const card = h("aside", { class: "ar-card", tabindex: -1, "aria-live": "polite", "aria-label": "Details", "data-state": "idle", on: { keydown: (ev) => { if (ev.key === "Escape" && A.sel) { ev.preventDefault(); A.select(null); } } } });
+  const card = h("div", { class: "ar-card", role: "group", tabindex: -1, "aria-live": "polite", "aria-label": "Details", "data-state": "idle", on: { keydown: (ev) => { if (ev.key === "Escape" && A.sel) { ev.preventDefault(); A.select(null); } } } });
   const msg = h("span", { class: "ar-msg", role: "status" });
   const zoom = createZoom({ stage, getSvg: () => A.svg, root, labelSel: ".ar-zoomv" });
   const btn = (text, extra = {}, fn = null) => h("button", { class: "mm-btn", type: "button", ...extra, on: fn ? { click: fn } : {} }, text);
@@ -459,7 +459,7 @@ export async function mountArch(root, opts = {}) {
 
   /* ---- the page */
   const grid = h("div", { class: "ar-grid" }, h("div", { class: "ar-stagewrap" }, stage), card);
-  put(root, h("h2", { class: "ar-title", id: `${A.uid}-t` }, A.embed ? null : sh.title), banner(A), ...notes(A).slice(0, A.embed ? 1 : 99), A.embed ? null : bar, msg, grid,
+  put(root, A.embed ? null : h("h2", { class: "ar-title", id: `${A.uid}-t` }, sh.title), banner(A), ...notes(A).slice(0, A.embed ? 1 : 99), A.embed ? null : bar, msg, grid,
     A.embed ? null : h("ul", { class: "ar-legend" }, legend(A)),
     A.embed ? null : listFor(A),
     A.embed || !sh.replaces ? null : h("p", { class: "ar-legacy" }, "Legacy diagram this replaces (hand-made, not updated): ", h("a", { href: sh.replaces }, sh.replaces)));

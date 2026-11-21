@@ -46,7 +46,8 @@ function depsBlock(doc) {
   return section(`Dependencies (${D.fmtN(total)})`, (doc.dependencies || []).map((m) => {
     const label = D.manifestLabel(m);
     if (!m.parsed) return h("p", { class: "cp-dim" }, fileLink(m.file), " is not listed: the census keeps only the head of this kind of file.");
-    return h("details", { class: "mm-card cp-deps" }, h("summary", null, h("b", null, label), " ", h("span", { class: "cp-dim" }, `${D.fmtN(D.depCount(m))} · `), fileLink(m.file)),
+    return h("details", { class: "mm-card cp-deps" }, h("summary", null, h("b", null, label), " ", h("span", { class: "cp-dim" }, D.fmtN(D.depCount(m)))),
+      h("p", { class: "cp-dim" }, "File: ", fileLink(m.file)),         // a link inside <summary> is a control inside a control
       m.groups.map((g) => [m.groups.length > 1 ? h("p", { class: "cp-label" }, `${g.title} (${g.items.length})`) : null,
         h("div", { class: "cp-pills" }, g.items.map((it) => h("span", { class: "cp-pill" }, it.name, it.spec ? [" ", h("span", { class: "cp-dim" }, it.spec)] : null)))]));
   }));

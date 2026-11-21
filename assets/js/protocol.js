@@ -9,6 +9,7 @@ import { h } from "./explorer/dom.js";
 import * as P from "./protocolpages.js";
 import { getJSON, empty, badge, kpiGrid, freshLine, section, linkRow, copyButton, bookSection, makeTable } from "./codeui.js";
 import { loadLinkOptions, codeLinks } from "./links.js";
+import { reachable } from "./scrollbox.js";
 
 const firstSentence = (s) => { const m = /^(.+?[.!?])(\s|$)/.exec(String(s || "")); return m ? m[1] : String(s || ""); };
 const code = (t) => h("code", null, t);
@@ -31,9 +32,11 @@ function fieldTable(fields, caption) {
     h("td", null, code(f.type)),
     h("td", null, f.required ? "required" : h("span", { class: "cp-dim" }, "optional")),
     h("td", null, f.desc ? h("span", null, f.desc) : null, P.fieldFacts(f).map((x) => h("span", { class: "pr-fact" }, x)))));
-  return h("div", { class: "mm-tablewrap pr-fields" }, h("table", { class: "mm-table is-compact" },
+  const box = h("div", { class: "mm-tablewrap pr-fields" }, h("table", { class: "mm-table is-compact" },
     caption ? h("caption", { class: "pr-sr" }, caption) : null,
     h("thead", null, h("tr", null, ["Field", "Type", "Rule", "Details"].map((c) => h("th", { scope: "col" }, c)))), h("tbody", null, body)));
+  reachable(box, caption ? `Fields: ${caption}` : "Fields");      // the box scrolls (max-height), so the keyboard must reach it
+  return box;
 }
 
 function exampleBlock(ex) {

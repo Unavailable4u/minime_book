@@ -22,7 +22,7 @@ const trunc = (t, n) => (t.length > n ? `${t.slice(0, n - 1)}\u2026` : t);
 function drawER(doc, pick) {
   const L = D.erLayout(doc);
   const E = D.ER;
-  const svg = s("svg", { viewBox: `0 0 ${L.width} ${L.height}`, width: L.width, height: L.height, role: "img", "aria-label": "Foreign keys between the tables of the public schema", class: "cp-er__svg" });
+  const svg = s("svg", { viewBox: `0 0 ${L.width} ${L.height}`, width: L.width, height: L.height, role: "group", "aria-label": "Foreign keys between the tables of the public schema", class: "cp-er__svg" });
   svg.append(s("defs", null, s("marker", { id: "er-arrow", markerWidth: 8, markerHeight: 8, refX: 7, refY: 4, orient: "auto" }, s("path", { d: "M0,0 L8,4 L0,8z", class: "cp-er__arrow" }))));
   const edgeEls = L.edges.map((e) => {
     const p = s("path", { d: e.d, class: "cp-er__edge", "marker-end": "url(#er-arrow)" }, s("title", null, `${D.bare(e.from)}(${e.cols.join(", ")}) \u2192 ${e.to}${e.toCols.length ? `(${e.toCols.join(", ")})` : ""}${e.onDelete ? ` on delete ${e.onDelete}` : ""}`));

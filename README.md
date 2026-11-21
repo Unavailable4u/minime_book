@@ -1,5 +1,11 @@
 https://minimebook.vercel.app/
 
+## How the site is put together
+
+A static site: HTML, JS and CSS, no build step; every script is Python standard library only. One shell (`assets/js/shell.js`) adds the sidebar, top bar, theme switch and search to every page, with two themes (Dark and Paper, `assets/css/tokens.css`). Chapters are typeset at run time, the architecture lives in `architecture.html` (old `architecture/*.html` pages redirect there), and `404.html` is the not-found page.
+
+**Before you push:** `python scripts/check_site.py` and the unit tests in `scripts/` (the list is in `.github/workflows/site-check.yml`). The gate also checks size budgets (200 KB per page) and accessibility basics. Details: `UPDATING.md`, "Quality gate, accessibility and budgets".
+
 ## Team to-do (live shared list)
 
 `todo.html` is a shared to-do, workload view and timeline. It also edits the master timeline dates that `roadmap.html` shows, so both pages always agree.

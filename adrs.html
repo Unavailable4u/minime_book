@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Decision records · MiniMe Atlas</title>
 <script src="assets/js/theme.js"></script>
-<script data-mm="prepaint">(function(d,w){var r=d.documentElement,s=null,v=w.innerWidth;try{s=localStorage.getItem("minime_sidebar")}catch(e){}if(/[?&]legacy=1(&|$)/.test(w.location.search))return;r.dataset.sidebar=v<=760?"drawer":s==="open"||s==="collapsed"?s:r.dataset.layout==="workbench"||v<1100?"collapsed":"open"})(document,window)</script>
+<script data-mm="prepaint">(function(d,w){var r=d.documentElement,s=null,v=w.innerWidth;try{s=localStorage.getItem("minime_sidebar")}catch(e){}r.dataset.sidebar=v<=760?"drawer":s==="open"||s==="collapsed"?s:r.dataset.layout==="workbench"||v<1100?"collapsed":"open"})(document,window)</script>
 <link rel="preload" href="assets/fonts/sora-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/tokens.css">
 <link rel="stylesheet" href="assets/css/base.css">
@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="assets/css/codepages.css">
 <link rel="stylesheet" href="assets/css/protocol.css">
 </head>
-<body data-page="adrs"><main><div class="cp">
+<body data-page="adrs" class="mm"><main><div class="cp">
 <h1>Decision records</h1><p class="cp-sub">The architecture decision records kept in MiniMe's <code>docs/decisions</code> folder: what was decided, and whether it still stands.</p>
 <div id="adr-app"><p class="cp-empty">Loading…</p></div>
 <noscript><p class="cp-empty">This page is drawn by JavaScript from <code>data/code/protocol.json</code>. Without it you can still use the <a href="docs.html">Library</a>, the <a href="explorer.html">Explorer</a> and the pages in the sidebar.</p></noscript>

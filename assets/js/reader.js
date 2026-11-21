@@ -574,6 +574,7 @@ function enhanceTables() {
   const min = Number(R.cc.tableFilterMinRows) || 25;
   const maxVh = Number(R.cc.tableMaxHeightVh) || 75;
   R.article.style.setProperty("--rd-table-max", `${maxVh}vh`);
+  let tableNo = 0;
   for (const table of R.article.querySelectorAll("table")) {
     let wrap = table.parentElement;
     if (!wrap.classList.contains("tw")) { wrap = h("div", { class: "tw" }); table.before(wrap); wrap.append(table); }
@@ -582,9 +583,28 @@ function enhanceTables() {
     const n = rows.length || Math.max(0, table.rows.length - 1);
     wrap.style.setProperty("--rd-rows", String(Math.min(n + 1, 30)));
     const cols = table.rows[0] ? table.rows[0].cells.length : 0;
-    if (n > 12 || cols > 5) { wrap.tabIndex = 0; wrap.setAttribute("role", "region"); wrap.setAttribute("aria-label", `Table, ${n} rows`); }   // a scroll box must be reachable by keyboard
+    reachable(wrap, labelFor(wrap, ++tableNo));                  // a scroll box must be reachable by keyboard, and only a scrolling one is
     if (n > min) addFilter(wrap, rows);
   }
+}
+/* A table box that scrolls must be reachable by keyboard (WCAG 2.1.1), but one that does not overflow must not be a tab stop.
+   Same logic as assets/js/scrollbox.js; copied here because this module has no dependencies (P23). */
+function reachable(box, label) {
+  const sync = () => {
+    const over = box.scrollWidth > box.clientWidth + 1 || box.scrollHeight > box.clientHeight + 1;
+    if (over) { box.tabIndex = 0; box.setAttribute("role", "region"); box.setAttribute("aria-label", label); }
+    else { box.removeAttribute("tabindex"); box.removeAttribute("role"); box.removeAttribute("aria-label"); }
+  };
+  if (typeof ResizeObserver === "function") { const ro = new ResizeObserver(sync); ro.observe(box); if (box.firstElementChild) ro.observe(box.firstElementChild); }
+  else sync();
+}
+function labelFor(node, n) {       // "Table 3: Pricing tiers": the heading above names the box, the number keeps every label unique
+  for (let el = node; el && el.tagName !== "ARTICLE" && el.tagName !== "MAIN"; el = el.parentElement) {
+    for (let p = el.previousElementSibling; p; p = p.previousElementSibling) {
+      if (/^H[1-6]$/.test(p.tagName) && p.textContent.trim()) return `Table ${n}: ${p.textContent.trim().slice(0, 60)}`;
+    }
+  }
+  return `Table ${n}`;
 }
 function addFilter(wrap, rows) {
   const texts = rows.map((r) => r.textContent);

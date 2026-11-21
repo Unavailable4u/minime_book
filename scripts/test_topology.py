@@ -337,7 +337,11 @@ class Layout(unittest.TestCase):
                 if frag:
                     self.assertIn(f'id="{frag}"', text(f), f"{n['id']}: #{frag} is not in {page}.html")
             if n.get("diagram"):
-                self.assertTrue((ROOT / n["diagram"]).is_file(), f"{n['id']}: {n['diagram']}")
+                d_page, _, d_frag = n["diagram"].partition("#")
+                self.assertTrue((ROOT / d_page).is_file(), f"{n['id']}: {n['diagram']}")
+                if d_frag:      # architecture.html#<view>: the view must exist in the model (its sections are built by script)
+                    views = {v["id"] for v in json.loads((ROOT / "data/arch/model.json").read_text(encoding="utf-8"))["views"]}
+                    self.assertIn(d_frag, views, f"{n['id']}: {n['diagram']}")
 
     def test_every_folder_of_every_node_holds_census_files_and_no_two_nodes_claim_the_same_one(self):
         paths = [f["path"] for f in self.census["files"]]
@@ -429,7 +433,7 @@ class Page(unittest.TestCase):
 
     def test_the_card_closes_on_escape_even_though_focus_left_the_svg(self):
         src = text(TOPOLOGY_JS)
-        self.assertRegex(src, r'(?s)E\.card = h\("aside".*?keydown:\s*\(ev\) => \{ if \(ev\.key === "Escape"')
+        self.assertRegex(src, r'(?s)E\.card = h\("div".*?keydown:\s*\(ev\) => \{ if \(ev\.key === "Escape"')
         self.assertIn('ev.key === "Escape" && S.selected) select(null)', src)
 
     def test_the_script_has_no_browser_storage_and_no_network_beyond_the_site(self):

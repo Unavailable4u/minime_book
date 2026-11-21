@@ -140,7 +140,7 @@ class Prompts(unittest.TestCase):
 class Wiring(unittest.TestCase):
     def test_page_is_a_project_page_with_its_own_css_last(self):
         s = (ROOT / "coverage.html").read_text(encoding="utf-8")
-        self.assertIn('<body data-page="coverage" data-wing="project">', s)
+        self.assertIn('<body data-page="coverage" data-wing="project" class="mm">', s)
         self.assertLess(s.index("assets/css/shell.css"), s.index("assets/css/coverage.css"))
         self.assertIn('id="cv-app"', s)
         self.assertIn("assets/js/coverage.js", s)

@@ -249,9 +249,9 @@ function renderAnatomy() {
   const box = $("ov-steps"), doc = D.steps;
   if (!doc || !(doc.steps || []).length) { box.replaceChildren(note("The request path could not be loaded. " + LOCAL_HINT)); return; }
   const steps = doc.steps, chapters = new Map(((D.book && D.book.chapters) || []).map((c) => [c.id, c]));
-  const strip = h("ol", { class: "mm-stepper ov-strip", role: "tablist", "aria-label": "Steps of a request" });
-  const panel = h("div", { class: "mm-card ov-step", role: "tabpanel", "aria-live": "polite" });
-  const buttons = steps.map((s, i) => h("button", { type: "button", class: "ov-strip__b", role: "tab", id: `ov-step-${s.id}`, "aria-controls": "ov-step-panel", onclick: () => pick(i) }, s.title));
+  const strip = h("ol", { class: "mm-stepper ov-strip", "aria-label": "Steps of a request" });
+  const panel = h("div", { class: "mm-card ov-step", role: "group", "aria-live": "polite" });
+  const buttons = steps.map((s, i) => h("button", { type: "button", class: "ov-strip__b", id: `ov-step-${s.id}`, "aria-controls": "ov-step-panel", onclick: () => pick(i) }, s.title));
   buttons.forEach((b, i) => strip.append(h("li", {}, b)));
   panel.id = "ov-step-panel";
   let cur = -1;
@@ -259,7 +259,7 @@ function renderAnatomy() {
     if (i < 0 || i >= steps.length) return;
     cur = i;
     const s = steps[i];
-    [...strip.children].forEach((li, j) => { li.classList.toggle("is-done", j < i); if (j === i) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current"); buttons[j].setAttribute("aria-selected", String(j === i)); buttons[j].tabIndex = j === i ? 0 : -1; });
+    [...strip.children].forEach((li, j) => { li.classList.toggle("is-done", j < i); if (j === i) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current");  buttons[j].tabIndex = j === i ? 0 : -1; });
     if (focus) buttons[i].focus();
     panel.setAttribute("aria-labelledby", buttons[i].id);
     panel.classList.toggle("ov-step--gate", !!s.gate);

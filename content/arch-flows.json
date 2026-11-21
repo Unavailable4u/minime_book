@@ -156,15 +156,13 @@
    "id": "system",
    "title": "System map",
    "type": "layered",
-   "source": "derived",
-   "replaces": "architecture/system.html"
+   "source": "derived"
   },
   {
    "id": "dataflow",
    "title": "Data flow",
    "type": "layered",
    "source": "derived",
-   "replaces": "architecture/dataflow.html",
    "edge_kinds": [
     "api-call",
     "db",
@@ -217,8 +215,7 @@
    "id": "api-surface",
    "title": "API surface",
    "type": "catalog",
-   "source": "derived",
-   "replaces": "architecture/api-surface.html"
+   "source": "derived"
   },
   {
    "id": "m2c-protocol",

@@ -25,7 +25,16 @@ What it changes in a page (and only here):
     scripts   atlas-ui.js is replaced by assets/js/shell.js (a module); pages that had no atlas-ui.js
               (the chapters) get the module tag just before </body>
 
-What it never touches: anything inside <main>, the pages' own <style> and <script> blocks, and the
+P23 added three clean-up steps, all idempotent, so `--check` also tells you when a regenerated page needs the frame again:
+    <body>    a page with no inline CSS of its own gets class="mm", so base.css (Sora, line height, focus ring, reduced motion)
+              reaches it. (Before this, those pages were set in the browser's default Times.) A page that still carries
+              its own inline CSS keeps its own typography: base.css would re-space its headings and paragraphs.
+    <head>    a stale pre-paint snippet is replaced by the current one (the ?legacy=1 switch is gone)
+    <style>   rules that only style the old per-page <nav>, the old mobile top bar and the old command box (all built by
+              the retired atlas-ui.js) are dropped, and so is the old :root block (shell.css bridges those variables).
+              Rules that style page content are never touched; an inline <style> left empty is removed.
+
+What it never touches: anything inside <main>, the pages' own <script> blocks, any live page-content CSS, and the
 pages that are not ordinary Atlas pages:
     * entries marked "hidden" in nav.json (styleguide.html is its own standalone showcase; graph-viewer.html is
       generated from scripts/graph_viewer_template.html by refresh_graph.py and is embedded as an iframe)
@@ -56,17 +65,22 @@ _spec.loader.exec_module(ra)        # only for read_lf / to_native, so CRLF hand
 THEME_TAG = '<script src="assets/js/theme.js"></script>'
 # Runs before first paint: picks the sidebar state so the page never flashes the wrong width.
 # Same rule as assets/js/shell.js pickSidebar(): a saved choice wins; otherwise collapsed on workbench pages
-# and below 1100px; always a drawer at 760px and below. ?legacy=1 sets nothing, which turns the shell off.
+# and below 1100px; always a drawer at 760px and below.
 # (scripts/test_codemod_shell.py runs this exact text in node and compares it with shell.js.)
 PREPAINT = ('<script data-mm="prepaint">(function(d,w){var r=d.documentElement,s=null,v=w.innerWidth;'
             'try{s=localStorage.getItem("minime_sidebar")}catch(e){}'
-            'if(/[?&]legacy=1(&|$)/.test(w.location.search))return;'
             'r.dataset.sidebar=v<=760?"drawer":s==="open"||s==="collapsed"?s:'
             'r.dataset.layout==="workbench"||v<1100?"collapsed":"open"})(document,window)</script>')
 PRELOAD = ('<link rel="preload" href="assets/fonts/sora-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>')
 CSS_TAGS = [f'<link rel="stylesheet" href="assets/css/{n}.css">' for n in ("tokens", "base", "components", "shell")]
 SHELL_TAG = '<script type="module" src="assets/js/shell.js"></script>'
-OLD_UI_TAG = '<script src="atlas-ui.js"></script>'
+OLD_UI_TAG = '<script src="atlas-ui.js"></script>'      # only so a page that still has it can be converted; the file itself is gone (P23)
+PREPAINT_RE = re.compile(r'<script data-mm="prepaint">.*?</script>', re.S)
+STYLE_RE = re.compile(r"<style\b[^>]*>(.*?)</style>\n?", re.S)
+# selectors that only ever styled elements atlas-ui.js built: the page's own <nav>, the mobile top bar (.m-*), the nav helpers
+# (.nav-*) and the command box (.cmd-*). A rule is dropped only when EVERY selector in its list matches.
+DEAD_SELECTOR = re.compile(r"^nav(?![\w-])|^\.nv$|\.m-[a-z]|^\.nav-[a-z]|^\.cmd-[a-z]|^body\.nav-open(?![\w-])")
+BRIDGED_VARS = {"--bg", "--p", "--p2", "--ln", "--tx", "--dim", "--r", "--v", "--a", "--g", "--m"}
 GOOGLE_FONTS = re.compile(r'\n?<link rel="stylesheet" href="https://fonts\.googleapis\.com/[^"]*">')
 BUILT = re.compile(r"Built \d{4}-\d{2}-\d{2} from commit [0-9a-f]+\.")
 LAYOUTS = ("reader", "workbench", "bare")
@@ -111,6 +125,103 @@ def _balanced_nav(html):
     raise CodemodError("unbalanced <nav>")
 
 
+# ------------------------------------------------------------------ dead inline CSS (P23)
+def _split_rules(css):
+    """Split CSS into top-level chunks [(leading_whitespace, prelude, body_or_None, tail)], honouring strings, comments
+    and nested braces. A chunk is `prelude{body}`; a statement such as @import has body None."""
+    out, i, n = [], 0, len(css)
+    while i < n:
+        j = i
+        while j < n and css[j].isspace():
+            j += 1
+        lead = css[i:j]
+        if j >= n:
+            out.append((lead, "", None))
+            break
+        k, depth, quote = j, 0, None
+        body_start = None
+        while k < n:
+            c = css[k]
+            if quote:
+                if c == "\\":
+                    k += 1
+                elif c == quote:
+                    quote = None
+            elif css.startswith("/*", k):
+                e = css.find("*/", k + 2)
+                k = n if e < 0 else e + 1
+            elif c in "\"'":
+                quote = c
+            elif c == "{":
+                if depth == 0:
+                    body_start = k
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    break
+            elif c == ";" and depth == 0:
+                break
+            k += 1
+        if body_start is None:
+            out.append((lead, css[j:k + 1], None))
+        else:
+            out.append((lead, css[j:body_start], css[body_start + 1:k]))
+        i = k + 1
+    return out
+
+
+def _dead_rule(prelude, body):
+    sels = [re.sub(r"\s+", " ", x.strip()) for x in prelude.split(",")]
+    if sels and all(DEAD_SELECTOR.search(x) for x in sels):
+        return True
+    if [x for x in sels if x != ":root"] == [] and body is not None:      # the old :root colour block, bridged by shell.css
+        names = {d.split(":")[0].strip() for d in body.split(";") if ":" in d}
+        return bool(names) and names <= BRIDGED_VARS
+    return False
+
+
+def prune_css(css):
+    """Drop the dead rules (inside @media / @supports too). Everything else is returned byte for byte."""
+    kept = []
+    for lead, prelude, body in _split_rules(css):
+        if body is None:
+            kept.append(lead + prelude)
+            continue
+        if prelude.lstrip().startswith("@"):
+            if re.match(r"@(media|supports)\b", prelude.lstrip()):
+                inner = prune_css(body)
+                if not inner.strip():
+                    continue
+                kept.append(f"{lead}{prelude}{{{inner}}}")
+            else:
+                kept.append(f"{lead}{prelude}{{{body}}}")
+            continue
+        if _dead_rule(prelude, body):
+            continue
+        kept.append(f"{lead}{prelude}{{{body}}}")
+    return "".join(kept)
+
+
+def prune_styles(html):
+    """Run prune_css over every inline <style>; remove a <style> that ends up empty."""
+    def one(m):
+        new = prune_css(m.group(1))
+        if not new.strip():
+            return ""
+        return m.group(0) if new == m.group(1) else m.group(0).replace(m.group(1), new, 1)
+    return STYLE_RE.sub(one, html)
+
+
+def _add_class(tag_html, name):
+    m = re.search(r'\sclass="([^"]*)"', tag_html)
+    if not m:
+        return tag_html[:-1] + f' class="{name}">'
+    if name in m.group(1).split():
+        return tag_html
+    return tag_html[:m.start(1)] + (m.group(1) + " " + name).strip() + tag_html[m.end(1):]
+
+
 def _main_block(html):
     a = html.find("<main")
     b = html.find("</main>")
@@ -141,6 +252,7 @@ def convert(html, item):
     # head: theme + pre-paint + preload right after the title, shell CSS right before </head>
     if "assets/js/theme.js" not in out:
         out = out.replace("</title>", "</title>\n" + "\n".join((THEME_TAG, PREPAINT, PRELOAD)) + "\n", 1)
+    out = PREPAINT_RE.sub(lambda _m: PREPAINT, out, count=1)      # a page converted before P23 still has the ?legacy=1 version
     missing = [t for t in CSS_TAGS if t not in out]
     if missing:
         if "</head>" not in out:
@@ -164,6 +276,11 @@ def convert(html, item):
                 raise CodemodError("no </main>")
             out = out.replace("</main>", f'</main><small class="mm-built">{smalls[-1]}</small>', 1)
 
+    out = prune_styles(out)
+    if not STYLE_RE.search(out):        # no inline CSS left: the page relies on the shared styles, so it must opt in to base.css
+        m = re.search(r"<body\b[^>]*>", out)
+        out = out[:m.start()] + _add_class(m.group(0), "mm") + out[m.end():]
+
     # scripts
     if OLD_UI_TAG in out:
         out = out.replace(OLD_UI_TAG, SHELL_TAG)
@@ -184,6 +301,10 @@ def verify(before, after):
         raise CodemodError("shell script tag missing or duplicated")
     if len(BUILT.findall(before)) != len(BUILT.findall(after)):
         raise CodemodError('the number of "Built ... from commit ..." stamps would change')
+    if not STYLE_RE.search(after) and not re.search(r'<body\b[^>]*\sclass="[^"]*\bmm\b', after):
+        raise CodemodError('a page with no inline CSS needs class="mm" on <body>')
+    if "legacy=1" in after:
+        raise CodemodError("the ?legacy=1 switch is still in the pre-paint snippet")
     if after.count('class="mm-built"') > 1:
         raise CodemodError("more than one mm-built line")
 

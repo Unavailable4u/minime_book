@@ -7,7 +7,8 @@
                        expandable), the numbered steps of the flow with the code each cites, a freshness badge, and the places where the book
                        disagrees with the code
      Modules           the directory table (same data as the Overview)
-   The legacy hand-made diagrams are plain links in architecture.html itself, in a collapsed block.
+   The legacy hand-made diagrams that are not retired yet (content/arch-legacy.json, scripts/retire_legacy.py) are plain links in a
+   collapsed block at the end; the block is not drawn when none is left.
 
    Nothing on this page is typed twice: sections and steps come from data/arch/ (scripts/arch.py), the prose from content/system/views.json.
    Everything degrades: a flow that is not written yet is a status, a missing file is a note, never a blank page.
@@ -65,12 +66,21 @@ function renderStrip(D) {
     miss);
 }
 
-function renderJump(sections) {
+function renderJump(sections, legacy) {
   return h("nav", { class: "sy-jump", "aria-label": "On this page" }, h("ul", {},
     h("li", {}, h("a", { href: "#anatomy" }, "Anatomy of a request")),
     sections.map((s) => h("li", {}, h("a", { href: `#${s.id}` }, s.title))),
     h("li", {}, h("a", { href: "#modules" }, "Modules")),
-    h("li", {}, h("a", { href: "#legacy" }, "Legacy diagrams"))));
+    legacy.length ? h("li", {}, h("a", { href: "#legacy" }, "Legacy diagrams")) : null)));
+}
+
+/* The hand-made diagrams that no generated view has replaced yet (hidden once there are none). */
+function renderLegacy(pages) {
+  if (!pages.length) return null;
+  return h("section", { class: "sy-section", id: "legacy", "aria-labelledby": "legacy-h" }, h("h2", { id: "legacy-h" }, "Legacy diagrams"),
+    h("details", { class: "sy-legacy" }, h("summary", {}, "Legacy diagrams (hand-made, generated 2026-10-07, not updated)"),
+      h("p", { class: "sy-dim" }, "The diagrams above replace these as soon as their flow is written (python scripts/retire_legacy.py). Until then they are kept; they do not change when the code does."),
+      h("ul", {}, pages.map((p) => h("li", {}, h("a", { href: p.file }, p.title))))));
 }
 
 /* ================================================================== anatomy of a request */
@@ -244,22 +254,24 @@ function lazy(items, fn) {
 }
 
 export async function boot(root) {
-  const [model, index, prose, draft, subsystems, vitals, nav, book, linkOpts] = await Promise.all([
+  const [model, index, prose, draft, subsystems, vitals, nav, book, linkOpts, legacyReg] = await Promise.all([
     LOADER.model(), LOADER.index(), getJSON("content/system/views.json").catch(() => null), soft("content/system/request-path.json"),
-    soft("content/subsystems.json"), soft("data/index/vitals.json"), soft("content/nav.json"), soft("data/index/book.json"), loadLinkOptions().catch(() => ({})),
+    soft("content/subsystems.json"), soft("data/index/vitals.json"), soft("content/nav.json"), soft("data/index/book.json"), loadLinkOptions().catch(() => ({})), soft("content/arch-legacy.json"),
   ]);
   if (!model) { put(root, note(`The architecture model could not be loaded: data/arch/model.json. ${LOCAL_HINT}`)); return; }
   const D = { model, index, prose: prose || { legend: [], views: {} }, draft, subsystems, vitals, nav, book, linkOpts };
   const sections = S.viewSections(model, D.prose);
   const views = sections.map((s) => viewSkeleton(s, D));
+  const legacyPages = ((legacyReg && legacyReg.pages) || []).filter((p) => p && typeof p.file === "string" && typeof p.title === "string");
 
   put(root,
     h("p", { class: "sy-intro" }, D.prose.intro || ""),
-    renderStrip(D), renderJump(sections),
+    renderStrip(D), renderJump(sections, legacyPages),
     h("section", { class: "sy-section", id: "anatomy", "aria-labelledby": "anatomy-h" }, h("h2", { id: "anatomy-h" }, "Anatomy of a request"), h("div", { "data-slot": "anatomy" }, note("Loading\u2026"))),
     views.map((v) => v.el),
     h("section", { class: "sy-section", id: "modules", "aria-labelledby": "modules-h" }, h("h2", { id: "modules-h" }, "Modules"),
-      h("p", { class: "sy-dim" }, "Every part of the repository, what it does, where the book describes it and the files to open first."), h("div", { "data-slot": "modules" }, note("Loading\u2026"))));
+      h("p", { class: "sy-dim" }, "Every part of the repository, what it does, where the book describes it and the files to open first."), h("div", { "data-slot": "modules" }, note("Loading\u2026"))),
+    renderLegacy(legacyPages));
 
   root.querySelector('[data-slot="anatomy"]').replaceChildren(await renderAnatomy(D).catch((err) => { console.warn("[atlas system]", err); return note(`The request path could not be drawn. ${LOCAL_HINT}`); }));
   root.querySelector('[data-slot="modules"]').replaceChildren(renderModules(D));

@@ -7,9 +7,6 @@
 # Superseded product specs have no section on the Journey map, so "Journey Map" lands at the top of the page.
 broken-anchor|doc-m2c-product.html|journey.html#doc-m2c-product      # P04 (chapter header) or P21 (journey alignment)
 broken-anchor|doc-menux-product.html|journey.html#doc-menux-product  # same
-# Source guides copied from another tool; they have no <title>. They are inputs of doc-m2c-product / doc-menux-product.
-no-title|guides/M2C___Product___Build_Guide.html|-                  # P23
-no-title|guides/Menux___Product___Build_Guide.html|-                # P23
 
 # --- Not bugs: the target page resolves the hash in JavaScript ---------------------------------------------
 # build.html reads location.hash as the phase key ("m2c" or "menux"); it has no element with that id.
@@ -23,3 +20,13 @@ big-file|architecture/*|-
 big-file|data/census.json|-
 # The graph viewer's data (P20). It used to be inlined in graph-viewer.html (1.3 MB of HTML); now only that one page fetches it, once, and the host compresses it.
 big-file|data/graph/viewer.json|-
+
+# --- Quality budgets (P23): pages that are over a limit on purpose, with the reason --------------------------------
+# journey.html and tables.html are aggregates that the external book builder writes with the whole book baked in
+# (every section outline; every table of every chapter, 1,400 rows). They are rewritten on each build, so cutting them
+# here would not last. Follow-up: have the builder emit JSON for them, as P10 did for the census.
+page-budget|journey.html|-                                     # builder aggregate, see above
+page-budget|tables.html|-                                      # builder aggregate, see above
+# Generated standalone showcase pages: not ordinary Atlas pages (nav.json "hidden"), embedded as an iframe or read as source.
+a11y-no-main|graph-viewer.html|-                                    # scripts/graph_viewer_template.html draws a full-window canvas app
+a11y-no-main|guides/*|-                                             # exported source documents, shown inside doc-*-product.html
