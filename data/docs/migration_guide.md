@@ -61,7 +61,7 @@
 2. In §5, mark every `MG-R*` package and `MG-Z08`'s Rust half, `MG-Z07` and `MG-Z09` as **dropped**, and keep `MG-Z08`'s TypeScript half.
 3. In `m2c_build_plan.md` and `Menux___Build_Execution_Guide.md`, leave the Python wording as it is. Add one line to each, pointing at the ADR.
 4. Keep `protocol/conformance/` and its Python runner. They become the regression suite for the Python client.
-5. Record, in the ADR, which Rust benefits were still wanted and what the Python alternatives are (for example: shipping the client as a single-file bundle with its own interpreter, if install friction was the reason).
+5. Record, in the ADR, which Rust benefits were still wanted and what the Python alternatives are (for example: shipping the client as a single-file bundle with its own interpreter, if install friction was the reason; or, if speed was the reason, porting only the functions that a real profile shows to be hot and keeping the client in Python, as `fast-anything` does: see `UB-082` in Appendix C).
 
 **Who decides.** You. The gate is a method for not deciding from opinion: the criteria are written first (§6.1, `MG-Z10`, step 1), the measurements are taken, and the outcome follows from the table.
 
@@ -305,13 +305,13 @@ Sizes are estimates on the book's scale. By points, the critical path is `MG-Z00
 
 *What:*
 
-1. **Detectors.** For every detector kind in `secrets/redact.py` (AWS keys, tokens, JWTs, URL credentials, `Authorization` headers, `--password` style flags, assignments, high-entropy candidates), positive rows (the secret must not survive) and negative rows (ordinary developer text must be left alone: hashes, UUIDs, base64 of non-secrets, file paths).
+1. **Detectors.** For every detector kind in `secrets/redact.py` (AWS keys, tokens, JWTs, URL credentials, `Authorization` headers, `--password` style flags, assignments, high-entropy candidates), positive rows (the secret must not survive) and negative rows (ordinary developer text must be left alone: hashes, UUIDs, base64 of non-secrets, file paths). Exercise the public functions `redact`, `contains_secret` and `scan_lines` separately, each with positive rows. A trial of a recording tool on 2026-11-24 (see the optional tooling note in `MG-Z10`) reported that recording only the existing tests left `contains_secret` with no positive input and covered 14 of the 26 rule kinds in `_RULES`; the 26 was re-counted in the code, the 14 was not re-run.
 2. **Chunk boundaries.** `_stream` rows: `input.chunks` is a list, and a secret split across two chunks must still be caught.
 3. **Environment.** `secrets/env.py` rows: environment in, sanitized environment out.
 4. **Fake secrets and Gitleaks.** Vectors must not contain a credential-shaped literal, or the pre-commit hook and CI fail. Store each fake as **pieces** the runner joins (`"parts": ["gh", "p_", "<body>"]`), the same idea as `secret_fakes.py`'s `_cat`. If Gitleaks still flags a body, the fallback is to add `protocol/conformance/secrets/` to the `.gitleaks.toml` allowlist **and** add a test that fails if any row there lacks `"fake": true`. Prefer the pieces; the allowlist switches scanning off for that folder.
 5. **Do not use Python's seeded `random` to make fakes.** Rust cannot reproduce that stream. The vectors hold concrete values.
 
-*Done when:* each detector kind has positive and negative rows, the stream-split rows exist, the runner is green, and Gitleaks is green on the commit.
+*Done when:* each detector kind has positive and negative rows for both `redact` and `contains_secret`, the stream-split rows exist, the runner is green, and Gitleaks is green on the commit.
 
 #### MG-Z05 · Path-guard vectors · M · Wave 3
 
@@ -428,6 +428,14 @@ Then:
 | **B3** | **Defects found.** | Count the divergences in step 6 where **Python** was the wrong one (each becomes a `known-fail-python` vector). | At least one real Python bug or ambiguity. (This pays off even if the outcome is `STAY PYTHON`: fix it in Python.) |
 
 **Not counted as benefits:** raw speed (it is recorded, not a goal), binary size by itself, and "Rust is safer" as a general statement. Only what this spike measured counts.
+
+**Optional tooling (added 2026-11-24; it changes none of the criteria above).** Two MIT-licensed tools (licences read in their repositories; neither was audited) can help with steps 6 and 7. `rust-anything` records what the Python original does, replays it against the Rust port with `diff`, looks for missed cases with `fuzz` and can run both side by side with `shadow`. `fast-anything` profiles a workload and ports only the hot functions. Entries `UB-081` to `UB-083` in Appendix C hold the details. A trial run on m2c showed the following.
+
+- **A recording is only as good as its inputs.** The tool's default generated corpus held no input that contained a secret, and its longest input was 48 characters (trial figures, not re-run). A Rust `redact` that detected nothing would have passed `diff` on it. Feed the tool the `MG-Z04` vectors and the near-miss corpus of C1, and do not accept a green `diff` on the default corpus.
+- **Run it on a copy, with fake secrets only.** Recording runs the original code on many inputs, and the tool's own README says to use a copy of the project and no production credentials. Never record a real session through `redact` or `env`: the recordings are files and would hold the real values. Build fakes from pieces as `secret_fakes.py` does (`MG-Z04`, step 4).
+- **The first unit is `redact.py`, not the `secrets/` folder.** `redact.py` imports only the standard library; `env.py` imports `..paths` and `..logging_setup`, which ties it to the rest of the client. Given the whole package, the tool treated about 20,500 lines as one tangled piece (trial figure, not re-run).
+- **Read its flags before acting on them.** It marked `auth/` as blocked for dynamic code; the only cause is the lazy `importlib.import_module("keyring")` in `auth/credentials.py`. It also called m2c a server because of the sandbox bridge and probe sockets, although m2c is a command-line client.
+- **Keep the port logic apart from the binding.** C3 requires `#![forbid(unsafe_code)]`; keep the port in a pure-Rust crate and any Python binding (PyO3) in a separate one. Whether generated binding code can satisfy that rule was not checked.
 
 **What this spike cannot tell you.** It covers about 900 of the client's 27,000 source lines and none of the policy crate, the sandbox crate or the terminal UI, which are the three largest packages (`XL`, `XL`, `XL`). C2 is therefore a **lower bound** on the cost of the port. That is why `MG-R03` carries a checkpoint (§6.5): if the policy crate takes more than twice its estimate, run this gate again as a new dated record.
 

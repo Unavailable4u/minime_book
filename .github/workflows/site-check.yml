@@ -18,6 +18,8 @@
 #     python scripts/test_system.py
 #     python scripts/test_project.py
 #     python scripts/test_codemod_shell.py
+#     python scripts/check_backlog.py --check
+#     python scripts/test_check_backlog.py
 #     python scripts/codemod_shell.py --check
 #     python scripts/retire_legacy.py --check
 #     python scripts/test_retire_legacy.py
@@ -68,6 +70,8 @@ jobs:
         run: python3 scripts/build_code.py --check
       - name: Notes in data/notes follow the schema
         run: python3 scripts/notes.py validate
+      - name: Upgrade backlog (data/docs/upgrade_backlog.md) is in shape and its tables are current
+        run: python3 scripts/check_backlog.py --check
       - name: Architecture model is current and its flows follow the schema
         run: |
           python3 scripts/arch.py build --check
@@ -98,6 +102,7 @@ jobs:
           python3 scripts/test_arch_render.py
           python3 scripts/test_system.py
           python3 scripts/test_codemod_shell.py
+          python3 scripts/test_check_backlog.py
           python3 scripts/test_build_code.py
           python3 scripts/test_notes.py
           python3 scripts/test_arch.py
