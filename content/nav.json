@@ -99,6 +99,8 @@
           "blurb": "Current versus target stack", "keywords": "migration rust typescript python uv m2c menux daemon retire conformance vectors codegen frontend backend hardening load test" },
         { "id": "doc-provider-consolidation", "title": "Provider Consolidation Guide: Four Paid Models, Key Pools, One Search Key", "url": "doc-provider-consolidation.html", "layout": "reader", "part": "appendix", "chapter": "B",
           "blurb": "Paid key pools and one search provider", "keywords": "provider consolidation groq google anthropic perplexity search key pool rate limit reasoning effort model catalog free tier llm_client retire" },
+        { "id": "doc-upgrade-backlog", "title": "Upgrade Backlog: Features To Build Later (an incremental register)", "url": "doc-upgrade-backlog.html", "layout": "reader", "part": "appendix", "chapter": "C",
+          "blurb": "Features to build later, with source, status and details", "keywords": "upgrade backlog register features candidate accepted parked dropped source batch rust-anything fast-anything nextjs ssrf mcp skills memory menux m2c" },
         { "id": "tables", "title": "Tables", "url": "tables.html", "layout": "workbench",
           "blurb": "Every table in the book, searchable", "keywords": "tables search reference" }
       ]

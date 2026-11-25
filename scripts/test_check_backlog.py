@@ -104,8 +104,16 @@ class Committed(unittest.TestCase):
         self.assertEqual(problems, [], "\n".join(problems))
         self.assertGreater(len(doc.entries), 0)
 
-    def test_the_document_uses_lf_only(self):
-        self.assertNotIn(b"\r", cb.DOC.read_bytes())
+    def test_a_windows_checkout_with_crlf_still_passes(self):
+        # git on Windows (core.autocrlf) writes CRLF; the checker must not call that an error
+        with tempfile.TemporaryDirectory() as tmp:
+            crlf = Path(tmp) / "doc.md"
+            crlf.write_bytes(cb.DOC.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n"))
+            _, problems = cb.check(crlf)
+            self.assertEqual(problems, [], "\n".join(problems))
+
+    def test_the_reader_page_was_built_from_this_document(self):
+        self.assertEqual(cb.page_problems(cb.DOC), [])
 
     def test_every_batch_has_a_row_in_the_generated_table(self):
         doc, _ = cb.check(cb.DOC)
@@ -192,10 +200,86 @@ class Shape(Case):
         example = "## 3. How to add\n\n```\ncode\n```\n\nUB-777 is mentioned here.\n"
         self.assertProblem(doc_text(middle=example), "id", "UB-777")
 
-    def test_carriage_return_is_refused(self):
-        self.put(doc_text().replace("\n", "\r\n"))
+    def test_crlf_line_endings_are_accepted(self):
+        self.ready()
+        self.path.write_bytes(self.path.read_bytes().replace(b"\n", b"\r\n"))
+        _, problems = cb.check(self.path)
+        self.assertEqual(problems, [])
+
+    def test_a_lone_carriage_return_is_refused(self):
+        self.put(doc_text().replace("Intro.", "Intro.\rmore"))
         doc = cb.parse(cb.read_lines(self.path))
         self.assertTrue(any(p.startswith("text:") for p in doc.problems))
+
+    def test_write_after_crlf_gives_lf_and_stays_valid(self):
+        self.ready()
+        self.path.write_bytes(self.path.read_bytes().replace(b"\n", b"\r\n") + b"\r\n")
+        doc, problems, _ = cb.write(self.path)
+        self.assertEqual(problems, [])
+        self.assertEqual(cb.check(self.path)[1], [])
+
+
+class Lists(Case):
+    def test_a_list_after_text_without_a_blank_line_is_refused(self):
+        e = entry(1).replace("**How.** 1. Do it.", "**How.**\n1. Do it.\n2. Then this.")
+        self.assertProblem(doc_text([batch(entries=[e])]), "list", "blank line")
+
+    def test_a_list_after_a_blank_line_is_fine(self):
+        e = entry(1).replace("**How.** 1. Do it.", "**How.**\n\n1. Do it.\n2. Then this.")
+        self.assertEqual(self.problems(doc_text([batch(entries=[e])])), [])
+
+    def test_bullets_are_checked_too(self):
+        e = entry(1).replace("**How.** 1. Do it.", "**How.**\n- one\n- two")
+        self.assertProblem(doc_text([batch(entries=[e])]), "list", "blank line")
+
+    def test_a_list_inside_a_code_fence_is_ignored(self):
+        text = doc_text(middle="## 3. How to add\n\n```\ntext\n1. not a list\n```\n")
+        self.assertEqual(self.problems(text), [])
+
+    def test_items_following_items_are_fine(self):
+        text = doc_text(middle="## 3. How to add\n\n1. one\n2. two\n3. three\n")
+        self.assertEqual(self.problems(text), [])
+
+
+class Page(Case):
+    def page_with(self, digest):
+        page = Path(self.tmp.name) / "page.html"
+        page.write_text(f"<html><body>x<!-- source: data/docs/upgrade_backlog.md sha256={digest} -->\n</body></html>",
+                        encoding="utf-8")
+        return page
+
+    def digest(self):
+        import hashlib
+        return hashlib.sha256(self.path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+    def test_no_page_is_no_problem(self):
+        self.ready()
+        self.assertEqual(cb.page_problems(self.path, Path(self.tmp.name) / "missing.html"), [])
+
+    def test_a_page_with_the_right_hash_is_current(self):
+        self.ready()
+        self.assertEqual(cb.page_problems(self.path, self.page_with(self.digest())), [])
+
+    def test_changing_the_document_makes_the_page_stale(self):
+        self.ready()
+        page = self.page_with(self.digest())
+        cb.set_status(self.path, "UB-001", "accepted", "yes", "2026-11-26")
+        problems = cb.page_problems(self.path, page)
+        self.assertEqual(len(problems), 1)
+        self.assertTrue(problems[0].startswith("page:"))
+        self.assertIn("build_backlog_page.py --write", problems[0])
+
+    def test_a_page_without_a_hash_is_stale(self):
+        self.ready()
+        page = Path(self.tmp.name) / "old.html"
+        page.write_text("<html><body>old</body></html>", encoding="utf-8")
+        self.assertTrue(cb.page_problems(self.path, page))
+
+    def test_a_crlf_copy_of_the_document_has_the_same_hash(self):
+        self.ready()
+        page = self.page_with(self.digest())
+        self.path.write_bytes(self.path.read_bytes().replace(b"\n", b"\r\n"))
+        self.assertEqual(cb.page_problems(self.path, page), [])
 
 
 class Ids(Case):

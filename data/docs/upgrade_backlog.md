@@ -146,8 +146,9 @@ This file is the one place where every feature you might build later is written 
 3. **Check this file and the other chapters.** Search the register and section 6 for the same idea, and `grep` the guides in `data/docs/` for it and for their work-package IDs (`MG-*` in Appendix A, `PV-*` in Appendix B, the `C`, `L`, `Q`, `S` items of the M2C build plan, the Menux guide). A duplicate is an error: reference the existing item, or extend the old entry, instead of adding a second one.
 4. **Write the entry** with the template below. Keep it under about 30 lines. Say plainly what is a design idea that nobody has run.
 5. **Append** a new `## Batch Bnn (YYYY-MM-DD): what this batch added` section **at the end of the file** (next batch number, today's date), with the entries below it in ID order. A status change or a new source row for an old feature does not need a batch: edit it in place and use `--set-status`.
-6. Run `python scripts/check_backlog.py --write`, then `--check`, then `python scripts/test_check_backlog.py`. `--write` rebuilds sections 0, 1 and 2 (the table, the counts, the batch list) from your entries.
-7. Make the patch:
+6. Run `python scripts/check_backlog.py --write`, then `--check`, then `python scripts/test_check_backlog.py`. `--write` rebuilds sections 0, 1 and 2 (the table, the counts, the batch list) from your entries. **Put a blank line before every list** (`--check` refuses a list that follows text directly: the book's builder would show it as run-on text).
+7. **Rebuild the reader page and the indexes** (needs `pip install markdown==3.11.2`, only for this step): `python scripts/build_backlog_page.py --write`, then `python scripts/build_index.py`, then `python scripts/build_status.py`. Every change to this file, even a status change, needs the first command; `check_backlog.py --check` fails when `doc-upgrade-backlog.html` was built from an older version of the file.
+8. Make the patch (it carries the Markdown, the page and the regenerated `data/index/` files):
 
 ```bash
 git switch -c ub-bNN-short-name
@@ -156,7 +157,7 @@ git commit -m "UB-BNN: <what this batch adds>" -m "<features and sources, plain 
 git format-patch -1 --stdout > UB-BNN_short-name.patch
 ```
 
-8. **Prove it applies:** clone fresh, `git am` the patch, and run the three commands of step 6 again there.
+9. **Prove it applies:** clone fresh, `git am` the patches in order, and run the three commands of step 6 and every command of `.github/workflows/site-check.yml` again there. Apply with `git am` (which commits), not `git apply`: two book tests fail while a chapter page has uncommitted changes.
 
 **The entry template**
 
@@ -187,14 +188,14 @@ git format-patch -1 --stdout > UB-BNN_short-name.patch
 - Edit only this file, `scripts/check_backlog.py` and its test when the shape itself changes. **Do not touch** the other chapters, the generated `doc-*.html` pages, `data/index/` or `content/nav.json`: those come from the book's own build.
 - Do not claim a fact you did not read or run. Anything carried over from another document keeps its original tag, or `[S]`.
 - Never put a secret, token or real user data in an entry. Line endings are LF.
-- **Another chapter** may be edited only when a finding changes what it says (for example a new caveat in an existing work package). Edit its `.md` and, if its `doc-*.html` exists, the HTML with the same wording, using exact-match replacements that fail when the text is missing. Run the site checks. Say in the report that the HTML was edited by hand and not produced by the external builder. A feature that is already planned in a chapter is not added here.
+- **Another chapter** may be edited only when a finding changes what it says (for example a new caveat in an existing work package). Edit its `.md` and its `doc-*.html` with the same wording, using exact-match replacements that fail when the text is missing, **and recompute the banner** of that page (word count, read time, section count; `scripts/build_backlog_page.py` shows the formulas and reproduces Appendix B's page byte for byte). Run the site checks. Say in the report that the HTML was edited by hand and not produced by the external builder. A feature that is already planned in a chapter is not added here.
 - `llms.txt` and `data/summary.md` carry **no counts** of features or batches (the generated tables hold them), so a new batch never makes them stale.
 - Do not implement anything. When a feature is accepted and its turn comes, it gets its own patch guide, like the `SX` series did.
 - Report with each patch: `Patch` · `Base commit` · `Features added (ID and title)` · `Sources and licences read` · `What already existed in the code` · `Commands run and results` · `Not run or not verified` · `Decisions needed from you`.
 
 **Changing a decision.** Run `python scripts/check_backlog.py --set-status UB-nnn accepted --note "why"`. It edits the entry, adds a row to section 8 and regenerates the tables. Dropping or parking needs a reason.
 
-**Publishing the reader page.** Chapters (`doc-*.html`) are produced by the book's external builder, not by a script in this repo. This patch adds the Markdown source, the summary lines and the checks only, like Appendix B did at first. When the builder has produced `doc-upgrade-backlog.html`, a later patch adds the nav entry, the `docs.html` link and the two test counts, as the commit that published Appendix B did.
+**The reader page.** Chapters (`doc-*.html`) are normally produced by the book's external builder, which this repository does not contain. For this appendix, `scripts/build_backlog_page.py` does the same job: it converts this file with Python-Markdown (tables, fenced code, table of contents), takes the page frame from an existing chapter page, and writes `doc-upgrade-backlog.html`. Run against Appendix B's source it gives that page byte for byte, which is how its recipe was checked. The two aggregate pages `journey.html` and `tables.html` are not touched: they come from the external builder, so they do not list this appendix until it runs.
 
 ## 4. Field vocabulary and rules
 
@@ -389,6 +390,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `frontend/package.json` and lockfile; `frontend/next.config.js` (a `webpack:` hook, Sentry options, and the `securityHeaders.js` module from `SX-28`); `frontend/middleware.js`; `frontend.Dockerfile` (three stages on `node:20-slim` [V✓]); `patches/react-window+2.3.0.patch` (applied by `postinstall` with `patch-package`); `scripts/vendor-pyodide.mjs`; the CI `frontend-lint` job; `.github/audit-allowlist.txt`.
 
 **How.**
+
 1. On a branch, record a baseline: `npm ci`, `npm run build`, `npm run lint`, `npm test`.
 2. On the day, run `npm view next dist-tags` and take the newest Active-LTS patch (the spec saw 16.4.6 needed on 21 Nov; anything from 16.2.0 before 16.3.6 has an `ImageResponse` RCE).
 3. Move to React 19 and read each UI dependency's `peerDependencies`: `@react-three/fiber`, `@react-three/drei`, `recharts`, `reactflow`, `@codesandbox/sandpack-react`, `react-force-graph-2d`, `react-window`, `@xterm/*`. Expect a major bump for the three.js pair [GK].
@@ -415,6 +417,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/requirements.txt` (`pillow`, `moviepy`); `backend/agents/video_overview_builder.py` imports `moviepy` and `PIL` [V✓]; `backend/tests/unit/test_agent_video_overview_builder.py`; the allow-list.
 
 **How.**
+
 1. Default is (a): keep the pin and renew the lines for at most 90 days, on purpose.
 2. For (b): in a scratch environment install Pillow 13 with `moviepy` using no-deps; run the unit test; render one real overview; check the `guardrails-ai` ceilings in `requirements.txt`.
 3. For (c): replace the rendering step (see UB-079) and remove both packages.
@@ -437,6 +440,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/requirements.txt`; `e2b` is imported by `backend/agents/sandbox_tester.py`, `backend/agents/static_scan.py` and `backend/eo/mech_validator.py` [V✓].
 
 **How.**
+
 1. Read the e2b changelog between 2.30 and 2.64 for breaking changes in what those three files call.
 2. Bump the three pins in a scratch virtualenv; run `cd backend && pytest tests/unit tests/static -q` and the integration tests if a database exists.
 3. Run one real sandbox run if an E2B key is available (say so if not).
@@ -459,6 +463,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** New `deploy/Caddyfile` and a short `deploy/README.md`; app caps in `backend/api/uploads.py` (`IMPORT_MAX_BYTES` 10 MB, `PDF_MAX_BYTES` and `VOICE_MAX_BYTES` 25 MB by default [V✓]).
 
 **How.**
+
 1. **You supply** the current Caddy configuration (remove secrets).
 2. Commit it with a README saying how it is deployed.
 3. Add `request_body { max_size ... }` above the app caps so oversize bodies stop at the edge.
@@ -483,6 +488,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The host, not the repo. A note belongs in `deploy/README.md` once UB-004 exists.
 
 **How.**
+
 1. From inside the backend container, try to reach the metadata address and record the result.
 2. Add the rule in the way your host supports (container network chain or the provider's firewall).
 3. Repeat the test; it must now fail.
@@ -504,6 +510,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/utils/url_guard.py`; callers `agents/web_clipper.py` and `agents/component_spec_lookup.py`; `m2c/src/m2c/sandbox/netproxy.py` as a reference.
 
 **How.**
+
 1. Pick: sandbox per fetch (the code already notes E2B cold-start cost for tools [V]) or one long-lived proxy.
 2. Put the choice behind the `safe_get` interface so callers do not change.
 3. Keep `url_guard` checks in front as well.
@@ -525,6 +532,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The files above, and `eo/mcp_client.py` for URLs a server hands back.
 
 **How.**
+
 1. For each file write one row: where the URL comes from (constant, user, search result, server reply) and whether it is trusted.
 2. Move every untrusted one to `safe_get` or `safe_stream`.
 3. Add a static test that fails when a new bare `requests.get` with a variable URL appears outside a short allow-list of files.
@@ -544,6 +552,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/api/routes/notebooks.py` (the clip, video, import, pdf and voice handlers); `backend/eo/devices.py` has a `RateLimited` error [V✓] and, per the spec, uses the `memory.bus` Redis store; `backend/api/uploads.py` for the size caps.
 
 **How.**
+
 1. Read how `eo/devices.py` stores its counters and reuse that pattern.
 2. Write the dependency with per-kind limits from environment settings.
 3. Add it to the five routes.
@@ -564,6 +573,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/eo/usage_ledger.py` (`check`, `commit`, `usage_summary` exist [V✓]); `docs/usage-ledger-call-sites.md`; the five ingest routes.
 
 **How.**
+
 1. Measure typical cost per kind (UB-018 helps).
 2. Call `check` with the estimate before the work; `commit` the real usage after.
 3. Show the user a plain message when refused.
@@ -583,6 +593,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The `/notes/voice` handler in `backend/api/routes/notebooks.py` and the transcription call behind it (find it with `grep -rn faster_whisper backend`).
 
 **How.**
+
 1. Probe duration cheaply (a media library or `ffprobe`) [GK].
 2. Add a named constant, environment-overridable, in `api/uploads.py`.
 3. Test with a generated short silent file under and over the limit.
@@ -602,6 +613,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The files above and UB-018's measurements.
 
 **How.**
+
 1. After UB-018 and UB-009, take cost per task from the ledger.
 2. Choose values per kind and write them in one table in the docs.
 3. Keep the environment overrides.
@@ -621,6 +633,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `frontend/securityHeaders.js`, `frontend/next.config.js`, its test `frontend/app/lib/__tests__/securityHeaders.test.mjs`, `frontend.Dockerfile` (copies the module, `SX-28b`).
 
 **How.**
+
 1. Decide where reports go (D-7) and set `CSP_REPORT_URI` for the build.
 2. Run on staging for about a week and load every preview type, the Pyodide worker, Sentry and Pusher.
 3. Fix each violation by adjusting the policy or the code.
@@ -644,6 +657,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `.github/workflows/ci.yml` (job `promptfoo`); `backend/evals/promptfoo/` (`promptfooconfig.yaml`, `tests/`, `providers/role_provider.py`); `backend/eo/injection_guard.py`, whose `score_snippet` calls an LLM classifier for part of its work [V].
 
 **How.**
+
 1. Write `promptfooconfig.gate.yaml` with deterministic assertions only (no LLM judge), on fixed fixture inputs and the guard's deterministic parts.
 2. Cover injection guard, a cross-tenant leak case and PII.
 3. Add the job with SHA-pinned actions like the others; no secrets.
@@ -663,6 +677,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/evals/promptfoo/` (new provider and config); promptfoo `0.122.0` per the lockfile [V].
 
 **How.**
+
 1. Run `promptfoo redteam init` to confirm plugin names for the installed version.
 2. Start from the plan's config: plugins `owasp:agentic`, `owasp:llm`, `indirect-prompt-injection`, `cross-session-leak`, `agentic:memory-poisoning`, `bola`, `bfla`, `rbac`, `excessive-agency`, `pii:direct`; strategies `jailbreak`, `jailbreak-templates`, `crescendo` [W].
 3. Use your own provider key through `redteam.provider` and set `PROMPTFOO_DISABLE_TELEMETRY=1`, so generation and grading do not go to the hosted service [W].
@@ -685,6 +700,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** Staging only. Inputs: `openapi.json` (the API does not disable it [V]), the `/v1/code` WebSocket contract, the clip and video routes.
 
 **How.**
+
 1. Create two throwaway tenants with seeded data.
 2. Use a budget-capped, run-scoped LLM key and rotate it afterwards.
 3. Reproduce every finding by hand before fixing; turn each into a permanent regression test.
@@ -706,6 +722,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/eo/mech_manufacturability.py` (the `check_*` functions); `backend/utils/url_guard.py` (random hosts); `m2c/src/m2c/policy/shellparse.py` (M2C is a separate package, so it needs its own dev dependency).
 
 **How.**
+
 1. Add Hypothesis to the backend test requirements, pinned (the audit gate then covers it).
 2. Write one property per target: no exception, no NaN, and for the guard "never allows a blocked address".
 3. Turn any failing example into a plain regression test.
@@ -727,6 +744,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** A new scheduled workflow; `backend/api/server.py` serves `/openapi.json` (not disabled [V]).
 
 **How.**
+
 1. Read Schemathesis's current docs for flags (the plan marks them unchecked).
 2. Run with a throwaway tenant's token and with none; use synthetic data.
 3. Keep it nightly and non-blocking at first, then decide.
@@ -748,6 +766,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/loadtest/scenarios.py` (new, from `MG-B00`); `backend/eo/concurrency_gate.py`; `backend/eo/usage_ledger.py`.
 
 **How.**
+
 1. Build `MG-B00` first, with its rule that the server refuses the fake adapter when a production flag is set (a load test must not spend money on providers).
 2. Add scenarios: many concurrent notebook generations; a large PDF and a long transcript; concurrency-gate saturation; a runaway agent loop (does the budget cut-off fire).
 3. Record p95 latency, queue depth and cost per task from the ledger for each; use synthetic data on staging.
@@ -769,6 +788,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** A new folder outside the product code, for example `labs/`.
 
 **How.**
+
 1. Write the compose file; bind to loopback only.
 2. Run each tool once and note settings.
 
@@ -789,6 +809,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `daemon/` (`path_guard.py`, `preview_proxy.py`, `tools.py`, `connection.py`, `minime_daemon.py`, `tests/` [V✓]).
 
 **How.**
+
 1. After UB-013 to UB-015, collect: the `url_guard` test table, the promptfoo corpus, the Strix reports, the daemon test suite.
 2. Write a one-page threat model.
 
@@ -807,6 +828,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `.github/workflows/ci.yml` or a new release workflow.
 
 **How.**
+
 1. Read the current documentation and choose a generator; pin its version.
 2. Run it with `contents: read` only and no secrets; attach the file as an artifact.
 
@@ -825,6 +847,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `.github/workflows/ci.yml` (`secrets-scan` with Gitleaks and Semgrep, `dependency-audit`), `backend.Dockerfile`, `frontend.Dockerfile`.
 
 **How.**
+
 1. List every binary, image and `curl`ed script.
 2. Pin each; keep scanners in jobs with no deployment secrets and minimal `permissions:`.
 3. Let Dependabot propose updates (see UB-024).
@@ -844,6 +867,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** A new job in `.github/workflows/ci.yml`.
 
 **How.**
+
 1. Read its current README and licence.
 2. Pin the version; run with `continue-on-error`; commit a baseline.
 
@@ -862,6 +886,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `.github/dependabot.yml` (exists, from `SX-17` [V✓]).
 
 **How.**
+
 1. Read GitHub's Dependabot reference to see whether it finds those names.
 2. If yes, add the entry; if not, rename the files or skip.
 
@@ -880,6 +905,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `minime_book/vercel.json`; its checks live in `scripts/test_check_site.py`.
 
 **How.**
+
 1. Add to `/(.*)`: `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`.
 2. For framing, use `X-Frame-Options: SAMEORIGIN` (or CSP `frame-ancestors 'self'`), **not** `DENY`: the book builds iframes itself (`assets/js/figures.js`, `assets/js/shell.js` [V✓]).
 3. Run `python scripts/test_check_site.py` and `python scripts/check_site.py`.
@@ -899,6 +925,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `data/docs/` (new file), `data/summary.md`, `llms.txt`; the reader page comes from the external builder.
 
 **How.**
+
 1. Copy the guide; add a one-line status at the top: all `SX-01` to `SX-29` applied (patches 18, 19 and 23 intentionally unused).
 2. Add it to `data/summary.md` and `llms.txt` as an appendix or a record.
 
@@ -917,6 +944,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** MiniMe (graph rebuild with Copilot) and `minime_book` (`scripts/update_all.py`); chapters that describe things the SX series changed (CI jobs, headers, upload limits, MCP rules).
 
 **How.**
+
 1. Follow `UPDATING.md`: commit MiniMe, rebuild the graph with the prompt in that file, run `python scripts/update_all.py`.
 2. Read the chapters that mention CI, headers, uploads and MCP and correct them.
 3. Run it again after UB-001 and the other big upgrades.
@@ -936,6 +964,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/codeagent/loop.py` (`AgentLoop`; the `NOTICE_*` constants near line 208 show how to add a notice); tests in `backend/tests/unit/test_codeagent_loop.py` with `loop_testkit.py`.
 
 **How.**
+
 1. Track, per turn, "a file-changing tool ran" and "a verification-class tool ran after it".
 2. At the finish point, if the first is true and the second false and fewer than two continuations were used, append the continuation instead of ending.
 3. Emit a new `NOTICE_VERIFY_*` event like the existing ones.
@@ -958,6 +987,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** New `m2c/src/m2c/skills/`; uses `m2c/src/m2c/trust/` (folder trust) and `m2c/src/m2c/policy/` (enforce the ceiling).
 
 **How.**
+
 1. Re-read the Agent Skills specification before coding. As the plan summarises it: `name` 1 to 64 characters, lowercase letters, digits and hyphens, equal to the folder name; `description` up to 1024 characters; optional `allowed-tools`.
 2. Load name and description at start and the body on demand.
 3. Load skills from an untrusted folder only after the folder is trusted.
@@ -981,6 +1011,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `m2c/tests/policy/`; `m2c/src/m2c/policy/shellparse.py` and `decide.py`; the vectors folder `protocol/conformance/` once `MG-Z02` and `MG-Z03` exist.
 
 **How.**
+
 1. List which Q07 categories already have a test.
 2. Take the missing ones from the promptfoo cases and write them where `MG-Z03` puts the vectors (or in the table-driven test, so `MG-Z03` exports them later).
 3. Each case must yield `ask` or `deny`; where Python is too permissive, tag it `known-fail-python` as `MG-Z03` describes.
@@ -1002,6 +1033,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** New `backend/evals/m2c/` (the M2C plan's Q02 location); `m2c -p` headless mode (`m2c/src/m2c/headless.py`).
 
 **How.**
+
 1. Pick 10 past MiniMe or M2C commits that fixed a bug.
 2. For each, make a repo state before the fix and a failing test as the success check.
 3. Run the agent on each with the same budget; record pass or fail, steps and credits.
@@ -1021,6 +1053,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** New `m2c/src/m2c/mcp/`; `m2c/src/m2c/sandbox/` (`bwrap.py`, `netproxy.py`, `netpolicy.py`); `m2c/src/m2c/policy/`.
 
 **How.**
+
 1. Spike (a day): own profile versus `sandbox-runtime` (Apache-2.0, Seatbelt on macOS and bubblewrap on Linux, proxy-based filtering, TypeScript API [W]). M2C is Python, so it is a design reference or a separate process. Greywall is a similar container-free sandbox [README].
 2. Run each server under the sandbox with the network proxy.
 3. Hash each tool definition at approval and re-ask on change (as `SX-26` does on the server side).
@@ -1044,6 +1077,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The UB-032 client; the server prompt assembly in `backend/codeagent/` (`prompts.py`, `context.py`).
 
 **How.**
+
 1. Index tool names and descriptions per server at connect.
 2. Expose one `tool_search` tool; load a tool's schema only after it is chosen.
 3. Keep the list of loaded tools stable inside a turn for cache stability.
@@ -1063,6 +1097,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** M2C docs; the UB-032 client.
 
 **How.**
+
 1. Read its licence and current README.
 2. Write the config for a sandboxed run limited to the project root.
 3. **Never run its installer**, which edits many client configs [R].
@@ -1082,6 +1117,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The UB-032 client and its tests.
 
 **How.**
+
 1. Read Argus's README and licence (not studied in depth yet).
 2. Point it at a test M2C configuration only.
 3. Convert each real finding into a regression test.
@@ -1101,6 +1137,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/codeagent/loop.py` (`_canonical_key`, `LoopConfig`, the `NOTICE_*` constants).
 
 **How.**
+
 1. Count repeats of the same key regardless of outcome.
 2. At a threshold, emit a warning notice; at a higher one, a model self-check call (metered).
 3. On a confirmed loop, pause and ask the user (reusing the existing pause path).
@@ -1120,6 +1157,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/codeagent/loop.py`; the protocol (`protocol/v1/`) would need a new client message (additive); the TUI.
 
 **How.**
+
 1. Add the message type and a per-run queue.
 2. Insert queued text with a marker so tool output cannot imitate it.
 3. Cover it in `protocol/` fixtures and the contract tests.
@@ -1139,6 +1177,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/codeagent/prompts.py`.
 
 **How.**
+
 1. Read the current prompt and list its prohibitions.
 2. Write the ranking; replace duplicated lines.
 3. Add a test that the section exists and is stable (cache order).
@@ -1158,6 +1197,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `m2c/src/m2c/policy/` (`rules.py`, `decide.py`); the event store (`m2c/src/m2c/store/events.py`).
 
 **How.**
+
 1. Add the flag and the event type.
 2. Make `decide` return the normal decision but log the would-have-blocked one.
 3. Add a command to list them.
@@ -1177,6 +1217,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `m2c/src/m2c/store/events.py`; the record callback in `m2c/src/m2c/sandbox/netproxy.py`.
 
 **How.**
+
 1. Read both and list what is persisted when a denial happens.
 2. If nothing, add an event type and a viewer.
 
@@ -1195,6 +1236,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `m2c/src/m2c/policy/`; future subagent code (not built).
 
 **How.**
+
 1. Wait for L02; then design the grant fields (allowed tools, argument constraints, expiry).
 2. Implement narrowing as an intersection, never a union.
 
@@ -1215,6 +1257,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/codeagent/context.py`, `backend/codeagent/loop.py`, `m2c/src/m2c/store/events.py`.
 
 **How.**
+
 1. Read what compaction does today and what the store keeps.
 2. Add a short "goal envelope" message after each compaction.
 3. Test that the full log is unchanged by compaction.
@@ -1234,6 +1277,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/codeagent/loop.py`; future subagent code.
 
 **How.**
+
 1. After UB-028, run verification in a fresh context with only the diff and the task.
 2. Validate any step graph before running it.
 
@@ -1252,6 +1296,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `m2c/src/m2c/policy/modes.py`; `backend/codeagent/prompts.py`.
 
 **How.**
+
 1. Allow writes only to one plan file in plan mode.
 2. Add an interview prompt that ends in a spec with acceptance criteria.
 3. Keep the `plan_exit` approval.
@@ -1271,6 +1316,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** New M2C command; server prompt; eval from UB-031's pattern.
 
 **How.**
+
 1. Build a diff-to-comments flow with tools and structured line comments.
 2. Run it on your own past diffs and compare precision and cost.
 
@@ -1289,6 +1335,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `m2c/src/m2c/store/events.py`, `m2c/src/m2c/store/migrations.py`. The reference, `minilocker/ledger/chain.py`, is in your MiniLocker project, which was not available when this entry was written.
 
 **How.**
+
 1. Read MiniLocker's `chain.py` and reuse its design (it is your own code, so no licence question).
 2. Add a migration for the two columns; compute the hashes on append; write `verify_chain()`.
 3. Keep the torn-final-line tolerance when reading the log back.
@@ -1309,6 +1356,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `m2c/src/m2c/context/memory.py` (398 lines [V✓]) and `m2c/src/m2c/store/` as the base; Menux has no code yet.
 
 **How.**
+
 1. Write one migration in the style of `m2c/store/migrations.py`.
 2. Columns as in the spec: sources(id, uri, content_hash, trust_tier, fetched_at); memories(id, text, scope, source_id, trust_tier, created_at, valid_at, invalid_at, superseded_by, last_access, access_count); memory_deps(memory_id, depends_on).
 3. Retrieval uses plain scope filters; evaluate with end-to-end questions, not recall@k alone.
@@ -1328,6 +1376,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The UB-047 tables; the Menux memory tools.
 
 **How.**
+
 1. Every write from external content gets tier `untrusted`.
 2. Show new candidates in a queue; importing an existing `CLAUDE.md` creates candidates.
 3. Promotion only through a user action.
@@ -1347,6 +1396,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The UB-047 tables; the UB-046 chain.
 
 **How.**
+
 1. On source correction, mark dependents invalid and hide them from retrieval.
 2. On deletion, cascade and append a chain entry.
 3. Add a history view.
@@ -1366,6 +1416,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The Menux run start; the UB-047 `access_count` fields.
 
 **How.**
+
 1. Select candidate memories for the task with one-line reasons.
 2. Let the user drop items first.
 3. After the task, record which were used.
@@ -1385,6 +1436,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The UB-047 tables.
 
 **How.**
+
 1. Wait until memory volume makes prompts too big.
 2. Tune the plan's reference values (decay 0.01; cut-offs 0.7, 0.4, 0.15) on your own data.
 3. Prove the fixed Q&A set does not regress after pruning.
@@ -1406,6 +1458,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The Menux browser tool (not built).
 
 **How.**
+
 1. Read webcmd's code and licence in full.
 2. Write a one-page design: sitemap store, compile step, tiered approvals.
 
@@ -1424,6 +1477,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The Menux web tools.
 
 **How.**
+
 1. Record the licence decision (R05).
 2. Run it behind the guard.
 
@@ -1442,6 +1496,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The Menux CLI (not built).
 
 **How.**
+
 1. Read the capability registry once it exists.
 2. Print it grouped by tier.
 
@@ -1460,6 +1515,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** Menux skills (not built).
 
 **How.**
+
 1. Read the repo and its licence.
 2. Rewrite the useful checklists in your own words.
 
@@ -1478,6 +1534,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** New `backend/agents/claim_checker.py`; wired after the drafting step of the research flow (`backend/agents/web_researcher.py` and `backend/agents/academic_search.py` are the existing sources).
 
 **How.**
+
 1. Split the draft into claims; for each, find the supporting passage in the cited source.
 2. Run it in a separate model call from the writer (so it cannot agree with itself).
 3. Return flags with passages; show them in the report.
@@ -1499,6 +1556,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/api/routes/notebooks.py` (for example `_generate_video_overview`) and the frontend notebook tab.
 
 **How.**
+
 1. First write a one-page design: where state lives, how a result is claimed, what it costs.
 2. Check the "no content at rest" posture before storing results.
 
@@ -1519,6 +1577,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The study and notebooks surface.
 
 **How.**
+
 1. Read OpenMAIC's implementation and licence (MIT since June 2026 as reported).
 2. Write a design with milestone data, tutor prompts and cost per session.
 
@@ -1569,6 +1628,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The notebook export code (`backend/api/routes/notebooks.py`) and the frontend.
 
 **How.**
+
 1. Choose a library for PPTX (check its licence and the audit gate).
 2. Keep the sandboxed-iframe model when previewing HTML; sanitise slide HTML on export.
 
@@ -1619,6 +1679,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** A script and a doc; `backend/eo/skill_library.py` for storage.
 
 **How.**
+
 1. **Select** one skill for a named need. 2. **Scan** for hidden Unicode, injection phrases, pipe-to-shell, credential paths and exfiltration domains. 3. **Rewrite** in your own words to the Agent Skills format and record the origin in `metadata.adapted_from`. 4. **Evaluate**: same agent with and without the skill on 10 to 20 real tasks (ponytail ran 39 tasks, five runs each [README]). 5. **Label trust**: built-in, user or third-party. 6. **Regress** whenever the model changes.
 
 **Done when.** One skill has gone through all six steps and the result is recorded.
@@ -1636,6 +1697,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/eo/skill_library.py`: `_load_skills()` seeds `SKILL_SEED` into the live store **once**, so editing the seed does not reach an existing deployment; new seeds go through `write_skill(title, doc_text, source=...)` [V✓].
 
 **How.**
+
 1. Settle the mismatch above.
 2. Read the repo's `LICENSE` (the plan says MIT; the spec did not check).
 3. Run each skill through UB-064; add with `write_skill` in a one-off script.
@@ -1735,6 +1797,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/eo/mech_manufacturability.py` (`build_manufacturability_report` at line 593).
 
 **How.**
+
 1. Read the docstring and the Phase 9 note.
 2. Decide whether a spec-level approximation is useful before real geometry (UB-073).
 3. Add the check with unit tests.
@@ -1770,6 +1833,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** The E2B template; `backend/eo/mech_validator.py`.
 
 **How.**
+
 1. Install build123d in a scratch template; measure size and cold start.
 2. Generate STEP and STL from one input twice; compare bytes.
 
@@ -1806,6 +1870,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `backend/eo/usage_ledger.py` for traces and costs.
 
 **How.**
+
 1. Take a sample of real traces from the ledger.
 2. Replay with: tool-output compression (headroom-style; set `HEADROOM_OFFLINE=1`, it ships an anonymous beacon by default [R]), terse agent-to-agent messages (never on user-facing study content), a cheaper model for search, edit and review.
 3. Compare cost and quality on a fixed set; adopt only where quality holds.
@@ -1909,6 +1974,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `m2c/src/m2c/secrets/redact.py` imports only the standard library, and `_RULES` holds 26 kinds [V✓]. The tests are in `m2c/tests/secret_handling/` (7 files): all 577 tests pass in a fresh environment with the declared dependencies [V✓, re-run 2026-11-24]. Work in a scratch copy; the tool writes its crates under `rust/`. The inputs to feed it are the `MG-Z04` vectors.
 
 **How.**
+
 1. Read the tool's own warning first: `record`, `diff` and `gate` run your code many times, so use a **copy of the project, a test database and no production credentials**.
 2. Write the `MG-Z10` criteria first and commit them (Appendix A rule 10). The tool's `gate` is an extra check, not a replacement for C1 to C3.
 3. Run `analyze`, then `bridge` for `redact.py` only (not the `secrets/` folder: see **Notes.**).
@@ -1933,6 +1999,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** Candidates: `m2c/src/m2c/secrets/redact.py` (`_scan`) and `m2c/src/m2c/policy/shellparse.py` (`parse`), both pure functions on strings [V✓ by listing]. For the backend, whatever the `MG-B01` baseline shows.
 
 **How.**
+
 1. Wait for the `MG-B00` and `MG-B01` backend numbers. For m2c, define a real workload: a scripted session with fake credentials.
 2. Run `fast-anything doctor`, then `scan -- <command>` on a **copy** of the project.
 3. Port only functions that are top-level, deterministic and take plain data.
@@ -1956,6 +2023,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Where.** `m2c/src/m2c/secrets/env.py` lines 65 and 66 import `..logging_setup` and `..paths` [V✓]. The other edges come from the tool's report and were not re-derived.
 
 **How.**
+
 1. Re-run `analyze` and read its import graph.
 2. Pick the edges to cut (for example pass the config directory and the logger in as parameters).
 3. Cut one edge per patch, with the whole M2C test suite as the check.

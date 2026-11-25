@@ -34,8 +34,10 @@ Errors (exit 1)
                  UB-nnn mentioned anywhere in the document
     batch        an entry outside a batch, a batch without entries, bad or out-of-order batch id or date
     tables       the hand-written tables (sources register, decision log) have a bad row
+    list         a list item that follows text without a blank line (the book's builder would show it as run-on text)
     stale        sections 0-2 differ from what --write would produce (run --write)
-    text         a carriage return anywhere in the file
+    page         doc-upgrade-backlog.html was built from an older version of the document (run build_backlog_page.py)
+    text         a lone carriage return (CRLF line endings are accepted: a Windows checkout may have them)
 """
 import argparse
 import datetime
@@ -62,6 +64,7 @@ ENTRY_LIKE_RE = re.compile(r"^### UB-")
 BATCH_RE = re.compile(r"^## Batch (B\d{2}) \((\d{4}-\d{2}-\d{2})\): (.+?)\s*$")
 BATCH_LIKE_RE = re.compile(r"^## Batch\b")
 ID_RE = re.compile(r"\bUB-\d{3}\b")
+LIST_RE = re.compile(r"^(\d+\.|[-*])\s")
 PARA_RE = re.compile(r"^\*\*(What|Why|Where|How|Done when|Notes)\.\*\*")
 META_SPLIT_RE = re.compile(r"\s+\u00b7\s+(?=\*\*)")
 META_FIELD_RE = re.compile(r"^\*\*([A-Za-z]+)\*\*\s*(.*)$")
@@ -117,8 +120,9 @@ class Doc:
 
 
 def read_lines(path):
-    # raw bytes, not read_text(): text mode would turn CRLF into LF and hide a Windows line ending
-    text = Path(path).read_bytes().decode("utf-8")
+    # CRLF counts as LF: git on Windows (core.autocrlf) checks files out with CRLF, and that is not an error.
+    # Only a lone carriage return is reported (see parse).
+    text = Path(path).read_bytes().decode("utf-8").replace("\r\n", "\n")
     return text.split("\n")
 
 
@@ -151,7 +155,7 @@ def parse(lines):
     """Read the document into a Doc. Collects problems; never raises on a malformed document."""
     doc = Doc(lines)
     if any("\r" in ln for ln in lines):
-        doc.problem("text", None, "carriage return found (the file must use LF line endings)")
+        doc.problem("text", None, "a lone carriage return was found (CRLF is accepted, a bare CR is not)")
         lines = [ln.replace("\r", "") for ln in lines]
         doc.lines = lines
     if not lines or not lines[0].startswith("# "):
@@ -349,6 +353,14 @@ def validate(doc):
         if not b.entries:
             P("batch", b.line, f"{b.id} has no entries")
 
+    skip = fenced(doc.lines)
+    for i, ln in enumerate(doc.lines):
+        if i in skip or i == 0 or i - 1 in skip or not LIST_RE.match(ln):
+            continue
+        prev = doc.lines[i - 1]
+        if prev.strip() and not LIST_RE.match(prev) and not prev.startswith((" ", "\t")):
+            P("list", i + 1, "a list needs a blank line before it, or the book's builder shows it as run-on text")
+
     validate_tables(doc, ids)
     return doc.problems
 
@@ -497,6 +509,21 @@ def regenerate(doc):
     return lines
 
 
+PAGE = ROOT / "doc-upgrade-backlog.html"
+PAGE_BUILDER = ROOT / "scripts" / "build_backlog_page.py"
+
+
+def page_problems(doc_path, page_path=PAGE, builder_path=PAGE_BUILDER):
+    """The reader page, when it exists, must have been built from this version of the document (a stdlib-only test:
+    the page ends with the SHA-256 of the Markdown). Returns a list of problems."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("build_backlog_page_for_check", builder_path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    ok, message = mod.page_is_current(page_path, doc_path)
+    return [] if ok else [f"page: {message}"]
+
+
 def check(path):
     doc = parse(read_lines(path))
     problems = validate(doc)
@@ -507,6 +534,8 @@ def check(path):
         fresh = regenerate(doc)
         if fresh != doc.lines:
             problems.append("stale: sections 0, 1 and 2 are out of date; run: python scripts/check_backlog.py --write")
+        elif Path(path).resolve() == DOC.resolve():
+            problems.extend(page_problems(path))
     return doc, problems
 
 
@@ -572,6 +601,12 @@ def set_status(path, uid, status, note="", date=None):
     return problems
 
 
+def remind_page(path):
+    if Path(path).resolve() == DOC.resolve() and page_problems(path):
+        print("check_backlog: the reader page is now out of date; rebuild it with: python scripts/build_backlog_page.py --write "
+              "(needs: pip install markdown==3.11.2)")
+
+
 def next_id(doc):
     return f"UB-{max([e.number for e in doc.entries] or [0]) + 1:03d}"
 
@@ -605,6 +640,7 @@ def main(argv=None):
             print(f"check_backlog: not written, {len(problems)} problem(s)")
             return 1
         print(f"check_backlog: {len(doc.entries)} features, sections 0-2 " + ("rewritten" if changed else "already current"))
+        remind_page(path)
         return 0
 
     if args.set_status:
@@ -614,6 +650,7 @@ def main(argv=None):
             print("\n".join(problems))
             return 1
         print(f"check_backlog: {uid} is now {status}; decision logged and sections 0-2 regenerated")
+        remind_page(path)
         return 0
 
     doc = parse(read_lines(path))
