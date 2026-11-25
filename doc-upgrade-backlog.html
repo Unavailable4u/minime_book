@@ -242,7 +242,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/components.css">
 <link rel="stylesheet" href="assets/css/shell.css">
-</head><body data-page="doc-upgrade-backlog"><main><h1>Upgrade Backlog: Features To Build Later (an incremental register)</h1><p class="sub">Appendix C. 21,733 words. <a href="data/docs/upgrade_backlog.md" download>Download .md</a></p><div class="bk-banner">
+</head><body data-page="doc-upgrade-backlog"><main><h1>Upgrade Backlog: Features To Build Later (an incremental register)</h1><p class="sub">Appendix C. 24,546 words. <a href="data/docs/upgrade_backlog.md" download>Download .md</a></p><div class="bk-banner">
   <div class="bk-top">
     <div>
       <span class="bk-part">Appendix C · Upgrade backlog</span>
@@ -256,7 +256,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
   </div>
   <p class="bk-desc">An incremental register of features to build later. Every feature has a source (a repository, a plan section or an idea of your own), one line in a generated top table, and a detailed entry: what it is, why, where in the code, how it would be added and when it counts as done. It grows by batches, and a script keeps its tables and this page in step with the entries.</p>
   <div class="bk-meta">
-    <span><b>21,733</b> words (~99 min read)</span><span>·</span><span><b>94</b> sections</span><span>·</span><span><b>8</b> tables</span>
+    <span><b>24,546</b> words (~112 min read)</span><span>·</span><span><b>96</b> sections</span><span>·</span><span><b>8</b> tables</span>
   </div>
   <div class="bk-prevnext"><a href="docs.html" class="bk-nav-btn">← Back to the book</a><a href="doc-provider-consolidation.html" class="bk-nav-btn bk-next">Appendix B: Provider Consolidation Guide →</a></div>
 </div><div class="doc"><article><h1 id="upgrade-backlog-features-to-build-later-an-incremental-register">Upgrade Backlog: Features To Build Later (an incremental register)</h1>
@@ -267,7 +267,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <p><strong>Sections 0, 1 and 2 are generated</strong> from the entries by <code>python scripts/check_backlog.py --write</code>. Never edit them by hand; edit an entry and run the script.</p>
 <h2 id="0-at-a-glance">0. At a glance</h2>
 <p><em>Generated from the entries by <code>python scripts/check_backlog.py --write</code>. Do not edit by hand.</em></p>
-<p><strong>83 features</strong> in 2 batches: 80 candidate · 0 accepted · 0 building · 0 done · 3 parked · 0 dropped.</p>
+<p><strong>84 features</strong> in 3 batches: 81 candidate · 0 accepted · 0 building · 0 done · 3 parked · 0 dropped.</p>
 <div class="tw"><table>
 <thead>
 <tr>
@@ -304,13 +304,13 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td>Menux</td>
-<td>8</td>
+<td>9</td>
 <td>0</td>
 <td>0</td>
 <td>0</td>
 <td>1</td>
 <td>0</td>
-<td>9</td>
+<td>10</td>
 </tr>
 <tr>
 <td>Shared</td>
@@ -334,13 +334,13 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td><strong>All</strong></td>
-<td><strong>80</strong></td>
+<td><strong>81</strong></td>
 <td><strong>0</strong></td>
 <td><strong>0</strong></td>
 <td><strong>0</strong></td>
 <td><strong>3</strong></td>
 <td><strong>0</strong></td>
-<td><strong>83</strong></td>
+<td><strong>84</strong></td>
 </tr>
 </tbody>
 </table></div>
@@ -495,7 +495,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Run the promptfoo red-team with a two-tenant provider</td>
 <td>Probe prompt injection, cross-tenant leaks and memory poisoning against staging with synthetic data only.</td>
 <td>MiniMe</td>
-<td>promptfoo red-team docs [W], Plan 3.2, Spec T5</td>
+<td>promptfoo red-team docs [W], promptfoo (MIT, read at <code>4a30804</code>) [R], Plan 3.2, Spec T5</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -505,7 +505,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>First Strix run on staging</td>
 <td>An AI pentest agent tries to read tenant A's data from tenant B through every route and tool.</td>
 <td>MiniMe</td>
-<td>Strix [R], Plan 3.3, Spec T6</td>
+<td>Strix (Apache-2.0, read at <code>9ed84f9</code>) [R], Plan 3.3, Spec T6</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -515,7 +515,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Property tests with Hypothesis</td>
 <td>Random-input tests for the pure engines: manufacturability checks, the URL guard and the shell parser.</td>
 <td>Shared</td>
-<td>Plan 3.4, Spec T3</td>
+<td>Plan 3.4, Spec T3, Hypothesis (MPL-2.0, read at <code>b9d568c</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -525,7 +525,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Nightly API fuzzing with Schemathesis</td>
 <td>Fuzz every FastAPI route, with and without auth, and fail on any 5xx or schema violation.</td>
 <td>MiniMe</td>
-<td>Plan 3.1 and 3.4, Spec T4</td>
+<td>Plan 3.1 and 3.4, Spec T4, Schemathesis (MIT, read at <code>15b71f5</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -535,7 +535,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Add cost-per-task and web-product scenarios to the load harness</td>
 <td>Extend the device load harness planned in MG-B00 with notebook, PDF and runaway-loop scenarios, measured as cost per task.</td>
 <td>Shared</td>
-<td>Plan 3.5, Spec T7, Appendix A <code>MG-B00</code></td>
+<td>Plan 3.5, Spec T7, Appendix A <code>MG-B00</code>, Locust (MIT, read at <code>5084aa1</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -652,10 +652,10 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td>UB-030</td>
-<td>Seed the Q07 bypass corpus from promptfoo and list the gaps</td>
-<td>Q07 is already planned; take promptfoo's coding-agent cases as seeds and add only the categories the current tests miss.</td>
+<td>Add promptfoo's coding-agent risk categories to the Q07 corpus and list the gaps</td>
+<td>Q07 is already planned; take promptfoo's coding-agent risk categories and write rows only for what the current tests miss.</td>
 <td>M2C</td>
-<td>Spec M3, Plan 4.5, M2C build plan Q07, Appendix A <code>MG-Z03</code></td>
+<td>Spec M3, Plan 4.5, M2C build plan Q07, Appendix A <code>MG-Z03</code>, promptfoo (MIT, read at <code>4a30804</code>) [R]</td>
 <td>S</td>
 <td>candidate</td>
 <td>B01</td>
@@ -665,7 +665,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Golden tasks for the coding agent</td>
 <td>Ten past bug-fix commits turned into tasks with a failing test, run with a fixed budget, to get your own pass rate and cost.</td>
 <td>M2C</td>
-<td>Spec M4</td>
+<td>Spec M4, promptfoo (MIT, read at <code>4a30804</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -805,7 +805,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>A precision-first review command</td>
 <td>A diff reviewer that gives line-level comments and favours few, correct findings over many.</td>
 <td>M2C</td>
-<td>open-code-review [R], Plan 4.2</td>
+<td>open-code-review [R], Strix <code>skills/scan_modes/diff.md</code> (Apache-2.0, read at <code>9ed84f9</code>) [R], Plan 4.2</td>
 <td>L</td>
 <td>candidate</td>
 <td>B01</td>
@@ -1035,7 +1035,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Security reviewer prompts and a vetted security skills library</td>
 <td>Turn Strix's playbooks into security_reviewer prompts and the 818 community security skills into a reference library.</td>
 <td>MiniMe</td>
-<td>Strix playbooks (Apache-2.0 as reported), Anthropic-Cybersecurity-Skills (community, not affiliated)</td>
+<td>Strix playbooks (Apache-2.0, <code>LICENSE</code> read at <code>9ed84f9</code>), Anthropic-Cybersecurity-Skills (community, not affiliated)</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -1190,6 +1190,16 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>parked</td>
 <td>B02</td>
 </tr>
+<tr>
+<td>UB-084</td>
+<td>Record what a run created, so undo and approvals touch only that</td>
+<td>A per-run list of the objects an automation created, so cleanup and any approval exemption apply only to things the run itself made.</td>
+<td>Menux</td>
+<td>Strix test-object registry (Apache-2.0, read at <code>9ed84f9</code>) [R], Menux feature guide sections 6.1 and 7.5</td>
+<td>S</td>
+<td>candidate</td>
+<td>B03</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="2-batches">2. Batches</h2>
@@ -1218,6 +1228,13 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>rust-anything and fast-anything, from a trial on m2c</td>
 <td>3</td>
 <td>UB-081 to UB-083</td>
+</tr>
+<tr>
+<td>B03</td>
+<td>2026-11-26</td>
+<td>Review of promptfoo, Strix, Hypothesis, Schemathesis and Locust</td>
+<td>1</td>
+<td>UB-084</td>
 </tr>
 </tbody>
 </table></div>
@@ -1562,6 +1579,46 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <td>Kept as UB-051, status <code>parked</code>: the spec says skip until memory volume is measured</td>
 <td>prompts get too large</td>
 </tr>
+<tr>
+<td>Locust, for load tests and as the runner of the <code>MG-B00</code> WebSocket harness</td>
+<td>Same job as the k6 script you already have (<code>backend/scripts/minime_loadtest.js</code>) [S]. Locust is gevent-based and brings flask and pyzmq, so it would need its own environment, and its core has no raw WebSocket user [R]. Not read: <code>pytest_locust</code> and the separate aiolocust project</td>
+<td>k6 and the Python harness of UB-018 cannot do a scenario</td>
+</tr>
+<tr>
+<td>promptfoo <code>code-scan</code> PR reviewer</td>
+<td>It scans PRs through a hosted scanner service, so your diffs would leave your infrastructure [R]. UB-045 covers the need</td>
+<td>—</td>
+</tr>
+<tr>
+<td>promptfoo eval runner, Python providers, <code>llm-rubric</code>, provider compare</td>
+<td>Already in use: <code>backend/evals/promptfoo/</code> and the CI job <code>promptfoo</code> [S]. The one gap is UB-013</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Strix SARIF 2.1.0 export</td>
+<td>Only useful if Strix runs in CI; UB-015 is one run on staging [R]</td>
+<td>Strix moves into CI</td>
+</tr>
+<tr>
+<td>Strix coverage ledger with provenance (idea only)</td>
+<td>A good concept: it records what was looked at, labelled agent-reported or observed. Only its docstring was read, and it needs a redesign for MiniMe [R]</td>
+<td>the first Strix run (UB-015) shows what a coverage record would need</td>
+</tr>
+<tr>
+<td>Strix risk-classifier gate (labels <code>deletes_data</code>, <code>changes_target</code>, <code>disrupts_service</code>, <code>safe</code>)</td>
+<td>Already planned as <code>L07</code> in the M2C build plan. Take the four labels into <code>L07</code>'s labelled-call set. Its own docstring says it guards a careless agent, not a hostile one, so code rules and the sandbox keep the last word, as <code>L07</code> and Menux section 6.7 say [R]</td>
+<td><code>L07</code> starts</td>
+</tr>
+<tr>
+<td>Hypothesis <code>ghostwriter.equivalent</code></td>
+<td>A technique for work already planned in Appendix A: the differential corpus of <code>MG-Z04</code> and <code>MG-Z10</code> step 6, which backs <code>DM-10</code> (Rust never more permissive than Python). It generates inputs where the vectors freeze them. Calling the Rust side needs a bridge nobody has designed [R]</td>
+<td><code>MG-Z10</code> records <code>PROCEED</code> (first learn the shape with one test of two Python redaction functions)</td>
+</tr>
+<tr>
+<td>Hypothesis <code>extra/lark.py</code> grammar strategy</td>
+<td>A technique for <code>MG-Z03</code>: generate shell commands from a small grammar to feed the shell-parsing vectors and the Python-against-Rust comparison. Only its docstring was read; whether a small shell grammar fits is untested [R]</td>
+<td><code>MG-Z03</code> starts on shell parsing</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="7-sources-register">7. Sources register</h2>
@@ -1612,43 +1669,51 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 </tr>
 <tr>
 <td>promptfoo</td>
-<td>—</td>
-<td>not stated</td>
-<td>USE</td>
-<td>UB-013, UB-014</td>
-<td>—</td>
+<td>https://github.com/promptfoo/promptfoo</td>
+<td>MIT (<code>LICENSE</code> read at <code>4a30804</code>)</td>
+<td>USE (hosted generation and telemetry are on by default: see UB-014)</td>
+<td>UB-013, UB-014, UB-030, UB-031, UB-048</td>
+<td>licence read 2026-11-26; read from source, not run</td>
 </tr>
 <tr>
 <td>Strix</td>
-<td>—</td>
-<td>Apache-2.0 (playbooks)</td>
-<td>USE</td>
-<td>UB-015, UB-068</td>
-<td>—</td>
+<td>https://github.com/usestrix/strix</td>
+<td>Apache-2.0 (whole repo; <code>LICENSE</code> read at <code>9ed84f9</code>)</td>
+<td>USE (Alpha; telemetry on by default: see UB-015)</td>
+<td>UB-015, UB-045, UB-056, UB-068, UB-084</td>
+<td>licence read 2026-11-26; the licence of <code>containers/opengrep-rules</code> not checked; read from source, not run</td>
 </tr>
 <tr>
 <td>Hypothesis</td>
-<td>—</td>
-<td>not stated</td>
-<td>USE</td>
-<td>UB-016</td>
-<td>—</td>
+<td>https://github.com/HypothesisWorks/hypothesis</td>
+<td>MPL-2.0 (<code>LICENSE.txt</code> read at <code>b9d568c</code>, "except where explicitly noted otherwise")</td>
+<td>USE (test dependency only; copied files stay MPL, so do not vendor them)</td>
+<td>UB-016, UB-017</td>
+<td>licence read 2026-11-26; read from source, not run</td>
 </tr>
 <tr>
 <td>Schemathesis</td>
-<td>—</td>
-<td>not stated</td>
+<td>https://github.com/schemathesis/schemathesis</td>
+<td>MIT (<code>LICENSE</code> read at <code>15b71f5</code>)</td>
 <td>USE</td>
 <td>UB-017</td>
+<td>licence read 2026-11-26; read from source and docs, not run</td>
+</tr>
+<tr>
+<td>k6</td>
+<td>—</td>
+<td>not stated</td>
+<td>in use (<code>backend/scripts/minime_loadtest.js</code>)</td>
+<td>UB-018</td>
 <td>—</td>
 </tr>
 <tr>
-<td>k6 / Locust</td>
-<td>—</td>
-<td>not stated</td>
-<td>USE</td>
-<td>UB-018</td>
-<td>—</td>
+<td>Locust</td>
+<td>https://github.com/locustio/locust</td>
+<td>MIT (<code>LICENSE</code> read at <code>5084aa1</code>)</td>
+<td>SKIP</td>
+<td>UB-018, section 6</td>
+<td>licence read 2026-11-26; read from source and docs, not run</td>
 </tr>
 <tr>
 <td>Django</td>
@@ -2236,6 +2301,12 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <td>batch B02 created</td>
 <td>rust-anything and fast-anything added as optional tooling; Appendix A (<code>MG-Z04</code>, <code>MG-Z10</code>) edited to match</td>
 </tr>
+<tr>
+<td>2026-11-26</td>
+<td>—</td>
+<td>batch B03 created</td>
+<td>five reference repos read and their licences recorded; the review's recommendations applied: existing entries extended in place (UB-014 to UB-018, UB-030, UB-031, UB-045, UB-048, UB-056, UB-068), UB-084 added, eight items recorded in section 6. Other chapters not edited</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="batch-b01-2026-11-24-upgrade-plan-and-verified-spec-of-21-nov-2026-minus-the-finished-sx-series">Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 Nov 2026, minus the finished SX series</h2>
@@ -2459,24 +2530,25 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>Probe prompt injection, cross-tenant leaks and memory poisoning against staging with synthetic data only.</p>
 </blockquote>
-<p><strong>Product</strong> MiniMe · <strong>Source</strong> promptfoo red-team docs [W], Plan 3.2, Spec T5 · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [W]</p>
+<p><strong>Product</strong> MiniMe · <strong>Source</strong> promptfoo red-team docs [W], promptfoo (MIT, read at <code>4a30804</code>) [R], Plan 3.2, Spec T5 · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> May test generation go to promptfoo's hosted service (<code>api.promptfoo.app</code>, which receives the target <code>purpose</code> text), or must everything stay local? If local, the remote-only plugins are out · <strong>Evidence</strong> [V✓] [W] [R] [S]</p>
 <p><strong>What.</strong> A red-team run whose provider calls the staging HTTP API with two tenants' tokens.</p>
 <p><strong>Why.</strong> The existing <code>role_provider.py</code> replays roles through <code>llm_client</code> and never calls the HTTP API [V], so tenant isolation is untested by it.</p>
-<p><strong>Where.</strong> <code>backend/evals/promptfoo/</code> (new provider and config); promptfoo <code>0.122.0</code> per the lockfile [V].</p>
+<p><strong>Where.</strong> <code>backend/evals/promptfoo/</code> (new provider and config); promptfoo <code>0.122.0</code> per the lockfile [V]. The reading in <strong>Notes.</strong> was of HEAD <code>4a30804</code> (v0.126.0), not of 0.122.0, so plugin names and remote-only status may differ in the pinned version [R].</p>
 <p><strong>How.</strong></p>
 <ol>
 <li>Run <code>promptfoo redteam init</code> to confirm plugin names for the installed version.</li>
 <li>Start from the plan's config: plugins <code>owasp:agentic</code>, <code>owasp:llm</code>, <code>indirect-prompt-injection</code>, <code>cross-session-leak</code>, <code>agentic:memory-poisoning</code>, <code>bola</code>, <code>bfla</code>, <code>rbac</code>, <code>excessive-agency</code>, <code>pii:direct</code>; strategies <code>jailbreak</code>, <code>jailbreak-templates</code>, <code>crescendo</code> [W].</li>
-<li>Use your own provider key through <code>redteam.provider</code> and set <code>PROMPTFOO_DISABLE_TELEMETRY=1</code>, so generation and grading do not go to the hosted service [W].</li>
+<li>Use your own provider key through <code>redteam.provider</code> and set <code>PROMPTFOO_DISABLE_TELEMETRY=1</code>. That stops the PostHog telemetry, which is on by default [R]. <strong>It does not stop test generation going to the hosted service:</strong> remote generation is on by default and is turned off with <code>PROMPTFOO_DISABLE_REMOTE_GENERATION</code> [R]. With it off, the remote-only plugins (memory-poisoning, <code>bola</code>, <code>bfla</code>, SSRF, MCP, <code>indirect-prompt-injection</code>, data-exfil and <code>rag-*</code>) produce no tests [R]. The other plugins of step 2 were not sorted.</li>
+<li>Keep the local ones. <code>cross-session-leak</code> has user A plant a secret and user B try to extract it, graded on a planted <code>match</code> string, so it fits the two-tenant provider with no remote service (the grader body was not read) [R]. Check <code>backend/tests/canary/</code> (8 files, not read) for overlap first [S]. The multi-turn strategies <code>crescendo</code> and <code>iterative</code> use a red-team provider of your own when one is set (condition lines read only), which keeps attack prompts off the hosted server; confirm the config key against the installed version [R].</li>
 <li><strong>Synthetic data only.</strong> Record the baseline; fix each finding or record why not.</li>
 </ol>
 <p><strong>Done when.</strong> A baseline is recorded and a 10 to 20 case subset feeds UB-013.</p>
-<p><strong>Notes.</strong> Needs staging and two throwaway tenants.</p>
+<p><strong>Notes.</strong> Needs staging and two throwaway tenants. For cross-tenant object access, UB-017's deterministic object-level check is the better first test and UB-015 (Strix) the next; <code>bola</code> and <code>bfla</code> here are remote-only and judged by an LLM from text [R]. promptfoo HEAD asks for Node <code>^22.22.2 || ^24.15.0 || &gt;=26</code>, while CI is on 22.22.0 (UB-001); read the <code>engines</code> field of the version you install before you bump it [R]. Do not run its example agent provider configs with <code>approval_policy: never</code> against a real checkout [R]. Its <code>code-scan</code> PR reviewer is in section 6.</p>
 <h3 id="ub-015-first-strix-run-on-staging-m">UB-015: First Strix run on staging (M)</h3>
 <blockquote>
 <p>An AI pentest agent tries to read tenant A's data from tenant B through every route and tool.</p>
 </blockquote>
-<p><strong>Product</strong> MiniMe · <strong>Source</strong> Strix [R], Plan 3.3, Spec T6 · <strong>Status</strong> candidate · <strong>Depends</strong> UB-008 · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
+<p><strong>Product</strong> MiniMe · <strong>Source</strong> Strix (Apache-2.0, read at <code>9ed84f9</code>) [R], Plan 3.3, Spec T6 · <strong>Status</strong> candidate · <strong>Depends</strong> UB-008 · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R] [S]</p>
 <p><strong>What.</strong> One run of Strix against staging with stack-matched playbooks (FastAPI, Next.js, Supabase, LLM applications).</p>
 <p><strong>Why.</strong> It finds chained authorization flaws that unit tests miss. Run it after the ingest limits so it finds new problems, not known ones.</p>
 <p><strong>Where.</strong> Staging only. Inputs: <code>openapi.json</code> (the API does not disable it [V]), the <code>/v1/code</code> WebSocket contract, the clip and video routes.</p>
@@ -2485,14 +2557,16 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Create two throwaway tenants with seeded data.</li>
 <li>Use a budget-capped, run-scoped LLM key and rotate it afterwards.</li>
 <li>Reproduce every finding by hand before fixing; turn each into a permanent regression test.</li>
+<li>Set the run up safely: <code>STRIX_TELEMETRY=0</code> (telemetry to PostHog and the Scarf gateway is on by default), pin the sandbox image <code>ghcr.io/usestrix/strix-sandbox:1.4.1</code> by digest (UB-022) because it is pulled by tag, and keep Strix in its own environment, not in <code>backend/requirements.txt</code>: its pins (<code>openai-agents[litellm]&lt;0.20</code>, <code>litellm</code>, <code>boto3</code>, <code>docker</code>, <code>cryptography&lt;49</code>) will likely clash with the backend's [R].</li>
+<li>Run it after UB-017's object-level authorization check. That check is deterministic and gives a clear pass or fail, so Strix is spent on what a fixed check cannot see [R].</li>
 </ol>
 <p><strong>Done when.</strong> The run completed; findings triaged within a week; the cross-tenant objective reported "not achieved" with evidence of what was tried.</p>
-<p><strong>Notes.</strong> Never production, never third-party targets. Needs Docker and an LLM key.</p>
+<p><strong>Notes.</strong> Never production, never third-party targets. Needs Docker and an LLM key. Strix is classed Alpha, is LLM-driven and runs offensive tools, so use synthetic accounts only [R]. Verify first (function names only read): Strix merges duplicate findings by LLM plus CVE and package identity; compare that with <code>backend/agents/security_aggregator.py</code> before copying anything [S]. Its coverage ledger and SARIF export are in section 6.</p>
 <h3 id="ub-016-property-tests-with-hypothesis-m">UB-016: Property tests with Hypothesis (M)</h3>
 <blockquote>
 <p>Random-input tests for the pure engines: manufacturability checks, the URL guard and the shell parser.</p>
 </blockquote>
-<p><strong>Product</strong> Shared · <strong>Source</strong> Plan 3.4, Spec T3 · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [GK]</p>
+<p><strong>Product</strong> Shared · <strong>Source</strong> Plan 3.4, Spec T3, Hypothesis (MPL-2.0, read at <code>b9d568c</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> Whether C25 (safe "always allow") is built before the state-machine step · <strong>Evidence</strong> [V✓] [GK] [R] [S]</p>
 <p><strong>What.</strong> Hypothesis tests that must never crash or produce NaN.</p>
 <p><strong>Why.</strong> Edge cases in pure code are cheap to find this way. Hypothesis is not in the backend requirements [V✓: none found].</p>
 <p><strong>Where.</strong> <code>backend/eo/mech_manufacturability.py</code> (the <code>check_*</code> functions); <code>backend/utils/url_guard.py</code> (random hosts); <code>m2c/src/m2c/policy/shellparse.py</code> (M2C is a separate package, so it needs its own dev dependency).</p>
@@ -2501,33 +2575,36 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Add Hypothesis to the backend test requirements, pinned (the audit gate then covers it).</li>
 <li>Write one property per target: no exception, no NaN, and for the guard "never allows a blocked address".</li>
 <li>Turn any failing example into a plain regression test.</li>
+<li>Later, add one <code>RuleBasedStateMachine</code> over the approval policy: random sequences of approve, always-allow, <code>cd</code> and restart, with the invariant that a call the rules deny is never allowed (a design idea [U]). Those sequences are where C25 bugs would hide, and the current table-driven test (<code>m2c/tests/policy/test_policy_decide_table.py</code>) is a different kind of test [R] [S].</li>
 </ol>
 <p><strong>Done when.</strong> The properties run in CI without skipping.</p>
-<p><strong>Notes.</strong> Property-style tests already exist as plain pytest in <code>m2c/tests/policy/test_policy_invariants.py</code> and <code>test_policy_robustness.py</code>; Appendix A (<code>MG-Z03</code>) deliberately keeps properties out of the language-neutral vectors and in Python. Hypothesis adds generated inputs to those; check first that it finds something they do not.</p>
+<p><strong>Notes.</strong> Property-style tests already exist as plain pytest in <code>m2c/tests/policy/test_policy_invariants.py</code> and <code>test_policy_robustness.py</code>; Appendix A (<code>MG-Z03</code>) deliberately keeps properties out of the language-neutral vectors and in Python. Hypothesis adds generated inputs to those; check first that it finds something they do not. Hypothesis, and so Schemathesis (UB-017), needs a compiled Rust module from v6.156.0 on (built with maturin) [R]. Check that wheels exist for the Windows dev machine and <code>python:3.12-slim</code>, because a source build needs a Rust toolchain. MPL-2.0 is fine as a test-only dependency; copied files stay MPL, so do not copy its files into the product [R]. UB-016 and UB-017 can share one pinned Hypothesis. Verify first (names only read): do <code>provisional.urls()</code>, <code>provisional.domains()</code> and <code>ip_addresses</code> produce IPv4-mapped, NAT64 and odd-IP forms for <code>url_guard.py</code>? If not, write your own generators. A grammar-based generator for shell commands (<code>extra/lark.py</code>) is in section 6.</p>
 <h3 id="ub-017-nightly-api-fuzzing-with-schemathesis-m">UB-017: Nightly API fuzzing with Schemathesis (M)</h3>
 <blockquote>
 <p>Fuzz every FastAPI route, with and without auth, and fail on any 5xx or schema violation.</p>
 </blockquote>
-<p><strong>Product</strong> MiniMe · <strong>Source</strong> Plan 3.1 and 3.4, Spec T4 · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V] [GK]</p>
-<p><strong>What.</strong> A scheduled job running Schemathesis against staging's <code>/openapi.json</code>.</p>
+<p><strong>Product</strong> MiniMe · <strong>Source</strong> Plan 3.1 and 3.4, Spec T4, Schemathesis (MIT, read at <code>15b71f5</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> Can staging hold two long-lived test users, and may the nightly run spend LLM money (if not, exclude those routes or use the fake model adapter that <code>MG-B00</code> describes)? · <strong>Evidence</strong> [V] [GK] [R] [S]</p>
+<p><strong>What.</strong> A scheduled job running Schemathesis against staging's <code>/openapi.json</code>, including a deterministic cross-tenant check (step 3).</p>
 <p><strong>Why.</strong> Finds 500s, schema drift and missing auth checks across the whole API.</p>
 <p><strong>Where.</strong> A new scheduled workflow; <code>backend/api/server.py</code> serves <code>/openapi.json</code> (not disabled [V]).</p>
 <p><strong>How.</strong></p>
 <ol>
-<li>Read Schemathesis's current docs for flags (the plan marks them unchecked).</li>
-<li>Run with a throwaway tenant's token and with none; use synthetic data.</li>
+<li>Read Schemathesis's current docs for flags (the plan marks them unchecked). Read so far, from the docs and CLI (not the stateful or targeted guides): in-process mode <code>from_asgi("/openapi.json", app)</code> (the FastAPI app is at <code>backend/api/server.py:274</code> [S]), <code>--rate-limit</code>, <code>--max-time</code>, <code>--request-timeout</code> and operation filters [R].</li>
+<li>Run with a throwaway tenant's token and with none; use synthetic data. In-process mode still reaches the real database and the LLM providers, so use staging settings and a fake model adapter first.</li>
+<li>Add the object-level authorization check (<code>src/schemathesis/specs/openapi/object_authorization.py</code>). It replays one user's read of their own object as every other configured user and fails if another user gets the same object back; public or shared objects are ignored [R]. It needs two users' tokens (<code>backend/scripts/get_test_jwt.py</code> mints them, and <code>require_auth</code> in <code>backend/api/deps.py:107</code> takes a Bearer JWT [S]), an <code>auth.json</code> with <code>fixedHeaders</code> for each, <code>peers = ["alice","bob"]</code> in <code>schemathesis.toml</code> as the review read it, and a create or per-user list route plus a GET by id [R].</li>
+<li>Record accepted failures in a <code>--baseline</code> file: they are reported but do not fail the run, and update and prune flags exist [R, CLI docs only; model code not read]. It is the same pattern as <code>.github/audit-allowlist.txt</code> [S], and the nightly run then fails only on new failures.</li>
 <li>Keep it nightly and non-blocking at first, then decide.</li>
 </ol>
-<p><strong>Done when.</strong> A first run is triaged and each finding is fixed or recorded.</p>
-<p><strong>Notes.</strong> Needs staging.</p>
+<p><strong>Done when.</strong> A first run is triaged and each finding is fixed or recorded, and the object-level check has run with two users on staging.</p>
+<p><strong>Notes.</strong> Needs staging. Schemathesis sends POST, PUT and DELETE requests, so staging only [R]. It builds on Hypothesis (<code>hypothesis&gt;=6.130.12,&lt;7</code>), so the wheel caveat of UB-016 applies. Your pins for anyio, click, pytest, PyYAML, requests, rich and typing_extensions fall inside its ranges; harfile, hypothesis, hypothesis_graphql, jsonschema_rs, pyrate-limiter and werkzeug would be new [R]. It is classed Production/Stable, has 283 test files, and a grep found no telemetry or upload code [R]. <code>[auth.wfc]</code> cannot be mixed with <code>[auth.basic]</code> or <code>[auth.openapi.*]</code> [R]. Not checked: how long a Supabase token lasts, and whether its <code>loginEndpointAuth</code> works against Supabase. Verify first (directory names only read): its stateful mode, which chains create, read and delete calls; read <code>docs/guides/stateful-testing.md</code> and try it on your id-returning routes.</p>
 <h3 id="ub-018-add-cost-per-task-and-web-product-scenarios-to-the-load-harness-m">UB-018: Add cost-per-task and web-product scenarios to the load harness (M)</h3>
 <blockquote>
 <p>Extend the device load harness planned in MG-B00 with notebook, PDF and runaway-loop scenarios, measured as cost per task.</p>
 </blockquote>
-<p><strong>Product</strong> Shared · <strong>Source</strong> Plan 3.5, Spec T7, Appendix A <code>MG-B00</code> · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V] [GK]</p>
+<p><strong>Product</strong> Shared · <strong>Source</strong> Plan 3.5, Spec T7, Appendix A <code>MG-B00</code>, Locust (MIT, read at <code>5084aa1</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V] [GK] [R] [S]</p>
 <p><strong>What.</strong> Not a second harness. Appendix A (<code>MG-B00</code>, <code>backend/loadtest/</code>) already plans a program that opens N device WebSockets with five scenarios (idle hold, busy, reconnect storm, slow consumer, resume) and a scripted fake model adapter. This feature adds what that harness does not measure: cost per task, and the web product's heavy paths.</p>
 <p><strong>Why.</strong> <code>MG-B00</code> measures connections, memory and latency. Cost per task from <code>usage_ledger</code> is the number that sets prices and tests the 45% COGS rule.</p>
-<p><strong>Where.</strong> <code>backend/loadtest/scenarios.py</code> (new, from <code>MG-B00</code>); <code>backend/eo/concurrency_gate.py</code>; <code>backend/eo/usage_ledger.py</code>.</p>
+<p><strong>Where.</strong> <code>backend/loadtest/scenarios.py</code> (new, from <code>MG-B00</code>); <code>backend/eo/concurrency_gate.py</code>; <code>backend/eo/usage_ledger.py</code>. Already in the repo: the k6 script <code>backend/scripts/minime_loadtest.js</code> (191 lines, with <code>ramping-vus</code>, thresholds and a <code>db_pool_pressure</code> scenario) and <code>backend/scripts/seed_load_test_data.py</code> [S].</p>
 <p><strong>How.</strong></p>
 <ol>
 <li>Build <code>MG-B00</code> first, with its rule that the server refuses the fake adapter when a production flag is set (a load test must not spend money on providers).</li>
@@ -2535,7 +2612,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Record p95 latency, queue depth and cost per task from the ledger for each; use synthetic data on staging.</li>
 </ol>
 <p><strong>Done when.</strong> A table with those three numbers exists for every added scenario, produced by the same harness as <code>MG-B01</code>.</p>
-<p><strong>Notes.</strong> k6 or Locust (the plan's suggestion) are only worth adding if the Python harness cannot do a scenario.</p>
+<p><strong>Notes.</strong> You already have a k6 load test (see <strong>Where.</strong>), and <code>MG-B00</code> in Appendix A does not mention it [V✓ grep of <code>migration_guide.md</code>]. Before you write the web-product scenarios of step 2 in the Python harness, check whether the k6 script can hold them. Keep the device WebSocket harness as custom asyncio: Locust's core has no raw WebSocket user (only <code>contrib/socketio.py</code> and <code>mqtt.py</code>) [R]. Locust is skipped (section 6).</p>
 <h3 id="ub-019-a-practice-lab-with-django-and-nginx-on-your-own-machine-s">UB-019: A practice lab with Django and nginx on your own machine (S)</h3>
 <blockquote>
 <p>Learn the fuzz, load and pentest tools on throwaway targets before pointing them at staging.</p>
@@ -2701,27 +2778,27 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 </ol>
 <p><strong>Done when.</strong> A bad name or oversize description is rejected; a skill cannot call a tool outside its <code>allowed-tools</code>; an untrusted folder's skill is not loaded; a skill in <code>.agents/skills/</code> works end to end.</p>
 <p><strong>Notes.</strong> Third-party skills often tell agents to run <code>curl | bash</code> installers [R], which is why step 5 matters.</p>
-<h3 id="ub-030-seed-the-q07-bypass-corpus-from-promptfoo-and-list-the-gaps-s">UB-030: Seed the Q07 bypass corpus from promptfoo and list the gaps (S)</h3>
+<h3 id="ub-030-add-promptfoos-coding-agent-risk-categories-to-the-q07-corpus-and-list-the-gaps-s">UB-030: Add promptfoo's coding-agent risk categories to the Q07 corpus and list the gaps (S)</h3>
 <blockquote>
-<p>Q07 is already planned; take promptfoo's coding-agent cases as seeds and add only the categories the current tests miss.</p>
+<p>Q07 is already planned; take promptfoo's coding-agent risk categories and write rows only for what the current tests miss.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> Spec M3, Plan 4.5, M2C build plan Q07, Appendix A <code>MG-Z03</code> · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [W]</p>
-<p><strong>What.</strong> Not a new corpus. <code>Q07</code> (the bypass corpus, added in revision 1.2 of the M2C build plan) is planned, and Appendix A authors it once, as language-neutral vectors (<code>MG-Z03</code>, step 4). This entry adds a seed source and an inventory of gaps.</p>
-<p><strong>Why.</strong> Cases such as <code>curl ... | bash</code>, base64-decode-to-shell, reads of <code>~/.ssh</code>, <code>~/.aws</code>, <code>~/.npmrc</code>, writes to <code>.git/hooks</code> and command-substitution tricks must give <code>ask</code> or <code>deny</code>. <code>m2c/tests/policy/</code> already holds many of them (<code>test_policy_decide_table.py</code>, <code>test_policy_shellparse.py</code>, <code>test_policy_review_findings.py</code> [V✓ grep counts]); only the missing categories are worth adding. promptfoo's <code>coding-agent</code> plugin family is a ready source of cases [W].</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Spec M3, Plan 4.5, M2C build plan Q07, Appendix A <code>MG-Z03</code>, promptfoo (MIT, read at <code>4a30804</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R] [S]</p>
+<p><strong>What.</strong> Not a new corpus. <code>Q07</code> (the bypass corpus, added in revision 1.2 of the M2C build plan) is planned, and Appendix A authors it once, as language-neutral vectors (<code>MG-Z03</code>, step 4). This entry adds a source of categories and an inventory of gaps. <strong>It cannot copy cases from promptfoo.</strong> Its 14 coding-agent categories are listed in <code>src/redteam/constants/codingAgents.ts</code>, but the attack prompts are generated by <code>api.promptfoo.app</code>: those plugins are in <code>REMOTE_ONLY_PLUGIN_IDS</code>, and <code>createRemotePlugin</code> returns nothing when remote generation is off [R]. What can be taken is the taxonomy, the grader rubrics and the 3,514-line <code>verifiers.ts</code>, which judge the agent's commands and outputs [R].</p>
+<p><strong>Why.</strong> Cases such as <code>curl ... | bash</code>, base64-decode-to-shell, reads of <code>~/.ssh</code>, <code>~/.aws</code>, <code>~/.npmrc</code>, writes to <code>.git/hooks</code> and command-substitution tricks must give <code>ask</code> or <code>deny</code>. <code>m2c/tests/policy/</code> already holds many of them (<code>test_policy_decide_table.py</code>, <code>test_policy_shellparse.py</code>, <code>test_policy_review_findings.py</code> [V✓ grep counts]); only the missing categories are worth adding. promptfoo's categories are wider than the groups in Q07: they include CI and hook planting, test tampering and hidden-secret exfiltration [R]. The gap looks real: the docstring of <code>m2c/src/m2c/sandbox/profile.py</code> says the project directory is writable, including files the person's tools run later, and a grep found no handling of <code>.github</code>, package scripts or git hooks in <code>m2c/src</code> [S]. <strong>But</strong> section 6 records that the bubblewrap profile makes <code>.git</code> read-only [V✓], so check the git-hook case before you call it a gap. <code>m2c/tests/redteam/</code> does not exist yet [S].</p>
 <p><strong>Where.</strong> <code>m2c/tests/policy/</code>; <code>m2c/src/m2c/policy/shellparse.py</code> and <code>decide.py</code>; the vectors folder <code>protocol/conformance/</code> once <code>MG-Z02</code> and <code>MG-Z03</code> exist.</p>
 <p><strong>How.</strong></p>
 <ol>
 <li>List which Q07 categories already have a test.</li>
-<li>Take the missing ones from the promptfoo cases and write them where <code>MG-Z03</code> puts the vectors (or in the table-driven test, so <code>MG-Z03</code> exports them later).</li>
+<li>Read promptfoo's category list and verifiers, then write the missing rows yourself where <code>MG-Z03</code> puts the vectors (or in the table-driven test, so <code>MG-Z03</code> exports them later). Start with 6 to 8 rows: writes to <code>.github/workflows</code>, to <code>package.json</code> scripts, to a Makefile and to test files; a write to a git hook (to confirm the sandbox refuses it); and secrets printed in an encoded form. Each row names the expected decision.</li>
 <li>Each case must yield <code>ask</code> or <code>deny</code>; where Python is too permissive, tag it <code>known-fail-python</code> as <code>MG-Z03</code> describes.</li>
 </ol>
 <p><strong>Done when.</strong> Every category has at least one case that yields <code>ask</code> or <code>deny</code>, in one place only.</p>
-<p><strong>Notes.</strong> Do not create a second corpus next to the vectors.</p>
+<p><strong>Notes.</strong> Do not create a second corpus next to the vectors. Verify first (file names only read): promptfoo's Unicode strategies <code>homoglyph.ts</code> and <code>asciiSmuggling.ts</code> may add rows to Q07's terminal-safety group; <code>secrets/redact.py:188</code> and <code>tui/safe.py:57</code> already strip format (Cf) characters [S].</p>
 <h3 id="ub-031-golden-tasks-for-the-coding-agent-m">UB-031: Golden tasks for the coding agent (M)</h3>
 <blockquote>
 <p>Ten past bug-fix commits turned into tasks with a failing test, run with a fixed budget, to get your own pass rate and cost.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> Spec M4 · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Spec M4, promptfoo (MIT, read at <code>4a30804</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
 <p><strong>What.</strong> A baseline table of pass rate and cost per task, rerun whenever the model or prompt changes.</p>
 <p><strong>Why.</strong> The plan insists on your own numbers rather than vendor claims. There is no eval harness for M2C: <code>backend/evals/</code> holds only <code>promptfoo</code> [V✓].</p>
 <p><strong>Where.</strong> New <code>backend/evals/m2c/</code> (the M2C plan's Q02 location); <code>m2c -p</code> headless mode (<code>m2c/src/m2c/headless.py</code>).</p>
@@ -2730,6 +2807,8 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Pick 10 past MiniMe or M2C commits that fixed a bug.</li>
 <li>For each, make a repo state before the fix and a failing test as the success check.</li>
 <li>Run the agent on each with the same budget; record pass or fail, steps and credits.</li>
+<li>Make the verifier tamper-evident: hash the protected test files before the run and fail the task if they changed, as promptfoo's coding-agent verifier does (protected-file hash checks plus heuristics) [R]. One comparison keeps the scores honest.</li>
+<li>When the runner asserts on how a task went, copy promptfoo's assertion shapes (tool-call counts, order as exact or in-order, arguments, goal success) and not its engine, which needs OpenTelemetry traces [R]. Running the same shapes over M2C's own event log is a design idea [U].</li>
 </ol>
 <p><strong>Done when.</strong> A baseline table exists and has been rerun once after a change.</p>
 <h3 id="ub-032-local-mcp-client-for-m2c-l">UB-032: Local MCP client for M2C (L)</h3>
@@ -2932,13 +3011,14 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>A diff reviewer that gives line-level comments and favours few, correct findings over many.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> open-code-review [R], Plan 4.2 · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [R]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> open-code-review [R], Strix <code>skills/scan_modes/diff.md</code> (Apache-2.0, read at <code>9ed84f9</code>) [R], Plan 4.2 · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [R]</p>
 <p><strong>What.</strong> The <code>review</code> command (M2C plan item L05, <code>/review</code> and <code>/security-review</code>; the plan's label "C20" was wrong).</p>
 <p><strong>Why.</strong> The project reports higher precision at about one ninth of the tokens with lower recall; those are vendor numbers and must be measured on your own diffs.</p>
 <p><strong>Where.</strong> New M2C command; server prompt; eval from UB-031's pattern.</p>
 <p><strong>How.</strong></p>
 <ol>
 <li>Build a diff-to-comments flow with tools and structured line comments.</li>
+<li>Write the scope rules of the review prompt from Strix's diff mode, in your own words: for a PR, removed controls, newly reachable sinks and weakened helpers are in scope [R]. It is prompt text only, so it is cheap to try.</li>
 <li>Run it on your own past diffs and compare precision and cost.</li>
 </ol>
 <p><strong>Done when.</strong> You have your own precision and cost figures.</p>
@@ -2987,7 +3067,8 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Show new candidates in a queue; importing an existing <code>CLAUDE.md</code> creates candidates.</li>
 <li>Promotion only through a user action.</li>
 </ol>
-<p><strong>Done when.</strong> A poisoned web page cannot produce a trusted memory (tested with the promptfoo <code>agentic:memory-poisoning</code> idea).</p>
+<p><strong>Done when.</strong> A poisoned web page cannot produce a trusted memory, tested with your own three-turn case: plant a memory, poison it, ask a follow-up.</p>
+<p><strong>Notes.</strong> promptfoo's <code>agentic:memory-poisoning</code> plugin is remote-only: its grader was read, but its cases are generated on <code>api.promptfoo.app</code> [R]. Use it only for the shape of the test and write the three turns yourself. The same plugin is in UB-014 step 2, where it returns nothing if remote generation is off.</p>
 <h3 id="ub-049-correcting-a-source-retires-its-dependents-and-deletes-cascade-m">UB-049: Correcting a source retires its dependents, and deletes cascade (M)</h3>
 <blockquote>
 <p>Fix or delete a source and everything derived from it leaves retrieval but stays readable in a history view.</p>
@@ -3095,7 +3176,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <p>After a report is drafted, a separate model call checks each claim against its cited source and flags unsupported ones.</p>
 </blockquote>
 <p><strong>Product</strong> MiniMe · <strong>Source</strong> Spec P1, Plan 6.1 (hyperresearch, Research Toolkit, Storm and GPT Researcher as references) · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R] [README]</p>
-<p><strong>What.</strong> A new <code>backend/agents/claim_checker.py</code>. Input: a draft and its cited source texts. Output per claim: supported, unsupported or not found, with the passage.</p>
+<p><strong>What.</strong> A new <code>backend/agents/claim_checker.py</code>. Input: a draft and its cited source texts. Output per claim: supported, contradicted or unresolved, with the passage. The three closure states are reworded from Strix's counterevidence rules (confirmed, ruled out naming the control, unresolved) [R]; the earlier "unsupported" and "not found" are both <strong>unresolved</strong>.</p>
 <p><strong>Why.</strong> Stops confident claims that the sources do not back. No such module exists [V✓: nothing named <code>claim</code> in <code>backend/agents/</code>].</p>
 <p><strong>Where.</strong> New <code>backend/agents/claim_checker.py</code>; wired after the drafting step of the research flow (<code>backend/agents/web_researcher.py</code> and <code>backend/agents/academic_search.py</code> are the existing sources).</p>
 <p><strong>How.</strong></p>
@@ -3103,8 +3184,9 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Split the draft into claims; for each, find the supporting passage in the cited source.</li>
 <li>Run it in a separate model call from the writer (so it cannot agree with itself).</li>
 <li>Return flags with passages; show them in the report.</li>
+<li>Close every claim; none stays open. <strong>Supported</strong> (give the passage), <strong>contradicted</strong> (name the passage that says otherwise) or <strong>unresolved</strong> (say what was searched).</li>
 </ol>
-<p><strong>Done when.</strong> Fixture drafts with known unsupported claims are flagged by deterministic asserts, and you have reviewed the flag rate on 10 real reports.</p>
+<p><strong>Done when.</strong> Fixture drafts with known unsupported claims are closed as contradicted or unresolved by deterministic asserts, and you have reviewed the flag rate on 10 real reports.</p>
 <p><strong>Notes.</strong> <code>hyperresearch</code> and <code>Research Toolkit</code> are MIT as reported; read before copying anything.</p>
 <h3 id="ub-057-generation-that-survives-a-closed-tab-l">UB-057: Generation that survives a closed tab (L)</h3>
 <blockquote>
@@ -3241,11 +3323,11 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>Turn Strix's playbooks into security_reviewer prompts and the 818 community security skills into a reference library.</p>
 </blockquote>
-<p><strong>Product</strong> MiniMe · <strong>Source</strong> Strix playbooks (Apache-2.0 as reported), Anthropic-Cybersecurity-Skills (community, not affiliated) · <strong>Status</strong> candidate · <strong>Depends</strong> UB-064 · <strong>Decision</strong> none · <strong>Evidence</strong> [R]</p>
+<p><strong>Product</strong> MiniMe · <strong>Source</strong> Strix playbooks (Apache-2.0, <code>LICENSE</code> read at <code>9ed84f9</code>), Anthropic-Cybersecurity-Skills (community, not affiliated) · <strong>Status</strong> candidate · <strong>Depends</strong> UB-064 · <strong>Decision</strong> none · <strong>Evidence</strong> [R]</p>
 <p><strong>What.</strong> Rewritten prompts and a vetted subset.</p>
 <p><strong>Why.</strong> Reuses real playbooks (FastAPI, Next.js, Supabase, LLM applications, agentic systems). If copied, Apache-2.0 attribution must be kept; rewriting is better.</p>
 <p><strong>Where.</strong> The <code>security_reviewer</code> role prompts; the M2C bypass corpus (UB-030).</p>
-<p><strong>How.</strong> Read, rewrite, vet each skill; the big set is "large and uneven".</p>
+<p><strong>How.</strong> Read, rewrite, vet each skill; the big set is "large and uneven". Strix has 30 vulnerability playbooks, 4 analysis playbooks and 4 scan modes, all Markdown [R]. Start with <code>idor</code>, <code>ssrf</code>, <code>llm_prompt_injection</code>, <code>agentic_system_security</code>, <code>severity_calibration</code> and <code>counterevidence</code> (the last also feeds UB-056).</p>
 <p><strong>Done when.</strong> The prompts pass UB-064 and the library lists only vetted skills.</p>
 <h3 id="ub-069-role-ideas-from-gstack-and-bmad-s">UB-069: Role ideas from gstack and BMAD (S)</h3>
 <blockquote>
@@ -3437,7 +3519,26 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Re-run <code>analyze</code>; each of <code>secrets/</code>, <code>store/</code> and <code>trust/</code> should be its own piece.</li>
 </ol>
 <p><strong>Done when.</strong> <code>analyze</code> lists those units as separate pieces.</p>
-<p><strong>Notes.</strong> Parked because no current route needs it: Appendix A rebuilds <code>minicore-*</code> crates from vectors, and the function-level tools (UB-081 on <code>redact.py</code>, UB-082) do not care about the cycle. Reopen it if you decide to bridge units one at a time.</p></article><div class="toc"><b>On this page</b><a class="t2" href="#0-at-a-glance">0. At a glance</a><a class="t2" href="#1-register">1. Register</a><a class="t2" href="#2-batches">2. Batches</a><a class="t2" href="#3-how-to-add-features-the-patch-recipe">3. How to add features (the patch recipe)</a><a class="t2" href="#4-field-vocabulary-and-rules">4. Field vocabulary and rules</a><a class="t2" href="#5-where-the-original-upgrade-plan-went">5. Where the original upgrade plan went</a><a class="t2" href="#6-considered-not-added">6. Considered, not added</a><a class="t2" href="#7-sources-register">7. Sources register</a><a class="t2" href="#8-decision-log">8. Decision log</a><a class="t2" href="#batch-b01-2026-11-24-upgrade-plan-and-verified-spec-of-21-nov-2026-minus-the-finished-sx-series">Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 ...</a><a class="t3" href="#ub-001-move-the-web-app-from-nextjs-14-to-a-supported-line-l">UB-001: Move the web app from Next.js 14 to a supported line (L)</a><a class="t3" href="#ub-002-decide-pillow-against-moviepy-then-act-m">UB-002: Decide Pillow against moviepy, then act (M)</a><a class="t3" href="#ub-003-move-e2b-bracex-and-wcmatch-together-m">UB-003: Move e2b, bracex and wcmatch together (M)</a><a class="t3" href="#ub-004-put-the-caddy-config-in-the-repo-and-set-the-edge-limits-m">UB-004: Put the Caddy config in the repo and set the edge lim...</a><a class="t3" href="#ub-005-block-cloud-metadata-and-link-local-addresses-at-the-host-firewall-s">UB-005: Block cloud-metadata and link-local addresses at the ...</a><a class="t3" href="#ub-006-run-url-fetches-behind-an-egress-proxy-or-in-the-sandbox-m">UB-006: Run URL fetches behind an egress proxy or in the sand...</a><a class="t3" href="#ub-007-audit-every-other-server-side-fetch-of-a-user-influenced-url-m">UB-007: Audit every other server-side fetch of a user-influen...</a><a class="t3" href="#ub-008-per-user-ingest-quotas-m">UB-008: Per-user ingest quotas (M)</a><a class="t3" href="#ub-009-daily-ingest-cost-cap-tied-to-the-usage-ledger-m">UB-009: Daily ingest cost cap tied to the usage ledger (M)</a><a class="t3" href="#ub-010-cap-voice-length-before-transcribing-s">UB-010: Cap voice length before transcribing (S)</a><a class="t3" href="#ub-011-re-set-the-size-caps-with-a-cost-model-s">UB-011: Re-set the size caps with a cost model (S)</a><a class="t3" href="#ub-012-turn-the-report-only-csp-into-an-enforced-one-m">UB-012: Turn the report-only CSP into an enforced one (M)</a><a class="t3" href="#ub-013-a-small-blocking-promptfoo-gate-m">UB-013: A small blocking promptfoo gate (M)</a><a class="t3" href="#ub-014-run-the-promptfoo-red-team-with-a-two-tenant-provider-m">UB-014: Run the promptfoo red-team with a two-tenant provider...</a><a class="t3" href="#ub-015-first-strix-run-on-staging-m">UB-015: First Strix run on staging (M)</a><a class="t3" href="#ub-016-property-tests-with-hypothesis-m">UB-016: Property tests with Hypothesis (M)</a><a class="t3" href="#ub-017-nightly-api-fuzzing-with-schemathesis-m">UB-017: Nightly API fuzzing with Schemathesis (M)</a><a class="t3" href="#ub-018-add-cost-per-task-and-web-product-scenarios-to-the-load-harness-m">UB-018: Add cost-per-task and web-product scenarios to the lo...</a><a class="t3" href="#ub-019-a-practice-lab-with-django-and-nginx-on-your-own-machine-s">UB-019: A practice lab with Django and nginx on your own mach...</a><a class="t3" href="#ub-020-pre-audit-package-for-the-daemon-m">UB-020: Pre-audit package for the daemon (M)</a><a class="t3" href="#ub-021-sbom-on-release-s">UB-021: SBOM on release (S)</a><a class="t3" href="#ub-022-pin-scanner-binaries-and-images-by-digest-s">UB-022: Pin scanner binaries and images by digest (S)</a><a class="t3" href="#ub-023-lurkr-as-an-advisory-ci-step-s">UB-023: Lurkr as an advisory CI step (S)</a><a class="t3" href="#ub-024-dependabot-for-the-docker-images-xs">UB-024: Dependabot for the Docker images (XS)</a><a class="t3" href="#ub-025-security-headers-for-the-book-site-xs">UB-025: Security headers for the book site (XS)</a><a class="t3" href="#ub-026-record-the-fix-patch-guide-in-the-book-s">UB-026: Record the fix patch guide in the book (S)</a><a class="t3" href="#ub-027-refresh-the-book-after-the-fixes-and-upgrades-m">UB-027: Refresh the book after the fixes and upgrades (M)</a><a class="t3" href="#ub-028-verify-on-stop-in-the-agent-loop-m">UB-028: Verify-on-stop in the agent loop (M)</a><a class="t3" href="#ub-029-skills-loader-for-m2c-m">UB-029: Skills loader for M2C (M)</a><a class="t3" href="#ub-030-seed-the-q07-bypass-corpus-from-promptfoo-and-list-the-gaps-s">UB-030: Seed the Q07 bypass corpus from promptfoo and list th...</a><a class="t3" href="#ub-031-golden-tasks-for-the-coding-agent-m">UB-031: Golden tasks for the coding agent (M)</a><a class="t3" href="#ub-032-local-mcp-client-for-m2c-l">UB-032: Local MCP client for M2C (L)</a><a class="t3" href="#ub-033-deferred-tool-loading-with-search-over-tool-specs-m">UB-033: Deferred tool loading with search over tool specs (M)</a><a class="t3" href="#ub-034-offer-codebase-memory-mcp-as-an-optional-local-server-s">UB-034: Offer codebase-memory-mcp as an optional local server...</a><a class="t3" href="#ub-035-rehearse-mcp-attacks-against-m2c-with-argus-s">UB-035: Rehearse MCP attacks against M2C with Argus (S)</a><a class="t3" href="#ub-036-stuck-detection-beyond-identical-failures-m">UB-036: Stuck detection beyond identical failures (M)</a><a class="t3" href="#ub-037-mid-turn-user-steering-m">UB-037: Mid-turn user steering (M)</a><a class="t3" href="#ub-038-an-instruction-hierarchy-contract-in-the-system-prompt-s">UB-038: An instruction-hierarchy contract in the system promp...</a><a class="t3" href="#ub-039-observe-mode-before-enforce-mode-for-new-policy-rules-m">UB-039: Observe mode before enforce mode for new policy rules...</a><a class="t3" href="#ub-040-check-whether-sandbox-denials-are-already-stored-s">UB-040: Check whether sandbox denials are already stored (S)</a><a class="t3" href="#ub-041-signed-narrowing-grants-for-subagents-l">UB-041: Signed, narrowing grants for subagents (L)</a><a class="t3" href="#ub-042-compaction-that-re-injects-the-task-goal-with-a-lossless-log-m">UB-042: Compaction that re-injects the task goal, with a loss...</a><a class="t3" href="#ub-043-an-independent-verifier-context-and-step-graph-validation-l">UB-043: An independent verifier context and step-graph valida...</a><a class="t3" href="#ub-044-plan-mode-that-is-structural-plus-a-spec-first-interview-m">UB-044: Plan mode that is structural, plus a spec-first inter...</a><a class="t3" href="#ub-045-a-precision-first-review-command-l">UB-045: A precision-first review command (L)</a><a class="t3" href="#ub-046-add-a-hash-chain-to-the-local-event-store-s">UB-046: Add a hash chain to the local event store (S)</a><a class="t3" href="#ub-047-menux-memory-store-with-sources-validity-and-fts5-m">UB-047: Menux memory store with sources, validity and FTS5 (M)</a><a class="t3" href="#ub-048-trust-rule-and-a-review-queue-for-new-memories-m">UB-048: Trust rule and a review queue for new memories (M)</a><a class="t3" href="#ub-049-correcting-a-source-retires-its-dependents-and-deletes-cascade-m">UB-049: Correcting a source retires its dependents, and delet...</a><a class="t3" href="#ub-050-show-the-working-memory-before-a-task-and-report-what-was-used-m">UB-050: Show the working memory before a task, and report wha...</a><a class="t3" href="#ub-051-retention-scores-and-hot-warm-and-cold-tiers-m">UB-051: Retention scores and hot, warm and cold tiers (M)</a><a class="t3" href="#ub-052-learned-workflows-modelled-on-webcmd-l">UB-052: Learned workflows modelled on webcmd (L)</a><a class="t3" href="#ub-053-crawl4ai-as-an-optional-web-reader-s">UB-053: crawl4ai as an optional web reader (S)</a><a class="t3" href="#ub-054-a-capability-listing-command-xs">UB-054: A capability-listing command (XS)</a><a class="t3" href="#ub-055-a-blender-skill-pack-m">UB-055: A Blender skill pack (M)</a><a class="t3" href="#ub-056-an-independent-claim-check-pass-for-research-reports-m">UB-056: An independent claim-check pass for research reports (M)</a><a class="t3" href="#ub-057-generation-that-survives-a-closed-tab-l">UB-057: Generation that survives a closed tab (L)</a><a class="t3" href="#ub-058-project-based-learning-with-an-ai-tutor-milestone-by-milestone-l">UB-058: Project-based learning with an AI tutor, milestone by...</a><a class="t3" href="#ub-059-chat-about-any-slide-element-m">UB-059: Chat about any slide element (M)</a><a class="t3" href="#ub-060-course-level-undo-m">UB-060: Course-level undo (M)</a><a class="t3" href="#ub-061-export-to-pptx-and-html-m">UB-061: Export to PPTX and HTML (M)</a><a class="t3" href="#ub-062-a-knowledge-base-with-mentions-m">UB-062: A knowledge base with @-mentions (M)</a><a class="t3" href="#ub-063-use-openmaics-published-advisories-as-a-free-test-checklist-s">UB-063: Use OpenMAIC&#x27;s published advisories as a free test ch...</a><a class="t3" href="#ub-064-a-repeatable-skills-pipeline-select-scan-rewrite-evaluate-label-regress-m">UB-064: A repeatable skills pipeline: select, scan, rewrite, ...</a><a class="t3" href="#ub-065-growth-tab-seed-skills-from-marketingskills-m">UB-065: Growth tab seed skills from marketingskills (M)</a><a class="t3" href="#ub-066-research-and-notebooks-seeds-from-scientific-agent-skills-m">UB-066: Research and notebooks seeds from scientific-agent-sk...</a><a class="t3" href="#ub-067-m2c-built-in-skills-and-a-behaviour-baseline-m">UB-067: M2C built-in skills and a behaviour baseline (M)</a><a class="t3" href="#ub-068-security-reviewer-prompts-and-a-vetted-security-skills-library-m">UB-068: Security reviewer prompts and a vetted security skill...</a><a class="t3" href="#ub-069-role-ideas-from-gstack-and-bmad-s">UB-069: Role ideas from gstack and BMAD (S)</a><a class="t3" href="#ub-070-an-optional-writing-quality-pass-from-humanizer-s">UB-070: An optional writing-quality pass from humanizer (S)</a><a class="t3" href="#ub-071-the-overhang-and-draft-check-in-the-mechanical-engine-m">UB-071: The overhang and draft check in the mechanical engine...</a><a class="t3" href="#ub-072-compare-text-to-cads-per-process-rules-with-yours-s">UB-072: Compare text-to-cad&#x27;s per-process rules with yours (S)</a><a class="t3" href="#ub-073-spike-can-build123d-replace-freecad-inside-the-e2b-template-m">UB-073: Spike: can build123d replace FreeCAD inside the E2B t...</a><a class="t3" href="#ub-074-an-analyse-this-part-stress-check-l">UB-074: An &quot;analyse this part&quot; stress check (L)</a><a class="t3" href="#ub-075-cost-experiments-before-adopting-any-compressor-or-router-m">UB-075: Cost experiments before adopting any compressor or ro...</a><a class="t3" href="#ub-076-design-and-build-techniques-from-impeccable-taste-skill-and-ui-ux-pro-max-m">UB-076: Design and build techniques from impeccable, taste-sk...</a><a class="t3" href="#ub-077-screenshot-to-code-for-the-wireframe-flow-m">UB-077: Screenshot-to-code for the wireframe flow (M)</a><a class="t3" href="#ub-078-a-diagram-generator-from-diagram-design-m">UB-078: A diagram generator from diagram-design (M)</a><a class="t3" href="#ub-079-spike-html-to-deterministic-video-with-hyperframes-m">UB-079: Spike: HTML to deterministic video with hyperframes (M)</a><a class="t3" href="#ub-080-study-slide-generation-references-s">UB-080: Study slide-generation references (S)</a><a class="t2" href="#batch-b02-2026-11-24-rust-anything-and-fast-anything-from-a-trial-on-m2c">Batch B02 (2026-11-24): rust-anything and fast-anything, from...</a><a class="t3" href="#ub-081-cross-check-the-mg-z10-spike-with-rust-anything-m">UB-081: Cross-check the MG-Z10 spike with rust-anything (M)</a><a class="t3" href="#ub-082-port-only-profiled-hot-functions-with-fast-anything-m">UB-082: Port only profiled hot functions with fast-anything (M)</a><a class="t3" href="#ub-083-break-the-import-cycle-so-m2c-units-can-be-bridged-one-by-one-m">UB-083: Break the import cycle so m2c units can be bridged on...</a></div></div></main><small class="mm-built">Private. Built 2026-11-25 from commit faea3c8.</small><script id="bk-chapter-script">
+<p><strong>Notes.</strong> Parked because no current route needs it: Appendix A rebuilds <code>minicore-*</code> crates from vectors, and the function-level tools (UB-081 on <code>redact.py</code>, UB-082) do not care about the cycle. Reopen it if you decide to bridge units one at a time.</p>
+<h2 id="batch-b03-2026-11-26-review-of-promptfoo-strix-hypothesis-schemathesis-and-locust">Batch B03 (2026-11-26): Review of promptfoo, Strix, Hypothesis, Schemathesis and Locust</h2>
+<p><em>Source:</em> a review of five reference repos, read from source and docs with nothing installed or run, made against MiniMe <code>121e06c</code> (2026-11-25); the rest of this file was written at <code>cd0bc23</code>. Reference commits: promptfoo <code>4a30804</code>, Strix <code>9ed84f9</code>, Hypothesis <code>b9d568c</code>, Schemathesis <code>15b71f5</code>, Locust <code>5084aa1</code>. The five licences were read again when this batch was written. In this batch <code>[R]</code> is a reading of those repos, and <code>[S]</code> is a code check by the review session (greps on MiniMe <code>121e06c</code>), carried over and not re-run here. The review's recommendations were taken as the decisions: <strong>EXTEND</strong> items were written into the entries that already exist (edited in place, so they are not repeated here: UB-014 to UB-018, UB-030, UB-031, UB-045, UB-048, UB-056, UB-068), <strong>IDEA ONLY</strong> and <strong>SKIP</strong> items went to section 6, <strong>VERIFY FIRST</strong> items became "verify first" leads in those entries' notes, and the licence rows of section 7 were filled in. Where the work package belongs to another chapter (<code>Q02</code>, <code>Q07</code>, <code>L07</code>, <code>MG-Z03</code>, <code>MG-Z04</code>), the entry or section 6 row here carries the addition and the chapter was <strong>not</strong> edited. One item is a new feature.</p>
+<h3 id="ub-084-record-what-a-run-created-so-undo-and-approvals-touch-only-that-s">UB-084: Record what a run created, so undo and approvals touch only that (S)</h3>
+<blockquote>
+<p>A per-run list of the objects an automation created, so cleanup and any approval exemption apply only to things the run itself made.</p>
+</blockquote>
+<p><strong>Product</strong> Menux · <strong>Source</strong> Strix test-object registry (Apache-2.0, read at <code>9ed84f9</code>) [R], Menux feature guide sections 6.1 and 7.5 · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> Whether an object a run created may ever skip an approval (Strix does this; the tiers of section 6.1 of the Menux guide say nothing about it) · <strong>Evidence</strong> [R] [V✓] [U]</p>
+<p><strong>What.</strong> A registry kept for each run: every outside object the run created, with the run and the event that created it, and a state. Strix keeps such a registry of what a run created, can export it, and drops secret-like details when it does [R]. For Menux the design idea is to build it from the local event log of section 7.5 of the Menux guide, which already records tool results, and not to add a second store [U].</p>
+<p><strong>Why.</strong> It gives undo and cleanup a precise target ("only what this run made") and lets an approval rule tell an object the run created from one that was already there. Nothing in the Menux guide records this today [V✓ grep of <code>menux_feature_guide.md</code>].</p>
+<p><strong>Where.</strong> Menux has no code yet. The event log of section 7.5 is the source of truth; <code>m2c/src/m2c/store/events.py</code> is the closest existing store [V✓ per UB-046].</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>Settle the decision above first. Strix's own gate, which lets run-created objects skip approval, guards a careless agent and not a hostile one, so any exemption must not replace the code-enforced tiers of section 6.7 [R].</li>
+<li>Define the record (object kind, id, run id, creating event id, state). The code writes it from tool results; the model never writes it.</li>
+<li>Drop secret-like values when the registry is exported, as section 7.5 requires of the log.</li>
+<li>Use it for undo and cleanup. Use it in an approval rule only if step 1 allows.</li>
+</ol>
+<p><strong>Done when.</strong> After a test run, the registry lists exactly the objects that the run's events show as created. An object of the same kind that existed before the run is not listed. An exported registry holds no secret-like value.</p>
+<p><strong>Notes.</strong> An idea until Menux has an event log; Strix's version was read, not run.</p></article><div class="toc"><b>On this page</b><a class="t2" href="#0-at-a-glance">0. At a glance</a><a class="t2" href="#1-register">1. Register</a><a class="t2" href="#2-batches">2. Batches</a><a class="t2" href="#3-how-to-add-features-the-patch-recipe">3. How to add features (the patch recipe)</a><a class="t2" href="#4-field-vocabulary-and-rules">4. Field vocabulary and rules</a><a class="t2" href="#5-where-the-original-upgrade-plan-went">5. Where the original upgrade plan went</a><a class="t2" href="#6-considered-not-added">6. Considered, not added</a><a class="t2" href="#7-sources-register">7. Sources register</a><a class="t2" href="#8-decision-log">8. Decision log</a><a class="t2" href="#batch-b01-2026-11-24-upgrade-plan-and-verified-spec-of-21-nov-2026-minus-the-finished-sx-series">Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 ...</a><a class="t3" href="#ub-001-move-the-web-app-from-nextjs-14-to-a-supported-line-l">UB-001: Move the web app from Next.js 14 to a supported line (L)</a><a class="t3" href="#ub-002-decide-pillow-against-moviepy-then-act-m">UB-002: Decide Pillow against moviepy, then act (M)</a><a class="t3" href="#ub-003-move-e2b-bracex-and-wcmatch-together-m">UB-003: Move e2b, bracex and wcmatch together (M)</a><a class="t3" href="#ub-004-put-the-caddy-config-in-the-repo-and-set-the-edge-limits-m">UB-004: Put the Caddy config in the repo and set the edge lim...</a><a class="t3" href="#ub-005-block-cloud-metadata-and-link-local-addresses-at-the-host-firewall-s">UB-005: Block cloud-metadata and link-local addresses at the ...</a><a class="t3" href="#ub-006-run-url-fetches-behind-an-egress-proxy-or-in-the-sandbox-m">UB-006: Run URL fetches behind an egress proxy or in the sand...</a><a class="t3" href="#ub-007-audit-every-other-server-side-fetch-of-a-user-influenced-url-m">UB-007: Audit every other server-side fetch of a user-influen...</a><a class="t3" href="#ub-008-per-user-ingest-quotas-m">UB-008: Per-user ingest quotas (M)</a><a class="t3" href="#ub-009-daily-ingest-cost-cap-tied-to-the-usage-ledger-m">UB-009: Daily ingest cost cap tied to the usage ledger (M)</a><a class="t3" href="#ub-010-cap-voice-length-before-transcribing-s">UB-010: Cap voice length before transcribing (S)</a><a class="t3" href="#ub-011-re-set-the-size-caps-with-a-cost-model-s">UB-011: Re-set the size caps with a cost model (S)</a><a class="t3" href="#ub-012-turn-the-report-only-csp-into-an-enforced-one-m">UB-012: Turn the report-only CSP into an enforced one (M)</a><a class="t3" href="#ub-013-a-small-blocking-promptfoo-gate-m">UB-013: A small blocking promptfoo gate (M)</a><a class="t3" href="#ub-014-run-the-promptfoo-red-team-with-a-two-tenant-provider-m">UB-014: Run the promptfoo red-team with a two-tenant provider...</a><a class="t3" href="#ub-015-first-strix-run-on-staging-m">UB-015: First Strix run on staging (M)</a><a class="t3" href="#ub-016-property-tests-with-hypothesis-m">UB-016: Property tests with Hypothesis (M)</a><a class="t3" href="#ub-017-nightly-api-fuzzing-with-schemathesis-m">UB-017: Nightly API fuzzing with Schemathesis (M)</a><a class="t3" href="#ub-018-add-cost-per-task-and-web-product-scenarios-to-the-load-harness-m">UB-018: Add cost-per-task and web-product scenarios to the lo...</a><a class="t3" href="#ub-019-a-practice-lab-with-django-and-nginx-on-your-own-machine-s">UB-019: A practice lab with Django and nginx on your own mach...</a><a class="t3" href="#ub-020-pre-audit-package-for-the-daemon-m">UB-020: Pre-audit package for the daemon (M)</a><a class="t3" href="#ub-021-sbom-on-release-s">UB-021: SBOM on release (S)</a><a class="t3" href="#ub-022-pin-scanner-binaries-and-images-by-digest-s">UB-022: Pin scanner binaries and images by digest (S)</a><a class="t3" href="#ub-023-lurkr-as-an-advisory-ci-step-s">UB-023: Lurkr as an advisory CI step (S)</a><a class="t3" href="#ub-024-dependabot-for-the-docker-images-xs">UB-024: Dependabot for the Docker images (XS)</a><a class="t3" href="#ub-025-security-headers-for-the-book-site-xs">UB-025: Security headers for the book site (XS)</a><a class="t3" href="#ub-026-record-the-fix-patch-guide-in-the-book-s">UB-026: Record the fix patch guide in the book (S)</a><a class="t3" href="#ub-027-refresh-the-book-after-the-fixes-and-upgrades-m">UB-027: Refresh the book after the fixes and upgrades (M)</a><a class="t3" href="#ub-028-verify-on-stop-in-the-agent-loop-m">UB-028: Verify-on-stop in the agent loop (M)</a><a class="t3" href="#ub-029-skills-loader-for-m2c-m">UB-029: Skills loader for M2C (M)</a><a class="t3" href="#ub-030-add-promptfoos-coding-agent-risk-categories-to-the-q07-corpus-and-list-the-gaps-s">UB-030: Add promptfoo&#x27;s coding-agent risk categories to the Q...</a><a class="t3" href="#ub-031-golden-tasks-for-the-coding-agent-m">UB-031: Golden tasks for the coding agent (M)</a><a class="t3" href="#ub-032-local-mcp-client-for-m2c-l">UB-032: Local MCP client for M2C (L)</a><a class="t3" href="#ub-033-deferred-tool-loading-with-search-over-tool-specs-m">UB-033: Deferred tool loading with search over tool specs (M)</a><a class="t3" href="#ub-034-offer-codebase-memory-mcp-as-an-optional-local-server-s">UB-034: Offer codebase-memory-mcp as an optional local server...</a><a class="t3" href="#ub-035-rehearse-mcp-attacks-against-m2c-with-argus-s">UB-035: Rehearse MCP attacks against M2C with Argus (S)</a><a class="t3" href="#ub-036-stuck-detection-beyond-identical-failures-m">UB-036: Stuck detection beyond identical failures (M)</a><a class="t3" href="#ub-037-mid-turn-user-steering-m">UB-037: Mid-turn user steering (M)</a><a class="t3" href="#ub-038-an-instruction-hierarchy-contract-in-the-system-prompt-s">UB-038: An instruction-hierarchy contract in the system promp...</a><a class="t3" href="#ub-039-observe-mode-before-enforce-mode-for-new-policy-rules-m">UB-039: Observe mode before enforce mode for new policy rules...</a><a class="t3" href="#ub-040-check-whether-sandbox-denials-are-already-stored-s">UB-040: Check whether sandbox denials are already stored (S)</a><a class="t3" href="#ub-041-signed-narrowing-grants-for-subagents-l">UB-041: Signed, narrowing grants for subagents (L)</a><a class="t3" href="#ub-042-compaction-that-re-injects-the-task-goal-with-a-lossless-log-m">UB-042: Compaction that re-injects the task goal, with a loss...</a><a class="t3" href="#ub-043-an-independent-verifier-context-and-step-graph-validation-l">UB-043: An independent verifier context and step-graph valida...</a><a class="t3" href="#ub-044-plan-mode-that-is-structural-plus-a-spec-first-interview-m">UB-044: Plan mode that is structural, plus a spec-first inter...</a><a class="t3" href="#ub-045-a-precision-first-review-command-l">UB-045: A precision-first review command (L)</a><a class="t3" href="#ub-046-add-a-hash-chain-to-the-local-event-store-s">UB-046: Add a hash chain to the local event store (S)</a><a class="t3" href="#ub-047-menux-memory-store-with-sources-validity-and-fts5-m">UB-047: Menux memory store with sources, validity and FTS5 (M)</a><a class="t3" href="#ub-048-trust-rule-and-a-review-queue-for-new-memories-m">UB-048: Trust rule and a review queue for new memories (M)</a><a class="t3" href="#ub-049-correcting-a-source-retires-its-dependents-and-deletes-cascade-m">UB-049: Correcting a source retires its dependents, and delet...</a><a class="t3" href="#ub-050-show-the-working-memory-before-a-task-and-report-what-was-used-m">UB-050: Show the working memory before a task, and report wha...</a><a class="t3" href="#ub-051-retention-scores-and-hot-warm-and-cold-tiers-m">UB-051: Retention scores and hot, warm and cold tiers (M)</a><a class="t3" href="#ub-052-learned-workflows-modelled-on-webcmd-l">UB-052: Learned workflows modelled on webcmd (L)</a><a class="t3" href="#ub-053-crawl4ai-as-an-optional-web-reader-s">UB-053: crawl4ai as an optional web reader (S)</a><a class="t3" href="#ub-054-a-capability-listing-command-xs">UB-054: A capability-listing command (XS)</a><a class="t3" href="#ub-055-a-blender-skill-pack-m">UB-055: A Blender skill pack (M)</a><a class="t3" href="#ub-056-an-independent-claim-check-pass-for-research-reports-m">UB-056: An independent claim-check pass for research reports (M)</a><a class="t3" href="#ub-057-generation-that-survives-a-closed-tab-l">UB-057: Generation that survives a closed tab (L)</a><a class="t3" href="#ub-058-project-based-learning-with-an-ai-tutor-milestone-by-milestone-l">UB-058: Project-based learning with an AI tutor, milestone by...</a><a class="t3" href="#ub-059-chat-about-any-slide-element-m">UB-059: Chat about any slide element (M)</a><a class="t3" href="#ub-060-course-level-undo-m">UB-060: Course-level undo (M)</a><a class="t3" href="#ub-061-export-to-pptx-and-html-m">UB-061: Export to PPTX and HTML (M)</a><a class="t3" href="#ub-062-a-knowledge-base-with-mentions-m">UB-062: A knowledge base with @-mentions (M)</a><a class="t3" href="#ub-063-use-openmaics-published-advisories-as-a-free-test-checklist-s">UB-063: Use OpenMAIC&#x27;s published advisories as a free test ch...</a><a class="t3" href="#ub-064-a-repeatable-skills-pipeline-select-scan-rewrite-evaluate-label-regress-m">UB-064: A repeatable skills pipeline: select, scan, rewrite, ...</a><a class="t3" href="#ub-065-growth-tab-seed-skills-from-marketingskills-m">UB-065: Growth tab seed skills from marketingskills (M)</a><a class="t3" href="#ub-066-research-and-notebooks-seeds-from-scientific-agent-skills-m">UB-066: Research and notebooks seeds from scientific-agent-sk...</a><a class="t3" href="#ub-067-m2c-built-in-skills-and-a-behaviour-baseline-m">UB-067: M2C built-in skills and a behaviour baseline (M)</a><a class="t3" href="#ub-068-security-reviewer-prompts-and-a-vetted-security-skills-library-m">UB-068: Security reviewer prompts and a vetted security skill...</a><a class="t3" href="#ub-069-role-ideas-from-gstack-and-bmad-s">UB-069: Role ideas from gstack and BMAD (S)</a><a class="t3" href="#ub-070-an-optional-writing-quality-pass-from-humanizer-s">UB-070: An optional writing-quality pass from humanizer (S)</a><a class="t3" href="#ub-071-the-overhang-and-draft-check-in-the-mechanical-engine-m">UB-071: The overhang and draft check in the mechanical engine...</a><a class="t3" href="#ub-072-compare-text-to-cads-per-process-rules-with-yours-s">UB-072: Compare text-to-cad&#x27;s per-process rules with yours (S)</a><a class="t3" href="#ub-073-spike-can-build123d-replace-freecad-inside-the-e2b-template-m">UB-073: Spike: can build123d replace FreeCAD inside the E2B t...</a><a class="t3" href="#ub-074-an-analyse-this-part-stress-check-l">UB-074: An &quot;analyse this part&quot; stress check (L)</a><a class="t3" href="#ub-075-cost-experiments-before-adopting-any-compressor-or-router-m">UB-075: Cost experiments before adopting any compressor or ro...</a><a class="t3" href="#ub-076-design-and-build-techniques-from-impeccable-taste-skill-and-ui-ux-pro-max-m">UB-076: Design and build techniques from impeccable, taste-sk...</a><a class="t3" href="#ub-077-screenshot-to-code-for-the-wireframe-flow-m">UB-077: Screenshot-to-code for the wireframe flow (M)</a><a class="t3" href="#ub-078-a-diagram-generator-from-diagram-design-m">UB-078: A diagram generator from diagram-design (M)</a><a class="t3" href="#ub-079-spike-html-to-deterministic-video-with-hyperframes-m">UB-079: Spike: HTML to deterministic video with hyperframes (M)</a><a class="t3" href="#ub-080-study-slide-generation-references-s">UB-080: Study slide-generation references (S)</a><a class="t2" href="#batch-b02-2026-11-24-rust-anything-and-fast-anything-from-a-trial-on-m2c">Batch B02 (2026-11-24): rust-anything and fast-anything, from...</a><a class="t3" href="#ub-081-cross-check-the-mg-z10-spike-with-rust-anything-m">UB-081: Cross-check the MG-Z10 spike with rust-anything (M)</a><a class="t3" href="#ub-082-port-only-profiled-hot-functions-with-fast-anything-m">UB-082: Port only profiled hot functions with fast-anything (M)</a><a class="t3" href="#ub-083-break-the-import-cycle-so-m2c-units-can-be-bridged-one-by-one-m">UB-083: Break the import cycle so m2c units can be bridged on...</a><a class="t2" href="#batch-b03-2026-11-26-review-of-promptfoo-strix-hypothesis-schemathesis-and-locust">Batch B03 (2026-11-26): Review of promptfoo, Strix, Hypothesi...</a><a class="t3" href="#ub-084-record-what-a-run-created-so-undo-and-approvals-touch-only-that-s">UB-084: Record what a run created, so undo and approvals touc...</a></div></div></main><small class="mm-built">Private. Built 2026-11-26 from commit 452fe2e.</small><script id="bk-chapter-script">
 (function(){
   // Reading progress bar
   var bar = document.querySelector('.bk-progress');
@@ -3488,5 +3589,5 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
     });
   }
 })();
-</script><script type="module" src="assets/js/shell.js"></script><!-- source: data/docs/upgrade_backlog.md sha256=2b756b3ea56ccab2c77ab464722f97858f343a45ff7b9ecaebe999ae386f44db -->
+</script><script type="module" src="assets/js/shell.js"></script><!-- source: data/docs/upgrade_backlog.md sha256=9dd8282c2d43193b5933168e60b2b6e2bdc71c266e12edfe4400108351ae4229 -->
 </body></html>

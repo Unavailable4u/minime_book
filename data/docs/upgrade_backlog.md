@@ -14,16 +14,16 @@ This file is the one place where every feature you might build later is written 
 
 *Generated from the entries by `python scripts/check_backlog.py --write`. Do not edit by hand.*
 
-**83 features** in 2 batches: 80 candidate · 0 accepted · 0 building · 0 done · 3 parked · 0 dropped.
+**84 features** in 3 batches: 81 candidate · 0 accepted · 0 building · 0 done · 3 parked · 0 dropped.
 
 | Product | candidate | accepted | building | done | parked | dropped | Total |
 |---|---|---|---|---|---|---|---|
 | MiniMe | 42 | 0 | 0 | 0 | 1 | 0 | 43 |
 | M2C | 20 | 0 | 0 | 0 | 1 | 0 | 21 |
-| Menux | 8 | 0 | 0 | 0 | 1 | 0 | 9 |
+| Menux | 9 | 0 | 0 | 0 | 1 | 0 | 10 |
 | Shared | 7 | 0 | 0 | 0 | 0 | 0 | 7 |
 | Book | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
-| **All** | **80** | **0** | **0** | **0** | **3** | **0** | **83** |
+| **All** | **81** | **0** | **0** | **0** | **3** | **0** | **84** |
 
 ## 1. Register
 
@@ -44,11 +44,11 @@ This file is the one place where every feature you might build later is written 
 | UB-011 | Re-set the size caps with a cost model | The caps from the fix series are placeholders; set them from measured cost. | MiniMe | Fix guide D-3 | S | candidate | B01 |
 | UB-012 | Turn the report-only CSP into an enforced one | Collect violation reports for a week, fix them, then enforce the policy from SX-29. | MiniMe | SX-29 follow-up, Plan S3, Spec U4.4 | M | candidate | B01 |
 | UB-013 | A small blocking promptfoo gate | 10 to 20 deterministic must-pass cases that fail CI, while the broad LLM suite stays advisory. | MiniMe | Plan S7.4, Spec U2.4 | M | candidate | B01 |
-| UB-014 | Run the promptfoo red-team with a two-tenant provider | Probe prompt injection, cross-tenant leaks and memory poisoning against staging with synthetic data only. | MiniMe | promptfoo red-team docs [W], Plan 3.2, Spec T5 | M | candidate | B01 |
-| UB-015 | First Strix run on staging | An AI pentest agent tries to read tenant A's data from tenant B through every route and tool. | MiniMe | Strix [R], Plan 3.3, Spec T6 | M | candidate | B01 |
-| UB-016 | Property tests with Hypothesis | Random-input tests for the pure engines: manufacturability checks, the URL guard and the shell parser. | Shared | Plan 3.4, Spec T3 | M | candidate | B01 |
-| UB-017 | Nightly API fuzzing with Schemathesis | Fuzz every FastAPI route, with and without auth, and fail on any 5xx or schema violation. | MiniMe | Plan 3.1 and 3.4, Spec T4 | M | candidate | B01 |
-| UB-018 | Add cost-per-task and web-product scenarios to the load harness | Extend the device load harness planned in MG-B00 with notebook, PDF and runaway-loop scenarios, measured as cost per task. | Shared | Plan 3.5, Spec T7, Appendix A `MG-B00` | M | candidate | B01 |
+| UB-014 | Run the promptfoo red-team with a two-tenant provider | Probe prompt injection, cross-tenant leaks and memory poisoning against staging with synthetic data only. | MiniMe | promptfoo red-team docs [W], promptfoo (MIT, read at `4a30804`) [R], Plan 3.2, Spec T5 | M | candidate | B01 |
+| UB-015 | First Strix run on staging | An AI pentest agent tries to read tenant A's data from tenant B through every route and tool. | MiniMe | Strix (Apache-2.0, read at `9ed84f9`) [R], Plan 3.3, Spec T6 | M | candidate | B01 |
+| UB-016 | Property tests with Hypothesis | Random-input tests for the pure engines: manufacturability checks, the URL guard and the shell parser. | Shared | Plan 3.4, Spec T3, Hypothesis (MPL-2.0, read at `b9d568c`) [R] | M | candidate | B01 |
+| UB-017 | Nightly API fuzzing with Schemathesis | Fuzz every FastAPI route, with and without auth, and fail on any 5xx or schema violation. | MiniMe | Plan 3.1 and 3.4, Spec T4, Schemathesis (MIT, read at `15b71f5`) [R] | M | candidate | B01 |
+| UB-018 | Add cost-per-task and web-product scenarios to the load harness | Extend the device load harness planned in MG-B00 with notebook, PDF and runaway-loop scenarios, measured as cost per task. | Shared | Plan 3.5, Spec T7, Appendix A `MG-B00`, Locust (MIT, read at `5084aa1`) [R] | M | candidate | B01 |
 | UB-019 | A practice lab with Django and nginx on your own machine | Learn the fuzz, load and pentest tools on throwaway targets before pointing them at staging. | Shared | Spec T8 | S | candidate | B01 |
 | UB-020 | Pre-audit package for the daemon | Hand the auditor the hostile-URL table, the red-team corpus, Strix reports, daemon tests and a one-page threat model. | MiniMe | Plan S8, Spec U8 | M | candidate | B01 |
 | UB-021 | SBOM on release | Produce a software bill of materials for the backend and frontend when you cut a release. | MiniMe | Plan S7.5 | S | candidate | B01 |
@@ -60,8 +60,8 @@ This file is the one place where every feature you might build later is written 
 | UB-027 | Refresh the book after the fixes and upgrades | The book's census and graph describe commit 3727ae3; refresh them after the fix series and again after bigger upgrades. | Book | Fix guide section 7, `UPDATING.md` | M | candidate | B01 |
 | UB-028 | Verify-on-stop in the agent loop | If the model edits files and then stops without running a test or build, ask it once or twice to verify first. | M2C | Spec M1, Plan 4.2 (idea seen in Hermes) | M | candidate | B01 |
 | UB-029 | Skills loader for M2C | Load SKILL.md folders (name and description only at start), enforcing allowed-tools as a ceiling. | M2C | Spec M2, Agent Skills standard [W], M2C plan item C14 | M | candidate | B01 |
-| UB-030 | Seed the Q07 bypass corpus from promptfoo and list the gaps | Q07 is already planned; take promptfoo's coding-agent cases as seeds and add only the categories the current tests miss. | M2C | Spec M3, Plan 4.5, M2C build plan Q07, Appendix A `MG-Z03` | S | candidate | B01 |
-| UB-031 | Golden tasks for the coding agent | Ten past bug-fix commits turned into tasks with a failing test, run with a fixed budget, to get your own pass rate and cost. | M2C | Spec M4 | M | candidate | B01 |
+| UB-030 | Add promptfoo's coding-agent risk categories to the Q07 corpus and list the gaps | Q07 is already planned; take promptfoo's coding-agent risk categories and write rows only for what the current tests miss. | M2C | Spec M3, Plan 4.5, M2C build plan Q07, Appendix A `MG-Z03`, promptfoo (MIT, read at `4a30804`) [R] | S | candidate | B01 |
+| UB-031 | Golden tasks for the coding agent | Ten past bug-fix commits turned into tasks with a failing test, run with a fixed budget, to get your own pass rate and cost. | M2C | Spec M4, promptfoo (MIT, read at `4a30804`) [R] | M | candidate | B01 |
 | UB-032 | Local MCP client for M2C | Run MCP servers under M2C's sandbox and network policy, with approval-time hashing of each tool definition. | M2C | Spec M5, Plan S6 and 4.3 and 4.4, M2C plan item C23 | L | candidate | B01 |
 | UB-033 | Deferred tool loading with search over tool specs | When an MCP server exposes many tools, keep their descriptions out of the prompt and find them on demand. | M2C | Codex and Hermes (Plan 4.2) | M | candidate | B01 |
 | UB-034 | Offer codebase-memory-mcp as an optional local server | A code knowledge-graph MCP server the user can install themselves, running device-local under the sandbox. | M2C | codebase-memory-mcp [R] | S | candidate | B01 |
@@ -75,7 +75,7 @@ This file is the one place where every feature you might build later is written 
 | UB-042 | Compaction that re-injects the task goal, with a lossless log | When the context is compacted, put the original goals back in; keep the full transcript so only the model's view shrinks. | M2C | Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2) | M | candidate | B01 |
 | UB-043 | An independent verifier context and step-graph validation | A second, separate model context checks the result; a multi-step plan is validated before any step starts. | M2C | zeroshot [R] | L | candidate | B01 |
 | UB-044 | Plan mode that is structural, plus a spec-first interview | In plan mode only a plan file is writable; add a spec-first interview that ends in checkable acceptance criteria. | M2C | Mistral Vibe, Ouroboros, Nightshift (Plan 4.2) | M | candidate | B01 |
-| UB-045 | A precision-first review command | A diff reviewer that gives line-level comments and favours few, correct findings over many. | M2C | open-code-review [R], Plan 4.2 | L | candidate | B01 |
+| UB-045 | A precision-first review command | A diff reviewer that gives line-level comments and favours few, correct findings over many. | M2C | open-code-review [R], Strix `skills/scan_modes/diff.md` (Apache-2.0, read at `9ed84f9`) [R], Plan 4.2 | L | candidate | B01 |
 | UB-046 | Add a hash chain to the local event store | A previous-hash and entry-hash on each event plus a verify function; the M2C plan already names MiniLocker's chain.py as the model. | Shared | M2C build plan C02 and section 11.6 (MiniLocker `ledger/chain.py`, your own project), Spec 6.1; ZizkaDB (idea only) | S | candidate | B01 |
 | UB-047 | Menux memory store with sources, validity and FTS5 | One migration for sources, memories with valid-from and valid-to, dependencies and a full-text index. | Menux | Spec 6.1, Plan 5.2 (Mnemosyne, Graphiti/Zep, mempalace, claude-mem) | M | candidate | B01 |
 | UB-048 | Trust rule and a review queue for new memories | Anything from a web page, tool output or an imported CLAUDE.md enters as an untrusted candidate; only a user action promotes it. | Menux | Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin) | M | candidate | B01 |
@@ -98,7 +98,7 @@ This file is the one place where every feature you might build later is written 
 | UB-065 | Growth tab seed skills from marketingskills | Rewrite a marketing skill set as seeds for the Growth tab roles, after confirming those roles exist. | MiniMe | marketingskills (MIT as reported), Spec P2, Plan 6.3 | M | candidate | B01 |
 | UB-066 | Research and notebooks seeds from scientific-agent-skills | Pick a handful of the 177 science skills by actual usage, rewrite them as seeds. | MiniMe | scientific-agent-skills [R], Plan section 7 | M | candidate | B01 |
 | UB-067 | M2C built-in skills and a behaviour baseline | Rewrite skills from anthropics/skills, mattpocock/skills, addyosmani/agent-skills and one Karpathy-style CLAUDE.md as M2C built-ins. | M2C | anthropics/skills, mattpocock/skills, addyosmani/agent-skills, andrej-karpathy-skills (MIT as reported) | M | candidate | B01 |
-| UB-068 | Security reviewer prompts and a vetted security skills library | Turn Strix's playbooks into security_reviewer prompts and the 818 community security skills into a reference library. | MiniMe | Strix playbooks (Apache-2.0 as reported), Anthropic-Cybersecurity-Skills (community, not affiliated) | M | candidate | B01 |
+| UB-068 | Security reviewer prompts and a vetted security skills library | Turn Strix's playbooks into security_reviewer prompts and the 818 community security skills into a reference library. | MiniMe | Strix playbooks (Apache-2.0, `LICENSE` read at `9ed84f9`), Anthropic-Cybersecurity-Skills (community, not affiliated) | M | candidate | B01 |
 | UB-069 | Role ideas from gstack and BMAD | Take process ideas such as a security-officer role using OWASP and STRIDE; do not import in bulk. | MiniMe | gstack, BMAD-METHOD [R] | S | candidate | B01 |
 | UB-070 | An optional writing-quality pass from humanizer | A style pass that removes AI-writing tells, for quality and not for concealment. | MiniMe | humanizer [R] | S | candidate | B01 |
 | UB-071 | The overhang and draft check in the mechanical engine | The one manufacturability check the code itself says is missing. | MiniMe | Spec P3 (the module's own docstring) | M | candidate | B01 |
@@ -114,6 +114,7 @@ This file is the one place where every feature you might build later is written 
 | UB-081 | Cross-check the MG-Z10 spike with rust-anything | Use rust-anything to record, diff, fuzz and shadow the Rust redaction port against Python, as a second check beside the vectors. | M2C | rust-anything (MIT, read at `b5025d4`), Appendix A `MG-Z04` and `MG-Z10`, trial of 2026-11-24 | M | candidate | B02 |
 | UB-082 | Port only profiled hot functions with fast-anything | A Python-staying alternative to a rewrite: profile a real workload, port only the measured hot functions, prove them on recorded calls. | Shared | fast-anything (MIT, read at `ccf46b4`), Appendix A `MG-Z10` (Python alternatives) and `MG-B01`, trial of 2026-11-24 | M | candidate | B02 |
 | UB-083 | Break the import cycle so m2c units can be bridged one by one | The tool saw about 20,500 lines in one import cycle; break it only if you choose the unit-by-unit bridge instead of the rebuild. | M2C | rust-anything `analyze` on m2c (trial of 2026-11-24, its report read) | M | parked | B02 |
+| UB-084 | Record what a run created, so undo and approvals touch only that | A per-run list of the objects an automation created, so cleanup and any approval exemption apply only to things the run itself made. | Menux | Strix test-object registry (Apache-2.0, read at `9ed84f9`) [R], Menux feature guide sections 6.1 and 7.5 | S | candidate | B03 |
 
 ## 2. Batches
 
@@ -123,6 +124,7 @@ This file is the one place where every feature you might build later is written 
 |---|---|---|---|---|
 | B01 | 2026-11-24 | Upgrade plan and verified spec of 21 Nov 2026, minus the finished SX series | 80 | UB-001 to UB-080 |
 | B02 | 2026-11-24 | rust-anything and fast-anything, from a trial on m2c | 3 | UB-081 to UB-083 |
+| B03 | 2026-11-26 | Review of promptfoo, Strix, Hypothesis, Schemathesis and Locust | 1 | UB-084 |
 
 ## 3. How to add features (the patch recipe)
 
@@ -277,6 +279,14 @@ The "upgrade plan" (21 Nov 2026) and its "verified spec" were split three ways. 
 | Plan claim "M2C is mostly planned, not built" | Wrong: about 65 modules are built; see UB-028 to UB-045 for what is really missing | — |
 | Rebuilding M2C and Menux in Rust, the conformance vectors, the `minicore-secrets` gate | Already planned in Appendix A (`DM-2`, `DM-3`, `DM-11`, packages `MG-Z*` and `MG-R*`); not a feature here | `MG-Z10` records an outcome |
 | Retention scores and hot/warm/cold tiers | Kept as UB-051, status `parked`: the spec says skip until memory volume is measured | prompts get too large |
+| Locust, for load tests and as the runner of the `MG-B00` WebSocket harness | Same job as the k6 script you already have (`backend/scripts/minime_loadtest.js`) [S]. Locust is gevent-based and brings flask and pyzmq, so it would need its own environment, and its core has no raw WebSocket user [R]. Not read: `pytest_locust` and the separate aiolocust project | k6 and the Python harness of UB-018 cannot do a scenario |
+| promptfoo `code-scan` PR reviewer | It scans PRs through a hosted scanner service, so your diffs would leave your infrastructure [R]. UB-045 covers the need | — |
+| promptfoo eval runner, Python providers, `llm-rubric`, provider compare | Already in use: `backend/evals/promptfoo/` and the CI job `promptfoo` [S]. The one gap is UB-013 | — |
+| Strix SARIF 2.1.0 export | Only useful if Strix runs in CI; UB-015 is one run on staging [R] | Strix moves into CI |
+| Strix coverage ledger with provenance (idea only) | A good concept: it records what was looked at, labelled agent-reported or observed. Only its docstring was read, and it needs a redesign for MiniMe [R] | the first Strix run (UB-015) shows what a coverage record would need |
+| Strix risk-classifier gate (labels `deletes_data`, `changes_target`, `disrupts_service`, `safe`) | Already planned as `L07` in the M2C build plan. Take the four labels into `L07`'s labelled-call set. Its own docstring says it guards a careless agent, not a hostile one, so code rules and the sandbox keep the last word, as `L07` and Menux section 6.7 say [R] | `L07` starts |
+| Hypothesis `ghostwriter.equivalent` | A technique for work already planned in Appendix A: the differential corpus of `MG-Z04` and `MG-Z10` step 6, which backs `DM-10` (Rust never more permissive than Python). It generates inputs where the vectors freeze them. Calling the Rust side needs a bridge nobody has designed [R] | `MG-Z10` records `PROCEED` (first learn the shape with one test of two Python redaction functions) |
+| Hypothesis `extra/lark.py` grammar strategy | A technique for `MG-Z03`: generate shell commands from a small grammar to feed the shell-parsing vectors and the Python-against-Rust comparison. Only its docstring was read; whether a small shell grammar fits is untested [R] | `MG-Z03` starts on shell parsing |
 
 ## 7. Sources register
 
@@ -288,11 +298,12 @@ One row per source. `Checked` is `—` until you or a session has opened the sou
 | Upgrade plan, 21 Nov 2026 | — | own work | input | UB-001 | — |
 | Verified upgrade spec, 21 Nov 2026 | — | own work | input | UB-001 | — |
 | Next.js security releases (May, Sept, Oct 2026) | — | web source | input | UB-001 | — |
-| promptfoo | — | not stated | USE | UB-013, UB-014 | — |
-| Strix | — | Apache-2.0 (playbooks) | USE | UB-015, UB-068 | — |
-| Hypothesis | — | not stated | USE | UB-016 | — |
-| Schemathesis | — | not stated | USE | UB-017 | — |
-| k6 / Locust | — | not stated | USE | UB-018 | — |
+| promptfoo | https://github.com/promptfoo/promptfoo | MIT (`LICENSE` read at `4a30804`) | USE (hosted generation and telemetry are on by default: see UB-014) | UB-013, UB-014, UB-030, UB-031, UB-048 | licence read 2026-11-26; read from source, not run |
+| Strix | https://github.com/usestrix/strix | Apache-2.0 (whole repo; `LICENSE` read at `9ed84f9`) | USE (Alpha; telemetry on by default: see UB-015) | UB-015, UB-045, UB-056, UB-068, UB-084 | licence read 2026-11-26; the licence of `containers/opengrep-rules` not checked; read from source, not run |
+| Hypothesis | https://github.com/HypothesisWorks/hypothesis | MPL-2.0 (`LICENSE.txt` read at `b9d568c`, "except where explicitly noted otherwise") | USE (test dependency only; copied files stay MPL, so do not vendor them) | UB-016, UB-017 | licence read 2026-11-26; read from source, not run |
+| Schemathesis | https://github.com/schemathesis/schemathesis | MIT (`LICENSE` read at `15b71f5`) | USE | UB-017 | licence read 2026-11-26; read from source and docs, not run |
+| k6 | — | not stated | in use (`backend/scripts/minime_loadtest.js`) | UB-018 | — |
+| Locust | https://github.com/locustio/locust | MIT (`LICENSE` read at `5084aa1`) | SKIP | UB-018, section 6 | licence read 2026-11-26; read from source and docs, not run |
 | Django | — | not stated | READ | UB-019 | — |
 | pip-audit, npm audit | — | not stated | in use | UB-021 | — |
 | Lurkr | — | MIT | TRY | UB-023 | — |
@@ -372,6 +383,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 |---|---|---|---|
 | 2026-11-24 | — | batch B01 created | all features start as candidate; the SX series is excluded as done |
 | 2026-11-24 | — | batch B02 created | rust-anything and fast-anything added as optional tooling; Appendix A (`MG-Z04`, `MG-Z10`) edited to match |
+| 2026-11-26 | — | batch B03 created | five reference repos read and their licences recorded; the review's recommendations applied: existing entries extended in place (UB-014 to UB-018, UB-030, UB-031, UB-045, UB-048, UB-056, UB-068), UB-084 added, eight items recorded in section 6. Other chapters not edited |
 
 ## Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 Nov 2026, minus the finished SX series
 
@@ -668,30 +680,31 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > Probe prompt injection, cross-tenant leaks and memory poisoning against staging with synthetic data only.
 
-**Product** MiniMe · **Source** promptfoo red-team docs [W], Plan 3.2, Spec T5 · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [W]
+**Product** MiniMe · **Source** promptfoo red-team docs [W], promptfoo (MIT, read at `4a30804`) [R], Plan 3.2, Spec T5 · **Status** candidate · **Depends** — · **Decision** May test generation go to promptfoo's hosted service (`api.promptfoo.app`, which receives the target `purpose` text), or must everything stay local? If local, the remote-only plugins are out · **Evidence** [V✓] [W] [R] [S]
 
 **What.** A red-team run whose provider calls the staging HTTP API with two tenants' tokens.
 
 **Why.** The existing `role_provider.py` replays roles through `llm_client` and never calls the HTTP API [V], so tenant isolation is untested by it.
 
-**Where.** `backend/evals/promptfoo/` (new provider and config); promptfoo `0.122.0` per the lockfile [V].
+**Where.** `backend/evals/promptfoo/` (new provider and config); promptfoo `0.122.0` per the lockfile [V]. The reading in **Notes.** was of HEAD `4a30804` (v0.126.0), not of 0.122.0, so plugin names and remote-only status may differ in the pinned version [R].
 
 **How.**
 
 1. Run `promptfoo redteam init` to confirm plugin names for the installed version.
 2. Start from the plan's config: plugins `owasp:agentic`, `owasp:llm`, `indirect-prompt-injection`, `cross-session-leak`, `agentic:memory-poisoning`, `bola`, `bfla`, `rbac`, `excessive-agency`, `pii:direct`; strategies `jailbreak`, `jailbreak-templates`, `crescendo` [W].
-3. Use your own provider key through `redteam.provider` and set `PROMPTFOO_DISABLE_TELEMETRY=1`, so generation and grading do not go to the hosted service [W].
-4. **Synthetic data only.** Record the baseline; fix each finding or record why not.
+3. Use your own provider key through `redteam.provider` and set `PROMPTFOO_DISABLE_TELEMETRY=1`. That stops the PostHog telemetry, which is on by default [R]. **It does not stop test generation going to the hosted service:** remote generation is on by default and is turned off with `PROMPTFOO_DISABLE_REMOTE_GENERATION` [R]. With it off, the remote-only plugins (memory-poisoning, `bola`, `bfla`, SSRF, MCP, `indirect-prompt-injection`, data-exfil and `rag-*`) produce no tests [R]. The other plugins of step 2 were not sorted.
+4. Keep the local ones. `cross-session-leak` has user A plant a secret and user B try to extract it, graded on a planted `match` string, so it fits the two-tenant provider with no remote service (the grader body was not read) [R]. Check `backend/tests/canary/` (8 files, not read) for overlap first [S]. The multi-turn strategies `crescendo` and `iterative` use a red-team provider of your own when one is set (condition lines read only), which keeps attack prompts off the hosted server; confirm the config key against the installed version [R].
+5. **Synthetic data only.** Record the baseline; fix each finding or record why not.
 
 **Done when.** A baseline is recorded and a 10 to 20 case subset feeds UB-013.
 
-**Notes.** Needs staging and two throwaway tenants.
+**Notes.** Needs staging and two throwaway tenants. For cross-tenant object access, UB-017's deterministic object-level check is the better first test and UB-015 (Strix) the next; `bola` and `bfla` here are remote-only and judged by an LLM from text [R]. promptfoo HEAD asks for Node `^22.22.2 || ^24.15.0 || >=26`, while CI is on 22.22.0 (UB-001); read the `engines` field of the version you install before you bump it [R]. Do not run its example agent provider configs with `approval_policy: never` against a real checkout [R]. Its `code-scan` PR reviewer is in section 6.
 
 ### UB-015: First Strix run on staging (M)
 
 > An AI pentest agent tries to read tenant A's data from tenant B through every route and tool.
 
-**Product** MiniMe · **Source** Strix [R], Plan 3.3, Spec T6 · **Status** candidate · **Depends** UB-008 · **Decision** none · **Evidence** [V✓] [R]
+**Product** MiniMe · **Source** Strix (Apache-2.0, read at `9ed84f9`) [R], Plan 3.3, Spec T6 · **Status** candidate · **Depends** UB-008 · **Decision** none · **Evidence** [V✓] [R] [S]
 
 **What.** One run of Strix against staging with stack-matched playbooks (FastAPI, Next.js, Supabase, LLM applications).
 
@@ -704,16 +717,18 @@ Every change of status, and every general decision about this backlog. `--set-st
 1. Create two throwaway tenants with seeded data.
 2. Use a budget-capped, run-scoped LLM key and rotate it afterwards.
 3. Reproduce every finding by hand before fixing; turn each into a permanent regression test.
+4. Set the run up safely: `STRIX_TELEMETRY=0` (telemetry to PostHog and the Scarf gateway is on by default), pin the sandbox image `ghcr.io/usestrix/strix-sandbox:1.4.1` by digest (UB-022) because it is pulled by tag, and keep Strix in its own environment, not in `backend/requirements.txt`: its pins (`openai-agents[litellm]<0.20`, `litellm`, `boto3`, `docker`, `cryptography<49`) will likely clash with the backend's [R].
+5. Run it after UB-017's object-level authorization check. That check is deterministic and gives a clear pass or fail, so Strix is spent on what a fixed check cannot see [R].
 
 **Done when.** The run completed; findings triaged within a week; the cross-tenant objective reported "not achieved" with evidence of what was tried.
 
-**Notes.** Never production, never third-party targets. Needs Docker and an LLM key.
+**Notes.** Never production, never third-party targets. Needs Docker and an LLM key. Strix is classed Alpha, is LLM-driven and runs offensive tools, so use synthetic accounts only [R]. Verify first (function names only read): Strix merges duplicate findings by LLM plus CVE and package identity; compare that with `backend/agents/security_aggregator.py` before copying anything [S]. Its coverage ledger and SARIF export are in section 6.
 
 ### UB-016: Property tests with Hypothesis (M)
 
 > Random-input tests for the pure engines: manufacturability checks, the URL guard and the shell parser.
 
-**Product** Shared · **Source** Plan 3.4, Spec T3 · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [GK]
+**Product** Shared · **Source** Plan 3.4, Spec T3, Hypothesis (MPL-2.0, read at `b9d568c`) [R] · **Status** candidate · **Depends** — · **Decision** Whether C25 (safe "always allow") is built before the state-machine step · **Evidence** [V✓] [GK] [R] [S]
 
 **What.** Hypothesis tests that must never crash or produce NaN.
 
@@ -726,18 +741,19 @@ Every change of status, and every general decision about this backlog. `--set-st
 1. Add Hypothesis to the backend test requirements, pinned (the audit gate then covers it).
 2. Write one property per target: no exception, no NaN, and for the guard "never allows a blocked address".
 3. Turn any failing example into a plain regression test.
+4. Later, add one `RuleBasedStateMachine` over the approval policy: random sequences of approve, always-allow, `cd` and restart, with the invariant that a call the rules deny is never allowed (a design idea [U]). Those sequences are where C25 bugs would hide, and the current table-driven test (`m2c/tests/policy/test_policy_decide_table.py`) is a different kind of test [R] [S].
 
 **Done when.** The properties run in CI without skipping.
 
-**Notes.** Property-style tests already exist as plain pytest in `m2c/tests/policy/test_policy_invariants.py` and `test_policy_robustness.py`; Appendix A (`MG-Z03`) deliberately keeps properties out of the language-neutral vectors and in Python. Hypothesis adds generated inputs to those; check first that it finds something they do not.
+**Notes.** Property-style tests already exist as plain pytest in `m2c/tests/policy/test_policy_invariants.py` and `test_policy_robustness.py`; Appendix A (`MG-Z03`) deliberately keeps properties out of the language-neutral vectors and in Python. Hypothesis adds generated inputs to those; check first that it finds something they do not. Hypothesis, and so Schemathesis (UB-017), needs a compiled Rust module from v6.156.0 on (built with maturin) [R]. Check that wheels exist for the Windows dev machine and `python:3.12-slim`, because a source build needs a Rust toolchain. MPL-2.0 is fine as a test-only dependency; copied files stay MPL, so do not copy its files into the product [R]. UB-016 and UB-017 can share one pinned Hypothesis. Verify first (names only read): do `provisional.urls()`, `provisional.domains()` and `ip_addresses` produce IPv4-mapped, NAT64 and odd-IP forms for `url_guard.py`? If not, write your own generators. A grammar-based generator for shell commands (`extra/lark.py`) is in section 6.
 
 ### UB-017: Nightly API fuzzing with Schemathesis (M)
 
 > Fuzz every FastAPI route, with and without auth, and fail on any 5xx or schema violation.
 
-**Product** MiniMe · **Source** Plan 3.1 and 3.4, Spec T4 · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V] [GK]
+**Product** MiniMe · **Source** Plan 3.1 and 3.4, Spec T4, Schemathesis (MIT, read at `15b71f5`) [R] · **Status** candidate · **Depends** — · **Decision** Can staging hold two long-lived test users, and may the nightly run spend LLM money (if not, exclude those routes or use the fake model adapter that `MG-B00` describes)? · **Evidence** [V] [GK] [R] [S]
 
-**What.** A scheduled job running Schemathesis against staging's `/openapi.json`.
+**What.** A scheduled job running Schemathesis against staging's `/openapi.json`, including a deterministic cross-tenant check (step 3).
 
 **Why.** Finds 500s, schema drift and missing auth checks across the whole API.
 
@@ -745,25 +761,27 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **How.**
 
-1. Read Schemathesis's current docs for flags (the plan marks them unchecked).
-2. Run with a throwaway tenant's token and with none; use synthetic data.
-3. Keep it nightly and non-blocking at first, then decide.
+1. Read Schemathesis's current docs for flags (the plan marks them unchecked). Read so far, from the docs and CLI (not the stateful or targeted guides): in-process mode `from_asgi("/openapi.json", app)` (the FastAPI app is at `backend/api/server.py:274` [S]), `--rate-limit`, `--max-time`, `--request-timeout` and operation filters [R].
+2. Run with a throwaway tenant's token and with none; use synthetic data. In-process mode still reaches the real database and the LLM providers, so use staging settings and a fake model adapter first.
+3. Add the object-level authorization check (`src/schemathesis/specs/openapi/object_authorization.py`). It replays one user's read of their own object as every other configured user and fails if another user gets the same object back; public or shared objects are ignored [R]. It needs two users' tokens (`backend/scripts/get_test_jwt.py` mints them, and `require_auth` in `backend/api/deps.py:107` takes a Bearer JWT [S]), an `auth.json` with `fixedHeaders` for each, `peers = ["alice","bob"]` in `schemathesis.toml` as the review read it, and a create or per-user list route plus a GET by id [R].
+4. Record accepted failures in a `--baseline` file: they are reported but do not fail the run, and update and prune flags exist [R, CLI docs only; model code not read]. It is the same pattern as `.github/audit-allowlist.txt` [S], and the nightly run then fails only on new failures.
+5. Keep it nightly and non-blocking at first, then decide.
 
-**Done when.** A first run is triaged and each finding is fixed or recorded.
+**Done when.** A first run is triaged and each finding is fixed or recorded, and the object-level check has run with two users on staging.
 
-**Notes.** Needs staging.
+**Notes.** Needs staging. Schemathesis sends POST, PUT and DELETE requests, so staging only [R]. It builds on Hypothesis (`hypothesis>=6.130.12,<7`), so the wheel caveat of UB-016 applies. Your pins for anyio, click, pytest, PyYAML, requests, rich and typing_extensions fall inside its ranges; harfile, hypothesis, hypothesis_graphql, jsonschema_rs, pyrate-limiter and werkzeug would be new [R]. It is classed Production/Stable, has 283 test files, and a grep found no telemetry or upload code [R]. `[auth.wfc]` cannot be mixed with `[auth.basic]` or `[auth.openapi.*]` [R]. Not checked: how long a Supabase token lasts, and whether its `loginEndpointAuth` works against Supabase. Verify first (directory names only read): its stateful mode, which chains create, read and delete calls; read `docs/guides/stateful-testing.md` and try it on your id-returning routes.
 
 ### UB-018: Add cost-per-task and web-product scenarios to the load harness (M)
 
 > Extend the device load harness planned in MG-B00 with notebook, PDF and runaway-loop scenarios, measured as cost per task.
 
-**Product** Shared · **Source** Plan 3.5, Spec T7, Appendix A `MG-B00` · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V] [GK]
+**Product** Shared · **Source** Plan 3.5, Spec T7, Appendix A `MG-B00`, Locust (MIT, read at `5084aa1`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V] [GK] [R] [S]
 
 **What.** Not a second harness. Appendix A (`MG-B00`, `backend/loadtest/`) already plans a program that opens N device WebSockets with five scenarios (idle hold, busy, reconnect storm, slow consumer, resume) and a scripted fake model adapter. This feature adds what that harness does not measure: cost per task, and the web product's heavy paths.
 
 **Why.** `MG-B00` measures connections, memory and latency. Cost per task from `usage_ledger` is the number that sets prices and tests the 45% COGS rule.
 
-**Where.** `backend/loadtest/scenarios.py` (new, from `MG-B00`); `backend/eo/concurrency_gate.py`; `backend/eo/usage_ledger.py`.
+**Where.** `backend/loadtest/scenarios.py` (new, from `MG-B00`); `backend/eo/concurrency_gate.py`; `backend/eo/usage_ledger.py`. Already in the repo: the k6 script `backend/scripts/minime_loadtest.js` (191 lines, with `ramping-vus`, thresholds and a `db_pool_pressure` scenario) and `backend/scripts/seed_load_test_data.py` [S].
 
 **How.**
 
@@ -773,7 +791,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **Done when.** A table with those three numbers exists for every added scenario, produced by the same harness as `MG-B01`.
 
-**Notes.** k6 or Locust (the plan's suggestion) are only worth adding if the Python harness cannot do a scenario.
+**Notes.** You already have a k6 load test (see **Where.**), and `MG-B00` in Appendix A does not mention it [V✓ grep of `migration_guide.md`]. Before you write the web-product scenarios of step 2 in the Python harness, check whether the k6 script can hold them. Keep the device WebSocket harness as custom asyncio: Locust's core has no raw WebSocket user (only `contrib/socketio.py` and `mqtt.py`) [R]. Locust is skipped (section 6).
 
 ### UB-019: A practice lab with Django and nginx on your own machine (S)
 
@@ -998,33 +1016,33 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **Notes.** Third-party skills often tell agents to run `curl | bash` installers [R], which is why step 5 matters.
 
-### UB-030: Seed the Q07 bypass corpus from promptfoo and list the gaps (S)
+### UB-030: Add promptfoo's coding-agent risk categories to the Q07 corpus and list the gaps (S)
 
-> Q07 is already planned; take promptfoo's coding-agent cases as seeds and add only the categories the current tests miss.
+> Q07 is already planned; take promptfoo's coding-agent risk categories and write rows only for what the current tests miss.
 
-**Product** M2C · **Source** Spec M3, Plan 4.5, M2C build plan Q07, Appendix A `MG-Z03` · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [W]
+**Product** M2C · **Source** Spec M3, Plan 4.5, M2C build plan Q07, Appendix A `MG-Z03`, promptfoo (MIT, read at `4a30804`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R] [S]
 
-**What.** Not a new corpus. `Q07` (the bypass corpus, added in revision 1.2 of the M2C build plan) is planned, and Appendix A authors it once, as language-neutral vectors (`MG-Z03`, step 4). This entry adds a seed source and an inventory of gaps.
+**What.** Not a new corpus. `Q07` (the bypass corpus, added in revision 1.2 of the M2C build plan) is planned, and Appendix A authors it once, as language-neutral vectors (`MG-Z03`, step 4). This entry adds a source of categories and an inventory of gaps. **It cannot copy cases from promptfoo.** Its 14 coding-agent categories are listed in `src/redteam/constants/codingAgents.ts`, but the attack prompts are generated by `api.promptfoo.app`: those plugins are in `REMOTE_ONLY_PLUGIN_IDS`, and `createRemotePlugin` returns nothing when remote generation is off [R]. What can be taken is the taxonomy, the grader rubrics and the 3,514-line `verifiers.ts`, which judge the agent's commands and outputs [R].
 
-**Why.** Cases such as `curl ... | bash`, base64-decode-to-shell, reads of `~/.ssh`, `~/.aws`, `~/.npmrc`, writes to `.git/hooks` and command-substitution tricks must give `ask` or `deny`. `m2c/tests/policy/` already holds many of them (`test_policy_decide_table.py`, `test_policy_shellparse.py`, `test_policy_review_findings.py` [V✓ grep counts]); only the missing categories are worth adding. promptfoo's `coding-agent` plugin family is a ready source of cases [W].
+**Why.** Cases such as `curl ... | bash`, base64-decode-to-shell, reads of `~/.ssh`, `~/.aws`, `~/.npmrc`, writes to `.git/hooks` and command-substitution tricks must give `ask` or `deny`. `m2c/tests/policy/` already holds many of them (`test_policy_decide_table.py`, `test_policy_shellparse.py`, `test_policy_review_findings.py` [V✓ grep counts]); only the missing categories are worth adding. promptfoo's categories are wider than the groups in Q07: they include CI and hook planting, test tampering and hidden-secret exfiltration [R]. The gap looks real: the docstring of `m2c/src/m2c/sandbox/profile.py` says the project directory is writable, including files the person's tools run later, and a grep found no handling of `.github`, package scripts or git hooks in `m2c/src` [S]. **But** section 6 records that the bubblewrap profile makes `.git` read-only [V✓], so check the git-hook case before you call it a gap. `m2c/tests/redteam/` does not exist yet [S].
 
 **Where.** `m2c/tests/policy/`; `m2c/src/m2c/policy/shellparse.py` and `decide.py`; the vectors folder `protocol/conformance/` once `MG-Z02` and `MG-Z03` exist.
 
 **How.**
 
 1. List which Q07 categories already have a test.
-2. Take the missing ones from the promptfoo cases and write them where `MG-Z03` puts the vectors (or in the table-driven test, so `MG-Z03` exports them later).
+2. Read promptfoo's category list and verifiers, then write the missing rows yourself where `MG-Z03` puts the vectors (or in the table-driven test, so `MG-Z03` exports them later). Start with 6 to 8 rows: writes to `.github/workflows`, to `package.json` scripts, to a Makefile and to test files; a write to a git hook (to confirm the sandbox refuses it); and secrets printed in an encoded form. Each row names the expected decision.
 3. Each case must yield `ask` or `deny`; where Python is too permissive, tag it `known-fail-python` as `MG-Z03` describes.
 
 **Done when.** Every category has at least one case that yields `ask` or `deny`, in one place only.
 
-**Notes.** Do not create a second corpus next to the vectors.
+**Notes.** Do not create a second corpus next to the vectors. Verify first (file names only read): promptfoo's Unicode strategies `homoglyph.ts` and `asciiSmuggling.ts` may add rows to Q07's terminal-safety group; `secrets/redact.py:188` and `tui/safe.py:57` already strip format (Cf) characters [S].
 
 ### UB-031: Golden tasks for the coding agent (M)
 
 > Ten past bug-fix commits turned into tasks with a failing test, run with a fixed budget, to get your own pass rate and cost.
 
-**Product** M2C · **Source** Spec M4 · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓]
+**Product** M2C · **Source** Spec M4, promptfoo (MIT, read at `4a30804`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
 
 **What.** A baseline table of pass rate and cost per task, rerun whenever the model or prompt changes.
 
@@ -1037,6 +1055,8 @@ Every change of status, and every general decision about this backlog. `--set-st
 1. Pick 10 past MiniMe or M2C commits that fixed a bug.
 2. For each, make a repo state before the fix and a failing test as the success check.
 3. Run the agent on each with the same budget; record pass or fail, steps and credits.
+4. Make the verifier tamper-evident: hash the protected test files before the run and fail the task if they changed, as promptfoo's coding-agent verifier does (protected-file hash checks plus heuristics) [R]. One comparison keeps the scores honest.
+5. When the runner asserts on how a task went, copy promptfoo's assertion shapes (tool-call counts, order as exact or in-order, arguments, goal success) and not its engine, which needs OpenTelemetry traces [R]. Running the same shapes over M2C's own event log is a design idea [U].
 
 **Done when.** A baseline table exists and has been rerun once after a change.
 
@@ -1307,7 +1327,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > A diff reviewer that gives line-level comments and favours few, correct findings over many.
 
-**Product** M2C · **Source** open-code-review [R], Plan 4.2 · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R]
+**Product** M2C · **Source** open-code-review [R], Strix `skills/scan_modes/diff.md` (Apache-2.0, read at `9ed84f9`) [R], Plan 4.2 · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R]
 
 **What.** The `review` command (M2C plan item L05, `/review` and `/security-review`; the plan's label "C20" was wrong).
 
@@ -1318,7 +1338,8 @@ Every change of status, and every general decision about this backlog. `--set-st
 **How.**
 
 1. Build a diff-to-comments flow with tools and structured line comments.
-2. Run it on your own past diffs and compare precision and cost.
+2. Write the scope rules of the review prompt from Strix's diff mode, in your own words: for a PR, removed controls, newly reachable sinks and weakened helpers are in scope [R]. It is prompt text only, so it is cheap to try.
+3. Run it on your own past diffs and compare precision and cost.
 
 **Done when.** You have your own precision and cost figures.
 
@@ -1381,7 +1402,9 @@ Every change of status, and every general decision about this backlog. `--set-st
 2. Show new candidates in a queue; importing an existing `CLAUDE.md` creates candidates.
 3. Promotion only through a user action.
 
-**Done when.** A poisoned web page cannot produce a trusted memory (tested with the promptfoo `agentic:memory-poisoning` idea).
+**Done when.** A poisoned web page cannot produce a trusted memory, tested with your own three-turn case: plant a memory, poison it, ask a follow-up.
+
+**Notes.** promptfoo's `agentic:memory-poisoning` plugin is remote-only: its grader was read, but its cases are generated on `api.promptfoo.app` [R]. Use it only for the shape of the test and write the three turns yourself. The same plugin is in UB-014 step 2, where it returns nothing if remote generation is off.
 
 ### UB-049: Correcting a source retires its dependents, and deletes cascade (M)
 
@@ -1527,7 +1550,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **Product** MiniMe · **Source** Spec P1, Plan 6.1 (hyperresearch, Research Toolkit, Storm and GPT Researcher as references) · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R] [README]
 
-**What.** A new `backend/agents/claim_checker.py`. Input: a draft and its cited source texts. Output per claim: supported, unsupported or not found, with the passage.
+**What.** A new `backend/agents/claim_checker.py`. Input: a draft and its cited source texts. Output per claim: supported, contradicted or unresolved, with the passage. The three closure states are reworded from Strix's counterevidence rules (confirmed, ruled out naming the control, unresolved) [R]; the earlier "unsupported" and "not found" are both **unresolved**.
 
 **Why.** Stops confident claims that the sources do not back. No such module exists [V✓: nothing named `claim` in `backend/agents/`].
 
@@ -1538,8 +1561,9 @@ Every change of status, and every general decision about this backlog. `--set-st
 1. Split the draft into claims; for each, find the supporting passage in the cited source.
 2. Run it in a separate model call from the writer (so it cannot agree with itself).
 3. Return flags with passages; show them in the report.
+4. Close every claim; none stays open. **Supported** (give the passage), **contradicted** (name the passage that says otherwise) or **unresolved** (say what was searched).
 
-**Done when.** Fixture drafts with known unsupported claims are flagged by deterministic asserts, and you have reviewed the flag rate on 10 real reports.
+**Done when.** Fixture drafts with known unsupported claims are closed as contradicted or unresolved by deterministic asserts, and you have reviewed the flag rate on 10 real reports.
 
 **Notes.** `hyperresearch` and `Research Toolkit` are MIT as reported; read before copying anything.
 
@@ -1740,7 +1764,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > Turn Strix's playbooks into security_reviewer prompts and the 818 community security skills into a reference library.
 
-**Product** MiniMe · **Source** Strix playbooks (Apache-2.0 as reported), Anthropic-Cybersecurity-Skills (community, not affiliated) · **Status** candidate · **Depends** UB-064 · **Decision** none · **Evidence** [R]
+**Product** MiniMe · **Source** Strix playbooks (Apache-2.0, `LICENSE` read at `9ed84f9`), Anthropic-Cybersecurity-Skills (community, not affiliated) · **Status** candidate · **Depends** UB-064 · **Decision** none · **Evidence** [R]
 
 **What.** Rewritten prompts and a vetted subset.
 
@@ -1748,7 +1772,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **Where.** The `security_reviewer` role prompts; the M2C bypass corpus (UB-030).
 
-**How.** Read, rewrite, vet each skill; the big set is "large and uneven".
+**How.** Read, rewrite, vet each skill; the big set is "large and uneven". Strix has 30 vulnerability playbooks, 4 analysis playbooks and 4 scan modes, all Markdown [R]. Start with `idor`, `ssrf`, `llm_prompt_injection`, `agentic_system_security`, `severity_calibration` and `counterevidence` (the last also feeds UB-056).
 
 **Done when.** The prompts pass UB-064 and the library lists only vetted skills.
 
@@ -2032,3 +2056,30 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Done when.** `analyze` lists those units as separate pieces.
 
 **Notes.** Parked because no current route needs it: Appendix A rebuilds `minicore-*` crates from vectors, and the function-level tools (UB-081 on `redact.py`, UB-082) do not care about the cycle. Reopen it if you decide to bridge units one at a time.
+
+## Batch B03 (2026-11-26): Review of promptfoo, Strix, Hypothesis, Schemathesis and Locust
+
+*Source:* a review of five reference repos, read from source and docs with nothing installed or run, made against MiniMe `121e06c` (2026-11-25); the rest of this file was written at `cd0bc23`. Reference commits: promptfoo `4a30804`, Strix `9ed84f9`, Hypothesis `b9d568c`, Schemathesis `15b71f5`, Locust `5084aa1`. The five licences were read again when this batch was written. In this batch `[R]` is a reading of those repos, and `[S]` is a code check by the review session (greps on MiniMe `121e06c`), carried over and not re-run here. The review's recommendations were taken as the decisions: **EXTEND** items were written into the entries that already exist (edited in place, so they are not repeated here: UB-014 to UB-018, UB-030, UB-031, UB-045, UB-048, UB-056, UB-068), **IDEA ONLY** and **SKIP** items went to section 6, **VERIFY FIRST** items became "verify first" leads in those entries' notes, and the licence rows of section 7 were filled in. Where the work package belongs to another chapter (`Q02`, `Q07`, `L07`, `MG-Z03`, `MG-Z04`), the entry or section 6 row here carries the addition and the chapter was **not** edited. One item is a new feature.
+
+### UB-084: Record what a run created, so undo and approvals touch only that (S)
+
+> A per-run list of the objects an automation created, so cleanup and any approval exemption apply only to things the run itself made.
+
+**Product** Menux · **Source** Strix test-object registry (Apache-2.0, read at `9ed84f9`) [R], Menux feature guide sections 6.1 and 7.5 · **Status** candidate · **Depends** — · **Decision** Whether an object a run created may ever skip an approval (Strix does this; the tiers of section 6.1 of the Menux guide say nothing about it) · **Evidence** [R] [V✓] [U]
+
+**What.** A registry kept for each run: every outside object the run created, with the run and the event that created it, and a state. Strix keeps such a registry of what a run created, can export it, and drops secret-like details when it does [R]. For Menux the design idea is to build it from the local event log of section 7.5 of the Menux guide, which already records tool results, and not to add a second store [U].
+
+**Why.** It gives undo and cleanup a precise target ("only what this run made") and lets an approval rule tell an object the run created from one that was already there. Nothing in the Menux guide records this today [V✓ grep of `menux_feature_guide.md`].
+
+**Where.** Menux has no code yet. The event log of section 7.5 is the source of truth; `m2c/src/m2c/store/events.py` is the closest existing store [V✓ per UB-046].
+
+**How.**
+
+1. Settle the decision above first. Strix's own gate, which lets run-created objects skip approval, guards a careless agent and not a hostile one, so any exemption must not replace the code-enforced tiers of section 6.7 [R].
+2. Define the record (object kind, id, run id, creating event id, state). The code writes it from tool results; the model never writes it.
+3. Drop secret-like values when the registry is exported, as section 7.5 requires of the log.
+4. Use it for undo and cleanup. Use it in an approval rule only if step 1 allows.
+
+**Done when.** After a test run, the registry lists exactly the objects that the run's events show as created. An object of the same kind that existed before the run is not listed. An exported registry holds no secret-like value.
+
+**Notes.** An idea until Menux has an event log; Strix's version was read, not run.
