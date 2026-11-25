@@ -14,16 +14,16 @@ This file is the one place where every feature you might build later is written 
 
 *Generated from the entries by `python scripts/check_backlog.py --write`. Do not edit by hand.*
 
-**84 features** in 3 batches: 81 candidate · 0 accepted · 0 building · 0 done · 3 parked · 0 dropped.
+**87 features** in 4 batches: 84 candidate · 0 accepted · 0 building · 0 done · 3 parked · 0 dropped.
 
 | Product | candidate | accepted | building | done | parked | dropped | Total |
 |---|---|---|---|---|---|---|---|
 | MiniMe | 42 | 0 | 0 | 0 | 1 | 0 | 43 |
-| M2C | 20 | 0 | 0 | 0 | 1 | 0 | 21 |
+| M2C | 23 | 0 | 0 | 0 | 1 | 0 | 24 |
 | Menux | 9 | 0 | 0 | 0 | 1 | 0 | 10 |
 | Shared | 7 | 0 | 0 | 0 | 0 | 0 | 7 |
 | Book | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
-| **All** | **81** | **0** | **0** | **0** | **3** | **0** | **84** |
+| **All** | **84** | **0** | **0** | **0** | **3** | **0** | **87** |
 
 ## 1. Register
 
@@ -58,27 +58,27 @@ This file is the one place where every feature you might build later is written 
 | UB-025 | Security headers for the book site | Add nosniff, Referrer-Policy and a frame rule to the book's vercel.json. | Book | Spec U4.5 | XS | candidate | B01 |
 | UB-026 | Record the fix patch guide in the book | Keep the SX series guide as a book appendix so the history of what was fixed is not lost. | Book | the MiniMe fix patch guide | S | candidate | B01 |
 | UB-027 | Refresh the book after the fixes and upgrades | The book's census and graph describe commit 3727ae3; refresh them after the fix series and again after bigger upgrades. | Book | Fix guide section 7, `UPDATING.md` | M | candidate | B01 |
-| UB-028 | Verify-on-stop in the agent loop | If the model edits files and then stops without running a test or build, ask it once or twice to verify first. | M2C | Spec M1, Plan 4.2 (idea seen in Hermes) | M | candidate | B01 |
+| UB-028 | Verify-on-stop in the agent loop | If the model edits files and then stops without running a test or build, ask it once or twice to verify first. | M2C | Spec M1, Plan 4.2, Hermes `agent/verification_stop.py` and `agent/turn_stop_gates.py` (MIT, read at `c84e8d7f`) [R] | M | candidate | B01 |
 | UB-029 | Skills loader for M2C | Load SKILL.md folders (name and description only at start), enforcing allowed-tools as a ceiling. | M2C | Spec M2, Agent Skills standard [W], M2C plan item C14 | M | candidate | B01 |
 | UB-030 | Add promptfoo's coding-agent risk categories to the Q07 corpus and list the gaps | Q07 is already planned; take promptfoo's coding-agent risk categories and write rows only for what the current tests miss. | M2C | Spec M3, Plan 4.5, M2C build plan Q07, Appendix A `MG-Z03`, promptfoo (MIT, read at `4a30804`) [R] | S | candidate | B01 |
 | UB-031 | Golden tasks for the coding agent | Ten past bug-fix commits turned into tasks with a failing test, run with a fixed budget, to get your own pass rate and cost. | M2C | Spec M4, promptfoo (MIT, read at `4a30804`) [R] | M | candidate | B01 |
 | UB-032 | Local MCP client for M2C | Run MCP servers under M2C's sandbox and network policy, with approval-time hashing of each tool definition. | M2C | Spec M5, Plan S6 and 4.3 and 4.4, M2C plan item C23 | L | candidate | B01 |
-| UB-033 | Deferred tool loading with search over tool specs | When an MCP server exposes many tools, keep their descriptions out of the prompt and find them on demand. | M2C | Codex and Hermes (Plan 4.2) | M | candidate | B01 |
+| UB-033 | Deferred tool loading with search over tool specs | When an MCP server exposes many tools, keep their descriptions out of the prompt and find them on demand. | M2C | Codex and Hermes (Plan 4.2), Hermes `tools/tool_search.py` (MIT, read at `c84e8d7f`) [R] | M | candidate | B01 |
 | UB-034 | Offer codebase-memory-mcp as an optional local server | A code knowledge-graph MCP server the user can install themselves, running device-local under the sandbox. | M2C | codebase-memory-mcp [R] | S | candidate | B01 |
 | UB-035 | Rehearse MCP attacks against M2C with Argus | Use a red-team tool with a built-in vulnerable demo agent to rehearse tool-poisoning and rug-pull attacks. | M2C | Argus [README] | S | candidate | B01 |
-| UB-036 | Stuck detection beyond identical failures | Warn when the same call repeats even if it succeeds, then ask a model to self-check after many turns; let the user decide. | M2C | Gemini CLI and OpenCode (Plan 4.2) | M | candidate | B01 |
-| UB-037 | Mid-turn user steering | Let the user add a message while the agent works, inserted behind an anti-injection marker. | M2C | Hermes (Plan 4.2) | M | candidate | B01 |
-| UB-038 | An instruction-hierarchy contract in the system prompt | One ranked list of instruction sources (user, repo, skills, MCP, external data last) instead of scattered prohibitions. | M2C | Mistral Vibe (Plan 4.2) | S | candidate | B01 |
+| UB-036 | Stuck detection beyond identical failures | Warn when the same call repeats even if it succeeds, then ask a model to self-check after many turns; let the user decide. | M2C | Gemini CLI and OpenCode (Plan 4.2), Gemini CLI `packages/core/src/services/loopDetectionService.ts` (Apache-2.0, read at `60f8082`) [R] | M | candidate | B01 |
+| UB-037 | Mid-turn user steering | Let the user add a message while the agent works, inserted behind an anti-injection marker. | M2C | Hermes (Plan 4.2), Hermes `agent/prompt_builder.py` (MIT, read at `c84e8d7f`) [R] | M | candidate | B01 |
+| UB-038 | An instruction-hierarchy contract in the system prompt | One ranked list of instruction sources (user, repo, skills, MCP, external data last) instead of scattered prohibitions. | M2C | Mistral Vibe (Plan 4.2), Vibe `vibe/core/prompts/cli_ml4_2026-10_v2.md` (Apache-2.0, read at `fb7511a`) [R] | S | candidate | B01 |
 | UB-039 | Observe mode before enforce mode for new policy rules | Ship each new rule in a log-only mode first, record what it would have blocked, then enforce. | M2C | Prismor (Plan 4.2) | M | candidate | B01 |
 | UB-040 | Check whether sandbox denials are already stored | Before building a violation log, read what `events.py` and the network proxy callback already keep. | M2C | Spec M6 | S | candidate | B01 |
 | UB-041 | Signed, narrowing grants for subagents | Each handoff to a subagent can only narrow what it may do: tools, argument limits, expiry. | M2C | Tenuo [R] | L | candidate | B01 |
-| UB-042 | Compaction that re-injects the task goal, with a lossless log | When the context is compacted, put the original goals back in; keep the full transcript so only the model's view shrinks. | M2C | Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2) | M | candidate | B01 |
+| UB-042 | Compaction that re-injects the task goal, with a lossless log | When the context is compacted, put the original goals back in; keep the full transcript so only the model's view shrinks. | M2C | Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2), Gemini CLI `prompts/snippets.ts` and `context/chatCompressionService.ts` (Apache-2.0, read at `60f8082`) [R], Hermes `agent/context_compressor.py` and `context_compressor_prompt_rules.py` (MIT, read at `c84e8d7f`) [R] | M | candidate | B01 |
 | UB-043 | An independent verifier context and step-graph validation | A second, separate model context checks the result; a multi-step plan is validated before any step starts. | M2C | zeroshot [R] | L | candidate | B01 |
 | UB-044 | Plan mode that is structural, plus a spec-first interview | In plan mode only a plan file is writable; add a spec-first interview that ends in checkable acceptance criteria. | M2C | Mistral Vibe, Ouroboros, Nightshift (Plan 4.2) | M | candidate | B01 |
 | UB-045 | A precision-first review command | A diff reviewer that gives line-level comments and favours few, correct findings over many. | M2C | open-code-review [R], Strix `skills/scan_modes/diff.md` (Apache-2.0, read at `9ed84f9`) [R], Plan 4.2 | L | candidate | B01 |
 | UB-046 | Add a hash chain to the local event store | A previous-hash and entry-hash on each event plus a verify function; the M2C plan already names MiniLocker's chain.py as the model. | Shared | M2C build plan C02 and section 11.6 (MiniLocker `ledger/chain.py`, your own project), Spec 6.1; ZizkaDB (idea only) | S | candidate | B01 |
 | UB-047 | Menux memory store with sources, validity and FTS5 | One migration for sources, memories with valid-from and valid-to, dependencies and a full-text index. | Menux | Spec 6.1, Plan 5.2 (Mnemosyne, Graphiti/Zep, mempalace, claude-mem) | M | candidate | B01 |
-| UB-048 | Trust rule and a review queue for new memories | Anything from a web page, tool output or an imported CLAUDE.md enters as an untrusted candidate; only a user action promotes it. | Menux | Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin) | M | candidate | B01 |
+| UB-048 | Trust rule and a review queue for new memories | Anything from a web page, tool output or an imported CLAUDE.md enters as an untrusted candidate; only a user action promotes it. | Menux | Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin), Gemini CLI `agents/skill-extraction-agent.ts` (Apache-2.0, read at `60f8082`) [R] | M | candidate | B01 |
 | UB-049 | Correcting a source retires its dependents, and deletes cascade | Fix or delete a source and everything derived from it leaves retrieval but stays readable in a history view. | Menux | Spec 6.1, Plan 5.2 (Mnemosyne, agentmemory) | M | candidate | B01 |
 | UB-050 | Show the working memory before a task, and report what was used | Before each task list the memories the agent intends to use with a reason; after it, show which were followed. | Menux | Spec 6.1, Plan 5.2 (MemoSync UX) | M | candidate | B01 |
 | UB-051 | Retention scores and hot, warm and cold tiers | Decay plus access boost to prune memory. Both documents say to skip this until volume is measured. | Menux | agentmemory (Plan 5.2), Spec 6.1.6 | M | parked | B01 |
@@ -94,7 +94,7 @@ This file is the one place where every feature you might build later is written 
 | UB-061 | Export to PPTX and HTML | Let users download generated slides or notebooks as PowerPoint and standalone HTML. | MiniMe | OpenMAIC [R], Plan 6.2; slide-generation references in UB-080 | M | candidate | B01 |
 | UB-062 | A knowledge base with @-mentions | Attach sources to a workspace and mention them by name in chat. | MiniMe | OpenMAIC [R], Plan 6.2 | M | candidate | B01 |
 | UB-063 | Use OpenMAIC's published advisories as a free test checklist | Its security advisory list names the classes of bug a study app has; check each against MiniMe. | MiniMe | OpenMAIC advisories [R] | S | candidate | B01 |
-| UB-064 | A repeatable skills pipeline: select, scan, rewrite, evaluate, label, regress | A written process and a small scanner so every seed skill is vetted the same way before it is kept. | Shared | Plan section 7, ponytail (method) [README] | M | candidate | B01 |
+| UB-064 | A repeatable skills pipeline: select, scan, rewrite, evaluate, label, regress | A written process and a small scanner so every seed skill is vetted the same way before it is kept. | Shared | Plan section 7, ponytail (method) [README], Hermes `tools/skills_guard.py` (MIT, read at `c84e8d7f`) [R] | M | candidate | B01 |
 | UB-065 | Growth tab seed skills from marketingskills | Rewrite a marketing skill set as seeds for the Growth tab roles, after confirming those roles exist. | MiniMe | marketingskills (MIT as reported), Spec P2, Plan 6.3 | M | candidate | B01 |
 | UB-066 | Research and notebooks seeds from scientific-agent-skills | Pick a handful of the 177 science skills by actual usage, rewrite them as seeds. | MiniMe | scientific-agent-skills [R], Plan section 7 | M | candidate | B01 |
 | UB-067 | M2C built-in skills and a behaviour baseline | Rewrite skills from anthropics/skills, mattpocock/skills, addyosmani/agent-skills and one Karpathy-style CLAUDE.md as M2C built-ins. | M2C | anthropics/skills, mattpocock/skills, addyosmani/agent-skills, andrej-karpathy-skills (MIT as reported) | M | candidate | B01 |
@@ -105,7 +105,7 @@ This file is the one place where every feature you might build later is written 
 | UB-072 | Compare text-to-cad's per-process rules with yours | Read its machining, sheet-metal, moulding and 3D-printing rule sets and adopt the rules you lack. | MiniMe | text-to-cad (MIT as reported) [R], Plan 6.5 | S | candidate | B01 |
 | UB-073 | Spike: can build123d replace FreeCAD inside the E2B template? | Measure install size, cold start, STEP and STL output and determinism. | MiniMe | text-to-cad (build123d route) [R], Spec P3 | M | candidate | B01 |
 | UB-074 | An "analyse this part" stress check | A possible future capability using CalculiX-style stress analysis. | MiniMe | text-to-cad (stress checks via CalculiX) [R], Plan 6.5 | L | parked | B01 |
-| UB-075 | Cost experiments before adopting any compressor or router | Replay real traces with and without output compression, terse agent messages and cheaper models, and compare cost and quality. | Shared | Spec P4, Plan 6.6 (headroom, caveman, Mixdog) | M | candidate | B01 |
+| UB-075 | Cost experiments before adopting any compressor or router | Replay real traces with and without output compression, terse agent messages and cheaper models, and compare cost and quality. | Shared | Spec P4, Plan 6.6 (headroom, caveman, Mixdog), Gemini CLI `routing/strategies/numericalClassifierStrategy.ts` (Apache-2.0, read at `60f8082`) [R] | M | candidate | B01 |
 | UB-076 | Design and build techniques from impeccable, taste-skill and ui-ux-pro-max | Adopt techniques (not code) such as a command vocabulary of polish, bolder, critique and audit, and test them. | MiniMe | impeccable, taste-skill, ui-ux-pro-max-skill [README] | M | candidate | B01 |
 | UB-077 | Screenshot-to-code for the wireframe flow | Use ideas from screenshot-to-code to turn an uploaded image into a first wireframe. | MiniMe | screenshot-to-code [README] | M | candidate | B01 |
 | UB-078 | A diagram generator from diagram-design | One self-contained HTML plus SVG file per diagram, across many diagram types. | MiniMe | diagram-design (51 types as reported), archify (already in the book pipeline) [README] | M | candidate | B01 |
@@ -115,6 +115,9 @@ This file is the one place where every feature you might build later is written 
 | UB-082 | Port only profiled hot functions with fast-anything | A Python-staying alternative to a rewrite: profile a real workload, port only the measured hot functions, prove them on recorded calls. | Shared | fast-anything (MIT, read at `ccf46b4`), Appendix A `MG-Z10` (Python alternatives) and `MG-B01`, trial of 2026-11-24 | M | candidate | B02 |
 | UB-083 | Break the import cycle so m2c units can be bridged one by one | The tool saw about 20,500 lines in one import cycle; break it only if you choose the unit-by-unit bridge instead of the rebuild. | M2C | rust-anything `analyze` on m2c (trial of 2026-11-24, its report read) | M | parked | B02 |
 | UB-084 | Record what a run created, so undo and approvals touch only that | A per-run list of the objects an automation created, so cleanup and any approval exemption apply only to things the run itself made. | Menux | Strix test-object registry (Apache-2.0, read at `9ed84f9`) [R], Menux feature guide sections 6.1 and 7.5 | S | candidate | B03 |
+| UB-085 | Switch off core dumps and debugger attach for the M2C client at start | Set no-core-dump and no-same-user-debugger-attach for the M2C client before it handles a secret (Linux and macOS), as Codex does. | M2C | Codex `codex-rs/process-hardening/src/lib.rs` (Apache-2.0, read at `06f334a`) [R] | XS | candidate | B04 |
+| UB-086 | Session goal mode with a token budget and a no-progress stop | One goal the agent works on across turns; it stops at a token budget, after 3 turns without progress, or after 3 turns of failed tools. | M2C | Mistral Vibe `vibe/app_server/_goal_engine.py` (Apache-2.0, read at `fb7511a`) [R] | M | candidate | B04 |
+| UB-087 | One helper that frames text the model must treat as data | Steering messages, compaction summaries and goal objectives all need the same escaping, marker and look-alike handling; write it once. | M2C | my idea, from Hermes `agent/prompt_builder.py` (MIT, `c84e8d7f`), Gemini CLI `prompts/snippets.ts` (Apache-2.0, `60f8082`) and Vibe `_goal_engine.py` (Apache-2.0, `fb7511a`) [R] | S | candidate | B04 |
 
 ## 2. Batches
 
@@ -125,6 +128,7 @@ This file is the one place where every feature you might build later is written 
 | B01 | 2026-11-24 | Upgrade plan and verified spec of 21 Nov 2026, minus the finished SX series | 80 | UB-001 to UB-080 |
 | B02 | 2026-11-24 | rust-anything and fast-anything, from a trial on m2c | 3 | UB-081 to UB-083 |
 | B03 | 2026-11-26 | Review of promptfoo, Strix, Hypothesis, Schemathesis and Locust | 1 | UB-084 |
+| B04 | 2026-11-26 | Review of gemini-cli, hermes-agent, mistral-vibe and codex | 3 | UB-085 to UB-087 |
 
 ## 3. How to add features (the patch recipe)
 
@@ -287,6 +291,24 @@ The "upgrade plan" (21 Nov 2026) and its "verified spec" were split three ways. 
 | Strix risk-classifier gate (labels `deletes_data`, `changes_target`, `disrupts_service`, `safe`) | Already planned as `L07` in the M2C build plan. Take the four labels into `L07`'s labelled-call set. Its own docstring says it guards a careless agent, not a hostile one, so code rules and the sandbox keep the last word, as `L07` and Menux section 6.7 say [R] | `L07` starts |
 | Hypothesis `ghostwriter.equivalent` | A technique for work already planned in Appendix A: the differential corpus of `MG-Z04` and `MG-Z10` step 6, which backs `DM-10` (Rust never more permissive than Python). It generates inputs where the vectors freeze them. Calling the Rust side needs a bridge nobody has designed [R] | `MG-Z10` records `PROCEED` (first learn the shape with one test of two Python redaction functions) |
 | Hypothesis `extra/lark.py` grammar strategy | A technique for `MG-Z03`: generate shell commands from a small grammar to feed the shell-parsing vectors and the Python-against-Rust comparison. Only its docstring was read; whether a small shell grammar fits is untested [R] | `MG-Z03` starts on shell parsing |
+| Codex Guardian and Hermes smart approval, for `L07` | Already planned as `L07` in the M2C build plan; the chapter was not edited. Take into `L07`: Codex's reviewer prompt (`codex-rs/prompts/templates/guardian/policy.md`) has headings for data exfiltration, credential probing, persistent security weakening and destructive actions [R]. Hermes's reviewer (`tools/approval_smart.py`) answers APPROVE, DENY or ESCALATE, strips recognisable shell comments first, wraps the command in `<command>` delimiters, tells the model to ignore instructions inside them, and escalates when it sees manipulation text [R]. A model verdict may only raise a call to "ask", never lower a rule's decision; deny rules and the sandbox keep the last word. Design ideas [U]: run it in observe mode first (UB-039), score it on a labelled call set (the review suggested about 30 per category; the Strix labels are in the row above), and measure how often it escalates a harmless call | `L07` starts |
+| Hermes command-obfuscation cases, for `Q07` | Already planned as `Q07`; the chapter was not edited. Hermes flags hidden Unicode variation selectors after letters or digits (`tools/approval_variation_selectors.py`) and masks newlines inside quotes so data lines do not trip rules, while keeping `$(...)` bodies executable (`tools/approval_quoted_newlines.py`) [R]. A grep of `m2c/src/m2c/policy/` finds no variation-selector or zero-width handling [V✓]. Turn each case into a `Q07` row; if one passes the policy, fix `policy/` (`shellparse.py`) | `Q07` starts |
+| Gemini subagent contract, for `L02` | Already planned as `L02` (Subagents); the chapter was not edited. Take: a subagent ends by calling a typed `complete_task` tool; separate end states, including `GOAL` and `MAX_TURNS`; a default of 30 turns (`DEFAULT_MAX_TURNS`) and a time limit in minutes [R `agents/types.ts`]. The 1-minute grace period after a limit was carried from the review [S]. Combine with UB-041 (narrowing grants) | `L02` starts |
+| Codex rules with reasons and examples, for `C25` | Already planned as `C25` (rule hygiene); the chapter was not edited. Codex's `prefix_rule` has a decision (allow, prompt, forbidden), a `justification` that appears in prompts and refusals (with a suggested alternative for forbidden rules), and `match` and `not_match` example invocations checked when the rules load, like unit tests [R `execpolicy/README.md`]. Add a reason and must-match and must-not-match examples to the TOML rules of `policy/rules.py`, and refuse to load a rule whose examples fail [U] | `C25` starts |
+| Hook events and failure rule, for `C13` | Already planned as `C13` (Hooks); the chapter was not edited. Codex's `HookEventName` has 14 events at `06f334a` (the review counted 15): PreToolUse, PermissionRequest, PostToolUse, PreCompact, PostCompact, SessionStart, SessionEnd, UserPromptSubmit, SubagentStart, SubagentStop, Stop, Interrupt, PreModelRequest, PostModelRequest [R]. The plan's list also has PostToolUseFailure and lacks PostCompact, Interrupt and the two model-request events. Take Codex's idea of one JSON schema per event under `protocol/`. For failure, Vibe has a **per-hook** `strict` flag, off by default, which its config model rejects on any hook type outside `STRICT_HOOK_TYPES`; the default timeout is 60 seconds [R `vibe/core/hooks/models.py`]. The review had called five types fail-closed; the code makes that an opt-in. Adopt the shape: only types that can block may be strict, strict is explicit, and a strict hook that fails or times out blocks | `C13` starts |
+| Late language-server verdicts, for `L04` | Already planned in `L04` (Verification loop and Stop hooks); the language server is `L08` (Phase 5). Hermes waits briefly after the final answer for diagnostics on the files it edited and feeds them back, at most three notes per turn [R]. Add to the UB-028 gate once `L08` exists | `L08` is built |
+| Vibe's Python core with a Rust TUI, for `MG-Z10` | A possible `MG-Z10` outcome; Appendix A was not edited. Vibe's Rust TUI is a thin JSON-RPC client over stdio and never imports Python internals (`docs/adr/0016-rust-cli-delivery-surface.md`) [R], so the safety code stays in Python. `DM-2` argues for Rust partly because the compiler checks the safety code, so this outcome trades that away; you must accept the trade before it is named | the `MG-Z10` criteria are written (Appendix A rule 10: commit them first) |
+| Codex proxy-side secret substitution (idea only) | The sandbox sees placeholders and a trusted proxy swaps in the real secret after the destination is authorised (`network-proxy/src/secret_substitution.rs`; the module header was read, the mechanism not traced) [R]. It needs a proxy that opens TLS. M2C's proxy is a CONNECT proxy and bridge (`C11b` in the build plan) and cannot rewrite headers inside TLS, so this is a redesign (XL) with a new certificate authority | a real case of a secret reaching the sandbox, or a design that adds no local CA |
+| Codex and Hermes automatic memory writers (idea only) | Both write memory with no review step (Codex's second-phase agent; Hermes's fork after each turn) [R], which conflicts with UB-048. The two safe parts (redact before extraction; the fork trick with a queue as its only output) are in UB-048 Notes | UB-048 is built |
+| Gemini Conseca (idea only) | An LLM writes a least-privilege policy for each task and a second check enforces it. Its tests show it returns ALLOW when disabled or when it finds no user prompt, so it fails open [R `safety/conseca/conseca.test.ts`]. Safe for you only if it can tighten and never loosen, and fails closed | `L07` is built and you want per-task narrowing (see UB-041) |
+| Vibe per-hunk checkpoints | `m2c/src/m2c/checkpoints.py` already snapshots whole files before each step and rewinds to a step [S]. Vibe keeps an append-only log of keep and revert decisions, and reverting a hunk drags the hunks built on it [R]. That needs a UI | people ask for per-hunk undo |
+| Codex limited network mode (MITM with a process-local CA) | `sandbox/netproxy.py` and `netpolicy.py` already limit hosts [S]. Method-level limits need TLS interception, and a new certificate authority is new attack surface [R `network-proxy/src/mitm.rs`] | a POST to an allowed host shows up as an exfiltration finding |
+| Vibe import of foreign plugins (Codex, Claude Code, Kimi, OpenCode) | It pulls third-party hooks and MCP configs into your trust boundary [R `core/plugins/_compatibility.py`: format detection read, adapters not]. `C14` only needs `SKILL.md` folders | you want the plugin ecosystem and have a trust design for it |
+| Codex V8 code mode | The model writes JavaScript that runs in a sandboxed V8 and calls tools [R `code-mode-runtime/Cargo.toml`]. Heavy dependencies (D14), model-written code, and its own approval design | never for the Python client |
+| Codex `apply_patch` | `edit_file` exists (`tools/files.py`); the build plan lists an apply_patch tool at wave 13 or later [S]. Codex matches a patch hunk exactly, then ignoring trailing spaces, then trimmed [R `apply-patch/src/seek_sequence.rs`: file name only]. See the "Exact unique-match edits" row | counts of `string_not_unique` failures show the need |
+| Gemini tool-output masking | Already built: `backend/codeagent/context.py` caps large tool results and clears the oldest outputs [V✓ docstring] | never |
+| Gemini policy integrity hash and RE2 patterns | Hashing exists in `m2c/src/m2c/trust/fingerprint.py` (sha256) [V✓]. RE2 would add a runtime dependency, which D14 forbids | never |
+| Hermes Kanban worker stop guard | It forces a worker on Hermes's own multi-agent board to end with a terminal board call [R]. Nothing in your plans uses such a board | you build a board |
 
 ## 7. Sources register
 
@@ -311,10 +333,10 @@ One row per source. `Checked` is `—` until you or a session has opened the sou
 | Greywall | — | not stated | LEARN | UB-032 | — |
 | codebase-memory-mcp | — | not stated | USE (optional) | UB-034 | — |
 | Argus | — | not stated | TRY | UB-035 | — |
-| Gemini CLI (design ideas) | — | not stated | LEARN | UB-036, UB-042 | — |
-| Hermes (design ideas) | — | not stated | LEARN | UB-028, UB-037 | — |
-| Mistral Vibe (design ideas) | — | not stated | LEARN | UB-038, UB-042, UB-044 | — |
-| Codex (design ideas) | — | not stated | LEARN | UB-033 | — |
+| Gemini CLI | https://github.com/google-gemini/gemini-cli | Apache-2.0 (`LICENSE` read at `60f8082`) | LEARN (code may be copied only with the licence and notices kept and changes marked; usage statistics are on by default, `privacy.usageStatisticsEnabled` is true in `settingsSchema.ts`, and what is sent was not read) | UB-036, UB-042, UB-048, UB-075, section 6 | licence read 2026-11-26; read from source, not run |
+| Hermes (hermes-agent) | https://github.com/NousResearch/hermes-agent | MIT (root `LICENSE` read at `c84e8d7f`, Nous Research 2025); 17 nested `LICENSE` or `NOTICE` files exist under `optional-skills/`, `skills/`, `plugins/` and `apps/desktop/src/plugins/hermes-bots`, and their terms were not read | LEARN (take nothing from those folders before reading its licence; `plugins/security-guidance` has a NOTICE and was reported as Apache-2.0 by the review; the root holds `hermes_constants_scratch*.py` files that look like scratch code) | UB-028, UB-033, UB-037, UB-042, UB-048, UB-064, UB-087, section 6 | root licence read 2026-11-26; read from source, not run; no telemetry client found by search, not exhaustive |
+| Mistral Vibe | https://github.com/mistralai/mistral-vibe | Apache-2.0 (`LICENSE` read at `fb7511a`) | LEARN (code may be copied only with the licence and notices kept and changes marked; it needs Python 3.12 and uses 3.12 syntax such as `type` aliases, so check any file before it goes into code with a 3.11 floor; telemetry is on by default per the review, which was not re-read: `enable_telemetry`, posting to `/v1/datalake/events` on api.mistral.ai) | UB-038, UB-042, UB-044, UB-086, UB-087, section 6 | licence read 2026-11-26; read from source, not run |
+| Codex | https://github.com/openai/codex | Apache-2.0 plus a `NOTICE` (it records code derived from Ratatui, MIT) (`LICENSE` and `NOTICE` read at `06f334a`). The vendored bubblewrap is LGPL-2 (`codex-rs/vendor/bubblewrap/COPYING`): never copy it | LEARN (code may be copied only with the licence and notices kept and changes marked; analytics are on unless `analytics_enabled` is explicitly false, per the review, not re-read) | UB-033, UB-048, UB-085, section 6 | licence read 2026-11-26; read from source, not run |
 | OpenCode (design ideas) | — | not stated | LEARN | UB-036 | — |
 | Pi (design ideas) | — | not stated | LEARN | section 6 | — |
 | Tenuo | — | not stated | LEARN | UB-041 | — |
@@ -384,6 +406,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 | 2026-11-24 | — | batch B01 created | all features start as candidate; the SX series is excluded as done |
 | 2026-11-24 | — | batch B02 created | rust-anything and fast-anything added as optional tooling; Appendix A (`MG-Z04`, `MG-Z10`) edited to match |
 | 2026-11-26 | — | batch B03 created | five reference repos read and their licences recorded; the review's recommendations applied: existing entries extended in place (UB-014 to UB-018, UB-030, UB-031, UB-045, UB-048, UB-056, UB-068), UB-084 added, eight items recorded in section 6. Other chapters not edited |
+| 2026-11-26 | — | batch B04 created | four reference repos (gemini-cli, hermes-agent, mistral-vibe, codex) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-028, UB-033, UB-036, UB-037, UB-038, UB-042, UB-048, UB-064, UB-075), UB-085 to UB-087 added, 18 rows added to section 6. Other chapters not edited |
 
 ## Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 Nov 2026, minus the finished SX series
 
@@ -973,7 +996,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > If the model edits files and then stops without running a test or build, ask it once or twice to verify first.
 
-**Product** M2C · **Source** Spec M1, Plan 4.2 (idea seen in Hermes) · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
+**Product** M2C · **Source** Spec M1, Plan 4.2, Hermes `agent/verification_stop.py` and `agent/turn_stop_gates.py` (MIT, read at `c84e8d7f`) [R] · **Status** candidate · **Depends** — · **Decision** Default on or off (Hermes ships it off) · **Evidence** [V✓] [R]
 
 **What.** When the model ends its turn, and this run executed a file-changing tool with no later test, lint or build result, do not finish: add one continuation message asking it to run the project's verification command. At most two continuations per run.
 
@@ -983,14 +1006,15 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **How.**
 
-1. Track, per turn, "a file-changing tool ran" and "a verification-class tool ran after it".
-2. At the finish point, if the first is true and the second false and fewer than two continuations were used, append the continuation instead of ending.
-3. Emit a new `NOTICE_VERIFY_*` event like the existing ones.
-4. Reuse the step limit and budget limits so it cannot loop.
+1. Track, per turn, a ledger of the file-changing tool calls and of the commands run after them, so "verified" means a matching command ran after the last change. Hermes keeps such a ledger of commands [R].
+2. Skip the check when every changed file is prose or data with nothing to run. Hermes exempts `.md`, `.markdown`, `.mdx`, `.rst`, `.txt`, `.text`, `.adoc`, `.asciidoc`, `.org`, `.log`, `.csv` and `.tsv`, so a README edit never demands a test [R].
+3. At the finish point, if a change has no later verification and fewer than two continuations were used, append the continuation instead of ending.
+4. Emit a new `NOTICE_VERIFY_*` event like the existing ones.
+5. Reuse the step limit and budget limits so it cannot loop.
 
-**Done when.** A fake model that edits then stops gets exactly one extra turn; one that edits, runs a test, then stops finishes normally; the limit of two holds.
+**Done when.** A fake model that edits then stops gets exactly one extra turn; one that edits, runs a test, then stops finishes normally; one that edits only a `.md` file finishes normally; the limit of two holds.
 
-**Notes.** Deciding what counts as a "verification" tool needs a short list (shell commands matching test, lint, build). See UB-043 for the independent-validator version.
+**Notes.** Deciding what counts as a "verification" tool needs a short list (shell commands matching test, lint, build). See UB-043 for the independent-validator version. Hermes ships this off by default, with at most two nudges, and says in its code that a documentation edit must never demand a verification script [R]. Whether the nudge goes in as a user-role message was carried from the review and not re-read [S]. The ledger is the real work, and UB-086 (goal mode) needs the same evidence for "complete", so build it once. Hermes also waits briefly after the final answer for language-server diagnostics on the files it edited and feeds back at most three notes (`_MAX_LSP_TURN_END_NOTES = 3`) [R]. That needs a language server (`L08`, Phase 5 of the M2C build plan) and belongs to `L04`; the chapter was not edited (section 6).
 
 ### UB-029: Skills loader for M2C (M)
 
@@ -1088,7 +1112,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > When an MCP server exposes many tools, keep their descriptions out of the prompt and find them on demand.
 
-**Product** M2C · **Source** Codex and Hermes (Plan 4.2) · **Status** candidate · **Depends** UB-032 · **Decision** none · **Evidence** [R] [U]
+**Product** M2C · **Source** Codex and Hermes (Plan 4.2), Hermes `tools/tool_search.py` (MIT, read at `c84e8d7f`) [R] · **Status** candidate · **Depends** UB-032 · **Decision** none · **Evidence** [R] [U]
 
 **What.** A small search tool (BM25 over names and descriptions) the model calls to load the tools it needs.
 
@@ -1099,10 +1123,15 @@ Every change of status, and every general decision about this backlog. `--set-st
 **How.**
 
 1. Index tool names and descriptions per server at connect.
-2. Expose one `tool_search` tool; load a tool's schema only after it is chosen.
+2. Expose three bridge tools, as Hermes does: `tool_search` (find), `tool_describe` (load the full schema of chosen tools) and `tool_call` (run one) [R]. A tool's schema is loaded only after it is chosen.
 3. Keep the list of loaded tools stable inside a turn for cache stability.
+4. Optionally embed a short listing of the tools in the prompt under a budget. Hermes takes the smaller of 4,000 tokens and a share of the context window, and shrinks the listing in stages (full, then names only, then a bare bridge) when it does not fit [R].
+5. Bound each call: Hermes allows 7 queries per `tool_search` call and 10 names per `tool_describe` call [R].
+6. Run the real tool name through the policy engine and the approval path, never the name `tool_call` [U].
 
-**Done when.** A server with 50 tools adds only the search tool to the prompt, and a task that needs two of them still works.
+**Done when.** A server with 50 tools adds only the bridge tools to the prompt, and a task that needs two of them still works. A call made through `tool_call` is allowed, asked or denied by the rule for the tool it names.
+
+**Notes.** Step 6 is a design idea that nobody has run: a bridge tool hides the real tool from any rule written against tool names, so check how `policy/` and the approvals see a bridged call before step 2. Codex's search is BM25 and returns 8 results by default; that figure came from the earlier review and was not re-read [S]. It is a ranking function that could sit inside `tool_search`.
 
 ### UB-034: Offer codebase-memory-mcp as an optional local server (S)
 
@@ -1148,7 +1177,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > Warn when the same call repeats even if it succeeds, then ask a model to self-check after many turns; let the user decide.
 
-**Product** M2C · **Source** Gemini CLI and OpenCode (Plan 4.2) · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
+**Product** M2C · **Source** Gemini CLI and OpenCode (Plan 4.2), Gemini CLI `packages/core/src/services/loopDetectionService.ts` (Apache-2.0, read at `60f8082`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
 
 **What.** A hash of tool plus sorted arguments, counted across a turn; warn first, then ask the model whether it is stuck after N turns; a detected "doom loop" becomes a permission question to the user.
 
@@ -1159,16 +1188,18 @@ Every change of status, and every general decision about this backlog. `--set-st
 **How.**
 
 1. Count repeats of the same key regardless of outcome.
-2. At a threshold, emit a warning notice; at a higher one, a model self-check call (metered).
+2. At a threshold, emit a warning notice; at a higher one, a model self-check call (metered). Gemini's numbers are a good first guess: the same tool call 5 times, a model check after 30 turns, and a loop confirmed at confidence 0.9 [R].
 3. On a confirmed loop, pause and ask the user (reusing the existing pause path).
 
-**Done when.** Fake-model tests: ten identical successful calls trigger the warning; a varied sequence does not.
+**Done when.** Fake-model tests: ten identical successful calls trigger the warning (and so does the fifth, if you start at Gemini's threshold); a varied sequence does not.
+
+**Notes.** Gemini's constants (`TOOL_CALL_LOOP_THRESHOLD = 5`, `CONTENT_LOOP_THRESHOLD = 10` repeats of 50-character chunks, `LLM_CHECK_AFTER_TURNS = 30`, a check interval that adapts between 5 and 15 turns, `LLM_CONFIDENCE_THRESHOLD = 0.9`) were read [R]. The content-chunk detector watches repeated streamed text, which is a different loop from a repeated tool call; it is optional here. Tune the numbers on replays of your own traces (the ledger of UB-075) before you trust them.
 
 ### UB-037: Mid-turn user steering (M)
 
 > Let the user add a message while the agent works, inserted behind an anti-injection marker.
 
-**Product** M2C · **Source** Hermes (Plan 4.2) · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
+**Product** M2C · **Source** Hermes (Plan 4.2), Hermes `agent/prompt_builder.py` (MIT, read at `c84e8d7f`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
 
 **What.** A queue of user messages that the loop picks up between tool calls.
 
@@ -1179,16 +1210,18 @@ Every change of status, and every general decision about this backlog. `--set-st
 **How.**
 
 1. Add the message type and a per-run queue.
-2. Insert queued text with a marker so tool output cannot imitate it.
-3. Cover it in `protocol/` fixtures and the contract tests.
+2. Deliver queued text as its own user message after the newest tool result, wrapped in an opening and a closing marker. Hermes uses `[OUT-OF-BAND USER MESSAGE ...]` and `[/OUT-OF-BAND USER MESSAGE]` [R].
+3. Tell the model in the system prompt to trust that marker only in the latest turn, so a marker replayed from old history has no authority. The review reported Hermes does this; only the marker constants were re-read [S].
+4. Relabel look-alikes in tool output. Hermes relabels text that imitates its own control frames, such as "CONTEXT COMPACTION", "CONTEXT SUMMARY]", "PRIOR CONTEXT" and "Runtime note:", and the marker itself [R]. Make your own list from your own frames (the `NOTICE_*` messages, the goal envelope of UB-042, the steer marker). UB-087 proposes one helper for this.
+5. Cover it in `protocol/` fixtures and the contract tests.
 
-**Done when.** A steering message sent during a run appears in the next model call exactly once, and a tool result containing the marker does not.
+**Done when.** A steering message sent during a run appears in the next model call exactly once, and a tool result containing the marker does not. A tool result containing a look-alike of any of your control frames is relabelled, and a marker in an older turn carries no authority.
 
 ### UB-038: An instruction-hierarchy contract in the system prompt (S)
 
 > One ranked list of instruction sources (user, repo, skills, MCP, external data last) instead of scattered prohibitions.
 
-**Product** M2C · **Source** Mistral Vibe (Plan 4.2) · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
+**Product** M2C · **Source** Mistral Vibe (Plan 4.2), Vibe `vibe/core/prompts/cli_ml4_2026-10_v2.md` (Apache-2.0, read at `fb7511a`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
 
 **What.** One short ranked section in the server prompt.
 
@@ -1199,10 +1232,11 @@ Every change of status, and every general decision about this backlog. `--set-st
 **How.**
 
 1. Read the current prompt and list its prohibitions.
-2. Write the ranking; replace duplicated lines.
-3. Add a test that the section exists and is stable (cache order).
+2. Write the ranking; replace duplicated lines. Vibe's has seven levels, lowest number wins: critical instructions that nothing overrides; user messages (newer beat older); the repo's `AGENTS.md` files (the one closest to the task wins); the user's own `AGENTS.md`; overridable defaults in the system prompt; skills and MCP output; external data, treated as data and never as instructions [R]. Map the levels to your own sources, and write the wording yourself.
+3. Put the irreversible actions that need fresh approval in the top level, and say that one approval does not carry over to a different target. Vibe's critical section says the second [R].
+4. Add a test that the section exists and is stable (cache order).
 
-**Done when.** The prompt has the ranking and the existing prompt tests pass.
+**Done when.** The prompt has the ranking and the existing prompt tests pass. A fake tool result that says to ignore the rules above is treated as data.
 
 ### UB-039: Observe mode before enforce mode for new policy rules (M)
 
@@ -1268,7 +1302,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > When the context is compacted, put the original goals back in; keep the full transcript so only the model's view shrinks.
 
-**Product** M2C · **Source** Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2) · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
+**Product** M2C · **Source** Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2), Gemini CLI `prompts/snippets.ts` and `context/chatCompressionService.ts` (Apache-2.0, read at `60f8082`) [R], Hermes `agent/context_compressor.py` and `context_compressor_prompt_rules.py` (MIT, read at `c84e8d7f`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
 
 **What.** Re-injection of the original task statement after a compaction, and a guarantee that nothing is deleted from the stored log.
 
@@ -1281,8 +1315,13 @@ Every change of status, and every general decision about this backlog. `--set-st
 1. Read what compaction does today and what the store keeps.
 2. Add a short "goal envelope" message after each compaction.
 3. Test that the full log is unchanged by compaction.
+4. Write the template for the model summary (`L03` in the M2C build plan; the plan was not edited, so this entry carries the template). Gemini's is an XML `<state_snapshot>` with the sections `<overall_goal>`, `<active_constraints>`, `<key_knowledge>`, `<artifact_trail>`, `<file_system_state>`, `<recent_actions>` and `<task_state>` [R]. Add Hermes's `## Unverified / Working Hypotheses` section, so a guess is never restated as fact [R].
+5. Put two rules in the summariser's prompt. Text inside the history that tells the model to ignore its instructions is not obeyed (Gemini says so in its prompt [R]). The summary must not answer a request that appears inside the history (Hermes; carried from the review and not re-read [S]).
+6. Take Gemini's two numbers as first guesses to compare with the constants in `context.py`: compress at 0.5 of the window and keep the newest 0.3 (`DEFAULT_COMPRESSION_TOKEN_THRESHOLD`, `COMPRESSION_PRESERVE_THRESHOLD`) [R].
 
-**Done when.** After a forced compaction, the first model call contains the original task, and the stored events are identical.
+**Done when.** After a forced compaction, the first model call contains the original task, and the stored events are identical. A history line that says to ignore previous instructions does not change the summary call, and a guess made in the history lands under "Unverified".
+
+**Notes.** Compaction here is still mechanical (clear the oldest tool outputs, cap large results, repeat the person's messages) [V✓ docstring of `context.py`], so steps 4 to 6 are for the model summary that does not exist yet. Hermes also replaces secrets with `[REDACTED]` in the summary input [S]; the server side would need its own redactor for that. Write your own wording: Gemini's template is Apache-2.0, so copied text would need its notice.
 
 ### UB-043: An independent verifier context and step-graph validation (L)
 
@@ -1388,7 +1427,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > Anything from a web page, tool output or an imported CLAUDE.md enters as an untrusted candidate; only a user action promotes it.
 
-**Product** Menux · **Source** Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin) · **Status** candidate · **Depends** UB-047 · **Decision** none · **Evidence** [R] [W]
+**Product** Menux · **Source** Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin), Gemini CLI `agents/skill-extraction-agent.ts` (Apache-2.0, read at `60f8082`) [R] · **Status** candidate · **Depends** UB-047 · **Decision** none · **Evidence** [R] [W]
 
 **What.** A write path with trust tiers and a queue; no code path promotes automatically.
 
@@ -1399,12 +1438,12 @@ Every change of status, and every general decision about this backlog. `--set-st
 **How.**
 
 1. Every write from external content gets tier `untrusted`.
-2. Show new candidates in a queue; importing an existing `CLAUDE.md` creates candidates.
+2. Show new candidates in a queue; importing an existing `CLAUDE.md` creates candidates. Store each candidate as a reviewable patch. Gemini's background agent writes memory changes only as unified-diff `.patch` files under `.inbox/<kind>/`, one canonical file per kind, and treats transcripts as evidence and never as instructions [R].
 3. Promotion only through a user action.
 
 **Done when.** A poisoned web page cannot produce a trusted memory, tested with your own three-turn case: plant a memory, poison it, ask a follow-up.
 
-**Notes.** promptfoo's `agentic:memory-poisoning` plugin is remote-only: its grader was read, but its cases are generated on `api.promptfoo.app` [R]. Use it only for the shape of the test and write the three turns yourself. The same plugin is in UB-014 step 2, where it returns nothing if remote generation is off.
+**Notes.** promptfoo's `agentic:memory-poisoning` plugin is remote-only: its grader was read, but its cases are generated on `api.promptfoo.app` [R]. Use it only for the shape of the test and write the three turns yourself. The same plugin is in UB-014 step 2, where it returns nothing if remote generation is off. Two other reference repos write memory with no review step, so neither is copied as it is (section 6): Codex's second phase lets an agent write the memory folder with approvals set to never, and Hermes forks an agent after each turn that writes straight to its stores under a tool whitelist [S]. Two parts are safe to take: redact secrets before the extractor sees a transcript (Codex does this in its first phase [S]), and the fork-after-each-turn trick, if its output lands only in this queue.
 
 ### UB-049: Correcting a source retires its dependents, and deletes cascade (M)
 
@@ -1694,7 +1733,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > A written process and a small scanner so every seed skill is vetted the same way before it is kept.
 
-**Product** Shared · **Source** Plan section 7, ponytail (method) [README] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [T] [README]
+**Product** Shared · **Source** Plan section 7, ponytail (method) [README], Hermes `tools/skills_guard.py` (MIT, read at `c84e8d7f`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [T] [README] [R]
 
 **What.** The six steps from the plan, with a scanner script and a before-and-after eval method.
 
@@ -1704,9 +1743,11 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **How.**
 
-1. **Select** one skill for a named need. 2. **Scan** for hidden Unicode, injection phrases, pipe-to-shell, credential paths and exfiltration domains. 3. **Rewrite** in your own words to the Agent Skills format and record the origin in `metadata.adapted_from`. 4. **Evaluate**: same agent with and without the skill on 10 to 20 real tasks (ponytail ran 39 tasks, five runs each [README]). 5. **Label trust**: built-in, user or third-party. 6. **Regress** whenever the model changes.
+1. **Select** one skill for a named need. 2. **Scan** for hidden Unicode, injection phrases, pipe-to-shell, credential paths and exfiltration domains. 3. **Rewrite** in your own words to the Agent Skills format and record the origin in `metadata.adapted_from`. 4. **Evaluate**: same agent with and without the skill on 10 to 20 real tasks (ponytail ran 39 tasks, five runs each [README]). 5. **Label trust**: built-in, user or third-party. Hermes's guard has four tiers (builtin, trusted, community, agent-created) and one table that maps tier and scan verdict to an action: builtin allows all three verdicts; trusted allows safe and caution and blocks dangerous; community allows only safe; agent-created allows safe and caution and asks on dangerous [R `INSTALL_POLICY`]. Use that table as the install policy. 6. **Regress** whenever the model changes.
 
 **Done when.** One skill has gone through all six steps and the result is recorded.
+
+**Notes.** The Hermes scanner's own header lists a known gap: language file-write calls aimed at the agent's own configuration are only low severity [R]. Cover that case in your scan. Do not copy skills out of the Hermes repo without reading each folder's licence: 17 nested `LICENSE` or `NOTICE` files exist under `skills/`, `optional-skills/`, `plugins/` and one desktop plugin, and their terms were not read (section 7).
 
 ### UB-065: Growth tab seed skills from marketingskills (M)
 
@@ -1885,7 +1926,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > Replay real traces with and without output compression, terse agent messages and cheaper models, and compare cost and quality.
 
-**Product** Shared · **Source** Spec P4, Plan 6.6 (headroom, caveman, Mixdog) · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
+**Product** Shared · **Source** Spec P4, Plan 6.6 (headroom, caveman, Mixdog), Gemini CLI `routing/strategies/numericalClassifierStrategy.ts` (Apache-2.0, read at `60f8082`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
 
 **What.** A table of cost and quality per variant.
 
@@ -1896,10 +1937,12 @@ Every change of status, and every general decision about this backlog. `--set-st
 **How.**
 
 1. Take a sample of real traces from the ledger.
-2. Replay with: tool-output compression (headroom-style; set `HEADROOM_OFFLINE=1`, it ships an anonymous beacon by default [R]), terse agent-to-agent messages (never on user-facing study content), a cheaper model for search, edit and review.
+2. Replay with: tool-output compression (headroom-style; set `HEADROOM_OFFLINE=1`, it ships an anonymous beacon by default [R]), terse agent-to-agent messages (never on user-facing study content), a cheaper model for search, edit and review, and a complexity-score router. Gemini's classifier scores each task from 1 to 100 and a threshold picks the stronger or the cheaper model alias [R].
 3. Compare cost and quality on a fixed set; adopt only where quality holds.
 
 **Done when.** The table exists.
+
+**Notes.** Gemini's default threshold is 90, and a remote value from its settings service overrides it when the value is between 0 and 100 [R `getResolvedClassifierThreshold`]. Do not adopt a threshold you cannot see or set yourself: pick yours from the replays of step 1.
 
 ### UB-076: Design and build techniques from impeccable, taste-skill and ui-ux-pro-max (M)
 
@@ -2083,3 +2126,84 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Done when.** After a test run, the registry lists exactly the objects that the run's events show as created. An object of the same kind that existed before the run is not listed. An exported registry holds no secret-like value.
 
 **Notes.** An idea until Menux has an event log; Strix's version was read, not run.
+
+## Batch B04 (2026-11-26): Review of gemini-cli, hermes-agent, mistral-vibe and codex
+
+*Source:* a review of four reference repos (33 capabilities), read from source with nothing installed or run, made against MiniMe `121e06c`; the rest of this file was written at `cd0bc23`. Reference commits read again when this batch was written: gemini-cli `60f8082`, hermes-agent `c84e8d7f`, mistral-vibe `fb7511a`, codex `06f334a`. The four licences were read again. In this batch `[R]` is a reading of those repos, `[V✓]` is a check of MiniMe `121e06c` made while writing it, and `[S]` is a fact carried from the review and not re-read. **The decision column of the review was empty, so its recommendations were taken as the decisions**, as in B03: **ADD** became new features (UB-085, UB-086), **EXTEND** items were written into the entries that exist (edited in place, so they are not repeated here: UB-028, UB-033, UB-036, UB-037, UB-038, UB-042, UB-048, UB-064, UB-075), and **IDEA ONLY** and **SKIP** items went to section 6. Where the work package belongs to another chapter (`L02`, `L04`, `L07`, `C13`, `C25`, `Q07`, `MG-Z10`), the section 6 row carries the addition and the chapter was **not** edited. One new feature, UB-087, is my own idea and not a decision from the review: drop it if you disagree.
+
+**Corrections to the review found while re-reading:** (1) Vibe's strict hooks are an opt-in flag on each hook, not five types that fail closed. (2) Codex's `HookEventName` has 14 events, not 15. (3) The review said to build goal mode after the metering item `S10`; `S10` is already built (`backend/codeagent/metering.py` exists [V✓]). (4) Vibe's goal engine uses Python 3.12 syntax, but the server loop runs on `python:3.12-slim` [V✓], so only code placed in `m2c/` (floor 3.11) is affected. (5) Codex leaves hardening on Windows as an empty TODO, and Python's `resource` module does not exist on Windows, where the dev machine runs.
+
+### UB-085: Switch off core dumps and debugger attach for the M2C client at start (XS)
+
+> Set no-core-dump and no-same-user-debugger-attach for the M2C client before it handles a secret (Linux and macOS), as Codex does.
+
+**Product** M2C · **Source** Codex `codex-rs/process-hardening/src/lib.rs` (Apache-2.0, read at `06f334a`) [R] · **Status** candidate · **Depends** — · **Decision** Whether a failed hardening call stops the client (Codex exits with code 5, 6 or 7) or only warns · **Evidence** [R] [V✓] [U]
+
+**What.** A small function called first in `m2c.cli.main`. On Linux it sets `PR_SET_DUMPABLE` to 0 and the core-file size limit to 0; on macOS it calls `ptrace(PT_DENY_ATTACH)` and sets the core-file limit to 0. Codex does this before its `main` starts, and also strips `LD_*` (Linux) and `DYLD_*` (macOS) variables from its own environment [R]. On Windows Codex does nothing: the function body is a TODO [R].
+
+**Why.** The client's memory holds the session token and the files it reads. A core dump, or a debugger attached by another process of the same user, could read them. The policy engine guards what the model does, not what other local processes do. A grep of `m2c/src` finds no `RLIMIT_CORE` and no `PR_SET_DUMPABLE`, and a grep of `daemon/` finds neither [V✓].
+
+**Where.** `m2c/src/m2c/cli.py` (`main`, line 419 [V✓]); a new `m2c/src/m2c/hardening.py`; `m2c/src/m2c/doctor.py`, which already records the platform, to report the result. The Menux daemon (`daemon/minime_daemon.py`, Python) holds longer-lived secrets and could call the same function.
+
+**How.**
+
+1. Write `harden_process()` with the standard library only (`ctypes`, `resource`, `sys`), so the dependency test of D14 still passes.
+2. Linux: call `prctl(PR_SET_DUMPABLE, 0)` through `ctypes.CDLL(None, use_errno=True)`; macOS: `ptrace(PT_DENY_ATTACH)`. Look the constants up in the system headers or `man` pages, they were not read from the OS here [GK].
+3. Import `resource` only on Unix: it does not exist on Windows [GK]. On Windows return "not applied: windows" and keep starting. No per-process Windows equivalent was looked at [U].
+4. Call it before the configuration and the auth store are read, and keep the result (applied, failed, unsupported) for `m2c doctor`.
+5. Decide the failure policy (see **Decision**). Add a documented opt-out for debugging, because a process that is not dumpable cannot be attached to by tools such as `gdb` or `py-spy` [GK].
+6. Separate question, a design idea [U]: Codex's environment stripping does not carry over, because Python has already loaded what `LD_PRELOAD` points to. The sandbox starts commands with `--clearenv` [V✓ `sandbox/bwrap.py`], so `LD_*` does not reach them there. `secrets/env.py` is a deny list by name and does not name `LD_PRELOAD` or `DYLD_INSERT_LIBRARIES` [V✓], so for a run outside bwrap decide whether to add those two names (not all `LD_*`: toolchains use `LD_LIBRARY_PATH`).
+
+**Done when.** On Linux a test run in a subprocess reads back `PR_GET_DUMPABLE` as 0 and `RLIMIT_CORE` as (0, 0) after the call. A macOS test is skipped elsewhere. On Windows `m2c` still starts and `doctor` says hardening was not applied. The dependency test still passes.
+
+**Notes.** An idea nobody has run here; Codex's version was read, not run. It is a dozen lines of system calls: write them fresh and keep the Codex file as the reference, so no notice is needed in your code.
+
+### UB-086: Session goal mode with a token budget and a no-progress stop (M)
+
+> One goal the agent works on across turns; it stops at a token budget, after 3 turns without progress, or after 3 turns of failed tools.
+
+**Product** M2C · **Source** Mistral Vibe `vibe/app_server/_goal_engine.py` (Apache-2.0, read at `fb7511a`) [R] · **Status** candidate · **Depends** — · **Decision** Whether to build it only after UB-028 and UB-036, so the goal reuses their evidence ledger and loop stop instead of a second copy · **Evidence** [R] [V✓] [U]
+
+**What.** A goal mode. The person states one objective; after each turn, if the goal is still active and nothing stopped it, the loop adds a continuation turn. In Vibe's engine [R]: a turn ends the goal as paused (user interrupt), usage-limited, blocked (a failed turn, 3 turns with no progress or 3 turns of failed tools: `STREAK_LIMIT = 3`) or budget-limited, and the model itself can mark it complete, blocked or paused. The token budget and what is left of it are told to the model. The objective is HTML-escaped and wrapped in a `<goal_objective>` block so it reads as data. The continuation prompt asks for work from evidence, and a completion must name its evidence (a test run, command output or a file).
+
+**Why.** Today a run ends when the model stops, and a long task needs the person to type "continue". There is no goal mode in M2C: the only match for "goal" in `m2c/src` is in `store/migrations.py` and is unrelated [V✓]. The earlier review said to wait for the metering item `S10`; it is built (`backend/codeagent/metering.py` [V✓], and the build plan lists it as built), so the budget has a source.
+
+**Where.** `backend/codeagent/loop.py` and `backend/codeagent/metering.py` (the server loop owns budgets and stop rules); `run_manager.py` and `runs.py` for per-run state; `protocol/v1/` for additive messages (set goal, goal status); the TUI. The server runs on Python 3.12 [V✓ `backend.Dockerfile`], and Vibe's file uses `type` aliases (3.12 syntax) [R]; the 3.11 floor of D1 applies only to code in `m2c/`.
+
+**How.**
+
+1. Settle the decision above.
+2. Keep a goal record per run: objective, token budget, status, reason and two streak counters. Write changes as events in the append-only store and not as a mutable table [U].
+3. After each turn apply Vibe's rule order [R]: user interrupt, usage limit, failed turn, budget reached, no-progress streak of 3, failure streak of 3.
+4. Build the continuation message with the objective inside an escaped, marked block (use UB-087), the tokens used and left, and the rule that completion needs named evidence. Check that evidence against the UB-028 ledger [U].
+5. Make a budget mandatory. Vibe allows no budget at all (`token_budget is None` [R]); do not copy that default [U].
+6. Every continuation goes through the normal policy and approvals, and a goal never widens a permission. A call that needs approval pauses the goal with a visible status instead of being denied silently [U].
+7. Add the protocol messages with fixtures.
+
+**Done when.** Fake-model tests: a goal completed with evidence ends `complete`; three turns that change nothing end `blocked` with the reason; three turns of failed tools end `blocked`; the token budget stops the run; an objective that contains `</goal_objective>` stays inside its block; a user interrupt pauses the goal.
+
+**Notes.** Runaway cost is the main risk, so the budget and the step limit both stay in force. Take the rules, not the code: Vibe's engine is tied to its own goal-state types. If code is ever copied, the Apache-2.0 notice and a mark on the changes are required.
+
+### UB-087: One helper that frames text the model must treat as data (S)
+
+> Steering messages, compaction summaries and goal objectives all need the same escaping, marker and look-alike handling; write it once.
+
+**Product** M2C · **Source** my idea, from Hermes `agent/prompt_builder.py` (MIT, `c84e8d7f`), Gemini CLI `prompts/snippets.ts` (Apache-2.0, `60f8082`) and Vibe `_goal_engine.py` (Apache-2.0, `fb7511a`) [R] · **Status** candidate · **Depends** — · **Decision** Build it before UB-037, UB-042 and UB-086, or let each write its own and merge them later · **Evidence** [R] [V✓] [U]
+
+**What.** One module in `backend/codeagent/` with three parts: a function that escapes, wraps and marks a piece of text for a named kind of frame; a function that relabels text imitating one of your own frames inside a tool result; and one list of the frame kinds. Users would be the steer message of UB-037, the goal envelope and summary of UB-042, the objective of UB-086, and the existing `NOTICE_*` messages.
+
+**Why.** Three entries each need a marker, and each marker is a place where a look-alike can get through. Hermes needed a list of strings that imitate its control frames [R], Gemini tells its summariser to ignore instructions found in the history [R], and Vibe escapes the objective so it cannot close its own block [R]. One shared list makes a new kind of frame get the same cover. This is an idea; nobody has run it.
+
+**Where.** `backend/codeagent/prompts.py`, `loop.py` (`NOTICE_*`), `context.py`. The files that already mention an injection guard are `broker.py`, `prompts.py` and `adapters/toolcalls.py` [V✓ grep]; read how they mark outside text first and reuse it if it fits.
+
+**How.**
+
+1. Read the current markers (`NOTICE_*` and the injection guard files above).
+2. Define the frame kinds and one escaping rule: escape `<`, `>` and `&`, as Vibe does for the objective, so text cannot close its own tag [R].
+3. Write the look-alike relabelling and apply it only to tool results on their way to the model. Keep the original in the stored log, so UB-042's lossless log stays lossless.
+4. Write a table test: each frame kind against hostile payloads (a closing tag, a look-alike heading, a nested marker).
+5. Use it in UB-037, UB-042 and UB-086.
+
+**Done when.** For every frame kind, no hostile payload can close or forge the frame. A tool result that contains any kind's marker is relabelled. The existing prompt tests pass.
+
+**Notes.** The risk is a relabelling list that mangles real output, for example a README that contains the words "Runtime note:". That is why step 3 relabels only inside tool results and keeps the stored original.

@@ -242,7 +242,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/components.css">
 <link rel="stylesheet" href="assets/css/shell.css">
-</head><body data-page="doc-upgrade-backlog"><main><h1>Upgrade Backlog: Features To Build Later (an incremental register)</h1><p class="sub">Appendix C. 24,546 words. <a href="data/docs/upgrade_backlog.md" download>Download .md</a></p><div class="bk-banner">
+</head><body data-page="doc-upgrade-backlog"><main><h1>Upgrade Backlog: Features To Build Later (an incremental register)</h1><p class="sub">Appendix C. 29,587 words. <a href="data/docs/upgrade_backlog.md" download>Download .md</a></p><div class="bk-banner">
   <div class="bk-top">
     <div>
       <span class="bk-part">Appendix C · Upgrade backlog</span>
@@ -256,7 +256,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
   </div>
   <p class="bk-desc">An incremental register of features to build later. Every feature has a source (a repository, a plan section or an idea of your own), one line in a generated top table, and a detailed entry: what it is, why, where in the code, how it would be added and when it counts as done. It grows by batches, and a script keeps its tables and this page in step with the entries.</p>
   <div class="bk-meta">
-    <span><b>24,546</b> words (~112 min read)</span><span>·</span><span><b>96</b> sections</span><span>·</span><span><b>8</b> tables</span>
+    <span><b>29,587</b> words (~134 min read)</span><span>·</span><span><b>100</b> sections</span><span>·</span><span><b>8</b> tables</span>
   </div>
   <div class="bk-prevnext"><a href="docs.html" class="bk-nav-btn">← Back to the book</a><a href="doc-provider-consolidation.html" class="bk-nav-btn bk-next">Appendix B: Provider Consolidation Guide →</a></div>
 </div><div class="doc"><article><h1 id="upgrade-backlog-features-to-build-later-an-incremental-register">Upgrade Backlog: Features To Build Later (an incremental register)</h1>
@@ -267,7 +267,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <p><strong>Sections 0, 1 and 2 are generated</strong> from the entries by <code>python scripts/check_backlog.py --write</code>. Never edit them by hand; edit an entry and run the script.</p>
 <h2 id="0-at-a-glance">0. At a glance</h2>
 <p><em>Generated from the entries by <code>python scripts/check_backlog.py --write</code>. Do not edit by hand.</em></p>
-<p><strong>84 features</strong> in 3 batches: 81 candidate · 0 accepted · 0 building · 0 done · 3 parked · 0 dropped.</p>
+<p><strong>87 features</strong> in 4 batches: 84 candidate · 0 accepted · 0 building · 0 done · 3 parked · 0 dropped.</p>
 <div class="tw"><table>
 <thead>
 <tr>
@@ -294,13 +294,13 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td>M2C</td>
-<td>20</td>
+<td>23</td>
 <td>0</td>
 <td>0</td>
 <td>0</td>
 <td>1</td>
 <td>0</td>
-<td>21</td>
+<td>24</td>
 </tr>
 <tr>
 <td>Menux</td>
@@ -334,13 +334,13 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td><strong>All</strong></td>
-<td><strong>81</strong></td>
+<td><strong>84</strong></td>
 <td><strong>0</strong></td>
 <td><strong>0</strong></td>
 <td><strong>0</strong></td>
 <td><strong>3</strong></td>
 <td><strong>0</strong></td>
-<td><strong>84</strong></td>
+<td><strong>87</strong></td>
 </tr>
 </tbody>
 </table></div>
@@ -635,7 +635,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Verify-on-stop in the agent loop</td>
 <td>If the model edits files and then stops without running a test or build, ask it once or twice to verify first.</td>
 <td>M2C</td>
-<td>Spec M1, Plan 4.2 (idea seen in Hermes)</td>
+<td>Spec M1, Plan 4.2, Hermes <code>agent/verification_stop.py</code> and <code>agent/turn_stop_gates.py</code> (MIT, read at <code>c84e8d7f</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -685,7 +685,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Deferred tool loading with search over tool specs</td>
 <td>When an MCP server exposes many tools, keep their descriptions out of the prompt and find them on demand.</td>
 <td>M2C</td>
-<td>Codex and Hermes (Plan 4.2)</td>
+<td>Codex and Hermes (Plan 4.2), Hermes <code>tools/tool_search.py</code> (MIT, read at <code>c84e8d7f</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -715,7 +715,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Stuck detection beyond identical failures</td>
 <td>Warn when the same call repeats even if it succeeds, then ask a model to self-check after many turns; let the user decide.</td>
 <td>M2C</td>
-<td>Gemini CLI and OpenCode (Plan 4.2)</td>
+<td>Gemini CLI and OpenCode (Plan 4.2), Gemini CLI <code>packages/core/src/services/loopDetectionService.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -725,7 +725,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Mid-turn user steering</td>
 <td>Let the user add a message while the agent works, inserted behind an anti-injection marker.</td>
 <td>M2C</td>
-<td>Hermes (Plan 4.2)</td>
+<td>Hermes (Plan 4.2), Hermes <code>agent/prompt_builder.py</code> (MIT, read at <code>c84e8d7f</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -735,7 +735,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>An instruction-hierarchy contract in the system prompt</td>
 <td>One ranked list of instruction sources (user, repo, skills, MCP, external data last) instead of scattered prohibitions.</td>
 <td>M2C</td>
-<td>Mistral Vibe (Plan 4.2)</td>
+<td>Mistral Vibe (Plan 4.2), Vibe <code>vibe/core/prompts/cli_ml4_2026-10_v2.md</code> (Apache-2.0, read at <code>fb7511a</code>) [R]</td>
 <td>S</td>
 <td>candidate</td>
 <td>B01</td>
@@ -775,7 +775,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Compaction that re-injects the task goal, with a lossless log</td>
 <td>When the context is compacted, put the original goals back in; keep the full transcript so only the model's view shrinks.</td>
 <td>M2C</td>
-<td>Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2)</td>
+<td>Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2), Gemini CLI <code>prompts/snippets.ts</code> and <code>context/chatCompressionService.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R], Hermes <code>agent/context_compressor.py</code> and <code>context_compressor_prompt_rules.py</code> (MIT, read at <code>c84e8d7f</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -835,7 +835,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Trust rule and a review queue for new memories</td>
 <td>Anything from a web page, tool output or an imported CLAUDE.md enters as an untrusted candidate; only a user action promotes it.</td>
 <td>Menux</td>
-<td>Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin)</td>
+<td>Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin), Gemini CLI <code>agents/skill-extraction-agent.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -995,7 +995,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>A repeatable skills pipeline: select, scan, rewrite, evaluate, label, regress</td>
 <td>A written process and a small scanner so every seed skill is vetted the same way before it is kept.</td>
 <td>Shared</td>
-<td>Plan section 7, ponytail (method) [README]</td>
+<td>Plan section 7, ponytail (method) [README], Hermes <code>tools/skills_guard.py</code> (MIT, read at <code>c84e8d7f</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -1105,7 +1105,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Cost experiments before adopting any compressor or router</td>
 <td>Replay real traces with and without output compression, terse agent messages and cheaper models, and compare cost and quality.</td>
 <td>Shared</td>
-<td>Spec P4, Plan 6.6 (headroom, caveman, Mixdog)</td>
+<td>Spec P4, Plan 6.6 (headroom, caveman, Mixdog), Gemini CLI <code>routing/strategies/numericalClassifierStrategy.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -1200,6 +1200,36 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>candidate</td>
 <td>B03</td>
 </tr>
+<tr>
+<td>UB-085</td>
+<td>Switch off core dumps and debugger attach for the M2C client at start</td>
+<td>Set no-core-dump and no-same-user-debugger-attach for the M2C client before it handles a secret (Linux and macOS), as Codex does.</td>
+<td>M2C</td>
+<td>Codex <code>codex-rs/process-hardening/src/lib.rs</code> (Apache-2.0, read at <code>06f334a</code>) [R]</td>
+<td>XS</td>
+<td>candidate</td>
+<td>B04</td>
+</tr>
+<tr>
+<td>UB-086</td>
+<td>Session goal mode with a token budget and a no-progress stop</td>
+<td>One goal the agent works on across turns; it stops at a token budget, after 3 turns without progress, or after 3 turns of failed tools.</td>
+<td>M2C</td>
+<td>Mistral Vibe <code>vibe/app_server/_goal_engine.py</code> (Apache-2.0, read at <code>fb7511a</code>) [R]</td>
+<td>M</td>
+<td>candidate</td>
+<td>B04</td>
+</tr>
+<tr>
+<td>UB-087</td>
+<td>One helper that frames text the model must treat as data</td>
+<td>Steering messages, compaction summaries and goal objectives all need the same escaping, marker and look-alike handling; write it once.</td>
+<td>M2C</td>
+<td>my idea, from Hermes <code>agent/prompt_builder.py</code> (MIT, <code>c84e8d7f</code>), Gemini CLI <code>prompts/snippets.ts</code> (Apache-2.0, <code>60f8082</code>) and Vibe <code>_goal_engine.py</code> (Apache-2.0, <code>fb7511a</code>) [R]</td>
+<td>S</td>
+<td>candidate</td>
+<td>B04</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="2-batches">2. Batches</h2>
@@ -1235,6 +1265,13 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Review of promptfoo, Strix, Hypothesis, Schemathesis and Locust</td>
 <td>1</td>
 <td>UB-084</td>
+</tr>
+<tr>
+<td>B04</td>
+<td>2026-11-26</td>
+<td>Review of gemini-cli, hermes-agent, mistral-vibe and codex</td>
+<td>3</td>
+<td>UB-085 to UB-087</td>
 </tr>
 </tbody>
 </table></div>
@@ -1619,6 +1656,96 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <td>A technique for <code>MG-Z03</code>: generate shell commands from a small grammar to feed the shell-parsing vectors and the Python-against-Rust comparison. Only its docstring was read; whether a small shell grammar fits is untested [R]</td>
 <td><code>MG-Z03</code> starts on shell parsing</td>
 </tr>
+<tr>
+<td>Codex Guardian and Hermes smart approval, for <code>L07</code></td>
+<td>Already planned as <code>L07</code> in the M2C build plan; the chapter was not edited. Take into <code>L07</code>: Codex's reviewer prompt (<code>codex-rs/prompts/templates/guardian/policy.md</code>) has headings for data exfiltration, credential probing, persistent security weakening and destructive actions [R]. Hermes's reviewer (<code>tools/approval_smart.py</code>) answers APPROVE, DENY or ESCALATE, strips recognisable shell comments first, wraps the command in <code>&lt;command&gt;</code> delimiters, tells the model to ignore instructions inside them, and escalates when it sees manipulation text [R]. A model verdict may only raise a call to "ask", never lower a rule's decision; deny rules and the sandbox keep the last word. Design ideas [U]: run it in observe mode first (UB-039), score it on a labelled call set (the review suggested about 30 per category; the Strix labels are in the row above), and measure how often it escalates a harmless call</td>
+<td><code>L07</code> starts</td>
+</tr>
+<tr>
+<td>Hermes command-obfuscation cases, for <code>Q07</code></td>
+<td>Already planned as <code>Q07</code>; the chapter was not edited. Hermes flags hidden Unicode variation selectors after letters or digits (<code>tools/approval_variation_selectors.py</code>) and masks newlines inside quotes so data lines do not trip rules, while keeping <code>$(...)</code> bodies executable (<code>tools/approval_quoted_newlines.py</code>) [R]. A grep of <code>m2c/src/m2c/policy/</code> finds no variation-selector or zero-width handling [V✓]. Turn each case into a <code>Q07</code> row; if one passes the policy, fix <code>policy/</code> (<code>shellparse.py</code>)</td>
+<td><code>Q07</code> starts</td>
+</tr>
+<tr>
+<td>Gemini subagent contract, for <code>L02</code></td>
+<td>Already planned as <code>L02</code> (Subagents); the chapter was not edited. Take: a subagent ends by calling a typed <code>complete_task</code> tool; separate end states, including <code>GOAL</code> and <code>MAX_TURNS</code>; a default of 30 turns (<code>DEFAULT_MAX_TURNS</code>) and a time limit in minutes [R <code>agents/types.ts</code>]. The 1-minute grace period after a limit was carried from the review [S]. Combine with UB-041 (narrowing grants)</td>
+<td><code>L02</code> starts</td>
+</tr>
+<tr>
+<td>Codex rules with reasons and examples, for <code>C25</code></td>
+<td>Already planned as <code>C25</code> (rule hygiene); the chapter was not edited. Codex's <code>prefix_rule</code> has a decision (allow, prompt, forbidden), a <code>justification</code> that appears in prompts and refusals (with a suggested alternative for forbidden rules), and <code>match</code> and <code>not_match</code> example invocations checked when the rules load, like unit tests [R <code>execpolicy/README.md</code>]. Add a reason and must-match and must-not-match examples to the TOML rules of <code>policy/rules.py</code>, and refuse to load a rule whose examples fail [U]</td>
+<td><code>C25</code> starts</td>
+</tr>
+<tr>
+<td>Hook events and failure rule, for <code>C13</code></td>
+<td>Already planned as <code>C13</code> (Hooks); the chapter was not edited. Codex's <code>HookEventName</code> has 14 events at <code>06f334a</code> (the review counted 15): PreToolUse, PermissionRequest, PostToolUse, PreCompact, PostCompact, SessionStart, SessionEnd, UserPromptSubmit, SubagentStart, SubagentStop, Stop, Interrupt, PreModelRequest, PostModelRequest [R]. The plan's list also has PostToolUseFailure and lacks PostCompact, Interrupt and the two model-request events. Take Codex's idea of one JSON schema per event under <code>protocol/</code>. For failure, Vibe has a <strong>per-hook</strong> <code>strict</code> flag, off by default, which its config model rejects on any hook type outside <code>STRICT_HOOK_TYPES</code>; the default timeout is 60 seconds [R <code>vibe/core/hooks/models.py</code>]. The review had called five types fail-closed; the code makes that an opt-in. Adopt the shape: only types that can block may be strict, strict is explicit, and a strict hook that fails or times out blocks</td>
+<td><code>C13</code> starts</td>
+</tr>
+<tr>
+<td>Late language-server verdicts, for <code>L04</code></td>
+<td>Already planned in <code>L04</code> (Verification loop and Stop hooks); the language server is <code>L08</code> (Phase 5). Hermes waits briefly after the final answer for diagnostics on the files it edited and feeds them back, at most three notes per turn [R]. Add to the UB-028 gate once <code>L08</code> exists</td>
+<td><code>L08</code> is built</td>
+</tr>
+<tr>
+<td>Vibe's Python core with a Rust TUI, for <code>MG-Z10</code></td>
+<td>A possible <code>MG-Z10</code> outcome; Appendix A was not edited. Vibe's Rust TUI is a thin JSON-RPC client over stdio and never imports Python internals (<code>docs/adr/0016-rust-cli-delivery-surface.md</code>) [R], so the safety code stays in Python. <code>DM-2</code> argues for Rust partly because the compiler checks the safety code, so this outcome trades that away; you must accept the trade before it is named</td>
+<td>the <code>MG-Z10</code> criteria are written (Appendix A rule 10: commit them first)</td>
+</tr>
+<tr>
+<td>Codex proxy-side secret substitution (idea only)</td>
+<td>The sandbox sees placeholders and a trusted proxy swaps in the real secret after the destination is authorised (<code>network-proxy/src/secret_substitution.rs</code>; the module header was read, the mechanism not traced) [R]. It needs a proxy that opens TLS. M2C's proxy is a CONNECT proxy and bridge (<code>C11b</code> in the build plan) and cannot rewrite headers inside TLS, so this is a redesign (XL) with a new certificate authority</td>
+<td>a real case of a secret reaching the sandbox, or a design that adds no local CA</td>
+</tr>
+<tr>
+<td>Codex and Hermes automatic memory writers (idea only)</td>
+<td>Both write memory with no review step (Codex's second-phase agent; Hermes's fork after each turn) [R], which conflicts with UB-048. The two safe parts (redact before extraction; the fork trick with a queue as its only output) are in UB-048 Notes</td>
+<td>UB-048 is built</td>
+</tr>
+<tr>
+<td>Gemini Conseca (idea only)</td>
+<td>An LLM writes a least-privilege policy for each task and a second check enforces it. Its tests show it returns ALLOW when disabled or when it finds no user prompt, so it fails open [R <code>safety/conseca/conseca.test.ts</code>]. Safe for you only if it can tighten and never loosen, and fails closed</td>
+<td><code>L07</code> is built and you want per-task narrowing (see UB-041)</td>
+</tr>
+<tr>
+<td>Vibe per-hunk checkpoints</td>
+<td><code>m2c/src/m2c/checkpoints.py</code> already snapshots whole files before each step and rewinds to a step [S]. Vibe keeps an append-only log of keep and revert decisions, and reverting a hunk drags the hunks built on it [R]. That needs a UI</td>
+<td>people ask for per-hunk undo</td>
+</tr>
+<tr>
+<td>Codex limited network mode (MITM with a process-local CA)</td>
+<td><code>sandbox/netproxy.py</code> and <code>netpolicy.py</code> already limit hosts [S]. Method-level limits need TLS interception, and a new certificate authority is new attack surface [R <code>network-proxy/src/mitm.rs</code>]</td>
+<td>a POST to an allowed host shows up as an exfiltration finding</td>
+</tr>
+<tr>
+<td>Vibe import of foreign plugins (Codex, Claude Code, Kimi, OpenCode)</td>
+<td>It pulls third-party hooks and MCP configs into your trust boundary [R <code>core/plugins/_compatibility.py</code>: format detection read, adapters not]. <code>C14</code> only needs <code>SKILL.md</code> folders</td>
+<td>you want the plugin ecosystem and have a trust design for it</td>
+</tr>
+<tr>
+<td>Codex V8 code mode</td>
+<td>The model writes JavaScript that runs in a sandboxed V8 and calls tools [R <code>code-mode-runtime/Cargo.toml</code>]. Heavy dependencies (D14), model-written code, and its own approval design</td>
+<td>never for the Python client</td>
+</tr>
+<tr>
+<td>Codex <code>apply_patch</code></td>
+<td><code>edit_file</code> exists (<code>tools/files.py</code>); the build plan lists an apply_patch tool at wave 13 or later [S]. Codex matches a patch hunk exactly, then ignoring trailing spaces, then trimmed [R <code>apply-patch/src/seek_sequence.rs</code>: file name only]. See the "Exact unique-match edits" row</td>
+<td>counts of <code>string_not_unique</code> failures show the need</td>
+</tr>
+<tr>
+<td>Gemini tool-output masking</td>
+<td>Already built: <code>backend/codeagent/context.py</code> caps large tool results and clears the oldest outputs [V✓ docstring]</td>
+<td>never</td>
+</tr>
+<tr>
+<td>Gemini policy integrity hash and RE2 patterns</td>
+<td>Hashing exists in <code>m2c/src/m2c/trust/fingerprint.py</code> (sha256) [V✓]. RE2 would add a runtime dependency, which D14 forbids</td>
+<td>never</td>
+</tr>
+<tr>
+<td>Hermes Kanban worker stop guard</td>
+<td>It forces a worker on Hermes's own multi-agent board to end with a terminal board call [R]. Nothing in your plans uses such a board</td>
+<td>you build a board</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="7-sources-register">7. Sources register</h2>
@@ -1772,36 +1899,36 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <td>—</td>
 </tr>
 <tr>
-<td>Gemini CLI (design ideas)</td>
-<td>—</td>
-<td>not stated</td>
-<td>LEARN</td>
-<td>UB-036, UB-042</td>
-<td>—</td>
+<td>Gemini CLI</td>
+<td>https://github.com/google-gemini/gemini-cli</td>
+<td>Apache-2.0 (<code>LICENSE</code> read at <code>60f8082</code>)</td>
+<td>LEARN (code may be copied only with the licence and notices kept and changes marked; usage statistics are on by default, <code>privacy.usageStatisticsEnabled</code> is true in <code>settingsSchema.ts</code>, and what is sent was not read)</td>
+<td>UB-036, UB-042, UB-048, UB-075, section 6</td>
+<td>licence read 2026-11-26; read from source, not run</td>
 </tr>
 <tr>
-<td>Hermes (design ideas)</td>
-<td>—</td>
-<td>not stated</td>
-<td>LEARN</td>
-<td>UB-028, UB-037</td>
-<td>—</td>
+<td>Hermes (hermes-agent)</td>
+<td>https://github.com/NousResearch/hermes-agent</td>
+<td>MIT (root <code>LICENSE</code> read at <code>c84e8d7f</code>, Nous Research 2025); 17 nested <code>LICENSE</code> or <code>NOTICE</code> files exist under <code>optional-skills/</code>, <code>skills/</code>, <code>plugins/</code> and <code>apps/desktop/src/plugins/hermes-bots</code>, and their terms were not read</td>
+<td>LEARN (take nothing from those folders before reading its licence; <code>plugins/security-guidance</code> has a NOTICE and was reported as Apache-2.0 by the review; the root holds <code>hermes_constants_scratch*.py</code> files that look like scratch code)</td>
+<td>UB-028, UB-033, UB-037, UB-042, UB-048, UB-064, UB-087, section 6</td>
+<td>root licence read 2026-11-26; read from source, not run; no telemetry client found by search, not exhaustive</td>
 </tr>
 <tr>
-<td>Mistral Vibe (design ideas)</td>
-<td>—</td>
-<td>not stated</td>
-<td>LEARN</td>
-<td>UB-038, UB-042, UB-044</td>
-<td>—</td>
+<td>Mistral Vibe</td>
+<td>https://github.com/mistralai/mistral-vibe</td>
+<td>Apache-2.0 (<code>LICENSE</code> read at <code>fb7511a</code>)</td>
+<td>LEARN (code may be copied only with the licence and notices kept and changes marked; it needs Python 3.12 and uses 3.12 syntax such as <code>type</code> aliases, so check any file before it goes into code with a 3.11 floor; telemetry is on by default per the review, which was not re-read: <code>enable_telemetry</code>, posting to <code>/v1/datalake/events</code> on api.mistral.ai)</td>
+<td>UB-038, UB-042, UB-044, UB-086, UB-087, section 6</td>
+<td>licence read 2026-11-26; read from source, not run</td>
 </tr>
 <tr>
-<td>Codex (design ideas)</td>
-<td>—</td>
-<td>not stated</td>
-<td>LEARN</td>
-<td>UB-033</td>
-<td>—</td>
+<td>Codex</td>
+<td>https://github.com/openai/codex</td>
+<td>Apache-2.0 plus a <code>NOTICE</code> (it records code derived from Ratatui, MIT) (<code>LICENSE</code> and <code>NOTICE</code> read at <code>06f334a</code>). The vendored bubblewrap is LGPL-2 (<code>codex-rs/vendor/bubblewrap/COPYING</code>): never copy it</td>
+<td>LEARN (code may be copied only with the licence and notices kept and changes marked; analytics are on unless <code>analytics_enabled</code> is explicitly false, per the review, not re-read)</td>
+<td>UB-033, UB-048, UB-085, section 6</td>
+<td>licence read 2026-11-26; read from source, not run</td>
 </tr>
 <tr>
 <td>OpenCode (design ideas)</td>
@@ -2307,6 +2434,12 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <td>batch B03 created</td>
 <td>five reference repos read and their licences recorded; the review's recommendations applied: existing entries extended in place (UB-014 to UB-018, UB-030, UB-031, UB-045, UB-048, UB-056, UB-068), UB-084 added, eight items recorded in section 6. Other chapters not edited</td>
 </tr>
+<tr>
+<td>2026-11-26</td>
+<td>—</td>
+<td>batch B04 created</td>
+<td>four reference repos (gemini-cli, hermes-agent, mistral-vibe, codex) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-028, UB-033, UB-036, UB-037, UB-038, UB-042, UB-048, UB-064, UB-075), UB-085 to UB-087 added, 18 rows added to section 6. Other chapters not edited</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="batch-b01-2026-11-24-upgrade-plan-and-verified-spec-of-21-nov-2026-minus-the-finished-sx-series">Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 Nov 2026, minus the finished SX series</h2>
@@ -2747,19 +2880,20 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>If the model edits files and then stops without running a test or build, ask it once or twice to verify first.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> Spec M1, Plan 4.2 (idea seen in Hermes) · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Spec M1, Plan 4.2, Hermes <code>agent/verification_stop.py</code> and <code>agent/turn_stop_gates.py</code> (MIT, read at <code>c84e8d7f</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> Default on or off (Hermes ships it off) · <strong>Evidence</strong> [V✓] [R]</p>
 <p><strong>What.</strong> When the model ends its turn, and this run executed a file-changing tool with no later test, lint or build result, do not finish: add one continuation message asking it to run the project's verification command. At most two continuations per run.</p>
 <p><strong>Why.</strong> Premature "done" is a common agent failure. The server loop has no verify-on-stop [V✓: no match for "verif" in <code>loop.py</code>]. The M2C plan item L04 (verification loop and Stop hooks) waits for hooks; this version does not.</p>
 <p><strong>Where.</strong> <code>backend/codeagent/loop.py</code> (<code>AgentLoop</code>; the <code>NOTICE_*</code> constants near line 208 show how to add a notice); tests in <code>backend/tests/unit/test_codeagent_loop.py</code> with <code>loop_testkit.py</code>.</p>
 <p><strong>How.</strong></p>
 <ol>
-<li>Track, per turn, "a file-changing tool ran" and "a verification-class tool ran after it".</li>
-<li>At the finish point, if the first is true and the second false and fewer than two continuations were used, append the continuation instead of ending.</li>
+<li>Track, per turn, a ledger of the file-changing tool calls and of the commands run after them, so "verified" means a matching command ran after the last change. Hermes keeps such a ledger of commands [R].</li>
+<li>Skip the check when every changed file is prose or data with nothing to run. Hermes exempts <code>.md</code>, <code>.markdown</code>, <code>.mdx</code>, <code>.rst</code>, <code>.txt</code>, <code>.text</code>, <code>.adoc</code>, <code>.asciidoc</code>, <code>.org</code>, <code>.log</code>, <code>.csv</code> and <code>.tsv</code>, so a README edit never demands a test [R].</li>
+<li>At the finish point, if a change has no later verification and fewer than two continuations were used, append the continuation instead of ending.</li>
 <li>Emit a new <code>NOTICE_VERIFY_*</code> event like the existing ones.</li>
 <li>Reuse the step limit and budget limits so it cannot loop.</li>
 </ol>
-<p><strong>Done when.</strong> A fake model that edits then stops gets exactly one extra turn; one that edits, runs a test, then stops finishes normally; the limit of two holds.</p>
-<p><strong>Notes.</strong> Deciding what counts as a "verification" tool needs a short list (shell commands matching test, lint, build). See UB-043 for the independent-validator version.</p>
+<p><strong>Done when.</strong> A fake model that edits then stops gets exactly one extra turn; one that edits, runs a test, then stops finishes normally; one that edits only a <code>.md</code> file finishes normally; the limit of two holds.</p>
+<p><strong>Notes.</strong> Deciding what counts as a "verification" tool needs a short list (shell commands matching test, lint, build). See UB-043 for the independent-validator version. Hermes ships this off by default, with at most two nudges, and says in its code that a documentation edit must never demand a verification script [R]. Whether the nudge goes in as a user-role message was carried from the review and not re-read [S]. The ledger is the real work, and UB-086 (goal mode) needs the same evidence for "complete", so build it once. Hermes also waits briefly after the final answer for language-server diagnostics on the files it edited and feeds back at most three notes (<code>_MAX_LSP_TURN_END_NOTES = 3</code>) [R]. That needs a language server (<code>L08</code>, Phase 5 of the M2C build plan) and belongs to <code>L04</code>; the chapter was not edited (section 6).</p>
 <h3 id="ub-029-skills-loader-for-m2c-m">UB-029: Skills loader for M2C (M)</h3>
 <blockquote>
 <p>Load SKILL.md folders (name and description only at start), enforcing allowed-tools as a ceiling.</p>
@@ -2833,17 +2967,21 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>When an MCP server exposes many tools, keep their descriptions out of the prompt and find them on demand.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> Codex and Hermes (Plan 4.2) · <strong>Status</strong> candidate · <strong>Depends</strong> UB-032 · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [U]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Codex and Hermes (Plan 4.2), Hermes <code>tools/tool_search.py</code> (MIT, read at <code>c84e8d7f</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> UB-032 · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [U]</p>
 <p><strong>What.</strong> A small search tool (BM25 over names and descriptions) the model calls to load the tools it needs.</p>
 <p><strong>Why.</strong> Big MCP schemas eat the context window and the cache.</p>
 <p><strong>Where.</strong> The UB-032 client; the server prompt assembly in <code>backend/codeagent/</code> (<code>prompts.py</code>, <code>context.py</code>).</p>
 <p><strong>How.</strong></p>
 <ol>
 <li>Index tool names and descriptions per server at connect.</li>
-<li>Expose one <code>tool_search</code> tool; load a tool's schema only after it is chosen.</li>
+<li>Expose three bridge tools, as Hermes does: <code>tool_search</code> (find), <code>tool_describe</code> (load the full schema of chosen tools) and <code>tool_call</code> (run one) [R]. A tool's schema is loaded only after it is chosen.</li>
 <li>Keep the list of loaded tools stable inside a turn for cache stability.</li>
+<li>Optionally embed a short listing of the tools in the prompt under a budget. Hermes takes the smaller of 4,000 tokens and a share of the context window, and shrinks the listing in stages (full, then names only, then a bare bridge) when it does not fit [R].</li>
+<li>Bound each call: Hermes allows 7 queries per <code>tool_search</code> call and 10 names per <code>tool_describe</code> call [R].</li>
+<li>Run the real tool name through the policy engine and the approval path, never the name <code>tool_call</code> [U].</li>
 </ol>
-<p><strong>Done when.</strong> A server with 50 tools adds only the search tool to the prompt, and a task that needs two of them still works.</p>
+<p><strong>Done when.</strong> A server with 50 tools adds only the bridge tools to the prompt, and a task that needs two of them still works. A call made through <code>tool_call</code> is allowed, asked or denied by the rule for the tool it names.</p>
+<p><strong>Notes.</strong> Step 6 is a design idea that nobody has run: a bridge tool hides the real tool from any rule written against tool names, so check how <code>policy/</code> and the approvals see a bridged call before step 2. Codex's search is BM25 and returns 8 results by default; that figure came from the earlier review and was not re-read [S]. It is a ranking function that could sit inside <code>tool_search</code>.</p>
 <h3 id="ub-034-offer-codebase-memory-mcp-as-an-optional-local-server-s">UB-034: Offer codebase-memory-mcp as an optional local server (S)</h3>
 <blockquote>
 <p>A code knowledge-graph MCP server the user can install themselves, running device-local under the sandbox.</p>
@@ -2878,47 +3016,51 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>Warn when the same call repeats even if it succeeds, then ask a model to self-check after many turns; let the user decide.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> Gemini CLI and OpenCode (Plan 4.2) · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Gemini CLI and OpenCode (Plan 4.2), Gemini CLI <code>packages/core/src/services/loopDetectionService.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
 <p><strong>What.</strong> A hash of tool plus sorted arguments, counted across a turn; warn first, then ask the model whether it is stuck after N turns; a detected "doom loop" becomes a permission question to the user.</p>
 <p><strong>Why.</strong> The loop already stops after three identical <strong>failures</strong> (<code>identical_failure_limit</code>, <code>_canonical_key</code> [V✓]); a loop of repeated successful calls is not covered.</p>
 <p><strong>Where.</strong> <code>backend/codeagent/loop.py</code> (<code>_canonical_key</code>, <code>LoopConfig</code>, the <code>NOTICE_*</code> constants).</p>
 <p><strong>How.</strong></p>
 <ol>
 <li>Count repeats of the same key regardless of outcome.</li>
-<li>At a threshold, emit a warning notice; at a higher one, a model self-check call (metered).</li>
+<li>At a threshold, emit a warning notice; at a higher one, a model self-check call (metered). Gemini's numbers are a good first guess: the same tool call 5 times, a model check after 30 turns, and a loop confirmed at confidence 0.9 [R].</li>
 <li>On a confirmed loop, pause and ask the user (reusing the existing pause path).</li>
 </ol>
-<p><strong>Done when.</strong> Fake-model tests: ten identical successful calls trigger the warning; a varied sequence does not.</p>
+<p><strong>Done when.</strong> Fake-model tests: ten identical successful calls trigger the warning (and so does the fifth, if you start at Gemini's threshold); a varied sequence does not.</p>
+<p><strong>Notes.</strong> Gemini's constants (<code>TOOL_CALL_LOOP_THRESHOLD = 5</code>, <code>CONTENT_LOOP_THRESHOLD = 10</code> repeats of 50-character chunks, <code>LLM_CHECK_AFTER_TURNS = 30</code>, a check interval that adapts between 5 and 15 turns, <code>LLM_CONFIDENCE_THRESHOLD = 0.9</code>) were read [R]. The content-chunk detector watches repeated streamed text, which is a different loop from a repeated tool call; it is optional here. Tune the numbers on replays of your own traces (the ledger of UB-075) before you trust them.</p>
 <h3 id="ub-037-mid-turn-user-steering-m">UB-037: Mid-turn user steering (M)</h3>
 <blockquote>
 <p>Let the user add a message while the agent works, inserted behind an anti-injection marker.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> Hermes (Plan 4.2) · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Hermes (Plan 4.2), Hermes <code>agent/prompt_builder.py</code> (MIT, read at <code>c84e8d7f</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
 <p><strong>What.</strong> A queue of user messages that the loop picks up between tool calls.</p>
 <p><strong>Why.</strong> Today a person must cancel and restart to redirect. The loop has no steering [V✓: no match in <code>loop.py</code>].</p>
 <p><strong>Where.</strong> <code>backend/codeagent/loop.py</code>; the protocol (<code>protocol/v1/</code>) would need a new client message (additive); the TUI.</p>
 <p><strong>How.</strong></p>
 <ol>
 <li>Add the message type and a per-run queue.</li>
-<li>Insert queued text with a marker so tool output cannot imitate it.</li>
+<li>Deliver queued text as its own user message after the newest tool result, wrapped in an opening and a closing marker. Hermes uses <code>[OUT-OF-BAND USER MESSAGE ...]</code> and <code>[/OUT-OF-BAND USER MESSAGE]</code> [R].</li>
+<li>Tell the model in the system prompt to trust that marker only in the latest turn, so a marker replayed from old history has no authority. The review reported Hermes does this; only the marker constants were re-read [S].</li>
+<li>Relabel look-alikes in tool output. Hermes relabels text that imitates its own control frames, such as "CONTEXT COMPACTION", "CONTEXT SUMMARY]", "PRIOR CONTEXT" and "Runtime note:", and the marker itself [R]. Make your own list from your own frames (the <code>NOTICE_*</code> messages, the goal envelope of UB-042, the steer marker). UB-087 proposes one helper for this.</li>
 <li>Cover it in <code>protocol/</code> fixtures and the contract tests.</li>
 </ol>
-<p><strong>Done when.</strong> A steering message sent during a run appears in the next model call exactly once, and a tool result containing the marker does not.</p>
+<p><strong>Done when.</strong> A steering message sent during a run appears in the next model call exactly once, and a tool result containing the marker does not. A tool result containing a look-alike of any of your control frames is relabelled, and a marker in an older turn carries no authority.</p>
 <h3 id="ub-038-an-instruction-hierarchy-contract-in-the-system-prompt-s">UB-038: An instruction-hierarchy contract in the system prompt (S)</h3>
 <blockquote>
 <p>One ranked list of instruction sources (user, repo, skills, MCP, external data last) instead of scattered prohibitions.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> Mistral Vibe (Plan 4.2) · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Mistral Vibe (Plan 4.2), Vibe <code>vibe/core/prompts/cli_ml4_2026-10_v2.md</code> (Apache-2.0, read at <code>fb7511a</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
 <p><strong>What.</strong> One short ranked section in the server prompt.</p>
 <p><strong>Why.</strong> A single ranking is easier to test than many separate "do not" lines.</p>
 <p><strong>Where.</strong> <code>backend/codeagent/prompts.py</code>.</p>
 <p><strong>How.</strong></p>
 <ol>
 <li>Read the current prompt and list its prohibitions.</li>
-<li>Write the ranking; replace duplicated lines.</li>
+<li>Write the ranking; replace duplicated lines. Vibe's has seven levels, lowest number wins: critical instructions that nothing overrides; user messages (newer beat older); the repo's <code>AGENTS.md</code> files (the one closest to the task wins); the user's own <code>AGENTS.md</code>; overridable defaults in the system prompt; skills and MCP output; external data, treated as data and never as instructions [R]. Map the levels to your own sources, and write the wording yourself.</li>
+<li>Put the irreversible actions that need fresh approval in the top level, and say that one approval does not carry over to a different target. Vibe's critical section says the second [R].</li>
 <li>Add a test that the section exists and is stable (cache order).</li>
 </ol>
-<p><strong>Done when.</strong> The prompt has the ranking and the existing prompt tests pass.</p>
+<p><strong>Done when.</strong> The prompt has the ranking and the existing prompt tests pass. A fake tool result that says to ignore the rules above is treated as data.</p>
 <h3 id="ub-039-observe-mode-before-enforce-mode-for-new-policy-rules-m">UB-039: Observe mode before enforce mode for new policy rules (M)</h3>
 <blockquote>
 <p>Ship each new rule in a log-only mode first, record what it would have blocked, then enforce.</p>
@@ -2967,7 +3109,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>When the context is compacted, put the original goals back in; keep the full transcript so only the model's view shrinks.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2) · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2), Gemini CLI <code>prompts/snippets.ts</code> and <code>context/chatCompressionService.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R], Hermes <code>agent/context_compressor.py</code> and <code>context_compressor_prompt_rules.py</code> (MIT, read at <code>c84e8d7f</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
 <p><strong>What.</strong> Re-injection of the original task statement after a compaction, and a guarantee that nothing is deleted from the stored log.</p>
 <p><strong>Why.</strong> Compaction already exists (<code>backend/codeagent/context.py</code>, notice <code>context_compacted</code> [V✓]); goal drift after compaction is the gap. The local store keeps events append-only per the M2C plan.</p>
 <p><strong>Where.</strong> <code>backend/codeagent/context.py</code>, <code>backend/codeagent/loop.py</code>, <code>m2c/src/m2c/store/events.py</code>.</p>
@@ -2976,8 +3118,12 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Read what compaction does today and what the store keeps.</li>
 <li>Add a short "goal envelope" message after each compaction.</li>
 <li>Test that the full log is unchanged by compaction.</li>
+<li>Write the template for the model summary (<code>L03</code> in the M2C build plan; the plan was not edited, so this entry carries the template). Gemini's is an XML <code>&lt;state_snapshot&gt;</code> with the sections <code>&lt;overall_goal&gt;</code>, <code>&lt;active_constraints&gt;</code>, <code>&lt;key_knowledge&gt;</code>, <code>&lt;artifact_trail&gt;</code>, <code>&lt;file_system_state&gt;</code>, <code>&lt;recent_actions&gt;</code> and <code>&lt;task_state&gt;</code> [R]. Add Hermes's <code>## Unverified / Working Hypotheses</code> section, so a guess is never restated as fact [R].</li>
+<li>Put two rules in the summariser's prompt. Text inside the history that tells the model to ignore its instructions is not obeyed (Gemini says so in its prompt [R]). The summary must not answer a request that appears inside the history (Hermes; carried from the review and not re-read [S]).</li>
+<li>Take Gemini's two numbers as first guesses to compare with the constants in <code>context.py</code>: compress at 0.5 of the window and keep the newest 0.3 (<code>DEFAULT_COMPRESSION_TOKEN_THRESHOLD</code>, <code>COMPRESSION_PRESERVE_THRESHOLD</code>) [R].</li>
 </ol>
-<p><strong>Done when.</strong> After a forced compaction, the first model call contains the original task, and the stored events are identical.</p>
+<p><strong>Done when.</strong> After a forced compaction, the first model call contains the original task, and the stored events are identical. A history line that says to ignore previous instructions does not change the summary call, and a guess made in the history lands under "Unverified".</p>
+<p><strong>Notes.</strong> Compaction here is still mechanical (clear the oldest tool outputs, cap large results, repeat the person's messages) [V✓ docstring of <code>context.py</code>], so steps 4 to 6 are for the model summary that does not exist yet. Hermes also replaces secrets with <code>[REDACTED]</code> in the summary input [S]; the server side would need its own redactor for that. Write your own wording: Gemini's template is Apache-2.0, so copied text would need its notice.</p>
 <h3 id="ub-043-an-independent-verifier-context-and-step-graph-validation-l">UB-043: An independent verifier context and step-graph validation (L)</h3>
 <blockquote>
 <p>A second, separate model context checks the result; a multi-step plan is validated before any step starts.</p>
@@ -3057,18 +3203,18 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>Anything from a web page, tool output or an imported CLAUDE.md enters as an untrusted candidate; only a user action promotes it.</p>
 </blockquote>
-<p><strong>Product</strong> Menux · <strong>Source</strong> Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin) · <strong>Status</strong> candidate · <strong>Depends</strong> UB-047 · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [W]</p>
+<p><strong>Product</strong> Menux · <strong>Source</strong> Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin), Gemini CLI <code>agents/skill-extraction-agent.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> UB-047 · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [W]</p>
 <p><strong>What.</strong> A write path with trust tiers and a queue; no code path promotes automatically.</p>
 <p><strong>Why.</strong> Memory poisoning is a known attack; this is the defence the plan wants tested.</p>
 <p><strong>Where.</strong> The UB-047 tables; the Menux memory tools.</p>
 <p><strong>How.</strong></p>
 <ol>
 <li>Every write from external content gets tier <code>untrusted</code>.</li>
-<li>Show new candidates in a queue; importing an existing <code>CLAUDE.md</code> creates candidates.</li>
+<li>Show new candidates in a queue; importing an existing <code>CLAUDE.md</code> creates candidates. Store each candidate as a reviewable patch. Gemini's background agent writes memory changes only as unified-diff <code>.patch</code> files under <code>.inbox/&lt;kind&gt;/</code>, one canonical file per kind, and treats transcripts as evidence and never as instructions [R].</li>
 <li>Promotion only through a user action.</li>
 </ol>
 <p><strong>Done when.</strong> A poisoned web page cannot produce a trusted memory, tested with your own three-turn case: plant a memory, poison it, ask a follow-up.</p>
-<p><strong>Notes.</strong> promptfoo's <code>agentic:memory-poisoning</code> plugin is remote-only: its grader was read, but its cases are generated on <code>api.promptfoo.app</code> [R]. Use it only for the shape of the test and write the three turns yourself. The same plugin is in UB-014 step 2, where it returns nothing if remote generation is off.</p>
+<p><strong>Notes.</strong> promptfoo's <code>agentic:memory-poisoning</code> plugin is remote-only: its grader was read, but its cases are generated on <code>api.promptfoo.app</code> [R]. Use it only for the shape of the test and write the three turns yourself. The same plugin is in UB-014 step 2, where it returns nothing if remote generation is off. Two other reference repos write memory with no review step, so neither is copied as it is (section 6): Codex's second phase lets an agent write the memory folder with approvals set to never, and Hermes forks an agent after each turn that writes straight to its stores under a tool whitelist [S]. Two parts are safe to take: redact secrets before the extractor sees a transcript (Codex does this in its first phase [S]), and the fork-after-each-turn trick, if its output lands only in this queue.</p>
 <h3 id="ub-049-correcting-a-source-retires-its-dependents-and-deletes-cascade-m">UB-049: Correcting a source retires its dependents, and deletes cascade (M)</h3>
 <blockquote>
 <p>Fix or delete a source and everything derived from it leaves retrieval but stays readable in a history view.</p>
@@ -3275,15 +3421,16 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>A written process and a small scanner so every seed skill is vetted the same way before it is kept.</p>
 </blockquote>
-<p><strong>Product</strong> Shared · <strong>Source</strong> Plan section 7, ponytail (method) [README] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [T] [README]</p>
+<p><strong>Product</strong> Shared · <strong>Source</strong> Plan section 7, ponytail (method) [README], Hermes <code>tools/skills_guard.py</code> (MIT, read at <code>c84e8d7f</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [T] [README] [R]</p>
 <p><strong>What.</strong> The six steps from the plan, with a scanner script and a before-and-after eval method.</p>
 <p><strong>Why.</strong> Several third-party skills tell agents to run <code>curl | bash</code>. The plan's own regex scan of 49 repos found no hidden payloads but was shallow [T].</p>
 <p><strong>Where.</strong> A script and a doc; <code>backend/eo/skill_library.py</code> for storage.</p>
 <p><strong>How.</strong></p>
 <ol>
-<li><strong>Select</strong> one skill for a named need. 2. <strong>Scan</strong> for hidden Unicode, injection phrases, pipe-to-shell, credential paths and exfiltration domains. 3. <strong>Rewrite</strong> in your own words to the Agent Skills format and record the origin in <code>metadata.adapted_from</code>. 4. <strong>Evaluate</strong>: same agent with and without the skill on 10 to 20 real tasks (ponytail ran 39 tasks, five runs each [README]). 5. <strong>Label trust</strong>: built-in, user or third-party. 6. <strong>Regress</strong> whenever the model changes.</li>
+<li><strong>Select</strong> one skill for a named need. 2. <strong>Scan</strong> for hidden Unicode, injection phrases, pipe-to-shell, credential paths and exfiltration domains. 3. <strong>Rewrite</strong> in your own words to the Agent Skills format and record the origin in <code>metadata.adapted_from</code>. 4. <strong>Evaluate</strong>: same agent with and without the skill on 10 to 20 real tasks (ponytail ran 39 tasks, five runs each [README]). 5. <strong>Label trust</strong>: built-in, user or third-party. Hermes's guard has four tiers (builtin, trusted, community, agent-created) and one table that maps tier and scan verdict to an action: builtin allows all three verdicts; trusted allows safe and caution and blocks dangerous; community allows only safe; agent-created allows safe and caution and asks on dangerous [R <code>INSTALL_POLICY</code>]. Use that table as the install policy. 6. <strong>Regress</strong> whenever the model changes.</li>
 </ol>
 <p><strong>Done when.</strong> One skill has gone through all six steps and the result is recorded.</p>
+<p><strong>Notes.</strong> The Hermes scanner's own header lists a known gap: language file-write calls aimed at the agent's own configuration are only low severity [R]. Cover that case in your scan. Do not copy skills out of the Hermes repo without reading each folder's licence: 17 nested <code>LICENSE</code> or <code>NOTICE</code> files exist under <code>skills/</code>, <code>optional-skills/</code>, <code>plugins/</code> and one desktop plugin, and their terms were not read (section 7).</p>
 <h3 id="ub-065-growth-tab-seed-skills-from-marketingskills-m">UB-065: Growth tab seed skills from marketingskills (M)</h3>
 <blockquote>
 <p>Rewrite a marketing skill set as seeds for the Growth tab roles, after confirming those roles exist.</p>
@@ -3403,17 +3550,18 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>Replay real traces with and without output compression, terse agent messages and cheaper models, and compare cost and quality.</p>
 </blockquote>
-<p><strong>Product</strong> Shared · <strong>Source</strong> Spec P4, Plan 6.6 (headroom, caveman, Mixdog) · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
+<p><strong>Product</strong> Shared · <strong>Source</strong> Spec P4, Plan 6.6 (headroom, caveman, Mixdog), Gemini CLI <code>routing/strategies/numericalClassifierStrategy.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
 <p><strong>What.</strong> A table of cost and quality per variant.</p>
 <p><strong>Why.</strong> Vendor numbers are unverified: headroom reports 21 to 57 percent in four scenarios and little on prose; caveman marks some results interim [R].</p>
 <p><strong>Where.</strong> <code>backend/eo/usage_ledger.py</code> for traces and costs.</p>
 <p><strong>How.</strong></p>
 <ol>
 <li>Take a sample of real traces from the ledger.</li>
-<li>Replay with: tool-output compression (headroom-style; set <code>HEADROOM_OFFLINE=1</code>, it ships an anonymous beacon by default [R]), terse agent-to-agent messages (never on user-facing study content), a cheaper model for search, edit and review.</li>
+<li>Replay with: tool-output compression (headroom-style; set <code>HEADROOM_OFFLINE=1</code>, it ships an anonymous beacon by default [R]), terse agent-to-agent messages (never on user-facing study content), a cheaper model for search, edit and review, and a complexity-score router. Gemini's classifier scores each task from 1 to 100 and a threshold picks the stronger or the cheaper model alias [R].</li>
 <li>Compare cost and quality on a fixed set; adopt only where quality holds.</li>
 </ol>
 <p><strong>Done when.</strong> The table exists.</p>
+<p><strong>Notes.</strong> Gemini's default threshold is 90, and a remote value from its settings service overrides it when the value is between 0 and 100 [R <code>getResolvedClassifierThreshold</code>]. Do not adopt a threshold you cannot see or set yourself: pick yours from the replays of step 1.</p>
 <h3 id="ub-076-design-and-build-techniques-from-impeccable-taste-skill-and-ui-ux-pro-max-m">UB-076: Design and build techniques from impeccable, taste-skill and ui-ux-pro-max (M)</h3>
 <blockquote>
 <p>Adopt techniques (not code) such as a command vocabulary of polish, bolder, critique and audit, and test them.</p>
@@ -3538,7 +3686,67 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Use it for undo and cleanup. Use it in an approval rule only if step 1 allows.</li>
 </ol>
 <p><strong>Done when.</strong> After a test run, the registry lists exactly the objects that the run's events show as created. An object of the same kind that existed before the run is not listed. An exported registry holds no secret-like value.</p>
-<p><strong>Notes.</strong> An idea until Menux has an event log; Strix's version was read, not run.</p></article><div class="toc"><b>On this page</b><a class="t2" href="#0-at-a-glance">0. At a glance</a><a class="t2" href="#1-register">1. Register</a><a class="t2" href="#2-batches">2. Batches</a><a class="t2" href="#3-how-to-add-features-the-patch-recipe">3. How to add features (the patch recipe)</a><a class="t2" href="#4-field-vocabulary-and-rules">4. Field vocabulary and rules</a><a class="t2" href="#5-where-the-original-upgrade-plan-went">5. Where the original upgrade plan went</a><a class="t2" href="#6-considered-not-added">6. Considered, not added</a><a class="t2" href="#7-sources-register">7. Sources register</a><a class="t2" href="#8-decision-log">8. Decision log</a><a class="t2" href="#batch-b01-2026-11-24-upgrade-plan-and-verified-spec-of-21-nov-2026-minus-the-finished-sx-series">Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 ...</a><a class="t3" href="#ub-001-move-the-web-app-from-nextjs-14-to-a-supported-line-l">UB-001: Move the web app from Next.js 14 to a supported line (L)</a><a class="t3" href="#ub-002-decide-pillow-against-moviepy-then-act-m">UB-002: Decide Pillow against moviepy, then act (M)</a><a class="t3" href="#ub-003-move-e2b-bracex-and-wcmatch-together-m">UB-003: Move e2b, bracex and wcmatch together (M)</a><a class="t3" href="#ub-004-put-the-caddy-config-in-the-repo-and-set-the-edge-limits-m">UB-004: Put the Caddy config in the repo and set the edge lim...</a><a class="t3" href="#ub-005-block-cloud-metadata-and-link-local-addresses-at-the-host-firewall-s">UB-005: Block cloud-metadata and link-local addresses at the ...</a><a class="t3" href="#ub-006-run-url-fetches-behind-an-egress-proxy-or-in-the-sandbox-m">UB-006: Run URL fetches behind an egress proxy or in the sand...</a><a class="t3" href="#ub-007-audit-every-other-server-side-fetch-of-a-user-influenced-url-m">UB-007: Audit every other server-side fetch of a user-influen...</a><a class="t3" href="#ub-008-per-user-ingest-quotas-m">UB-008: Per-user ingest quotas (M)</a><a class="t3" href="#ub-009-daily-ingest-cost-cap-tied-to-the-usage-ledger-m">UB-009: Daily ingest cost cap tied to the usage ledger (M)</a><a class="t3" href="#ub-010-cap-voice-length-before-transcribing-s">UB-010: Cap voice length before transcribing (S)</a><a class="t3" href="#ub-011-re-set-the-size-caps-with-a-cost-model-s">UB-011: Re-set the size caps with a cost model (S)</a><a class="t3" href="#ub-012-turn-the-report-only-csp-into-an-enforced-one-m">UB-012: Turn the report-only CSP into an enforced one (M)</a><a class="t3" href="#ub-013-a-small-blocking-promptfoo-gate-m">UB-013: A small blocking promptfoo gate (M)</a><a class="t3" href="#ub-014-run-the-promptfoo-red-team-with-a-two-tenant-provider-m">UB-014: Run the promptfoo red-team with a two-tenant provider...</a><a class="t3" href="#ub-015-first-strix-run-on-staging-m">UB-015: First Strix run on staging (M)</a><a class="t3" href="#ub-016-property-tests-with-hypothesis-m">UB-016: Property tests with Hypothesis (M)</a><a class="t3" href="#ub-017-nightly-api-fuzzing-with-schemathesis-m">UB-017: Nightly API fuzzing with Schemathesis (M)</a><a class="t3" href="#ub-018-add-cost-per-task-and-web-product-scenarios-to-the-load-harness-m">UB-018: Add cost-per-task and web-product scenarios to the lo...</a><a class="t3" href="#ub-019-a-practice-lab-with-django-and-nginx-on-your-own-machine-s">UB-019: A practice lab with Django and nginx on your own mach...</a><a class="t3" href="#ub-020-pre-audit-package-for-the-daemon-m">UB-020: Pre-audit package for the daemon (M)</a><a class="t3" href="#ub-021-sbom-on-release-s">UB-021: SBOM on release (S)</a><a class="t3" href="#ub-022-pin-scanner-binaries-and-images-by-digest-s">UB-022: Pin scanner binaries and images by digest (S)</a><a class="t3" href="#ub-023-lurkr-as-an-advisory-ci-step-s">UB-023: Lurkr as an advisory CI step (S)</a><a class="t3" href="#ub-024-dependabot-for-the-docker-images-xs">UB-024: Dependabot for the Docker images (XS)</a><a class="t3" href="#ub-025-security-headers-for-the-book-site-xs">UB-025: Security headers for the book site (XS)</a><a class="t3" href="#ub-026-record-the-fix-patch-guide-in-the-book-s">UB-026: Record the fix patch guide in the book (S)</a><a class="t3" href="#ub-027-refresh-the-book-after-the-fixes-and-upgrades-m">UB-027: Refresh the book after the fixes and upgrades (M)</a><a class="t3" href="#ub-028-verify-on-stop-in-the-agent-loop-m">UB-028: Verify-on-stop in the agent loop (M)</a><a class="t3" href="#ub-029-skills-loader-for-m2c-m">UB-029: Skills loader for M2C (M)</a><a class="t3" href="#ub-030-add-promptfoos-coding-agent-risk-categories-to-the-q07-corpus-and-list-the-gaps-s">UB-030: Add promptfoo&#x27;s coding-agent risk categories to the Q...</a><a class="t3" href="#ub-031-golden-tasks-for-the-coding-agent-m">UB-031: Golden tasks for the coding agent (M)</a><a class="t3" href="#ub-032-local-mcp-client-for-m2c-l">UB-032: Local MCP client for M2C (L)</a><a class="t3" href="#ub-033-deferred-tool-loading-with-search-over-tool-specs-m">UB-033: Deferred tool loading with search over tool specs (M)</a><a class="t3" href="#ub-034-offer-codebase-memory-mcp-as-an-optional-local-server-s">UB-034: Offer codebase-memory-mcp as an optional local server...</a><a class="t3" href="#ub-035-rehearse-mcp-attacks-against-m2c-with-argus-s">UB-035: Rehearse MCP attacks against M2C with Argus (S)</a><a class="t3" href="#ub-036-stuck-detection-beyond-identical-failures-m">UB-036: Stuck detection beyond identical failures (M)</a><a class="t3" href="#ub-037-mid-turn-user-steering-m">UB-037: Mid-turn user steering (M)</a><a class="t3" href="#ub-038-an-instruction-hierarchy-contract-in-the-system-prompt-s">UB-038: An instruction-hierarchy contract in the system promp...</a><a class="t3" href="#ub-039-observe-mode-before-enforce-mode-for-new-policy-rules-m">UB-039: Observe mode before enforce mode for new policy rules...</a><a class="t3" href="#ub-040-check-whether-sandbox-denials-are-already-stored-s">UB-040: Check whether sandbox denials are already stored (S)</a><a class="t3" href="#ub-041-signed-narrowing-grants-for-subagents-l">UB-041: Signed, narrowing grants for subagents (L)</a><a class="t3" href="#ub-042-compaction-that-re-injects-the-task-goal-with-a-lossless-log-m">UB-042: Compaction that re-injects the task goal, with a loss...</a><a class="t3" href="#ub-043-an-independent-verifier-context-and-step-graph-validation-l">UB-043: An independent verifier context and step-graph valida...</a><a class="t3" href="#ub-044-plan-mode-that-is-structural-plus-a-spec-first-interview-m">UB-044: Plan mode that is structural, plus a spec-first inter...</a><a class="t3" href="#ub-045-a-precision-first-review-command-l">UB-045: A precision-first review command (L)</a><a class="t3" href="#ub-046-add-a-hash-chain-to-the-local-event-store-s">UB-046: Add a hash chain to the local event store (S)</a><a class="t3" href="#ub-047-menux-memory-store-with-sources-validity-and-fts5-m">UB-047: Menux memory store with sources, validity and FTS5 (M)</a><a class="t3" href="#ub-048-trust-rule-and-a-review-queue-for-new-memories-m">UB-048: Trust rule and a review queue for new memories (M)</a><a class="t3" href="#ub-049-correcting-a-source-retires-its-dependents-and-deletes-cascade-m">UB-049: Correcting a source retires its dependents, and delet...</a><a class="t3" href="#ub-050-show-the-working-memory-before-a-task-and-report-what-was-used-m">UB-050: Show the working memory before a task, and report wha...</a><a class="t3" href="#ub-051-retention-scores-and-hot-warm-and-cold-tiers-m">UB-051: Retention scores and hot, warm and cold tiers (M)</a><a class="t3" href="#ub-052-learned-workflows-modelled-on-webcmd-l">UB-052: Learned workflows modelled on webcmd (L)</a><a class="t3" href="#ub-053-crawl4ai-as-an-optional-web-reader-s">UB-053: crawl4ai as an optional web reader (S)</a><a class="t3" href="#ub-054-a-capability-listing-command-xs">UB-054: A capability-listing command (XS)</a><a class="t3" href="#ub-055-a-blender-skill-pack-m">UB-055: A Blender skill pack (M)</a><a class="t3" href="#ub-056-an-independent-claim-check-pass-for-research-reports-m">UB-056: An independent claim-check pass for research reports (M)</a><a class="t3" href="#ub-057-generation-that-survives-a-closed-tab-l">UB-057: Generation that survives a closed tab (L)</a><a class="t3" href="#ub-058-project-based-learning-with-an-ai-tutor-milestone-by-milestone-l">UB-058: Project-based learning with an AI tutor, milestone by...</a><a class="t3" href="#ub-059-chat-about-any-slide-element-m">UB-059: Chat about any slide element (M)</a><a class="t3" href="#ub-060-course-level-undo-m">UB-060: Course-level undo (M)</a><a class="t3" href="#ub-061-export-to-pptx-and-html-m">UB-061: Export to PPTX and HTML (M)</a><a class="t3" href="#ub-062-a-knowledge-base-with-mentions-m">UB-062: A knowledge base with @-mentions (M)</a><a class="t3" href="#ub-063-use-openmaics-published-advisories-as-a-free-test-checklist-s">UB-063: Use OpenMAIC&#x27;s published advisories as a free test ch...</a><a class="t3" href="#ub-064-a-repeatable-skills-pipeline-select-scan-rewrite-evaluate-label-regress-m">UB-064: A repeatable skills pipeline: select, scan, rewrite, ...</a><a class="t3" href="#ub-065-growth-tab-seed-skills-from-marketingskills-m">UB-065: Growth tab seed skills from marketingskills (M)</a><a class="t3" href="#ub-066-research-and-notebooks-seeds-from-scientific-agent-skills-m">UB-066: Research and notebooks seeds from scientific-agent-sk...</a><a class="t3" href="#ub-067-m2c-built-in-skills-and-a-behaviour-baseline-m">UB-067: M2C built-in skills and a behaviour baseline (M)</a><a class="t3" href="#ub-068-security-reviewer-prompts-and-a-vetted-security-skills-library-m">UB-068: Security reviewer prompts and a vetted security skill...</a><a class="t3" href="#ub-069-role-ideas-from-gstack-and-bmad-s">UB-069: Role ideas from gstack and BMAD (S)</a><a class="t3" href="#ub-070-an-optional-writing-quality-pass-from-humanizer-s">UB-070: An optional writing-quality pass from humanizer (S)</a><a class="t3" href="#ub-071-the-overhang-and-draft-check-in-the-mechanical-engine-m">UB-071: The overhang and draft check in the mechanical engine...</a><a class="t3" href="#ub-072-compare-text-to-cads-per-process-rules-with-yours-s">UB-072: Compare text-to-cad&#x27;s per-process rules with yours (S)</a><a class="t3" href="#ub-073-spike-can-build123d-replace-freecad-inside-the-e2b-template-m">UB-073: Spike: can build123d replace FreeCAD inside the E2B t...</a><a class="t3" href="#ub-074-an-analyse-this-part-stress-check-l">UB-074: An &quot;analyse this part&quot; stress check (L)</a><a class="t3" href="#ub-075-cost-experiments-before-adopting-any-compressor-or-router-m">UB-075: Cost experiments before adopting any compressor or ro...</a><a class="t3" href="#ub-076-design-and-build-techniques-from-impeccable-taste-skill-and-ui-ux-pro-max-m">UB-076: Design and build techniques from impeccable, taste-sk...</a><a class="t3" href="#ub-077-screenshot-to-code-for-the-wireframe-flow-m">UB-077: Screenshot-to-code for the wireframe flow (M)</a><a class="t3" href="#ub-078-a-diagram-generator-from-diagram-design-m">UB-078: A diagram generator from diagram-design (M)</a><a class="t3" href="#ub-079-spike-html-to-deterministic-video-with-hyperframes-m">UB-079: Spike: HTML to deterministic video with hyperframes (M)</a><a class="t3" href="#ub-080-study-slide-generation-references-s">UB-080: Study slide-generation references (S)</a><a class="t2" href="#batch-b02-2026-11-24-rust-anything-and-fast-anything-from-a-trial-on-m2c">Batch B02 (2026-11-24): rust-anything and fast-anything, from...</a><a class="t3" href="#ub-081-cross-check-the-mg-z10-spike-with-rust-anything-m">UB-081: Cross-check the MG-Z10 spike with rust-anything (M)</a><a class="t3" href="#ub-082-port-only-profiled-hot-functions-with-fast-anything-m">UB-082: Port only profiled hot functions with fast-anything (M)</a><a class="t3" href="#ub-083-break-the-import-cycle-so-m2c-units-can-be-bridged-one-by-one-m">UB-083: Break the import cycle so m2c units can be bridged on...</a><a class="t2" href="#batch-b03-2026-11-26-review-of-promptfoo-strix-hypothesis-schemathesis-and-locust">Batch B03 (2026-11-26): Review of promptfoo, Strix, Hypothesi...</a><a class="t3" href="#ub-084-record-what-a-run-created-so-undo-and-approvals-touch-only-that-s">UB-084: Record what a run created, so undo and approvals touc...</a></div></div></main><small class="mm-built">Private. Built 2026-11-26 from commit 452fe2e.</small><script id="bk-chapter-script">
+<p><strong>Notes.</strong> An idea until Menux has an event log; Strix's version was read, not run.</p>
+<h2 id="batch-b04-2026-11-26-review-of-gemini-cli-hermes-agent-mistral-vibe-and-codex">Batch B04 (2026-11-26): Review of gemini-cli, hermes-agent, mistral-vibe and codex</h2>
+<p><em>Source:</em> a review of four reference repos (33 capabilities), read from source with nothing installed or run, made against MiniMe <code>121e06c</code>; the rest of this file was written at <code>cd0bc23</code>. Reference commits read again when this batch was written: gemini-cli <code>60f8082</code>, hermes-agent <code>c84e8d7f</code>, mistral-vibe <code>fb7511a</code>, codex <code>06f334a</code>. The four licences were read again. In this batch <code>[R]</code> is a reading of those repos, <code>[V✓]</code> is a check of MiniMe <code>121e06c</code> made while writing it, and <code>[S]</code> is a fact carried from the review and not re-read. <strong>The decision column of the review was empty, so its recommendations were taken as the decisions</strong>, as in B03: <strong>ADD</strong> became new features (UB-085, UB-086), <strong>EXTEND</strong> items were written into the entries that exist (edited in place, so they are not repeated here: UB-028, UB-033, UB-036, UB-037, UB-038, UB-042, UB-048, UB-064, UB-075), and <strong>IDEA ONLY</strong> and <strong>SKIP</strong> items went to section 6. Where the work package belongs to another chapter (<code>L02</code>, <code>L04</code>, <code>L07</code>, <code>C13</code>, <code>C25</code>, <code>Q07</code>, <code>MG-Z10</code>), the section 6 row carries the addition and the chapter was <strong>not</strong> edited. One new feature, UB-087, is my own idea and not a decision from the review: drop it if you disagree.</p>
+<p><strong>Corrections to the review found while re-reading:</strong> (1) Vibe's strict hooks are an opt-in flag on each hook, not five types that fail closed. (2) Codex's <code>HookEventName</code> has 14 events, not 15. (3) The review said to build goal mode after the metering item <code>S10</code>; <code>S10</code> is already built (<code>backend/codeagent/metering.py</code> exists [V✓]). (4) Vibe's goal engine uses Python 3.12 syntax, but the server loop runs on <code>python:3.12-slim</code> [V✓], so only code placed in <code>m2c/</code> (floor 3.11) is affected. (5) Codex leaves hardening on Windows as an empty TODO, and Python's <code>resource</code> module does not exist on Windows, where the dev machine runs.</p>
+<h3 id="ub-085-switch-off-core-dumps-and-debugger-attach-for-the-m2c-client-at-start-xs">UB-085: Switch off core dumps and debugger attach for the M2C client at start (XS)</h3>
+<blockquote>
+<p>Set no-core-dump and no-same-user-debugger-attach for the M2C client before it handles a secret (Linux and macOS), as Codex does.</p>
+</blockquote>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Codex <code>codex-rs/process-hardening/src/lib.rs</code> (Apache-2.0, read at <code>06f334a</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> Whether a failed hardening call stops the client (Codex exits with code 5, 6 or 7) or only warns · <strong>Evidence</strong> [R] [V✓] [U]</p>
+<p><strong>What.</strong> A small function called first in <code>m2c.cli.main</code>. On Linux it sets <code>PR_SET_DUMPABLE</code> to 0 and the core-file size limit to 0; on macOS it calls <code>ptrace(PT_DENY_ATTACH)</code> and sets the core-file limit to 0. Codex does this before its <code>main</code> starts, and also strips <code>LD_*</code> (Linux) and <code>DYLD_*</code> (macOS) variables from its own environment [R]. On Windows Codex does nothing: the function body is a TODO [R].</p>
+<p><strong>Why.</strong> The client's memory holds the session token and the files it reads. A core dump, or a debugger attached by another process of the same user, could read them. The policy engine guards what the model does, not what other local processes do. A grep of <code>m2c/src</code> finds no <code>RLIMIT_CORE</code> and no <code>PR_SET_DUMPABLE</code>, and a grep of <code>daemon/</code> finds neither [V✓].</p>
+<p><strong>Where.</strong> <code>m2c/src/m2c/cli.py</code> (<code>main</code>, line 419 [V✓]); a new <code>m2c/src/m2c/hardening.py</code>; <code>m2c/src/m2c/doctor.py</code>, which already records the platform, to report the result. The Menux daemon (<code>daemon/minime_daemon.py</code>, Python) holds longer-lived secrets and could call the same function.</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>Write <code>harden_process()</code> with the standard library only (<code>ctypes</code>, <code>resource</code>, <code>sys</code>), so the dependency test of D14 still passes.</li>
+<li>Linux: call <code>prctl(PR_SET_DUMPABLE, 0)</code> through <code>ctypes.CDLL(None, use_errno=True)</code>; macOS: <code>ptrace(PT_DENY_ATTACH)</code>. Look the constants up in the system headers or <code>man</code> pages, they were not read from the OS here [GK].</li>
+<li>Import <code>resource</code> only on Unix: it does not exist on Windows [GK]. On Windows return "not applied: windows" and keep starting. No per-process Windows equivalent was looked at [U].</li>
+<li>Call it before the configuration and the auth store are read, and keep the result (applied, failed, unsupported) for <code>m2c doctor</code>.</li>
+<li>Decide the failure policy (see <strong>Decision</strong>). Add a documented opt-out for debugging, because a process that is not dumpable cannot be attached to by tools such as <code>gdb</code> or <code>py-spy</code> [GK].</li>
+<li>Separate question, a design idea [U]: Codex's environment stripping does not carry over, because Python has already loaded what <code>LD_PRELOAD</code> points to. The sandbox starts commands with <code>--clearenv</code> [V✓ <code>sandbox/bwrap.py</code>], so <code>LD_*</code> does not reach them there. <code>secrets/env.py</code> is a deny list by name and does not name <code>LD_PRELOAD</code> or <code>DYLD_INSERT_LIBRARIES</code> [V✓], so for a run outside bwrap decide whether to add those two names (not all <code>LD_*</code>: toolchains use <code>LD_LIBRARY_PATH</code>).</li>
+</ol>
+<p><strong>Done when.</strong> On Linux a test run in a subprocess reads back <code>PR_GET_DUMPABLE</code> as 0 and <code>RLIMIT_CORE</code> as (0, 0) after the call. A macOS test is skipped elsewhere. On Windows <code>m2c</code> still starts and <code>doctor</code> says hardening was not applied. The dependency test still passes.</p>
+<p><strong>Notes.</strong> An idea nobody has run here; Codex's version was read, not run. It is a dozen lines of system calls: write them fresh and keep the Codex file as the reference, so no notice is needed in your code.</p>
+<h3 id="ub-086-session-goal-mode-with-a-token-budget-and-a-no-progress-stop-m">UB-086: Session goal mode with a token budget and a no-progress stop (M)</h3>
+<blockquote>
+<p>One goal the agent works on across turns; it stops at a token budget, after 3 turns without progress, or after 3 turns of failed tools.</p>
+</blockquote>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Mistral Vibe <code>vibe/app_server/_goal_engine.py</code> (Apache-2.0, read at <code>fb7511a</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> Whether to build it only after UB-028 and UB-036, so the goal reuses their evidence ledger and loop stop instead of a second copy · <strong>Evidence</strong> [R] [V✓] [U]</p>
+<p><strong>What.</strong> A goal mode. The person states one objective; after each turn, if the goal is still active and nothing stopped it, the loop adds a continuation turn. In Vibe's engine [R]: a turn ends the goal as paused (user interrupt), usage-limited, blocked (a failed turn, 3 turns with no progress or 3 turns of failed tools: <code>STREAK_LIMIT = 3</code>) or budget-limited, and the model itself can mark it complete, blocked or paused. The token budget and what is left of it are told to the model. The objective is HTML-escaped and wrapped in a <code>&lt;goal_objective&gt;</code> block so it reads as data. The continuation prompt asks for work from evidence, and a completion must name its evidence (a test run, command output or a file).</p>
+<p><strong>Why.</strong> Today a run ends when the model stops, and a long task needs the person to type "continue". There is no goal mode in M2C: the only match for "goal" in <code>m2c/src</code> is in <code>store/migrations.py</code> and is unrelated [V✓]. The earlier review said to wait for the metering item <code>S10</code>; it is built (<code>backend/codeagent/metering.py</code> [V✓], and the build plan lists it as built), so the budget has a source.</p>
+<p><strong>Where.</strong> <code>backend/codeagent/loop.py</code> and <code>backend/codeagent/metering.py</code> (the server loop owns budgets and stop rules); <code>run_manager.py</code> and <code>runs.py</code> for per-run state; <code>protocol/v1/</code> for additive messages (set goal, goal status); the TUI. The server runs on Python 3.12 [V✓ <code>backend.Dockerfile</code>], and Vibe's file uses <code>type</code> aliases (3.12 syntax) [R]; the 3.11 floor of D1 applies only to code in <code>m2c/</code>.</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>Settle the decision above.</li>
+<li>Keep a goal record per run: objective, token budget, status, reason and two streak counters. Write changes as events in the append-only store and not as a mutable table [U].</li>
+<li>After each turn apply Vibe's rule order [R]: user interrupt, usage limit, failed turn, budget reached, no-progress streak of 3, failure streak of 3.</li>
+<li>Build the continuation message with the objective inside an escaped, marked block (use UB-087), the tokens used and left, and the rule that completion needs named evidence. Check that evidence against the UB-028 ledger [U].</li>
+<li>Make a budget mandatory. Vibe allows no budget at all (<code>token_budget is None</code> [R]); do not copy that default [U].</li>
+<li>Every continuation goes through the normal policy and approvals, and a goal never widens a permission. A call that needs approval pauses the goal with a visible status instead of being denied silently [U].</li>
+<li>Add the protocol messages with fixtures.</li>
+</ol>
+<p><strong>Done when.</strong> Fake-model tests: a goal completed with evidence ends <code>complete</code>; three turns that change nothing end <code>blocked</code> with the reason; three turns of failed tools end <code>blocked</code>; the token budget stops the run; an objective that contains <code>&lt;/goal_objective&gt;</code> stays inside its block; a user interrupt pauses the goal.</p>
+<p><strong>Notes.</strong> Runaway cost is the main risk, so the budget and the step limit both stay in force. Take the rules, not the code: Vibe's engine is tied to its own goal-state types. If code is ever copied, the Apache-2.0 notice and a mark on the changes are required.</p>
+<h3 id="ub-087-one-helper-that-frames-text-the-model-must-treat-as-data-s">UB-087: One helper that frames text the model must treat as data (S)</h3>
+<blockquote>
+<p>Steering messages, compaction summaries and goal objectives all need the same escaping, marker and look-alike handling; write it once.</p>
+</blockquote>
+<p><strong>Product</strong> M2C · <strong>Source</strong> my idea, from Hermes <code>agent/prompt_builder.py</code> (MIT, <code>c84e8d7f</code>), Gemini CLI <code>prompts/snippets.ts</code> (Apache-2.0, <code>60f8082</code>) and Vibe <code>_goal_engine.py</code> (Apache-2.0, <code>fb7511a</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> Build it before UB-037, UB-042 and UB-086, or let each write its own and merge them later · <strong>Evidence</strong> [R] [V✓] [U]</p>
+<p><strong>What.</strong> One module in <code>backend/codeagent/</code> with three parts: a function that escapes, wraps and marks a piece of text for a named kind of frame; a function that relabels text imitating one of your own frames inside a tool result; and one list of the frame kinds. Users would be the steer message of UB-037, the goal envelope and summary of UB-042, the objective of UB-086, and the existing <code>NOTICE_*</code> messages.</p>
+<p><strong>Why.</strong> Three entries each need a marker, and each marker is a place where a look-alike can get through. Hermes needed a list of strings that imitate its control frames [R], Gemini tells its summariser to ignore instructions found in the history [R], and Vibe escapes the objective so it cannot close its own block [R]. One shared list makes a new kind of frame get the same cover. This is an idea; nobody has run it.</p>
+<p><strong>Where.</strong> <code>backend/codeagent/prompts.py</code>, <code>loop.py</code> (<code>NOTICE_*</code>), <code>context.py</code>. The files that already mention an injection guard are <code>broker.py</code>, <code>prompts.py</code> and <code>adapters/toolcalls.py</code> [V✓ grep]; read how they mark outside text first and reuse it if it fits.</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>Read the current markers (<code>NOTICE_*</code> and the injection guard files above).</li>
+<li>Define the frame kinds and one escaping rule: escape <code>&lt;</code>, <code>&gt;</code> and <code>&amp;</code>, as Vibe does for the objective, so text cannot close its own tag [R].</li>
+<li>Write the look-alike relabelling and apply it only to tool results on their way to the model. Keep the original in the stored log, so UB-042's lossless log stays lossless.</li>
+<li>Write a table test: each frame kind against hostile payloads (a closing tag, a look-alike heading, a nested marker).</li>
+<li>Use it in UB-037, UB-042 and UB-086.</li>
+</ol>
+<p><strong>Done when.</strong> For every frame kind, no hostile payload can close or forge the frame. A tool result that contains any kind's marker is relabelled. The existing prompt tests pass.</p>
+<p><strong>Notes.</strong> The risk is a relabelling list that mangles real output, for example a README that contains the words "Runtime note:". That is why step 3 relabels only inside tool results and keeps the stored original.</p></article><div class="toc"><b>On this page</b><a class="t2" href="#0-at-a-glance">0. At a glance</a><a class="t2" href="#1-register">1. Register</a><a class="t2" href="#2-batches">2. Batches</a><a class="t2" href="#3-how-to-add-features-the-patch-recipe">3. How to add features (the patch recipe)</a><a class="t2" href="#4-field-vocabulary-and-rules">4. Field vocabulary and rules</a><a class="t2" href="#5-where-the-original-upgrade-plan-went">5. Where the original upgrade plan went</a><a class="t2" href="#6-considered-not-added">6. Considered, not added</a><a class="t2" href="#7-sources-register">7. Sources register</a><a class="t2" href="#8-decision-log">8. Decision log</a><a class="t2" href="#batch-b01-2026-11-24-upgrade-plan-and-verified-spec-of-21-nov-2026-minus-the-finished-sx-series">Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 ...</a><a class="t3" href="#ub-001-move-the-web-app-from-nextjs-14-to-a-supported-line-l">UB-001: Move the web app from Next.js 14 to a supported line (L)</a><a class="t3" href="#ub-002-decide-pillow-against-moviepy-then-act-m">UB-002: Decide Pillow against moviepy, then act (M)</a><a class="t3" href="#ub-003-move-e2b-bracex-and-wcmatch-together-m">UB-003: Move e2b, bracex and wcmatch together (M)</a><a class="t3" href="#ub-004-put-the-caddy-config-in-the-repo-and-set-the-edge-limits-m">UB-004: Put the Caddy config in the repo and set the edge lim...</a><a class="t3" href="#ub-005-block-cloud-metadata-and-link-local-addresses-at-the-host-firewall-s">UB-005: Block cloud-metadata and link-local addresses at the ...</a><a class="t3" href="#ub-006-run-url-fetches-behind-an-egress-proxy-or-in-the-sandbox-m">UB-006: Run URL fetches behind an egress proxy or in the sand...</a><a class="t3" href="#ub-007-audit-every-other-server-side-fetch-of-a-user-influenced-url-m">UB-007: Audit every other server-side fetch of a user-influen...</a><a class="t3" href="#ub-008-per-user-ingest-quotas-m">UB-008: Per-user ingest quotas (M)</a><a class="t3" href="#ub-009-daily-ingest-cost-cap-tied-to-the-usage-ledger-m">UB-009: Daily ingest cost cap tied to the usage ledger (M)</a><a class="t3" href="#ub-010-cap-voice-length-before-transcribing-s">UB-010: Cap voice length before transcribing (S)</a><a class="t3" href="#ub-011-re-set-the-size-caps-with-a-cost-model-s">UB-011: Re-set the size caps with a cost model (S)</a><a class="t3" href="#ub-012-turn-the-report-only-csp-into-an-enforced-one-m">UB-012: Turn the report-only CSP into an enforced one (M)</a><a class="t3" href="#ub-013-a-small-blocking-promptfoo-gate-m">UB-013: A small blocking promptfoo gate (M)</a><a class="t3" href="#ub-014-run-the-promptfoo-red-team-with-a-two-tenant-provider-m">UB-014: Run the promptfoo red-team with a two-tenant provider...</a><a class="t3" href="#ub-015-first-strix-run-on-staging-m">UB-015: First Strix run on staging (M)</a><a class="t3" href="#ub-016-property-tests-with-hypothesis-m">UB-016: Property tests with Hypothesis (M)</a><a class="t3" href="#ub-017-nightly-api-fuzzing-with-schemathesis-m">UB-017: Nightly API fuzzing with Schemathesis (M)</a><a class="t3" href="#ub-018-add-cost-per-task-and-web-product-scenarios-to-the-load-harness-m">UB-018: Add cost-per-task and web-product scenarios to the lo...</a><a class="t3" href="#ub-019-a-practice-lab-with-django-and-nginx-on-your-own-machine-s">UB-019: A practice lab with Django and nginx on your own mach...</a><a class="t3" href="#ub-020-pre-audit-package-for-the-daemon-m">UB-020: Pre-audit package for the daemon (M)</a><a class="t3" href="#ub-021-sbom-on-release-s">UB-021: SBOM on release (S)</a><a class="t3" href="#ub-022-pin-scanner-binaries-and-images-by-digest-s">UB-022: Pin scanner binaries and images by digest (S)</a><a class="t3" href="#ub-023-lurkr-as-an-advisory-ci-step-s">UB-023: Lurkr as an advisory CI step (S)</a><a class="t3" href="#ub-024-dependabot-for-the-docker-images-xs">UB-024: Dependabot for the Docker images (XS)</a><a class="t3" href="#ub-025-security-headers-for-the-book-site-xs">UB-025: Security headers for the book site (XS)</a><a class="t3" href="#ub-026-record-the-fix-patch-guide-in-the-book-s">UB-026: Record the fix patch guide in the book (S)</a><a class="t3" href="#ub-027-refresh-the-book-after-the-fixes-and-upgrades-m">UB-027: Refresh the book after the fixes and upgrades (M)</a><a class="t3" href="#ub-028-verify-on-stop-in-the-agent-loop-m">UB-028: Verify-on-stop in the agent loop (M)</a><a class="t3" href="#ub-029-skills-loader-for-m2c-m">UB-029: Skills loader for M2C (M)</a><a class="t3" href="#ub-030-add-promptfoos-coding-agent-risk-categories-to-the-q07-corpus-and-list-the-gaps-s">UB-030: Add promptfoo&#x27;s coding-agent risk categories to the Q...</a><a class="t3" href="#ub-031-golden-tasks-for-the-coding-agent-m">UB-031: Golden tasks for the coding agent (M)</a><a class="t3" href="#ub-032-local-mcp-client-for-m2c-l">UB-032: Local MCP client for M2C (L)</a><a class="t3" href="#ub-033-deferred-tool-loading-with-search-over-tool-specs-m">UB-033: Deferred tool loading with search over tool specs (M)</a><a class="t3" href="#ub-034-offer-codebase-memory-mcp-as-an-optional-local-server-s">UB-034: Offer codebase-memory-mcp as an optional local server...</a><a class="t3" href="#ub-035-rehearse-mcp-attacks-against-m2c-with-argus-s">UB-035: Rehearse MCP attacks against M2C with Argus (S)</a><a class="t3" href="#ub-036-stuck-detection-beyond-identical-failures-m">UB-036: Stuck detection beyond identical failures (M)</a><a class="t3" href="#ub-037-mid-turn-user-steering-m">UB-037: Mid-turn user steering (M)</a><a class="t3" href="#ub-038-an-instruction-hierarchy-contract-in-the-system-prompt-s">UB-038: An instruction-hierarchy contract in the system promp...</a><a class="t3" href="#ub-039-observe-mode-before-enforce-mode-for-new-policy-rules-m">UB-039: Observe mode before enforce mode for new policy rules...</a><a class="t3" href="#ub-040-check-whether-sandbox-denials-are-already-stored-s">UB-040: Check whether sandbox denials are already stored (S)</a><a class="t3" href="#ub-041-signed-narrowing-grants-for-subagents-l">UB-041: Signed, narrowing grants for subagents (L)</a><a class="t3" href="#ub-042-compaction-that-re-injects-the-task-goal-with-a-lossless-log-m">UB-042: Compaction that re-injects the task goal, with a loss...</a><a class="t3" href="#ub-043-an-independent-verifier-context-and-step-graph-validation-l">UB-043: An independent verifier context and step-graph valida...</a><a class="t3" href="#ub-044-plan-mode-that-is-structural-plus-a-spec-first-interview-m">UB-044: Plan mode that is structural, plus a spec-first inter...</a><a class="t3" href="#ub-045-a-precision-first-review-command-l">UB-045: A precision-first review command (L)</a><a class="t3" href="#ub-046-add-a-hash-chain-to-the-local-event-store-s">UB-046: Add a hash chain to the local event store (S)</a><a class="t3" href="#ub-047-menux-memory-store-with-sources-validity-and-fts5-m">UB-047: Menux memory store with sources, validity and FTS5 (M)</a><a class="t3" href="#ub-048-trust-rule-and-a-review-queue-for-new-memories-m">UB-048: Trust rule and a review queue for new memories (M)</a><a class="t3" href="#ub-049-correcting-a-source-retires-its-dependents-and-deletes-cascade-m">UB-049: Correcting a source retires its dependents, and delet...</a><a class="t3" href="#ub-050-show-the-working-memory-before-a-task-and-report-what-was-used-m">UB-050: Show the working memory before a task, and report wha...</a><a class="t3" href="#ub-051-retention-scores-and-hot-warm-and-cold-tiers-m">UB-051: Retention scores and hot, warm and cold tiers (M)</a><a class="t3" href="#ub-052-learned-workflows-modelled-on-webcmd-l">UB-052: Learned workflows modelled on webcmd (L)</a><a class="t3" href="#ub-053-crawl4ai-as-an-optional-web-reader-s">UB-053: crawl4ai as an optional web reader (S)</a><a class="t3" href="#ub-054-a-capability-listing-command-xs">UB-054: A capability-listing command (XS)</a><a class="t3" href="#ub-055-a-blender-skill-pack-m">UB-055: A Blender skill pack (M)</a><a class="t3" href="#ub-056-an-independent-claim-check-pass-for-research-reports-m">UB-056: An independent claim-check pass for research reports (M)</a><a class="t3" href="#ub-057-generation-that-survives-a-closed-tab-l">UB-057: Generation that survives a closed tab (L)</a><a class="t3" href="#ub-058-project-based-learning-with-an-ai-tutor-milestone-by-milestone-l">UB-058: Project-based learning with an AI tutor, milestone by...</a><a class="t3" href="#ub-059-chat-about-any-slide-element-m">UB-059: Chat about any slide element (M)</a><a class="t3" href="#ub-060-course-level-undo-m">UB-060: Course-level undo (M)</a><a class="t3" href="#ub-061-export-to-pptx-and-html-m">UB-061: Export to PPTX and HTML (M)</a><a class="t3" href="#ub-062-a-knowledge-base-with-mentions-m">UB-062: A knowledge base with @-mentions (M)</a><a class="t3" href="#ub-063-use-openmaics-published-advisories-as-a-free-test-checklist-s">UB-063: Use OpenMAIC&#x27;s published advisories as a free test ch...</a><a class="t3" href="#ub-064-a-repeatable-skills-pipeline-select-scan-rewrite-evaluate-label-regress-m">UB-064: A repeatable skills pipeline: select, scan, rewrite, ...</a><a class="t3" href="#ub-065-growth-tab-seed-skills-from-marketingskills-m">UB-065: Growth tab seed skills from marketingskills (M)</a><a class="t3" href="#ub-066-research-and-notebooks-seeds-from-scientific-agent-skills-m">UB-066: Research and notebooks seeds from scientific-agent-sk...</a><a class="t3" href="#ub-067-m2c-built-in-skills-and-a-behaviour-baseline-m">UB-067: M2C built-in skills and a behaviour baseline (M)</a><a class="t3" href="#ub-068-security-reviewer-prompts-and-a-vetted-security-skills-library-m">UB-068: Security reviewer prompts and a vetted security skill...</a><a class="t3" href="#ub-069-role-ideas-from-gstack-and-bmad-s">UB-069: Role ideas from gstack and BMAD (S)</a><a class="t3" href="#ub-070-an-optional-writing-quality-pass-from-humanizer-s">UB-070: An optional writing-quality pass from humanizer (S)</a><a class="t3" href="#ub-071-the-overhang-and-draft-check-in-the-mechanical-engine-m">UB-071: The overhang and draft check in the mechanical engine...</a><a class="t3" href="#ub-072-compare-text-to-cads-per-process-rules-with-yours-s">UB-072: Compare text-to-cad&#x27;s per-process rules with yours (S)</a><a class="t3" href="#ub-073-spike-can-build123d-replace-freecad-inside-the-e2b-template-m">UB-073: Spike: can build123d replace FreeCAD inside the E2B t...</a><a class="t3" href="#ub-074-an-analyse-this-part-stress-check-l">UB-074: An &quot;analyse this part&quot; stress check (L)</a><a class="t3" href="#ub-075-cost-experiments-before-adopting-any-compressor-or-router-m">UB-075: Cost experiments before adopting any compressor or ro...</a><a class="t3" href="#ub-076-design-and-build-techniques-from-impeccable-taste-skill-and-ui-ux-pro-max-m">UB-076: Design and build techniques from impeccable, taste-sk...</a><a class="t3" href="#ub-077-screenshot-to-code-for-the-wireframe-flow-m">UB-077: Screenshot-to-code for the wireframe flow (M)</a><a class="t3" href="#ub-078-a-diagram-generator-from-diagram-design-m">UB-078: A diagram generator from diagram-design (M)</a><a class="t3" href="#ub-079-spike-html-to-deterministic-video-with-hyperframes-m">UB-079: Spike: HTML to deterministic video with hyperframes (M)</a><a class="t3" href="#ub-080-study-slide-generation-references-s">UB-080: Study slide-generation references (S)</a><a class="t2" href="#batch-b02-2026-11-24-rust-anything-and-fast-anything-from-a-trial-on-m2c">Batch B02 (2026-11-24): rust-anything and fast-anything, from...</a><a class="t3" href="#ub-081-cross-check-the-mg-z10-spike-with-rust-anything-m">UB-081: Cross-check the MG-Z10 spike with rust-anything (M)</a><a class="t3" href="#ub-082-port-only-profiled-hot-functions-with-fast-anything-m">UB-082: Port only profiled hot functions with fast-anything (M)</a><a class="t3" href="#ub-083-break-the-import-cycle-so-m2c-units-can-be-bridged-one-by-one-m">UB-083: Break the import cycle so m2c units can be bridged on...</a><a class="t2" href="#batch-b03-2026-11-26-review-of-promptfoo-strix-hypothesis-schemathesis-and-locust">Batch B03 (2026-11-26): Review of promptfoo, Strix, Hypothesi...</a><a class="t3" href="#ub-084-record-what-a-run-created-so-undo-and-approvals-touch-only-that-s">UB-084: Record what a run created, so undo and approvals touc...</a><a class="t2" href="#batch-b04-2026-11-26-review-of-gemini-cli-hermes-agent-mistral-vibe-and-codex">Batch B04 (2026-11-26): Review of gemini-cli, hermes-agent, m...</a><a class="t3" href="#ub-085-switch-off-core-dumps-and-debugger-attach-for-the-m2c-client-at-start-xs">UB-085: Switch off core dumps and debugger attach for the M2C...</a><a class="t3" href="#ub-086-session-goal-mode-with-a-token-budget-and-a-no-progress-stop-m">UB-086: Session goal mode with a token budget and a no-progre...</a><a class="t3" href="#ub-087-one-helper-that-frames-text-the-model-must-treat-as-data-s">UB-087: One helper that frames text the model must treat as d...</a></div></div></main><small class="mm-built">Private. Built 2026-11-25 from commit b5be954.</small><script id="bk-chapter-script">
 (function(){
   // Reading progress bar
   var bar = document.querySelector('.bk-progress');
@@ -3589,5 +3797,5 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
     });
   }
 })();
-</script><script type="module" src="assets/js/shell.js"></script><!-- source: data/docs/upgrade_backlog.md sha256=9dd8282c2d43193b5933168e60b2b6e2bdc71c266e12edfe4400108351ae4229 -->
+</script><script type="module" src="assets/js/shell.js"></script><!-- source: data/docs/upgrade_backlog.md sha256=fdeb86213218a6d9e5e91d7e2b7c0326579d98995731fc55f03eb5b21a67581e -->
 </body></html>
