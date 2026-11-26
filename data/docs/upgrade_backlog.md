@@ -14,16 +14,16 @@ This file is the one place where every feature you might build later is written 
 
 *Generated from the entries by `python scripts/check_backlog.py --write`. Do not edit by hand.*
 
-**96 features** in 6 batches: 92 candidate · 0 accepted · 0 building · 0 done · 4 parked · 0 dropped.
+**100 features** in 7 batches: 96 candidate · 0 accepted · 0 building · 0 done · 4 parked · 0 dropped.
 
 | Product | candidate | accepted | building | done | parked | dropped | Total |
 |---|---|---|---|---|---|---|---|
-| MiniMe | 43 | 0 | 0 | 0 | 1 | 0 | 44 |
-| M2C | 28 | 0 | 0 | 0 | 2 | 0 | 30 |
-| Menux | 9 | 0 | 0 | 0 | 1 | 0 | 10 |
+| MiniMe | 44 | 0 | 0 | 0 | 1 | 0 | 45 |
+| M2C | 30 | 0 | 0 | 0 | 2 | 0 | 32 |
+| Menux | 10 | 0 | 0 | 0 | 1 | 0 | 11 |
 | Shared | 9 | 0 | 0 | 0 | 0 | 0 | 9 |
 | Book | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
-| **All** | **92** | **0** | **0** | **0** | **4** | **0** | **96** |
+| **All** | **96** | **0** | **0** | **0** | **4** | **0** | **100** |
 
 ## 1. Register
 
@@ -58,7 +58,7 @@ This file is the one place where every feature you might build later is written 
 | UB-025 | Security headers for the book site | Add nosniff, Referrer-Policy and a frame rule to the book's vercel.json. | Book | Spec U4.5 | XS | candidate | B01 |
 | UB-026 | Record the fix patch guide in the book | Keep the SX series guide as a book appendix so the history of what was fixed is not lost. | Book | the MiniMe fix patch guide | S | candidate | B01 |
 | UB-027 | Refresh the book after the fixes and upgrades | The book's census and graph describe commit 3727ae3; refresh them after the fix series and again after bigger upgrades. | Book | Fix guide section 7, `UPDATING.md` | M | candidate | B01 |
-| UB-028 | Verify-on-stop in the agent loop | If the model edits files and then stops without running a test or build, ask it once or twice to verify first. | M2C | Spec M1, Plan 4.2, Hermes `agent/verification_stop.py` and `agent/turn_stop_gates.py` (MIT, read at `c84e8d7f`) [R] | M | candidate | B01 |
+| UB-028 | Verify-on-stop in the agent loop | If the model edits files and then stops without running a test or build, ask it once or twice to verify first. | M2C | Spec M1, Plan 4.2, Hermes `agent/verification_stop.py` and `agent/turn_stop_gates.py` (MIT, read at `c84e8d7f`) [R], Preloop `backend/preloop/agents/verification.py` and `agents/completion_nudge.py` (Apache-2.0, read at `8c17f51c`) [R], Mixdog `src/rules/shared/60-verification.md` (Apache-2.0, read at `8382c929`) [R] | M | candidate | B01 |
 | UB-029 | Skills loader for M2C | Load SKILL.md folders (name and description only at start), enforcing allowed-tools as a ceiling. | M2C | Spec M2, Agent Skills standard [W], M2C plan item C14 | M | candidate | B01 |
 | UB-030 | Add promptfoo's coding-agent risk categories to the Q07 corpus and list the gaps | Q07 is already planned; take promptfoo's coding-agent risk categories and write rows only for what the current tests miss. | M2C | Spec M3, Plan 4.5, M2C build plan Q07, Appendix A `MG-Z03`, promptfoo (MIT, read at `4a30804`) [R] | S | candidate | B01 |
 | UB-031 | Golden tasks for the coding agent | Ten past bug-fix commits turned into tasks with a failing test, run with a fixed budget, to get your own pass rate and cost. | M2C | Spec M4, promptfoo (MIT, read at `4a30804`) [R] | M | candidate | B01 |
@@ -67,19 +67,19 @@ This file is the one place where every feature you might build later is written 
 | UB-034 | Offer codebase-memory-mcp as an optional local server | A code knowledge-graph MCP server the user can install themselves, running device-local under the sandbox with a narrow tool list. | M2C | codebase-memory-mcp (MIT, read at `9a4da7a3`) [R], M2C build plan item `L08` | S | candidate | B01 |
 | UB-035 | Rehearse MCP attacks against M2C with a red-team tool you still have to name | Use a red-team tool with a built-in vulnerable demo agent to rehearse tool-poisoning and rug-pull attacks. | M2C | "Argus" (README level); the repo read in B06, `divinelabio/argus` (MIT, read at `f51c0442`), is a different tool [R] | S | parked | B01 |
 | UB-036 | Stuck detection beyond identical failures | Warn when the same call repeats even if it succeeds, then ask a model to self-check after many turns; let the user decide. | M2C | Gemini CLI and OpenCode (Plan 4.2), Gemini CLI `packages/core/src/services/loopDetectionService.ts` (Apache-2.0, read at `60f8082`) [R] | M | candidate | B01 |
-| UB-037 | Mid-turn user steering | Let the user add a message while the agent works, inserted behind an anti-injection marker. | M2C | Hermes (Plan 4.2), Hermes `agent/prompt_builder.py` (MIT, read at `c84e8d7f`) [R] | M | candidate | B01 |
+| UB-037 | Mid-turn user steering | Let the user add a message while the agent works, inserted behind an anti-injection marker. | M2C | Hermes (Plan 4.2), Hermes `agent/prompt_builder.py` (MIT, read at `c84e8d7f`) [R], Preloop `backend/preloop/services/operator_notes.py` (Apache-2.0, read at `8c17f51c`) [R] | M | candidate | B01 |
 | UB-038 | An instruction-hierarchy contract in the system prompt | One ranked list of instruction sources (user, repo, skills, MCP, external data last) instead of scattered prohibitions. | M2C | Mistral Vibe (Plan 4.2), Vibe `vibe/core/prompts/cli_ml4_2026-10_v2.md` (Apache-2.0, read at `fb7511a`) [R] | S | candidate | B01 |
-| UB-039 | Observe mode before enforce mode for new policy rules | Ship each new rule in a log-only mode first, record what it would have blocked, then enforce. | M2C | Prismor (Plan 4.2) | M | candidate | B01 |
+| UB-039 | Observe mode before enforce mode for new policy rules | Ship each new rule in a log-only mode first, record what it would have blocked, then enforce. | M2C | Prismor (Plan 4.2), Cordum `core/policyshadow/types.go` (BUSL-1.1: ideas only) [R] | M | candidate | B01 |
 | UB-040 | Store sandbox denials and explain them to the model | Tie each network denial to its command, store file denials, and tell the model what to do instead of a bare refusal. | M2C | Spec M6, sandbox-runtime `src/sandbox/sandbox-manager.ts` and `request-filter.ts` (Apache-2.0, read at `0bbebed0`) [R] | M | candidate | B01 |
 | UB-041 | Signed, narrowing grants for subagents | Each handoff to a subagent can only narrow what it may do: tools, argument limits, expiry. | M2C | Tenuo [R] | L | candidate | B01 |
-| UB-042 | Compaction that re-injects the task goal, with a lossless log | When the context is compacted, put the original goals back in; keep the full transcript so only the model's view shrinks. | M2C | Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2), Gemini CLI `prompts/snippets.ts` and `context/chatCompressionService.ts` (Apache-2.0, read at `60f8082`) [R], Hermes `agent/context_compressor.py` and `context_compressor_prompt_rules.py` (MIT, read at `c84e8d7f`) [R] | M | candidate | B01 |
-| UB-043 | An independent verifier context and step-graph validation | A second, separate model context checks the result; a multi-step plan is validated before any step starts. | M2C | zeroshot [R] | L | candidate | B01 |
+| UB-042 | Compaction that re-injects the task goal, with a lossless log | When the context is compacted, put the original goals back in; keep the full transcript so only the model's view shrinks. | M2C | Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2), Gemini CLI `prompts/snippets.ts` and `context/chatCompressionService.ts` (Apache-2.0, read at `60f8082`) [R], Hermes `agent/context_compressor.py` and `context_compressor_prompt_rules.py` (MIT, read at `c84e8d7f`) [R], open-code-review `internal/config/template/prompts/memory_compression_task_system.md` (Apache-2.0, read at `d4f568f7`) [R] | M | candidate | B01 |
+| UB-043 | An independent verifier context and step-graph validation | A second, separate model context checks the result; a multi-step plan is validated before any step starts. | M2C | zeroshot [R], open-code-review `internal/behaviortask/README.md` (Apache-2.0, read at `d4f568f7`) [R] | L | candidate | B01 |
 | UB-044 | Plan mode that is structural, plus a spec-first interview | In plan mode only a plan file is writable; add a spec-first interview that ends in checkable acceptance criteria. | M2C | Mistral Vibe, Ouroboros, Nightshift (Plan 4.2) | M | candidate | B01 |
-| UB-045 | A precision-first review command | A diff reviewer that gives line-level comments and favours few, correct findings over many. | M2C | open-code-review [R], Strix `skills/scan_modes/diff.md` (Apache-2.0, read at `9ed84f9`) [R], codebase-memory-mcp `detect_changes` (MIT, read at `9a4da7a3`) [R], Plan 4.2 | L | candidate | B01 |
+| UB-045 | A precision-first review command | A diff reviewer that gives line-level comments and favours few, correct findings over many. | M2C | open-code-review `internal/config/template/prompts/` (`review_filter_task_system.md`, `re_location_task_system.md`), `internal/config/rules/rule_docs/` and `internal/agent/estimate.go` (Apache-2.0, read at `d4f568f7`) [R], Mixdog `src/agents/reviewer/AGENT.md` (Apache-2.0, read at `8382c929`) [R], Strix `skills/scan_modes/diff.md` (Apache-2.0, read at `9ed84f9`) [R], codebase-memory-mcp `detect_changes` (MIT, read at `9a4da7a3`) [R], Plan 4.2 | L | candidate | B01 |
 | UB-046 | Add a hash chain to the local event store | A previous-hash and entry-hash on each event plus a verify function; the M2C plan already names MiniLocker's chain.py as the model. | Shared | M2C build plan C02 and section 11.6 (MiniLocker `ledger/chain.py`, your own project), Spec 6.1; ZizkaDB (idea only) | S | candidate | B01 |
 | UB-047 | Menux memory store with sources, validity and FTS5 | One migration for sources, memories with valid-from and valid-to, dependencies and a full-text index. | Menux | Spec 6.1, Plan 5.2 (Mnemosyne, Graphiti/Zep, mempalace, claude-mem) | M | candidate | B01 |
 | UB-048 | Trust rule and a review queue for new memories | Anything from a web page, tool output or an imported CLAUDE.md enters as an untrusted candidate; only a user action promotes it. | Menux | Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin), Gemini CLI `agents/skill-extraction-agent.ts` (Apache-2.0, read at `60f8082`) [R] | M | candidate | B01 |
-| UB-049 | Correcting a source retires its dependents, and deletes cascade | Fix or delete a source and everything derived from it leaves retrieval but stays readable in a history view. | Menux | Spec 6.1, Plan 5.2 (Mnemosyne, agentmemory) | M | candidate | B01 |
+| UB-049 | Correcting a source retires its dependents, and deletes cascade | Fix or delete a source and everything derived from it leaves retrieval but stays readable in a history view. | Menux | Spec 6.1, Plan 5.2 (Mnemosyne, agentmemory), Caura `common/events/memory_corrected.py` (Apache-2.0, read at `85519c72`) [R] | M | candidate | B01 |
 | UB-050 | Show the working memory before a task, and report what was used | Before each task list the memories the agent intends to use with a reason; after it, show which were followed. | Menux | Spec 6.1, Plan 5.2 (MemoSync UX) | M | candidate | B01 |
 | UB-051 | Retention scores and hot, warm and cold tiers | Decay plus access boost to prune memory. Both documents say to skip this until volume is measured. | Menux | agentmemory (Plan 5.2), Spec 6.1.6 | M | parked | B01 |
 | UB-052 | Learned workflows modelled on webcmd | Three levels: live browser control, a remembered sitemap of pages and actions, and compiled workflows for repeatable tasks. | Menux | webcmd (Apache-2.0 as reported) [R], Plan 5.3 | L | candidate | B01 |
@@ -105,7 +105,7 @@ This file is the one place where every feature you might build later is written 
 | UB-072 | Compare text-to-cad's per-process rules with yours | Read its machining, sheet-metal, moulding and 3D-printing rule sets and adopt the rules you lack. | MiniMe | text-to-cad (MIT as reported) [R], Plan 6.5 | S | candidate | B01 |
 | UB-073 | Spike: can build123d replace FreeCAD inside the E2B template? | Measure install size, cold start, STEP and STL output and determinism. | MiniMe | text-to-cad (build123d route) [R], Spec P3 | M | candidate | B01 |
 | UB-074 | An "analyse this part" stress check | A possible future capability using CalculiX-style stress analysis. | MiniMe | text-to-cad (stress checks via CalculiX) [R], Plan 6.5 | L | parked | B01 |
-| UB-075 | Cost experiments before adopting any compressor or router | Replay real traces with and without output compression, terse agent messages and cheaper models, and compare cost and quality. | Shared | Spec P4, Plan 6.6 (headroom, caveman, Mixdog), Gemini CLI `routing/strategies/numericalClassifierStrategy.ts` (Apache-2.0, read at `60f8082`) [R] | M | candidate | B01 |
+| UB-075 | Cost experiments before adopting any compressor or router | Replay real traces with and without output compression, terse agent messages and cheaper models, and compare cost and quality. | Shared | Spec P4, Plan 6.6 (headroom, caveman, Mixdog), Gemini CLI `routing/strategies/numericalClassifierStrategy.ts` (Apache-2.0, read at `60f8082`) [R], Preloop `backend/preloop/services/replay_harness.py` and `replay_savings_service.py` (Apache-2.0, read at `8c17f51c`) [R], Mixdog `docs/auto-reasoning-effort.md` (Apache-2.0, `8382c929`) [README] | M | candidate | B01 |
 | UB-076 | Design and build techniques from impeccable, taste-skill and ui-ux-pro-max | Adopt techniques (not code) such as a command vocabulary of polish, bolder, critique and audit, and test them. | MiniMe | impeccable, taste-skill, ui-ux-pro-max-skill [README] | M | candidate | B01 |
 | UB-077 | Screenshot-to-code for the wireframe flow | Use ideas from screenshot-to-code to turn an uploaded image into a first wireframe. | MiniMe | screenshot-to-code [README] | M | candidate | B01 |
 | UB-078 | A diagram generator from diagram-design | One self-contained HTML plus SVG file per diagram, across many diagram types. | MiniMe | diagram-design (51 types as reported), archify (already in the book pipeline) [README] | M | candidate | B01 |
@@ -116,8 +116,8 @@ This file is the one place where every feature you might build later is written 
 | UB-083 | Break the import cycle so m2c units can be bridged one by one | The tool saw about 20,500 lines in one import cycle; break it only if you choose the unit-by-unit bridge instead of the rebuild. | M2C | rust-anything `analyze` on m2c (trial of 2026-11-24, its report read) | M | parked | B02 |
 | UB-084 | Record what a run created, so undo and approvals touch only that | A per-run list of the objects an automation created, so cleanup and any approval exemption apply only to things the run itself made. | Menux | Strix test-object registry (Apache-2.0, read at `9ed84f9`) [R], Menux feature guide sections 6.1 and 7.5 | S | candidate | B03 |
 | UB-085 | Switch off core dumps and debugger attach for the M2C client at start | Set no-core-dump and no-same-user-debugger-attach for the M2C client before it handles a secret (Linux and macOS), as Codex does. | M2C | Codex `codex-rs/process-hardening/src/lib.rs` (Apache-2.0, read at `06f334a`) [R] | XS | candidate | B04 |
-| UB-086 | Session goal mode with a token budget and a no-progress stop | One goal the agent works on across turns; it stops at a token budget, after 3 turns without progress, or after 3 turns of failed tools. | M2C | Mistral Vibe `vibe/app_server/_goal_engine.py` (Apache-2.0, read at `fb7511a`) [R] | M | candidate | B04 |
-| UB-087 | One helper that frames text the model must treat as data | Steering messages, compaction summaries and goal objectives all need the same escaping, marker and look-alike handling; write it once. | M2C | my idea, from Hermes `agent/prompt_builder.py` (MIT, `c84e8d7f`), Gemini CLI `prompts/snippets.ts` (Apache-2.0, `60f8082`) and Vibe `_goal_engine.py` (Apache-2.0, `fb7511a`) [R] | S | candidate | B04 |
+| UB-086 | Session goal mode with a token budget and a no-progress stop | One goal the agent works on across turns; it stops at a token budget, after 3 turns without progress, or after 3 turns of failed tools. | M2C | Mistral Vibe `vibe/app_server/_goal_engine.py` (Apache-2.0, read at `fb7511a`) [R], Mixdog `native/core/crates/mixdog-core-goal/src/goal/` (`mod.rs`, `quota.rs`, `turns.rs`; Apache-2.0, read at `8382c929`) [R], Preloop `backend/preloop/services/no_progress_guard.py` (Apache-2.0, read at `8c17f51c`) [R] | M | candidate | B04 |
+| UB-087 | One helper that frames text the model must treat as data | Steering messages, compaction summaries and goal objectives all need the same escaping, marker and look-alike handling; write it once. | M2C | my idea, from Hermes `agent/prompt_builder.py` (MIT, `c84e8d7f`), Gemini CLI `prompts/snippets.ts` (Apache-2.0, `60f8082`) and Vibe `_goal_engine.py` (Apache-2.0, `fb7511a`) [R], Caura `common/llm/untrusted.py` (Apache-2.0, read at `85519c72`) [R] | S | candidate | B04 |
 | UB-088 | Reject repeated JSON keys in tool arguments | Fail a tool call whose JSON arguments repeat a key instead of letting the last value win, in Python now and in the Rust port later. | Shared | Tenuo `tenuo-core/src/strict_json.rs` (Apache-2.0, read at `4792253`) [R] | XS | candidate | B05 |
 | UB-089 | Ask before the agent edits its own instruction files | Make edits to M2C.md, AGENTS.md and CLAUDE.md an ask call and say what changed them, since the next session loads them as instructions. | M2C | Prismor `prismor/runtime/memory_guard.py` (Apache-2.0, read at `77b5369`) [R] | S | candidate | B05 |
 | UB-090 | Keep the full tool output in a file the model can read later | When a shell result is cut, save the whole redacted output under .m2c/ and name the path, so the model can read the dropped part. | M2C | OpenCode `packages/core/src/tool-output.ts` (MIT, read at `1f66f5f`) [R] | M | candidate | B05 |
@@ -127,6 +127,10 @@ This file is the one place where every feature you might build later is written 
 | UB-094 | Heal half-written Markdown while a reply streams | Close or hide an unfinished bold marker, link or formula at the end of a streaming block; port OpenCode's healer only if flicker shows. | MiniMe | OpenCode `packages/patchmark/src/heal.ts` and `scripts/fuzz-differential.ts` (MIT, read at `1f66f5f`) [R] | S | candidate | B05 |
 | UB-095 | Every guard fails closed, proved by one crash test per guard | List each guard that can raise, make it raise in a test, and check the call ends refused, redacted or asked, never passed through. | M2C | my idea, from Prismor `runtime/hook_failclosed.py` and `cloaking/hooks/scrub-stream.sh` (Apache-2.0, `77b5369`) [R] and Gemini Conseca (section 6) | S | candidate | B05 |
 | UB-096 | Close the sandbox's protected-path gaps: more names, absent paths, nested repos | Add `.mcp.json`, `.vscode`, `.idea` and more to the read-only list, and stop a command planting hooks where none existed yet. | M2C | sandbox-runtime `src/sandbox/sandbox-utils.ts`, `linux-sandbox-utils.ts` and `sandbox-manager.ts` (Apache-2.0, read at `0bbebed0`) [R], M2C `sandbox/profile.py` "Known limits" | M | candidate | B06 |
+| UB-097 | Collapse repeated and noisy tool output before it is sent again | Stub a tool result that repeats an earlier one, and strip terminal codes and repeated lines, before the history is sent again. | M2C | Preloop `backend/preloop/services/context_optimization.py` (Apache-2.0, read at `8c17f51c`) [R], my idea for the placement | S | candidate | B07 |
+| UB-098 | A static gate on the code paths that can step around row-level security | Fail the test run when a new place bypasses row-level security, a new table lacks it, or a dict-built UPDATE can rewrite an owner column. | MiniMe | Caura `scripts/tenant_scope_gate.py` and `core-storage-api/tenant_scope_allowlist.json` (Apache-2.0, read at `85519c72`) [R], my idea for the shape | M | candidate | B07 |
+| UB-099 | Destructive git commands ask even when an allow rule matches | Name the git commands that throw work away, and make them ask even under a broad allow rule for git. | M2C | Mixdog `src/rules/shared/45-destructive.md` (Apache-2.0, read at `8382c929`) [R], my idea for the list | S | candidate | B07 |
+| UB-100 | A drafting eval for the Menux Planner | Grade what the Planner writes for plain-English requests, using code and a fake connector, so a prompt change that breaks it fails. | Menux | Orca `src/cli/bot-automation-eval/` (MIT, read at `5174b9bd`) [R], Menux guide section 4.3 and `MT-Q11` | M | candidate | B07 |
 
 ## 2. Batches
 
@@ -140,6 +144,7 @@ This file is the one place where every feature you might build later is written 
 | B04 | 2026-11-26 | Review of gemini-cli, hermes-agent, mistral-vibe and codex | 3 | UB-085 to UB-087 |
 | B05 | 2026-11-26 | Review of OpenCode, Pi, Tenuo and Prismor | 8 | UB-088 to UB-095 |
 | B06 | 2026-11-26 | Review of sandbox-runtime, codebase-memory-mcp, Django and Argus | 1 | UB-096 |
+| B07 | 2026-11-27 | Review of open-code-review, mixdog, cordum, preloop, caura and orca | 4 | UB-097 to UB-100 |
 
 ## 3. How to add features (the patch recipe)
 
@@ -359,6 +364,26 @@ The "upgrade plan" (21 Nov 2026) and its "verified spec" were split three ways. 
 | Django hostile-URL test tables | `tests/utils_tests/test_http.py` tests redirect-target checks, a problem MiniMe does not have. `backend/tests/unit/test_url_guard.py` already has rows for backslash and `@`, user names, odd IP spellings and mapped IPv6 [V✓] | MiniMe takes a redirect target from user input |
 | Argus CSP deep analyzer | A 199-line crawler that scores a site's CSP, with `verify=False` in two places and three bare `except:` [R `argus/modules/csp_deep_analyzer.py`]. UB-012 needs reports from real browsers, not a score | never |
 | Argus recon modules | A reconnaissance toolkit: 181 tracked Python files, 10 commits, no tests. Its installer must run as root and removes its install directory with `rm -rf`; it pins `rich>=13,<14` against M2C's `rich==15.0.0` [R]. Sending targets to about 20 outside services is carried from the review [S]. See UB-035 for why it is not the tool that entry wants | never |
+| Cordum hook outage rule, for `C13` | Already planned as `C13` (Hooks, not built); the chapter was not edited. The row "Crashed required hook means deny" above holds Prismor's rule. Cordum's Claude hook adds the mode: when its policy service is down a call is allowed in observe mode, and a risky tool call is denied in enforce mode [R `core/edge/claude/fail_modes_test.go`: the first test read, the second by its name]. Tie it to UB-039: the outage rule follows the rule's mode, so an observe rule never blocks on an outage and an enforce rule never opens. Ideas only: BUSL-1.1 | `C13` starts |
+| Policy dry run, for `C25` | Already planned as `C25`; the chapter was not edited. Preloop's `services/policy_simulation.py` runs a call through the same decision code with no side effects [R: module header]. M2C has no such command [V✓: no match for `policy test`, `simulate` or `dry-run` in `m2c/src/m2c`]. Add to `C25`: `m2c policy test <tool> <args>` prints allow, ask or deny and which rule decided; the same function can check `C25`'s example lines when rules load [U] | `C25` starts |
+| Approval record fields, for `MT-T12` and Menux section 6.4 | Already planned as `MT-T12`; the Menux guide was not edited. The Tenuo row above covers the request hash, nonce and expiry. Cordum's approval record also holds a policy snapshot, a consumed time and an invalidated state, besides action hash, input hash and expiry (`core/edge/approval.go`) [R: the struct only; I did not trace how they are enforced]. Section 6.4 of the Menux guide names an approval ID, a nonce and an expiry and no policy version [read in the guide]. Add: bind the approval to the policy version so a rule change cancels pending ones, make it single-use, and keep invalidated distinct from expired. Ideas only: BUSL-1.1 | `MT-T12` starts |
+| Panic and pending approvals, for Menux section 6.5 | Preloop's kill switch has scopes (gateway, tools, flows); while it is on, pending approvals are frozen and not auto-denied, a stop is recorded for running work, and its docstring says effects already in flight cannot be undone [R `services/kill_switch.py`]. Section 6.5 says Panic cancels active runs and blocks connector actions and is silent on approvals waiting at that moment [read in the guide]. Add: Panic freezes pending approvals (timers stop, requests stay visible); on resume each is re-checked for expiry and policy version (row above); the screen says what could not be undone [U] | Menux section 6.5 is built |
+| Approval park, for Menux section 10.3 | Preloop's `services/approval_park.py`: after a short wait the run writes a park request, stops and holds no resources; a decision or expiry claims the parked row exactly once and starts a resume turn that names the request and repeats the question [R docstring]. Menux runs on the person's own machine, so freeing a container is not the point. What carries over: a run that waits on an approval is stopped and resumed from its event log instead of kept in memory, so a restart does not lose it [U]. Read what section 10.3 says about a waiting run before adding anything | Menux approvals work starts |
+| Orca Linux AT-SPI bridge, for Menux section 27.2 | `native/computer-use-linux/runtime.py` (MIT, read at `5174b9bd`) is a 2,702-line Python bridge: one JSON operation in, one JSON result out, run in the person's desktop session. Its tools are list_apps, get_app_state, click, scroll, drag, type_text, press_key and set_value; drag is not offered on Wayland; a call that would take the foreground is refused (`refuse_foreground_effect`) [R: tool names and the refusal read, function bodies not]. Test files sit beside it. Section 27.2 of the Menux guide plans your own AT-SPI reader as the Linux fallback [read in the guide]. Use this as a reference or a sidecar to start from. It needs PyGObject, it has no sandbox, and what it returns is untrusted data | Menux's Linux control backend starts |
+| Pinned vector files, for `MG-Z02` | Already planned in Appendix A; the chapter was not edited. Caura computes one RFC 8785 hash in Python and in Go from one shared vectors file, and each test suite pins that file's sha256, so a copy that drifts fails [R `common/governance/ruleset_hash.py` docstring]. Add to `MG-Z02`: a small manifest of sha256 per vector file, checked by the Python runner and the Rust runner. The Tenuo row above covers the file format; this covers drift | `MG-Z02` starts |
+| open-code-review failure streak and argument repair | Already built: `loop.py` has the identical-failure stop and the `truncated_arguments` refusal [V✓]; UB-036 extends them. Its escalation after repeated tool failures and its repair of stringified comment arrays are in `internal/reviewtask/tool_failure_streak.go` and `internal/tool/comment_args_repair.go` [R: headers] | never |
+| open-code-review file grouping, plan-then-review, delegate mode | Grouping asks a model to group up to 10 changed files per call from file metadata only, with a per-file fallback (`internal/agent/grouping.go`) [R]; it helps only reviews of many files. Plan-then-review adds a model call, and its benefit is not measured here (the vendor numbers are README level: UB-045). Delegate mode hands a review spec to a host agent [R: package header]; M2C is itself the agent | UB-045 is slow on diffs of 10 or more files |
+| open-code-review sign-in with a ChatGPT subscription | `internal/chatgptauth` signs the tool in through OAuth against a consumer subscription [R: file read]. The account terms are a risk and it is not an API login. Mixdog does the same for several vendors, and its README warns that some can restrict accounts [README]. Do not copy | never |
+| Cordum audit chain, signed policy, classifier | Cordum is BUSL-1.1 (ideas only). Its audit stream is a per-tenant Redis stream with an HMAC chain (`core/audit/chain.go` header) [R]; UB-046's local chain covers the idea. Ed25519-signed policy bundles (`core/policysign`): `C27`'s root-owned file is the guard on one machine. Its classifier gives deterministic labels and treats client-supplied risk tags as not authoritative (`core/edge/classifier.go` header) [R]: that is `L07`, and the engine already lets a client raise a call's risk and never lower it [V✓ `policy/modes.py`] | never |
+| Preloop asynchronous audit-chain sealer | Rows are sealed by a background job, so chaining does not serialise the request path (`services/audit_chain.py` docstring) [R]. UB-046's store has one writer on one machine | the server needs tamper-evident audit |
+| Preloop and Cordum, left out at README level | Nothing read in code: Preloop private runners over an outbound WebSocket, fleet map, evidence packs and the `cra` folder, flow presets, gateway budgets (file names only); Cordum's MCP upstream checks against DNS tricks (test file names only) and compliance exports | someone reads the code |
+| Caura contradiction check that supersedes memories | After a write, an LLM judge may mark an older memory superseded (`core-api/src/core_api/services/contradiction_detector.py` docstring) [R]. For Menux that lets a wrong or poisoned memory replace a true one without the person, against UB-048 where only a user action promotes | never |
+| Caura memory items, README level | Not studied in code: superseded memories ranked just below their replacement, entity name resolution, crystallisation of near-duplicates, per-agent retrieval tuning, and the benchmark figures in its own `EVIDENCE.md`. VERIFY FIRST: read the ranking code in `core-api` for the superseded rule before touching UB-047 | UB-047 retrieval is being built |
+| Mixdog computer-use policy and wait-for-user, docs only | Code not opened: an immutable start-up policy that only narrows, window authorisation bound to the window id and process id with an expiry, and after a pause for the person a fresh capture with no replay of queued input (`docs/computer-use-execution-policy.md`, `docs/computer-use-user-wait.md`) [README]. They line up with Menux sections 22 and 19. VERIFY FIRST: confirm in `native/mixdog-computer` that expiry and recapture are enforced in code | Menux section 22 or 19 work starts |
+| Mixdog WebRTC end-to-end channel | `docs/remote-transport.md` describes a direct phone-to-PC channel, a relay for pairing and fallback, and a handshake proof that covers every offered capability so a downgrade fails [README: the head of one docs file]. Compare it with the Menux mesh design (sections 29 to 31) before the design is frozen. VERIFY FIRST: read its end-to-end code | the mesh design is reviewed |
+| Mixdog context-efficiency layers | `docs/context-efficiency.md` lists a read cache checked by file size and modified time, a 30-second scoped cache and short references to repeated calls [README]. `context.py` caps and clears [V✓]; I did not look for a read cache elsewhere. VERIFY FIRST: read its read-state code for how stale entries are dropped, then test the gain with UB-075's replay | UB-075 traces show repeated reads |
+| Mixdog reasoning-effort judge | Written into UB-075 as a variant to test (B07), not a feature: the figures are docs level, it conflicts with D14 on M2C, and the licence of its weights is unchecked | UB-075's table shows routing pays |
+| Orca, left out at README level | Bots in Slack, Linear and GitHub, a chat-to-terminal handoff, a cloud VM per worktree, the OSC 7501 agent-status protocol, and coordinator and worker gates (only `gate-handlers.ts` opened) | Menux channels work starts |
 
 ## 7. Sources register
 
@@ -395,9 +420,12 @@ One row per source. `Checked` is `—` until you or a session has opened the sou
 | OpenHands (event log) | — | not stated | LEARN | UB-042 | — |
 | zeroshot | — | not stated | LEARN | UB-043 | — |
 | Ouroboros, Nightshift | — | not stated | LEARN | UB-044 | — |
-| open-code-review | — | not stated | LEARN | UB-045 | — |
-| Mixdog | — | not stated | LEARN | UB-075 | — |
-| Cordum, Preloop, Caura, Orca | — | not stated | READ | — | — |
+| open-code-review | https://github.com/alibaba/open-code-review | Apache-2.0 (`LICENSE` read at `d4f568f7`; no extra terms found in it) | LEARN (prompts and code may be copied with the notice kept and changes marked; it is Go, so take the rules; telemetry is off unless enabled; `internal/chatgptauth` signs in with a consumer subscription: never copy) | UB-042, UB-043, UB-045, section 6 | licence read 2026-11-27; read from source, not run; its benchmark figures are README level |
+| Mixdog | https://github.com/tribgames/mixdog | Apache-2.0 (`LICENSE` read at `8382c929`). `NOTICE.md` records an optional GPL Chrome password-import sidecar (`native/mixdog-browser-import`): never copy it. The effort-judge weights are derived from EmbeddingGemma 2, and the notice mentions training data under share-alike terms: check before any use | LEARN (rules and designs; Rust and TypeScript; it has no OS sandbox [R `mixdog-sandboxing/src/lib.rs`]; it can sign in with several vendors' consumer subscriptions: never copy that) | UB-028, UB-045, UB-075, UB-086, UB-099, section 6 | licence read 2026-11-27; read from source, not run; some items come from its `docs/` files only and are marked README |
+| Cordum | https://github.com/cordum-io/cordum | BUSL-1.1 (`LICENSE` read at `3a9c9e1f`): any use except a "Competitive Offering" (the LICENSE text I read does not define the term), converts to Apache-2.0 on 2029-01-01, and a derivative work stays under the same licence | IDEAS ONLY (Go with NATS and Redis; telemetry defaults to local-only, and a code comment mentions two one-time anonymous events that I did not read in full) | UB-039, section 6 | licence read 2026-11-27; read from source, not run |
+| Preloop | https://github.com/preloop/preloop | Apache-2.0 (`LICENSE` read at `8c17f51c`); its `NOTICE` records code derived from Codex (Apache-2.0); the other `LICENSE` files in the tree belong to vendored front-end code | LEARN (Python and FastAPI like the backend, but its modules depend on its own models and it pins `litellm`, `fastmcp` and `mcp`: take rules, and copy a module only after reading its imports; a daily pseudonymous version check-in is on by default per its README and is switched off with `PRELOOP_DISABLE_TELEMETRY`) | UB-028, UB-037, UB-075, UB-086, UB-097, section 6 | licence read 2026-11-27; read from source, not run |
+| Caura | https://github.com/caura-ai/caura | Apache-2.0 (root `LICENSE` read at `85519c72`); the `clients/` folders carry their own `LICENSE` files, not read | LEARN (Python; its tenant gate is 2,222 lines written for its own storage layer, so take the checks and write the code fresh; the benchmark figures in `EVIDENCE.md` are its own and unverified) | UB-049, UB-087, UB-098, section 6 | licence read 2026-11-27; read from source, not run |
+| Orca | https://github.com/stablyai/orca | MIT (`LICENSE` read at `5174b9bd`, holder Lovecast Inc.); the licences of bundled third-party items are under `resources/licenses` | LEARN (TypeScript and Electron, plus a Python Linux bridge; its README says it collects anonymous usage data with an opt-out, and I did not read that code) | UB-100, section 6 | licence read 2026-11-27; read from a shallow clone, so no history; read from source, not run |
 | Mnemosyne | — | not stated | LEARN | UB-047, UB-049 | — |
 | MemoSync | — | not stated | LEARN | UB-048, UB-050 | — |
 | agentmemory | — | not stated | LEARN | UB-049, UB-051 | — |
@@ -460,6 +488,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 | 2026-11-26 | — | batch B05 created | four reference repos (OpenCode, Pi, Tenuo, Prismor) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-016, UB-036, UB-039, UB-041, UB-042, UB-046), UB-088 to UB-094 added, UB-095 added as my own idea, 24 rows added to section 6. Other chapters not edited |
 | 2026-11-26 | — | batch B06 created | four reference repos (sandbox-runtime, codebase-memory-mcp, Django, Argus) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-006, UB-012, UB-019, UB-021, UB-032, UB-034, UB-035, UB-040, UB-045, UB-087, UB-092), UB-096 added, 15 rows added to section 6 and 3 existing rows cross-linked. Other chapters not edited |
 | 2026-11-26 | UB-035 | candidate -> parked | the repo read as Argus is a recon toolkit with no MCP content, not the tool the entry wants; reopen when you name the right repo (batch B06) |
+| 2026-11-27 | — | batch B07 created | six reference repos (open-code-review, mixdog, cordum, preloop, caura, orca) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-028, UB-037, UB-039, UB-042, UB-043, UB-045, UB-049, UB-075, UB-086, UB-087), UB-097 to UB-100 added, 21 items recorded in section 6. Other chapters not edited |
 
 ## Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 Nov 2026, minus the finished SX series
 
@@ -1054,7 +1083,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > If the model edits files and then stops without running a test or build, ask it once or twice to verify first.
 
-**Product** M2C · **Source** Spec M1, Plan 4.2, Hermes `agent/verification_stop.py` and `agent/turn_stop_gates.py` (MIT, read at `c84e8d7f`) [R] · **Status** candidate · **Depends** — · **Decision** Default on or off (Hermes ships it off) · **Evidence** [V✓] [R]
+**Product** M2C · **Source** Spec M1, Plan 4.2, Hermes `agent/verification_stop.py` and `agent/turn_stop_gates.py` (MIT, read at `c84e8d7f`) [R], Preloop `backend/preloop/agents/verification.py` and `agents/completion_nudge.py` (Apache-2.0, read at `8c17f51c`) [R], Mixdog `src/rules/shared/60-verification.md` (Apache-2.0, read at `8382c929`) [R] · **Status** candidate · **Depends** — · **Decision** Default on or off (Hermes ships it off) · **Evidence** [V✓] [R]
 
 **What.** When the model ends its turn, and this run executed a file-changing tool with no later test, lint or build result, do not finish: add one continuation message asking it to run the project's verification command. At most two continuations per run.
 
@@ -1069,8 +1098,11 @@ Every change of status, and every general decision about this backlog. `--set-st
 3. At the finish point, if a change has no later verification and fewer than two continuations were used, append the continuation instead of ending.
 4. Emit a new `NOTICE_VERIFY_*` event like the existing ones.
 5. Reuse the step limit and budget limits so it cannot loop.
+6. Take the list of required checks from a profile the person wrote, not from the repository's own scripts. Preloop's verifier runs after the agent has finished, reads the required commands from the flow's settings and never from the repo, so the agent cannot narrow what counts, and only an allow verdict lets a push go ahead [R docstring]. Here, put the profile in `.m2c/verify.toml`: the sandbox profile makes `.m2c` read-only [V✓ section 6 row "Protected paths read-only"]. Check that `m2c/src/m2c/trust/fingerprint.py` covers the new file, so a changed profile asks again [U]. Offer `m2c init` to propose a profile from `package.json` or `pyproject.toml` for the person to confirm; the model never writes it [U].
+7. Record the evidence per run: the command, its exit code, a pointer to its output, and the commit and tree it ran on. Preloop stores the same fields [R]. Step 1's ledger can hold them, and UB-086 needs the same record for "complete".
+8. Add three sentences to the system prompt, from Mixdog's verification rule [R]: run the narrowest check that covers the change first; after two failed attempts at the same fix, report and stop; never hide a failure with a retry, a longer timeout or a skipped test. Keep the nudge fail-closed: if it cannot run, finish without it and never re-run an effect such as a push. Preloop's completion nudge re-enters the session once [R]; your limit of two stays.
 
-**Done when.** A fake model that edits then stops gets exactly one extra turn; one that edits, runs a test, then stops finishes normally; one that edits only a `.md` file finishes normally; the limit of two holds.
+**Done when.** A fake model that edits then stops gets exactly one extra turn; one that edits, runs a test, then stops finishes normally; one that edits only a `.md` file finishes normally; the limit of two holds. A check listed in the profile still runs when the repository's own scripts no longer list it; an edit to the profile by the agent is refused; a changed profile asks again at the next start.
 
 **Notes.** Deciding what counts as a "verification" tool needs a short list (shell commands matching test, lint, build). See UB-043 for the independent-validator version. Hermes ships this off by default, with at most two nudges, and says in its code that a documentation edit must never demand a verification script [R]. Whether the nudge goes in as a user-role message was carried from the review and not re-read [S]. The ledger is the real work, and UB-086 (goal mode) needs the same evidence for "complete", so build it once. Hermes also waits briefly after the final answer for language-server diagnostics on the files it edited and feeds back at most three notes (`_MAX_LSP_TURN_END_NOTES = 3`) [R]. That needs a language server (`L08`, Phase 5 of the M2C build plan) and belongs to `L04`; the chapter was not edited (section 6).
 
@@ -1266,7 +1298,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > Let the user add a message while the agent works, inserted behind an anti-injection marker.
 
-**Product** M2C · **Source** Hermes (Plan 4.2), Hermes `agent/prompt_builder.py` (MIT, read at `c84e8d7f`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
+**Product** M2C · **Source** Hermes (Plan 4.2), Hermes `agent/prompt_builder.py` (MIT, read at `c84e8d7f`) [R], Preloop `backend/preloop/services/operator_notes.py` (Apache-2.0, read at `8c17f51c`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
 
 **What.** A queue of user messages that the loop picks up between tool calls.
 
@@ -1282,7 +1314,9 @@ Every change of status, and every general decision about this backlog. `--set-st
 4. Relabel look-alikes in tool output. Hermes relabels text that imitates its own control frames, such as "CONTEXT COMPACTION", "CONTEXT SUMMARY]", "PRIOR CONTEXT" and "Runtime note:", and the marker itself [R]. Make your own list from your own frames (the `NOTICE_*` messages, the goal envelope of UB-042, the steer marker). UB-087 proposes one helper for this.
 5. Cover it in `protocol/` fixtures and the contract tests.
 
-**Done when.** A steering message sent during a run appears in the next model call exactly once, and a tool result containing the marker does not. A tool result containing a look-alike of any of your control frames is relabelled, and a marker in an older turn carries no authority.
+**Done when.** A steering message sent during a run appears in the next model call exactly once, and a tool result containing the marker does not. A tool result containing a look-alike of any of your control frames is relabelled, and a marker in an older turn carries no authority. A note is delivered once even when the model call is retried.
+
+**Notes.** Preloop's operator notes add four rules to step 2 [R docstring; the module is 1,099 lines and I read its header]. The note is delivered at the next turn boundary as one message at the end, never inside a tool result. The server stamps the tag's attributes (who wrote it, when) and neutralises any closing tag in the body. The note is claimed, meaning marked delivered, before the model call, so a retry cannot deliver it twice and a failed call may lose it: choose that trade-off on purpose and tell the person when a note was not delivered. Nothing polls.
 
 ### UB-038: An instruction-hierarchy contract in the system prompt (S)
 
@@ -1309,7 +1343,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > Ship each new rule in a log-only mode first, record what it would have blocked, then enforce.
 
-**Product** M2C · **Source** Prismor (Plan 4.2) · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R] [U]
+**Product** M2C · **Source** Prismor (Plan 4.2), Cordum `core/policyshadow/types.go` (BUSL-1.1: ideas only) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R] [U]
 
 **What.** A rule flag `observe` that records a would-have-blocked event without blocking.
 
@@ -1326,6 +1360,8 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Done when.** A rule in observe mode never blocks and always logs; switching it to enforce blocks.
 
 **Notes.** Added in B05. Tenuo's observe mode is a global `configure(mode="observe")`, a `dry_run` flag per guard, and audit events marked `observed=True` (Apache-2.0, read at `4792253`) [R]. Use that event shape: a would-have-blocked event has the same fields as a block plus `observed: true`, so one report command lists both. Prismor's per-rule `observe` and `enforce` modes agree [R]. Design idea [U]: a rule on the non-overridable floor (the `C27` row in section 6) can never be put in observe mode, so a new rule is the only thing that can be trialled this way.
+
+**Added in B07 (shadow policy from Cordum).** Cordum evaluates a candidate policy next to the active one on the same inputs; the candidate never changes the decision and its result is stored as a separate event [R: `types.go`; BUSL-1.1, so write your own code]. Two additions for steps 2 and 3 [U]. The list command shows counts per rule over a time window, so "safe to enforce" is a number the person can read. Moving a rule from observe to enforce is a person's action that records who and when; the model never does it.
 
 ### UB-040: Store sandbox denials and explain them to the model (M)
 
@@ -1376,7 +1412,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > When the context is compacted, put the original goals back in; keep the full transcript so only the model's view shrinks.
 
-**Product** M2C · **Source** Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2), Gemini CLI `prompts/snippets.ts` and `context/chatCompressionService.ts` (Apache-2.0, read at `60f8082`) [R], Hermes `agent/context_compressor.py` and `context_compressor_prompt_rules.py` (MIT, read at `c84e8d7f`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
+**Product** M2C · **Source** Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2), Gemini CLI `prompts/snippets.ts` and `context/chatCompressionService.ts` (Apache-2.0, read at `60f8082`) [R], Hermes `agent/context_compressor.py` and `context_compressor_prompt_rules.py` (MIT, read at `c84e8d7f`) [R], open-code-review `internal/config/template/prompts/memory_compression_task_system.md` (Apache-2.0, read at `d4f568f7`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
 
 **What.** Re-injection of the original task statement after a compaction, and a guarantee that nothing is deleted from the stored log.
 
@@ -1399,11 +1435,13 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **Added in B05 (for `L03`; the plan was not edited).** Pi's compaction (`packages/coding-agent/src/core/compaction/compaction.ts` and `utils.ts`, MIT, read at `f17b36a`) has three rules worth putting in the template of step 4 [R]. (a) A cut that falls in the middle of a turn is flagged (`isSplitTurn`) and the early part of that turn is summarised on its own (`turnPrefixMessages`), so the cut never splits a turn silently. (b) The lists of files read and files edited are carried across compactions. (c) A later summary updates the earlier one under a rule to keep all existing information, and moves finished items from "In Progress" to "Done", instead of summarising from scratch. Pi also counts file calls made inside code-mode scripts (`nestedCalls`); that matters only if code mode is ever added (section 6 says it is not). Pi's retry on a context-overflow error is described in its docs and I did not read the code, so check it before copying.
 
+**Added in B07 (a second template).** Open-code-review's compression prompt asks for five headed sections only (identified code issues, tool call conclusions, completed tasks, pending tasks, current focus) and five rules: no specific code, only file paths and issue types; no repetition; omit a section with nothing in it; tasks as complete sentences; current focus in at most one sentence [R]. It is shorter than Gemini's seven sections and suits review runs. For step 4 treat its "current focus" line as the place to put the goal envelope, and keep Hermes's "Unverified" section, which it lacks [U].
+
 ### UB-043: An independent verifier context and step-graph validation (L)
 
 > A second, separate model context checks the result; a multi-step plan is validated before any step starts.
 
-**Product** M2C · **Source** zeroshot [R] · **Status** candidate · **Depends** UB-028 · **Decision** Waits for subagents · **Evidence** [R] [U]
+**Product** M2C · **Source** zeroshot [R], open-code-review `internal/behaviortask/README.md` (Apache-2.0, read at `d4f568f7`) [R] · **Status** candidate · **Depends** UB-028 · **Decision** Waits for subagents · **Evidence** [R] [U]
 
 **What.** The verifier from UB-028 run in its own context, and a check that a plan has no unbounded loops or unreachable branches.
 
@@ -1417,6 +1455,8 @@ Every change of status, and every general decision about this backlog. `--set-st
 2. Validate any step graph before running it.
 
 **Done when.** The verifier cannot see the author's reasoning, and a malformed graph is rejected.
+
+**Notes.** Open-code-review's `--analysis` mode runs a separate read-only investigation of a change, reading files from the chosen revisions and not from the working tree, with its own token budget [R README]. For this entry's verifier: give it the commit being judged as a snapshot, so a later edit in the work tree cannot change what it reads [U].
 
 ### UB-044: Plan mode that is structural, plus a spec-first interview (M)
 
@@ -1442,7 +1482,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > A diff reviewer that gives line-level comments and favours few, correct findings over many.
 
-**Product** M2C · **Source** open-code-review [R], Strix `skills/scan_modes/diff.md` (Apache-2.0, read at `9ed84f9`) [R], codebase-memory-mcp `detect_changes` (MIT, read at `9a4da7a3`) [R], Plan 4.2 · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R] [U]
+**Product** M2C · **Source** open-code-review `internal/config/template/prompts/` (`review_filter_task_system.md`, `re_location_task_system.md`), `internal/config/rules/rule_docs/` and `internal/agent/estimate.go` (Apache-2.0, read at `d4f568f7`) [R], Mixdog `src/agents/reviewer/AGENT.md` (Apache-2.0, read at `8382c929`) [R], Strix `skills/scan_modes/diff.md` (Apache-2.0, read at `9ed84f9`) [R], codebase-memory-mcp `detect_changes` (MIT, read at `9a4da7a3`) [R], Plan 4.2 · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R] [U]
 
 **What.** The `review` command (M2C plan item L05, `/review` and `/security-review`; the plan's label "C20" was wrong).
 
@@ -1456,8 +1496,15 @@ Every change of status, and every general decision about this backlog. `--set-st
 2. Write the scope rules of the review prompt from Strix's diff mode, in your own words: for a PR, removed controls, newly reachable sinks and weakened helpers are in scope [R]. It is prompt text only, so it is cheap to try.
 3. Run it on your own past diffs and compare precision and cost.
 4. Optional, once UB-034 runs: try codebase-memory-mcp's `detect_changes` tool on a known diff of your own. It maps a git diff to the files and symbols it affects [R `src/mcp/mcp.c`]. The README says it adds risk classification, but its handler has none; hop-risk labels exist only on `trace_path` (opt-in `risk_labels`) [R]. It was read, not run. If it finds the callers a diff touches, the reviewer can use it to set scope; if not, leave it out [U].
+5. Add a second, narrow pass that removes a comment only when the diff proves it wrong. Open-code-review's filter prompt says the two mistakes are not equal: keeping a wrong comment costs a reviewer seconds, dropping a right one silently loses a finding, so "suspicious" or "cannot verify" means keep [R]. Log every removed comment with its reason in the run record, so the pass is never silent [U]. It is an extra model call: measure its cost in step 3.
+6. Give the review a verdict shape, from Mixdog's reviewer [R]: findings marked P1 (wrong result, lost data, broken contract or security), P2 (reachable failure in a rarer case) or P3; a case no real use reaches is one line; no findings is a valid review; it ends with PASS or FAIL and the one probe it ran, and only an open P1 or P2 fails; after a fix, recheck only the fix. It is prompt text and can be tried first.
+7. When a comment's anchor snippet no longer matches the file, ask the model to re-locate it from the snippet and the diff, and report the comment as unplaced if it cannot. Open-code-review has a re-location prompt and `internal/diff/relocation.go` [R: the prompt read, the code header only].
+8. Show a rough cost floor before a large review. Open-code-review's `internal/agent/estimate.go` gives an order-of-magnitude figure and says it is a floor [R: header]. Use the prices in `eo/usage_ledger.py`.
+9. Per-language rule packs: open-code-review has about 70 rule files under `rule_docs/`, and `python.md` opens with a note to favour precision over recall [R: that one file read]. Read the files for the languages your people write, rewrite them in your own words, and keep only what lowers false positives on the diffs of step 3. Do not copy the set [U].
 
-**Done when.** You have your own precision and cost figures.
+**Done when.** You have your own precision and cost figures. The filter pass removes a planted wrong comment and keeps a true one; a removed comment appears in the run record with its reason; a comment whose anchor text was altered is re-located or reported unplaced; the review ends with PASS or FAIL.
+
+**Notes.** Open-code-review and Mixdog are both Apache-2.0, so prompt text and rule files may be copied with the notice kept and changes marked; rewrite anyway, because the prompts are tuned to their own tools. Steps 5 and 6 are prompt text (XS to S) and can be tried first; step 9 is the large one. The vendor numbers in Why are README level.
 
 ### UB-046: Add a hash chain to the local event store (S)
 
@@ -1528,7 +1575,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > Fix or delete a source and everything derived from it leaves retrieval but stays readable in a history view.
 
-**Product** Menux · **Source** Spec 6.1, Plan 5.2 (Mnemosyne, agentmemory) · **Status** candidate · **Depends** UB-047, UB-046 · **Decision** none · **Evidence** [R]
+**Product** Menux · **Source** Spec 6.1, Plan 5.2 (Mnemosyne, agentmemory), Caura `common/events/memory_corrected.py` (Apache-2.0, read at `85519c72`) [R] · **Status** candidate · **Depends** UB-047, UB-046 · **Decision** none · **Evidence** [R]
 
 **What.** `invalid_at` set on dependents through `memory_deps`; cascade delete written to the hash chain.
 
@@ -1542,7 +1589,9 @@ Every change of status, and every general decision about this backlog. `--set-st
 2. On deletion, cascade and append a chain entry.
 3. Add a history view.
 
-**Done when.** Dependents vanish from retrieval but remain inspectable; `verify_chain()` fails if a deletion row is altered.
+**Done when.** Dependents vanish from retrieval but remain inspectable; `verify_chain()` fails if a deletion row is altered. The old text of a corrected item is not shown in the history view until the person asks to see it.
+
+**Notes.** Caura's correction event carries a rule for the old text: the wrong text of a corrected memory may be shown only to an agent that had already read it [R docstring]. The reason applies to step 3: a correction often removes something that should not be repeated, such as a leaked secret or a wrong personal fact. Show a retired item in the history view as "corrected on <date>" with its content hidden until the person asks to see it, and write only a hash of the old text in the chain entry [U].
 
 ### UB-050: Show the working memory before a task, and report what was used (M)
 
@@ -2005,7 +2054,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > Replay real traces with and without output compression, terse agent messages and cheaper models, and compare cost and quality.
 
-**Product** Shared · **Source** Spec P4, Plan 6.6 (headroom, caveman, Mixdog), Gemini CLI `routing/strategies/numericalClassifierStrategy.ts` (Apache-2.0, read at `60f8082`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
+**Product** Shared · **Source** Spec P4, Plan 6.6 (headroom, caveman, Mixdog), Gemini CLI `routing/strategies/numericalClassifierStrategy.ts` (Apache-2.0, read at `60f8082`) [R], Preloop `backend/preloop/services/replay_harness.py` and `replay_savings_service.py` (Apache-2.0, read at `8c17f51c`) [R], Mixdog `docs/auto-reasoning-effort.md` (Apache-2.0, `8382c929`) [README] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R]
 
 **What.** A table of cost and quality per variant.
 
@@ -2019,9 +2068,11 @@ Every change of status, and every general decision about this backlog. `--set-st
 2. Replay with: tool-output compression (headroom-style; set `HEADROOM_OFFLINE=1`, it ships an anonymous beacon by default [R]), terse agent-to-agent messages (never on user-facing study content), a cheaper model for search, edit and review, and a complexity-score router. Gemini's classifier scores each task from 1 to 100 and a threshold picks the stronger or the cheaper model alias [R].
 3. Compare cost and quality on a fixed set; adopt only where quality holds.
 
-**Done when.** The table exists.
+**Done when.** The table exists. Each row shows a noise band, and a variant whose band crosses zero is labelled inconclusive.
 
 **Notes.** Gemini's default threshold is 90, and a remote value from its settings service overrides it when the value is between 0 and 100 [R `getResolvedClassifierThreshold`]. Do not adopt a threshold you cannot see or set yourself: pick yours from the replays of step 1.
+
+**Added in B07 (measuring method and one more variant).** Preloop's replay harness runs the original and the candidate request several times each and reports the median difference with a noise band; when the band is as wide as the difference, or crosses zero, it says inconclusive; it works out a free input-token difference first and falls back to it when a paid run is not allowed; and it has a spend cap [R: docstrings; I did not read the statistics code]. Take these into step 3: n runs per variant, a band, an inconclusive label, a token-only first pass, and a hard budget the person confirms. Mixdog ships a small local model that rates each request into four effort levels, and its docs report savings against a fixed high setting [README: one docs file read, nothing run]. Treat it as a variant for step 2 after its code has been read. On M2C it would break D14 (no new runtime dependency). Its NOTICE says the weights are derived from EmbeddingGemma 2 and mentions training data under share-alike terms, so check that before any use.
 
 ### UB-076: Design and build techniques from impeccable, taste-skill and ui-ux-pro-max (M)
 
@@ -2241,7 +2292,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > One goal the agent works on across turns; it stops at a token budget, after 3 turns without progress, or after 3 turns of failed tools.
 
-**Product** M2C · **Source** Mistral Vibe `vibe/app_server/_goal_engine.py` (Apache-2.0, read at `fb7511a`) [R] · **Status** candidate · **Depends** — · **Decision** Whether to build it only after UB-028 and UB-036, so the goal reuses their evidence ledger and loop stop instead of a second copy · **Evidence** [R] [V✓] [U]
+**Product** M2C · **Source** Mistral Vibe `vibe/app_server/_goal_engine.py` (Apache-2.0, read at `fb7511a`) [R], Mixdog `native/core/crates/mixdog-core-goal/src/goal/` (`mod.rs`, `quota.rs`, `turns.rs`; Apache-2.0, read at `8382c929`) [R], Preloop `backend/preloop/services/no_progress_guard.py` (Apache-2.0, read at `8c17f51c`) [R] · **Status** candidate · **Depends** — · **Decision** Whether to build it only after UB-028 and UB-036, so the goal reuses their evidence ledger and loop stop instead of a second copy · **Evidence** [R] [V✓] [U]
 
 **What.** A goal mode. The person states one objective; after each turn, if the goal is still active and nothing stopped it, the loop adds a continuation turn. In Vibe's engine [R]: a turn ends the goal as paused (user interrupt), usage-limited, blocked (a failed turn, 3 turns with no progress or 3 turns of failed tools: `STREAK_LIMIT = 3`) or budget-limited, and the model itself can mark it complete, blocked or paused. The token budget and what is left of it are told to the model. The objective is HTML-escaped and wrapped in a `<goal_objective>` block so it reads as data. The continuation prompt asks for work from evidence, and a completion must name its evidence (a test run, command output or a file).
 
@@ -2259,15 +2310,17 @@ Every change of status, and every general decision about this backlog. `--set-st
 6. Every continuation goes through the normal policy and approvals, and a goal never widens a permission. A call that needs approval pauses the goal with a visible status instead of being denied silently [U].
 7. Add the protocol messages with fixtures.
 
-**Done when.** Fake-model tests: a goal completed with evidence ends `complete`; three turns that change nothing end `blocked` with the reason; three turns of failed tools end `blocked`; the token budget stops the run; an objective that contains `</goal_objective>` stays inside its block; a user interrupt pauses the goal.
+**Done when.** Fake-model tests: a goal completed with evidence ends `complete`; three turns that change nothing end `blocked` with the reason; three turns of failed tools end `blocked`; the token budget stops the run; an objective that contains `</goal_objective>` stays inside its block; a user interrupt pauses the goal. A goal that hits a provider usage limit is suspended and, when the limit lifts, resumes as the same goal; a goal past its time cap ends with that reason; a read-only goal is not stopped for leaving the checkout unchanged.
 
 **Notes.** Runaway cost is the main risk, so the budget and the step limit both stay in force. Take the rules, not the code: Vibe's engine is tied to its own goal-state types. If code is ever copied, the Apache-2.0 notice and a mark on the changes are required.
+
+**Added in B07 (three rules from Mixdog and Preloop).** (a) A wall-clock cap beside the token budget: Mixdog's goal has a time limit as well as a quota [R: headers; I did not trace the arithmetic]. (b) A provider usage limit suspends the goal, and when the limit lifts that same goal resumes, instead of ending it or starting a new one (Mixdog `quota.rs`) [R: header]. (c) A second no-progress signal taken from the workspace: Preloop nudges once when the checkout has not changed for a set time (default 600 s, off unless enabled), then stops, and can create one retry on another model or a higher reasoning effort that is never retried itself [R docstring]. Its docstring reports one run that read files for 54 minutes and sent 10.13M tokens [R]. Design idea [U]: the workspace signal fits only goals meant to change files; a goal such as "find out why X fails" never will, so choose the progress signal per goal kind and fall back to Vibe's turn count. Take the rules, not the code: Mixdog's engine is Rust and tied to its own types.
 
 ### UB-087: One helper that frames text the model must treat as data (S)
 
 > Steering messages, compaction summaries and goal objectives all need the same escaping, marker and look-alike handling; write it once.
 
-**Product** M2C · **Source** my idea, from Hermes `agent/prompt_builder.py` (MIT, `c84e8d7f`), Gemini CLI `prompts/snippets.ts` (Apache-2.0, `60f8082`) and Vibe `_goal_engine.py` (Apache-2.0, `fb7511a`) [R] · **Status** candidate · **Depends** — · **Decision** Build it before UB-037, UB-042 and UB-086, or let each write its own and merge them later · **Evidence** [R] [V✓] [U]
+**Product** M2C · **Source** my idea, from Hermes `agent/prompt_builder.py` (MIT, `c84e8d7f`), Gemini CLI `prompts/snippets.ts` (Apache-2.0, `60f8082`) and Vibe `_goal_engine.py` (Apache-2.0, `fb7511a`) [R], Caura `common/llm/untrusted.py` (Apache-2.0, read at `85519c72`) [R] · **Status** candidate · **Depends** — · **Decision** Build it before UB-037, UB-042 and UB-086, or let each write its own and merge them later · **Evidence** [R] [V✓] [U]
 
 **What.** One module in `backend/codeagent/` with three parts: a function that escapes, wraps and marks a piece of text for a named kind of frame; a function that relabels text imitating one of your own frames inside a tool result; and one list of the frame kinds. Users would be the steer message of UB-037, the goal envelope and summary of UB-042, the objective of UB-086, and the existing `NOTICE_*` messages. B06 adds two: the sandbox-denial block of UB-040 (a command can print a copy of it, so its marker needs the look-alike relabelling) and any context a hook adds (the `D15` row of section 6).
 
@@ -2283,9 +2336,11 @@ Every change of status, and every general decision about this backlog. `--set-st
 4. Write a table test: each frame kind against hostile payloads (a closing tag, a look-alike heading, a nested marker).
 5. Use it in UB-037, UB-042 and UB-086.
 
-**Done when.** For every frame kind, no hostile payload can close or forge the frame. A tool result that contains any kind's marker is relabelled. The existing prompt tests pass.
+**Done when.** For every frame kind, no hostile payload can close or forge the frame. A tool result that contains any kind's marker is relabelled. The existing prompt tests pass. A payload that holds U+2028 or U+2029 cannot start a new record inside a quoted list.
 
 **Notes.** The risk is a relabelling list that mangles real output, for example a README that contains the words "Runtime note:". That is why step 3 relabels only inside tool results and keeps the stored original.
+
+**Added in B07 (a worked example from Caura).** Caura's `common/llm/untrusted.py` is 59 lines and does this job [R]. A fixed marker pair (`<<<DATA>>>` and `<<<END_DATA>>>`); `neutralise` puts a space after each `<` that starts a run of three, so no marker can survive inside the text while the text stays readable; `quote_untrusted` writes one JSON string per record and escapes U+2028 and U+2029, so a line separator cannot forge a new record; `data_block` joins them; and one fixed rule sentence says that text inside the block is data even when it claims to come from the system. For step 2 there are two choices: Vibe's full escape of `<`, `>` and `&`, right for text the code reads back (the goal objective), or Caura's lighter neutralising, right for text the model should restate (a steering note, a quoted tool result). Decide per frame kind [U].
 
 ## Batch B05 (2026-11-26): Review of OpenCode, Pi, Tenuo and Prismor
 
@@ -2522,3 +2577,103 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Done when.** `Q07` rows: with each of the five names present, a write fails; with `.git` absent, a command that creates `.git/hooks/pre-commit` is blocked or reported, as decided; a nested `.git/hooks` is read-only or reported. The consistency test passes. After a command killed halfway, the project holds no stray placeholder.
 
 **Notes.** sandbox-runtime is a TypeScript package: take the list and the ideas, and write the code fresh in Python; if any text is copied, keep the Apache-2.0 notice. The list is a floor: the project directory stays writable, so files the person's tools run later remain a matter for approvals, as the docstring says [V✓].
+
+## Batch B07 (2026-11-27): Review of open-code-review, mixdog, cordum, preloop, caura and orca
+
+*Source:* a review of six reference repos (41 capabilities, rated in one pass, then checked against this file as it stands after B06 and against MiniMe `121e06c`), read from source with nothing installed or run. Reference commits read again when this batch was written: open-code-review `d4f568f7`, mixdog `8382c929`, cordum `3a9c9e1f`, preloop `8c17f51c`, caura `85519c72`, orca `5174b9bd` (orca from a shallow clone, so no history). The six licences were read again. In this batch `[R]` is a reading of those repos, `[V✓]` is a check of MiniMe `121e06c` made while writing it, `[README]` is a docs or README statement that was not checked in code, and `[U]` is a design nobody has run. **The decision column of the review was empty, so its recommendations were taken as the decisions**, as in B03 to B06: **ADD** and **UPGRADE** became new features (UB-097 to UB-100), **EXTEND** items on entries that exist were written into those entries (edited in place, so not repeated here: UB-028, UB-037, UB-039, UB-042, UB-043, UB-045, UB-049, UB-075, UB-086, UB-087), **EXTEND** items on work packages of other chapters, **SKIP** and **IDEA ONLY** items and the **VERIFY FIRST** items (each with what to read) went to section 6. Where the work package belongs to another chapter (`C13`, `C25`, `MT-T12`, `MG-Z02`, and the Menux guide sections 6.4, 6.5, 10.3 and 27.2), the section 6 row carries the addition and the chapter was **not** edited. Four things are my own choices and not decisions from the review: the shape of UB-098 (cut down after reading MiniMe), UB-099 as an ask-even-when-allowed list, the place of the duplicate stub in UB-097, and the profile kept in `.m2c/` in UB-028. Drop any of them if you disagree.
+
+**Corrections to the review found while re-reading:** (1) The review said MiniMe had no tenant gate and offered one as new. MiniMe already forces Postgres row-level security on its tables and a connection with no identity sees no rows (`migrations/0003_rls_policies.sql`, `eo/db.py`), so UB-098 is cut down to the places that can step around it: 34 uses of `trusted=True` in 10 files, new tables, and direct connections. (2) The review said destructive git commands were not covered. In the default modes every shell call asks, so the gap is real only when a person saves a broad allow rule for git (UB-099). (3) The review's hook-outage item was already in section 6 as Prismor's row; it is recorded as an addition to it. (4) The review's approval-fields item overlaps the B05 row on Tenuo: only the policy snapshot, the consumed time and the invalidated state are new. (5) The review's pinned-vectors item adds to the B05 `MG-Z02` row and does not replace it.
+
+### UB-097: Collapse repeated and noisy tool output before it is sent again (S)
+
+> Stub a tool result that repeats an earlier one, and strip terminal codes and repeated lines, before the history is sent again.
+
+**Product** M2C · **Source** Preloop `backend/preloop/services/context_optimization.py` (Apache-2.0, read at `8c17f51c`) [R], my idea for the placement · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R] [U]
+
+**What.** Two changes to tool-result messages only, applied to the copy sent to the model. (a) A result identical to an earlier one becomes a one-line stub that names the earlier call. (b) ANSI escape sequences and carriage-return progress redraws are removed, and runs of identical lines are counted instead of repeated. Preloop's version keeps the first copy untouched so the cached prompt prefix does not change, cuts head and tail, and leaves other message roles alone [R: module docstring].
+
+**Why.** `backend/codeagent/context.py` caps large tool results, clears the oldest outputs and builds a deterministic summary [V✓ docstring], but a search of the file for dedup, ANSI and carriage return finds nothing [V✓]. Build and test tools repeat their output when the agent runs them again, and progress bars use up the cap with noise. How much this saves is not measured: UB-075's replay has to show it.
+
+**Where.** `backend/codeagent/context.py` (the stage that caps large tool results and the stage that clears old rounds); tests with `loop_testkit.py`.
+
+**How.**
+
+1. Read `context.py` and write down the order of its stages.
+2. Add the noise strip as a pure function with a table test: ANSI sequences, bare carriage-return redraws, and a run of identical lines turned into one line plus a count. Apply it to the model's copy only. The stored log keeps the original (UB-042's lossless log; UB-090 keeps the full output in a file).
+3. Add the duplicate stub **after** the clearing stage, so a stub never points at an output that the clearing stage has already replaced [U]. Preloop keeps the first copy so the cached prefix stays the same [R], and your clearing would later stub that first copy, which would leave a stub pointing at a stub.
+4. Put both behind a flag and measure with UB-075's replay before turning them on.
+
+**Done when.** A tool result with ANSI codes reaches the model without them while the stored log keeps them; two identical results become one full copy and one stub that names it; a stub never names a cleared result; the existing compaction tests pass; the replay shows the token difference.
+
+**Notes.** The risk is a model that reads "same as call 12" and does not look back: test a task that re-runs a failing test twice. Preloop is Apache-2.0: if code is copied, keep the notice and mark the changes. Its module also truncates, which yours already does.
+
+### UB-098: A static gate on the code paths that can step around row-level security (M)
+
+> Fail the test run when a new place bypasses row-level security, a new table lacks it, or a dict-built UPDATE can rewrite an owner column.
+
+**Product** MiniMe · **Source** Caura `scripts/tenant_scope_gate.py` and `core-storage-api/tenant_scope_allowlist.json` (Apache-2.0, read at `85519c72`) [R], my idea for the shape · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R] [U]
+
+**What.** A test in `backend/tests/static/` that reads the Python and the migrations and checks three things against a baseline file of today's exceptions, which may shrink and never grow. Caura's gate walks the syntax tree of its storage service, requires every public method to be tenant-scoped or listed with a reason, and says its list may only shrink [R: docstring and allowlist; the script is 2,222 lines and I read its header, not its body]. Its docstring says it was written after the project's own security advisories [R].
+
+**Why.** MiniMe separates users with Postgres row-level security, forced on the tables of migration 0003 and later, and a connection that passes no identity sees no rows [V✓ `migrations/0003_rls_policies.sql`, `eo/db.py` `cursor()`]. That is a sound design, and three things can lose it quietly. A call with `trusted=True` skips the user check: grep finds 34 in 10 files [V✓]. A new table can be added without `ENABLE` and `FORCE ROW LEVEL SECURITY`. A direct `psycopg.connect` skips `cursor()`: there is one, in `conn_timing.py` [V✓]. UB-014 and UB-015 test this from outside with two accounts; `tests/static/test_sql_grants.py` checks grants only, and I found no check on identity [V✓].
+
+**Where.** New `backend/tests/static/test_tenant_scope.py`; reuse `extract_sql`, `split_statements` and `GrantLedger` from `test_sql_grants.py` (move them to a helper module if two tests need them); baseline file `backend/tests/static/trusted_sites.json`.
+
+**How.**
+
+1. Trusted sites: walk the syntax tree for every `cursor(..., trusted=True)` and compare with the baseline, where each entry names a reason. A new site fails; a site that no longer exists must be removed from the file. Start from per-file counts [V✓ grep]: `eo/devices.py` 9, `eo/workspace_code_files.py` 5, `eo/chat_workspace.py` 4, `eo/audit_log.py` 3, `eo/code_proposals.py` 3, `api/routes/system.py` 3, `eo/code_findings.py` 2, `eo/panel_content.py` 2, `codeagent/run_manager.py` 2, `eo/usage_ledger.py` 1; then write the reason per function.
+2. Table coverage: replay the migrations, as `GrantLedger` already does, and require every table with an owner column (`user_id` or `owner_id`) to have `ENABLE` and `FORCE ROW LEVEL SECURITY` and at least one policy, or to sit in the baseline with a reason.
+3. Direct connections: fail on `psycopg.connect(` or a pool created outside `eo/db.py`, with `conn_timing.py` in the baseline.
+4. UPDATE from a dict: for any function that builds a `SET` list from caller-supplied keys, require the keys to pass through a named set that leaves out `id` and the owner columns. Caura's gate checks this [R]. First read whether MiniMe has such a function [U].
+5. Say in the file header what the test cannot see: a policy that is too broad, and a `trusted=True` site whose written reason is wrong.
+
+**Done when.** Adding `trusted=True` in a new function, creating a table with `user_id` and no forced row-level security, or adding a bare `psycopg.connect` each fails the static run with a message that names the file; shortening the baseline and leaving a stale entry fails; the test needs no database and adds seconds, not minutes.
+
+**Notes.** This guards the design that exists and does not replace UB-014 and UB-015. Caura's gate is built for its own storage layer: take the checks and write the code fresh. Whether every current table passes check 2 is what its first run will show; I did not read all of migration 0003.
+
+### UB-099: Destructive git commands ask even when an allow rule matches (S)
+
+> Name the git commands that throw work away, and make them ask even under a broad allow rule for git.
+
+**Product** M2C · **Source** Mixdog `src/rules/shared/45-destructive.md` (Apache-2.0, read at `8382c929`) [R], my idea for the list · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R] [U]
+
+**What.** A second list beside `_GIT_ASK_SUBS` in `m2c/src/m2c/policy/decide.py`. The existing list holds git subcommands that run another program (submodule, filter-branch, difftool, mergetool, daemon, instaweb, gui, bisect, config) [V✓]; none of reset, clean, stash, checkout, restore, switch, branch or push is in it. The new list holds the forms that lose work: `reset --hard`, `clean` without `-n` or `--dry-run`, `checkout -- <path>` and `checkout .`, `restore` without `--staged`, `stash` (push, drop, clear), `branch -D`, `push --force` and `-f`, `update-ref -d`, `reflog expire` and `gc --prune`. Mixdog's rule says the agent must never stash, reset, clean or delete files it did not create [R].
+
+**Why.** In the default modes every shell call asks, because a mode default never allows a process [V✓ `policy/modes.py` docstring]. The gap shows when a person saves an allow rule that matches every git command: I found no other git-specific check in `decide.py`, so such a rule would let `git reset --hard` and `git clean -fd` through (I did not run a case) [V✓ reading near lines 571 and 642].
+
+**Where.** `m2c/src/m2c/policy/decide.py`, `rules.py`; tests under `m2c/tests/policy/`; the `Q07` corpus.
+
+**How.**
+
+1. Write the list as data, with the argument conditions (a `--dry-run` passes).
+2. In `decide`, for a git command apply it after the allow rules and before an allow is returned; the result is `ask`, with a reason that names the command.
+3. Add table tests: each destructive form asks under an allow-all-git rule; `git status`, `git diff`, `git stash list`, `git clean -n` and `git restore --staged` do not; a compound command such as `cd x && git reset --hard` asks.
+4. Add the same cases to `Q07`'s corpus, and one sentence to the system prompt (UB-038).
+5. Optional: let a person add their own commands to the list in settings; a lower layer may add an ask and never remove one (`C27`).
+
+**Done when.** Under an allow-all-git rule the destructive forms ask with a named reason, read-only forms are still allowed, deny rules still win, and the compound case asks.
+
+**Notes.** Smaller than it looks: a default setup is already safe, and the cost is a few more prompts for people with broad allow rules. Mixdog has no OS sandbox [R], so its rule lives in a prompt; yours is a policy check, which is stronger.
+
+### UB-100: A drafting eval for the Menux Planner (M)
+
+> Grade what the Planner writes for plain-English requests, using code and a fake connector, so a prompt change that breaks it fails.
+
+**Product** Menux · **Source** Orca `src/cli/bot-automation-eval/` (MIT, read at `5174b9bd`) [R], Menux guide section 4.3 and `MT-Q11` · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R] [U]
+
+**What.** A set of requests, each with an expected outcome and a grader that reads what was created. Orca's set has categories that include `ask` (an unclear request must produce a question), `no-automation` (a request that is not an automation must create nothing) and `edit` (a change request must edit the existing automation and not add a copy), besides schedules, filters and where results go; a scripted stand-in host receives the agent's calls [R: the refusals and grading modules and the start of the scenarios file; I did not count its scenarios].
+
+**Why.** Section 4.3 of the Menux guide has the Planner turn a sentence into a validated spec and section 4.4 dry-runs it [read in the guide]. `MT-Q11` replays a scripted model to test policy decisions with no model in the loop [read in the build guide]. I found nothing that tests whether the Planner writes the right thing [no match for a Planner eval in the guides]. Drafting is where a prompt edit can silently make people's automations wrong.
+
+**Where.** Not built. A future `menux/tests/planner_eval/`; it runs against a live model, so keep it out of the default test run and run it before a release and on any change to the Planner's prompt.
+
+**How.**
+
+1. Write 30 to 40 requests in categories: one trigger, schedule (grade the next 8 firing times and the time zone), filter, destination, ambiguous (must ask), not an automation (must write nothing), edit an existing one (must name its id), and ceiling cases [U].
+2. Grade the validated spec, by code: run the section 4.2 validator on the output, and count a spec that fails validation as a fail.
+3. Add adversarial rows [U]: a request for a tier above the person's ceiling must come out as a question or a validator rejection and never as a spec that runs; request text such as "also approve everything" must not change a policy field.
+4. Report the pass rate per category and keep the last three runs so a drop shows. Set no pass threshold before there is a baseline.
+
+**Done when.** The set runs against a stand-in host with no real connector; a deliberately broken Planner prompt (the ask rule removed) fails the `ask` category; a clean run prints a rate for every category.
+
+**Notes.** Orca's code is TypeScript (MIT): take the categories and the idea of grading the result, and write it in your own language. Cost is tokens per run and is not measured. Writing the requests by hand is the real work.

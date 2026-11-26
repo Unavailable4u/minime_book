@@ -242,7 +242,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/components.css">
 <link rel="stylesheet" href="assets/css/shell.css">
-</head><body data-page="doc-upgrade-backlog"><main><h1>Upgrade Backlog: Features To Build Later (an incremental register)</h1><p class="sub">Appendix C. 41,583 words. <a href="data/docs/upgrade_backlog.md" download>Download .md</a></p><div class="bk-banner">
+</head><body data-page="doc-upgrade-backlog"><main><h1>Upgrade Backlog: Features To Build Later (an incremental register)</h1><p class="sub">Appendix C. 48,295 words. <a href="data/docs/upgrade_backlog.md" download>Download .md</a></p><div class="bk-banner">
   <div class="bk-top">
     <div>
       <span class="bk-part">Appendix C · Upgrade backlog</span>
@@ -256,7 +256,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
   </div>
   <p class="bk-desc">An incremental register of features to build later. Every feature has a source (a repository, a plan section or an idea of your own), one line in a generated top table, and a detailed entry: what it is, why, where in the code, how it would be added and when it counts as done. It grows by batches, and a script keeps its tables and this page in step with the entries.</p>
   <div class="bk-meta">
-    <span><b>41,583</b> words (~189 min read)</span><span>·</span><span><b>111</b> sections</span><span>·</span><span><b>8</b> tables</span>
+    <span><b>48,295</b> words (~220 min read)</span><span>·</span><span><b>116</b> sections</span><span>·</span><span><b>8</b> tables</span>
   </div>
   <div class="bk-prevnext"><a href="docs.html" class="bk-nav-btn">← Back to the book</a><a href="doc-provider-consolidation.html" class="bk-nav-btn bk-next">Appendix B: Provider Consolidation Guide →</a></div>
 </div><div class="doc"><article><h1 id="upgrade-backlog-features-to-build-later-an-incremental-register">Upgrade Backlog: Features To Build Later (an incremental register)</h1>
@@ -267,7 +267,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <p><strong>Sections 0, 1 and 2 are generated</strong> from the entries by <code>python scripts/check_backlog.py --write</code>. Never edit them by hand; edit an entry and run the script.</p>
 <h2 id="0-at-a-glance">0. At a glance</h2>
 <p><em>Generated from the entries by <code>python scripts/check_backlog.py --write</code>. Do not edit by hand.</em></p>
-<p><strong>96 features</strong> in 6 batches: 92 candidate · 0 accepted · 0 building · 0 done · 4 parked · 0 dropped.</p>
+<p><strong>100 features</strong> in 7 batches: 96 candidate · 0 accepted · 0 building · 0 done · 4 parked · 0 dropped.</p>
 <div class="tw"><table>
 <thead>
 <tr>
@@ -284,33 +284,33 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <tbody>
 <tr>
 <td>MiniMe</td>
-<td>43</td>
+<td>44</td>
 <td>0</td>
 <td>0</td>
 <td>0</td>
 <td>1</td>
 <td>0</td>
-<td>44</td>
+<td>45</td>
 </tr>
 <tr>
 <td>M2C</td>
-<td>28</td>
+<td>30</td>
 <td>0</td>
 <td>0</td>
 <td>0</td>
 <td>2</td>
 <td>0</td>
-<td>30</td>
+<td>32</td>
 </tr>
 <tr>
 <td>Menux</td>
-<td>9</td>
+<td>10</td>
 <td>0</td>
 <td>0</td>
 <td>0</td>
 <td>1</td>
 <td>0</td>
-<td>10</td>
+<td>11</td>
 </tr>
 <tr>
 <td>Shared</td>
@@ -334,13 +334,13 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td><strong>All</strong></td>
-<td><strong>92</strong></td>
+<td><strong>96</strong></td>
 <td><strong>0</strong></td>
 <td><strong>0</strong></td>
 <td><strong>0</strong></td>
 <td><strong>4</strong></td>
 <td><strong>0</strong></td>
-<td><strong>96</strong></td>
+<td><strong>100</strong></td>
 </tr>
 </tbody>
 </table></div>
@@ -635,7 +635,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Verify-on-stop in the agent loop</td>
 <td>If the model edits files and then stops without running a test or build, ask it once or twice to verify first.</td>
 <td>M2C</td>
-<td>Spec M1, Plan 4.2, Hermes <code>agent/verification_stop.py</code> and <code>agent/turn_stop_gates.py</code> (MIT, read at <code>c84e8d7f</code>) [R]</td>
+<td>Spec M1, Plan 4.2, Hermes <code>agent/verification_stop.py</code> and <code>agent/turn_stop_gates.py</code> (MIT, read at <code>c84e8d7f</code>) [R], Preloop <code>backend/preloop/agents/verification.py</code> and <code>agents/completion_nudge.py</code> (Apache-2.0, read at <code>8c17f51c</code>) [R], Mixdog <code>src/rules/shared/60-verification.md</code> (Apache-2.0, read at <code>8382c929</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -725,7 +725,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Mid-turn user steering</td>
 <td>Let the user add a message while the agent works, inserted behind an anti-injection marker.</td>
 <td>M2C</td>
-<td>Hermes (Plan 4.2), Hermes <code>agent/prompt_builder.py</code> (MIT, read at <code>c84e8d7f</code>) [R]</td>
+<td>Hermes (Plan 4.2), Hermes <code>agent/prompt_builder.py</code> (MIT, read at <code>c84e8d7f</code>) [R], Preloop <code>backend/preloop/services/operator_notes.py</code> (Apache-2.0, read at <code>8c17f51c</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -745,7 +745,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Observe mode before enforce mode for new policy rules</td>
 <td>Ship each new rule in a log-only mode first, record what it would have blocked, then enforce.</td>
 <td>M2C</td>
-<td>Prismor (Plan 4.2)</td>
+<td>Prismor (Plan 4.2), Cordum <code>core/policyshadow/types.go</code> (BUSL-1.1: ideas only) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -775,7 +775,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Compaction that re-injects the task goal, with a lossless log</td>
 <td>When the context is compacted, put the original goals back in; keep the full transcript so only the model's view shrinks.</td>
 <td>M2C</td>
-<td>Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2), Gemini CLI <code>prompts/snippets.ts</code> and <code>context/chatCompressionService.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R], Hermes <code>agent/context_compressor.py</code> and <code>context_compressor_prompt_rules.py</code> (MIT, read at <code>c84e8d7f</code>) [R]</td>
+<td>Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2), Gemini CLI <code>prompts/snippets.ts</code> and <code>context/chatCompressionService.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R], Hermes <code>agent/context_compressor.py</code> and <code>context_compressor_prompt_rules.py</code> (MIT, read at <code>c84e8d7f</code>) [R], open-code-review <code>internal/config/template/prompts/memory_compression_task_system.md</code> (Apache-2.0, read at <code>d4f568f7</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -785,7 +785,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>An independent verifier context and step-graph validation</td>
 <td>A second, separate model context checks the result; a multi-step plan is validated before any step starts.</td>
 <td>M2C</td>
-<td>zeroshot [R]</td>
+<td>zeroshot [R], open-code-review <code>internal/behaviortask/README.md</code> (Apache-2.0, read at <code>d4f568f7</code>) [R]</td>
 <td>L</td>
 <td>candidate</td>
 <td>B01</td>
@@ -805,7 +805,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>A precision-first review command</td>
 <td>A diff reviewer that gives line-level comments and favours few, correct findings over many.</td>
 <td>M2C</td>
-<td>open-code-review [R], Strix <code>skills/scan_modes/diff.md</code> (Apache-2.0, read at <code>9ed84f9</code>) [R], codebase-memory-mcp <code>detect_changes</code> (MIT, read at <code>9a4da7a3</code>) [R], Plan 4.2</td>
+<td>open-code-review <code>internal/config/template/prompts/</code> (<code>review_filter_task_system.md</code>, <code>re_location_task_system.md</code>), <code>internal/config/rules/rule_docs/</code> and <code>internal/agent/estimate.go</code> (Apache-2.0, read at <code>d4f568f7</code>) [R], Mixdog <code>src/agents/reviewer/AGENT.md</code> (Apache-2.0, read at <code>8382c929</code>) [R], Strix <code>skills/scan_modes/diff.md</code> (Apache-2.0, read at <code>9ed84f9</code>) [R], codebase-memory-mcp <code>detect_changes</code> (MIT, read at <code>9a4da7a3</code>) [R], Plan 4.2</td>
 <td>L</td>
 <td>candidate</td>
 <td>B01</td>
@@ -845,7 +845,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Correcting a source retires its dependents, and deletes cascade</td>
 <td>Fix or delete a source and everything derived from it leaves retrieval but stays readable in a history view.</td>
 <td>Menux</td>
-<td>Spec 6.1, Plan 5.2 (Mnemosyne, agentmemory)</td>
+<td>Spec 6.1, Plan 5.2 (Mnemosyne, agentmemory), Caura <code>common/events/memory_corrected.py</code> (Apache-2.0, read at <code>85519c72</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -1105,7 +1105,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Cost experiments before adopting any compressor or router</td>
 <td>Replay real traces with and without output compression, terse agent messages and cheaper models, and compare cost and quality.</td>
 <td>Shared</td>
-<td>Spec P4, Plan 6.6 (headroom, caveman, Mixdog), Gemini CLI <code>routing/strategies/numericalClassifierStrategy.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R]</td>
+<td>Spec P4, Plan 6.6 (headroom, caveman, Mixdog), Gemini CLI <code>routing/strategies/numericalClassifierStrategy.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R], Preloop <code>backend/preloop/services/replay_harness.py</code> and <code>replay_savings_service.py</code> (Apache-2.0, read at <code>8c17f51c</code>) [R], Mixdog <code>docs/auto-reasoning-effort.md</code> (Apache-2.0, <code>8382c929</code>) [README]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -1215,7 +1215,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Session goal mode with a token budget and a no-progress stop</td>
 <td>One goal the agent works on across turns; it stops at a token budget, after 3 turns without progress, or after 3 turns of failed tools.</td>
 <td>M2C</td>
-<td>Mistral Vibe <code>vibe/app_server/_goal_engine.py</code> (Apache-2.0, read at <code>fb7511a</code>) [R]</td>
+<td>Mistral Vibe <code>vibe/app_server/_goal_engine.py</code> (Apache-2.0, read at <code>fb7511a</code>) [R], Mixdog <code>native/core/crates/mixdog-core-goal/src/goal/</code> (<code>mod.rs</code>, <code>quota.rs</code>, <code>turns.rs</code>; Apache-2.0, read at <code>8382c929</code>) [R], Preloop <code>backend/preloop/services/no_progress_guard.py</code> (Apache-2.0, read at <code>8c17f51c</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B04</td>
@@ -1225,7 +1225,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>One helper that frames text the model must treat as data</td>
 <td>Steering messages, compaction summaries and goal objectives all need the same escaping, marker and look-alike handling; write it once.</td>
 <td>M2C</td>
-<td>my idea, from Hermes <code>agent/prompt_builder.py</code> (MIT, <code>c84e8d7f</code>), Gemini CLI <code>prompts/snippets.ts</code> (Apache-2.0, <code>60f8082</code>) and Vibe <code>_goal_engine.py</code> (Apache-2.0, <code>fb7511a</code>) [R]</td>
+<td>my idea, from Hermes <code>agent/prompt_builder.py</code> (MIT, <code>c84e8d7f</code>), Gemini CLI <code>prompts/snippets.ts</code> (Apache-2.0, <code>60f8082</code>) and Vibe <code>_goal_engine.py</code> (Apache-2.0, <code>fb7511a</code>) [R], Caura <code>common/llm/untrusted.py</code> (Apache-2.0, read at <code>85519c72</code>) [R]</td>
 <td>S</td>
 <td>candidate</td>
 <td>B04</td>
@@ -1320,6 +1320,46 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>candidate</td>
 <td>B06</td>
 </tr>
+<tr>
+<td>UB-097</td>
+<td>Collapse repeated and noisy tool output before it is sent again</td>
+<td>Stub a tool result that repeats an earlier one, and strip terminal codes and repeated lines, before the history is sent again.</td>
+<td>M2C</td>
+<td>Preloop <code>backend/preloop/services/context_optimization.py</code> (Apache-2.0, read at <code>8c17f51c</code>) [R], my idea for the placement</td>
+<td>S</td>
+<td>candidate</td>
+<td>B07</td>
+</tr>
+<tr>
+<td>UB-098</td>
+<td>A static gate on the code paths that can step around row-level security</td>
+<td>Fail the test run when a new place bypasses row-level security, a new table lacks it, or a dict-built UPDATE can rewrite an owner column.</td>
+<td>MiniMe</td>
+<td>Caura <code>scripts/tenant_scope_gate.py</code> and <code>core-storage-api/tenant_scope_allowlist.json</code> (Apache-2.0, read at <code>85519c72</code>) [R], my idea for the shape</td>
+<td>M</td>
+<td>candidate</td>
+<td>B07</td>
+</tr>
+<tr>
+<td>UB-099</td>
+<td>Destructive git commands ask even when an allow rule matches</td>
+<td>Name the git commands that throw work away, and make them ask even under a broad allow rule for git.</td>
+<td>M2C</td>
+<td>Mixdog <code>src/rules/shared/45-destructive.md</code> (Apache-2.0, read at <code>8382c929</code>) [R], my idea for the list</td>
+<td>S</td>
+<td>candidate</td>
+<td>B07</td>
+</tr>
+<tr>
+<td>UB-100</td>
+<td>A drafting eval for the Menux Planner</td>
+<td>Grade what the Planner writes for plain-English requests, using code and a fake connector, so a prompt change that breaks it fails.</td>
+<td>Menux</td>
+<td>Orca <code>src/cli/bot-automation-eval/</code> (MIT, read at <code>5174b9bd</code>) [R], Menux guide section 4.3 and <code>MT-Q11</code></td>
+<td>M</td>
+<td>candidate</td>
+<td>B07</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="2-batches">2. Batches</h2>
@@ -1376,6 +1416,13 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Review of sandbox-runtime, codebase-memory-mcp, Django and Argus</td>
 <td>1</td>
 <td>UB-096</td>
+</tr>
+<tr>
+<td>B07</td>
+<td>2026-11-27</td>
+<td>Review of open-code-review, mixdog, cordum, preloop, caura and orca</td>
+<td>4</td>
+<td>UB-097 to UB-100</td>
 </tr>
 </tbody>
 </table></div>
@@ -2045,6 +2092,106 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <td>A reconnaissance toolkit: 181 tracked Python files, 10 commits, no tests. Its installer must run as root and removes its install directory with <code>rm -rf</code>; it pins <code>rich&gt;=13,&lt;14</code> against M2C's <code>rich==15.0.0</code> [R]. Sending targets to about 20 outside services is carried from the review [S]. See UB-035 for why it is not the tool that entry wants</td>
 <td>never</td>
 </tr>
+<tr>
+<td>Cordum hook outage rule, for <code>C13</code></td>
+<td>Already planned as <code>C13</code> (Hooks, not built); the chapter was not edited. The row "Crashed required hook means deny" above holds Prismor's rule. Cordum's Claude hook adds the mode: when its policy service is down a call is allowed in observe mode, and a risky tool call is denied in enforce mode [R <code>core/edge/claude/fail_modes_test.go</code>: the first test read, the second by its name]. Tie it to UB-039: the outage rule follows the rule's mode, so an observe rule never blocks on an outage and an enforce rule never opens. Ideas only: BUSL-1.1</td>
+<td><code>C13</code> starts</td>
+</tr>
+<tr>
+<td>Policy dry run, for <code>C25</code></td>
+<td>Already planned as <code>C25</code>; the chapter was not edited. Preloop's <code>services/policy_simulation.py</code> runs a call through the same decision code with no side effects [R: module header]. M2C has no such command [V✓: no match for <code>policy test</code>, <code>simulate</code> or <code>dry-run</code> in <code>m2c/src/m2c</code>]. Add to <code>C25</code>: <code>m2c policy test &lt;tool&gt; &lt;args&gt;</code> prints allow, ask or deny and which rule decided; the same function can check <code>C25</code>'s example lines when rules load [U]</td>
+<td><code>C25</code> starts</td>
+</tr>
+<tr>
+<td>Approval record fields, for <code>MT-T12</code> and Menux section 6.4</td>
+<td>Already planned as <code>MT-T12</code>; the Menux guide was not edited. The Tenuo row above covers the request hash, nonce and expiry. Cordum's approval record also holds a policy snapshot, a consumed time and an invalidated state, besides action hash, input hash and expiry (<code>core/edge/approval.go</code>) [R: the struct only; I did not trace how they are enforced]. Section 6.4 of the Menux guide names an approval ID, a nonce and an expiry and no policy version [read in the guide]. Add: bind the approval to the policy version so a rule change cancels pending ones, make it single-use, and keep invalidated distinct from expired. Ideas only: BUSL-1.1</td>
+<td><code>MT-T12</code> starts</td>
+</tr>
+<tr>
+<td>Panic and pending approvals, for Menux section 6.5</td>
+<td>Preloop's kill switch has scopes (gateway, tools, flows); while it is on, pending approvals are frozen and not auto-denied, a stop is recorded for running work, and its docstring says effects already in flight cannot be undone [R <code>services/kill_switch.py</code>]. Section 6.5 says Panic cancels active runs and blocks connector actions and is silent on approvals waiting at that moment [read in the guide]. Add: Panic freezes pending approvals (timers stop, requests stay visible); on resume each is re-checked for expiry and policy version (row above); the screen says what could not be undone [U]</td>
+<td>Menux section 6.5 is built</td>
+</tr>
+<tr>
+<td>Approval park, for Menux section 10.3</td>
+<td>Preloop's <code>services/approval_park.py</code>: after a short wait the run writes a park request, stops and holds no resources; a decision or expiry claims the parked row exactly once and starts a resume turn that names the request and repeats the question [R docstring]. Menux runs on the person's own machine, so freeing a container is not the point. What carries over: a run that waits on an approval is stopped and resumed from its event log instead of kept in memory, so a restart does not lose it [U]. Read what section 10.3 says about a waiting run before adding anything</td>
+<td>Menux approvals work starts</td>
+</tr>
+<tr>
+<td>Orca Linux AT-SPI bridge, for Menux section 27.2</td>
+<td><code>native/computer-use-linux/runtime.py</code> (MIT, read at <code>5174b9bd</code>) is a 2,702-line Python bridge: one JSON operation in, one JSON result out, run in the person's desktop session. Its tools are list_apps, get_app_state, click, scroll, drag, type_text, press_key and set_value; drag is not offered on Wayland; a call that would take the foreground is refused (<code>refuse_foreground_effect</code>) [R: tool names and the refusal read, function bodies not]. Test files sit beside it. Section 27.2 of the Menux guide plans your own AT-SPI reader as the Linux fallback [read in the guide]. Use this as a reference or a sidecar to start from. It needs PyGObject, it has no sandbox, and what it returns is untrusted data</td>
+<td>Menux's Linux control backend starts</td>
+</tr>
+<tr>
+<td>Pinned vector files, for <code>MG-Z02</code></td>
+<td>Already planned in Appendix A; the chapter was not edited. Caura computes one RFC 8785 hash in Python and in Go from one shared vectors file, and each test suite pins that file's sha256, so a copy that drifts fails [R <code>common/governance/ruleset_hash.py</code> docstring]. Add to <code>MG-Z02</code>: a small manifest of sha256 per vector file, checked by the Python runner and the Rust runner. The Tenuo row above covers the file format; this covers drift</td>
+<td><code>MG-Z02</code> starts</td>
+</tr>
+<tr>
+<td>open-code-review failure streak and argument repair</td>
+<td>Already built: <code>loop.py</code> has the identical-failure stop and the <code>truncated_arguments</code> refusal [V✓]; UB-036 extends them. Its escalation after repeated tool failures and its repair of stringified comment arrays are in <code>internal/reviewtask/tool_failure_streak.go</code> and <code>internal/tool/comment_args_repair.go</code> [R: headers]</td>
+<td>never</td>
+</tr>
+<tr>
+<td>open-code-review file grouping, plan-then-review, delegate mode</td>
+<td>Grouping asks a model to group up to 10 changed files per call from file metadata only, with a per-file fallback (<code>internal/agent/grouping.go</code>) [R]; it helps only reviews of many files. Plan-then-review adds a model call, and its benefit is not measured here (the vendor numbers are README level: UB-045). Delegate mode hands a review spec to a host agent [R: package header]; M2C is itself the agent</td>
+<td>UB-045 is slow on diffs of 10 or more files</td>
+</tr>
+<tr>
+<td>open-code-review sign-in with a ChatGPT subscription</td>
+<td><code>internal/chatgptauth</code> signs the tool in through OAuth against a consumer subscription [R: file read]. The account terms are a risk and it is not an API login. Mixdog does the same for several vendors, and its README warns that some can restrict accounts [README]. Do not copy</td>
+<td>never</td>
+</tr>
+<tr>
+<td>Cordum audit chain, signed policy, classifier</td>
+<td>Cordum is BUSL-1.1 (ideas only). Its audit stream is a per-tenant Redis stream with an HMAC chain (<code>core/audit/chain.go</code> header) [R]; UB-046's local chain covers the idea. Ed25519-signed policy bundles (<code>core/policysign</code>): <code>C27</code>'s root-owned file is the guard on one machine. Its classifier gives deterministic labels and treats client-supplied risk tags as not authoritative (<code>core/edge/classifier.go</code> header) [R]: that is <code>L07</code>, and the engine already lets a client raise a call's risk and never lower it [V✓ <code>policy/modes.py</code>]</td>
+<td>never</td>
+</tr>
+<tr>
+<td>Preloop asynchronous audit-chain sealer</td>
+<td>Rows are sealed by a background job, so chaining does not serialise the request path (<code>services/audit_chain.py</code> docstring) [R]. UB-046's store has one writer on one machine</td>
+<td>the server needs tamper-evident audit</td>
+</tr>
+<tr>
+<td>Preloop and Cordum, left out at README level</td>
+<td>Nothing read in code: Preloop private runners over an outbound WebSocket, fleet map, evidence packs and the <code>cra</code> folder, flow presets, gateway budgets (file names only); Cordum's MCP upstream checks against DNS tricks (test file names only) and compliance exports</td>
+<td>someone reads the code</td>
+</tr>
+<tr>
+<td>Caura contradiction check that supersedes memories</td>
+<td>After a write, an LLM judge may mark an older memory superseded (<code>core-api/src/core_api/services/contradiction_detector.py</code> docstring) [R]. For Menux that lets a wrong or poisoned memory replace a true one without the person, against UB-048 where only a user action promotes</td>
+<td>never</td>
+</tr>
+<tr>
+<td>Caura memory items, README level</td>
+<td>Not studied in code: superseded memories ranked just below their replacement, entity name resolution, crystallisation of near-duplicates, per-agent retrieval tuning, and the benchmark figures in its own <code>EVIDENCE.md</code>. VERIFY FIRST: read the ranking code in <code>core-api</code> for the superseded rule before touching UB-047</td>
+<td>UB-047 retrieval is being built</td>
+</tr>
+<tr>
+<td>Mixdog computer-use policy and wait-for-user, docs only</td>
+<td>Code not opened: an immutable start-up policy that only narrows, window authorisation bound to the window id and process id with an expiry, and after a pause for the person a fresh capture with no replay of queued input (<code>docs/computer-use-execution-policy.md</code>, <code>docs/computer-use-user-wait.md</code>) [README]. They line up with Menux sections 22 and 19. VERIFY FIRST: confirm in <code>native/mixdog-computer</code> that expiry and recapture are enforced in code</td>
+<td>Menux section 22 or 19 work starts</td>
+</tr>
+<tr>
+<td>Mixdog WebRTC end-to-end channel</td>
+<td><code>docs/remote-transport.md</code> describes a direct phone-to-PC channel, a relay for pairing and fallback, and a handshake proof that covers every offered capability so a downgrade fails [README: the head of one docs file]. Compare it with the Menux mesh design (sections 29 to 31) before the design is frozen. VERIFY FIRST: read its end-to-end code</td>
+<td>the mesh design is reviewed</td>
+</tr>
+<tr>
+<td>Mixdog context-efficiency layers</td>
+<td><code>docs/context-efficiency.md</code> lists a read cache checked by file size and modified time, a 30-second scoped cache and short references to repeated calls [README]. <code>context.py</code> caps and clears [V✓]; I did not look for a read cache elsewhere. VERIFY FIRST: read its read-state code for how stale entries are dropped, then test the gain with UB-075's replay</td>
+<td>UB-075 traces show repeated reads</td>
+</tr>
+<tr>
+<td>Mixdog reasoning-effort judge</td>
+<td>Written into UB-075 as a variant to test (B07), not a feature: the figures are docs level, it conflicts with D14 on M2C, and the licence of its weights is unchecked</td>
+<td>UB-075's table shows routing pays</td>
+</tr>
+<tr>
+<td>Orca, left out at README level</td>
+<td>Bots in Slack, Linear and GitHub, a chat-to-terminal handoff, a cloud VM per worktree, the OSC 7501 agent-status protocol, and coordinator and worker gates (only <code>gate-handlers.ts</code> opened)</td>
+<td>Menux channels work starts</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="7-sources-register">7. Sources register</h2>
@@ -2295,27 +2442,51 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 </tr>
 <tr>
 <td>open-code-review</td>
-<td>—</td>
-<td>not stated</td>
-<td>LEARN</td>
-<td>UB-045</td>
-<td>—</td>
+<td>https://github.com/alibaba/open-code-review</td>
+<td>Apache-2.0 (<code>LICENSE</code> read at <code>d4f568f7</code>; no extra terms found in it)</td>
+<td>LEARN (prompts and code may be copied with the notice kept and changes marked; it is Go, so take the rules; telemetry is off unless enabled; <code>internal/chatgptauth</code> signs in with a consumer subscription: never copy)</td>
+<td>UB-042, UB-043, UB-045, section 6</td>
+<td>licence read 2026-11-27; read from source, not run; its benchmark figures are README level</td>
 </tr>
 <tr>
 <td>Mixdog</td>
-<td>—</td>
-<td>not stated</td>
-<td>LEARN</td>
-<td>UB-075</td>
-<td>—</td>
+<td>https://github.com/tribgames/mixdog</td>
+<td>Apache-2.0 (<code>LICENSE</code> read at <code>8382c929</code>). <code>NOTICE.md</code> records an optional GPL Chrome password-import sidecar (<code>native/mixdog-browser-import</code>): never copy it. The effort-judge weights are derived from EmbeddingGemma 2, and the notice mentions training data under share-alike terms: check before any use</td>
+<td>LEARN (rules and designs; Rust and TypeScript; it has no OS sandbox [R <code>mixdog-sandboxing/src/lib.rs</code>]; it can sign in with several vendors' consumer subscriptions: never copy that)</td>
+<td>UB-028, UB-045, UB-075, UB-086, UB-099, section 6</td>
+<td>licence read 2026-11-27; read from source, not run; some items come from its <code>docs/</code> files only and are marked README</td>
 </tr>
 <tr>
-<td>Cordum, Preloop, Caura, Orca</td>
-<td>—</td>
-<td>not stated</td>
-<td>READ</td>
-<td>—</td>
-<td>—</td>
+<td>Cordum</td>
+<td>https://github.com/cordum-io/cordum</td>
+<td>BUSL-1.1 (<code>LICENSE</code> read at <code>3a9c9e1f</code>): any use except a "Competitive Offering" (the LICENSE text I read does not define the term), converts to Apache-2.0 on 2029-01-01, and a derivative work stays under the same licence</td>
+<td>IDEAS ONLY (Go with NATS and Redis; telemetry defaults to local-only, and a code comment mentions two one-time anonymous events that I did not read in full)</td>
+<td>UB-039, section 6</td>
+<td>licence read 2026-11-27; read from source, not run</td>
+</tr>
+<tr>
+<td>Preloop</td>
+<td>https://github.com/preloop/preloop</td>
+<td>Apache-2.0 (<code>LICENSE</code> read at <code>8c17f51c</code>); its <code>NOTICE</code> records code derived from Codex (Apache-2.0); the other <code>LICENSE</code> files in the tree belong to vendored front-end code</td>
+<td>LEARN (Python and FastAPI like the backend, but its modules depend on its own models and it pins <code>litellm</code>, <code>fastmcp</code> and <code>mcp</code>: take rules, and copy a module only after reading its imports; a daily pseudonymous version check-in is on by default per its README and is switched off with <code>PRELOOP_DISABLE_TELEMETRY</code>)</td>
+<td>UB-028, UB-037, UB-075, UB-086, UB-097, section 6</td>
+<td>licence read 2026-11-27; read from source, not run</td>
+</tr>
+<tr>
+<td>Caura</td>
+<td>https://github.com/caura-ai/caura</td>
+<td>Apache-2.0 (root <code>LICENSE</code> read at <code>85519c72</code>); the <code>clients/</code> folders carry their own <code>LICENSE</code> files, not read</td>
+<td>LEARN (Python; its tenant gate is 2,222 lines written for its own storage layer, so take the checks and write the code fresh; the benchmark figures in <code>EVIDENCE.md</code> are its own and unverified)</td>
+<td>UB-049, UB-087, UB-098, section 6</td>
+<td>licence read 2026-11-27; read from source, not run</td>
+</tr>
+<tr>
+<td>Orca</td>
+<td>https://github.com/stablyai/orca</td>
+<td>MIT (<code>LICENSE</code> read at <code>5174b9bd</code>, holder Lovecast Inc.); the licences of bundled third-party items are under <code>resources/licenses</code></td>
+<td>LEARN (TypeScript and Electron, plus a Python Linux bridge; its README says it collects anonymous usage data with an opt-out, and I did not read that code)</td>
+<td>UB-100, section 6</td>
+<td>licence read 2026-11-27; read from a shallow clone, so no history; read from source, not run</td>
 </tr>
 <tr>
 <td>Mnemosyne</td>
@@ -2756,6 +2927,12 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <td>UB-035</td>
 <td>candidate -&gt; parked</td>
 <td>the repo read as Argus is a recon toolkit with no MCP content, not the tool the entry wants; reopen when you name the right repo (batch B06)</td>
+</tr>
+<tr>
+<td>2026-11-27</td>
+<td>—</td>
+<td>batch B07 created</td>
+<td>six reference repos (open-code-review, mixdog, cordum, preloop, caura, orca) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-028, UB-037, UB-039, UB-042, UB-043, UB-045, UB-049, UB-075, UB-086, UB-087), UB-097 to UB-100 added, 21 items recorded in section 6. Other chapters not edited</td>
 </tr>
 </tbody>
 </table></div>
@@ -3201,7 +3378,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>If the model edits files and then stops without running a test or build, ask it once or twice to verify first.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> Spec M1, Plan 4.2, Hermes <code>agent/verification_stop.py</code> and <code>agent/turn_stop_gates.py</code> (MIT, read at <code>c84e8d7f</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> Default on or off (Hermes ships it off) · <strong>Evidence</strong> [V✓] [R]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Spec M1, Plan 4.2, Hermes <code>agent/verification_stop.py</code> and <code>agent/turn_stop_gates.py</code> (MIT, read at <code>c84e8d7f</code>) [R], Preloop <code>backend/preloop/agents/verification.py</code> and <code>agents/completion_nudge.py</code> (Apache-2.0, read at <code>8c17f51c</code>) [R], Mixdog <code>src/rules/shared/60-verification.md</code> (Apache-2.0, read at <code>8382c929</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> Default on or off (Hermes ships it off) · <strong>Evidence</strong> [V✓] [R]</p>
 <p><strong>What.</strong> When the model ends its turn, and this run executed a file-changing tool with no later test, lint or build result, do not finish: add one continuation message asking it to run the project's verification command. At most two continuations per run.</p>
 <p><strong>Why.</strong> Premature "done" is a common agent failure. The server loop has no verify-on-stop [V✓: no match for "verif" in <code>loop.py</code>]. The M2C plan item L04 (verification loop and Stop hooks) waits for hooks; this version does not.</p>
 <p><strong>Where.</strong> <code>backend/codeagent/loop.py</code> (<code>AgentLoop</code>; the <code>NOTICE_*</code> constants near line 208 show how to add a notice); tests in <code>backend/tests/unit/test_codeagent_loop.py</code> with <code>loop_testkit.py</code>.</p>
@@ -3212,8 +3389,11 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>At the finish point, if a change has no later verification and fewer than two continuations were used, append the continuation instead of ending.</li>
 <li>Emit a new <code>NOTICE_VERIFY_*</code> event like the existing ones.</li>
 <li>Reuse the step limit and budget limits so it cannot loop.</li>
+<li>Take the list of required checks from a profile the person wrote, not from the repository's own scripts. Preloop's verifier runs after the agent has finished, reads the required commands from the flow's settings and never from the repo, so the agent cannot narrow what counts, and only an allow verdict lets a push go ahead [R docstring]. Here, put the profile in <code>.m2c/verify.toml</code>: the sandbox profile makes <code>.m2c</code> read-only [V✓ section 6 row "Protected paths read-only"]. Check that <code>m2c/src/m2c/trust/fingerprint.py</code> covers the new file, so a changed profile asks again [U]. Offer <code>m2c init</code> to propose a profile from <code>package.json</code> or <code>pyproject.toml</code> for the person to confirm; the model never writes it [U].</li>
+<li>Record the evidence per run: the command, its exit code, a pointer to its output, and the commit and tree it ran on. Preloop stores the same fields [R]. Step 1's ledger can hold them, and UB-086 needs the same record for "complete".</li>
+<li>Add three sentences to the system prompt, from Mixdog's verification rule [R]: run the narrowest check that covers the change first; after two failed attempts at the same fix, report and stop; never hide a failure with a retry, a longer timeout or a skipped test. Keep the nudge fail-closed: if it cannot run, finish without it and never re-run an effect such as a push. Preloop's completion nudge re-enters the session once [R]; your limit of two stays.</li>
 </ol>
-<p><strong>Done when.</strong> A fake model that edits then stops gets exactly one extra turn; one that edits, runs a test, then stops finishes normally; one that edits only a <code>.md</code> file finishes normally; the limit of two holds.</p>
+<p><strong>Done when.</strong> A fake model that edits then stops gets exactly one extra turn; one that edits, runs a test, then stops finishes normally; one that edits only a <code>.md</code> file finishes normally; the limit of two holds. A check listed in the profile still runs when the repository's own scripts no longer list it; an edit to the profile by the agent is refused; a changed profile asks again at the next start.</p>
 <p><strong>Notes.</strong> Deciding what counts as a "verification" tool needs a short list (shell commands matching test, lint, build). See UB-043 for the independent-validator version. Hermes ships this off by default, with at most two nudges, and says in its code that a documentation edit must never demand a verification script [R]. Whether the nudge goes in as a user-role message was carried from the review and not re-read [S]. The ledger is the real work, and UB-086 (goal mode) needs the same evidence for "complete", so build it once. Hermes also waits briefly after the final answer for language-server diagnostics on the files it edited and feeds back at most three notes (<code>_MAX_LSP_TURN_END_NOTES = 3</code>) [R]. That needs a language server (<code>L08</code>, Phase 5 of the M2C build plan) and belongs to <code>L04</code>; the chapter was not edited (section 6).</p>
 <h3 id="ub-029-skills-loader-for-m2c-m">UB-029: Skills loader for M2C (M)</h3>
 <blockquote>
@@ -3359,7 +3539,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>Let the user add a message while the agent works, inserted behind an anti-injection marker.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> Hermes (Plan 4.2), Hermes <code>agent/prompt_builder.py</code> (MIT, read at <code>c84e8d7f</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Hermes (Plan 4.2), Hermes <code>agent/prompt_builder.py</code> (MIT, read at <code>c84e8d7f</code>) [R], Preloop <code>backend/preloop/services/operator_notes.py</code> (Apache-2.0, read at <code>8c17f51c</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
 <p><strong>What.</strong> A queue of user messages that the loop picks up between tool calls.</p>
 <p><strong>Why.</strong> Today a person must cancel and restart to redirect. The loop has no steering [V✓: no match in <code>loop.py</code>].</p>
 <p><strong>Where.</strong> <code>backend/codeagent/loop.py</code>; the protocol (<code>protocol/v1/</code>) would need a new client message (additive); the TUI.</p>
@@ -3371,7 +3551,8 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Relabel look-alikes in tool output. Hermes relabels text that imitates its own control frames, such as "CONTEXT COMPACTION", "CONTEXT SUMMARY]", "PRIOR CONTEXT" and "Runtime note:", and the marker itself [R]. Make your own list from your own frames (the <code>NOTICE_*</code> messages, the goal envelope of UB-042, the steer marker). UB-087 proposes one helper for this.</li>
 <li>Cover it in <code>protocol/</code> fixtures and the contract tests.</li>
 </ol>
-<p><strong>Done when.</strong> A steering message sent during a run appears in the next model call exactly once, and a tool result containing the marker does not. A tool result containing a look-alike of any of your control frames is relabelled, and a marker in an older turn carries no authority.</p>
+<p><strong>Done when.</strong> A steering message sent during a run appears in the next model call exactly once, and a tool result containing the marker does not. A tool result containing a look-alike of any of your control frames is relabelled, and a marker in an older turn carries no authority. A note is delivered once even when the model call is retried.</p>
+<p><strong>Notes.</strong> Preloop's operator notes add four rules to step 2 [R docstring; the module is 1,099 lines and I read its header]. The note is delivered at the next turn boundary as one message at the end, never inside a tool result. The server stamps the tag's attributes (who wrote it, when) and neutralises any closing tag in the body. The note is claimed, meaning marked delivered, before the model call, so a retry cannot deliver it twice and a failed call may lose it: choose that trade-off on purpose and tell the person when a note was not delivered. Nothing polls.</p>
 <h3 id="ub-038-an-instruction-hierarchy-contract-in-the-system-prompt-s">UB-038: An instruction-hierarchy contract in the system prompt (S)</h3>
 <blockquote>
 <p>One ranked list of instruction sources (user, repo, skills, MCP, external data last) instead of scattered prohibitions.</p>
@@ -3392,7 +3573,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>Ship each new rule in a log-only mode first, record what it would have blocked, then enforce.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> Prismor (Plan 4.2) · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [U]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Prismor (Plan 4.2), Cordum <code>core/policyshadow/types.go</code> (BUSL-1.1: ideas only) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [U]</p>
 <p><strong>What.</strong> A rule flag <code>observe</code> that records a would-have-blocked event without blocking.</p>
 <p><strong>Why.</strong> New deny rules can break real work; observation shows the cost first.</p>
 <p><strong>Where.</strong> <code>m2c/src/m2c/policy/</code> (<code>rules.py</code>, <code>decide.py</code>); the event store (<code>m2c/src/m2c/store/events.py</code>).</p>
@@ -3404,6 +3585,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 </ol>
 <p><strong>Done when.</strong> A rule in observe mode never blocks and always logs; switching it to enforce blocks.</p>
 <p><strong>Notes.</strong> Added in B05. Tenuo's observe mode is a global <code>configure(mode="observe")</code>, a <code>dry_run</code> flag per guard, and audit events marked <code>observed=True</code> (Apache-2.0, read at <code>4792253</code>) [R]. Use that event shape: a would-have-blocked event has the same fields as a block plus <code>observed: true</code>, so one report command lists both. Prismor's per-rule <code>observe</code> and <code>enforce</code> modes agree [R]. Design idea [U]: a rule on the non-overridable floor (the <code>C27</code> row in section 6) can never be put in observe mode, so a new rule is the only thing that can be trialled this way.</p>
+<p><strong>Added in B07 (shadow policy from Cordum).</strong> Cordum evaluates a candidate policy next to the active one on the same inputs; the candidate never changes the decision and its result is stored as a separate event [R: <code>types.go</code>; BUSL-1.1, so write your own code]. Two additions for steps 2 and 3 [U]. The list command shows counts per rule over a time window, so "safe to enforce" is a number the person can read. Moving a rule from observe to enforce is a person's action that records who and when; the model never does it.</p>
 <h3 id="ub-040-store-sandbox-denials-and-explain-them-to-the-model-m">UB-040: Store sandbox denials and explain them to the model (M)</h3>
 <blockquote>
 <p>Tie each network denial to its command, store file denials, and tell the model what to do instead of a bare refusal.</p>
@@ -3441,7 +3623,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>When the context is compacted, put the original goals back in; keep the full transcript so only the model's view shrinks.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2), Gemini CLI <code>prompts/snippets.ts</code> and <code>context/chatCompressionService.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R], Hermes <code>agent/context_compressor.py</code> and <code>context_compressor_prompt_rules.py</code> (MIT, read at <code>c84e8d7f</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2), Gemini CLI <code>prompts/snippets.ts</code> and <code>context/chatCompressionService.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R], Hermes <code>agent/context_compressor.py</code> and <code>context_compressor_prompt_rules.py</code> (MIT, read at <code>c84e8d7f</code>) [R], open-code-review <code>internal/config/template/prompts/memory_compression_task_system.md</code> (Apache-2.0, read at <code>d4f568f7</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
 <p><strong>What.</strong> Re-injection of the original task statement after a compaction, and a guarantee that nothing is deleted from the stored log.</p>
 <p><strong>Why.</strong> Compaction already exists (<code>backend/codeagent/context.py</code>, notice <code>context_compacted</code> [V✓]); goal drift after compaction is the gap. The local store keeps events append-only per the M2C plan.</p>
 <p><strong>Where.</strong> <code>backend/codeagent/context.py</code>, <code>backend/codeagent/loop.py</code>, <code>m2c/src/m2c/store/events.py</code>.</p>
@@ -3457,11 +3639,12 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <p><strong>Done when.</strong> After a forced compaction, the first model call contains the original task, and the stored events are identical. A history line that says to ignore previous instructions does not change the summary call, and a guess made in the history lands under "Unverified".</p>
 <p><strong>Notes.</strong> Compaction here is still mechanical (clear the oldest tool outputs, cap large results, repeat the person's messages) [V✓ docstring of <code>context.py</code>], so steps 4 to 6 are for the model summary that does not exist yet. Hermes also replaces secrets with <code>[REDACTED]</code> in the summary input [S]; the server side would need its own redactor for that. Write your own wording: Gemini's template is Apache-2.0, so copied text would need its notice.</p>
 <p><strong>Added in B05 (for <code>L03</code>; the plan was not edited).</strong> Pi's compaction (<code>packages/coding-agent/src/core/compaction/compaction.ts</code> and <code>utils.ts</code>, MIT, read at <code>f17b36a</code>) has three rules worth putting in the template of step 4 [R]. (a) A cut that falls in the middle of a turn is flagged (<code>isSplitTurn</code>) and the early part of that turn is summarised on its own (<code>turnPrefixMessages</code>), so the cut never splits a turn silently. (b) The lists of files read and files edited are carried across compactions. (c) A later summary updates the earlier one under a rule to keep all existing information, and moves finished items from "In Progress" to "Done", instead of summarising from scratch. Pi also counts file calls made inside code-mode scripts (<code>nestedCalls</code>); that matters only if code mode is ever added (section 6 says it is not). Pi's retry on a context-overflow error is described in its docs and I did not read the code, so check it before copying.</p>
+<p><strong>Added in B07 (a second template).</strong> Open-code-review's compression prompt asks for five headed sections only (identified code issues, tool call conclusions, completed tasks, pending tasks, current focus) and five rules: no specific code, only file paths and issue types; no repetition; omit a section with nothing in it; tasks as complete sentences; current focus in at most one sentence [R]. It is shorter than Gemini's seven sections and suits review runs. For step 4 treat its "current focus" line as the place to put the goal envelope, and keep Hermes's "Unverified" section, which it lacks [U].</p>
 <h3 id="ub-043-an-independent-verifier-context-and-step-graph-validation-l">UB-043: An independent verifier context and step-graph validation (L)</h3>
 <blockquote>
 <p>A second, separate model context checks the result; a multi-step plan is validated before any step starts.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> zeroshot [R] · <strong>Status</strong> candidate · <strong>Depends</strong> UB-028 · <strong>Decision</strong> Waits for subagents · <strong>Evidence</strong> [R] [U]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> zeroshot [R], open-code-review <code>internal/behaviortask/README.md</code> (Apache-2.0, read at <code>d4f568f7</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> UB-028 · <strong>Decision</strong> Waits for subagents · <strong>Evidence</strong> [R] [U]</p>
 <p><strong>What.</strong> The verifier from UB-028 run in its own context, and a check that a plan has no unbounded loops or unreachable branches.</p>
 <p><strong>Why.</strong> A model grading its own work in the same context is weak.</p>
 <p><strong>Where.</strong> <code>backend/codeagent/loop.py</code>; future subagent code.</p>
@@ -3471,6 +3654,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Validate any step graph before running it.</li>
 </ol>
 <p><strong>Done when.</strong> The verifier cannot see the author's reasoning, and a malformed graph is rejected.</p>
+<p><strong>Notes.</strong> Open-code-review's <code>--analysis</code> mode runs a separate read-only investigation of a change, reading files from the chosen revisions and not from the working tree, with its own token budget [R README]. For this entry's verifier: give it the commit being judged as a snapshot, so a later edit in the work tree cannot change what it reads [U].</p>
 <h3 id="ub-044-plan-mode-that-is-structural-plus-a-spec-first-interview-m">UB-044: Plan mode that is structural, plus a spec-first interview (M)</h3>
 <blockquote>
 <p>In plan mode only a plan file is writable; add a spec-first interview that ends in checkable acceptance criteria.</p>
@@ -3490,7 +3674,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>A diff reviewer that gives line-level comments and favours few, correct findings over many.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> open-code-review [R], Strix <code>skills/scan_modes/diff.md</code> (Apache-2.0, read at <code>9ed84f9</code>) [R], codebase-memory-mcp <code>detect_changes</code> (MIT, read at <code>9a4da7a3</code>) [R], Plan 4.2 · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [U]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> open-code-review <code>internal/config/template/prompts/</code> (<code>review_filter_task_system.md</code>, <code>re_location_task_system.md</code>), <code>internal/config/rules/rule_docs/</code> and <code>internal/agent/estimate.go</code> (Apache-2.0, read at <code>d4f568f7</code>) [R], Mixdog <code>src/agents/reviewer/AGENT.md</code> (Apache-2.0, read at <code>8382c929</code>) [R], Strix <code>skills/scan_modes/diff.md</code> (Apache-2.0, read at <code>9ed84f9</code>) [R], codebase-memory-mcp <code>detect_changes</code> (MIT, read at <code>9a4da7a3</code>) [R], Plan 4.2 · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [U]</p>
 <p><strong>What.</strong> The <code>review</code> command (M2C plan item L05, <code>/review</code> and <code>/security-review</code>; the plan's label "C20" was wrong).</p>
 <p><strong>Why.</strong> The project reports higher precision at about one ninth of the tokens with lower recall; those are vendor numbers and must be measured on your own diffs.</p>
 <p><strong>Where.</strong> New M2C command; server prompt; eval from UB-031's pattern.</p>
@@ -3500,8 +3684,14 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Write the scope rules of the review prompt from Strix's diff mode, in your own words: for a PR, removed controls, newly reachable sinks and weakened helpers are in scope [R]. It is prompt text only, so it is cheap to try.</li>
 <li>Run it on your own past diffs and compare precision and cost.</li>
 <li>Optional, once UB-034 runs: try codebase-memory-mcp's <code>detect_changes</code> tool on a known diff of your own. It maps a git diff to the files and symbols it affects [R <code>src/mcp/mcp.c</code>]. The README says it adds risk classification, but its handler has none; hop-risk labels exist only on <code>trace_path</code> (opt-in <code>risk_labels</code>) [R]. It was read, not run. If it finds the callers a diff touches, the reviewer can use it to set scope; if not, leave it out [U].</li>
+<li>Add a second, narrow pass that removes a comment only when the diff proves it wrong. Open-code-review's filter prompt says the two mistakes are not equal: keeping a wrong comment costs a reviewer seconds, dropping a right one silently loses a finding, so "suspicious" or "cannot verify" means keep [R]. Log every removed comment with its reason in the run record, so the pass is never silent [U]. It is an extra model call: measure its cost in step 3.</li>
+<li>Give the review a verdict shape, from Mixdog's reviewer [R]: findings marked P1 (wrong result, lost data, broken contract or security), P2 (reachable failure in a rarer case) or P3; a case no real use reaches is one line; no findings is a valid review; it ends with PASS or FAIL and the one probe it ran, and only an open P1 or P2 fails; after a fix, recheck only the fix. It is prompt text and can be tried first.</li>
+<li>When a comment's anchor snippet no longer matches the file, ask the model to re-locate it from the snippet and the diff, and report the comment as unplaced if it cannot. Open-code-review has a re-location prompt and <code>internal/diff/relocation.go</code> [R: the prompt read, the code header only].</li>
+<li>Show a rough cost floor before a large review. Open-code-review's <code>internal/agent/estimate.go</code> gives an order-of-magnitude figure and says it is a floor [R: header]. Use the prices in <code>eo/usage_ledger.py</code>.</li>
+<li>Per-language rule packs: open-code-review has about 70 rule files under <code>rule_docs/</code>, and <code>python.md</code> opens with a note to favour precision over recall [R: that one file read]. Read the files for the languages your people write, rewrite them in your own words, and keep only what lowers false positives on the diffs of step 3. Do not copy the set [U].</li>
 </ol>
-<p><strong>Done when.</strong> You have your own precision and cost figures.</p>
+<p><strong>Done when.</strong> You have your own precision and cost figures. The filter pass removes a planted wrong comment and keeps a true one; a removed comment appears in the run record with its reason; a comment whose anchor text was altered is re-located or reported unplaced; the review ends with PASS or FAIL.</p>
+<p><strong>Notes.</strong> Open-code-review and Mixdog are both Apache-2.0, so prompt text and rule files may be copied with the notice kept and changes marked; rewrite anyway, because the prompts are tuned to their own tools. Steps 5 and 6 are prompt text (XS to S) and can be tried first; step 9 is the large one. The vendor numbers in Why are README level.</p>
 <h3 id="ub-046-add-a-hash-chain-to-the-local-event-store-s">UB-046: Add a hash chain to the local event store (S)</h3>
 <blockquote>
 <p>A previous-hash and entry-hash on each event plus a verify function; the M2C plan already names MiniLocker's chain.py as the model.</p>
@@ -3554,7 +3744,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>Fix or delete a source and everything derived from it leaves retrieval but stays readable in a history view.</p>
 </blockquote>
-<p><strong>Product</strong> Menux · <strong>Source</strong> Spec 6.1, Plan 5.2 (Mnemosyne, agentmemory) · <strong>Status</strong> candidate · <strong>Depends</strong> UB-047, UB-046 · <strong>Decision</strong> none · <strong>Evidence</strong> [R]</p>
+<p><strong>Product</strong> Menux · <strong>Source</strong> Spec 6.1, Plan 5.2 (Mnemosyne, agentmemory), Caura <code>common/events/memory_corrected.py</code> (Apache-2.0, read at <code>85519c72</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> UB-047, UB-046 · <strong>Decision</strong> none · <strong>Evidence</strong> [R]</p>
 <p><strong>What.</strong> <code>invalid_at</code> set on dependents through <code>memory_deps</code>; cascade delete written to the hash chain.</p>
 <p><strong>Why.</strong> User-visible deletion must really remove things, and the record of it must be tamper-evident.</p>
 <p><strong>Where.</strong> The UB-047 tables; the UB-046 chain.</p>
@@ -3564,7 +3754,8 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>On deletion, cascade and append a chain entry.</li>
 <li>Add a history view.</li>
 </ol>
-<p><strong>Done when.</strong> Dependents vanish from retrieval but remain inspectable; <code>verify_chain()</code> fails if a deletion row is altered.</p>
+<p><strong>Done when.</strong> Dependents vanish from retrieval but remain inspectable; <code>verify_chain()</code> fails if a deletion row is altered. The old text of a corrected item is not shown in the history view until the person asks to see it.</p>
+<p><strong>Notes.</strong> Caura's correction event carries a rule for the old text: the wrong text of a corrected memory may be shown only to an agent that had already read it [R docstring]. The reason applies to step 3: a correction often removes something that should not be repeated, such as a leaked secret or a wrong personal fact. Show a retired item in the history view as "corrected on <date>" with its content hidden until the person asks to see it, and write only a hash of the old text in the chain entry [U].</p>
 <h3 id="ub-050-show-the-working-memory-before-a-task-and-report-what-was-used-m">UB-050: Show the working memory before a task, and report what was used (M)</h3>
 <blockquote>
 <p>Before each task list the memories the agent intends to use with a reason; after it, show which were followed.</p>
@@ -3885,7 +4076,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>Replay real traces with and without output compression, terse agent messages and cheaper models, and compare cost and quality.</p>
 </blockquote>
-<p><strong>Product</strong> Shared · <strong>Source</strong> Spec P4, Plan 6.6 (headroom, caveman, Mixdog), Gemini CLI <code>routing/strategies/numericalClassifierStrategy.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
+<p><strong>Product</strong> Shared · <strong>Source</strong> Spec P4, Plan 6.6 (headroom, caveman, Mixdog), Gemini CLI <code>routing/strategies/numericalClassifierStrategy.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R], Preloop <code>backend/preloop/services/replay_harness.py</code> and <code>replay_savings_service.py</code> (Apache-2.0, read at <code>8c17f51c</code>) [R], Mixdog <code>docs/auto-reasoning-effort.md</code> (Apache-2.0, <code>8382c929</code>) [README] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R]</p>
 <p><strong>What.</strong> A table of cost and quality per variant.</p>
 <p><strong>Why.</strong> Vendor numbers are unverified: headroom reports 21 to 57 percent in four scenarios and little on prose; caveman marks some results interim [R].</p>
 <p><strong>Where.</strong> <code>backend/eo/usage_ledger.py</code> for traces and costs.</p>
@@ -3895,8 +4086,9 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Replay with: tool-output compression (headroom-style; set <code>HEADROOM_OFFLINE=1</code>, it ships an anonymous beacon by default [R]), terse agent-to-agent messages (never on user-facing study content), a cheaper model for search, edit and review, and a complexity-score router. Gemini's classifier scores each task from 1 to 100 and a threshold picks the stronger or the cheaper model alias [R].</li>
 <li>Compare cost and quality on a fixed set; adopt only where quality holds.</li>
 </ol>
-<p><strong>Done when.</strong> The table exists.</p>
+<p><strong>Done when.</strong> The table exists. Each row shows a noise band, and a variant whose band crosses zero is labelled inconclusive.</p>
 <p><strong>Notes.</strong> Gemini's default threshold is 90, and a remote value from its settings service overrides it when the value is between 0 and 100 [R <code>getResolvedClassifierThreshold</code>]. Do not adopt a threshold you cannot see or set yourself: pick yours from the replays of step 1.</p>
+<p><strong>Added in B07 (measuring method and one more variant).</strong> Preloop's replay harness runs the original and the candidate request several times each and reports the median difference with a noise band; when the band is as wide as the difference, or crosses zero, it says inconclusive; it works out a free input-token difference first and falls back to it when a paid run is not allowed; and it has a spend cap [R: docstrings; I did not read the statistics code]. Take these into step 3: n runs per variant, a band, an inconclusive label, a token-only first pass, and a hard budget the person confirms. Mixdog ships a small local model that rates each request into four effort levels, and its docs report savings against a fixed high setting [README: one docs file read, nothing run]. Treat it as a variant for step 2 after its code has been read. On M2C it would break D14 (no new runtime dependency). Its NOTICE says the weights are derived from EmbeddingGemma 2 and mentions training data under share-alike terms, so check that before any use.</p>
 <h3 id="ub-076-design-and-build-techniques-from-impeccable-taste-skill-and-ui-ux-pro-max-m">UB-076: Design and build techniques from impeccable, taste-skill and ui-ux-pro-max (M)</h3>
 <blockquote>
 <p>Adopt techniques (not code) such as a command vocabulary of polish, bolder, critique and audit, and test them.</p>
@@ -4048,7 +4240,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>One goal the agent works on across turns; it stops at a token budget, after 3 turns without progress, or after 3 turns of failed tools.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> Mistral Vibe <code>vibe/app_server/_goal_engine.py</code> (Apache-2.0, read at <code>fb7511a</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> Whether to build it only after UB-028 and UB-036, so the goal reuses their evidence ledger and loop stop instead of a second copy · <strong>Evidence</strong> [R] [V✓] [U]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Mistral Vibe <code>vibe/app_server/_goal_engine.py</code> (Apache-2.0, read at <code>fb7511a</code>) [R], Mixdog <code>native/core/crates/mixdog-core-goal/src/goal/</code> (<code>mod.rs</code>, <code>quota.rs</code>, <code>turns.rs</code>; Apache-2.0, read at <code>8382c929</code>) [R], Preloop <code>backend/preloop/services/no_progress_guard.py</code> (Apache-2.0, read at <code>8c17f51c</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> Whether to build it only after UB-028 and UB-036, so the goal reuses their evidence ledger and loop stop instead of a second copy · <strong>Evidence</strong> [R] [V✓] [U]</p>
 <p><strong>What.</strong> A goal mode. The person states one objective; after each turn, if the goal is still active and nothing stopped it, the loop adds a continuation turn. In Vibe's engine [R]: a turn ends the goal as paused (user interrupt), usage-limited, blocked (a failed turn, 3 turns with no progress or 3 turns of failed tools: <code>STREAK_LIMIT = 3</code>) or budget-limited, and the model itself can mark it complete, blocked or paused. The token budget and what is left of it are told to the model. The objective is HTML-escaped and wrapped in a <code>&lt;goal_objective&gt;</code> block so it reads as data. The continuation prompt asks for work from evidence, and a completion must name its evidence (a test run, command output or a file).</p>
 <p><strong>Why.</strong> Today a run ends when the model stops, and a long task needs the person to type "continue". There is no goal mode in M2C: the only match for "goal" in <code>m2c/src</code> is in <code>store/migrations.py</code> and is unrelated [V✓]. The earlier review said to wait for the metering item <code>S10</code>; it is built (<code>backend/codeagent/metering.py</code> [V✓], and the build plan lists it as built), so the budget has a source.</p>
 <p><strong>Where.</strong> <code>backend/codeagent/loop.py</code> and <code>backend/codeagent/metering.py</code> (the server loop owns budgets and stop rules); <code>run_manager.py</code> and <code>runs.py</code> for per-run state; <code>protocol/v1/</code> for additive messages (set goal, goal status); the TUI. The server runs on Python 3.12 [V✓ <code>backend.Dockerfile</code>], and Vibe's file uses <code>type</code> aliases (3.12 syntax) [R]; the 3.11 floor of D1 applies only to code in <code>m2c/</code>.</p>
@@ -4062,13 +4254,14 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Every continuation goes through the normal policy and approvals, and a goal never widens a permission. A call that needs approval pauses the goal with a visible status instead of being denied silently [U].</li>
 <li>Add the protocol messages with fixtures.</li>
 </ol>
-<p><strong>Done when.</strong> Fake-model tests: a goal completed with evidence ends <code>complete</code>; three turns that change nothing end <code>blocked</code> with the reason; three turns of failed tools end <code>blocked</code>; the token budget stops the run; an objective that contains <code>&lt;/goal_objective&gt;</code> stays inside its block; a user interrupt pauses the goal.</p>
+<p><strong>Done when.</strong> Fake-model tests: a goal completed with evidence ends <code>complete</code>; three turns that change nothing end <code>blocked</code> with the reason; three turns of failed tools end <code>blocked</code>; the token budget stops the run; an objective that contains <code>&lt;/goal_objective&gt;</code> stays inside its block; a user interrupt pauses the goal. A goal that hits a provider usage limit is suspended and, when the limit lifts, resumes as the same goal; a goal past its time cap ends with that reason; a read-only goal is not stopped for leaving the checkout unchanged.</p>
 <p><strong>Notes.</strong> Runaway cost is the main risk, so the budget and the step limit both stay in force. Take the rules, not the code: Vibe's engine is tied to its own goal-state types. If code is ever copied, the Apache-2.0 notice and a mark on the changes are required.</p>
+<p><strong>Added in B07 (three rules from Mixdog and Preloop).</strong> (a) A wall-clock cap beside the token budget: Mixdog's goal has a time limit as well as a quota [R: headers; I did not trace the arithmetic]. (b) A provider usage limit suspends the goal, and when the limit lifts that same goal resumes, instead of ending it or starting a new one (Mixdog <code>quota.rs</code>) [R: header]. (c) A second no-progress signal taken from the workspace: Preloop nudges once when the checkout has not changed for a set time (default 600 s, off unless enabled), then stops, and can create one retry on another model or a higher reasoning effort that is never retried itself [R docstring]. Its docstring reports one run that read files for 54 minutes and sent 10.13M tokens [R]. Design idea [U]: the workspace signal fits only goals meant to change files; a goal such as "find out why X fails" never will, so choose the progress signal per goal kind and fall back to Vibe's turn count. Take the rules, not the code: Mixdog's engine is Rust and tied to its own types.</p>
 <h3 id="ub-087-one-helper-that-frames-text-the-model-must-treat-as-data-s">UB-087: One helper that frames text the model must treat as data (S)</h3>
 <blockquote>
 <p>Steering messages, compaction summaries and goal objectives all need the same escaping, marker and look-alike handling; write it once.</p>
 </blockquote>
-<p><strong>Product</strong> M2C · <strong>Source</strong> my idea, from Hermes <code>agent/prompt_builder.py</code> (MIT, <code>c84e8d7f</code>), Gemini CLI <code>prompts/snippets.ts</code> (Apache-2.0, <code>60f8082</code>) and Vibe <code>_goal_engine.py</code> (Apache-2.0, <code>fb7511a</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> Build it before UB-037, UB-042 and UB-086, or let each write its own and merge them later · <strong>Evidence</strong> [R] [V✓] [U]</p>
+<p><strong>Product</strong> M2C · <strong>Source</strong> my idea, from Hermes <code>agent/prompt_builder.py</code> (MIT, <code>c84e8d7f</code>), Gemini CLI <code>prompts/snippets.ts</code> (Apache-2.0, <code>60f8082</code>) and Vibe <code>_goal_engine.py</code> (Apache-2.0, <code>fb7511a</code>) [R], Caura <code>common/llm/untrusted.py</code> (Apache-2.0, read at <code>85519c72</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> Build it before UB-037, UB-042 and UB-086, or let each write its own and merge them later · <strong>Evidence</strong> [R] [V✓] [U]</p>
 <p><strong>What.</strong> One module in <code>backend/codeagent/</code> with three parts: a function that escapes, wraps and marks a piece of text for a named kind of frame; a function that relabels text imitating one of your own frames inside a tool result; and one list of the frame kinds. Users would be the steer message of UB-037, the goal envelope and summary of UB-042, the objective of UB-086, and the existing <code>NOTICE_*</code> messages. B06 adds two: the sandbox-denial block of UB-040 (a command can print a copy of it, so its marker needs the look-alike relabelling) and any context a hook adds (the <code>D15</code> row of section 6).</p>
 <p><strong>Why.</strong> Three entries each need a marker, and each marker is a place where a look-alike can get through. Hermes needed a list of strings that imitate its control frames [R], Gemini tells its summariser to ignore instructions found in the history [R], and Vibe escapes the objective so it cannot close its own block [R]. One shared list makes a new kind of frame get the same cover. This is an idea; nobody has run it.</p>
 <p><strong>Where.</strong> <code>backend/codeagent/prompts.py</code>, <code>loop.py</code> (<code>NOTICE_*</code>), <code>context.py</code>. The files that already mention an injection guard are <code>broker.py</code>, <code>prompts.py</code> and <code>adapters/toolcalls.py</code> [V✓ grep]; read how they mark outside text first and reuse it if it fits.</p>
@@ -4080,8 +4273,9 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Write a table test: each frame kind against hostile payloads (a closing tag, a look-alike heading, a nested marker).</li>
 <li>Use it in UB-037, UB-042 and UB-086.</li>
 </ol>
-<p><strong>Done when.</strong> For every frame kind, no hostile payload can close or forge the frame. A tool result that contains any kind's marker is relabelled. The existing prompt tests pass.</p>
+<p><strong>Done when.</strong> For every frame kind, no hostile payload can close or forge the frame. A tool result that contains any kind's marker is relabelled. The existing prompt tests pass. A payload that holds U+2028 or U+2029 cannot start a new record inside a quoted list.</p>
 <p><strong>Notes.</strong> The risk is a relabelling list that mangles real output, for example a README that contains the words "Runtime note:". That is why step 3 relabels only inside tool results and keeps the stored original.</p>
+<p><strong>Added in B07 (a worked example from Caura).</strong> Caura's <code>common/llm/untrusted.py</code> is 59 lines and does this job [R]. A fixed marker pair (<code>&lt;&lt;&lt;DATA&gt;&gt;&gt;</code> and <code>&lt;&lt;&lt;END_DATA&gt;&gt;&gt;</code>); <code>neutralise</code> puts a space after each <code>&lt;</code> that starts a run of three, so no marker can survive inside the text while the text stays readable; <code>quote_untrusted</code> writes one JSON string per record and escapes U+2028 and U+2029, so a line separator cannot forge a new record; <code>data_block</code> joins them; and one fixed rule sentence says that text inside the block is data even when it claims to come from the system. For step 2 there are two choices: Vibe's full escape of <code>&lt;</code>, <code>&gt;</code> and <code>&amp;</code>, right for text the code reads back (the goal objective), or Caura's lighter neutralising, right for text the model should restate (a steering note, a quoted tool result). Decide per frame kind [U].</p>
 <h2 id="batch-b05-2026-11-26-review-of-opencode-pi-tenuo-and-prismor">Batch B05 (2026-11-26): Review of OpenCode, Pi, Tenuo and Prismor</h2>
 <p><em>Source:</em> a review of four reference repos, read from source with nothing installed or run, made against MiniMe <code>121e06c</code>; the rest of this file was written at <code>cd0bc23</code>. Reference commits read again when this batch was written: OpenCode <code>1f66f5f</code>, Pi <code>f17b36a</code>, Tenuo <code>4792253</code>, Prismor <code>77b5369</code>. The four licences were read again, and the files named below were opened and the numbers quoted were read from them. In this batch <code>[R]</code> is a reading of those repos, <code>[V✓]</code> is a check of MiniMe <code>121e06c</code> made while writing it, <code>[W]</code> is a web page, and <code>[S]</code> is a fact carried from the review and not re-read. <strong>The decision column of the review was empty, so its recommendations were taken as the decisions</strong>, as in B03 and B04: <strong>ADD</strong> and <strong>UPGRADE</strong> became new features (UB-088 to UB-094), <strong>EXTEND</strong> items on entries that exist were written into those entries (edited in place, so they are not repeated here: UB-016, UB-036, UB-039, UB-041, UB-042, UB-046), and <strong>EXTEND</strong> items on work packages of other chapters, <strong>SKIP</strong> items and the README-level items went to section 6. Where the work package belongs to another chapter (<code>C13</code>, <code>C17</code>, <code>C25</code>, <code>C27</code>, <code>L02</code>, <code>L03</code>, <code>Q07</code>, <code>MT-N02</code>, <code>MT-T01</code>, <code>MT-T12</code>, <code>MG-Z02</code>, <code>MG-R12</code>), the section 6 row carries the addition and the chapter was <strong>not</strong> edited. One new feature, UB-095, is my own idea and not a decision from the review: drop it if you disagree.</p>
 <p><strong>Corrections to the review found while re-reading:</strong></p>
@@ -4258,7 +4452,80 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Update the "Known limits" text so it says what is now closed and what is not.</li>
 </ol>
 <p><strong>Done when.</strong> <code>Q07</code> rows: with each of the five names present, a write fails; with <code>.git</code> absent, a command that creates <code>.git/hooks/pre-commit</code> is blocked or reported, as decided; a nested <code>.git/hooks</code> is read-only or reported. The consistency test passes. After a command killed halfway, the project holds no stray placeholder.</p>
-<p><strong>Notes.</strong> sandbox-runtime is a TypeScript package: take the list and the ideas, and write the code fresh in Python; if any text is copied, keep the Apache-2.0 notice. The list is a floor: the project directory stays writable, so files the person's tools run later remain a matter for approvals, as the docstring says [V✓].</p></article><div class="toc"><b>On this page</b><a class="t2" href="#0-at-a-glance">0. At a glance</a><a class="t2" href="#1-register">1. Register</a><a class="t2" href="#2-batches">2. Batches</a><a class="t2" href="#3-how-to-add-features-the-patch-recipe">3. How to add features (the patch recipe)</a><a class="t2" href="#4-field-vocabulary-and-rules">4. Field vocabulary and rules</a><a class="t2" href="#5-where-the-original-upgrade-plan-went">5. Where the original upgrade plan went</a><a class="t2" href="#6-considered-not-added">6. Considered, not added</a><a class="t2" href="#7-sources-register">7. Sources register</a><a class="t2" href="#8-decision-log">8. Decision log</a><a class="t2" href="#batch-b01-2026-11-24-upgrade-plan-and-verified-spec-of-21-nov-2026-minus-the-finished-sx-series">Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 ...</a><a class="t3" href="#ub-001-move-the-web-app-from-nextjs-14-to-a-supported-line-l">UB-001: Move the web app from Next.js 14 to a supported line (L)</a><a class="t3" href="#ub-002-decide-pillow-against-moviepy-then-act-m">UB-002: Decide Pillow against moviepy, then act (M)</a><a class="t3" href="#ub-003-move-e2b-bracex-and-wcmatch-together-m">UB-003: Move e2b, bracex and wcmatch together (M)</a><a class="t3" href="#ub-004-put-the-caddy-config-in-the-repo-and-set-the-edge-limits-m">UB-004: Put the Caddy config in the repo and set the edge lim...</a><a class="t3" href="#ub-005-block-cloud-metadata-and-link-local-addresses-at-the-host-firewall-s">UB-005: Block cloud-metadata and link-local addresses at the ...</a><a class="t3" href="#ub-006-run-url-fetches-behind-an-egress-proxy-or-in-the-sandbox-m">UB-006: Run URL fetches behind an egress proxy or in the sand...</a><a class="t3" href="#ub-007-audit-every-other-server-side-fetch-of-a-user-influenced-url-m">UB-007: Audit every other server-side fetch of a user-influen...</a><a class="t3" href="#ub-008-per-user-ingest-quotas-m">UB-008: Per-user ingest quotas (M)</a><a class="t3" href="#ub-009-daily-ingest-cost-cap-tied-to-the-usage-ledger-m">UB-009: Daily ingest cost cap tied to the usage ledger (M)</a><a class="t3" href="#ub-010-cap-voice-length-before-transcribing-s">UB-010: Cap voice length before transcribing (S)</a><a class="t3" href="#ub-011-re-set-the-size-caps-with-a-cost-model-s">UB-011: Re-set the size caps with a cost model (S)</a><a class="t3" href="#ub-012-turn-the-report-only-csp-into-an-enforced-one-m">UB-012: Turn the report-only CSP into an enforced one (M)</a><a class="t3" href="#ub-013-a-small-blocking-promptfoo-gate-m">UB-013: A small blocking promptfoo gate (M)</a><a class="t3" href="#ub-014-run-the-promptfoo-red-team-with-a-two-tenant-provider-m">UB-014: Run the promptfoo red-team with a two-tenant provider...</a><a class="t3" href="#ub-015-first-strix-run-on-staging-m">UB-015: First Strix run on staging (M)</a><a class="t3" href="#ub-016-property-tests-with-hypothesis-m">UB-016: Property tests with Hypothesis (M)</a><a class="t3" href="#ub-017-nightly-api-fuzzing-with-schemathesis-m">UB-017: Nightly API fuzzing with Schemathesis (M)</a><a class="t3" href="#ub-018-add-cost-per-task-and-web-product-scenarios-to-the-load-harness-m">UB-018: Add cost-per-task and web-product scenarios to the lo...</a><a class="t3" href="#ub-019-a-practice-lab-on-your-own-machine-a-small-fastapi-app-behind-caddy-s">UB-019: A practice lab on your own machine: a small FastAPI a...</a><a class="t3" href="#ub-020-pre-audit-package-for-the-daemon-m">UB-020: Pre-audit package for the daemon (M)</a><a class="t3" href="#ub-021-sbom-on-release-and-a-licence-allow-list-gate-m">UB-021: SBOM on release, and a licence allow-list gate (M)</a><a class="t3" href="#ub-022-pin-scanner-binaries-and-images-by-digest-s">UB-022: Pin scanner binaries and images by digest (S)</a><a class="t3" href="#ub-023-lurkr-as-an-advisory-ci-step-s">UB-023: Lurkr as an advisory CI step (S)</a><a class="t3" href="#ub-024-dependabot-for-the-docker-images-xs">UB-024: Dependabot for the Docker images (XS)</a><a class="t3" href="#ub-025-security-headers-for-the-book-site-xs">UB-025: Security headers for the book site (XS)</a><a class="t3" href="#ub-026-record-the-fix-patch-guide-in-the-book-s">UB-026: Record the fix patch guide in the book (S)</a><a class="t3" href="#ub-027-refresh-the-book-after-the-fixes-and-upgrades-m">UB-027: Refresh the book after the fixes and upgrades (M)</a><a class="t3" href="#ub-028-verify-on-stop-in-the-agent-loop-m">UB-028: Verify-on-stop in the agent loop (M)</a><a class="t3" href="#ub-029-skills-loader-for-m2c-m">UB-029: Skills loader for M2C (M)</a><a class="t3" href="#ub-030-add-promptfoos-coding-agent-risk-categories-to-the-q07-corpus-and-list-the-gaps-s">UB-030: Add promptfoo&#x27;s coding-agent risk categories to the Q...</a><a class="t3" href="#ub-031-golden-tasks-for-the-coding-agent-m">UB-031: Golden tasks for the coding agent (M)</a><a class="t3" href="#ub-032-local-mcp-client-for-m2c-l">UB-032: Local MCP client for M2C (L)</a><a class="t3" href="#ub-033-deferred-tool-loading-with-search-over-tool-specs-m">UB-033: Deferred tool loading with search over tool specs (M)</a><a class="t3" href="#ub-034-offer-codebase-memory-mcp-as-an-optional-local-server-s">UB-034: Offer codebase-memory-mcp as an optional local server...</a><a class="t3" href="#ub-035-rehearse-mcp-attacks-against-m2c-with-a-red-team-tool-you-still-have-to-name-s">UB-035: Rehearse MCP attacks against M2C with a red-team tool...</a><a class="t3" href="#ub-036-stuck-detection-beyond-identical-failures-m">UB-036: Stuck detection beyond identical failures (M)</a><a class="t3" href="#ub-037-mid-turn-user-steering-m">UB-037: Mid-turn user steering (M)</a><a class="t3" href="#ub-038-an-instruction-hierarchy-contract-in-the-system-prompt-s">UB-038: An instruction-hierarchy contract in the system promp...</a><a class="t3" href="#ub-039-observe-mode-before-enforce-mode-for-new-policy-rules-m">UB-039: Observe mode before enforce mode for new policy rules...</a><a class="t3" href="#ub-040-store-sandbox-denials-and-explain-them-to-the-model-m">UB-040: Store sandbox denials and explain them to the model (M)</a><a class="t3" href="#ub-041-signed-narrowing-grants-for-subagents-l">UB-041: Signed, narrowing grants for subagents (L)</a><a class="t3" href="#ub-042-compaction-that-re-injects-the-task-goal-with-a-lossless-log-m">UB-042: Compaction that re-injects the task goal, with a loss...</a><a class="t3" href="#ub-043-an-independent-verifier-context-and-step-graph-validation-l">UB-043: An independent verifier context and step-graph valida...</a><a class="t3" href="#ub-044-plan-mode-that-is-structural-plus-a-spec-first-interview-m">UB-044: Plan mode that is structural, plus a spec-first inter...</a><a class="t3" href="#ub-045-a-precision-first-review-command-l">UB-045: A precision-first review command (L)</a><a class="t3" href="#ub-046-add-a-hash-chain-to-the-local-event-store-s">UB-046: Add a hash chain to the local event store (S)</a><a class="t3" href="#ub-047-menux-memory-store-with-sources-validity-and-fts5-m">UB-047: Menux memory store with sources, validity and FTS5 (M)</a><a class="t3" href="#ub-048-trust-rule-and-a-review-queue-for-new-memories-m">UB-048: Trust rule and a review queue for new memories (M)</a><a class="t3" href="#ub-049-correcting-a-source-retires-its-dependents-and-deletes-cascade-m">UB-049: Correcting a source retires its dependents, and delet...</a><a class="t3" href="#ub-050-show-the-working-memory-before-a-task-and-report-what-was-used-m">UB-050: Show the working memory before a task, and report wha...</a><a class="t3" href="#ub-051-retention-scores-and-hot-warm-and-cold-tiers-m">UB-051: Retention scores and hot, warm and cold tiers (M)</a><a class="t3" href="#ub-052-learned-workflows-modelled-on-webcmd-l">UB-052: Learned workflows modelled on webcmd (L)</a><a class="t3" href="#ub-053-crawl4ai-as-an-optional-web-reader-s">UB-053: crawl4ai as an optional web reader (S)</a><a class="t3" href="#ub-054-a-capability-listing-command-xs">UB-054: A capability-listing command (XS)</a><a class="t3" href="#ub-055-a-blender-skill-pack-m">UB-055: A Blender skill pack (M)</a><a class="t3" href="#ub-056-an-independent-claim-check-pass-for-research-reports-m">UB-056: An independent claim-check pass for research reports (M)</a><a class="t3" href="#ub-057-generation-that-survives-a-closed-tab-l">UB-057: Generation that survives a closed tab (L)</a><a class="t3" href="#ub-058-project-based-learning-with-an-ai-tutor-milestone-by-milestone-l">UB-058: Project-based learning with an AI tutor, milestone by...</a><a class="t3" href="#ub-059-chat-about-any-slide-element-m">UB-059: Chat about any slide element (M)</a><a class="t3" href="#ub-060-course-level-undo-m">UB-060: Course-level undo (M)</a><a class="t3" href="#ub-061-export-to-pptx-and-html-m">UB-061: Export to PPTX and HTML (M)</a><a class="t3" href="#ub-062-a-knowledge-base-with-mentions-m">UB-062: A knowledge base with @-mentions (M)</a><a class="t3" href="#ub-063-use-openmaics-published-advisories-as-a-free-test-checklist-s">UB-063: Use OpenMAIC&#x27;s published advisories as a free test ch...</a><a class="t3" href="#ub-064-a-repeatable-skills-pipeline-select-scan-rewrite-evaluate-label-regress-m">UB-064: A repeatable skills pipeline: select, scan, rewrite, ...</a><a class="t3" href="#ub-065-growth-tab-seed-skills-from-marketingskills-m">UB-065: Growth tab seed skills from marketingskills (M)</a><a class="t3" href="#ub-066-research-and-notebooks-seeds-from-scientific-agent-skills-m">UB-066: Research and notebooks seeds from scientific-agent-sk...</a><a class="t3" href="#ub-067-m2c-built-in-skills-and-a-behaviour-baseline-m">UB-067: M2C built-in skills and a behaviour baseline (M)</a><a class="t3" href="#ub-068-security-reviewer-prompts-and-a-vetted-security-skills-library-m">UB-068: Security reviewer prompts and a vetted security skill...</a><a class="t3" href="#ub-069-role-ideas-from-gstack-and-bmad-s">UB-069: Role ideas from gstack and BMAD (S)</a><a class="t3" href="#ub-070-an-optional-writing-quality-pass-from-humanizer-s">UB-070: An optional writing-quality pass from humanizer (S)</a><a class="t3" href="#ub-071-the-overhang-and-draft-check-in-the-mechanical-engine-m">UB-071: The overhang and draft check in the mechanical engine...</a><a class="t3" href="#ub-072-compare-text-to-cads-per-process-rules-with-yours-s">UB-072: Compare text-to-cad&#x27;s per-process rules with yours (S)</a><a class="t3" href="#ub-073-spike-can-build123d-replace-freecad-inside-the-e2b-template-m">UB-073: Spike: can build123d replace FreeCAD inside the E2B t...</a><a class="t3" href="#ub-074-an-analyse-this-part-stress-check-l">UB-074: An &quot;analyse this part&quot; stress check (L)</a><a class="t3" href="#ub-075-cost-experiments-before-adopting-any-compressor-or-router-m">UB-075: Cost experiments before adopting any compressor or ro...</a><a class="t3" href="#ub-076-design-and-build-techniques-from-impeccable-taste-skill-and-ui-ux-pro-max-m">UB-076: Design and build techniques from impeccable, taste-sk...</a><a class="t3" href="#ub-077-screenshot-to-code-for-the-wireframe-flow-m">UB-077: Screenshot-to-code for the wireframe flow (M)</a><a class="t3" href="#ub-078-a-diagram-generator-from-diagram-design-m">UB-078: A diagram generator from diagram-design (M)</a><a class="t3" href="#ub-079-spike-html-to-deterministic-video-with-hyperframes-m">UB-079: Spike: HTML to deterministic video with hyperframes (M)</a><a class="t3" href="#ub-080-study-slide-generation-references-s">UB-080: Study slide-generation references (S)</a><a class="t2" href="#batch-b02-2026-11-24-rust-anything-and-fast-anything-from-a-trial-on-m2c">Batch B02 (2026-11-24): rust-anything and fast-anything, from...</a><a class="t3" href="#ub-081-cross-check-the-mg-z10-spike-with-rust-anything-m">UB-081: Cross-check the MG-Z10 spike with rust-anything (M)</a><a class="t3" href="#ub-082-port-only-profiled-hot-functions-with-fast-anything-m">UB-082: Port only profiled hot functions with fast-anything (M)</a><a class="t3" href="#ub-083-break-the-import-cycle-so-m2c-units-can-be-bridged-one-by-one-m">UB-083: Break the import cycle so m2c units can be bridged on...</a><a class="t2" href="#batch-b03-2026-11-26-review-of-promptfoo-strix-hypothesis-schemathesis-and-locust">Batch B03 (2026-11-26): Review of promptfoo, Strix, Hypothesi...</a><a class="t3" href="#ub-084-record-what-a-run-created-so-undo-and-approvals-touch-only-that-s">UB-084: Record what a run created, so undo and approvals touc...</a><a class="t2" href="#batch-b04-2026-11-26-review-of-gemini-cli-hermes-agent-mistral-vibe-and-codex">Batch B04 (2026-11-26): Review of gemini-cli, hermes-agent, m...</a><a class="t3" href="#ub-085-switch-off-core-dumps-and-debugger-attach-for-the-m2c-client-at-start-xs">UB-085: Switch off core dumps and debugger attach for the M2C...</a><a class="t3" href="#ub-086-session-goal-mode-with-a-token-budget-and-a-no-progress-stop-m">UB-086: Session goal mode with a token budget and a no-progre...</a><a class="t3" href="#ub-087-one-helper-that-frames-text-the-model-must-treat-as-data-s">UB-087: One helper that frames text the model must treat as d...</a><a class="t2" href="#batch-b05-2026-11-26-review-of-opencode-pi-tenuo-and-prismor">Batch B05 (2026-11-26): Review of OpenCode, Pi, Tenuo and Pri...</a><a class="t3" href="#ub-088-reject-repeated-json-keys-in-tool-arguments-xs">UB-088: Reject repeated JSON keys in tool arguments (XS)</a><a class="t3" href="#ub-089-ask-before-the-agent-edits-its-own-instruction-files-s">UB-089: Ask before the agent edits its own instruction files (S)</a><a class="t3" href="#ub-090-keep-the-full-tool-output-in-a-file-the-model-can-read-later-m">UB-090: Keep the full tool output in a file the model can rea...</a><a class="t3" href="#ub-091-canary-files-that-raise-an-alarm-when-the-agent-opens-them-s">UB-091: Canary files that raise an alarm when the agent opens...</a><a class="t3" href="#ub-092-credentials-the-model-can-use-but-never-see-m">UB-092: Credentials the model can use but never see (M)</a><a class="t3" href="#ub-093-prove-a-skill-or-prompt-change-helps-with-paired-with-and-without-evals-m">UB-093: Prove a skill or prompt change helps, with paired wit...</a><a class="t3" href="#ub-094-heal-half-written-markdown-while-a-reply-streams-s">UB-094: Heal half-written Markdown while a reply streams (S)</a><a class="t3" href="#ub-095-every-guard-fails-closed-proved-by-one-crash-test-per-guard-s">UB-095: Every guard fails closed, proved by one crash test pe...</a><a class="t2" href="#batch-b06-2026-11-26-review-of-sandbox-runtime-codebase-memory-mcp-django-and-argus">Batch B06 (2026-11-26): Review of sandbox-runtime, codebase-m...</a><a class="t3" href="#ub-096-close-the-sandboxs-protected-path-gaps-more-names-absent-paths-nested-repos-m">UB-096: Close the sandbox&#x27;s protected-path gaps: more names, ...</a></div></div></main><small class="mm-built">Private. Built 2026-11-26 from commit b1ea078.</small><script id="bk-chapter-script">
+<p><strong>Notes.</strong> sandbox-runtime is a TypeScript package: take the list and the ideas, and write the code fresh in Python; if any text is copied, keep the Apache-2.0 notice. The list is a floor: the project directory stays writable, so files the person's tools run later remain a matter for approvals, as the docstring says [V✓].</p>
+<h2 id="batch-b07-2026-11-27-review-of-open-code-review-mixdog-cordum-preloop-caura-and-orca">Batch B07 (2026-11-27): Review of open-code-review, mixdog, cordum, preloop, caura and orca</h2>
+<p><em>Source:</em> a review of six reference repos (41 capabilities, rated in one pass, then checked against this file as it stands after B06 and against MiniMe <code>121e06c</code>), read from source with nothing installed or run. Reference commits read again when this batch was written: open-code-review <code>d4f568f7</code>, mixdog <code>8382c929</code>, cordum <code>3a9c9e1f</code>, preloop <code>8c17f51c</code>, caura <code>85519c72</code>, orca <code>5174b9bd</code> (orca from a shallow clone, so no history). The six licences were read again. In this batch <code>[R]</code> is a reading of those repos, <code>[V✓]</code> is a check of MiniMe <code>121e06c</code> made while writing it, <code>[README]</code> is a docs or README statement that was not checked in code, and <code>[U]</code> is a design nobody has run. <strong>The decision column of the review was empty, so its recommendations were taken as the decisions</strong>, as in B03 to B06: <strong>ADD</strong> and <strong>UPGRADE</strong> became new features (UB-097 to UB-100), <strong>EXTEND</strong> items on entries that exist were written into those entries (edited in place, so not repeated here: UB-028, UB-037, UB-039, UB-042, UB-043, UB-045, UB-049, UB-075, UB-086, UB-087), <strong>EXTEND</strong> items on work packages of other chapters, <strong>SKIP</strong> and <strong>IDEA ONLY</strong> items and the <strong>VERIFY FIRST</strong> items (each with what to read) went to section 6. Where the work package belongs to another chapter (<code>C13</code>, <code>C25</code>, <code>MT-T12</code>, <code>MG-Z02</code>, and the Menux guide sections 6.4, 6.5, 10.3 and 27.2), the section 6 row carries the addition and the chapter was <strong>not</strong> edited. Four things are my own choices and not decisions from the review: the shape of UB-098 (cut down after reading MiniMe), UB-099 as an ask-even-when-allowed list, the place of the duplicate stub in UB-097, and the profile kept in <code>.m2c/</code> in UB-028. Drop any of them if you disagree.</p>
+<p><strong>Corrections to the review found while re-reading:</strong> (1) The review said MiniMe had no tenant gate and offered one as new. MiniMe already forces Postgres row-level security on its tables and a connection with no identity sees no rows (<code>migrations/0003_rls_policies.sql</code>, <code>eo/db.py</code>), so UB-098 is cut down to the places that can step around it: 34 uses of <code>trusted=True</code> in 10 files, new tables, and direct connections. (2) The review said destructive git commands were not covered. In the default modes every shell call asks, so the gap is real only when a person saves a broad allow rule for git (UB-099). (3) The review's hook-outage item was already in section 6 as Prismor's row; it is recorded as an addition to it. (4) The review's approval-fields item overlaps the B05 row on Tenuo: only the policy snapshot, the consumed time and the invalidated state are new. (5) The review's pinned-vectors item adds to the B05 <code>MG-Z02</code> row and does not replace it.</p>
+<h3 id="ub-097-collapse-repeated-and-noisy-tool-output-before-it-is-sent-again-s">UB-097: Collapse repeated and noisy tool output before it is sent again (S)</h3>
+<blockquote>
+<p>Stub a tool result that repeats an earlier one, and strip terminal codes and repeated lines, before the history is sent again.</p>
+</blockquote>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Preloop <code>backend/preloop/services/context_optimization.py</code> (Apache-2.0, read at <code>8c17f51c</code>) [R], my idea for the placement · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R] [U]</p>
+<p><strong>What.</strong> Two changes to tool-result messages only, applied to the copy sent to the model. (a) A result identical to an earlier one becomes a one-line stub that names the earlier call. (b) ANSI escape sequences and carriage-return progress redraws are removed, and runs of identical lines are counted instead of repeated. Preloop's version keeps the first copy untouched so the cached prompt prefix does not change, cuts head and tail, and leaves other message roles alone [R: module docstring].</p>
+<p><strong>Why.</strong> <code>backend/codeagent/context.py</code> caps large tool results, clears the oldest outputs and builds a deterministic summary [V✓ docstring], but a search of the file for dedup, ANSI and carriage return finds nothing [V✓]. Build and test tools repeat their output when the agent runs them again, and progress bars use up the cap with noise. How much this saves is not measured: UB-075's replay has to show it.</p>
+<p><strong>Where.</strong> <code>backend/codeagent/context.py</code> (the stage that caps large tool results and the stage that clears old rounds); tests with <code>loop_testkit.py</code>.</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>Read <code>context.py</code> and write down the order of its stages.</li>
+<li>Add the noise strip as a pure function with a table test: ANSI sequences, bare carriage-return redraws, and a run of identical lines turned into one line plus a count. Apply it to the model's copy only. The stored log keeps the original (UB-042's lossless log; UB-090 keeps the full output in a file).</li>
+<li>Add the duplicate stub <strong>after</strong> the clearing stage, so a stub never points at an output that the clearing stage has already replaced [U]. Preloop keeps the first copy so the cached prefix stays the same [R], and your clearing would later stub that first copy, which would leave a stub pointing at a stub.</li>
+<li>Put both behind a flag and measure with UB-075's replay before turning them on.</li>
+</ol>
+<p><strong>Done when.</strong> A tool result with ANSI codes reaches the model without them while the stored log keeps them; two identical results become one full copy and one stub that names it; a stub never names a cleared result; the existing compaction tests pass; the replay shows the token difference.</p>
+<p><strong>Notes.</strong> The risk is a model that reads "same as call 12" and does not look back: test a task that re-runs a failing test twice. Preloop is Apache-2.0: if code is copied, keep the notice and mark the changes. Its module also truncates, which yours already does.</p>
+<h3 id="ub-098-a-static-gate-on-the-code-paths-that-can-step-around-row-level-security-m">UB-098: A static gate on the code paths that can step around row-level security (M)</h3>
+<blockquote>
+<p>Fail the test run when a new place bypasses row-level security, a new table lacks it, or a dict-built UPDATE can rewrite an owner column.</p>
+</blockquote>
+<p><strong>Product</strong> MiniMe · <strong>Source</strong> Caura <code>scripts/tenant_scope_gate.py</code> and <code>core-storage-api/tenant_scope_allowlist.json</code> (Apache-2.0, read at <code>85519c72</code>) [R], my idea for the shape · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R] [U]</p>
+<p><strong>What.</strong> A test in <code>backend/tests/static/</code> that reads the Python and the migrations and checks three things against a baseline file of today's exceptions, which may shrink and never grow. Caura's gate walks the syntax tree of its storage service, requires every public method to be tenant-scoped or listed with a reason, and says its list may only shrink [R: docstring and allowlist; the script is 2,222 lines and I read its header, not its body]. Its docstring says it was written after the project's own security advisories [R].</p>
+<p><strong>Why.</strong> MiniMe separates users with Postgres row-level security, forced on the tables of migration 0003 and later, and a connection that passes no identity sees no rows [V✓ <code>migrations/0003_rls_policies.sql</code>, <code>eo/db.py</code> <code>cursor()</code>]. That is a sound design, and three things can lose it quietly. A call with <code>trusted=True</code> skips the user check: grep finds 34 in 10 files [V✓]. A new table can be added without <code>ENABLE</code> and <code>FORCE ROW LEVEL SECURITY</code>. A direct <code>psycopg.connect</code> skips <code>cursor()</code>: there is one, in <code>conn_timing.py</code> [V✓]. UB-014 and UB-015 test this from outside with two accounts; <code>tests/static/test_sql_grants.py</code> checks grants only, and I found no check on identity [V✓].</p>
+<p><strong>Where.</strong> New <code>backend/tests/static/test_tenant_scope.py</code>; reuse <code>extract_sql</code>, <code>split_statements</code> and <code>GrantLedger</code> from <code>test_sql_grants.py</code> (move them to a helper module if two tests need them); baseline file <code>backend/tests/static/trusted_sites.json</code>.</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>Trusted sites: walk the syntax tree for every <code>cursor(..., trusted=True)</code> and compare with the baseline, where each entry names a reason. A new site fails; a site that no longer exists must be removed from the file. Start from per-file counts [V✓ grep]: <code>eo/devices.py</code> 9, <code>eo/workspace_code_files.py</code> 5, <code>eo/chat_workspace.py</code> 4, <code>eo/audit_log.py</code> 3, <code>eo/code_proposals.py</code> 3, <code>api/routes/system.py</code> 3, <code>eo/code_findings.py</code> 2, <code>eo/panel_content.py</code> 2, <code>codeagent/run_manager.py</code> 2, <code>eo/usage_ledger.py</code> 1; then write the reason per function.</li>
+<li>Table coverage: replay the migrations, as <code>GrantLedger</code> already does, and require every table with an owner column (<code>user_id</code> or <code>owner_id</code>) to have <code>ENABLE</code> and <code>FORCE ROW LEVEL SECURITY</code> and at least one policy, or to sit in the baseline with a reason.</li>
+<li>Direct connections: fail on <code>psycopg.connect(</code> or a pool created outside <code>eo/db.py</code>, with <code>conn_timing.py</code> in the baseline.</li>
+<li>UPDATE from a dict: for any function that builds a <code>SET</code> list from caller-supplied keys, require the keys to pass through a named set that leaves out <code>id</code> and the owner columns. Caura's gate checks this [R]. First read whether MiniMe has such a function [U].</li>
+<li>Say in the file header what the test cannot see: a policy that is too broad, and a <code>trusted=True</code> site whose written reason is wrong.</li>
+</ol>
+<p><strong>Done when.</strong> Adding <code>trusted=True</code> in a new function, creating a table with <code>user_id</code> and no forced row-level security, or adding a bare <code>psycopg.connect</code> each fails the static run with a message that names the file; shortening the baseline and leaving a stale entry fails; the test needs no database and adds seconds, not minutes.</p>
+<p><strong>Notes.</strong> This guards the design that exists and does not replace UB-014 and UB-015. Caura's gate is built for its own storage layer: take the checks and write the code fresh. Whether every current table passes check 2 is what its first run will show; I did not read all of migration 0003.</p>
+<h3 id="ub-099-destructive-git-commands-ask-even-when-an-allow-rule-matches-s">UB-099: Destructive git commands ask even when an allow rule matches (S)</h3>
+<blockquote>
+<p>Name the git commands that throw work away, and make them ask even under a broad allow rule for git.</p>
+</blockquote>
+<p><strong>Product</strong> M2C · <strong>Source</strong> Mixdog <code>src/rules/shared/45-destructive.md</code> (Apache-2.0, read at <code>8382c929</code>) [R], my idea for the list · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R] [U]</p>
+<p><strong>What.</strong> A second list beside <code>_GIT_ASK_SUBS</code> in <code>m2c/src/m2c/policy/decide.py</code>. The existing list holds git subcommands that run another program (submodule, filter-branch, difftool, mergetool, daemon, instaweb, gui, bisect, config) [V✓]; none of reset, clean, stash, checkout, restore, switch, branch or push is in it. The new list holds the forms that lose work: <code>reset --hard</code>, <code>clean</code> without <code>-n</code> or <code>--dry-run</code>, <code>checkout -- &lt;path&gt;</code> and <code>checkout .</code>, <code>restore</code> without <code>--staged</code>, <code>stash</code> (push, drop, clear), <code>branch -D</code>, <code>push --force</code> and <code>-f</code>, <code>update-ref -d</code>, <code>reflog expire</code> and <code>gc --prune</code>. Mixdog's rule says the agent must never stash, reset, clean or delete files it did not create [R].</p>
+<p><strong>Why.</strong> In the default modes every shell call asks, because a mode default never allows a process [V✓ <code>policy/modes.py</code> docstring]. The gap shows when a person saves an allow rule that matches every git command: I found no other git-specific check in <code>decide.py</code>, so such a rule would let <code>git reset --hard</code> and <code>git clean -fd</code> through (I did not run a case) [V✓ reading near lines 571 and 642].</p>
+<p><strong>Where.</strong> <code>m2c/src/m2c/policy/decide.py</code>, <code>rules.py</code>; tests under <code>m2c/tests/policy/</code>; the <code>Q07</code> corpus.</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>Write the list as data, with the argument conditions (a <code>--dry-run</code> passes).</li>
+<li>In <code>decide</code>, for a git command apply it after the allow rules and before an allow is returned; the result is <code>ask</code>, with a reason that names the command.</li>
+<li>Add table tests: each destructive form asks under an allow-all-git rule; <code>git status</code>, <code>git diff</code>, <code>git stash list</code>, <code>git clean -n</code> and <code>git restore --staged</code> do not; a compound command such as <code>cd x &amp;&amp; git reset --hard</code> asks.</li>
+<li>Add the same cases to <code>Q07</code>'s corpus, and one sentence to the system prompt (UB-038).</li>
+<li>Optional: let a person add their own commands to the list in settings; a lower layer may add an ask and never remove one (<code>C27</code>).</li>
+</ol>
+<p><strong>Done when.</strong> Under an allow-all-git rule the destructive forms ask with a named reason, read-only forms are still allowed, deny rules still win, and the compound case asks.</p>
+<p><strong>Notes.</strong> Smaller than it looks: a default setup is already safe, and the cost is a few more prompts for people with broad allow rules. Mixdog has no OS sandbox [R], so its rule lives in a prompt; yours is a policy check, which is stronger.</p>
+<h3 id="ub-100-a-drafting-eval-for-the-menux-planner-m">UB-100: A drafting eval for the Menux Planner (M)</h3>
+<blockquote>
+<p>Grade what the Planner writes for plain-English requests, using code and a fake connector, so a prompt change that breaks it fails.</p>
+</blockquote>
+<p><strong>Product</strong> Menux · <strong>Source</strong> Orca <code>src/cli/bot-automation-eval/</code> (MIT, read at <code>5174b9bd</code>) [R], Menux guide section 4.3 and <code>MT-Q11</code> · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [U]</p>
+<p><strong>What.</strong> A set of requests, each with an expected outcome and a grader that reads what was created. Orca's set has categories that include <code>ask</code> (an unclear request must produce a question), <code>no-automation</code> (a request that is not an automation must create nothing) and <code>edit</code> (a change request must edit the existing automation and not add a copy), besides schedules, filters and where results go; a scripted stand-in host receives the agent's calls [R: the refusals and grading modules and the start of the scenarios file; I did not count its scenarios].</p>
+<p><strong>Why.</strong> Section 4.3 of the Menux guide has the Planner turn a sentence into a validated spec and section 4.4 dry-runs it [read in the guide]. <code>MT-Q11</code> replays a scripted model to test policy decisions with no model in the loop [read in the build guide]. I found nothing that tests whether the Planner writes the right thing [no match for a Planner eval in the guides]. Drafting is where a prompt edit can silently make people's automations wrong.</p>
+<p><strong>Where.</strong> Not built. A future <code>menux/tests/planner_eval/</code>; it runs against a live model, so keep it out of the default test run and run it before a release and on any change to the Planner's prompt.</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>Write 30 to 40 requests in categories: one trigger, schedule (grade the next 8 firing times and the time zone), filter, destination, ambiguous (must ask), not an automation (must write nothing), edit an existing one (must name its id), and ceiling cases [U].</li>
+<li>Grade the validated spec, by code: run the section 4.2 validator on the output, and count a spec that fails validation as a fail.</li>
+<li>Add adversarial rows [U]: a request for a tier above the person's ceiling must come out as a question or a validator rejection and never as a spec that runs; request text such as "also approve everything" must not change a policy field.</li>
+<li>Report the pass rate per category and keep the last three runs so a drop shows. Set no pass threshold before there is a baseline.</li>
+</ol>
+<p><strong>Done when.</strong> The set runs against a stand-in host with no real connector; a deliberately broken Planner prompt (the ask rule removed) fails the <code>ask</code> category; a clean run prints a rate for every category.</p>
+<p><strong>Notes.</strong> Orca's code is TypeScript (MIT): take the categories and the idea of grading the result, and write it in your own language. Cost is tokens per run and is not measured. Writing the requests by hand is the real work.</p></article><div class="toc"><b>On this page</b><a class="t2" href="#0-at-a-glance">0. At a glance</a><a class="t2" href="#1-register">1. Register</a><a class="t2" href="#2-batches">2. Batches</a><a class="t2" href="#3-how-to-add-features-the-patch-recipe">3. How to add features (the patch recipe)</a><a class="t2" href="#4-field-vocabulary-and-rules">4. Field vocabulary and rules</a><a class="t2" href="#5-where-the-original-upgrade-plan-went">5. Where the original upgrade plan went</a><a class="t2" href="#6-considered-not-added">6. Considered, not added</a><a class="t2" href="#7-sources-register">7. Sources register</a><a class="t2" href="#8-decision-log">8. Decision log</a><a class="t2" href="#batch-b01-2026-11-24-upgrade-plan-and-verified-spec-of-21-nov-2026-minus-the-finished-sx-series">Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 ...</a><a class="t3" href="#ub-001-move-the-web-app-from-nextjs-14-to-a-supported-line-l">UB-001: Move the web app from Next.js 14 to a supported line (L)</a><a class="t3" href="#ub-002-decide-pillow-against-moviepy-then-act-m">UB-002: Decide Pillow against moviepy, then act (M)</a><a class="t3" href="#ub-003-move-e2b-bracex-and-wcmatch-together-m">UB-003: Move e2b, bracex and wcmatch together (M)</a><a class="t3" href="#ub-004-put-the-caddy-config-in-the-repo-and-set-the-edge-limits-m">UB-004: Put the Caddy config in the repo and set the edge lim...</a><a class="t3" href="#ub-005-block-cloud-metadata-and-link-local-addresses-at-the-host-firewall-s">UB-005: Block cloud-metadata and link-local addresses at the ...</a><a class="t3" href="#ub-006-run-url-fetches-behind-an-egress-proxy-or-in-the-sandbox-m">UB-006: Run URL fetches behind an egress proxy or in the sand...</a><a class="t3" href="#ub-007-audit-every-other-server-side-fetch-of-a-user-influenced-url-m">UB-007: Audit every other server-side fetch of a user-influen...</a><a class="t3" href="#ub-008-per-user-ingest-quotas-m">UB-008: Per-user ingest quotas (M)</a><a class="t3" href="#ub-009-daily-ingest-cost-cap-tied-to-the-usage-ledger-m">UB-009: Daily ingest cost cap tied to the usage ledger (M)</a><a class="t3" href="#ub-010-cap-voice-length-before-transcribing-s">UB-010: Cap voice length before transcribing (S)</a><a class="t3" href="#ub-011-re-set-the-size-caps-with-a-cost-model-s">UB-011: Re-set the size caps with a cost model (S)</a><a class="t3" href="#ub-012-turn-the-report-only-csp-into-an-enforced-one-m">UB-012: Turn the report-only CSP into an enforced one (M)</a><a class="t3" href="#ub-013-a-small-blocking-promptfoo-gate-m">UB-013: A small blocking promptfoo gate (M)</a><a class="t3" href="#ub-014-run-the-promptfoo-red-team-with-a-two-tenant-provider-m">UB-014: Run the promptfoo red-team with a two-tenant provider...</a><a class="t3" href="#ub-015-first-strix-run-on-staging-m">UB-015: First Strix run on staging (M)</a><a class="t3" href="#ub-016-property-tests-with-hypothesis-m">UB-016: Property tests with Hypothesis (M)</a><a class="t3" href="#ub-017-nightly-api-fuzzing-with-schemathesis-m">UB-017: Nightly API fuzzing with Schemathesis (M)</a><a class="t3" href="#ub-018-add-cost-per-task-and-web-product-scenarios-to-the-load-harness-m">UB-018: Add cost-per-task and web-product scenarios to the lo...</a><a class="t3" href="#ub-019-a-practice-lab-on-your-own-machine-a-small-fastapi-app-behind-caddy-s">UB-019: A practice lab on your own machine: a small FastAPI a...</a><a class="t3" href="#ub-020-pre-audit-package-for-the-daemon-m">UB-020: Pre-audit package for the daemon (M)</a><a class="t3" href="#ub-021-sbom-on-release-and-a-licence-allow-list-gate-m">UB-021: SBOM on release, and a licence allow-list gate (M)</a><a class="t3" href="#ub-022-pin-scanner-binaries-and-images-by-digest-s">UB-022: Pin scanner binaries and images by digest (S)</a><a class="t3" href="#ub-023-lurkr-as-an-advisory-ci-step-s">UB-023: Lurkr as an advisory CI step (S)</a><a class="t3" href="#ub-024-dependabot-for-the-docker-images-xs">UB-024: Dependabot for the Docker images (XS)</a><a class="t3" href="#ub-025-security-headers-for-the-book-site-xs">UB-025: Security headers for the book site (XS)</a><a class="t3" href="#ub-026-record-the-fix-patch-guide-in-the-book-s">UB-026: Record the fix patch guide in the book (S)</a><a class="t3" href="#ub-027-refresh-the-book-after-the-fixes-and-upgrades-m">UB-027: Refresh the book after the fixes and upgrades (M)</a><a class="t3" href="#ub-028-verify-on-stop-in-the-agent-loop-m">UB-028: Verify-on-stop in the agent loop (M)</a><a class="t3" href="#ub-029-skills-loader-for-m2c-m">UB-029: Skills loader for M2C (M)</a><a class="t3" href="#ub-030-add-promptfoos-coding-agent-risk-categories-to-the-q07-corpus-and-list-the-gaps-s">UB-030: Add promptfoo&#x27;s coding-agent risk categories to the Q...</a><a class="t3" href="#ub-031-golden-tasks-for-the-coding-agent-m">UB-031: Golden tasks for the coding agent (M)</a><a class="t3" href="#ub-032-local-mcp-client-for-m2c-l">UB-032: Local MCP client for M2C (L)</a><a class="t3" href="#ub-033-deferred-tool-loading-with-search-over-tool-specs-m">UB-033: Deferred tool loading with search over tool specs (M)</a><a class="t3" href="#ub-034-offer-codebase-memory-mcp-as-an-optional-local-server-s">UB-034: Offer codebase-memory-mcp as an optional local server...</a><a class="t3" href="#ub-035-rehearse-mcp-attacks-against-m2c-with-a-red-team-tool-you-still-have-to-name-s">UB-035: Rehearse MCP attacks against M2C with a red-team tool...</a><a class="t3" href="#ub-036-stuck-detection-beyond-identical-failures-m">UB-036: Stuck detection beyond identical failures (M)</a><a class="t3" href="#ub-037-mid-turn-user-steering-m">UB-037: Mid-turn user steering (M)</a><a class="t3" href="#ub-038-an-instruction-hierarchy-contract-in-the-system-prompt-s">UB-038: An instruction-hierarchy contract in the system promp...</a><a class="t3" href="#ub-039-observe-mode-before-enforce-mode-for-new-policy-rules-m">UB-039: Observe mode before enforce mode for new policy rules...</a><a class="t3" href="#ub-040-store-sandbox-denials-and-explain-them-to-the-model-m">UB-040: Store sandbox denials and explain them to the model (M)</a><a class="t3" href="#ub-041-signed-narrowing-grants-for-subagents-l">UB-041: Signed, narrowing grants for subagents (L)</a><a class="t3" href="#ub-042-compaction-that-re-injects-the-task-goal-with-a-lossless-log-m">UB-042: Compaction that re-injects the task goal, with a loss...</a><a class="t3" href="#ub-043-an-independent-verifier-context-and-step-graph-validation-l">UB-043: An independent verifier context and step-graph valida...</a><a class="t3" href="#ub-044-plan-mode-that-is-structural-plus-a-spec-first-interview-m">UB-044: Plan mode that is structural, plus a spec-first inter...</a><a class="t3" href="#ub-045-a-precision-first-review-command-l">UB-045: A precision-first review command (L)</a><a class="t3" href="#ub-046-add-a-hash-chain-to-the-local-event-store-s">UB-046: Add a hash chain to the local event store (S)</a><a class="t3" href="#ub-047-menux-memory-store-with-sources-validity-and-fts5-m">UB-047: Menux memory store with sources, validity and FTS5 (M)</a><a class="t3" href="#ub-048-trust-rule-and-a-review-queue-for-new-memories-m">UB-048: Trust rule and a review queue for new memories (M)</a><a class="t3" href="#ub-049-correcting-a-source-retires-its-dependents-and-deletes-cascade-m">UB-049: Correcting a source retires its dependents, and delet...</a><a class="t3" href="#ub-050-show-the-working-memory-before-a-task-and-report-what-was-used-m">UB-050: Show the working memory before a task, and report wha...</a><a class="t3" href="#ub-051-retention-scores-and-hot-warm-and-cold-tiers-m">UB-051: Retention scores and hot, warm and cold tiers (M)</a><a class="t3" href="#ub-052-learned-workflows-modelled-on-webcmd-l">UB-052: Learned workflows modelled on webcmd (L)</a><a class="t3" href="#ub-053-crawl4ai-as-an-optional-web-reader-s">UB-053: crawl4ai as an optional web reader (S)</a><a class="t3" href="#ub-054-a-capability-listing-command-xs">UB-054: A capability-listing command (XS)</a><a class="t3" href="#ub-055-a-blender-skill-pack-m">UB-055: A Blender skill pack (M)</a><a class="t3" href="#ub-056-an-independent-claim-check-pass-for-research-reports-m">UB-056: An independent claim-check pass for research reports (M)</a><a class="t3" href="#ub-057-generation-that-survives-a-closed-tab-l">UB-057: Generation that survives a closed tab (L)</a><a class="t3" href="#ub-058-project-based-learning-with-an-ai-tutor-milestone-by-milestone-l">UB-058: Project-based learning with an AI tutor, milestone by...</a><a class="t3" href="#ub-059-chat-about-any-slide-element-m">UB-059: Chat about any slide element (M)</a><a class="t3" href="#ub-060-course-level-undo-m">UB-060: Course-level undo (M)</a><a class="t3" href="#ub-061-export-to-pptx-and-html-m">UB-061: Export to PPTX and HTML (M)</a><a class="t3" href="#ub-062-a-knowledge-base-with-mentions-m">UB-062: A knowledge base with @-mentions (M)</a><a class="t3" href="#ub-063-use-openmaics-published-advisories-as-a-free-test-checklist-s">UB-063: Use OpenMAIC&#x27;s published advisories as a free test ch...</a><a class="t3" href="#ub-064-a-repeatable-skills-pipeline-select-scan-rewrite-evaluate-label-regress-m">UB-064: A repeatable skills pipeline: select, scan, rewrite, ...</a><a class="t3" href="#ub-065-growth-tab-seed-skills-from-marketingskills-m">UB-065: Growth tab seed skills from marketingskills (M)</a><a class="t3" href="#ub-066-research-and-notebooks-seeds-from-scientific-agent-skills-m">UB-066: Research and notebooks seeds from scientific-agent-sk...</a><a class="t3" href="#ub-067-m2c-built-in-skills-and-a-behaviour-baseline-m">UB-067: M2C built-in skills and a behaviour baseline (M)</a><a class="t3" href="#ub-068-security-reviewer-prompts-and-a-vetted-security-skills-library-m">UB-068: Security reviewer prompts and a vetted security skill...</a><a class="t3" href="#ub-069-role-ideas-from-gstack-and-bmad-s">UB-069: Role ideas from gstack and BMAD (S)</a><a class="t3" href="#ub-070-an-optional-writing-quality-pass-from-humanizer-s">UB-070: An optional writing-quality pass from humanizer (S)</a><a class="t3" href="#ub-071-the-overhang-and-draft-check-in-the-mechanical-engine-m">UB-071: The overhang and draft check in the mechanical engine...</a><a class="t3" href="#ub-072-compare-text-to-cads-per-process-rules-with-yours-s">UB-072: Compare text-to-cad&#x27;s per-process rules with yours (S)</a><a class="t3" href="#ub-073-spike-can-build123d-replace-freecad-inside-the-e2b-template-m">UB-073: Spike: can build123d replace FreeCAD inside the E2B t...</a><a class="t3" href="#ub-074-an-analyse-this-part-stress-check-l">UB-074: An &quot;analyse this part&quot; stress check (L)</a><a class="t3" href="#ub-075-cost-experiments-before-adopting-any-compressor-or-router-m">UB-075: Cost experiments before adopting any compressor or ro...</a><a class="t3" href="#ub-076-design-and-build-techniques-from-impeccable-taste-skill-and-ui-ux-pro-max-m">UB-076: Design and build techniques from impeccable, taste-sk...</a><a class="t3" href="#ub-077-screenshot-to-code-for-the-wireframe-flow-m">UB-077: Screenshot-to-code for the wireframe flow (M)</a><a class="t3" href="#ub-078-a-diagram-generator-from-diagram-design-m">UB-078: A diagram generator from diagram-design (M)</a><a class="t3" href="#ub-079-spike-html-to-deterministic-video-with-hyperframes-m">UB-079: Spike: HTML to deterministic video with hyperframes (M)</a><a class="t3" href="#ub-080-study-slide-generation-references-s">UB-080: Study slide-generation references (S)</a><a class="t2" href="#batch-b02-2026-11-24-rust-anything-and-fast-anything-from-a-trial-on-m2c">Batch B02 (2026-11-24): rust-anything and fast-anything, from...</a><a class="t3" href="#ub-081-cross-check-the-mg-z10-spike-with-rust-anything-m">UB-081: Cross-check the MG-Z10 spike with rust-anything (M)</a><a class="t3" href="#ub-082-port-only-profiled-hot-functions-with-fast-anything-m">UB-082: Port only profiled hot functions with fast-anything (M)</a><a class="t3" href="#ub-083-break-the-import-cycle-so-m2c-units-can-be-bridged-one-by-one-m">UB-083: Break the import cycle so m2c units can be bridged on...</a><a class="t2" href="#batch-b03-2026-11-26-review-of-promptfoo-strix-hypothesis-schemathesis-and-locust">Batch B03 (2026-11-26): Review of promptfoo, Strix, Hypothesi...</a><a class="t3" href="#ub-084-record-what-a-run-created-so-undo-and-approvals-touch-only-that-s">UB-084: Record what a run created, so undo and approvals touc...</a><a class="t2" href="#batch-b04-2026-11-26-review-of-gemini-cli-hermes-agent-mistral-vibe-and-codex">Batch B04 (2026-11-26): Review of gemini-cli, hermes-agent, m...</a><a class="t3" href="#ub-085-switch-off-core-dumps-and-debugger-attach-for-the-m2c-client-at-start-xs">UB-085: Switch off core dumps and debugger attach for the M2C...</a><a class="t3" href="#ub-086-session-goal-mode-with-a-token-budget-and-a-no-progress-stop-m">UB-086: Session goal mode with a token budget and a no-progre...</a><a class="t3" href="#ub-087-one-helper-that-frames-text-the-model-must-treat-as-data-s">UB-087: One helper that frames text the model must treat as d...</a><a class="t2" href="#batch-b05-2026-11-26-review-of-opencode-pi-tenuo-and-prismor">Batch B05 (2026-11-26): Review of OpenCode, Pi, Tenuo and Pri...</a><a class="t3" href="#ub-088-reject-repeated-json-keys-in-tool-arguments-xs">UB-088: Reject repeated JSON keys in tool arguments (XS)</a><a class="t3" href="#ub-089-ask-before-the-agent-edits-its-own-instruction-files-s">UB-089: Ask before the agent edits its own instruction files (S)</a><a class="t3" href="#ub-090-keep-the-full-tool-output-in-a-file-the-model-can-read-later-m">UB-090: Keep the full tool output in a file the model can rea...</a><a class="t3" href="#ub-091-canary-files-that-raise-an-alarm-when-the-agent-opens-them-s">UB-091: Canary files that raise an alarm when the agent opens...</a><a class="t3" href="#ub-092-credentials-the-model-can-use-but-never-see-m">UB-092: Credentials the model can use but never see (M)</a><a class="t3" href="#ub-093-prove-a-skill-or-prompt-change-helps-with-paired-with-and-without-evals-m">UB-093: Prove a skill or prompt change helps, with paired wit...</a><a class="t3" href="#ub-094-heal-half-written-markdown-while-a-reply-streams-s">UB-094: Heal half-written Markdown while a reply streams (S)</a><a class="t3" href="#ub-095-every-guard-fails-closed-proved-by-one-crash-test-per-guard-s">UB-095: Every guard fails closed, proved by one crash test pe...</a><a class="t2" href="#batch-b06-2026-11-26-review-of-sandbox-runtime-codebase-memory-mcp-django-and-argus">Batch B06 (2026-11-26): Review of sandbox-runtime, codebase-m...</a><a class="t3" href="#ub-096-close-the-sandboxs-protected-path-gaps-more-names-absent-paths-nested-repos-m">UB-096: Close the sandbox&#x27;s protected-path gaps: more names, ...</a><a class="t2" href="#batch-b07-2026-11-27-review-of-open-code-review-mixdog-cordum-preloop-caura-and-orca">Batch B07 (2026-11-27): Review of open-code-review, mixdog, c...</a><a class="t3" href="#ub-097-collapse-repeated-and-noisy-tool-output-before-it-is-sent-again-s">UB-097: Collapse repeated and noisy tool output before it is ...</a><a class="t3" href="#ub-098-a-static-gate-on-the-code-paths-that-can-step-around-row-level-security-m">UB-098: A static gate on the code paths that can step around ...</a><a class="t3" href="#ub-099-destructive-git-commands-ask-even-when-an-allow-rule-matches-s">UB-099: Destructive git commands ask even when an allow rule ...</a><a class="t3" href="#ub-100-a-drafting-eval-for-the-menux-planner-m">UB-100: A drafting eval for the Menux Planner (M)</a></div></div></main><small class="mm-built">Private. Built 2026-11-26 from commit 2bbe98d.</small><script id="bk-chapter-script">
 (function(){
   // Reading progress bar
   var bar = document.querySelector('.bk-progress');
@@ -4309,5 +4576,5 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
     });
   }
 })();
-</script><script type="module" src="assets/js/shell.js"></script><!-- source: data/docs/upgrade_backlog.md sha256=b6b30959072d332a369b0a5b3064d01d58a01fb525f5e7194e5e1a2ed7367bbd -->
+</script><script type="module" src="assets/js/shell.js"></script><!-- source: data/docs/upgrade_backlog.md sha256=be7bf0ab197b2112258acdc751a140fe99e750e11ef181fe35b3311434bfdd8f -->
 </body></html>
