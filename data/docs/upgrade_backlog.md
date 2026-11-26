@@ -14,16 +14,16 @@ This file is the one place where every feature you might build later is written 
 
 *Generated from the entries by `python scripts/check_backlog.py --write`. Do not edit by hand.*
 
-**95 features** in 5 batches: 92 candidate · 0 accepted · 0 building · 0 done · 3 parked · 0 dropped.
+**96 features** in 6 batches: 92 candidate · 0 accepted · 0 building · 0 done · 4 parked · 0 dropped.
 
 | Product | candidate | accepted | building | done | parked | dropped | Total |
 |---|---|---|---|---|---|---|---|
 | MiniMe | 43 | 0 | 0 | 0 | 1 | 0 | 44 |
-| M2C | 28 | 0 | 0 | 0 | 1 | 0 | 29 |
+| M2C | 28 | 0 | 0 | 0 | 2 | 0 | 30 |
 | Menux | 9 | 0 | 0 | 0 | 1 | 0 | 10 |
 | Shared | 9 | 0 | 0 | 0 | 0 | 0 | 9 |
 | Book | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
-| **All** | **92** | **0** | **0** | **0** | **3** | **0** | **95** |
+| **All** | **92** | **0** | **0** | **0** | **4** | **0** | **96** |
 
 ## 1. Register
 
@@ -36,22 +36,22 @@ This file is the one place where every feature you might build later is written 
 | UB-003 | Move e2b, bracex and wcmatch together | The wcmatch fix needs e2b 2.64 and bracex 3.2; three pins must move as one. | MiniMe | Fix guide D-2 | M | candidate | B01 |
 | UB-004 | Put the Caddy config in the repo and set the edge limits | The proxy config is not in either repo; commit it, then add a body-size limit, HSTS and edge rate limits. | MiniMe | Spec U4 and U5.4, Plan S3 and S5 | M | candidate | B01 |
 | UB-005 | Block cloud-metadata and link-local addresses at the host firewall | Defence in depth for the SSRF fix: the backend container cannot reach 169.254.169.254 even if a check has a bug. | MiniMe | Spec U1.7, Plan S1, fix guide section 6 | S | candidate | B01 |
-| UB-006 | Run URL fetches behind an egress proxy or in the sandbox | Optional extra layer: do the risky fetching in the E2B sandbox or behind a proxy that enforces the same rules. | MiniMe | Plan S1 (defence in depth) | M | candidate | B01 |
+| UB-006 | Run URL fetches behind an egress proxy or in the sandbox | Optional extra layer: do the risky fetching in the E2B sandbox or behind a proxy that enforces the same rules. | MiniMe | Plan S1 (defence in depth), sandbox-runtime `docs/srt-proxy.md` (Apache-2.0, read at `0bbebed0`) [R] | M | candidate | B01 |
 | UB-007 | Audit every other server-side fetch of a user-influenced URL | Find any remaining fetch whose URL comes from a user, a search result or a server reply, and route it through url_guard. | MiniMe | Plan S1 ("other fetchers"), MCP spec guidance [W] | M | candidate | B01 |
 | UB-008 | Per-user ingest quotas | One user cannot run unlimited clips, videos, imports, PDFs and voice notes: a quota that answers 429 with Retry-After. | MiniMe | Spec U5.5, Plan S5 | M | candidate | B01 |
 | UB-009 | Daily ingest cost cap tied to the usage ledger | Refuse an ingest when the user's pool or day budget is spent, so ingestion cannot push COGS past the 45% target. | MiniMe | Spec U5.6 | M | candidate | B01 |
 | UB-010 | Cap voice length before transcribing | Only file size is capped on voice notes; refuse long recordings before faster-whisper starts. | MiniMe | Spec U5.3, fix guide (patch 23 left unused) | S | candidate | B01 |
 | UB-011 | Re-set the size caps with a cost model | The caps from the fix series are placeholders; set them from measured cost. | MiniMe | Fix guide D-3 | S | candidate | B01 |
-| UB-012 | Turn the report-only CSP into an enforced one | Collect violation reports for a week, fix them, then enforce the policy from SX-29. | MiniMe | SX-29 follow-up, Plan S3, Spec U4.4 | M | candidate | B01 |
+| UB-012 | Turn the report-only CSP into an enforced one | Collect violation reports for a week, fix them, then enforce the policy from SX-29. | MiniMe | SX-29 follow-up, Plan S3, Spec U4.4, Django `django/middleware/csp.py` and `django/views/decorators/csp.py` (BSD-3-Clause, read at `baa7a809`) [R] | M | candidate | B01 |
 | UB-013 | A small blocking promptfoo gate | 10 to 20 deterministic must-pass cases that fail CI, while the broad LLM suite stays advisory. | MiniMe | Plan S7.4, Spec U2.4 | M | candidate | B01 |
 | UB-014 | Run the promptfoo red-team with a two-tenant provider | Probe prompt injection, cross-tenant leaks and memory poisoning against staging with synthetic data only. | MiniMe | promptfoo red-team docs [W], promptfoo (MIT, read at `4a30804`) [R], Plan 3.2, Spec T5 | M | candidate | B01 |
 | UB-015 | First Strix run on staging | An AI pentest agent tries to read tenant A's data from tenant B through every route and tool. | MiniMe | Strix (Apache-2.0, read at `9ed84f9`) [R], Plan 3.3, Spec T6 | M | candidate | B01 |
 | UB-016 | Property tests with Hypothesis | Random-input tests for the pure engines: manufacturability checks, the URL guard and the shell parser. | Shared | Plan 3.4, Spec T3, Hypothesis (MPL-2.0, read at `b9d568c`) [R] | M | candidate | B01 |
 | UB-017 | Nightly API fuzzing with Schemathesis | Fuzz every FastAPI route, with and without auth, and fail on any 5xx or schema violation. | MiniMe | Plan 3.1 and 3.4, Spec T4, Schemathesis (MIT, read at `15b71f5`) [R] | M | candidate | B01 |
 | UB-018 | Add cost-per-task and web-product scenarios to the load harness | Extend the device load harness planned in MG-B00 with notebook, PDF and runaway-loop scenarios, measured as cost per task. | Shared | Plan 3.5, Spec T7, Appendix A `MG-B00`, Locust (MIT, read at `5084aa1`) [R] | M | candidate | B01 |
-| UB-019 | A practice lab with Django and nginx on your own machine | Learn the fuzz, load and pentest tools on throwaway targets before pointing them at staging. | Shared | Spec T8 | S | candidate | B01 |
+| UB-019 | A practice lab on your own machine: a small FastAPI app behind Caddy | Learn the fuzz, load and pentest tools on throwaway targets before pointing them at staging. | Shared | Spec T8, Django (BSD-3-Clause, read at `baa7a809`) [R] | S | candidate | B01 |
 | UB-020 | Pre-audit package for the daemon | Hand the auditor the hostile-URL table, the red-team corpus, Strix reports, daemon tests and a one-page threat model. | MiniMe | Plan S8, Spec U8 | M | candidate | B01 |
-| UB-021 | SBOM on release | Produce a software bill of materials for the backend and frontend when you cut a release. | MiniMe | Plan S7.5 | S | candidate | B01 |
+| UB-021 | SBOM on release, and a licence allow-list gate | Produce an SBOM when you cut a release, and fail CI when a dependency's licence is not on a written list. | MiniMe | Plan S7.5, codebase-memory-mcp `scripts/license-policy.json` (MIT, read at `9a4da7a3`) [R] | M | candidate | B01 |
 | UB-022 | Pin scanner binaries and images by digest | Tighten the supply chain further: pin every downloaded tool and Docker image by digest or hash. | MiniMe | Plan S7.3 | S | candidate | B01 |
 | UB-023 | Lurkr as an advisory CI step | A static, offline scanner for risky agent capabilities in workflows and tool code, run as review items only. | MiniMe | Lurkr [W] | S | candidate | B01 |
 | UB-024 | Dependabot for the Docker images | Add a docker entry to Dependabot, but only if GitHub finds the non-standard Dockerfile names. | MiniMe | Fix guide D-4 | XS | candidate | B01 |
@@ -62,20 +62,20 @@ This file is the one place where every feature you might build later is written 
 | UB-029 | Skills loader for M2C | Load SKILL.md folders (name and description only at start), enforcing allowed-tools as a ceiling. | M2C | Spec M2, Agent Skills standard [W], M2C plan item C14 | M | candidate | B01 |
 | UB-030 | Add promptfoo's coding-agent risk categories to the Q07 corpus and list the gaps | Q07 is already planned; take promptfoo's coding-agent risk categories and write rows only for what the current tests miss. | M2C | Spec M3, Plan 4.5, M2C build plan Q07, Appendix A `MG-Z03`, promptfoo (MIT, read at `4a30804`) [R] | S | candidate | B01 |
 | UB-031 | Golden tasks for the coding agent | Ten past bug-fix commits turned into tasks with a failing test, run with a fixed budget, to get your own pass rate and cost. | M2C | Spec M4, promptfoo (MIT, read at `4a30804`) [R] | M | candidate | B01 |
-| UB-032 | Local MCP client for M2C | Run MCP servers under M2C's sandbox and network policy, with approval-time hashing of each tool definition. | M2C | Spec M5, Plan S6 and 4.3 and 4.4, M2C plan item C23 | L | candidate | B01 |
+| UB-032 | Local MCP client for M2C | Run MCP servers under M2C's sandbox and network policy, with approval-time hashing of each tool definition. | M2C | Spec M5, Plan S6 and 4.3 and 4.4, M2C plan item C23, sandbox-runtime (Apache-2.0, read at `0bbebed0`) [R], codebase-memory-mcp `src/mcp/mcp.c` (MIT, read at `9a4da7a3`) [R] | L | candidate | B01 |
 | UB-033 | Deferred tool loading with search over tool specs | When an MCP server exposes many tools, keep their descriptions out of the prompt and find them on demand. | M2C | Codex and Hermes (Plan 4.2), Hermes `tools/tool_search.py` (MIT, read at `c84e8d7f`) [R] | M | candidate | B01 |
-| UB-034 | Offer codebase-memory-mcp as an optional local server | A code knowledge-graph MCP server the user can install themselves, running device-local under the sandbox. | M2C | codebase-memory-mcp [R] | S | candidate | B01 |
-| UB-035 | Rehearse MCP attacks against M2C with Argus | Use a red-team tool with a built-in vulnerable demo agent to rehearse tool-poisoning and rug-pull attacks. | M2C | Argus [README] | S | candidate | B01 |
+| UB-034 | Offer codebase-memory-mcp as an optional local server | A code knowledge-graph MCP server the user can install themselves, running device-local under the sandbox with a narrow tool list. | M2C | codebase-memory-mcp (MIT, read at `9a4da7a3`) [R], M2C build plan item `L08` | S | candidate | B01 |
+| UB-035 | Rehearse MCP attacks against M2C with a red-team tool you still have to name | Use a red-team tool with a built-in vulnerable demo agent to rehearse tool-poisoning and rug-pull attacks. | M2C | "Argus" (README level); the repo read in B06, `divinelabio/argus` (MIT, read at `f51c0442`), is a different tool [R] | S | parked | B01 |
 | UB-036 | Stuck detection beyond identical failures | Warn when the same call repeats even if it succeeds, then ask a model to self-check after many turns; let the user decide. | M2C | Gemini CLI and OpenCode (Plan 4.2), Gemini CLI `packages/core/src/services/loopDetectionService.ts` (Apache-2.0, read at `60f8082`) [R] | M | candidate | B01 |
 | UB-037 | Mid-turn user steering | Let the user add a message while the agent works, inserted behind an anti-injection marker. | M2C | Hermes (Plan 4.2), Hermes `agent/prompt_builder.py` (MIT, read at `c84e8d7f`) [R] | M | candidate | B01 |
 | UB-038 | An instruction-hierarchy contract in the system prompt | One ranked list of instruction sources (user, repo, skills, MCP, external data last) instead of scattered prohibitions. | M2C | Mistral Vibe (Plan 4.2), Vibe `vibe/core/prompts/cli_ml4_2026-10_v2.md` (Apache-2.0, read at `fb7511a`) [R] | S | candidate | B01 |
 | UB-039 | Observe mode before enforce mode for new policy rules | Ship each new rule in a log-only mode first, record what it would have blocked, then enforce. | M2C | Prismor (Plan 4.2) | M | candidate | B01 |
-| UB-040 | Check whether sandbox denials are already stored | Before building a violation log, read what `events.py` and the network proxy callback already keep. | M2C | Spec M6 | S | candidate | B01 |
+| UB-040 | Store sandbox denials and explain them to the model | Tie each network denial to its command, store file denials, and tell the model what to do instead of a bare refusal. | M2C | Spec M6, sandbox-runtime `src/sandbox/sandbox-manager.ts` and `request-filter.ts` (Apache-2.0, read at `0bbebed0`) [R] | M | candidate | B01 |
 | UB-041 | Signed, narrowing grants for subagents | Each handoff to a subagent can only narrow what it may do: tools, argument limits, expiry. | M2C | Tenuo [R] | L | candidate | B01 |
 | UB-042 | Compaction that re-injects the task goal, with a lossless log | When the context is compacted, put the original goals back in; keep the full transcript so only the model's view shrinks. | M2C | Mistral Vibe, Gemini CLI, UNCUT, OpenHands (Plan 4.2), Gemini CLI `prompts/snippets.ts` and `context/chatCompressionService.ts` (Apache-2.0, read at `60f8082`) [R], Hermes `agent/context_compressor.py` and `context_compressor_prompt_rules.py` (MIT, read at `c84e8d7f`) [R] | M | candidate | B01 |
 | UB-043 | An independent verifier context and step-graph validation | A second, separate model context checks the result; a multi-step plan is validated before any step starts. | M2C | zeroshot [R] | L | candidate | B01 |
 | UB-044 | Plan mode that is structural, plus a spec-first interview | In plan mode only a plan file is writable; add a spec-first interview that ends in checkable acceptance criteria. | M2C | Mistral Vibe, Ouroboros, Nightshift (Plan 4.2) | M | candidate | B01 |
-| UB-045 | A precision-first review command | A diff reviewer that gives line-level comments and favours few, correct findings over many. | M2C | open-code-review [R], Strix `skills/scan_modes/diff.md` (Apache-2.0, read at `9ed84f9`) [R], Plan 4.2 | L | candidate | B01 |
+| UB-045 | A precision-first review command | A diff reviewer that gives line-level comments and favours few, correct findings over many. | M2C | open-code-review [R], Strix `skills/scan_modes/diff.md` (Apache-2.0, read at `9ed84f9`) [R], codebase-memory-mcp `detect_changes` (MIT, read at `9a4da7a3`) [R], Plan 4.2 | L | candidate | B01 |
 | UB-046 | Add a hash chain to the local event store | A previous-hash and entry-hash on each event plus a verify function; the M2C plan already names MiniLocker's chain.py as the model. | Shared | M2C build plan C02 and section 11.6 (MiniLocker `ledger/chain.py`, your own project), Spec 6.1; ZizkaDB (idea only) | S | candidate | B01 |
 | UB-047 | Menux memory store with sources, validity and FTS5 | One migration for sources, memories with valid-from and valid-to, dependencies and a full-text index. | Menux | Spec 6.1, Plan 5.2 (Mnemosyne, Graphiti/Zep, mempalace, claude-mem) | M | candidate | B01 |
 | UB-048 | Trust rule and a review queue for new memories | Anything from a web page, tool output or an imported CLAUDE.md enters as an untrusted candidate; only a user action promotes it. | Menux | Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin), Gemini CLI `agents/skill-extraction-agent.ts` (Apache-2.0, read at `60f8082`) [R] | M | candidate | B01 |
@@ -122,10 +122,11 @@ This file is the one place where every feature you might build later is written 
 | UB-089 | Ask before the agent edits its own instruction files | Make edits to M2C.md, AGENTS.md and CLAUDE.md an ask call and say what changed them, since the next session loads them as instructions. | M2C | Prismor `prismor/runtime/memory_guard.py` (Apache-2.0, read at `77b5369`) [R] | S | candidate | B05 |
 | UB-090 | Keep the full tool output in a file the model can read later | When a shell result is cut, save the whole redacted output under .m2c/ and name the path, so the model can read the dropped part. | M2C | OpenCode `packages/core/src/tool-output.ts` (MIT, read at `1f66f5f`) [R] | M | candidate | B05 |
 | UB-091 | Canary files that raise an alarm when the agent opens them | Plant fake credential files with unique markers in the sandbox's view of the tree; a read that returns a marker raises a critical event. | M2C | Prismor `prismor/runtime/canary.py` (Apache-2.0, read at `77b5369`) [R] | S | candidate | B05 |
-| UB-092 | Credentials the model can use but never see | The model writes a placeholder, a child process swaps in the real value at run time, output is scrubbed, and each secret is bound to hosts. | M2C | Prismor `prismor/runtime/cloaking/` (`hooks/decloak-exec.sh`, `hooks/scrub-stream.sh`, `bindings.py`, `publish_gate.py`, `secrets_store.py`; Apache-2.0, read at `77b5369`) [R] | M | candidate | B05 |
+| UB-092 | Credentials the model can use but never see | The model writes a placeholder, a child process swaps in the real value at run time, output is scrubbed, and each secret is bound to hosts. | M2C | Prismor `prismor/runtime/cloaking/` (`hooks/decloak-exec.sh`, `hooks/scrub-stream.sh`, `bindings.py`, `publish_gate.py`, `secrets_store.py`; Apache-2.0, read at `77b5369`) [R], sandbox-runtime `credential-sentinel.ts` and `credential-mask-env.ts` (Apache-2.0, read at `0bbebed0`) [R] | M | candidate | B05 |
 | UB-093 | Prove a skill or prompt change helps, with paired with-and-without evals | Run each case with and without a change, alternate which runs first, and report the lift with flags for no lift, negative, saturated, flaky. | Shared | Pi `packages/evals/src/plan.ts` and `report.ts` (MIT, read at `f17b36a`) [R] | M | candidate | B05 |
 | UB-094 | Heal half-written Markdown while a reply streams | Close or hide an unfinished bold marker, link or formula at the end of a streaming block; port OpenCode's healer only if flicker shows. | MiniMe | OpenCode `packages/patchmark/src/heal.ts` and `scripts/fuzz-differential.ts` (MIT, read at `1f66f5f`) [R] | S | candidate | B05 |
 | UB-095 | Every guard fails closed, proved by one crash test per guard | List each guard that can raise, make it raise in a test, and check the call ends refused, redacted or asked, never passed through. | M2C | my idea, from Prismor `runtime/hook_failclosed.py` and `cloaking/hooks/scrub-stream.sh` (Apache-2.0, `77b5369`) [R] and Gemini Conseca (section 6) | S | candidate | B05 |
+| UB-096 | Close the sandbox's protected-path gaps: more names, absent paths, nested repos | Add `.mcp.json`, `.vscode`, `.idea` and more to the read-only list, and stop a command planting hooks where none existed yet. | M2C | sandbox-runtime `src/sandbox/sandbox-utils.ts`, `linux-sandbox-utils.ts` and `sandbox-manager.ts` (Apache-2.0, read at `0bbebed0`) [R], M2C `sandbox/profile.py` "Known limits" | M | candidate | B06 |
 
 ## 2. Batches
 
@@ -138,6 +139,7 @@ This file is the one place where every feature you might build later is written 
 | B03 | 2026-11-26 | Review of promptfoo, Strix, Hypothesis, Schemathesis and Locust | 1 | UB-084 |
 | B04 | 2026-11-26 | Review of gemini-cli, hermes-agent, mistral-vibe and codex | 3 | UB-085 to UB-087 |
 | B05 | 2026-11-26 | Review of OpenCode, Pi, Tenuo and Prismor | 8 | UB-088 to UB-095 |
+| B06 | 2026-11-26 | Review of sandbox-runtime, codebase-memory-mcp, Django and Argus | 1 | UB-096 |
 
 ## 3. How to add features (the patch recipe)
 
@@ -272,7 +274,7 @@ The "upgrade plan" (21 Nov 2026) and its "verified spec" were split three ways. 
 | Plan Appendix A.1, A.2: the sketched SSRF guard | Replaced: the spec found the sketch allowed NAT64 and IPv4-compatible forms; `SX-04` and `SX-05` built the checked version on `urllib3` | never |
 | Truncation-poisoning guard (idea from Pi) | Already built: `truncated_arguments` is a refusal message in `backend/codeagent/loop.py` [V✓] | never |
 | Environment scrubbing before commands (Gemini CLI) | Already built: `m2c/src/m2c/secrets/env.py`, eight layers including a value scan [V✓] | never |
-| Protected paths read-only (Codex) | Already built: the bubblewrap profile makes `.git`, `.m2c` and shell start-up files read-only [V✓ `sandbox/profile.py`] | never |
+| Protected paths read-only (Codex) | Already built: the bubblewrap profile makes `.git`, `.m2c` and shell start-up files read-only [V✓ `sandbox/profile.py`]. The list is narrower than sandbox-runtime's and skips names that are absent at start and nested repositories: that is UB-096 | never |
 | Exact unique-match edits (Mistral Vibe) | Already built: `edit_file` fails with `string_not_unique` [V✓ `tools/files.py`] | an LLM "edit fixer" only if failure data shows the need |
 | Identical-failure stop, step limit, tool-call budget | Already built in `backend/codeagent/loop.py` [V✓]. The extension is UB-036 | — |
 | Domain allow-list, folder trust, network proxy blocklist | Already built (`netpolicy.py`, `trust/fingerprint.py`, `netproxy.py`) [V✓ files exist] | — |
@@ -307,11 +309,11 @@ The "upgrade plan" (21 Nov 2026) and its "verified spec" were split three ways. 
 | Hook events and failure rule, for `C13` | Already planned as `C13` (Hooks); the chapter was not edited. Codex's `HookEventName` has 14 events at `06f334a` (the review counted 15): PreToolUse, PermissionRequest, PostToolUse, PreCompact, PostCompact, SessionStart, SessionEnd, UserPromptSubmit, SubagentStart, SubagentStop, Stop, Interrupt, PreModelRequest, PostModelRequest [R]. The plan's list also has PostToolUseFailure and lacks PostCompact, Interrupt and the two model-request events. Take Codex's idea of one JSON schema per event under `protocol/`. For failure, Vibe has a **per-hook** `strict` flag, off by default, which its config model rejects on any hook type outside `STRICT_HOOK_TYPES`; the default timeout is 60 seconds [R `vibe/core/hooks/models.py`]. The review had called five types fail-closed; the code makes that an opt-in. Adopt the shape: only types that can block may be strict, strict is explicit, and a strict hook that fails or times out blocks | `C13` starts |
 | Late language-server verdicts, for `L04` | Already planned in `L04` (Verification loop and Stop hooks); the language server is `L08` (Phase 5). Hermes waits briefly after the final answer for diagnostics on the files it edited and feeds them back, at most three notes per turn [R]. Add to the UB-028 gate once `L08` exists | `L08` is built |
 | Vibe's Python core with a Rust TUI, for `MG-Z10` | A possible `MG-Z10` outcome; Appendix A was not edited. Vibe's Rust TUI is a thin JSON-RPC client over stdio and never imports Python internals (`docs/adr/0016-rust-cli-delivery-surface.md`) [R], so the safety code stays in Python. `DM-2` argues for Rust partly because the compiler checks the safety code, so this outcome trades that away; you must accept the trade before it is named | the `MG-Z10` criteria are written (Appendix A rule 10: commit them first) |
-| Codex proxy-side secret substitution (idea only) | The sandbox sees placeholders and a trusted proxy swaps in the real secret after the destination is authorised (`network-proxy/src/secret_substitution.rs`; the module header was read, the mechanism not traced) [R]. It needs a proxy that opens TLS. M2C's proxy is a CONNECT proxy and bridge (`C11b` in the build plan) and cannot rewrite headers inside TLS, so this is a redesign (XL) with a new certificate authority | a real case of a secret reaching the sandbox, or a design that adds no local CA |
+| Codex proxy-side secret substitution (idea only) | The sandbox sees placeholders and a trusted proxy swaps in the real secret after the destination is authorised (`network-proxy/src/secret_substitution.rs`; the module header was read, the mechanism not traced) [R]. It needs a proxy that opens TLS. M2C's proxy is a CONNECT proxy and bridge (`C11b` in the build plan) and cannot rewrite headers inside TLS, so this is a redesign (XL) with a new certificate authority. sandbox-runtime does the same thing (see the `C15` row below); the feature is UB-092 and its step 7 holds this route | a real case of a secret reaching the sandbox, or a design that adds no local CA |
 | Codex and Hermes automatic memory writers (idea only) | Both write memory with no review step (Codex's second-phase agent; Hermes's fork after each turn) [R], which conflicts with UB-048. The two safe parts (redact before extraction; the fork trick with a queue as its only output) are in UB-048 Notes | UB-048 is built |
 | Gemini Conseca (idea only) | An LLM writes a least-privilege policy for each task and a second check enforces it. Its tests show it returns ALLOW when disabled or when it finds no user prompt, so it fails open [R `safety/conseca/conseca.test.ts`]. Safe for you only if it can tighten and never loosen, and fails closed | `L07` is built and you want per-task narrowing (see UB-041) |
 | Vibe per-hunk checkpoints | `m2c/src/m2c/checkpoints.py` already snapshots whole files before each step and rewinds to a step [S]. Vibe keeps an append-only log of keep and revert decisions, and reverting a hunk drags the hunks built on it [R]. That needs a UI | people ask for per-hunk undo |
-| Codex limited network mode (MITM with a process-local CA) | `sandbox/netproxy.py` and `netpolicy.py` already limit hosts [S]. Method-level limits need TLS interception, and a new certificate authority is new attack surface [R `network-proxy/src/mitm.rs`] | a POST to an allowed host shows up as an exfiltration finding |
+| Codex limited network mode (MITM with a process-local CA) | `sandbox/netproxy.py` and `netpolicy.py` already limit hosts [S]. Method-level limits need TLS interception, and a new certificate authority is new attack surface [R `network-proxy/src/mitm.rs`]. sandbox-runtime has the same feature (`tlsTerminate`, experimental): see the `MG-R06` row below and UB-092, step 7 | a POST to an allowed host shows up as an exfiltration finding |
 | Vibe import of foreign plugins (Codex, Claude Code, Kimi, OpenCode) | It pulls third-party hooks and MCP configs into your trust boundary [R `core/plugins/_compatibility.py`: format detection read, adapters not]. `C14` only needs `SKILL.md` folders | you want the plugin ecosystem and have a trust design for it |
 | Codex V8 code mode | The model writes JavaScript that runs in a sandboxed V8 and calls tools [R `code-mode-runtime/Cargo.toml`]. Heavy dependencies (D14), model-written code, and its own approval design | never for the Python client |
 | Codex `apply_patch` | `edit_file` exists (`tools/files.py`); the build plan lists an apply_patch tool at wave 13 or later [S]. Codex matches a patch hunk exactly, then ignoring trailing spaces, then trimmed [R `apply-patch/src/seek_sequence.rs`: file name only]. See the "Exact unique-match edits" row | counts of `string_not_unique` failures show the need |
@@ -342,6 +344,21 @@ The "upgrade plan" (21 Nov 2026) and its "verified spec" were split three ways. 
 | OpenCode HTTP cassette recorder | `vcrpy==8.3.0` is already in `backend/requirements.txt` and its cassettes live under `backend/tests/manual/` [V✓ pin, S cassettes]. One check worth making: that those cassettes scrub authorisation headers | a cassette is found to hold a token |
 | Left out at README level (OpenCode `process-daemon`, Pi `env`, Pi `telemetry`, Pi branch summaries and `/tree` sessions, Prismor macOS Seatbelt sandbox and MCP gateway) | A Rust PTY daemon is more than `C16` needs; SSH remote execution and a vendor-neutral telemetry contract are not relevant; checkpoint rewind covers most of branch summaries; the other two were skipped before [S]. None of them was studied beyond its README. Pi's stance is no per-call approval and isolation instead, the opposite of `C06`, so it is not something to adopt | `L03` is built (branch summaries) |
 | OpenCode `deny.toml` allow-list with a named exception per crate | Your plan already has `cargo deny` (`migration_guide.md` line 362) [S]. The one idea worth taking is its shape: a licence allow-list where each exception names the crate and the reason [R]. Licence trap: it allows `opentui-sys` as `MIT AND LGPL-2.1-or-later` because the OpenTUI library it links statically includes LGPL code [R]. Do not copy its TUI crates into a paid product without a licence review | the Rust gate (`MG-Z10`) returns `PROCEED` |
+| sandbox-runtime seccomp subset, for `C11` | Already planned as `C11` (the plan calls seccomp optional); the chapter was not edited. Its `namespaces` filter returns EPERM for `unshare` and `clone` with `CLONE_NEWUSER` or `CLONE_NEWNS`, for `setns`, and for the mount family (`mount`, `umount2`, `pivot_root`, `open_tree`, `move_mount`, `fsopen`, `fsconfig`, `fsmount`, `fspick`, `mount_setattr`, `open_tree_attr`). It returns ENOSYS, not EPERM, for `clone3`, so libc falls back to `clone` and thread creation keeps working. Its other filter also blocks `socket(AF_VSOCK)` (a network namespace does not fence VM sockets) and `io_uring_setup`, `io_uring_enter` and `io_uring_register` [R `vendor/seccomp-src/seccomp-unix-block.c`]. Skip its `AF_UNIX` rule: M2C's network bridge connects to a unix socket inside the sandbox [V✓ `profile.py`, step 6b]. The gain is a smaller kernel attack surface, not a known escape, and blocking user namespaces breaks programs that sandbox themselves, such as nested containers and browsers [GK]. Not tested: whether `socket(AF_VSOCK)` works inside M2C's sandbox on a WSL2 machine, and whether your `bwrap` accepts `--seccomp` [U]. Sibling: UB-085 | `C11` starts |
+| sandbox-runtime credential masking, for `C15` | Already planned as `C15` and built: `secrets/env.py` strips or denies variables, and a named grant gives the command the real value [V✓]; the chapter was not edited. sandbox-runtime gives the command a placeholder, and a host-side proxy swaps in the real value only on requests to the hosts that credential is for [R `credential-sentinel.ts`, `credential-mask-env.ts`, with tests]. For HTTPS that needs a proxy that opens TLS, which M2C does not have. Kept as step 7 of UB-092 (route B) | `MG-Z10` records `PROCEED` |
+| sandbox-runtime TLS termination and request filter, for `MG-R06` | Already planned: `MG-R06` is the Rust `minicore-sandbox` crate; the chapter was not edited. It decrypts HTTPS to filter by method, path and header and refuses ambiguous paths. Its README marks the terminator experimental, and it makes its certificate authority with `node-forge` [R `README.md`, `request-filter.ts`, `mitm-ca.ts`]. M2C's proxy is CONNECT-only and the client may add no Python package [V✓ `m2c/pyproject.toml`]; Python's standard library cannot make certificates [GK]. Build it only as route B of UB-092, in Rust, and only if you accept a local certificate authority | UB-092 step 7 starts |
+| sandbox-runtime macOS backend, for `D9` | Already planned and **deferred** as `D9` (a Seatbelt backend later); the chapter was not edited. Its generator is `src/sandbox/macos-sandbox-utils.ts`, 1,725 lines [R]. Use it as a reference when `D9` starts, and write the port in Rust under `MG-R06` if `DM-9` applies | `D9` is un-deferred |
+| sandbox-runtime Windows backend (`srt-win`) | `srt-win` is a Rust helper at version 0.0.1 [R `vendor/srt-win-src/Cargo.toml`]; its README calls Windows support alpha and describes an elevation prompt for the install [R]. A native Windows node is `MT-P06`, a research spike only [S]; your M2C already refuses `/mnt/<drive>` and runs under WSL | `MT-P06` is go |
+| codebase-memory-mcp installer habits, for `C22` | Already planned as `C22` (`install.sh`, signed releases); the chapter was not edited. Take three habits, not the script: wrap the body in a function so a half-downloaded script does nothing, make the checksum check mandatory, and offer `--skip-config` to leave other tools' config alone [R `install.sh`]. Its release pipeline publishes SLSA provenance, Sigstore signatures and SHA-256 sums [R `SECURITY.md`], which is what `C22` means by signed releases | `C22` starts |
+| codebase-memory-mcp context-only hooks, for `D15` and `C13` | Already planned: `C13` (Hooks, not built) and the `D15` contract (exit 0 means no objection, exit 2 blocks, other codes warn); the chapters were not edited. Its `hook-augment` command reads the hook payload on stdin and prints extra context (graph hits for a search, a coverage warning after a read); on any error or timeout it exits 0 with no output, so it can never block a call. The input is capped at 256 KB and the in-process deadline is 2 seconds by default (`CBM_HOOK_DEADLINE_MS`, 50 to 10,000 ms; the 300 ms constant in the file is the old value, issue #858) and is not compiled in on Windows [R `src/cli/hook_augment.c`]. `D15` has no way for a hook to add context. If you add one: treat what a hook adds as untrusted data (frame it with UB-087, and never let it carry a decision), and keep the fail-open rule for hooks that only add context, never for hooks that may block (see the `C13` rows above: a strict hook that crashes denies and one that is not strict warns; a context-only hook is neither, it fails open with no output) [U] | `C13` starts |
+| Django deploy preflight (idea only) | `core/checks/security/base.py` is a registry of configuration checks, each with an id, a level and a hint (`security.W001` to `W027`) [R]. The content is Django-specific. MiniMe has per-secret startup checks (`backend/eo/devices.py` raises `NotConfigured` for a missing, short or reused `DEVICE_JWT_SECRET`) and no single preflight [V✓]. Idea: one `scripts/preflight` that lists unsafe settings of your own environment, for example a CSP report URI that is unset. Nobody has designed it [U] | a deploy goes wrong because of a setting |
+| sandbox-runtime resolved-address check | Already built, and stricter: `sandbox/netproxy.py` resolves the name once, connects to the resolved address, refuses the whole request if any address is loopback, private or link-local even for an allowed name, and judges IPv4-mapped, NAT64 and 6to4 forms by the address inside [V✓ docstring and `_blocked`]. sandbox-runtime's version drops denied addresses and dials the rest [S] | never |
+| codebase-memory-mcp static-embedding semantic search | Per-token int8 vectors embedded in the binary, derived from nomic-embed-code (Apache-2.0, `vendored/nomic/NOTICE`) [R]. `L08` says to add semantic search only if an eval shows a gain, and nothing shows one yet | the UB-031 golden tasks show search misses |
+| codebase-memory-mcp team-shared graph artifact | `.codebase-memory/graph.db.zst` is an opt-in compressed snapshot you commit next to the source. Its README warns that git keeps each rewrite as a full new blob, and that one team reached about 6 GB across about 350 commits of that one file [R `README.md`] | never |
+| Django `django.tasks` | Its own docs say it provides no worker to run tasks, so execution needs a backend and a service you supply [R `docs/topics/tasks.txt`]. It cannot keep a job alive after a closed tab (UB-057), and MiniMe is not a Django app | never |
+| Django hostile-URL test tables | `tests/utils_tests/test_http.py` tests redirect-target checks, a problem MiniMe does not have. `backend/tests/unit/test_url_guard.py` already has rows for backslash and `@`, user names, odd IP spellings and mapped IPv6 [V✓] | MiniMe takes a redirect target from user input |
+| Argus CSP deep analyzer | A 199-line crawler that scores a site's CSP, with `verify=False` in two places and three bare `except:` [R `argus/modules/csp_deep_analyzer.py`]. UB-012 needs reports from real browsers, not a score | never |
+| Argus recon modules | A reconnaissance toolkit: 181 tracked Python files, 10 commits, no tests. Its installer must run as root and removes its install directory with `rm -rf`; it pins `rich>=13,<14` against M2C's `rich==15.0.0` [R]. Sending targets to about 20 outside services is carried from the review [S]. See UB-035 for why it is not the tool that entry wants | never |
 
 ## 7. Sources register
 
@@ -359,13 +376,13 @@ One row per source. `Checked` is `—` until you or a session has opened the sou
 | Schemathesis | https://github.com/schemathesis/schemathesis | MIT (`LICENSE` read at `15b71f5`) | USE | UB-017 | licence read 2026-11-26; read from source and docs, not run |
 | k6 | — | not stated | in use (`backend/scripts/minime_loadtest.js`) | UB-018 | — |
 | Locust | https://github.com/locustio/locust | MIT (`LICENSE` read at `5084aa1`) | SKIP | UB-018, section 6 | licence read 2026-11-26; read from source and docs, not run |
-| Django | — | not stated | READ | UB-019 | — |
+| Django | https://github.com/django/django | BSD-3-Clause (`LICENSE` read at `baa7a809`). `LICENSE.python` carries the Python Software Foundation licence for code taken from the standard library | READ (ideas only so far; code may be copied only with the BSD notice kept, and the Python notice for files derived from the standard library) | UB-012, UB-019, section 6 | licence read 2026-11-26; read from source, not run; four capabilities read (CSP, tasks, deploy checks, URL test tables) |
 | pip-audit, npm audit | — | not stated | in use | UB-021 | — |
 | Lurkr | — | MIT | TRY | UB-023 | — |
-| anthropic sandbox-runtime | — | Apache-2.0 | LEARN | UB-032 | — |
+| anthropic sandbox-runtime | https://github.com/anthropic-experimental/sandbox-runtime | Apache-2.0 (`LICENSE` read at `0bbebed0`); no `NOTICE` file in the repository root | LEARN (take designs and write the code fresh; if code is copied, keep the Apache-2.0 text and mark changes. TypeScript on Node 22.12 or newer; its README calls it a Beta Research Preview and the Windows backend alpha; the Windows helper `srt-win` is Rust at 0.0.1) | UB-006, UB-032, UB-040, UB-092, UB-096, section 6 | licence read 2026-11-26; read from source, not run; no telemetry client found by search, not exhaustive |
 | Greywall | — | not stated | LEARN | UB-032 | — |
-| codebase-memory-mcp | — | not stated | USE (optional) | UB-034 | — |
-| Argus | — | not stated | TRY | UB-035 | — |
+| codebase-memory-mcp | https://github.com/DeusData/codebase-memory-mcp | MIT (root `LICENSE` read at `9a4da7a3`, DeusData 2025). Of 188 tracked files named like a licence or notice, only its own licence-gate scripts mention GPL, LGPL or AGPL, inside their rules | USE (optional; a C binary with a daemon; its installer edits agent configs and `--skip-config` turns that off; one GitHub release check at start per its `SECURITY.md`) | UB-021, UB-032, UB-034, UB-045, section 6 | licence read 2026-11-26; read from source, not run; the licence of each vendored grammar was not read one by one |
+| Argus | https://github.com/divinelabio/argus | MIT (`LICENSE` read at `f51c0442`); the holder is "Jasonxtn" and the README says to clone `jasonxtn/argus`, so this repository may be a copy | SKIP (a web reconnaissance toolkit, not the MCP red-team tool UB-035 describes; 10 commits, 181 tracked Python files, no tests; its installer needs root) | UB-035, section 6 | licence read 2026-11-26; read from source, not run |
 | Gemini CLI | https://github.com/google-gemini/gemini-cli | Apache-2.0 (`LICENSE` read at `60f8082`) | LEARN (code may be copied only with the licence and notices kept and changes marked; usage statistics are on by default, `privacy.usageStatisticsEnabled` is true in `settingsSchema.ts`, and what is sent was not read) | UB-036, UB-042, UB-048, UB-075, section 6 | licence read 2026-11-26; read from source, not run |
 | Hermes (hermes-agent) | https://github.com/NousResearch/hermes-agent | MIT (root `LICENSE` read at `c84e8d7f`, Nous Research 2025); 17 nested `LICENSE` or `NOTICE` files exist under `optional-skills/`, `skills/`, `plugins/` and `apps/desktop/src/plugins/hermes-bots`, and their terms were not read | LEARN (take nothing from those folders before reading its licence; `plugins/security-guidance` has a NOTICE and was reported as Apache-2.0 by the review; the root holds `hermes_constants_scratch*.py` files that look like scratch code) | UB-028, UB-033, UB-037, UB-042, UB-048, UB-064, UB-087, section 6 | root licence read 2026-11-26; read from source, not run; no telemetry client found by search, not exhaustive |
 | Mistral Vibe | https://github.com/mistralai/mistral-vibe | Apache-2.0 (`LICENSE` read at `fb7511a`) | LEARN (code may be copied only with the licence and notices kept and changes marked; it needs Python 3.12 and uses 3.12 syntax such as `type` aliases, so check any file before it goes into code with a 3.11 floor; telemetry is on by default per the review, which was not re-read: `enable_telemetry`, posting to `/v1/datalake/events` on api.mistral.ai) | UB-038, UB-042, UB-044, UB-086, UB-087, section 6 | licence read 2026-11-26; read from source, not run |
@@ -441,6 +458,8 @@ Every change of status, and every general decision about this backlog. `--set-st
 | 2026-11-26 | — | batch B03 created | five reference repos read and their licences recorded; the review's recommendations applied: existing entries extended in place (UB-014 to UB-018, UB-030, UB-031, UB-045, UB-048, UB-056, UB-068), UB-084 added, eight items recorded in section 6. Other chapters not edited |
 | 2026-11-26 | — | batch B04 created | four reference repos (gemini-cli, hermes-agent, mistral-vibe, codex) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-028, UB-033, UB-036, UB-037, UB-038, UB-042, UB-048, UB-064, UB-075), UB-085 to UB-087 added, 18 rows added to section 6. Other chapters not edited |
 | 2026-11-26 | — | batch B05 created | four reference repos (OpenCode, Pi, Tenuo, Prismor) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-016, UB-036, UB-039, UB-041, UB-042, UB-046), UB-088 to UB-094 added, UB-095 added as my own idea, 24 rows added to section 6. Other chapters not edited |
+| 2026-11-26 | — | batch B06 created | four reference repos (sandbox-runtime, codebase-memory-mcp, Django, Argus) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-006, UB-012, UB-019, UB-021, UB-032, UB-034, UB-035, UB-040, UB-045, UB-087, UB-092), UB-096 added, 15 rows added to section 6 and 3 existing rows cross-linked. Other chapters not edited |
+| 2026-11-26 | UB-035 | candidate -> parked | the repo read as Argus is a recon toolkit with no MCP content, not the tool the entry wants; reopen when you name the right repo (batch B06) |
 
 ## Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 Nov 2026, minus the finished SX series
 
@@ -570,7 +589,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > Optional extra layer: do the risky fetching in the E2B sandbox or behind a proxy that enforces the same rules.
 
-**Product** MiniMe · **Source** Plan S1 (defence in depth) · **Status** candidate · **Depends** — · **Decision** Worth the complexity next to UB-005? · **Evidence** [V✓] [U]
+**Product** MiniMe · **Source** Plan S1 (defence in depth), sandbox-runtime `docs/srt-proxy.md` (Apache-2.0, read at `0bbebed0`) [R] · **Status** candidate · **Depends** — · **Decision** Worth the complexity next to UB-005? · **Evidence** [V✓] [R] [U]
 
 **What.** Move `safe_get` and `safe_stream` traffic out of the backend process, either into the existing E2B sandbox or through an egress proxy that applies the same address rules (the M2C `netproxy` is a model).
 
@@ -583,10 +602,11 @@ Every change of status, and every general decision about this backlog. `--set-st
 1. Pick: sandbox per fetch (the code already notes E2B cold-start cost for tools [V]) or one long-lived proxy.
 2. Put the choice behind the `safe_get` interface so callers do not change.
 3. Keep `url_guard` checks in front as well.
+4. If you choose the proxy, copy the split that sandbox-runtime calls its external-decider mode: the proxy holds no policy and asks a separate process about each request, so a bug in the proxy cannot loosen the policy, and a request is forwarded only on a well-formed allow (its docs say the proxy fails closed) [R `docs/srt-proxy.md`]. Here `url_guard` would be the decider. Take the shape, not the files: it is TypeScript on Node [U].
 
-**Done when.** With the in-process checks disabled in a test, a fetch of an internal address still fails.
+**Done when.** With the in-process checks disabled in a test, a fetch of an internal address still fails. With the decider stopped, the proxy refuses every request.
 
-**Notes.** Probably not worth it if UB-005 is done; keep as an option.
+**Notes.** Probably not worth it if UB-005 is done; keep as an option. Step 4 was added in B06.
 
 ### UB-007: Audit every other server-side fetch of a user-influenced URL (M)
 
@@ -693,7 +713,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > Collect violation reports for a week, fix them, then enforce the policy from SX-29.
 
-**Product** MiniMe · **Source** SX-29 follow-up, Plan S3, Spec U4.4 · **Status** candidate · **Depends** — · **Decision** D-7: where CSP reports go (Sentry report URL or a small endpoint) · **Evidence** [V✓]
+**Product** MiniMe · **Source** SX-29 follow-up, Plan S3, Spec U4.4, Django `django/middleware/csp.py` and `django/views/decorators/csp.py` (BSD-3-Clause, read at `baa7a809`) [R] · **Status** candidate · **Depends** — · **Decision** D-7: where CSP reports go (Sentry report URL or a small endpoint) · **Evidence** [V✓] [R] [U]
 
 **What.** `frontend/securityHeaders.js` sends `Content-Security-Policy-Report-Only` and reads `CSP_REPORT_URI` at build time; without it no `report-uri` is sent [V✓]. This feature collects reports and switches to enforcing.
 
@@ -706,12 +726,12 @@ Every change of status, and every general decision about this backlog. `--set-st
 1. Decide where reports go (D-7) and set `CSP_REPORT_URI` for the build.
 2. Run on staging for about a week and load every preview type, the Pyodide worker, Sentry and Pusher.
 3. Fix each violation by adjusting the policy or the code.
-4. Change the header name to the enforcing one in the module and its test (the test now asserts report-only); keep a report-only copy to tighten further.
+4. Enforce in two stages. Django's CSP support runs an enforced policy and a stricter report-only policy side by side, and either can be replaced for one view [R]. MiniMe enforces only `frame-ancestors 'none'` today; its report-only policy already holds `object-src 'none'` and `base-uri 'self'` and has no `form-action` [V✓ `securityHeaders.js`]. Stage one: add `form-action 'self'` to the report-only policy; once the reports are clean, move it, `object-src` and `base-uri` into the enforced header. First check that the srcDoc previews, which inherit the page policy (the SX-29 comment says so [V✓]), use no `<object>`, `<embed>` or `<base>` [U]. Stage two: enforce the rest. Change the header name in the module and its test (the test now asserts report-only), and keep a stricter report-only copy to tighten further.
 5. Use nonces only after UB-001.
 
-**Done when.** The enforced policy gives no violations in the UB-001 smoke list.
+**Done when.** The enforced policy gives no violations in the UB-001 smoke list. The enforced header holds more than `frame-ancestors`, and the test asserts both headers.
 
-**Notes.** Needs a staging environment.
+**Notes.** Needs a staging environment. A per-path split already exists for `/workers/*` (its own report-only policy [V✓]), so a per-view override is needed only if a preview host wants a different policy.
 
 ### UB-013: A small blocking promptfoo gate (M)
 
@@ -852,26 +872,26 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **Notes.** You already have a k6 load test (see **Where.**), and `MG-B00` in Appendix A does not mention it [V✓ grep of `migration_guide.md`]. Before you write the web-product scenarios of step 2 in the Python harness, check whether the k6 script can hold them. Keep the device WebSocket harness as custom asyncio: Locust's core has no raw WebSocket user (only `contrib/socketio.py` and `mqtt.py`) [R]. Locust is skipped (section 6).
 
-### UB-019: A practice lab with Django and nginx on your own machine (S)
+### UB-019: A practice lab on your own machine: a small FastAPI app behind Caddy (S)
 
 > Learn the fuzz, load and pentest tools on throwaway targets before pointing them at staging.
 
-**Product** Shared · **Source** Spec T8 · **Status** candidate · **Depends** — · **Decision** Confirm what you meant: the spec read "Django and nginx are stress-test targets" as practice targets · **Evidence** [V]
+**Product** Shared · **Source** Spec T8, Django (BSD-3-Clause, read at `baa7a809`) [R] · **Status** candidate · **Depends** — · **Decision** The spec read "Django and nginx are stress-test targets" as practice targets. B06 took the review's recommendation and swapped them for FastAPI and Caddy (see Notes); change it back if you meant Django · **Evidence** [V] [R]
 
-**What.** A throwaway `docker-compose` with a stock Django app (from the clone you have) and nginx serving static files, bound to `127.0.0.1`.
+**What.** A throwaway `docker-compose` with a small FastAPI app and Caddy in front of it, bound to `127.0.0.1`. The app has a handful of routes: one public, one that needs a token, one that returns a 500 on a bad input (so a fuzz run has something to find) and one that is slow.
 
-**Why.** Lets you tune budgets and learn Schemathesis, k6 and Strix safely.
+**Why.** Lets you tune budgets and learn Schemathesis, k6 and Strix safely. Two reasons for the swap: Schemathesis needs a schema to fuzz, and a stock Django app has none (a search of Django `baa7a809` for "openapi" finds 0 matches [R]), while a FastAPI app publishes one by default [GK]; and section 6 says you use Caddy, not nginx.
 
 **Where.** A new folder outside the product code, for example `labs/`.
 
 **How.**
 
-1. Write the compose file; bind to loopback only.
+1. Write the app and the compose file; bind to loopback only.
 2. Run each tool once and note settings.
 
 **Done when.** Each tool has run against the lab and its settings are written down.
 
-**Notes.** Never point these tools at a host you do not own. If you meant something else by Django and nginx, change or drop this feature.
+**Notes.** Never point these tools at a host you do not own. If you wanted Django itself (its admin, or its patterns), say so and this entry changes again; the other Django findings of B06 are in section 6.
 
 ### UB-020: Pre-audit package for the daemon (M)
 
@@ -892,24 +912,26 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **Done when.** The package exists and nothing in it is an unfixed high finding.
 
-### UB-021: SBOM on release (S)
+### UB-021: SBOM on release, and a licence allow-list gate (M)
 
-> Produce a software bill of materials for the backend and frontend when you cut a release.
+> Produce an SBOM when you cut a release, and fail CI when a dependency's licence is not on a written list.
 
-**Product** MiniMe · **Source** Plan S7.5 · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [GK]
+**Product** MiniMe · **Source** Plan S7.5, codebase-memory-mcp `scripts/license-policy.json` (MIT, read at `9a4da7a3`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [GK] [R] [V✓]
 
-**What.** A release step that generates an SBOM from `backend/requirements.txt` and `frontend/package-lock.json`.
+**What.** Two small CI steps. (1) A release step that generates an SBOM from `backend/requirements.txt` and `frontend/package-lock.json`. (2) A check that fails when a dependency's licence is not on a written allow-list, so a new licence is a reviewed change. codebase-memory-mcp does this with a JSON allow-list of SPDX ids (MIT, Apache-2.0, BSD, ISC, Zlib, CC0 and a few more) and a comment that adding copyleft needs a maintainer decision [R]. Only that file was read, not the scripts that apply it.
 
-**Why.** Lets you answer "are we affected" quickly the next time a package is compromised.
+**Why.** (1) Lets you answer "are we affected" quickly the next time a package is compromised. (2) Nothing checks dependency licences today: `.github/` has no match for "license" or "spdx" [V✓]. A dependency that moved to a licence you cannot ship would go unnoticed.
 
-**Where.** `.github/workflows/ci.yml` or a new release workflow.
+**Where.** `.github/workflows/ci.yml` or a new release workflow; a new `licence-policy.json` next to it.
 
 **How.**
 
-1. Read the current documentation and choose a generator; pin its version.
+1. Read the current documentation and choose an SBOM generator; pin its version.
 2. Run it with `contents: read` only and no secrets; attach the file as an artifact.
+3. Write the allow-list with two scopes: runtime dependencies (permissive only) and test or tool dependencies, where a weaker licence can be fine because nothing ships. Hypothesis is MPL-2.0 and would be test-only (section 7) [U].
+4. Run the check in CI against the SBOM from step 1, reading the policy from the file, so adding a licence is a one-line reviewed diff. Write the check fresh; do not take their scripts.
 
-**Done when.** A release produces both files.
+**Done when.** A release produces both files. A test run with a dependency whose licence is not on the list fails CI.
 
 ### UB-022: Pin scanner binaries and images by digest (S)
 
@@ -1124,7 +1146,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > Run MCP servers under M2C's sandbox and network policy, with approval-time hashing of each tool definition.
 
-**Product** M2C · **Source** Spec M5, Plan S6 and 4.3 and 4.4, M2C plan item C23 · **Status** candidate · **Depends** — · **Decision** Write our own sandbox profile or wrap Anthropic's `sandbox-runtime` as a pinned child process (short spike) · **Evidence** [V✓] [W]
+**Product** M2C · **Source** Spec M5, Plan S6 and 4.3 and 4.4, M2C plan item C23, sandbox-runtime (Apache-2.0, read at `0bbebed0`) [R], codebase-memory-mcp `src/mcp/mcp.c` (MIT, read at `9a4da7a3`) [R] · **Status** candidate · **Depends** UB-096 · **Decision** Taken in B06 from the review: keep M2C's own sandbox profile and port ideas, do not wrap `sandbox-runtime` (reasons in step 1). Reopen only if you want macOS before `D9` · **Evidence** [V✓] [R] [W]
 
 **What.** An MCP client inside M2C (stdio servers), kept local-only as the M2C plan's decision says.
 
@@ -1134,15 +1156,16 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **How.**
 
-1. Spike (a day): own profile versus `sandbox-runtime` (Apache-2.0, Seatbelt on macOS and bubblewrap on Linux, proxy-based filtering, TypeScript API [W]). M2C is Python, so it is a design reference or a separate process. Greywall is a similar container-free sandbox [README].
+1. The spike is replaced by a decision (B06): keep M2C's own profile and take ideas from `sandbox-runtime` (Seatbelt on macOS and bubblewrap on Linux, proxy-based filtering, TypeScript [R]). Reasons: M2C's profile starts from an empty home and a private network namespace, and its proxy refuses a request if any resolved address is private or a metadata address, even for an allowed name [V✓ `profile.py` and `netproxy.py` docstrings]; wrapping `sandbox-runtime` adds Node 22.12 or newer (`engines` in its `package.json` [R]), which cuts against DM-2's single binary. Do UB-096 first: it keeps a server's own config files (`.mcp.json`) read-only. Greywall is a similar container-free sandbox [README].
 2. Run each server under the sandbox with the network proxy.
 3. Hash each tool definition at approval and re-ask on change (as `SX-26` does on the server side).
-4. Treat tool descriptions and results as untrusted data.
-5. Keep large tool schemas out of the prompt (UB-033).
+4. Give each server a fixed list of allowed tool names. A tool the server adds in a later version is not shown to the model and cannot be called until the person approves it. codebase-memory-mcp does this with two fixed lists (its `analysis` profile allows 13 tools and `scout` allows 8), and a name not on the list is neither advertised nor callable [R `mcp_tool_allowed`]. Approval then covers the name and the definition hash.
+5. Treat tool descriptions and results as untrusted data.
+6. Keep large tool schemas out of the prompt (UB-033).
 
-**Done when.** Tests with a fake server: a changed description triggers re-approval; a result with an injection phrase is flagged; a non-`https` remote URL is refused.
+**Done when.** Tests with a fake server: a changed description triggers re-approval; a result with an injection phrase is flagged; a non-`https` remote URL is refused; a tool added after approval is hidden and listed as new and not approved.
 
-**Notes.** Dynamic Client Registration is deprecated as of protocol version 2026-07-28 [W]; do not build new dependence on it.
+**Notes.** Dynamic Client Registration is deprecated as of protocol version 2026-07-28 [W]; do not build new dependence on it. Hardening seen in `sandbox-runtime` that belongs to build plan item `C11` and not here (seccomp, credential masking, TLS termination, macOS) is in section 6.
 
 ### UB-033: Deferred tool loading with search over tool specs (M)
 
@@ -1171,29 +1194,33 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 ### UB-034: Offer codebase-memory-mcp as an optional local server (S)
 
-> A code knowledge-graph MCP server the user can install themselves, running device-local under the sandbox.
+> A code knowledge-graph MCP server the user can install themselves, running device-local under the sandbox with a narrow tool list.
 
-**Product** M2C · **Source** codebase-memory-mcp [R] · **Status** candidate · **Depends** UB-032 · **Decision** none · **Evidence** [R]
+**Product** M2C · **Source** codebase-memory-mcp (MIT, read at `9a4da7a3`) [R], M2C build plan item `L08` · **Status** candidate · **Depends** UB-032 · **Decision** Where its index may live: a new writable mount outside the project, or a folder inside it (step 3) · **Evidence** [R] [V✓] [U]
 
-**What.** Documentation and a tested example config; no bundling.
+**What.** Documentation and a tested example config; no bundling. M2C has no code graph: its tools are files, paths, search and shell [V✓ `m2c/src/m2c/tools/`], and the planned repo map is `L08`. This gives that value without building it.
 
-**Why.** It gives the agent structural code search. Its `CBM_ALLOWED_ROOT` setting is the kind of containment wanted [R].
+**Why.** It gives the agent structural code search (a tree-sitter graph, call paths, search). Its `CBM_ALLOWED_ROOT` setting is the kind of containment wanted [R].
 
-**Where.** M2C docs; the UB-032 client.
+**Where.** M2C docs; the UB-032 client; `m2c/src/m2c/sandbox/profile.py` if a writable mount is added.
 
 **How.**
 
-1. Read its licence and current README.
-2. Write the config for a sandboxed run limited to the project root.
-3. **Never run its installer**, which edits many client configs [R].
+1. The licence was read in B06 (MIT). Of 188 tracked files named like a licence or notice, only its own licence-gate scripts mention GPL, LGPL or AGPL, inside their rules [R]. Re-read its README when you write the config.
+2. Start it with `--tool-profile=scout`: 8 inspection tools, without `query_graph`, `search_code` or `detect_changes` (the `analysis` profile has 13) [R]. Its header says these profiles may still write to the cache, so they are not read-only modes [R `mcp.h`].
+3. Give it somewhere to keep its index. It defaults to `~/.cache/codebase-memory-mcp`, and `CBM_CACHE_DIR` moves it [R `docs/CONFIGURATION.md`]. In M2C's sandbox the home is an empty read-only tmpfs, `/tmp` is a fresh tmpfs for each run and `.m2c` is read-only; the profile has `extra_ro` but no extra writable mount [V✓ `profile.py`]. So the index is rebuilt each time the server starts (if kept in `/tmp`), or it needs a new writable mount, or a folder inside the project. Decide which [U].
+4. **Never run its installer**, which edits many client configs [R: `--skip-config` exists to turn that off; that it also enables hooks by default is carried from the review [S]].
+5. It runs a daemon (`src/daemon/`) [R]. How that behaves inside a per-run sandbox with its own process namespace was not tested; test it first [U].
 
-**Done when.** One documented run works under the sandbox.
+**Done when.** One documented run works under the sandbox with the home read-only: the index is built, the model sees only the `scout` tools, and a second start behaves as step 3 decided.
 
-### UB-035: Rehearse MCP attacks against M2C with Argus (S)
+**Notes.** It makes one request to GitHub's release API at start to show an update notice and sends no other telemetry, per its `SECURITY.md` [R, not traced in the code]. Keep `api.github.com` off the server's allowed hosts so the check fails closed [U]. `detect_changes` may help UB-045.
+
+### UB-035: Rehearse MCP attacks against M2C with a red-team tool you still have to name (S)
 
 > Use a red-team tool with a built-in vulnerable demo agent to rehearse tool-poisoning and rug-pull attacks.
 
-**Product** M2C · **Source** Argus [README] · **Status** candidate · **Depends** UB-032 · **Decision** none · **Evidence** [README]
+**Product** M2C · **Source** "Argus" (README level); the repo read in B06, `divinelabio/argus` (MIT, read at `f51c0442`), is a different tool [R] · **Status** parked · **Depends** UB-032 · **Decision** Which repo you meant (send the link) · **Evidence** [R]
 
 **What.** A cheap rehearsal against the new MCP client; the demo agent needs no API key.
 
@@ -1203,11 +1230,13 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **How.**
 
-1. Read Argus's README and licence (not studied in depth yet).
+1. Find the right tool. The repo read in B06 under the name Argus is a web reconnaissance toolkit and has nothing about MCP (below); tell us which repo you meant, then read its README and licence.
 2. Point it at a test M2C configuration only.
 3. Convert each real finding into a regression test.
 
 **Done when.** One run is recorded and its findings triaged.
+
+**Notes.** Parked in B06: `divinelabio/argus` has 181 tracked Python files, 10 commits and no test folder, and a search for MCP, tool poisoning, rug pull and prompt injection finds 0 matches [R]. Its README tells you to clone `jasonxtn/argus` and its `LICENSE` holder is "Jasonxtn", so the repo may be a copy of another one. Reopen when you give the right link. Until then UB-032's own tests (changed description, injection phrase, non-`https` URL) cover the same ground.
 
 ### UB-036: Stuck detection beyond identical failures (M)
 
@@ -1298,24 +1327,29 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **Notes.** Added in B05. Tenuo's observe mode is a global `configure(mode="observe")`, a `dry_run` flag per guard, and audit events marked `observed=True` (Apache-2.0, read at `4792253`) [R]. Use that event shape: a would-have-blocked event has the same fields as a block plus `observed: true`, so one report command lists both. Prismor's per-rule `observe` and `enforce` modes agree [R]. Design idea [U]: a rule on the non-overridable floor (the `C27` row in section 6) can never be put in observe mode, so a new rule is the only thing that can be trialled this way.
 
-### UB-040: Check whether sandbox denials are already stored (S)
+### UB-040: Store sandbox denials and explain them to the model (M)
 
-> Before building a violation log, read what `events.py` and the network proxy callback already keep.
+> Tie each network denial to its command, store file denials, and tell the model what to do instead of a bare refusal.
 
-**Product** M2C · **Source** Spec M6 · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V]
+**Product** M2C · **Source** Spec M6, sandbox-runtime `src/sandbox/sandbox-manager.ts` and `request-filter.ts` (Apache-2.0, read at `0bbebed0`) [R] · **Status** candidate · **Depends** — · **Decision** Where file denials inside a shell command come from, since bubblewrap gives no event for them (step 4) · **Evidence** [V] [V✓] [R] [U]
 
-**What.** A short read-only investigation with a written answer; a store is added only if one is missing.
+**What.** The question this entry first asked is answered [V✓]: the proxy's decision record (host, decision word, scope) goes to the local log (`tui/session.py`, `_network_record`); the refusal text is one fixed sentence per reason (`netproxy.py`, `RESPONSES`), so the model sees the same words whatever the rule; and file denials are stored nowhere. What is left is to store them and to say why. sandbox-runtime appends a `<sandbox_violations>` block to a command's output that names the policy that refused it, so the model stops retrying blindly [R `sandbox-manager.ts`]; its store is in memory and keeps 100 records [R].
 
-**Why.** The sandbox design reference includes a violation log; building it twice would waste time.
+**Why.** A model that sees only "403" or "read-only file system" retries or tries a workaround, and the person sees nothing afterwards.
 
-**Where.** `m2c/src/m2c/store/events.py`; the record callback in `m2c/src/m2c/sandbox/netproxy.py`.
+**Where.** `m2c/src/m2c/store/events.py`; `m2c/src/m2c/sandbox/netproxy.py` (`RESPONSES`); `m2c/src/m2c/tui/session.py` (`_network_record`); the shell tool's result builder (`tools/shell.py`).
 
 **How.**
 
-1. Read both and list what is persisted when a denial happens.
-2. If nothing, add an event type and a viewer.
+1. Tag each logged network denial with the id of the command that caused it; a record has only host, decision and scope today [V✓].
+2. Reword each fixed refusal to say what to do, for example ask the user to allow the host, or use https. Keep them fixed strings, so no model-controlled text enters them [U].
+3. When a command had denials, add a short block to its result with the rule name and the action to take. Never put a path or a value in it: `profile.py` says its error text never repeats a path, because a path can be a secret too [V✓], and that rule stays. A command can print a copy of the block itself, so the block's marker must be covered by the look-alike relabelling of UB-087 [U]. Put the block outside the part of a result that can be cut, so a long output cannot drop it (see UB-090) [U].
+4. File denials: a refusal by the file tools passes through the policy engine, which can record it. A denial inside a shell command has no event source in bubblewrap, so the only signal is the after-the-command check of UB-096 step 2 [U].
+5. Show the list of denials in the session summary.
 
-**Done when.** The answer is written, and a denial is visible to the user afterwards.
+**Done when.** A fake command that hits a denied host leaves one event with its command id. The shell result holds the block and no path. A command that prints a fake block has it relabelled. The person can list the denials after the run.
+
+**Notes.** sandbox-runtime's Linux events come from its own monitor (`linux-violation-monitor.ts`) and a native helper; not copied here. Take the idea of one block per command, not the code.
 
 ### UB-041: Signed, narrowing grants for subagents (L)
 
@@ -1408,7 +1442,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > A diff reviewer that gives line-level comments and favours few, correct findings over many.
 
-**Product** M2C · **Source** open-code-review [R], Strix `skills/scan_modes/diff.md` (Apache-2.0, read at `9ed84f9`) [R], Plan 4.2 · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R]
+**Product** M2C · **Source** open-code-review [R], Strix `skills/scan_modes/diff.md` (Apache-2.0, read at `9ed84f9`) [R], codebase-memory-mcp `detect_changes` (MIT, read at `9a4da7a3`) [R], Plan 4.2 · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R] [U]
 
 **What.** The `review` command (M2C plan item L05, `/review` and `/security-review`; the plan's label "C20" was wrong).
 
@@ -1421,6 +1455,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 1. Build a diff-to-comments flow with tools and structured line comments.
 2. Write the scope rules of the review prompt from Strix's diff mode, in your own words: for a PR, removed controls, newly reachable sinks and weakened helpers are in scope [R]. It is prompt text only, so it is cheap to try.
 3. Run it on your own past diffs and compare precision and cost.
+4. Optional, once UB-034 runs: try codebase-memory-mcp's `detect_changes` tool on a known diff of your own. It maps a git diff to the files and symbols it affects [R `src/mcp/mcp.c`]. The README says it adds risk classification, but its handler has none; hop-risk labels exist only on `trace_path` (opt-in `risk_labels`) [R]. It was read, not run. If it finds the callers a diff touches, the reviewer can use it to set scope; if not, leave it out [U].
 
 **Done when.** You have your own precision and cost figures.
 
@@ -2234,7 +2269,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **Product** M2C · **Source** my idea, from Hermes `agent/prompt_builder.py` (MIT, `c84e8d7f`), Gemini CLI `prompts/snippets.ts` (Apache-2.0, `60f8082`) and Vibe `_goal_engine.py` (Apache-2.0, `fb7511a`) [R] · **Status** candidate · **Depends** — · **Decision** Build it before UB-037, UB-042 and UB-086, or let each write its own and merge them later · **Evidence** [R] [V✓] [U]
 
-**What.** One module in `backend/codeagent/` with three parts: a function that escapes, wraps and marks a piece of text for a named kind of frame; a function that relabels text imitating one of your own frames inside a tool result; and one list of the frame kinds. Users would be the steer message of UB-037, the goal envelope and summary of UB-042, the objective of UB-086, and the existing `NOTICE_*` messages.
+**What.** One module in `backend/codeagent/` with three parts: a function that escapes, wraps and marks a piece of text for a named kind of frame; a function that relabels text imitating one of your own frames inside a tool result; and one list of the frame kinds. Users would be the steer message of UB-037, the goal envelope and summary of UB-042, the objective of UB-086, and the existing `NOTICE_*` messages. B06 adds two: the sandbox-denial block of UB-040 (a command can print a copy of it, so its marker needs the look-alike relabelling) and any context a hook adds (the `D15` row of section 6).
 
 **Why.** Three entries each need a marker, and each marker is a place where a look-alike can get through. Hermes needed a list of strings that imitate its control frames [R], Gemini tells its summariser to ignore instructions found in the history [R], and Vibe escapes the objective so it cannot close its own block [R]. One shared list makes a new kind of frame get the same cover. This is an idea; nobody has run it.
 
@@ -2368,7 +2403,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > The model writes a placeholder, a child process swaps in the real value at run time, output is scrubbed, and each secret is bound to hosts.
 
-**Product** M2C · **Source** Prismor `prismor/runtime/cloaking/` (`hooks/decloak-exec.sh`, `hooks/scrub-stream.sh`, `bindings.py`, `publish_gate.py`, `secrets_store.py`; Apache-2.0, read at `77b5369`) [R] · **Status** candidate · **Depends** — · **Decision** Do you want credentials usable but invisible in M2C shell commands, or is "strip the environment plus a named grant" enough? (the review's question 3) · **Evidence** [R] [V✓] [U]
+**Product** M2C · **Source** Prismor `prismor/runtime/cloaking/` (`hooks/decloak-exec.sh`, `hooks/scrub-stream.sh`, `bindings.py`, `publish_gate.py`, `secrets_store.py`; Apache-2.0, read at `77b5369`) [R], sandbox-runtime `credential-sentinel.ts` and `credential-mask-env.ts` (Apache-2.0, read at `0bbebed0`) [R] · **Status** candidate · **Depends** — · **Decision** Do you want credentials usable but invisible in M2C shell commands, or is "strip the environment plus a named grant" enough? (the review's question 3). For route B (step 7): is a local certificate authority inside the sandbox acceptable? It breaks clients that pin certificates · **Evidence** [R] [V✓] [U]
 
 **What.** The model writes `@@SECRET:name@@`. A child process swaps in the real value only at execution; the output is scrubbed so the value does not return to the model; a secret is bound to the hosts it may be sent to; and a publish gate checks uploads [R].
 
@@ -2384,10 +2419,11 @@ Every change of status, and every general decision about this backlog. `--set-st
 4. Scrub output in the same step, and fail closed: Prismor's `scrub-stream.sh` passes stdin through unchanged on any error [R]. If scrubbing fails, withhold the output (UB-095).
 5. Bind each secret to hosts using the existing network policy; a command that uses the placeholder for an unbound host is denied. The policy engine checks the placeholder as text, and the real value never enters policy.
 6. Tests: a model transcript, the event log and the tool result never contain the value; a placeholder bound to host A and used for host B is denied; a scrubber that raises withholds the output.
+7. Route B, a later option (added in B06): sandbox-runtime never gives the command the real value at all. The command sees a placeholder in its environment, and a host-side proxy swaps in the real value on requests to the hosts that credential is for [R, with tests]. Route A above puts the real value in the child process while the command runs, so a command that prints it is stopped only by the output scrubber [U]; route B closes that gap. For HTTPS the proxy must decrypt the traffic, which needs a certificate authority made by the sandbox and a proxy that opens TLS: sandbox-runtime marks its terminator experimental and builds its authority with `node-forge` [R `README.md`, `mitm-ca.ts`]. M2C's proxy is CONNECT-only and the client may add no Python package [V✓ `m2c/pyproject.toml`]; Python's standard library cannot make certificates [GK]. So route B belongs in the Rust crate `minicore-sandbox` (`MG-R06`), and only if `DM-9` applies after `MG-Z10`. Before any code, write a one-page note: the placeholder format; which hosts and fields each credential may go into; the authority's lifetime and storage (per session, never installed on the host); which clients break and what the person sees; what the proxy logs (host and rule, never a value, to feed UB-040) [U].
 
-**Done when.** The tests of step 6 pass, and a search of a full session's logs for the value finds nothing.
+**Done when.** The tests of step 6 pass, and a search of a full session's logs for the value finds nothing. For route B, the note of step 7 exists and you have recorded accept or reject.
 
-**Notes.** Design only; nobody has run it here. Related, and not the same: the section 6 row "Codex proxy-side secret substitution" needs a TLS-rewriting proxy and a local certificate authority (XL); this route needs neither. **Do not install the `prismor` package** to try it: see its row in section 7.
+**Notes.** Design only; nobody has run it here. Route A needs no TLS-rewriting proxy and no local certificate authority. Route B is the idea of the section 6 row "Codex proxy-side secret substitution" (XL), and the section 6 rows for sandbox-runtime (`C15`, `MG-R06`) point at step 7. Menux guide section 8.2 requires that a connector cannot use a credential outside its declared operation [V✓]; both routes enforce that. **Do not install the `prismor` package** to try it: see its row in section 7.
 
 ### UB-093: Prove a skill or prompt change helps, with paired with-and-without evals (M)
 
@@ -2457,3 +2493,32 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Done when.** Every row passes. Making any listed guard raise never produces an allow or a pass-through of unredacted text. The listing test fails when a guard module is added without a row.
 
 **Notes.** My idea, not a decision from the review. It overlaps neither UB-016 (random inputs that must not crash) nor `Q07` (a bypass corpus) nor `Q09` (crash and resume integrity): this one is about what a guard does when it itself fails. The count is a grep: some `except` clauses may sit in code that does not guard anything.
+
+## Batch B06 (2026-11-26): Review of sandbox-runtime, codebase-memory-mcp, Django and Argus
+
+*Source:* a review of four reference repos (26 capabilities, in two passes: the second resolved the VERIFY FIRST rows of the first and changed five recommendations), read from source with nothing installed or run, made against MiniMe `121e06c`; the rest of this file was written at `cd0bc23`. Reference commits read again when this batch was written: sandbox-runtime `0bbebed0`, codebase-memory-mcp `9a4da7a3`, Django `baa7a809`, Argus `f51c0442`. The four licences were read again. In this batch `[R]` is a reading of those repos, `[V✓]` is a check of MiniMe `121e06c` made while writing it, and `[S]` is a fact carried from the review and not re-read. **The decision column of the review was empty, so its recommendations were taken as the decisions**, as in B03 and B04: **UPGRADE** and **EXTEND** items became a new feature (UB-096) or were written into the entries that exist (edited in place, so not repeated here: UB-006, UB-012, UB-019, UB-021, UB-032, UB-034, UB-035, UB-040, UB-045, UB-087, UB-092); **IDEA ONLY** and **SKIP** items went to section 6; the one **VERIFY FIRST** row left (blast radius from a diff) became a first step in UB-045. Where the work package belongs to another chapter (`C11`, `C15`, `C22`, `D9`, `D15`, `C13`, `MG-R06`), the section 6 row carries the addition and the chapter was **not** edited. The parking of UB-035 is my own choice and not a decision from the review: change it if you disagree. This batch was first written as B05 against `a920efa`; `main` took B05 for another review before it was applied, so it is B06 here. That review's UB-092 (credentials the model can use but never see) is the same feature as the credential-masking note first drafted for this batch, so the sandbox-runtime route went into UB-092 as step 7 and no second entry was added.
+
+**Corrections to the review found while re-reading:** (1) MiniMe's CSP code had not been read: it enforces only `frame-ancestors 'none'`, and its report-only policy already holds `object-src 'none'` and `base-uri 'self'` (UB-012). (2) MiniMe's CI has no licence check; the review had marked it not checked (UB-021). (3) sandbox-runtime does not always create a file for an absent protected path: it has four placeholder kinds, so the objection in M2C's `profile.py` applies to some of them only (UB-096). (4) codebase-memory-mcp's tool profiles are fixed allow-lists of 13 and 8 tools. Its README says `detect_changes` adds risk classification but the handler has none, so the review's finding stands; and the hook's in-process deadline is 2 seconds by default, not 300 ms (the constant is the old value, issue #858). (5) The review's first step for UB-034, setting `CBM_CACHE_DIR` to a writable path, is not enough: M2C's profile has no persistent writable place outside the project (UB-034, step 3). (6) Menux guide section 8.2 says a connector cannot use a credential outside its declared operation; it does not say credentials are injected only in the connector process, as the review put it (UB-092).
+
+### UB-096: Close the sandbox's protected-path gaps: more names, absent paths, nested repos (M)
+
+> Add `.mcp.json`, `.vscode`, `.idea` and more to the read-only list, and stop a command planting hooks where none existed yet.
+
+**Product** M2C · **Source** sandbox-runtime `src/sandbox/sandbox-utils.ts`, `linux-sandbox-utils.ts` and `sandbox-manager.ts` (Apache-2.0, read at `0bbebed0`) [R], M2C `sandbox/profile.py` "Known limits" · **Status** candidate · **Depends** — · **Decision** For a protected name that is absent at start: mount a placeholder, or only detect it after the command (step 2). And whether the file tools deny or ask for `.vscode` and `.idea`, as UB-089 does for instruction files (step 1) · **Evidence** [R] [V✓] [U]
+
+**What.** Three changes to the bubblewrap profile, smallest first. (1) Names: sandbox-runtime always write-denies `.gitconfig`, `.gitmodules`, the shell start-up files, `.ripgreprc`, `.mcp.json` and the folders `.git`, `.vscode` and `.idea` [R `DANGEROUS_FILES`, `DANGEROUS_DIRECTORIES`]. M2C already has `.git`, `.m2c`, the shell start-up files, `.gitconfig`, `.envrc` and `.direnv`, so the new names are `.gitmodules`, `.ripgreprc`, `.mcp.json`, `.vscode` and `.idea` [V✓ `PROTECTED_DIRS`, `PROTECTED_RC_FILES`]. (2) Absent names: M2C binds only what exists, so a `.git` or `.bashrc` that is missing at start is unprotected, and a command that runs `git init` can plant hooks that the person's own terminal runs later; the module's own "Known limits" says so [V✓]. sandbox-runtime mounts a placeholder at the first missing path component and removes it after the command; it has four placeholder kinds (file, directory, held, none), so it does not always create something in the project [R `MountPointKind`, `cleanupAfterCommand`]. (3) Nested repositories: it scans with ripgrep to a depth of 3 (`mandatoryDenySearchDepth`) for nested `.git/hooks` and `.git/config`; M2C protects top-level names only [R] [V✓].
+
+**Why.** `.mcp.json` and IDE task files run code later, outside the sandbox, when the person opens the project. That matters more once UB-032 lets servers be configured by a file in the project. All three gaps are ones M2C's own docstring admits [V✓].
+
+**Where.** `m2c/src/m2c/sandbox/profile.py` (`PROTECTED_DIRS`, `PROTECTED_RC_FILES`, the "Known limits" text); `m2c/src/m2c/policy/rules.py` (`_PROTECTED_COMPONENTS`, `_PROTECTED_BASENAMES`) for the file tools; `m2c/tests/sandbox/test_sandbox_profile.py`, which asserts that the profile lists contain the policy lists (line 211) [V✓]; the `Q07` corpus.
+
+**How.**
+
+1. Names (XS, can ship alone): add the five names to both `profile.py` and `policy/rules.py`. The consistency test only requires the profile to hold at least the policy names [V✓], so the profile could go first, but then the file tools would still edit `.mcp.json`. `.vscode` and `.idea` as whole folders also stop `edit_file` changing `.vscode/settings.json`; decide whether that is wanted. UB-089 chose an ask call and not a deny for instruction files, because people edit them on purpose; the same choice may suit `.vscode` and `.idea` in the file tools, while the sandbox mount stays read-only for shell commands [U]. The lists differ in kind: `.mcp.json` and IDE task files run code, instruction files are read as prompts. Add `Q07` rows: a write to each name fails (or asks, as decided).
+2. Absent names: try detection before mounting [U]. After each command, check whether a protected name appeared (`.git/hooks/*`, `.mcp.json`, `.vscode/tasks.json`), tell the person, and record a denial event (UB-040). Nothing is created in the project and symlinks cause no trouble. A placeholder is stronger, because the write fails at once, but it touches the project and needs cleanup that survives a crash (sandbox-runtime also cleans up on process exit [R]).
+3. Nested repositories: scan once at session start to depth 3 with `rg`, which `m2c doctor` already requires [V✓ `doctor.py`], and bind what it finds read-only or report it.
+4. Update the "Known limits" text so it says what is now closed and what is not.
+
+**Done when.** `Q07` rows: with each of the five names present, a write fails; with `.git` absent, a command that creates `.git/hooks/pre-commit` is blocked or reported, as decided; a nested `.git/hooks` is read-only or reported. The consistency test passes. After a command killed halfway, the project holds no stray placeholder.
+
+**Notes.** sandbox-runtime is a TypeScript package: take the list and the ideas, and write the code fresh in Python; if any text is copied, keep the Apache-2.0 notice. The list is a floor: the project directory stays writable, so files the person's tools run later remain a matter for approvals, as the docstring says [V✓].
