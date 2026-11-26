@@ -14,16 +14,16 @@ This file is the one place where every feature you might build later is written 
 
 *Generated from the entries by `python scripts/check_backlog.py --write`. Do not edit by hand.*
 
-**87 features** in 4 batches: 84 candidate · 0 accepted · 0 building · 0 done · 3 parked · 0 dropped.
+**95 features** in 5 batches: 92 candidate · 0 accepted · 0 building · 0 done · 3 parked · 0 dropped.
 
 | Product | candidate | accepted | building | done | parked | dropped | Total |
 |---|---|---|---|---|---|---|---|
-| MiniMe | 42 | 0 | 0 | 0 | 1 | 0 | 43 |
-| M2C | 23 | 0 | 0 | 0 | 1 | 0 | 24 |
+| MiniMe | 43 | 0 | 0 | 0 | 1 | 0 | 44 |
+| M2C | 28 | 0 | 0 | 0 | 1 | 0 | 29 |
 | Menux | 9 | 0 | 0 | 0 | 1 | 0 | 10 |
-| Shared | 7 | 0 | 0 | 0 | 0 | 0 | 7 |
+| Shared | 9 | 0 | 0 | 0 | 0 | 0 | 9 |
 | Book | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
-| **All** | **84** | **0** | **0** | **0** | **3** | **0** | **87** |
+| **All** | **92** | **0** | **0** | **0** | **3** | **0** | **95** |
 
 ## 1. Register
 
@@ -118,6 +118,14 @@ This file is the one place where every feature you might build later is written 
 | UB-085 | Switch off core dumps and debugger attach for the M2C client at start | Set no-core-dump and no-same-user-debugger-attach for the M2C client before it handles a secret (Linux and macOS), as Codex does. | M2C | Codex `codex-rs/process-hardening/src/lib.rs` (Apache-2.0, read at `06f334a`) [R] | XS | candidate | B04 |
 | UB-086 | Session goal mode with a token budget and a no-progress stop | One goal the agent works on across turns; it stops at a token budget, after 3 turns without progress, or after 3 turns of failed tools. | M2C | Mistral Vibe `vibe/app_server/_goal_engine.py` (Apache-2.0, read at `fb7511a`) [R] | M | candidate | B04 |
 | UB-087 | One helper that frames text the model must treat as data | Steering messages, compaction summaries and goal objectives all need the same escaping, marker and look-alike handling; write it once. | M2C | my idea, from Hermes `agent/prompt_builder.py` (MIT, `c84e8d7f`), Gemini CLI `prompts/snippets.ts` (Apache-2.0, `60f8082`) and Vibe `_goal_engine.py` (Apache-2.0, `fb7511a`) [R] | S | candidate | B04 |
+| UB-088 | Reject repeated JSON keys in tool arguments | Fail a tool call whose JSON arguments repeat a key instead of letting the last value win, in Python now and in the Rust port later. | Shared | Tenuo `tenuo-core/src/strict_json.rs` (Apache-2.0, read at `4792253`) [R] | XS | candidate | B05 |
+| UB-089 | Ask before the agent edits its own instruction files | Make edits to M2C.md, AGENTS.md and CLAUDE.md an ask call and say what changed them, since the next session loads them as instructions. | M2C | Prismor `prismor/runtime/memory_guard.py` (Apache-2.0, read at `77b5369`) [R] | S | candidate | B05 |
+| UB-090 | Keep the full tool output in a file the model can read later | When a shell result is cut, save the whole redacted output under .m2c/ and name the path, so the model can read the dropped part. | M2C | OpenCode `packages/core/src/tool-output.ts` (MIT, read at `1f66f5f`) [R] | M | candidate | B05 |
+| UB-091 | Canary files that raise an alarm when the agent opens them | Plant fake credential files with unique markers in the sandbox's view of the tree; a read that returns a marker raises a critical event. | M2C | Prismor `prismor/runtime/canary.py` (Apache-2.0, read at `77b5369`) [R] | S | candidate | B05 |
+| UB-092 | Credentials the model can use but never see | The model writes a placeholder, a child process swaps in the real value at run time, output is scrubbed, and each secret is bound to hosts. | M2C | Prismor `prismor/runtime/cloaking/` (`hooks/decloak-exec.sh`, `hooks/scrub-stream.sh`, `bindings.py`, `publish_gate.py`, `secrets_store.py`; Apache-2.0, read at `77b5369`) [R] | M | candidate | B05 |
+| UB-093 | Prove a skill or prompt change helps, with paired with-and-without evals | Run each case with and without a change, alternate which runs first, and report the lift with flags for no lift, negative, saturated, flaky. | Shared | Pi `packages/evals/src/plan.ts` and `report.ts` (MIT, read at `f17b36a`) [R] | M | candidate | B05 |
+| UB-094 | Heal half-written Markdown while a reply streams | Close or hide an unfinished bold marker, link or formula at the end of a streaming block; port OpenCode's healer only if flicker shows. | MiniMe | OpenCode `packages/patchmark/src/heal.ts` and `scripts/fuzz-differential.ts` (MIT, read at `1f66f5f`) [R] | S | candidate | B05 |
+| UB-095 | Every guard fails closed, proved by one crash test per guard | List each guard that can raise, make it raise in a test, and check the call ends refused, redacted or asked, never passed through. | M2C | my idea, from Prismor `runtime/hook_failclosed.py` and `cloaking/hooks/scrub-stream.sh` (Apache-2.0, `77b5369`) [R] and Gemini Conseca (section 6) | S | candidate | B05 |
 
 ## 2. Batches
 
@@ -129,6 +137,7 @@ This file is the one place where every feature you might build later is written 
 | B02 | 2026-11-24 | rust-anything and fast-anything, from a trial on m2c | 3 | UB-081 to UB-083 |
 | B03 | 2026-11-26 | Review of promptfoo, Strix, Hypothesis, Schemathesis and Locust | 1 | UB-084 |
 | B04 | 2026-11-26 | Review of gemini-cli, hermes-agent, mistral-vibe and codex | 3 | UB-085 to UB-087 |
+| B05 | 2026-11-26 | Review of OpenCode, Pi, Tenuo and Prismor | 8 | UB-088 to UB-095 |
 
 ## 3. How to add features (the patch recipe)
 
@@ -309,6 +318,30 @@ The "upgrade plan" (21 Nov 2026) and its "verified spec" were split three ways. 
 | Gemini tool-output masking | Already built: `backend/codeagent/context.py` caps large tool results and clears the oldest outputs [V✓ docstring] | never |
 | Gemini policy integrity hash and RE2 patterns | Hashing exists in `m2c/src/m2c/trust/fingerprint.py` (sha256) [V✓]. RE2 would add a runtime dependency, which D14 forbids | never |
 | Hermes Kanban worker stop guard | It forces a worker on Hermes's own multi-agent board to end with a terminal board call [R]. Nothing in your plans uses such a board | you build a board |
+| Crashed required hook means deny, for `C13` | Already planned as `C13` (Hooks); the chapter was not edited. Prismor's `runtime/hook_failclosed.py` turns a crash of an enforcing hook into a deny, because hosts read a nonzero exit other than 2 as "hook errored" and run the tool anyway [R]. It lets read-only tools (Read, Grep, Glob, LS and similar) run so the person can see what broke [R]. Fits the Vibe `strict` row above: a strict hook that crashes, times out or prints bad output denies; a hook that is not strict warns. Add a test that deletes the hook script. The review's open question: `D15` says "other codes warn" [S] | `C13` starts |
+| Subagent count and age caps, for `L02` | Already planned as `L02`; the chapter was not edited. Prismor's rule fields `subagent.number` and `subagent.age` (`runtime/delegations.py`) cap how many subagents and how long [R]. Add "at most N subagents per run, each at most this old" to `L02`'s done-when beside Gemini's turn and time limits (row above) | `L02` starts |
+| Non-overridable floor, for `C27` | Already planned as `C27`; the chapter was not edited. Prismor's floor rules ignore `enabled: false` in every layer (`runtime/floor_off.py`) [R]. `C27` says a lower layer can never loosen but names no floor. Name a floor list (deny rules and protected paths) that no layer, preset or observe flag (UB-039) can switch off [U] | `C27` starts |
+| Compaction rules, for `L03` | Already planned as `L03` (partly built: only the mechanical compaction); the chapter was not edited. The three rules from Pi are written in UB-042 Notes | `L03` starts |
+| Tool tags and forbidden combinations, for `C17` | Already planned as `C17` (web tools and taint); the chapter was not edited. In Prismor each tool carries tags, a call that would complete a banned set of tags is blocked using the session history, and a third tag marks arguments that came from untrusted content (`runtime/trifecta.py`) [R]. `C17` has a single `tainted` flag and no code. Rewrite its taint rule as tag sets now, while nothing is built [U] | `C17` starts |
+| Rules from history, for `C25` | Already planned as `C25`; the chapter was not edited. Tenuo's `tenuo discover` turns an audit log into rules for each field (`tenuo-python/tenuo/cli.py`) [R]. Offer "tighten this always-allow from what was really run". Never use Tenuo's fallback of an any-value pattern where it has no basis [R] | `C25` starts |
+| Resolve what a command will run, for `Q07` | Already planned as `Q07`; the chapter was not edited. Prismor's `runtime/exec_targets.py` expands `bash deploy.sh`, `npm run build`, make targets and Dockerfiles into the lines they run, then applies the normal rules [R]. `shellparse.py` reads the command text only [S]. Add the case to `Q07`: an allow rule for `npm test`, then `package.json` is edited so `test` runs something else. Build the expansion later [U] | `Q07` starts |
+| Signed approvals bound to the request, for `MT-T12` | Already planned as `MT-T12`; the Menux guide was not edited. Tenuo signs an Ed25519 message over a domain-tagged preimage with the request hash, a nonce, an expiry and k-of-n approvers (`tenuo-core/src/approval.rs`) [R]. Cross-check the digest fields of `MT-T12`; add a domain-separation tag and put the holder in the hash | `MT-T12` starts |
+| Run identity and outcome names, for `MT-N02` | Already planned as `MT-N02`; the Menux guide was not edited. OpenCode derives a run's child-session id from the automation id and the run number, so a retry adopts the same session, and names the outcomes fired, late, skipped, disabled, failed and expired (`packages/schema/src/automation.ts`) [R]. `MT-N02` dedupes by trigger-event id and has a missed-run policy [S]. Add "run id is a function of automation and run number" and the outcome names | `MT-N02` starts |
+| Unattended runs cannot manage automations, for `MT-T01` | Already planned as `MT-T01`; the Menux guide was not edited. OpenCode keeps a fixed forbidden list (`automation.create`, `pause`, `resume`, `delete`) that an unattended run never gets a grant for (`packages/core/src/automation/code.ts`) [R]. Menux section 23.1 sends drafts to a review queue and tier `T5` blocks policy changes unattended, but I found no rule for a run that edits automations [S]. Add it to the tier model as a rule with a test | `MT-T01` starts |
+| One evaluator and shared vectors, for `MG-Z02` | Already planned in Appendix A; the chapter was not edited. Tenuo keeps its cases in `tests/vectors/*.json` and the Rust core is the only evaluator [R]. Compare that case format with `MG-Z02`'s. It fits the end state, after the migration, better than the side-by-side phase | `MG-Z02` starts |
+| Deviation register, for `MG-R12` | Already planned in Appendix A; the chapter was not edited. In OpenCode each intended difference between the TypeScript and Rust programs is one file naming both behaviours and the reason, and an unlisted difference fails the build (`packages/cli-rs/docs/testing.md`; `ls` of `parity/deviations/` shows 136 files) [R]. `DM-10` allows "a reviewed note" but has no file format and no CI rule (`migration_guide.md` line 41) [V✓]. Adopt it before the first Rust port patch: one file per difference (case, Python behaviour, Rust behaviour, reason, reviewer), a second reviewer when the difference makes a safety decision looser (the rule that already governs vectors in that guide), and a CI step that fails on an unlisted difference [U]. If you want it written into Appendix A itself, say so: that page would be edited by hand | before the first Rust port patch |
+| Prismor advisory-feed dependency check | It matches manifests against a signed (Ed25519) advisory feed (`runtime/deps.py`, `feed_signature.py`) [R]. The value is Prismor's feed data, and I did not find where it is hosted, so you would need your own data source | you want a dependency feed and have a source |
+| Prismor rules drawn from the prompt | At each prompt a model call (a hard-coded Haiku id, `scoped_agent.py`) drafts an allowed-tools list, with a keyword fallback; a code comment says the model path sometimes drops Bash [R]. A model would decide policy and your prompt would be sent out. Your engine is deterministic; keep it so. See also the Conseca row above | never |
+| Tenuo `UrlSafe` constraint | `backend/utils/url_guard.py` already resolves the host and connects to the checked address [S]; Tenuo's own docs say its check does not stop DNS rebinding [R] | never |
+| Tenuo `Shlex` constraint | One allowed binary plus literal arguments and no `$` [R]. `policy/shellparse.py` is broader [S]. Only a possible "strict script" mode for Menux | Menux wants such a mode |
+| Prismor spend and model budgets | Already built: `S01`, `S02`, `S10`, and `BudgetPause` in `loop.py` [S] | never |
+| Prismor tool contracts | Tool results relabel the session and calls declare requirements (`runtime/contracts.py`) [R]. Build the `C17` tag sets first (row above), then look again | the `C17` tags exist |
+| OpenCode permission layers | Last-match-wins layers, a deny-only layer that nothing undoes, and saved approvals that only settle `ask` (`packages/core/src/permission/policy.ts`) [R]. `policy/rules.py` and `decide.py` run deny, then ask, then allow over the union of layers, which is stronger by construction [S]. Its point about case-insensitive paths is already done at `rules.py` line 534 [S] | never |
+| OpenCode and Pi model-written scripts that call tools | OpenCode runs a pure interpreter with no host APIs; Pi runs a QuickJS sandbox [R]. The same decision as the "Codex V8 code mode" row above covers all three. Menux recipes (a closed list of steps) cover the case with no model | never for the Python client |
+| Pi crash-safe commits and resume | Pi writes atomic commits before display, resumes unfinished runs, and returns the same submission for the same `requestId` (`packages/durable/src/harness/submissions.ts`, lines 229 to 233) [R]. The M2C plan already holds the same ideas: the device log is the truth, `run.resume`, `call_id` idempotency and a kill-at-each-step test (`m2c_build_plan.md`, lines 121, 548 and 741) [S] | never |
+| OpenCode HTTP cassette recorder | `vcrpy==8.3.0` is already in `backend/requirements.txt` and its cassettes live under `backend/tests/manual/` [V✓ pin, S cassettes]. One check worth making: that those cassettes scrub authorisation headers | a cassette is found to hold a token |
+| Left out at README level (OpenCode `process-daemon`, Pi `env`, Pi `telemetry`, Pi branch summaries and `/tree` sessions, Prismor macOS Seatbelt sandbox and MCP gateway) | A Rust PTY daemon is more than `C16` needs; SSH remote execution and a vendor-neutral telemetry contract are not relevant; checkpoint rewind covers most of branch summaries; the other two were skipped before [S]. None of them was studied beyond its README. Pi's stance is no per-call approval and isolation instead, the opposite of `C06`, so it is not something to adopt | `L03` is built (branch summaries) |
+| OpenCode `deny.toml` allow-list with a named exception per crate | Your plan already has `cargo deny` (`migration_guide.md` line 362) [S]. The one idea worth taking is its shape: a licence allow-list where each exception names the crate and the reason [R]. Licence trap: it allows `opentui-sys` as `MIT AND LGPL-2.1-or-later` because the OpenTUI library it links statically includes LGPL code [R]. Do not copy its TUI crates into a paid product without a licence review | the Rust gate (`MG-Z10`) returns `PROCEED` |
 
 ## 7. Sources register
 
@@ -337,10 +370,10 @@ One row per source. `Checked` is `—` until you or a session has opened the sou
 | Hermes (hermes-agent) | https://github.com/NousResearch/hermes-agent | MIT (root `LICENSE` read at `c84e8d7f`, Nous Research 2025); 17 nested `LICENSE` or `NOTICE` files exist under `optional-skills/`, `skills/`, `plugins/` and `apps/desktop/src/plugins/hermes-bots`, and their terms were not read | LEARN (take nothing from those folders before reading its licence; `plugins/security-guidance` has a NOTICE and was reported as Apache-2.0 by the review; the root holds `hermes_constants_scratch*.py` files that look like scratch code) | UB-028, UB-033, UB-037, UB-042, UB-048, UB-064, UB-087, section 6 | root licence read 2026-11-26; read from source, not run; no telemetry client found by search, not exhaustive |
 | Mistral Vibe | https://github.com/mistralai/mistral-vibe | Apache-2.0 (`LICENSE` read at `fb7511a`) | LEARN (code may be copied only with the licence and notices kept and changes marked; it needs Python 3.12 and uses 3.12 syntax such as `type` aliases, so check any file before it goes into code with a 3.11 floor; telemetry is on by default per the review, which was not re-read: `enable_telemetry`, posting to `/v1/datalake/events` on api.mistral.ai) | UB-038, UB-042, UB-044, UB-086, UB-087, section 6 | licence read 2026-11-26; read from source, not run |
 | Codex | https://github.com/openai/codex | Apache-2.0 plus a `NOTICE` (it records code derived from Ratatui, MIT) (`LICENSE` and `NOTICE` read at `06f334a`). The vendored bubblewrap is LGPL-2 (`codex-rs/vendor/bubblewrap/COPYING`): never copy it | LEARN (code may be copied only with the licence and notices kept and changes marked; analytics are on unless `analytics_enabled` is explicitly false, per the review, not re-read) | UB-033, UB-048, UB-085, section 6 | licence read 2026-11-26; read from source, not run |
-| OpenCode (design ideas) | — | not stated | LEARN | UB-036 | — |
-| Pi (design ideas) | — | not stated | LEARN | section 6 | — |
-| Tenuo | — | not stated | LEARN | UB-041 | — |
-| Prismor | — | not stated | LEARN | UB-039 | — |
+| OpenCode | https://github.com/sst/opencode | MIT (`LICENSE` read at `1f66f5f`, "Copyright (c) 2025 opencode") | LEARN (code may be copied only with the notice kept; `packages/cli-rs/deny.toml` allows `opentui-sys` as `MIT AND LGPL-2.1-or-later`, so never copy its TUI crates into a paid product without a licence review) | UB-036, UB-090, UB-094, section 6 | licence read 2026-11-26; read from source, not run; not read: the agent loop in `core/src/session/`, the plugin system, the TUI and app, the providers; telemetry not scanned |
+| Pi | https://github.com/earendil-works/pi | MIT (`LICENSE` read at `f17b36a`, "Copyright (c) 2025 Mario Zechner") | LEARN (code may be copied only with the notice kept; take the rules, since it is TypeScript) | UB-042, UB-093, section 6 | licence read 2026-11-26; read from source, not run; not read: `chord`, the extensions and skills system, the `ai` providers; telemetry not scanned |
+| Tenuo | https://github.com/tenuo-ai/tenuo | Apache-2.0 plus a `NOTICE` (`LICENSE` and `NOTICE` read at `4792253`). The Python extra `tenuo[cloud]` installs proprietary wheels [W: PyPI page]: never add it | LEARN (code may be copied only with the licence and notices kept and changes marked; still 0.x, so its wire format may change; it fits only if `MG-Z10` returns `PROCEED`) | UB-016, UB-039, UB-041, UB-046, UB-088, section 6 | licence read 2026-11-26; read from source, not run; telemetry scanned in the earlier pass only |
+| Prismor (formerly Immunity Agent) | https://github.com/PrismorSec/prismor | Apache-2.0 (`LICENSE` read at `77b5369`) | LEARN, with two warnings. Never install the `prismor` package into the MiniMe backend, CI or a dev environment: the repo holds `immunity-agent.pth`, which Python runs at every start once it is in site-packages (the earlier review says the wheel installs it) [R]. It also does an update check, switched off by `PRISMOR_NO_UPDATE_CHECK=1` [R] | UB-039, UB-089, UB-091, UB-092, UB-095, section 6 | licence read 2026-11-26; read from source, not run; telemetry scanned in the earlier pass only |
 | UNCUT | — | not stated | LEARN | UB-042 | — |
 | OpenHands (event log) | — | not stated | LEARN | UB-042 | — |
 | zeroshot | — | not stated | LEARN | UB-043 | — |
@@ -407,6 +440,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 | 2026-11-24 | — | batch B02 created | rust-anything and fast-anything added as optional tooling; Appendix A (`MG-Z04`, `MG-Z10`) edited to match |
 | 2026-11-26 | — | batch B03 created | five reference repos read and their licences recorded; the review's recommendations applied: existing entries extended in place (UB-014 to UB-018, UB-030, UB-031, UB-045, UB-048, UB-056, UB-068), UB-084 added, eight items recorded in section 6. Other chapters not edited |
 | 2026-11-26 | — | batch B04 created | four reference repos (gemini-cli, hermes-agent, mistral-vibe, codex) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-028, UB-033, UB-036, UB-037, UB-038, UB-042, UB-048, UB-064, UB-075), UB-085 to UB-087 added, 18 rows added to section 6. Other chapters not edited |
+| 2026-11-26 | — | batch B05 created | four reference repos (OpenCode, Pi, Tenuo, Prismor) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-016, UB-036, UB-039, UB-041, UB-042, UB-046), UB-088 to UB-094 added, UB-095 added as my own idea, 24 rows added to section 6. Other chapters not edited |
 
 ## Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 Nov 2026, minus the finished SX series
 
@@ -769,6 +803,8 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Done when.** The properties run in CI without skipping.
 
 **Notes.** Property-style tests already exist as plain pytest in `m2c/tests/policy/test_policy_invariants.py` and `test_policy_robustness.py`; Appendix A (`MG-Z03`) deliberately keeps properties out of the language-neutral vectors and in Python. Hypothesis adds generated inputs to those; check first that it finds something they do not. Hypothesis, and so Schemathesis (UB-017), needs a compiled Rust module from v6.156.0 on (built with maturin) [R]. Check that wheels exist for the Windows dev machine and `python:3.12-slim`, because a source build needs a Rust toolchain. MPL-2.0 is fine as a test-only dependency; copied files stay MPL, so do not copy its files into the product [R]. UB-016 and UB-017 can share one pinned Hypothesis. Verify first (names only read): do `provisional.urls()`, `provisional.domains()` and `ip_addresses` produce IPv4-mapped, NAT64 and odd-IP forms for `url_guard.py`? If not, write your own generators. A grammar-based generator for shell commands (`extra/lark.py`) is in section 6.
+
+**Added in B05.** One more property, for the layered rules (`C27`): for any stack of layers, a lower layer never turns a deny or an ask from a higher layer into an allow. Tenuo's proptests state the same rule for delegation (a child never widens its parent, depth is bounded, a signature is required: `tenuo-core/tests/invariants.rs` and `attenuation_soundness.rs`, Apache-2.0, read at `4792253`; test names only) [R]. Port the property, not the Rust. `hypothesis` appears nowhere in the MiniMe tree today [V✓ grep of `*.py`, `*.txt`, `*.toml` at `121e06c`].
 
 ### UB-017: Nightly API fuzzing with Schemathesis (M)
 
@@ -1195,6 +1231,8 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **Notes.** Gemini's constants (`TOOL_CALL_LOOP_THRESHOLD = 5`, `CONTENT_LOOP_THRESHOLD = 10` repeats of 50-character chunks, `LLM_CHECK_AFTER_TURNS = 30`, a check interval that adapts between 5 and 15 turns, `LLM_CONFIDENCE_THRESHOLD = 0.9`) were read [R]. The content-chunk detector watches repeated streamed text, which is a different loop from a repeated tool call; it is optional here. Tune the numbers on replays of your own traces (the ledger of UB-075) before you trust them.
 
+**Verify first (B05).** OpenCode has a permission setting `doom_loop` (ask, allow or deny) and the text "Detect repeated tool calls with identical input" (`packages/app/src/runtime/i18n/en.ts`; `packages/tui/src/util/permission.ts`, read at `1f66f5f`) [R]. A grep of `packages/**/*.ts` finds `doom_loop` only in those two places, in tests and in translation files; I did not find the detector or its threshold. So do not cite OpenCode as an implementation of this entry until `packages/core/src/session/` (not read) shows where the setting is asked and how many repeats it takes [R].
+
 ### UB-037: Mid-turn user steering (M)
 
 > Let the user add a message while the agent works, inserted behind an anti-injection marker.
@@ -1258,6 +1296,8 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **Done when.** A rule in observe mode never blocks and always logs; switching it to enforce blocks.
 
+**Notes.** Added in B05. Tenuo's observe mode is a global `configure(mode="observe")`, a `dry_run` flag per guard, and audit events marked `observed=True` (Apache-2.0, read at `4792253`) [R]. Use that event shape: a would-have-blocked event has the same fields as a block plus `observed: true`, so one report command lists both. Prismor's per-rule `observe` and `enforce` modes agree [R]. Design idea [U]: a rule on the non-overridable floor (the `C27` row in section 6) can never be put in observe mode, so a new rule is the only thing that can be trialled this way.
+
 ### UB-040: Check whether sandbox denials are already stored (S)
 
 > Before building a violation log, read what `events.py` and the network proxy callback already keep.
@@ -1296,7 +1336,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 **Done when.** A child cannot call anything its parent's grant does not allow.
 
-**Notes.** Blocked until subagents exist; keep as a design input.
+**Notes.** Blocked until subagents exist; keep as a design input. Added in B05: Tenuo's warrant has a depth cap, a time limit, and a holder proof (`tenuo-core/src/warrant.rs`, Apache-2.0, read at `4792253`) [R]. That is heavier than a call inside one process needs, so [U]: in `L02` use plain intersection of the parent's policy and the child's request, with no signature; use a signed form only for the Menux to M2C handoff, where the two sides are different processes. Prismor's caps on how many subagents and for how long go to `L02` (see section 6). Tenuo is still 0.x [W: the crate is 0.3.x on docs.rs]; its Python extra `tenuo[cloud]` installs proprietary wheels [W]: never add it.
 
 ### UB-042: Compaction that re-injects the task goal, with a lossless log (M)
 
@@ -1322,6 +1362,8 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Done when.** After a forced compaction, the first model call contains the original task, and the stored events are identical. A history line that says to ignore previous instructions does not change the summary call, and a guess made in the history lands under "Unverified".
 
 **Notes.** Compaction here is still mechanical (clear the oldest tool outputs, cap large results, repeat the person's messages) [V✓ docstring of `context.py`], so steps 4 to 6 are for the model summary that does not exist yet. Hermes also replaces secrets with `[REDACTED]` in the summary input [S]; the server side would need its own redactor for that. Write your own wording: Gemini's template is Apache-2.0, so copied text would need its notice.
+
+**Added in B05 (for `L03`; the plan was not edited).** Pi's compaction (`packages/coding-agent/src/core/compaction/compaction.ts` and `utils.ts`, MIT, read at `f17b36a`) has three rules worth putting in the template of step 4 [R]. (a) A cut that falls in the middle of a turn is flagged (`isSplitTurn`) and the early part of that turn is summarised on its own (`turnPrefixMessages`), so the cut never splits a turn silently. (b) The lists of files read and files edited are carried across compactions. (c) A later summary updates the earlier one under a rule to keep all existing information, and moves finished items from "In Progress" to "Done", instead of summarising from scratch. Pi also counts file calls made inside code-mode scripts (`nestedCalls`); that matters only if code mode is ever added (section 6 says it is not). Pi's retry on a context-overflow error is described in its docs and I did not read the code, so check it before copying.
 
 ### UB-043: An independent verifier context and step-graph validation (L)
 
@@ -1402,6 +1444,8 @@ Every change of status, and every general decision about this backlog. `--set-st
 4. **No code from ZizkaDB** (AGPL).
 
 **Done when.** Tampering with one row makes `verify_chain()` fail; an interrupted write still leaves a valid database; the docs say the chain **detects edits and is not signed or anchored**, as the plan requires.
+
+**Notes.** Added in B05. Tenuo's signed receipt holds the request hash, a hash of the policy in force, a hash of the revocation list, and a link to the previous receipt (`tenuo-core/src/receipt.rs`, Apache-2.0, read at `4792253`) [R]. Add one field to the event for a policy decision: the sha256 of the rules in force (reuse the sha256 in `trust/fingerprint.py` [V✓ per section 6]), so an audit can tell which rules produced a decision. The signing, which the plan leaves out on purpose, stays out.
 
 ### UB-047: Menux memory store with sources, validity and FTS5 (M)
 
@@ -2207,3 +2251,209 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Done when.** For every frame kind, no hostile payload can close or forge the frame. A tool result that contains any kind's marker is relabelled. The existing prompt tests pass.
 
 **Notes.** The risk is a relabelling list that mangles real output, for example a README that contains the words "Runtime note:". That is why step 3 relabels only inside tool results and keeps the stored original.
+
+## Batch B05 (2026-11-26): Review of OpenCode, Pi, Tenuo and Prismor
+
+*Source:* a review of four reference repos, read from source with nothing installed or run, made against MiniMe `121e06c`; the rest of this file was written at `cd0bc23`. Reference commits read again when this batch was written: OpenCode `1f66f5f`, Pi `f17b36a`, Tenuo `4792253`, Prismor `77b5369`. The four licences were read again, and the files named below were opened and the numbers quoted were read from them. In this batch `[R]` is a reading of those repos, `[V✓]` is a check of MiniMe `121e06c` made while writing it, `[W]` is a web page, and `[S]` is a fact carried from the review and not re-read. **The decision column of the review was empty, so its recommendations were taken as the decisions**, as in B03 and B04: **ADD** and **UPGRADE** became new features (UB-088 to UB-094), **EXTEND** items on entries that exist were written into those entries (edited in place, so they are not repeated here: UB-016, UB-036, UB-039, UB-041, UB-042, UB-046), and **EXTEND** items on work packages of other chapters, **SKIP** items and the README-level items went to section 6. Where the work package belongs to another chapter (`C13`, `C17`, `C25`, `C27`, `L02`, `L03`, `Q07`, `MT-N02`, `MT-T01`, `MT-T12`, `MG-Z02`, `MG-R12`), the section 6 row carries the addition and the chapter was **not** edited. One new feature, UB-095, is my own idea and not a decision from the review: drop it if you disagree.
+
+**Corrections to the review found while re-reading:**
+
+1. Prismor's crash rule is narrower than "crash means deny". `hook_failclosed.py` denies only when the hook enforces, and it lets read-only tools run so the person can see what broke [R]. The `C13` row in section 6 says so.
+2. `C15` (secrets) and `C26` (trust fingerprints) are both built, so the two extensions the review called "EXTEND C15" and "EXTEND C26" are new features (UB-092 and UB-089) and not section 6 rows.
+3. The review put the Markdown component call at `MessageBubble.jsx:901`. In the file the `<Markdown>` calls are at lines 834, 837 and 855 [V✓].
+4. The review said the full tool output is not saved anywhere. That holds [V✓ `m2c/src` has no file spill], but `shell.py` keeps only the head and the tail in memory by design [V✓], so UB-090 must write to disk while the pipes are read and cannot be added after the fact. That is why I sized it M and not S.
+5. The review said Prismor's scrubber passes text through on error and that the harness records the command string verbatim. Both are in the code: `cloaking/hooks/scrub-stream.sh` says on any error it passes stdin through unchanged, and `cloaking/hooks/decloak-exec.sh` says the host records the command it is handed in the session transcript on disk [R].
+6. Tenuo is 0.x, but the Python package's page calls it "Production/Stable" [W]. The caution about the wire format stays a caution, not a finding.
+7. OpenCode's `doom_loop` is a setting; I did not find the detector. UB-036 now carries a verify-first note.
+8. The "run order alternates" claim for Pi's evals holds: `packages/evals/src/plan.ts` line 54 flips the order by run number [R].
+
+### UB-088: Reject repeated JSON keys in tool arguments (XS)
+
+> Fail a tool call whose JSON arguments repeat a key instead of letting the last value win, in Python now and in the Rust port later.
+
+**Product** Shared · **Source** Tenuo `tenuo-core/src/strict_json.rs` (Apache-2.0, read at `4792253`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R] [V✓] [U]
+
+**What.** A JSON parse that raises when an object repeats a key, at any depth. Tenuo's module says `json.loads`, `JSON.parse` and `serde_json::Value` all keep the last value, and it checks the text before that collapse happens [R]. In Python the same effect comes from `json.loads(text, object_pairs_hook=...)` with a hook that raises when the list of pairs repeats a key [GK].
+
+**Why.** A model, or text injected into its context, can emit `{"path":"/ok","path":"/etc/passwd"}`. If the policy check reads one value and the executor or a second parser reads the other, the check approves the wrong one. A Rust port adds a second parser, so the gap opens exactly when Appendix A's work starts. The call sites today are `json.loads` with `strict=False` in `backend/codeagent/adapters/toolcalls.py` (lines 131 and 196) and `json.loads(raw, parse_constant=_reject_constant)` in `m2c/src/m2c/link/client.py` (line 519); none rejects a repeated key [V✓].
+
+**Where.** The three call sites above. The `truncated_arguments` refusal in `backend/codeagent/loop.py` is the model for the message sent back to the model [V✓ per section 6].
+
+**How.**
+
+1. Write one small function, `loads_no_duplicates(text)`, with a hook that raises a typed error. `backend/` and `m2c/` are separate packages, so keep one copy in each with the same test table.
+2. Use it at the three sites and keep `strict=False` and `parse_constant`. `toolcalls.py` has a repair path (the `repaired` flag, line 187): run the duplicate check on the repaired text as well, or repair becomes the way around it [U].
+3. Turn the error into a refusal to the model that names the repeated key, not a crash.
+4. Test table: a repeat at the top level, inside a nested object, inside an array of objects, the same value repeated, and `{"a":1,"A":2}` (different keys, allowed).
+5. When work on `MG-Z02` starts, add the same table as vectors (Appendix A was not edited), so the Rust side must reject the same inputs.
+
+**Done when.** Every case of step 4 is rejected or accepted as listed, in both packages. A call with a repeated key never reaches the policy engine, and the refusal names the key.
+
+**Notes.** Tenuo's version also bounds bytes, depth and node count [R]; do not copy those limits without a reason [U]. Nobody here has measured whether models emit repeated keys on their own; the cost is one hook. It is about ten lines: write it fresh.
+
+### UB-089: Ask before the agent edits its own instruction files (S)
+
+> Make edits to M2C.md, AGENTS.md and CLAUDE.md an ask call and say what changed them, since the next session loads them as instructions.
+
+**Product** M2C · **Source** Prismor `prismor/runtime/memory_guard.py` (Apache-2.0, read at `77b5369`) [R] · **Status** candidate · **Depends** — · **Decision** In accept-edits mode, may the agent edit these files without asking? (the review's question 2) · **Evidence** [R] [V✓] [U]
+
+**What.** Two parts. First, a policy rule: a write or edit to an instruction file is an "ask", also in accept-edits mode unless the decision above says otherwise. Second, optional: keep a baseline hash of each auto-loaded file and, at session start, say whether it changed in a commit, was changed and left uncommitted, or was changed during an agent session. Those are Prismor's three classes (`changed_in_commit`, `uncommitted_change`, `agent_session_change`) [R].
+
+**Why.** An injected agent can write instructions into `AGENTS.md`, and the next session loads them as the person's own. Today `is_protected_path` in `m2c/src/m2c/policy/rules.py` covers `.git`, `.m2c`, shell start-up files and a few system files, and the instruction files are not among them [V✓ lines 514 to 528]. `trust/fingerprint.py` says instruction files "are not in the list: C12 reads them as plain text" [V✓ line 24]. `C26` is built, so this is a new feature and not an edit of that package.
+
+**Where.** `m2c/src/m2c/policy/rules.py` (a new ask-on-edit list next to the protected paths), `m2c/src/m2c/trust/fingerprint.py` (the stored hashes), and the code that loads instruction files for `C12` (find it by grep first; not read here) [U].
+
+**How.**
+
+1. Settle the decision above.
+2. Add the ask-on-edit list. Do not put these files in the read-only protected set: people edit them on purpose, and a deny would also block a command that writes a starter file [U].
+3. Make the ask message say the path and that the file is loaded as instructions next session.
+4. Optional: store the sha256 of each file when the person last approved it, reusing the fingerprint store, and compare at start. For "who changed it" read `memory_guard.py` first (the classification starts near line 178) [R]. Give every git call a timeout, as Prismor does so a stalled git cannot hang the session (line 23) [R].
+5. Tests: an edit in the default mode asks; an edit in accept-edits mode asks (if the decision keeps that); a read is allowed; a file outside the list is unchanged.
+
+**Done when.** Each test of step 5 passes. With step 4, a file edited by an agent session is reported at the next start as changed in a session, and a file edited in a commit is reported as such.
+
+**Notes.** Prismor's classes depend on a git repository; with none, report "unknown". Write it fresh.
+
+### UB-090: Keep the full tool output in a file the model can read later (M)
+
+> When a shell result is cut, save the whole redacted output under .m2c/ and name the path, so the model can read the dropped part.
+
+**Product** M2C · **Source** OpenCode `packages/core/src/tool-output.ts` (MIT, read at `1f66f5f`) [R] · **Status** candidate · **Depends** — · **Decision** Whether M2C may keep full output on disk at all, and for how many days (the review's question 4); OpenCode keeps it 7 days · **Evidence** [R] [V✓] [U]
+
+**What.** OpenCode cuts output over 2,000 lines or 50 KiB (`MAX_LINES = 2_000`, `MAX_BYTES = 50 * 1024`), writes the full text to a file, keeps it for 7 days (`RETENTION = Duration.days(7)`), and names the path in the cut marker [R]. The model can then read the part it needs.
+
+**Why.** `m2c/src/m2c/tools/shell.py` keeps the head and the tail and inserts `[... N bytes omitted ...]`; the middle is gone [V✓]. The cause of a failing test often sits in the middle, and today the only remedy is to run the command again. I found no saved copy anywhere in `m2c/src` [V✓ grep]. The review sized this S, but `shell.py` holds only the head and the tail in memory on purpose and reads the pipes in 64 KiB pieces [V✓], so the copy has to be written while the pipes are read, and secrets can straddle a piece boundary. That is the extra work.
+
+**Where.** `m2c/src/m2c/tools/shell.py` (the reader loop and `buf.result()`, around line 953), `m2c/src/m2c/secrets/redact.py` (read its interface first), `tools/files.py` `read_file` (reads it back), and `.m2c/`, which is already read-only for edits and writes by the model [V✓ `is_protected_path`].
+
+**How.**
+
+1. Settle the decision above.
+2. Write each piece to a temporary file under `.m2c/tool-output/` as the pipes are read, with a hard size cap (a number to choose, for example 10 MB [U]) and owner-only permissions on Unix. Delete the file at once when the output was not cut.
+3. When the command ends, run the redactor over the file line by line and replace it with the redacted version. If the redactor raises, delete the file and say so in the status line; never keep an unredacted copy (see UB-095).
+4. Add the path to the status line, not to the output body: the docstring of `shell.py` says text lines in the body can be imitated by the command's own output [V✓]. `read_file` still goes through the normal policy.
+5. At start, delete files older than the retention period.
+6. On Windows the owner-only step has no `chmod`; check what the file's access rights are and say so [GK].
+
+**Done when.** A command that prints 5 MB returns the head, the tail and a status line with the path. The file holds the whole output after redaction, and a secret planted in the middle is not in it. `read_file` with a line range reads the middle. A file past its retention is removed at the next start. If the redactor raises, no file remains.
+
+**Notes.** The copy is the person's own command output, on their own machine, under a folder the model cannot write to. A secret the redactor does not recognise is still stored, so keep the retention short. OpenCode's code is TypeScript on its own file-retention helper: take the numbers and the idea, not the code.
+
+### UB-091: Canary files that raise an alarm when the agent opens them (S)
+
+> Plant fake credential files with unique markers in the sandbox's view of the tree; a read that returns a marker raises a critical event.
+
+**Product** M2C · **Source** Prismor `prismor/runtime/canary.py` (Apache-2.0, read at `77b5369`) [R] · **Status** candidate · **Depends** — · **Decision** Whether a canary hit stops the run or only asks the person · **Evidence** [R] [V✓] [U]
+
+**What.** A canary is a plausible fake credential file (an AWS key, an SSH key, a `.env`) holding a random marker. The policy engine looks for the marker on read, so it fires even when the file name looks harmless: the agent has to open the file [R]. Prismor lists each canary (id, path, type, marker, optional webhook) in a file under the user's home [R].
+
+**Why.** Name-based rules catch a read of `.env` but not a credential file with a dull name. A canary catches an agent that was told by injected text to go looking. M2C owns both read routes, `read_file` (`tools/files.py` line 247 [V✓]) and the shell tool. Nothing like it exists; the folder `backend/tests/canary/` is a different test [S].
+
+**Where.** `m2c/src/m2c/tools/files.py`, `tools/shell.py` (output scan), the sandbox's view of the file tree (`sandbox/profile.py` and `bwrap.py`; not read here), and `m2c/src/m2c/store/events.py`.
+
+**How.**
+
+1. Decide where the files live. Design idea [U]: inside the sandbox's own view of the tree (for example a tmpfs overlay under bubblewrap), never in the person's real repository, so nothing reaches `git status` or a commit. With no sandbox, plant nothing.
+2. At session start generate the fake files with random markers. Keep the marker-to-file map in memory only, not in a file the model can read.
+3. Check the result of `read_file` and the shell output for any marker (a substring check). A hit writes a critical event and then stops the run or asks, per the decision above. A `cat` of a canary through the shell counts too.
+4. Make the contents plainly fake to a human and not valid for any real service, so no scanner flags them and nothing real is ever contacted. Skip the webhook: it would send data out.
+5. Tests: a canary read through `read_file` raises the event; one read through `cat` raises it; an ordinary file does not; the real tree holds no canary.
+
+**Done when.** The tests of step 5 pass, and the marker never appears in the model's context except as part of the file a hit has already reported.
+
+**Notes.** A tripwire, not a guard: an agent that never looks never trips it. Whether the sandbox view can hold the fake files depends on `sandbox/profile.py`, which I did not read.
+
+### UB-092: Credentials the model can use but never see (M)
+
+> The model writes a placeholder, a child process swaps in the real value at run time, output is scrubbed, and each secret is bound to hosts.
+
+**Product** M2C · **Source** Prismor `prismor/runtime/cloaking/` (`hooks/decloak-exec.sh`, `hooks/scrub-stream.sh`, `bindings.py`, `publish_gate.py`, `secrets_store.py`; Apache-2.0, read at `77b5369`) [R] · **Status** candidate · **Depends** — · **Decision** Do you want credentials usable but invisible in M2C shell commands, or is "strip the environment plus a named grant" enough? (the review's question 3) · **Evidence** [R] [V✓] [U]
+
+**What.** The model writes `@@SECRET:name@@`. A child process swaps in the real value only at execution; the output is scrubbed so the value does not return to the model; a secret is bound to the hosts it may be sent to; and a publish gate checks uploads [R].
+
+**Why.** `m2c/src/m2c/secrets/env.py` strips credentials from the shell environment [V✓], so a command that needs one today needs a named grant, which exposes the value. This removes the exposure for the commands that need a credential. Copy the rules, not the mechanism: Prismor's version has three faults for you.
+
+**Where.** `m2c/src/m2c/secrets/` (a store and a substitution step), `m2c/src/m2c/tools/shell.py`, `m2c/src/m2c/sandbox/netpolicy.py` (the host binding), `m2c/src/m2c/store/events.py`, and the Menux vault when it exists.
+
+**How.**
+
+1. Settle the decision above.
+2. Store values in the OS keychain or the Menux vault. Prismor keeps them as files in its own folder with mode 0600 (`secrets_store.py`) [R]; plain files are not enough here.
+3. Substitute in the child process, after the event is written. Prismor's `decloak-exec.sh` says the host records the command it is handed in the session transcript, so substituting into that string would leak the value into the transcript [R]. `m2c/src/m2c/store/events.py` has the same property [S], so the same rule applies.
+4. Scrub output in the same step, and fail closed: Prismor's `scrub-stream.sh` passes stdin through unchanged on any error [R]. If scrubbing fails, withhold the output (UB-095).
+5. Bind each secret to hosts using the existing network policy; a command that uses the placeholder for an unbound host is denied. The policy engine checks the placeholder as text, and the real value never enters policy.
+6. Tests: a model transcript, the event log and the tool result never contain the value; a placeholder bound to host A and used for host B is denied; a scrubber that raises withholds the output.
+
+**Done when.** The tests of step 6 pass, and a search of a full session's logs for the value finds nothing.
+
+**Notes.** Design only; nobody has run it here. Related, and not the same: the section 6 row "Codex proxy-side secret substitution" needs a TLS-rewriting proxy and a local certificate authority (XL); this route needs neither. **Do not install the `prismor` package** to try it: see its row in section 7.
+
+### UB-093: Prove a skill or prompt change helps, with paired with-and-without evals (M)
+
+> Run each case with and without a change, alternate which runs first, and report the lift with flags for no lift, negative, saturated, flaky.
+
+**Product** Shared · **Source** Pi `packages/evals/src/plan.ts` and `report.ts` (MIT, read at `f17b36a`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R] [V✓] [U]
+
+**What.** Pi runs each eval case twice, `with_docs` and `without_docs`, and flips the order by run number (`runNumber % 2 === 1 ? ["without_docs", "with_docs"] : ["with_docs", "without_docs"]`, `plan.ts` line 54). `report.ts` works out the pass-rate lift and sets flags: `no-lift` when the rates are equal, `negative-delta` when the treatment is worse, `control-saturated` and `treatment-saturated` when an arm passes everything, and `flaky` when the outcome differs between repeats (lines 338 to 356) [R].
+
+**Why.** UB-013 is a pass/fail gate. Nothing measures whether a skill (UB-064, UB-067), an instruction-file change or a prompt change helps, does nothing, or hurts. Without that, a skill is kept because it feels good.
+
+**Where.** `backend/evals/promptfoo/` (in use per section 6 [S]), the golden tasks of UB-031, and the regression step of UB-064.
+
+**How.**
+
+1. Pick one first use: a single skill from UB-064 or UB-067 and 5 to 10 golden tasks from UB-031.
+2. Write a small runner, or use promptfoo's provider comparison if it already gives paired results (read what it reports first [U]). Run each case N times per arm and alternate the order.
+3. Report the lift in points per case and in total, with the five flags above; the flag rules are about ten lines.
+4. Rule [U]: a change that shows `no-lift` or `negative-delta` is not kept without a written reason.
+
+**Done when.** A report for one skill shows both pass rates per case, the lift and the flags. Run twice with a stable model, the flags agree except for cases marked flaky. A deliberately broken skill shows `negative-delta`.
+
+**Notes.** Every case is paid for at least twice (the cost ledger of UB-075 counts it). With few cases the lift is noisy, so use it as advice and not as a CI gate [U]. Pi's code is TypeScript: take the flag rules.
+
+### UB-094: Heal half-written Markdown while a reply streams (S)
+
+> Close or hide an unfinished bold marker, link or formula at the end of a streaming block; port OpenCode's healer only if flicker shows.
+
+**Product** MiniMe · **Source** OpenCode `packages/patchmark/src/heal.ts` and `scripts/fuzz-differential.ts` (MIT, read at `1f66f5f`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R] [V✓] [U]
+
+**What.** OpenCode's `patchmark` closes or hides half-written Markdown at the end of a streaming block and is fuzzed against a reference Markdown parser [R].
+
+**Why.** `frontend/app/components/Markdown.jsx` hands the streamed text straight to `react-markdown` (version `^10.1.0` in `frontend/package.json`), and `MessageBubble.jsx` calls `<Markdown>` at lines 834, 837 and 855 [V✓]. While a reply streams, an open `**bold` or `[a](htt` shows raw characters until it closes [GK]. Whether that is visible in your UI has not been tested.
+
+**Where.** `frontend/app/components/Markdown.jsx`, `frontend/app/components/MessageBubble.jsx`.
+
+**How.**
+
+1. Test first: stream `**bold` and `[a](htt` one character at a time into your UI and watch.
+2. If it flickers, write a small function that touches only the last unfinished block and never changes text that is complete.
+3. Do not heal inside code fences.
+4. Fuzz it: for every prefix of a sample text, the healed render must match the render of a closed version, as OpenCode does against its reference [R].
+
+**Done when.** Streaming the two strings of step 1 shows no raw markers, and the fuzz test passes for every prefix of a sample set.
+
+**Notes.** A polish item; drop it if step 1 shows no flicker. MIT: copying a file needs the notice kept; writing your own needs nothing.
+
+### UB-095: Every guard fails closed, proved by one crash test per guard (S)
+
+> List each guard that can raise, make it raise in a test, and check the call ends refused, redacted or asked, never passed through.
+
+**Product** M2C · **Source** my idea, from Prismor `runtime/hook_failclosed.py` and `cloaking/hooks/scrub-stream.sh` (Apache-2.0, `77b5369`) [R] and Gemini Conseca (section 6) · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R] [V✓] [U]
+
+**What.** A table test. Each row names a guard, how to make it raise (a monkeypatch), and the outcome that must follow. The guards today are the redactor (`m2c/src/m2c/secrets/redact.py`), the environment scrub (`secrets/env.py`), the policy files (`policy/decide.py`, `rules.py`, `shellparse.py`), the network policy and proxy (`sandbox/netpolicy.py`, `netproxy.py`) and the URL guard (`backend/utils/url_guard.py`). The new guards of UB-089 to UB-092 and the hooks of `C13` join the table when they exist.
+
+**Why.** Three fail-open cases turned up in the last two reviews: Prismor's output scrubber passes text through unchanged on any error [R]; Gemini's Conseca returns ALLOW when it is disabled (section 6) [R]; and a crashed hook runs the tool on hosts that read a nonzero exit as "hook errored" unless something turns the crash into a deny [R]. A grep of the guard files above finds 29 broad `except Exception` or bare `except` clauses: `redact.py` 4, `env.py` 2, `decide.py` 1, `rules.py` 1, `shellparse.py` 1, `netproxy.py` 11, `netpolicy.py` 5 and `url_guard.py` 4 [V✓ count only]. I did not read what any handler does. Many will be harmless cleanup; the test finds the ones that are not.
+
+**Where.** A new `m2c/tests/policy/test_fail_closed.py`, and one backend test for `url_guard.py`.
+
+**How.**
+
+1. Read each handler and sort it: cleanup, turned into a refusal, or passes through.
+2. Write the table: guard, how to make it raise, the required outcome (deny, ask, redact everything, withhold, refuse).
+3. Fix every pass-through so it ends refused, redacted or withheld.
+4. Add a test that lists the modules under `policy/`, `secrets/` and `sandbox/` and fails when one has no row, so a new guard cannot arrive without its crash test [U].
+
+**Done when.** Every row passes. Making any listed guard raise never produces an allow or a pass-through of unredacted text. The listing test fails when a guard module is added without a row.
+
+**Notes.** My idea, not a decision from the review. It overlaps neither UB-016 (random inputs that must not crash) nor `Q07` (a bypass corpus) nor `Q09` (crash and resume integrity): this one is about what a guard does when it itself fails. The count is a grep: some `except` clauses may sit in code that does not guard anything.
