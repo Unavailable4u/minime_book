@@ -242,7 +242,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/components.css">
 <link rel="stylesheet" href="assets/css/shell.css">
-</head><body data-page="doc-upgrade-backlog"><main><h1>Upgrade Backlog: Features To Build Later (an incremental register)</h1><p class="sub">Appendix C. 48,295 words. <a href="data/docs/upgrade_backlog.md" download>Download .md</a></p><div class="bk-banner">
+</head><body data-page="doc-upgrade-backlog"><main><h1>Upgrade Backlog: Features To Build Later (an incremental register)</h1><p class="sub">Appendix C. 53,331 words. <a href="data/docs/upgrade_backlog.md" download>Download .md</a></p><div class="bk-banner">
   <div class="bk-top">
     <div>
       <span class="bk-part">Appendix C · Upgrade backlog</span>
@@ -256,7 +256,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
   </div>
   <p class="bk-desc">An incremental register of features to build later. Every feature has a source (a repository, a plan section or an idea of your own), one line in a generated top table, and a detailed entry: what it is, why, where in the code, how it would be added and when it counts as done. It grows by batches, and a script keeps its tables and this page in step with the entries.</p>
   <div class="bk-meta">
-    <span><b>48,295</b> words (~220 min read)</span><span>·</span><span><b>116</b> sections</span><span>·</span><span><b>8</b> tables</span>
+    <span><b>53,331</b> words (~242 min read)</span><span>·</span><span><b>124</b> sections</span><span>·</span><span><b>8</b> tables</span>
   </div>
   <div class="bk-prevnext"><a href="docs.html" class="bk-nav-btn">← Back to the book</a><a href="doc-provider-consolidation.html" class="bk-nav-btn bk-next">Appendix B: Provider Consolidation Guide →</a></div>
 </div><div class="doc"><article><h1 id="upgrade-backlog-features-to-build-later-an-incremental-register">Upgrade Backlog: Features To Build Later (an incremental register)</h1>
@@ -267,7 +267,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <p><strong>Sections 0, 1 and 2 are generated</strong> from the entries by <code>python scripts/check_backlog.py --write</code>. Never edit them by hand; edit an entry and run the script.</p>
 <h2 id="0-at-a-glance">0. At a glance</h2>
 <p><em>Generated from the entries by <code>python scripts/check_backlog.py --write</code>. Do not edit by hand.</em></p>
-<p><strong>100 features</strong> in 7 batches: 96 candidate · 0 accepted · 0 building · 0 done · 4 parked · 0 dropped.</p>
+<p><strong>107 features</strong> in 8 batches: 103 candidate · 0 accepted · 0 building · 0 done · 4 parked · 0 dropped.</p>
 <div class="tw"><table>
 <thead>
 <tr>
@@ -304,23 +304,23 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td>Menux</td>
-<td>10</td>
+<td>13</td>
 <td>0</td>
 <td>0</td>
 <td>0</td>
 <td>1</td>
 <td>0</td>
-<td>11</td>
+<td>14</td>
 </tr>
 <tr>
 <td>Shared</td>
-<td>9</td>
+<td>13</td>
 <td>0</td>
 <td>0</td>
 <td>0</td>
 <td>0</td>
 <td>0</td>
-<td>9</td>
+<td>13</td>
 </tr>
 <tr>
 <td>Book</td>
@@ -334,13 +334,13 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 </tr>
 <tr>
 <td><strong>All</strong></td>
-<td><strong>96</strong></td>
+<td><strong>103</strong></td>
 <td><strong>0</strong></td>
 <td><strong>0</strong></td>
 <td><strong>0</strong></td>
 <td><strong>4</strong></td>
 <td><strong>0</strong></td>
-<td><strong>100</strong></td>
+<td><strong>107</strong></td>
 </tr>
 </tbody>
 </table></div>
@@ -825,7 +825,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Menux memory store with sources, validity and FTS5</td>
 <td>One migration for sources, memories with valid-from and valid-to, dependencies and a full-text index.</td>
 <td>Menux</td>
-<td>Spec 6.1, Plan 5.2 (Mnemosyne, Graphiti/Zep, mempalace, claude-mem)</td>
+<td>Spec 6.1, Plan 5.2 (Mnemosyne, Graphiti/Zep, mempalace, claude-mem); Graphiti <code>edges.py</code>, <code>utils/maintenance/edge_operations.py</code> and <code>temporal_edge_utils.py</code> (Apache-2.0, read at <code>b8ea9c5</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -835,7 +835,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Trust rule and a review queue for new memories</td>
 <td>Anything from a web page, tool output or an imported CLAUDE.md enters as an untrusted candidate; only a user action promotes it.</td>
 <td>Menux</td>
-<td>Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin), Gemini CLI <code>agents/skill-extraction-agent.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R]</td>
+<td>Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin), Gemini CLI <code>agents/skill-extraction-agent.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R]; MemoSync <code>src/server/memory/</code> (MIT, read at <code>f2e9930</code>), mempalace <code>fact_checker.py</code> (MIT, read at <code>7ea916d</code>), Graphiti <code>ingestion/change_set.py</code> (Apache-2.0, read at <code>b8ea9c5</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -855,7 +855,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Show the working memory before a task, and report what was used</td>
 <td>Before each task list the memories the agent intends to use with a reason; after it, show which were followed.</td>
 <td>Menux</td>
-<td>Spec 6.1, Plan 5.2 (MemoSync UX)</td>
+<td>Spec 6.1, Plan 5.2 (MemoSync UX); MemoSync <code>src/server/memory/trace.ts</code>, <code>use-plan.ts</code> and <code>injection.ts</code> (MIT, read at <code>f2e9930</code>) [R]</td>
 <td>M</td>
 <td>candidate</td>
 <td>B01</td>
@@ -865,7 +865,7 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Retention scores and hot, warm and cold tiers</td>
 <td>Decay plus access boost to prune memory. Both documents say to skip this until volume is measured.</td>
 <td>Menux</td>
-<td>agentmemory (Plan 5.2), Spec 6.1.6</td>
+<td>agentmemory (Plan 5.2), Spec 6.1.6; claude-mem <code>src/services/reinforcement/</code> (Apache-2.0, read at <code>372dbab</code>) [R]</td>
 <td>M</td>
 <td>parked</td>
 <td>B01</td>
@@ -1360,6 +1360,76 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>candidate</td>
 <td>B07</td>
 </tr>
+<tr>
+<td>UB-101</td>
+<td>A near-duplicate filter for the nightly consolidation job</td>
+<td>Exact-equal titles merge by themselves; near-equal titles go to review, unless a rare token differs (rdlp-api vs rdlp-plugin).</td>
+<td>Menux</td>
+<td>claude-mem <code>src/services/dedup/</code> (Apache-2.0, read at <code>372dbab</code>) [R], Menux build guide <code>MT-M02</code></td>
+<td>S</td>
+<td>candidate</td>
+<td>B08</td>
+</tr>
+<tr>
+<td>UB-102</td>
+<td>An import can never carry its own provenance</td>
+<td>A memory file that claims owner provenance still lands untrusted: only the importing code sets provenance, never the data.</td>
+<td>Menux</td>
+<td>agentmemory <code>src/types.ts</code> and <code>src/functions/export-import.ts</code> (Apache-2.0, read at <code>5c9e2e6</code>) [R], Menux build guide <code>MT-M03</code></td>
+<td>XS</td>
+<td>candidate</td>
+<td>B08</td>
+</tr>
+<tr>
+<td>UB-103</td>
+<td>Text marked private is never stored</td>
+<td>A user-marked private block is cut out before any memory write; an unclosed tag cuts everything after it.</td>
+<td>Shared</td>
+<td>agentmemory <code>src/functions/privacy.ts</code> (Apache-2.0, read at <code>5c9e2e6</code>) [R]</td>
+<td>XS</td>
+<td>candidate</td>
+<td>B08</td>
+</tr>
+<tr>
+<td>UB-104</td>
+<td>Re-check stored memory against today's secret rules</td>
+<td>A dry-run audit of memory already on disk, so a secret rule added later catches secrets saved earlier.</td>
+<td>Shared</td>
+<td>Mnemosyne <code>mnemosyne/core/hygiene.py</code> (MIT, read at <code>aa1ca31</code>) [R]</td>
+<td>S</td>
+<td>candidate</td>
+<td>B08</td>
+</tr>
+<tr>
+<td>UB-105</td>
+<td>Memory checkup: conflicts and staleness, each with a reason</td>
+<td>A nightly model pass lists conflicting and stale memories, each with a one-line reason; the owner decides.</td>
+<td>Menux</td>
+<td>MemoSync <code>src/server/memory/checkup.ts</code> (MIT, read at <code>f2e9930</code>) [R], Menux build guide <code>MT-M02</code></td>
+<td>M</td>
+<td>candidate</td>
+<td>B08</td>
+</tr>
+<tr>
+<td>UB-106</td>
+<td>One memory test pack, written as data, that every memory feature must pass</td>
+<td>One set of memory cases stored as data, so a Python and a Rust build of Menux and M2C pass the same file.</td>
+<td>Shared</td>
+<td>my idea; Appendix A <code>MG-Z02</code>, <code>DM-5</code> and <code>DM-10</code></td>
+<td>S</td>
+<td>candidate</td>
+<td>B08</td>
+</tr>
+<tr>
+<td>UB-107</td>
+<td>Four read-first checks before borrowing more from the memory repos</td>
+<td>Four ideas were read only in headers or READMEs; read the named files before any becomes a feature.</td>
+<td>Shared</td>
+<td>Graphiti, MemoSync and claude-mem (licences read, see section 7)</td>
+<td>S</td>
+<td>candidate</td>
+<td>B08</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="2-batches">2. Batches</h2>
@@ -1423,6 +1493,13 @@ iframe{width:100%;border:1px solid var(--ln);border-radius:12px;background:#fff}
 <td>Review of open-code-review, mixdog, cordum, preloop, caura and orca</td>
 <td>4</td>
 <td>UB-097 to UB-100</td>
+</tr>
+<tr>
+<td>B08</td>
+<td>2026-11-27</td>
+<td>Review of Mnemosyne, MemoSync, agentmemory, mempalace, claude-mem and Graphiti</td>
+<td>7</td>
+<td>UB-101 to UB-107</td>
 </tr>
 </tbody>
 </table></div>
@@ -2192,6 +2269,76 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <td>Bots in Slack, Linear and GitHub, a chat-to-terminal handoff, a cloud VM per worktree, the OSC 7501 agent-status protocol, and coordinator and worker gates (only <code>gate-handlers.ts</code> opened)</td>
 <td>Menux channels work starts</td>
 </tr>
+<tr>
+<td>MemoSync Automatic mode</td>
+<td>Safe changes apply on their own with a Revert, and an Auto evolution setting exists [R <code>evolution.ts</code> comment; README]. It promotes without review, against UB-048 and the automatic memory writers recorded above</td>
+<td>never, unless UB-048 is built and you want an opt-in</td>
+</tr>
+<tr>
+<td>MemoSync cross-project transfer</td>
+<td>Two model stages (turn a memory into a rule, then rewrite it for the target project) for a rare case [R <code>transfer.ts</code> header]. M2C keys its memory per project [V✓ <code>memory.py</code>]</td>
+<td>you keep memory in three or more projects</td>
+</tr>
+<tr>
+<td>agentmemory retention tiers</td>
+<td>Kept as UB-051, parked: the constants are untuned defaults [R <code>retention.ts:24-29</code>]</td>
+<td>memory volume makes prompts too big</td>
+</tr>
+<tr>
+<td>Mnemosyne veracity weights</td>
+<td>A weight is not a gate: "unknown" (0.8) outranks tool (0.5) and imported (0.6) [R <code>core/veracity_consolidation.py:124</code>]. Its docstring says confidence is 1-0.7^n, the code adds (1-old)<em>weight</em>0.3 [R <code>:469-486</code>]. UB-048's untrusted-until-promoted rule is stronger</td>
+<td>never</td>
+</tr>
+<tr>
+<td>Mnemosyne SHMR harmonizer</td>
+<td>A model rewrites clusters of memories into beliefs and writes them with no review [R <code>core/shmr.py</code>]. Same objection as the automatic memory writers recorded above</td>
+<td>never</td>
+</tr>
+<tr>
+<td>Mnemosyne polyphonic recall and binary vectors</td>
+<td>Fixed voice weights 0.35, 0.25, 0.25, 0.15 although the docstring says learned [R <code>core/polyphonic_recall.py:130</code>]; binary vectors contradict <code>D9</code> (no embeddings). Its README benchmarks are version-labelled and one claim was withdrawn [README]</td>
+<td>UB-047's own Q&amp;A set shows FTS5 is not enough</td>
+</tr>
+<tr>
+<td>Memory sync between devices: Mnemosyne's encrypted event log, mempalace's hybrid logical clock, claude-mem's <code>synced_at</code> outbox</td>
+<td>Menux memory stays on the device (Menux guide §2.1). Mnemosyne uses Fernet (AES-128-CBC) [R <code>core/sync.py:150-216</code>], not the audited AEAD crates Appendix A §8 wants. The clock [R <code>hlc.py</code> docstring] and the outbox [R <code>CloudSync.ts</code> header] only matter once memory syncs; claude-mem's outbox feeds a hosted hub</td>
+<td>you decide to sync memory between devices</td>
+</tr>
+<tr>
+<td>Mnemosyne canonical single-slot facts</td>
+<td>Already built as fixed slots in <code>backend/eo/workspace_facts.py</code> [V✓ docstring]</td>
+<td>never</td>
+</tr>
+<tr>
+<td>Graphiti search recipes, communities, GLiNER2 local NER, concurrent ingestion</td>
+<td>Each needs a graph database or a 205 to 340 million parameter model [R <code>search_config.py</code>, <code>community_operations.py</code>, <code>llm_client/gliner2_client.py</code>, <code>ingestion/scheduler.py</code>]. MiniMe has Upstash Vector and <code>eo/semantic_cache.py</code>, and no second retriever to fuse</td>
+<td>a second retriever exists, or ingest volume is measured</td>
+</tr>
+<tr>
+<td>agentmemory capture spool and delete sweep</td>
+<td>The spool covers a hook-to-server outage [R <code>capture/spool.ts</code>]; M2C stores events locally first and resumes by <code>seq</code> (<code>C02</code>, <code>Q09</code>). The delete sweep exists because its store has no transactions [R <code>functions/governance.ts:44-97</code>]; SQLite has</td>
+<td>never</td>
+</tr>
+<tr>
+<td>mempalace writer lease</td>
+<td>M2C's store already uses WAL, a busy timeout and <code>BEGIN IMMEDIATE</code> [V✓ <code>m2c/src/m2c/store/db.py</code> docstring]</td>
+<td>a writer that is not SQLite appears</td>
+</tr>
+<tr>
+<td>mempalace layers, verbatim storage and decay math</td>
+<td>M2C's memory index with topic files and UB-042's lossless log cover it [V✓]. Its decay module is not called by anything yet, per its own docstring [R <code>dynamics.py</code>]. Its benchmark file says the 100% LongMemEval result was tuned on three failing answers and the held-out figure is 98.4% [R <code>benchmarks/BENCHMARKS.md</code>]</td>
+<td>never</td>
+</tr>
+<tr>
+<td>claude-mem tree-sitter file outlines</td>
+<td>Needs a downloaded tree-sitter command-line binary, against <code>D14</code> [R <code>smart-file-read/</code> listing; the parser was not studied]</td>
+<td><code>D14</code> changes</td>
+</tr>
+<tr>
+<td>claude-mem <code>cowork/</code> plugin, hosted sync hub and iMessage observer</td>
+<td><code>cowork/.claude-plugin/plugin.json</code> says PolyForm-Noncommercial, so ideas only; the plugin streams fragments to a hosted service [R]. Never run</td>
+<td>never</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="7-sources-register">7. Sources register</h2>
@@ -2490,51 +2637,51 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 </tr>
 <tr>
 <td>Mnemosyne</td>
-<td>—</td>
-<td>not stated</td>
-<td>LEARN</td>
-<td>UB-047, UB-049</td>
-<td>—</td>
+<td>https://github.com/mnemosyne-oss/mnemosyne</td>
+<td>MIT (<code>LICENSE</code> read at <code>aa1ca31</code>; has a CLA file)</td>
+<td>LEARN (Python and a native vector extension; one idea taken: UB-104)</td>
+<td>UB-047, UB-049, UB-104</td>
+<td>licence read 2026-11-27; read from source, not run</td>
 </tr>
 <tr>
 <td>MemoSync</td>
-<td>—</td>
-<td>not stated</td>
-<td>LEARN</td>
-<td>UB-048, UB-050</td>
-<td>—</td>
+<td>https://github.com/SLEEPYBQ/MemoSync</td>
+<td>MIT (<code>LICENSE</code> read at <code>f2e9930</code>; <code>THIRD_PARTY_NOTICES.md</code> lists Kanna and Magpie, both MIT)</td>
+<td>LEARN (TypeScript; sends memory text to a DeepSeek endpoint when a key is set)</td>
+<td>UB-048, UB-050, UB-105</td>
+<td>licence read 2026-11-27; read from source, not run</td>
 </tr>
 <tr>
 <td>agentmemory</td>
-<td>—</td>
-<td>not stated</td>
-<td>LEARN</td>
-<td>UB-049, UB-051</td>
-<td>—</td>
+<td>https://github.com/rohitg00/agentmemory</td>
+<td>Apache-2.0 (root <code>LICENSE</code> and two nested copies read at <code>5c9e2e6</code>)</td>
+<td>LEARN (its CLI downloads and runs a separate engine binary; an imported file can set its own origin, UB-102)</td>
+<td>UB-049, UB-051, UB-102, UB-103</td>
+<td>licence read 2026-11-27; read from source, not run; whether its metrics leave the machine not checked</td>
 </tr>
 <tr>
 <td>mempalace</td>
-<td>—</td>
-<td>not stated</td>
-<td>LEARN</td>
-<td>UB-047</td>
-<td>—</td>
+<td>https://github.com/MemPalace/mempalace</td>
+<td>MIT (root and plugin <code>LICENSE</code> read at <code>7ea916d</code>)</td>
+<td>LEARN (Python and chromadb)</td>
+<td>UB-047, UB-048</td>
+<td>licence read 2026-11-27; read from source, not run; its telemetry is switched off in code</td>
 </tr>
 <tr>
 <td>claude-mem</td>
-<td>—</td>
-<td>not stated</td>
-<td>LEARN</td>
-<td>UB-047</td>
-<td>—</td>
+<td>https://github.com/thedotmack/claude-mem</td>
+<td>Apache-2.0 at HEAD (<code>LICENSE</code> and <code>NOTICE</code> read at <code>372dbab</code>). It was AGPL-3.0 until v13.0.0 (2026-05-08); <code>cowork/.claude-plugin/plugin.json</code> says PolyForm-Noncommercial; it is open-core (<code>docs/ip-boundary.md</code>); no CLA file seen</td>
+<td>LEARN (copy only from HEAD, never from older tags or forks; <code>cowork/</code> is ideas only)</td>
+<td>UB-047, UB-051, UB-101</td>
+<td>licence read 2026-11-27; read from source, not run; the relicensing has not been checked with a lawyer</td>
 </tr>
 <tr>
 <td>Graphiti / Zep</td>
-<td>—</td>
-<td>not stated</td>
-<td>LEARN</td>
-<td>UB-047</td>
-<td>—</td>
+<td>https://github.com/getzep/graphiti</td>
+<td>Apache-2.0 (<code>LICENSE</code> read at <code>b8ea9c5</code>; has a CLA file)</td>
+<td>LEARN (needs a graph database; PostHog telemetry is on by default)</td>
+<td>UB-047, UB-048, UB-107</td>
+<td>licence read 2026-11-27; read from source, not run</td>
 </tr>
 <tr>
 <td>Mem0, Letta, Cognee</td>
@@ -2933,6 +3080,12 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <td>—</td>
 <td>batch B07 created</td>
 <td>six reference repos (open-code-review, mixdog, cordum, preloop, caura, orca) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-028, UB-037, UB-039, UB-042, UB-043, UB-045, UB-049, UB-075, UB-086, UB-087), UB-097 to UB-100 added, 21 items recorded in section 6. Other chapters not edited</td>
+</tr>
+<tr>
+<td>2026-11-27</td>
+<td>—</td>
+<td>batch B08 created</td>
+<td>six memory repos (Mnemosyne, MemoSync, agentmemory, mempalace, claude-mem, Graphiti) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-047, UB-048, UB-050, UB-051), UB-101 to UB-105 and UB-107 added, UB-106 added as my own idea, 14 rows added to section 6. Other chapters not edited; <code>MT-M01</code>, <code>MT-M02</code> and <code>MT-M03</code> need a decision (see UB-047 Notes and UB-101, UB-102)</td>
 </tr>
 </tbody>
 </table></div>
@@ -3713,7 +3866,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>One migration for sources, memories with valid-from and valid-to, dependencies and a full-text index.</p>
 </blockquote>
-<p><strong>Product</strong> Menux · <strong>Source</strong> Spec 6.1, Plan 5.2 (Mnemosyne, Graphiti/Zep, mempalace, claude-mem) · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [V✓] [R] [W]</p>
+<p><strong>Product</strong> Menux · <strong>Source</strong> Spec 6.1, Plan 5.2 (Mnemosyne, Graphiti/Zep, mempalace, claude-mem); Graphiti <code>edges.py</code>, <code>utils/maintenance/edge_operations.py</code> and <code>temporal_edge_utils.py</code> (Apache-2.0, read at <code>b8ea9c5</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> Which is the source of truth: the Markdown files of <code>MT-M01</code> or these tables (see Notes) · <strong>Evidence</strong> [V✓] [R] [W] [U]</p>
 <p><strong>What.</strong> Tables <code>sources</code>, <code>memories</code>, <code>memory_deps</code> and <code>memories_fts</code>, with <code>valid_at</code>, <code>invalid_at</code> and <code>superseded_by</code> windows in SQLite (no graph database).</p>
 <p><strong>Why.</strong> The Menux plan already chose SQLite FTS5 and no embeddings (D9). The research found no embedding retrieval in the coding agents studied [W].</p>
 <p><strong>Where.</strong> <code>m2c/src/m2c/context/memory.py</code> (398 lines [V✓]) and <code>m2c/src/m2c/store/</code> as the base; Menux has no code yet.</p>
@@ -3722,13 +3875,18 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Write one migration in the style of <code>m2c/store/migrations.py</code>.</li>
 <li>Columns as in the spec: sources(id, uri, content_hash, trust_tier, fetched_at); memories(id, text, scope, source_id, trust_tier, created_at, valid_at, invalid_at, superseded_by, last_access, access_count); memory_deps(memory_id, depends_on).</li>
 <li>Retrieval uses plain scope filters; evaluate with end-to-end questions, not recall@k alone.</li>
+<li>Add <code>expired_at</code> beside <code>invalid_at</code>: <code>invalid_at</code> is when the fact stopped being true, <code>expired_at</code> is when the system learned that. Graphiti keeps both clocks [R <code>graphiti_core/edges.py:243-254</code>]; that is what answers "what did Menux believe on date X".</li>
+<li>Supersede by rule, not by key: a new memory ends an older one only when the older one's <code>valid_at</code> is earlier than the new one's and their windows overlap; otherwise keep both and flag the pair for review. Graphiti's <code>resolve_edge_contradictions</code> does this in about 15 lines [R <code>utils/maintenance/edge_operations.py:795-830</code>]. Do not key it on subject plus predicate alone: Mnemosyne's <code>TripleStore</code> ends the old row on every write with the same pair, and moved multi-valued facts into a separate append-only store [R docstrings of <code>core/triples.py</code> and <code>core/annotations.py</code>; whether it compares start times was not read].</li>
+<li>Future-tense rule: for "will", "plans to" or "by Friday", <code>valid_at</code> is when the thing was said and a deadline is never <code>invalid_at</code> [R <code>utils/maintenance/temporal_edge_utils.py</code>, first 60 lines]. Write your own patterns.</li>
+<li>Several sources per memory: replace the single <code>source_id</code> with a <code>memory_sources(memory_id, source_id)</code> table, or confirm that <code>memory_deps</code> can point at sources. Graphiti keeps a list of source episodes on every fact [R <code>edges.py:232</code>]. UB-101 needs it (a merged duplicate keeps both sources) and UB-049 needs it (a memory with a second source must not be retired when one source is corrected).</li>
 </ol>
-<p><strong>Done when.</strong> A fixed Q&amp;A set gives stable answers; the old version of a memory stays readable.</p>
+<p><strong>Done when.</strong> A fixed Q&amp;A set gives stable answers; the old version of a memory stays readable. A memory that is stated later but dated earlier does not end the newer one; "will finish by Friday" is not stored as ending on Friday; merging two duplicates keeps both sources.</p>
+<p><strong>Notes.</strong> Graphiti is Apache-2.0 and needs a graph database: write the rules fresh and keep its notice if any text is copied. <strong><code>MT-M01</code> and this entry disagree about the store.</strong> <code>MT-M01</code> makes plain Markdown files the truth under <code>~/.menux/memory/</code>, with an FTS5 index, and requires that an edit made in an editor is reindexed [V✓ Menux build guide]; this entry has tables. My suggestion [U]: keep the files as the truth and add a SQLite sidecar holding sources, provenance, validity and dependencies per memory line, with a stable id on each line (for example a trailing comment), so the editor workflow still works. Decide before the migration is written. <strong><code>MT-M02</code> says "newest wins unless flagged".</strong> Newest should mean newest by <code>valid_at</code>, not by write time (step 5); that chapter was not edited.</p>
 <h3 id="ub-048-trust-rule-and-a-review-queue-for-new-memories-m">UB-048: Trust rule and a review queue for new memories (M)</h3>
 <blockquote>
 <p>Anything from a web page, tool output or an imported CLAUDE.md enters as an untrusted candidate; only a user action promotes it.</p>
 </blockquote>
-<p><strong>Product</strong> Menux · <strong>Source</strong> Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin), Gemini CLI <code>agents/skill-extraction-agent.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> UB-047 · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [W]</p>
+<p><strong>Product</strong> Menux · <strong>Source</strong> Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin), Gemini CLI <code>agents/skill-extraction-agent.ts</code> (Apache-2.0, read at <code>60f8082</code>) [R]; MemoSync <code>src/server/memory/</code> (MIT, read at <code>f2e9930</code>), mempalace <code>fact_checker.py</code> (MIT, read at <code>7ea916d</code>), Graphiti <code>ingestion/change_set.py</code> (Apache-2.0, read at <code>b8ea9c5</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> UB-047 · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [W] [U]</p>
 <p><strong>What.</strong> A write path with trust tiers and a queue; no code path promotes automatically.</p>
 <p><strong>Why.</strong> Memory poisoning is a known attack; this is the defence the plan wants tested.</p>
 <p><strong>Where.</strong> The UB-047 tables; the Menux memory tools.</p>
@@ -3737,9 +3895,14 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Every write from external content gets tier <code>untrusted</code>.</li>
 <li>Show new candidates in a queue; importing an existing <code>CLAUDE.md</code> creates candidates. Store each candidate as a reviewable patch. Gemini's background agent writes memory changes only as unified-diff <code>.patch</code> files under <code>.inbox/&lt;kind&gt;/</code>, one canonical file per kind, and treats transcripts as evidence and never as instructions [R].</li>
 <li>Promotion only through a user action.</li>
+<li>Provenance comes from the code that writes, never from the data being written (UB-102).</li>
+<li>A sensitive lane: an item that the secret detector flags enters the queue as SENSITIVE. It is left out of any Markdown export, and when dismissed it is erased for good, not archived. If the redaction pass fails, the owner edits by hand; the raw text is never the fallback [R MemoSync <code>secrets.ts</code> and <code>sanitize.ts</code>, headers]. Use <code>m2c.secrets</code> as the detector.</li>
+<li>A stale-fact badge: a candidate that matches a retired memory (<code>invalid_at</code> in the past) shows a badge in the queue [R mempalace <code>fact_checker.py</code>: docstring and function list; its claim-extraction patterns were not read]. It needs no model.</li>
+<li>Where the store is rows (see the UB-047 Decision), store each candidate as typed operations (add a memory, end a memory, set a field, link a source) instead of <code>.patch</code> text: Graphiti's <code>ingestion/change_set.py</code> does that [R class docstrings; the apply code was not read]. Keep the <code>.patch</code> form for Markdown memory files.</li>
+<li>A revision candidate: when the last K post-task verdicts of a memory (UB-050) are all "violated", draft a candidate that revises it; accepting it replaces the old text. Ask-first only: MemoSync also has an Auto setting, which is not taken (section 6) [R <code>evolution.ts</code> header; the value of K was not seen].</li>
 </ol>
-<p><strong>Done when.</strong> A poisoned web page cannot produce a trusted memory, tested with your own three-turn case: plant a memory, poison it, ask a follow-up.</p>
-<p><strong>Notes.</strong> promptfoo's <code>agentic:memory-poisoning</code> plugin is remote-only: its grader was read, but its cases are generated on <code>api.promptfoo.app</code> [R]. Use it only for the shape of the test and write the three turns yourself. The same plugin is in UB-014 step 2, where it returns nothing if remote generation is off. Two other reference repos write memory with no review step, so neither is copied as it is (section 6): Codex's second phase lets an agent write the memory folder with approvals set to never, and Hermes forks an agent after each turn that writes straight to its stores under a tool whitelist [S]. Two parts are safe to take: redact secrets before the extractor sees a transcript (Codex does this in its first phase [S]), and the fork-after-each-turn trick, if its output lands only in this queue.</p>
+<p><strong>Done when.</strong> A poisoned web page cannot produce a trusted memory, tested with your own three-turn case: plant a memory, poison it, ask a follow-up. A candidate equal to a retired memory shows the badge; a dismissed sensitive candidate leaves no text in the database or in any export.</p>
+<p><strong>Notes.</strong> promptfoo's <code>agentic:memory-poisoning</code> plugin is remote-only: its grader was read, but its cases are generated on <code>api.promptfoo.app</code> [R]. Use it only for the shape of the test and write the three turns yourself. The same plugin is in UB-014 step 2, where it returns nothing if remote generation is off. Two other reference repos write memory with no review step, so neither is copied as it is (section 6): Codex's second phase lets an agent write the memory folder with approvals set to never, and Hermes forks an agent after each turn that writes straight to its stores under a tool whitelist [S]. Two parts are safe to take: redact secrets before the extractor sees a transcript (Codex does this in its first phase [S]), and the fork-after-each-turn trick, if its output lands only in this queue. The UB-046 chain must record only a hash of an erased sensitive item, never its text, or the erase is not real [U].</p>
 <h3 id="ub-049-correcting-a-source-retires-its-dependents-and-deletes-cascade-m">UB-049: Correcting a source retires its dependents, and deletes cascade (M)</h3>
 <blockquote>
 <p>Fix or delete a source and everything derived from it leaves retrieval but stays readable in a history view.</p>
@@ -3760,7 +3923,7 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <blockquote>
 <p>Before each task list the memories the agent intends to use with a reason; after it, show which were followed.</p>
 </blockquote>
-<p><strong>Product</strong> Menux · <strong>Source</strong> Spec 6.1, Plan 5.2 (MemoSync UX) · <strong>Status</strong> candidate · <strong>Depends</strong> UB-047 · <strong>Decision</strong> none · <strong>Evidence</strong> [R]</p>
+<p><strong>Product</strong> Menux · <strong>Source</strong> Spec 6.1, Plan 5.2 (MemoSync UX); MemoSync <code>src/server/memory/trace.ts</code>, <code>use-plan.ts</code> and <code>injection.ts</code> (MIT, read at <code>f2e9930</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> UB-047 · <strong>Decision</strong> Whether you accept one extra cheap-class model call per run for the audit (step 5) · <strong>Evidence</strong> [R] [U]</p>
 <p><strong>What.</strong> A confirmation step with drop or add, and a post-task record.</p>
 <p><strong>Why.</strong> Puts the user in control of what the agent remembers.</p>
 <p><strong>Where.</strong> The Menux run start; the UB-047 <code>access_count</code> fields.</p>
@@ -3769,13 +3932,18 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Select candidate memories for the task with one-line reasons.</li>
 <li>Let the user drop items first.</li>
 <li>After the task, record which were used.</li>
+<li>Post-task audit: a separate model call over the whole exchange rates each selected memory as operational, injected-without-effect, violated or not-applicable, and for a violated one says whether it visibly hurt the result [R MemoSync <code>trace.ts</code> header and <code>types.ts:60</code>]. This finds a violation the agent never cited, which a "which did you use" report cannot. Say in the interface that the verdict is a model's judgement and can be wrong.</li>
+<li>Budget the audit: one extra call per run, in the cheap model class under the run budget (Menux guide §12.2, <code>MT-A05</code>); skip it for runs that selected no memory.</li>
+<li>One use-plan object produces both the confirmation card and the prompt text, so the card cannot promise something the prompt did not ask for [R <code>use-plan.ts</code> header].</li>
+<li>Put the selected memories into the session once; later changes ride in the next user message as a delta, so the cached prompt prefix is not rebuilt [R <code>injection.ts</code> header; M2C <code>S08</code> already orders the memory index for cache stability].</li>
 </ol>
-<p><strong>Done when.</strong> A dropped memory is never used in the run.</p>
+<p><strong>Done when.</strong> A dropped memory is never used in the run. A memory the agent broke without citing it still shows as violated in the audit. Changing a memory mid-session does not change the first part of the prompt.</p>
+<p><strong>Notes.</strong> MemoSync is TypeScript and MIT: take the design, write the code fresh. Its README names the labels differently ("shaped", "no visible effect") from the code, which has the four above [R]; follow the code. Its own README says citations are what the agent says it used, not proof [README]. The prompts of the audit were not read. MemoSync sends memory text to a DeepSeek endpoint by default when a key is set (section 7), so do not copy that part.</p>
 <h3 id="ub-051-retention-scores-and-hot-warm-and-cold-tiers-m">UB-051: Retention scores and hot, warm and cold tiers (M)</h3>
 <blockquote>
 <p>Decay plus access boost to prune memory. Both documents say to skip this until volume is measured.</p>
 </blockquote>
-<p><strong>Product</strong> Menux · <strong>Source</strong> agentmemory (Plan 5.2), Spec 6.1.6 · <strong>Status</strong> parked · <strong>Depends</strong> UB-047 · <strong>Decision</strong> none · <strong>Evidence</strong> [R]</p>
+<p><strong>Product</strong> Menux · <strong>Source</strong> agentmemory (Plan 5.2), Spec 6.1.6; claude-mem <code>src/services/reinforcement/</code> (Apache-2.0, read at <code>372dbab</code>) [R] · <strong>Status</strong> parked · <strong>Depends</strong> UB-047 · <strong>Decision</strong> none · <strong>Evidence</strong> [R]</p>
 <p><strong>What.</strong> A retention score and three tiers.</p>
 <p><strong>Why.</strong> Only useful if prompts get too large.</p>
 <p><strong>Where.</strong> The UB-047 tables.</p>
@@ -3784,9 +3952,10 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Wait until memory volume makes prompts too big.</li>
 <li>Tune the plan's reference values (decay 0.01; cut-offs 0.7, 0.4, 0.15) on your own data.</li>
 <li>Prove the fixed Q&amp;A set does not regress after pruning.</li>
+<li>Prefer ranking to pruning: keep up to 10 re-confirmation dates per memory and score <code>ln(1 + age_created^-0.5 + alpha * sum(age_reinforcement^-0.5))</code>, so the score only decides what to show first and nothing is deleted [R claude-mem <code>reinforcement/rank.ts</code> and <code>strength.ts</code>]. A re-confirmation is the world saying the fact again (UB-101's exact-duplicate merge), not a read of it. Add a <code>reinforcements</code> column in UB-047 only when this is unparked.</li>
 </ol>
 <p><strong>Done when.</strong> The Q&amp;A set gives the same answers before and after pruning.</p>
-<p><strong>Notes.</strong> Parked on the spec's own advice (the constants come from a project it did not examine). Reopen when memory volume grows.</p>
+<p><strong>Notes.</strong> Parked on the spec's own advice. The constants are now examined: agentmemory ships them as untuned defaults [R <code>src/functions/retention.ts:24-29</code>], so tune them on your own data. claude-mem's ranking is off by default (alpha is 0) [R <code>rank.ts</code>], so neither project has shown that it helps. Reopen when memory volume grows.</p>
 <h3 id="ub-052-learned-workflows-modelled-on-webcmd-l">UB-052: Learned workflows modelled on webcmd (L)</h3>
 <blockquote>
 <p>Three levels: live browser control, a remembered sitemap of pages and actions, and compiled workflows for repeatable tasks.</p>
@@ -4525,7 +4694,130 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
 <li>Report the pass rate per category and keep the last three runs so a drop shows. Set no pass threshold before there is a baseline.</li>
 </ol>
 <p><strong>Done when.</strong> The set runs against a stand-in host with no real connector; a deliberately broken Planner prompt (the ask rule removed) fails the <code>ask</code> category; a clean run prints a rate for every category.</p>
-<p><strong>Notes.</strong> Orca's code is TypeScript (MIT): take the categories and the idea of grading the result, and write it in your own language. Cost is tokens per run and is not measured. Writing the requests by hand is the real work.</p></article><div class="toc"><b>On this page</b><a class="t2" href="#0-at-a-glance">0. At a glance</a><a class="t2" href="#1-register">1. Register</a><a class="t2" href="#2-batches">2. Batches</a><a class="t2" href="#3-how-to-add-features-the-patch-recipe">3. How to add features (the patch recipe)</a><a class="t2" href="#4-field-vocabulary-and-rules">4. Field vocabulary and rules</a><a class="t2" href="#5-where-the-original-upgrade-plan-went">5. Where the original upgrade plan went</a><a class="t2" href="#6-considered-not-added">6. Considered, not added</a><a class="t2" href="#7-sources-register">7. Sources register</a><a class="t2" href="#8-decision-log">8. Decision log</a><a class="t2" href="#batch-b01-2026-11-24-upgrade-plan-and-verified-spec-of-21-nov-2026-minus-the-finished-sx-series">Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 ...</a><a class="t3" href="#ub-001-move-the-web-app-from-nextjs-14-to-a-supported-line-l">UB-001: Move the web app from Next.js 14 to a supported line (L)</a><a class="t3" href="#ub-002-decide-pillow-against-moviepy-then-act-m">UB-002: Decide Pillow against moviepy, then act (M)</a><a class="t3" href="#ub-003-move-e2b-bracex-and-wcmatch-together-m">UB-003: Move e2b, bracex and wcmatch together (M)</a><a class="t3" href="#ub-004-put-the-caddy-config-in-the-repo-and-set-the-edge-limits-m">UB-004: Put the Caddy config in the repo and set the edge lim...</a><a class="t3" href="#ub-005-block-cloud-metadata-and-link-local-addresses-at-the-host-firewall-s">UB-005: Block cloud-metadata and link-local addresses at the ...</a><a class="t3" href="#ub-006-run-url-fetches-behind-an-egress-proxy-or-in-the-sandbox-m">UB-006: Run URL fetches behind an egress proxy or in the sand...</a><a class="t3" href="#ub-007-audit-every-other-server-side-fetch-of-a-user-influenced-url-m">UB-007: Audit every other server-side fetch of a user-influen...</a><a class="t3" href="#ub-008-per-user-ingest-quotas-m">UB-008: Per-user ingest quotas (M)</a><a class="t3" href="#ub-009-daily-ingest-cost-cap-tied-to-the-usage-ledger-m">UB-009: Daily ingest cost cap tied to the usage ledger (M)</a><a class="t3" href="#ub-010-cap-voice-length-before-transcribing-s">UB-010: Cap voice length before transcribing (S)</a><a class="t3" href="#ub-011-re-set-the-size-caps-with-a-cost-model-s">UB-011: Re-set the size caps with a cost model (S)</a><a class="t3" href="#ub-012-turn-the-report-only-csp-into-an-enforced-one-m">UB-012: Turn the report-only CSP into an enforced one (M)</a><a class="t3" href="#ub-013-a-small-blocking-promptfoo-gate-m">UB-013: A small blocking promptfoo gate (M)</a><a class="t3" href="#ub-014-run-the-promptfoo-red-team-with-a-two-tenant-provider-m">UB-014: Run the promptfoo red-team with a two-tenant provider...</a><a class="t3" href="#ub-015-first-strix-run-on-staging-m">UB-015: First Strix run on staging (M)</a><a class="t3" href="#ub-016-property-tests-with-hypothesis-m">UB-016: Property tests with Hypothesis (M)</a><a class="t3" href="#ub-017-nightly-api-fuzzing-with-schemathesis-m">UB-017: Nightly API fuzzing with Schemathesis (M)</a><a class="t3" href="#ub-018-add-cost-per-task-and-web-product-scenarios-to-the-load-harness-m">UB-018: Add cost-per-task and web-product scenarios to the lo...</a><a class="t3" href="#ub-019-a-practice-lab-on-your-own-machine-a-small-fastapi-app-behind-caddy-s">UB-019: A practice lab on your own machine: a small FastAPI a...</a><a class="t3" href="#ub-020-pre-audit-package-for-the-daemon-m">UB-020: Pre-audit package for the daemon (M)</a><a class="t3" href="#ub-021-sbom-on-release-and-a-licence-allow-list-gate-m">UB-021: SBOM on release, and a licence allow-list gate (M)</a><a class="t3" href="#ub-022-pin-scanner-binaries-and-images-by-digest-s">UB-022: Pin scanner binaries and images by digest (S)</a><a class="t3" href="#ub-023-lurkr-as-an-advisory-ci-step-s">UB-023: Lurkr as an advisory CI step (S)</a><a class="t3" href="#ub-024-dependabot-for-the-docker-images-xs">UB-024: Dependabot for the Docker images (XS)</a><a class="t3" href="#ub-025-security-headers-for-the-book-site-xs">UB-025: Security headers for the book site (XS)</a><a class="t3" href="#ub-026-record-the-fix-patch-guide-in-the-book-s">UB-026: Record the fix patch guide in the book (S)</a><a class="t3" href="#ub-027-refresh-the-book-after-the-fixes-and-upgrades-m">UB-027: Refresh the book after the fixes and upgrades (M)</a><a class="t3" href="#ub-028-verify-on-stop-in-the-agent-loop-m">UB-028: Verify-on-stop in the agent loop (M)</a><a class="t3" href="#ub-029-skills-loader-for-m2c-m">UB-029: Skills loader for M2C (M)</a><a class="t3" href="#ub-030-add-promptfoos-coding-agent-risk-categories-to-the-q07-corpus-and-list-the-gaps-s">UB-030: Add promptfoo&#x27;s coding-agent risk categories to the Q...</a><a class="t3" href="#ub-031-golden-tasks-for-the-coding-agent-m">UB-031: Golden tasks for the coding agent (M)</a><a class="t3" href="#ub-032-local-mcp-client-for-m2c-l">UB-032: Local MCP client for M2C (L)</a><a class="t3" href="#ub-033-deferred-tool-loading-with-search-over-tool-specs-m">UB-033: Deferred tool loading with search over tool specs (M)</a><a class="t3" href="#ub-034-offer-codebase-memory-mcp-as-an-optional-local-server-s">UB-034: Offer codebase-memory-mcp as an optional local server...</a><a class="t3" href="#ub-035-rehearse-mcp-attacks-against-m2c-with-a-red-team-tool-you-still-have-to-name-s">UB-035: Rehearse MCP attacks against M2C with a red-team tool...</a><a class="t3" href="#ub-036-stuck-detection-beyond-identical-failures-m">UB-036: Stuck detection beyond identical failures (M)</a><a class="t3" href="#ub-037-mid-turn-user-steering-m">UB-037: Mid-turn user steering (M)</a><a class="t3" href="#ub-038-an-instruction-hierarchy-contract-in-the-system-prompt-s">UB-038: An instruction-hierarchy contract in the system promp...</a><a class="t3" href="#ub-039-observe-mode-before-enforce-mode-for-new-policy-rules-m">UB-039: Observe mode before enforce mode for new policy rules...</a><a class="t3" href="#ub-040-store-sandbox-denials-and-explain-them-to-the-model-m">UB-040: Store sandbox denials and explain them to the model (M)</a><a class="t3" href="#ub-041-signed-narrowing-grants-for-subagents-l">UB-041: Signed, narrowing grants for subagents (L)</a><a class="t3" href="#ub-042-compaction-that-re-injects-the-task-goal-with-a-lossless-log-m">UB-042: Compaction that re-injects the task goal, with a loss...</a><a class="t3" href="#ub-043-an-independent-verifier-context-and-step-graph-validation-l">UB-043: An independent verifier context and step-graph valida...</a><a class="t3" href="#ub-044-plan-mode-that-is-structural-plus-a-spec-first-interview-m">UB-044: Plan mode that is structural, plus a spec-first inter...</a><a class="t3" href="#ub-045-a-precision-first-review-command-l">UB-045: A precision-first review command (L)</a><a class="t3" href="#ub-046-add-a-hash-chain-to-the-local-event-store-s">UB-046: Add a hash chain to the local event store (S)</a><a class="t3" href="#ub-047-menux-memory-store-with-sources-validity-and-fts5-m">UB-047: Menux memory store with sources, validity and FTS5 (M)</a><a class="t3" href="#ub-048-trust-rule-and-a-review-queue-for-new-memories-m">UB-048: Trust rule and a review queue for new memories (M)</a><a class="t3" href="#ub-049-correcting-a-source-retires-its-dependents-and-deletes-cascade-m">UB-049: Correcting a source retires its dependents, and delet...</a><a class="t3" href="#ub-050-show-the-working-memory-before-a-task-and-report-what-was-used-m">UB-050: Show the working memory before a task, and report wha...</a><a class="t3" href="#ub-051-retention-scores-and-hot-warm-and-cold-tiers-m">UB-051: Retention scores and hot, warm and cold tiers (M)</a><a class="t3" href="#ub-052-learned-workflows-modelled-on-webcmd-l">UB-052: Learned workflows modelled on webcmd (L)</a><a class="t3" href="#ub-053-crawl4ai-as-an-optional-web-reader-s">UB-053: crawl4ai as an optional web reader (S)</a><a class="t3" href="#ub-054-a-capability-listing-command-xs">UB-054: A capability-listing command (XS)</a><a class="t3" href="#ub-055-a-blender-skill-pack-m">UB-055: A Blender skill pack (M)</a><a class="t3" href="#ub-056-an-independent-claim-check-pass-for-research-reports-m">UB-056: An independent claim-check pass for research reports (M)</a><a class="t3" href="#ub-057-generation-that-survives-a-closed-tab-l">UB-057: Generation that survives a closed tab (L)</a><a class="t3" href="#ub-058-project-based-learning-with-an-ai-tutor-milestone-by-milestone-l">UB-058: Project-based learning with an AI tutor, milestone by...</a><a class="t3" href="#ub-059-chat-about-any-slide-element-m">UB-059: Chat about any slide element (M)</a><a class="t3" href="#ub-060-course-level-undo-m">UB-060: Course-level undo (M)</a><a class="t3" href="#ub-061-export-to-pptx-and-html-m">UB-061: Export to PPTX and HTML (M)</a><a class="t3" href="#ub-062-a-knowledge-base-with-mentions-m">UB-062: A knowledge base with @-mentions (M)</a><a class="t3" href="#ub-063-use-openmaics-published-advisories-as-a-free-test-checklist-s">UB-063: Use OpenMAIC&#x27;s published advisories as a free test ch...</a><a class="t3" href="#ub-064-a-repeatable-skills-pipeline-select-scan-rewrite-evaluate-label-regress-m">UB-064: A repeatable skills pipeline: select, scan, rewrite, ...</a><a class="t3" href="#ub-065-growth-tab-seed-skills-from-marketingskills-m">UB-065: Growth tab seed skills from marketingskills (M)</a><a class="t3" href="#ub-066-research-and-notebooks-seeds-from-scientific-agent-skills-m">UB-066: Research and notebooks seeds from scientific-agent-sk...</a><a class="t3" href="#ub-067-m2c-built-in-skills-and-a-behaviour-baseline-m">UB-067: M2C built-in skills and a behaviour baseline (M)</a><a class="t3" href="#ub-068-security-reviewer-prompts-and-a-vetted-security-skills-library-m">UB-068: Security reviewer prompts and a vetted security skill...</a><a class="t3" href="#ub-069-role-ideas-from-gstack-and-bmad-s">UB-069: Role ideas from gstack and BMAD (S)</a><a class="t3" href="#ub-070-an-optional-writing-quality-pass-from-humanizer-s">UB-070: An optional writing-quality pass from humanizer (S)</a><a class="t3" href="#ub-071-the-overhang-and-draft-check-in-the-mechanical-engine-m">UB-071: The overhang and draft check in the mechanical engine...</a><a class="t3" href="#ub-072-compare-text-to-cads-per-process-rules-with-yours-s">UB-072: Compare text-to-cad&#x27;s per-process rules with yours (S)</a><a class="t3" href="#ub-073-spike-can-build123d-replace-freecad-inside-the-e2b-template-m">UB-073: Spike: can build123d replace FreeCAD inside the E2B t...</a><a class="t3" href="#ub-074-an-analyse-this-part-stress-check-l">UB-074: An &quot;analyse this part&quot; stress check (L)</a><a class="t3" href="#ub-075-cost-experiments-before-adopting-any-compressor-or-router-m">UB-075: Cost experiments before adopting any compressor or ro...</a><a class="t3" href="#ub-076-design-and-build-techniques-from-impeccable-taste-skill-and-ui-ux-pro-max-m">UB-076: Design and build techniques from impeccable, taste-sk...</a><a class="t3" href="#ub-077-screenshot-to-code-for-the-wireframe-flow-m">UB-077: Screenshot-to-code for the wireframe flow (M)</a><a class="t3" href="#ub-078-a-diagram-generator-from-diagram-design-m">UB-078: A diagram generator from diagram-design (M)</a><a class="t3" href="#ub-079-spike-html-to-deterministic-video-with-hyperframes-m">UB-079: Spike: HTML to deterministic video with hyperframes (M)</a><a class="t3" href="#ub-080-study-slide-generation-references-s">UB-080: Study slide-generation references (S)</a><a class="t2" href="#batch-b02-2026-11-24-rust-anything-and-fast-anything-from-a-trial-on-m2c">Batch B02 (2026-11-24): rust-anything and fast-anything, from...</a><a class="t3" href="#ub-081-cross-check-the-mg-z10-spike-with-rust-anything-m">UB-081: Cross-check the MG-Z10 spike with rust-anything (M)</a><a class="t3" href="#ub-082-port-only-profiled-hot-functions-with-fast-anything-m">UB-082: Port only profiled hot functions with fast-anything (M)</a><a class="t3" href="#ub-083-break-the-import-cycle-so-m2c-units-can-be-bridged-one-by-one-m">UB-083: Break the import cycle so m2c units can be bridged on...</a><a class="t2" href="#batch-b03-2026-11-26-review-of-promptfoo-strix-hypothesis-schemathesis-and-locust">Batch B03 (2026-11-26): Review of promptfoo, Strix, Hypothesi...</a><a class="t3" href="#ub-084-record-what-a-run-created-so-undo-and-approvals-touch-only-that-s">UB-084: Record what a run created, so undo and approvals touc...</a><a class="t2" href="#batch-b04-2026-11-26-review-of-gemini-cli-hermes-agent-mistral-vibe-and-codex">Batch B04 (2026-11-26): Review of gemini-cli, hermes-agent, m...</a><a class="t3" href="#ub-085-switch-off-core-dumps-and-debugger-attach-for-the-m2c-client-at-start-xs">UB-085: Switch off core dumps and debugger attach for the M2C...</a><a class="t3" href="#ub-086-session-goal-mode-with-a-token-budget-and-a-no-progress-stop-m">UB-086: Session goal mode with a token budget and a no-progre...</a><a class="t3" href="#ub-087-one-helper-that-frames-text-the-model-must-treat-as-data-s">UB-087: One helper that frames text the model must treat as d...</a><a class="t2" href="#batch-b05-2026-11-26-review-of-opencode-pi-tenuo-and-prismor">Batch B05 (2026-11-26): Review of OpenCode, Pi, Tenuo and Pri...</a><a class="t3" href="#ub-088-reject-repeated-json-keys-in-tool-arguments-xs">UB-088: Reject repeated JSON keys in tool arguments (XS)</a><a class="t3" href="#ub-089-ask-before-the-agent-edits-its-own-instruction-files-s">UB-089: Ask before the agent edits its own instruction files (S)</a><a class="t3" href="#ub-090-keep-the-full-tool-output-in-a-file-the-model-can-read-later-m">UB-090: Keep the full tool output in a file the model can rea...</a><a class="t3" href="#ub-091-canary-files-that-raise-an-alarm-when-the-agent-opens-them-s">UB-091: Canary files that raise an alarm when the agent opens...</a><a class="t3" href="#ub-092-credentials-the-model-can-use-but-never-see-m">UB-092: Credentials the model can use but never see (M)</a><a class="t3" href="#ub-093-prove-a-skill-or-prompt-change-helps-with-paired-with-and-without-evals-m">UB-093: Prove a skill or prompt change helps, with paired wit...</a><a class="t3" href="#ub-094-heal-half-written-markdown-while-a-reply-streams-s">UB-094: Heal half-written Markdown while a reply streams (S)</a><a class="t3" href="#ub-095-every-guard-fails-closed-proved-by-one-crash-test-per-guard-s">UB-095: Every guard fails closed, proved by one crash test pe...</a><a class="t2" href="#batch-b06-2026-11-26-review-of-sandbox-runtime-codebase-memory-mcp-django-and-argus">Batch B06 (2026-11-26): Review of sandbox-runtime, codebase-m...</a><a class="t3" href="#ub-096-close-the-sandboxs-protected-path-gaps-more-names-absent-paths-nested-repos-m">UB-096: Close the sandbox&#x27;s protected-path gaps: more names, ...</a><a class="t2" href="#batch-b07-2026-11-27-review-of-open-code-review-mixdog-cordum-preloop-caura-and-orca">Batch B07 (2026-11-27): Review of open-code-review, mixdog, c...</a><a class="t3" href="#ub-097-collapse-repeated-and-noisy-tool-output-before-it-is-sent-again-s">UB-097: Collapse repeated and noisy tool output before it is ...</a><a class="t3" href="#ub-098-a-static-gate-on-the-code-paths-that-can-step-around-row-level-security-m">UB-098: A static gate on the code paths that can step around ...</a><a class="t3" href="#ub-099-destructive-git-commands-ask-even-when-an-allow-rule-matches-s">UB-099: Destructive git commands ask even when an allow rule ...</a><a class="t3" href="#ub-100-a-drafting-eval-for-the-menux-planner-m">UB-100: A drafting eval for the Menux Planner (M)</a></div></div></main><small class="mm-built">Private. Built 2026-11-26 from commit 2bbe98d.</small><script id="bk-chapter-script">
+<p><strong>Notes.</strong> Orca's code is TypeScript (MIT): take the categories and the idea of grading the result, and write it in your own language. Cost is tokens per run and is not measured. Writing the requests by hand is the real work.</p>
+<h2 id="batch-b08-2026-11-27-review-of-mnemosyne-memosync-agentmemory-mempalace-claude-mem-and-graphiti">Batch B08 (2026-11-27): Review of Mnemosyne, MemoSync, agentmemory, mempalace, claude-mem and Graphiti</h2>
+<p><em>Source:</em> a review of six memory repos (40 capabilities, in two passes: the second finished the three agentmemory VERIFY FIRST rows and read the other three repos), read from source with nothing installed or run, made against MiniMe <code>121e06c</code>; the rest of this file was written at <code>cd0bc23</code>. Reference commits read: Mnemosyne <code>aa1ca31</code>, MemoSync <code>f2e9930</code>, agentmemory <code>5c9e2e6</code>, mempalace <code>7ea916d</code>, claude-mem <code>372dbab</code>, Graphiti <code>b8ea9c5</code>. The six licences were read. In this batch <code>[R]</code> is a reading of those repos, <code>[V✓]</code> is a check of MiniMe <code>121e06c</code> made while writing it, <code>[U]</code> is a design nobody has run, and <code>[README]</code> is a README only. <strong>The decision column of the review was empty, so the review's recommendations are applied as the decisions</strong>, as in the earlier review batches. Every new feature is a <code>candidate</code>; nothing is accepted. Change one with <code>--set-status</code>.</p>
+<p><strong>Corrections to the review found while writing:</strong> (1) The book moved on while the review ran: other sessions added batches first (B05, B06, B07), so this is batch B08 and the new IDs start at UB-101. That B07 extended UB-049 (the old text of a corrected memory stays hidden, with only its hash in the chain) and recorded in section 6 that Caura's model judge, which supersedes memories on its own, is not taken. Both agree with this batch; UB-105 keeps to "suggest, never apply". (2) The review asked to check <code>m2c.secrets</code> for the token prefixes <code>npm_</code> and <code>dop_v1_</code>: both are already there [V✓ <code>m2c/src/m2c/secrets/redact.py</code>], and the detector is broader than agentmemory's (cloud keys, high-entropy strings next to a credential word, fails closed). UB-103 therefore takes only the user-marked block, not the patterns. (3) <code>MT-M01</code> makes Markdown files the truth and UB-047 has tables; the review had not seen that conflict. It is now the Decision field of UB-047. (4) <code>MT-M02</code> says "newest wins"; the review's temporal rule (UB-047 step 5) changes what "newest" should mean. That chapter was not edited.</p>
+<h3 id="ub-101-a-near-duplicate-filter-for-the-nightly-consolidation-job-s">UB-101: A near-duplicate filter for the nightly consolidation job (S)</h3>
+<blockquote>
+<p>Exact-equal titles merge by themselves; near-equal titles go to review, unless a rare token differs (rdlp-api vs rdlp-plugin).</p>
+</blockquote>
+<p><strong>Product</strong> Menux · <strong>Source</strong> claude-mem <code>src/services/dedup/</code> (Apache-2.0, read at <code>372dbab</code>) [R], Menux build guide <code>MT-M02</code> · <strong>Status</strong> candidate · <strong>Depends</strong> UB-047 · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [U]</p>
+<p><strong>What.</strong> The "merge duplicates" part of <code>MT-M02</code>, with two tiers and no model and no embeddings. Tier 0: two titles that are equal after lower-casing and stripping punctuation, and not empty, merge on their own; the merged memory keeps both sources (UB-047 step 7) and gains a re-confirmation date (UB-051 step 4). Tier 1: IDF-weighted cosine over whitespace-split tokens, at or above a threshold, with at least two shared tokens and no veto, becomes a candidate in the UB-048 queue and is never merged by itself. The veto fires when a token found in only one of the two titles is rare, so <code>rdlp-api</code> and <code>rdlp-plugin</code> stay apart [R <code>dedup/nearDuplicate.ts</code>, <code>dedup/idfVeto.ts</code>; <code>tests/dedup/</code> exists].</p>
+<p><strong>Why.</strong> <code>MT-M02</code> says "merge duplicates" and gives no method; <code>D9</code> rules out embeddings. claude-mem's own comments say a looser similarity gave mostly false positives and that this version was checked on a database of 7,651 observations [R comment only; the numbers were not seen]. An empty or emoji-only title must never merge, because that would lose data; their code says so.</p>
+<p><strong>Where.</strong> The UB-047 tables and the <code>MT-M02</code> job; a new dedup module (Rust if <code>DM-3</code> goes ahead).</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>Give every memory a short title (its first line, or a 5 to 12 word title written when it is saved).</li>
+<li>Write the normaliser and a tokenizer that splits on whitespace only, so <code>ffmpeg-7.1.conf</code> stays one token.</li>
+<li>Keep a document-frequency table per owner, updated on every write.</li>
+<li>Classify pairs into merge, candidate or leave alone; thresholds come from settings.</li>
+<li>Write the cases as your own fixtures (UB-106): the kinds of case in claude-mem's <code>tests/dedup/</code>, with your own text.</li>
+</ol>
+<p><strong>Done when.</strong> A reworded duplicate with the same words merges; <code>rdlp-api</code> against <code>rdlp-plugin</code> is not proposed; empty titles never merge; only Tier 0 changes a row without the owner.</p>
+<p><strong>Notes.</strong> The hard residue (a real reword whose changed words are common, against two different tasks with near-identical titles) needs a model: that is UB-105. It works on titles, so a memory without a title needs one first. claude-mem's code is TypeScript, about 230 lines [R]; write it fresh and keep the Apache-2.0 notice if any text is copied. The thresholds were not seen: tune them on your own data.</p>
+<h3 id="ub-102-an-import-can-never-carry-its-own-provenance-xs">UB-102: An import can never carry its own provenance (XS)</h3>
+<blockquote>
+<p>A memory file that claims owner provenance still lands untrusted: only the importing code sets provenance, never the data.</p>
+</blockquote>
+<p><strong>Product</strong> Menux · <strong>Source</strong> agentmemory <code>src/types.ts</code> and <code>src/functions/export-import.ts</code> (Apache-2.0, read at <code>5c9e2e6</code>) [R], Menux build guide <code>MT-M03</code> · <strong>Status</strong> candidate · <strong>Depends</strong> UB-047 · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [U]</p>
+<p><strong>What.</strong> Provenance (<code>owner</code>, or <code>source:&lt;kind&gt;:&lt;id&gt;</code> in <code>MT-M03</code>) is set by the code path that writes and is never read from the data being written. An import (a Menux export, an imported <code>CLAUDE.md</code>, another tool's memory file) gets a fixed <code>source:import:&lt;id&gt;</code> and the tier <code>untrusted</code>.</p>
+<p><strong>Why.</strong> agentmemory says each memory has an immutable origin. In the code, <code>importOrigin</code> returns the file's own <code>origin</code> when it has one [R <code>types.ts:45-52</code>], and the import paths call it on the file's rows [R <code>export-import.ts:461</code> and <code>:641</code>]. An imported file can therefore say it came from the user. I did not check whether its update paths can overwrite an origin. The same hole would let a poisoned file become <code>owner</code> text, and <code>MT-M03</code> lets only <code>owner</code> lines be instructions.</p>
+<p><strong>Where.</strong> The UB-047 write path; the UB-048 import step; the <code>MT-M03</code> fixtures.</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>One function stamps provenance from the call site, never from a field of the input.</li>
+<li>Import, restore and any future sync path call it with a fixed value.</li>
+<li>Strip provenance, trust and validity fields from an imported payload before it is stored.</li>
+<li>Add the cases to UB-106 and to the <code>MT-M03</code> fixture list.</li>
+</ol>
+<p><strong>Done when.</strong> A file whose rows all say <code>owner</code> imports as <code>untrusted</code>, and an instruction line in it is not treated as an instruction. A test fails if a code path reads provenance from its input.</p>
+<p><strong>Notes.</strong> Restoring your own backup is a different path: it may keep tiers only if the UB-046 chain verifies [U]. Decide that when the restore is designed. <code>MT-M03</code> was not edited; this entry adds a fixture to its "Done when".</p>
+<h3 id="ub-103-text-marked-private-is-never-stored-xs">UB-103: Text marked private is never stored (XS)</h3>
+<blockquote>
+<p>A user-marked private block is cut out before any memory write; an unclosed tag cuts everything after it.</p>
+</blockquote>
+<p><strong>Product</strong> Shared · <strong>Source</strong> agentmemory <code>src/functions/privacy.ts</code> (Apache-2.0, read at <code>5c9e2e6</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [V✓] [U]</p>
+<p><strong>What.</strong> Before the memory write, remove everything between <code>&lt;private&gt;</code> and <code>&lt;/private&gt;</code>; nesting is allowed, and a tag that is never closed removes the rest of the text. Leave a visible marker in its place.</p>
+<p><strong>Why.</strong> The person has no way to say "do not remember this". M2C refuses secret-shaped text only: <code>find_secrets</code> in <code>m2c/src/m2c/context/memory.py</code> returns kinds and lines, and there is no private-tag handling anywhere in <code>m2c/src</code> or <code>backend</code> [V✓ grep]. Failing closed on an unclosed tag matches the rule of UB-095.</p>
+<p><strong>Where.</strong> <code>prepare_memory_write</code> in <code>m2c/src/m2c/context/memory.py</code>; the Menux memory write; any transcript handed to a memory extractor.</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>Write a small scanner with a depth counter; agentmemory's is about 25 lines [R <code>privacy.ts:1-30</code>].</li>
+<li>Run it before secret detection, and on model-written candidates too, because the extractor sees the transcript.</li>
+<li>Show "[private text removed]" in the write preview.</li>
+</ol>
+<p><strong>Done when.</strong> Nested, unclosed and upper-case tags are cut; <code>&lt;privately&gt;</code> is not treated as a tag; the preview shows the marker.</p>
+<p><strong>Notes.</strong> Do not take agentmemory's secret patterns: <code>m2c.secrets</code> is broader (<code>npm_</code>, <code>dop_v1_</code>, cloud keys, entropy near a credential word, fails closed) [V✓]. The idea is the user-controlled block only. Write it fresh.</p>
+<h3 id="ub-104-re-check-stored-memory-against-todays-secret-rules-s">UB-104: Re-check stored memory against today's secret rules (S)</h3>
+<blockquote>
+<p>A dry-run audit of memory already on disk, so a secret rule added later catches secrets saved earlier.</p>
+</blockquote>
+<p><strong>Product</strong> Shared · <strong>Source</strong> Mnemosyne <code>mnemosyne/core/hygiene.py</code> (MIT, read at <code>aa1ca31</code>) [R] · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [V✓] [U]</p>
+<p><strong>What.</strong> A command (<code>m2c memory audit</code>, and the same for Menux) that runs the shared secret detector over the memory files or rows already stored and lists the matches. Dry-run by default. Actions: delete, archive to a quarantine place outside the index that is sent, or keep. Every action is logged, and an archived item can be restored.</p>
+<p><strong>Why.</strong> <code>memory.py</code> checks at write time and again inside apply [V✓ docstring]; nothing rechecks old files when the detector gets better (patch <code>C15</code> widened it). Mnemosyne's <code>audit_noise()</code> is a dry run by default, and <code>clean_noise()</code> writes an audit log and can restore archived items [R docstring and function list; the scoring code was only partly read].</p>
+<p><strong>Where.</strong> <code>m2c/src/m2c/context/memory.py</code> (use <code>find_secrets</code>, which never returns the matched text [V✓]); <code>m2c/src/m2c/secrets/redact.py</code>; the Menux memory tools (<code>MT-M01</code>).</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>Add <code>audit_memory(root)</code> that returns the kind and line of each match, never the text.</li>
+<li>A command with dry-run as the default and <code>--archive</code> and <code>--delete</code> as explicit choices.</li>
+<li>Archived files go to a folder that <code>load_memory_index</code> never reads.</li>
+<li>Log each action in the local event store; where UB-046 exists, record a hash and not the text.</li>
+</ol>
+<p><strong>Done when.</strong> A secret added by hand to a topic file is found; the dry run changes nothing; an archived file never reaches the index sent to the server; the log holds no secret text.</p>
+<p><strong>Notes.</strong> Take only the secrets half: Mnemosyne's scoring of terminal noise and stack traces is not needed. The detector is your own, so no licence question arises.</p>
+<h3 id="ub-105-memory-checkup-conflicts-and-staleness-each-with-a-reason-m">UB-105: Memory checkup: conflicts and staleness, each with a reason (M)</h3>
+<blockquote>
+<p>A nightly model pass lists conflicting and stale memories, each with a one-line reason; the owner decides.</p>
+</blockquote>
+<p><strong>Product</strong> Menux · <strong>Source</strong> MemoSync <code>src/server/memory/checkup.ts</code> (MIT, read at <code>f2e9930</code>) [R], Menux build guide <code>MT-M02</code> · <strong>Status</strong> candidate · <strong>Depends</strong> UB-047, UB-048, UB-101 · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [U]</p>
+<p><strong>What.</strong> A step of the <code>MT-M02</code> job. Two model queries, one for conflicts and one for staleness, over a shortlist; each suggestion carries a grounded one-line reason; a merge step guarantees one row per memory and never drops a finding; the results go to the UB-048 queue as "revise" or "retire" candidates. Redundancy is UB-101 and needs no model.</p>
+<p><strong>Why.</strong> <code>MT-M02</code> says "resolve contradictions (newest wins unless flagged)". Memories that are free text do not reduce to subject-predicate-object, so a rule cannot find most conflicts, and "newest wins" silently loses the true fact when the newer one is the wrong one. MemoSync runs three parallel model queries (conflicts, redundancy, staleness) with a merge pass, and uses numeric thresholds only to choose what to look at [R <code>checkup.ts</code> header; the prompts were not read].</p>
+<p><strong>Where.</strong> The <code>MT-M02</code> job; the UB-048 queue; the budget rules in Menux guide §12.2 and <code>MT-A05</code>.</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>Shortlist by cheap signals: FTS5 overlap, age, no recent confirmation.</li>
+<li>Two queries that return JSON with a reason field.</li>
+<li>A merge step that keeps one row per memory and never drops a finding.</li>
+<li>Write the rows to the queue; change nothing in the store.</li>
+<li>Run in the cheap model class with a daily cap; frame the memory text as data (UB-087).</li>
+</ol>
+<p><strong>Done when.</strong> On a fixed set with five planted conflicts and five stale items, each one is listed with a reason; no row changes without the owner; with the model switched off the job still runs UB-101.</p>
+<p><strong>Notes.</strong> The result is a model's judgement and can be wrong, so show the reason and let the owner dismiss it. Nobody has run this design [U]; MemoSync's cost per run was not measured. Caura's judge that supersedes memories on its own was refused in section 6 for the same reason: this entry only lists suggestions.</p>
+<h3 id="ub-106-one-memory-test-pack-written-as-data-that-every-memory-feature-must-pass-s">UB-106: One memory test pack, written as data, that every memory feature must pass (S)</h3>
+<blockquote>
+<p>One set of memory cases stored as data, so a Python and a Rust build of Menux and M2C pass the same file.</p>
+</blockquote>
+<p><strong>Product</strong> Shared · <strong>Source</strong> my idea; Appendix A <code>MG-Z02</code>, <code>DM-5</code> and <code>DM-10</code> · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [U]</p>
+<p><strong>What.</strong> A new area <code>memory</code> in the conformance vectors of <code>MG-Z02</code>: JSON lines under <code>protocol/conformance/memory/</code>, an adapter in the Python runner, and later the Rust runner. The pack grows with the memory features, starting with the cases this batch found.</p>
+<p><strong>Why.</strong> Seven findings are small rules that are easy to get wrong and easy to break in a port: a late-arriving old fact, future-tense dates, an import that forges provenance, exact against near duplicates, empty titles, a sensitive item, and a stale fact. Appendix A already says a port is done when it passes what the Python reference passes (<code>DM-5</code>, <code>DM-10</code>). Writing the memory cases as data now lets Menux start in either language. The poisoned-email, web and calendar fixtures that <code>MT-M03</code> asks for belong in the same pack.</p>
+<p><strong>Where.</strong> <code>protocol/conformance/memory/</code> (new, proposed) and an entry in the <code>ADAPTERS</code> table of <code>run_python.py</code> (named in <code>MG-Z02</code>); nothing exists yet.</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>Read the <code>MG-Z02</code> vector format and reuse it as it is: <code>id</code>, <code>area</code>, <code>desc</code>, <code>input</code>, <code>expect</code>, <code>source</code>, <code>tags</code>.</li>
+<li>First cases: a late old fact and a future-tense statement (UB-047), <code>rdlp-api</code> against <code>rdlp-plugin</code> and an empty title (UB-101), a forged <code>owner</code> import (UB-102), a sensitive candidate and a stale-fact badge (UB-048), an unclosed private tag (UB-103).</li>
+<li>Add the three-turn poisoning case from UB-048.</li>
+<li>Never edit a vector to make an implementation pass (Appendix A §4, rule 2).</li>
+</ol>
+<p><strong>Done when.</strong> The runner passes the Python build; a deliberately wrong vector fails it; adding a case needs no code change.</p>
+<p><strong>Notes.</strong> A design nobody has run [U]. B07 asked for a sha256 manifest of the vector files in <code>MG-Z02</code> (section 6, "Pinned vector files"); the <code>memory</code> area uses it too. <code>MG-Z02</code> is a plan too, so its runner may not exist yet: check before starting. If Menux starts in Python and moves to Rust later, the same file proves the move.</p>
+<h3 id="ub-107-four-read-first-checks-before-borrowing-more-from-the-memory-repos-s">UB-107: Four read-first checks before borrowing more from the memory repos (S)</h3>
+<blockquote>
+<p>Four ideas were read only in headers or READMEs; read the named files before any becomes a feature.</p>
+</blockquote>
+<p><strong>Product</strong> Shared · <strong>Source</strong> Graphiti, MemoSync and claude-mem (licences read, see section 7) · <strong>Status</strong> candidate · <strong>Depends</strong> — · <strong>Decision</strong> none · <strong>Evidence</strong> [R] [README]</p>
+<p><strong>What.</strong> Four short checks, each ending in one line in Notes: add a feature, or drop it.</p>
+<p><strong>Why.</strong> Each idea looked useful but rests on a header comment or a README, and the rules of this file say not to claim what was not read.</p>
+<p><strong>Where.</strong> As named below.</p>
+<p><strong>How.</strong></p>
+<ol>
+<li>MiniMe entity dedup: does <code>backend/eo/knowledge_graph.py</code> (<code>write_node</code>) or any agent create entity nodes from text? If not, Graphiti's MinHash name dedup (<code>utils/maintenance/dedup_helpers.py</code>) does not apply; if yes, add it as a feature.</li>
+<li>MemoSync stop-and-correct: read <code>src/server/memory/trace-correction-outbox.ts</code> and <code>src/server/enqueue-and-steer.ts</code> [README only so far]. Does a steering message that contradicts a memory become a UB-048 revision candidate? Compare with UB-037.</li>
+<li>MemoSync expiry and archive: read <code>src/server/memory/maintenance.ts</code> [README only so far]. Can it be done with <code>invalid_at</code> (UB-047) and a seven-day restore window?</li>
+<li>Telemetry: search the guides for what telemetry is planned (<code>m2c_build_plan.md</code> says only that metering and telemetry helpers fail open). If anything leaves the device, adopt claude-mem's deny-by-default property whitelist and its separate error-text redaction [R <code>src/services/telemetry/scrub.ts</code> and <code>error-scrub.ts</code>, headers].</li>
+</ol>
+<p><strong>Done when.</strong> Each of the four has a verdict line in these Notes.</p>
+<p><strong>Notes.</strong> The verdict lines are empty until someone reads the files.</p></article><div class="toc"><b>On this page</b><a class="t2" href="#0-at-a-glance">0. At a glance</a><a class="t2" href="#1-register">1. Register</a><a class="t2" href="#2-batches">2. Batches</a><a class="t2" href="#3-how-to-add-features-the-patch-recipe">3. How to add features (the patch recipe)</a><a class="t2" href="#4-field-vocabulary-and-rules">4. Field vocabulary and rules</a><a class="t2" href="#5-where-the-original-upgrade-plan-went">5. Where the original upgrade plan went</a><a class="t2" href="#6-considered-not-added">6. Considered, not added</a><a class="t2" href="#7-sources-register">7. Sources register</a><a class="t2" href="#8-decision-log">8. Decision log</a><a class="t2" href="#batch-b01-2026-11-24-upgrade-plan-and-verified-spec-of-21-nov-2026-minus-the-finished-sx-series">Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 ...</a><a class="t3" href="#ub-001-move-the-web-app-from-nextjs-14-to-a-supported-line-l">UB-001: Move the web app from Next.js 14 to a supported line (L)</a><a class="t3" href="#ub-002-decide-pillow-against-moviepy-then-act-m">UB-002: Decide Pillow against moviepy, then act (M)</a><a class="t3" href="#ub-003-move-e2b-bracex-and-wcmatch-together-m">UB-003: Move e2b, bracex and wcmatch together (M)</a><a class="t3" href="#ub-004-put-the-caddy-config-in-the-repo-and-set-the-edge-limits-m">UB-004: Put the Caddy config in the repo and set the edge lim...</a><a class="t3" href="#ub-005-block-cloud-metadata-and-link-local-addresses-at-the-host-firewall-s">UB-005: Block cloud-metadata and link-local addresses at the ...</a><a class="t3" href="#ub-006-run-url-fetches-behind-an-egress-proxy-or-in-the-sandbox-m">UB-006: Run URL fetches behind an egress proxy or in the sand...</a><a class="t3" href="#ub-007-audit-every-other-server-side-fetch-of-a-user-influenced-url-m">UB-007: Audit every other server-side fetch of a user-influen...</a><a class="t3" href="#ub-008-per-user-ingest-quotas-m">UB-008: Per-user ingest quotas (M)</a><a class="t3" href="#ub-009-daily-ingest-cost-cap-tied-to-the-usage-ledger-m">UB-009: Daily ingest cost cap tied to the usage ledger (M)</a><a class="t3" href="#ub-010-cap-voice-length-before-transcribing-s">UB-010: Cap voice length before transcribing (S)</a><a class="t3" href="#ub-011-re-set-the-size-caps-with-a-cost-model-s">UB-011: Re-set the size caps with a cost model (S)</a><a class="t3" href="#ub-012-turn-the-report-only-csp-into-an-enforced-one-m">UB-012: Turn the report-only CSP into an enforced one (M)</a><a class="t3" href="#ub-013-a-small-blocking-promptfoo-gate-m">UB-013: A small blocking promptfoo gate (M)</a><a class="t3" href="#ub-014-run-the-promptfoo-red-team-with-a-two-tenant-provider-m">UB-014: Run the promptfoo red-team with a two-tenant provider...</a><a class="t3" href="#ub-015-first-strix-run-on-staging-m">UB-015: First Strix run on staging (M)</a><a class="t3" href="#ub-016-property-tests-with-hypothesis-m">UB-016: Property tests with Hypothesis (M)</a><a class="t3" href="#ub-017-nightly-api-fuzzing-with-schemathesis-m">UB-017: Nightly API fuzzing with Schemathesis (M)</a><a class="t3" href="#ub-018-add-cost-per-task-and-web-product-scenarios-to-the-load-harness-m">UB-018: Add cost-per-task and web-product scenarios to the lo...</a><a class="t3" href="#ub-019-a-practice-lab-on-your-own-machine-a-small-fastapi-app-behind-caddy-s">UB-019: A practice lab on your own machine: a small FastAPI a...</a><a class="t3" href="#ub-020-pre-audit-package-for-the-daemon-m">UB-020: Pre-audit package for the daemon (M)</a><a class="t3" href="#ub-021-sbom-on-release-and-a-licence-allow-list-gate-m">UB-021: SBOM on release, and a licence allow-list gate (M)</a><a class="t3" href="#ub-022-pin-scanner-binaries-and-images-by-digest-s">UB-022: Pin scanner binaries and images by digest (S)</a><a class="t3" href="#ub-023-lurkr-as-an-advisory-ci-step-s">UB-023: Lurkr as an advisory CI step (S)</a><a class="t3" href="#ub-024-dependabot-for-the-docker-images-xs">UB-024: Dependabot for the Docker images (XS)</a><a class="t3" href="#ub-025-security-headers-for-the-book-site-xs">UB-025: Security headers for the book site (XS)</a><a class="t3" href="#ub-026-record-the-fix-patch-guide-in-the-book-s">UB-026: Record the fix patch guide in the book (S)</a><a class="t3" href="#ub-027-refresh-the-book-after-the-fixes-and-upgrades-m">UB-027: Refresh the book after the fixes and upgrades (M)</a><a class="t3" href="#ub-028-verify-on-stop-in-the-agent-loop-m">UB-028: Verify-on-stop in the agent loop (M)</a><a class="t3" href="#ub-029-skills-loader-for-m2c-m">UB-029: Skills loader for M2C (M)</a><a class="t3" href="#ub-030-add-promptfoos-coding-agent-risk-categories-to-the-q07-corpus-and-list-the-gaps-s">UB-030: Add promptfoo&#x27;s coding-agent risk categories to the Q...</a><a class="t3" href="#ub-031-golden-tasks-for-the-coding-agent-m">UB-031: Golden tasks for the coding agent (M)</a><a class="t3" href="#ub-032-local-mcp-client-for-m2c-l">UB-032: Local MCP client for M2C (L)</a><a class="t3" href="#ub-033-deferred-tool-loading-with-search-over-tool-specs-m">UB-033: Deferred tool loading with search over tool specs (M)</a><a class="t3" href="#ub-034-offer-codebase-memory-mcp-as-an-optional-local-server-s">UB-034: Offer codebase-memory-mcp as an optional local server...</a><a class="t3" href="#ub-035-rehearse-mcp-attacks-against-m2c-with-a-red-team-tool-you-still-have-to-name-s">UB-035: Rehearse MCP attacks against M2C with a red-team tool...</a><a class="t3" href="#ub-036-stuck-detection-beyond-identical-failures-m">UB-036: Stuck detection beyond identical failures (M)</a><a class="t3" href="#ub-037-mid-turn-user-steering-m">UB-037: Mid-turn user steering (M)</a><a class="t3" href="#ub-038-an-instruction-hierarchy-contract-in-the-system-prompt-s">UB-038: An instruction-hierarchy contract in the system promp...</a><a class="t3" href="#ub-039-observe-mode-before-enforce-mode-for-new-policy-rules-m">UB-039: Observe mode before enforce mode for new policy rules...</a><a class="t3" href="#ub-040-store-sandbox-denials-and-explain-them-to-the-model-m">UB-040: Store sandbox denials and explain them to the model (M)</a><a class="t3" href="#ub-041-signed-narrowing-grants-for-subagents-l">UB-041: Signed, narrowing grants for subagents (L)</a><a class="t3" href="#ub-042-compaction-that-re-injects-the-task-goal-with-a-lossless-log-m">UB-042: Compaction that re-injects the task goal, with a loss...</a><a class="t3" href="#ub-043-an-independent-verifier-context-and-step-graph-validation-l">UB-043: An independent verifier context and step-graph valida...</a><a class="t3" href="#ub-044-plan-mode-that-is-structural-plus-a-spec-first-interview-m">UB-044: Plan mode that is structural, plus a spec-first inter...</a><a class="t3" href="#ub-045-a-precision-first-review-command-l">UB-045: A precision-first review command (L)</a><a class="t3" href="#ub-046-add-a-hash-chain-to-the-local-event-store-s">UB-046: Add a hash chain to the local event store (S)</a><a class="t3" href="#ub-047-menux-memory-store-with-sources-validity-and-fts5-m">UB-047: Menux memory store with sources, validity and FTS5 (M)</a><a class="t3" href="#ub-048-trust-rule-and-a-review-queue-for-new-memories-m">UB-048: Trust rule and a review queue for new memories (M)</a><a class="t3" href="#ub-049-correcting-a-source-retires-its-dependents-and-deletes-cascade-m">UB-049: Correcting a source retires its dependents, and delet...</a><a class="t3" href="#ub-050-show-the-working-memory-before-a-task-and-report-what-was-used-m">UB-050: Show the working memory before a task, and report wha...</a><a class="t3" href="#ub-051-retention-scores-and-hot-warm-and-cold-tiers-m">UB-051: Retention scores and hot, warm and cold tiers (M)</a><a class="t3" href="#ub-052-learned-workflows-modelled-on-webcmd-l">UB-052: Learned workflows modelled on webcmd (L)</a><a class="t3" href="#ub-053-crawl4ai-as-an-optional-web-reader-s">UB-053: crawl4ai as an optional web reader (S)</a><a class="t3" href="#ub-054-a-capability-listing-command-xs">UB-054: A capability-listing command (XS)</a><a class="t3" href="#ub-055-a-blender-skill-pack-m">UB-055: A Blender skill pack (M)</a><a class="t3" href="#ub-056-an-independent-claim-check-pass-for-research-reports-m">UB-056: An independent claim-check pass for research reports (M)</a><a class="t3" href="#ub-057-generation-that-survives-a-closed-tab-l">UB-057: Generation that survives a closed tab (L)</a><a class="t3" href="#ub-058-project-based-learning-with-an-ai-tutor-milestone-by-milestone-l">UB-058: Project-based learning with an AI tutor, milestone by...</a><a class="t3" href="#ub-059-chat-about-any-slide-element-m">UB-059: Chat about any slide element (M)</a><a class="t3" href="#ub-060-course-level-undo-m">UB-060: Course-level undo (M)</a><a class="t3" href="#ub-061-export-to-pptx-and-html-m">UB-061: Export to PPTX and HTML (M)</a><a class="t3" href="#ub-062-a-knowledge-base-with-mentions-m">UB-062: A knowledge base with @-mentions (M)</a><a class="t3" href="#ub-063-use-openmaics-published-advisories-as-a-free-test-checklist-s">UB-063: Use OpenMAIC&#x27;s published advisories as a free test ch...</a><a class="t3" href="#ub-064-a-repeatable-skills-pipeline-select-scan-rewrite-evaluate-label-regress-m">UB-064: A repeatable skills pipeline: select, scan, rewrite, ...</a><a class="t3" href="#ub-065-growth-tab-seed-skills-from-marketingskills-m">UB-065: Growth tab seed skills from marketingskills (M)</a><a class="t3" href="#ub-066-research-and-notebooks-seeds-from-scientific-agent-skills-m">UB-066: Research and notebooks seeds from scientific-agent-sk...</a><a class="t3" href="#ub-067-m2c-built-in-skills-and-a-behaviour-baseline-m">UB-067: M2C built-in skills and a behaviour baseline (M)</a><a class="t3" href="#ub-068-security-reviewer-prompts-and-a-vetted-security-skills-library-m">UB-068: Security reviewer prompts and a vetted security skill...</a><a class="t3" href="#ub-069-role-ideas-from-gstack-and-bmad-s">UB-069: Role ideas from gstack and BMAD (S)</a><a class="t3" href="#ub-070-an-optional-writing-quality-pass-from-humanizer-s">UB-070: An optional writing-quality pass from humanizer (S)</a><a class="t3" href="#ub-071-the-overhang-and-draft-check-in-the-mechanical-engine-m">UB-071: The overhang and draft check in the mechanical engine...</a><a class="t3" href="#ub-072-compare-text-to-cads-per-process-rules-with-yours-s">UB-072: Compare text-to-cad&#x27;s per-process rules with yours (S)</a><a class="t3" href="#ub-073-spike-can-build123d-replace-freecad-inside-the-e2b-template-m">UB-073: Spike: can build123d replace FreeCAD inside the E2B t...</a><a class="t3" href="#ub-074-an-analyse-this-part-stress-check-l">UB-074: An &quot;analyse this part&quot; stress check (L)</a><a class="t3" href="#ub-075-cost-experiments-before-adopting-any-compressor-or-router-m">UB-075: Cost experiments before adopting any compressor or ro...</a><a class="t3" href="#ub-076-design-and-build-techniques-from-impeccable-taste-skill-and-ui-ux-pro-max-m">UB-076: Design and build techniques from impeccable, taste-sk...</a><a class="t3" href="#ub-077-screenshot-to-code-for-the-wireframe-flow-m">UB-077: Screenshot-to-code for the wireframe flow (M)</a><a class="t3" href="#ub-078-a-diagram-generator-from-diagram-design-m">UB-078: A diagram generator from diagram-design (M)</a><a class="t3" href="#ub-079-spike-html-to-deterministic-video-with-hyperframes-m">UB-079: Spike: HTML to deterministic video with hyperframes (M)</a><a class="t3" href="#ub-080-study-slide-generation-references-s">UB-080: Study slide-generation references (S)</a><a class="t2" href="#batch-b02-2026-11-24-rust-anything-and-fast-anything-from-a-trial-on-m2c">Batch B02 (2026-11-24): rust-anything and fast-anything, from...</a><a class="t3" href="#ub-081-cross-check-the-mg-z10-spike-with-rust-anything-m">UB-081: Cross-check the MG-Z10 spike with rust-anything (M)</a><a class="t3" href="#ub-082-port-only-profiled-hot-functions-with-fast-anything-m">UB-082: Port only profiled hot functions with fast-anything (M)</a><a class="t3" href="#ub-083-break-the-import-cycle-so-m2c-units-can-be-bridged-one-by-one-m">UB-083: Break the import cycle so m2c units can be bridged on...</a><a class="t2" href="#batch-b03-2026-11-26-review-of-promptfoo-strix-hypothesis-schemathesis-and-locust">Batch B03 (2026-11-26): Review of promptfoo, Strix, Hypothesi...</a><a class="t3" href="#ub-084-record-what-a-run-created-so-undo-and-approvals-touch-only-that-s">UB-084: Record what a run created, so undo and approvals touc...</a><a class="t2" href="#batch-b04-2026-11-26-review-of-gemini-cli-hermes-agent-mistral-vibe-and-codex">Batch B04 (2026-11-26): Review of gemini-cli, hermes-agent, m...</a><a class="t3" href="#ub-085-switch-off-core-dumps-and-debugger-attach-for-the-m2c-client-at-start-xs">UB-085: Switch off core dumps and debugger attach for the M2C...</a><a class="t3" href="#ub-086-session-goal-mode-with-a-token-budget-and-a-no-progress-stop-m">UB-086: Session goal mode with a token budget and a no-progre...</a><a class="t3" href="#ub-087-one-helper-that-frames-text-the-model-must-treat-as-data-s">UB-087: One helper that frames text the model must treat as d...</a><a class="t2" href="#batch-b05-2026-11-26-review-of-opencode-pi-tenuo-and-prismor">Batch B05 (2026-11-26): Review of OpenCode, Pi, Tenuo and Pri...</a><a class="t3" href="#ub-088-reject-repeated-json-keys-in-tool-arguments-xs">UB-088: Reject repeated JSON keys in tool arguments (XS)</a><a class="t3" href="#ub-089-ask-before-the-agent-edits-its-own-instruction-files-s">UB-089: Ask before the agent edits its own instruction files (S)</a><a class="t3" href="#ub-090-keep-the-full-tool-output-in-a-file-the-model-can-read-later-m">UB-090: Keep the full tool output in a file the model can rea...</a><a class="t3" href="#ub-091-canary-files-that-raise-an-alarm-when-the-agent-opens-them-s">UB-091: Canary files that raise an alarm when the agent opens...</a><a class="t3" href="#ub-092-credentials-the-model-can-use-but-never-see-m">UB-092: Credentials the model can use but never see (M)</a><a class="t3" href="#ub-093-prove-a-skill-or-prompt-change-helps-with-paired-with-and-without-evals-m">UB-093: Prove a skill or prompt change helps, with paired wit...</a><a class="t3" href="#ub-094-heal-half-written-markdown-while-a-reply-streams-s">UB-094: Heal half-written Markdown while a reply streams (S)</a><a class="t3" href="#ub-095-every-guard-fails-closed-proved-by-one-crash-test-per-guard-s">UB-095: Every guard fails closed, proved by one crash test pe...</a><a class="t2" href="#batch-b06-2026-11-26-review-of-sandbox-runtime-codebase-memory-mcp-django-and-argus">Batch B06 (2026-11-26): Review of sandbox-runtime, codebase-m...</a><a class="t3" href="#ub-096-close-the-sandboxs-protected-path-gaps-more-names-absent-paths-nested-repos-m">UB-096: Close the sandbox&#x27;s protected-path gaps: more names, ...</a><a class="t2" href="#batch-b07-2026-11-27-review-of-open-code-review-mixdog-cordum-preloop-caura-and-orca">Batch B07 (2026-11-27): Review of open-code-review, mixdog, c...</a><a class="t3" href="#ub-097-collapse-repeated-and-noisy-tool-output-before-it-is-sent-again-s">UB-097: Collapse repeated and noisy tool output before it is ...</a><a class="t3" href="#ub-098-a-static-gate-on-the-code-paths-that-can-step-around-row-level-security-m">UB-098: A static gate on the code paths that can step around ...</a><a class="t3" href="#ub-099-destructive-git-commands-ask-even-when-an-allow-rule-matches-s">UB-099: Destructive git commands ask even when an allow rule ...</a><a class="t3" href="#ub-100-a-drafting-eval-for-the-menux-planner-m">UB-100: A drafting eval for the Menux Planner (M)</a><a class="t2" href="#batch-b08-2026-11-27-review-of-mnemosyne-memosync-agentmemory-mempalace-claude-mem-and-graphiti">Batch B08 (2026-11-27): Review of Mnemosyne, MemoSync, agentm...</a><a class="t3" href="#ub-101-a-near-duplicate-filter-for-the-nightly-consolidation-job-s">UB-101: A near-duplicate filter for the nightly consolidation...</a><a class="t3" href="#ub-102-an-import-can-never-carry-its-own-provenance-xs">UB-102: An import can never carry its own provenance (XS)</a><a class="t3" href="#ub-103-text-marked-private-is-never-stored-xs">UB-103: Text marked private is never stored (XS)</a><a class="t3" href="#ub-104-re-check-stored-memory-against-todays-secret-rules-s">UB-104: Re-check stored memory against today&#x27;s secret rules (S)</a><a class="t3" href="#ub-105-memory-checkup-conflicts-and-staleness-each-with-a-reason-m">UB-105: Memory checkup: conflicts and staleness, each with a ...</a><a class="t3" href="#ub-106-one-memory-test-pack-written-as-data-that-every-memory-feature-must-pass-s">UB-106: One memory test pack, written as data, that every mem...</a><a class="t3" href="#ub-107-four-read-first-checks-before-borrowing-more-from-the-memory-repos-s">UB-107: Four read-first checks before borrowing more from the...</a></div></div></main><small class="mm-built">Private. Built 2026-11-27 from commit 94719b3.</small><script id="bk-chapter-script">
 (function(){
   // Reading progress bar
   var bar = document.querySelector('.bk-progress');
@@ -4576,5 +4868,5 @@ git format-patch -1 --stdout &gt; UB-BNN_short-name.patch
     });
   }
 })();
-</script><script type="module" src="assets/js/shell.js"></script><!-- source: data/docs/upgrade_backlog.md sha256=be7bf0ab197b2112258acdc751a140fe99e750e11ef181fe35b3311434bfdd8f -->
+</script><script type="module" src="assets/js/shell.js"></script><!-- source: data/docs/upgrade_backlog.md sha256=cb893f4b34ef07d726dc096a563aa074229e53a5876de00ebb8653382c739da2 -->
 </body></html>

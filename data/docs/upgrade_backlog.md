@@ -14,16 +14,16 @@ This file is the one place where every feature you might build later is written 
 
 *Generated from the entries by `python scripts/check_backlog.py --write`. Do not edit by hand.*
 
-**100 features** in 7 batches: 96 candidate · 0 accepted · 0 building · 0 done · 4 parked · 0 dropped.
+**107 features** in 8 batches: 103 candidate · 0 accepted · 0 building · 0 done · 4 parked · 0 dropped.
 
 | Product | candidate | accepted | building | done | parked | dropped | Total |
 |---|---|---|---|---|---|---|---|
 | MiniMe | 44 | 0 | 0 | 0 | 1 | 0 | 45 |
 | M2C | 30 | 0 | 0 | 0 | 2 | 0 | 32 |
-| Menux | 10 | 0 | 0 | 0 | 1 | 0 | 11 |
-| Shared | 9 | 0 | 0 | 0 | 0 | 0 | 9 |
+| Menux | 13 | 0 | 0 | 0 | 1 | 0 | 14 |
+| Shared | 13 | 0 | 0 | 0 | 0 | 0 | 13 |
 | Book | 3 | 0 | 0 | 0 | 0 | 0 | 3 |
-| **All** | **96** | **0** | **0** | **0** | **4** | **0** | **100** |
+| **All** | **103** | **0** | **0** | **0** | **4** | **0** | **107** |
 
 ## 1. Register
 
@@ -77,11 +77,11 @@ This file is the one place where every feature you might build later is written 
 | UB-044 | Plan mode that is structural, plus a spec-first interview | In plan mode only a plan file is writable; add a spec-first interview that ends in checkable acceptance criteria. | M2C | Mistral Vibe, Ouroboros, Nightshift (Plan 4.2) | M | candidate | B01 |
 | UB-045 | A precision-first review command | A diff reviewer that gives line-level comments and favours few, correct findings over many. | M2C | open-code-review `internal/config/template/prompts/` (`review_filter_task_system.md`, `re_location_task_system.md`), `internal/config/rules/rule_docs/` and `internal/agent/estimate.go` (Apache-2.0, read at `d4f568f7`) [R], Mixdog `src/agents/reviewer/AGENT.md` (Apache-2.0, read at `8382c929`) [R], Strix `skills/scan_modes/diff.md` (Apache-2.0, read at `9ed84f9`) [R], codebase-memory-mcp `detect_changes` (MIT, read at `9a4da7a3`) [R], Plan 4.2 | L | candidate | B01 |
 | UB-046 | Add a hash chain to the local event store | A previous-hash and entry-hash on each event plus a verify function; the M2C plan already names MiniLocker's chain.py as the model. | Shared | M2C build plan C02 and section 11.6 (MiniLocker `ledger/chain.py`, your own project), Spec 6.1; ZizkaDB (idea only) | S | candidate | B01 |
-| UB-047 | Menux memory store with sources, validity and FTS5 | One migration for sources, memories with valid-from and valid-to, dependencies and a full-text index. | Menux | Spec 6.1, Plan 5.2 (Mnemosyne, Graphiti/Zep, mempalace, claude-mem) | M | candidate | B01 |
-| UB-048 | Trust rule and a review queue for new memories | Anything from a web page, tool output or an imported CLAUDE.md enters as an untrusted candidate; only a user action promotes it. | Menux | Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin), Gemini CLI `agents/skill-extraction-agent.ts` (Apache-2.0, read at `60f8082`) [R] | M | candidate | B01 |
+| UB-047 | Menux memory store with sources, validity and FTS5 | One migration for sources, memories with valid-from and valid-to, dependencies and a full-text index. | Menux | Spec 6.1, Plan 5.2 (Mnemosyne, Graphiti/Zep, mempalace, claude-mem); Graphiti `edges.py`, `utils/maintenance/edge_operations.py` and `temporal_edge_utils.py` (Apache-2.0, read at `b8ea9c5`) [R] | M | candidate | B01 |
+| UB-048 | Trust rule and a review queue for new memories | Anything from a web page, tool output or an imported CLAUDE.md enters as an untrusted candidate; only a user action promotes it. | Menux | Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin), Gemini CLI `agents/skill-extraction-agent.ts` (Apache-2.0, read at `60f8082`) [R]; MemoSync `src/server/memory/` (MIT, read at `f2e9930`), mempalace `fact_checker.py` (MIT, read at `7ea916d`), Graphiti `ingestion/change_set.py` (Apache-2.0, read at `b8ea9c5`) [R] | M | candidate | B01 |
 | UB-049 | Correcting a source retires its dependents, and deletes cascade | Fix or delete a source and everything derived from it leaves retrieval but stays readable in a history view. | Menux | Spec 6.1, Plan 5.2 (Mnemosyne, agentmemory), Caura `common/events/memory_corrected.py` (Apache-2.0, read at `85519c72`) [R] | M | candidate | B01 |
-| UB-050 | Show the working memory before a task, and report what was used | Before each task list the memories the agent intends to use with a reason; after it, show which were followed. | Menux | Spec 6.1, Plan 5.2 (MemoSync UX) | M | candidate | B01 |
-| UB-051 | Retention scores and hot, warm and cold tiers | Decay plus access boost to prune memory. Both documents say to skip this until volume is measured. | Menux | agentmemory (Plan 5.2), Spec 6.1.6 | M | parked | B01 |
+| UB-050 | Show the working memory before a task, and report what was used | Before each task list the memories the agent intends to use with a reason; after it, show which were followed. | Menux | Spec 6.1, Plan 5.2 (MemoSync UX); MemoSync `src/server/memory/trace.ts`, `use-plan.ts` and `injection.ts` (MIT, read at `f2e9930`) [R] | M | candidate | B01 |
+| UB-051 | Retention scores and hot, warm and cold tiers | Decay plus access boost to prune memory. Both documents say to skip this until volume is measured. | Menux | agentmemory (Plan 5.2), Spec 6.1.6; claude-mem `src/services/reinforcement/` (Apache-2.0, read at `372dbab`) [R] | M | parked | B01 |
 | UB-052 | Learned workflows modelled on webcmd | Three levels: live browser control, a remembered sitemap of pages and actions, and compiled workflows for repeatable tasks. | Menux | webcmd (Apache-2.0 as reported) [R], Plan 5.3 | L | candidate | B01 |
 | UB-053 | crawl4ai as an optional web reader | A self-hostable crawler to Markdown, only after the licence record and with every URL through url_guard rules. | Menux | crawl4ai (Apache-2.0 as reported) [R] | S | candidate | B01 |
 | UB-054 | A capability-listing command | A `menux capabilities` style command that tells the user what the agent can do, borrowed from Agent-Reach. | Menux | Agent-Reach (UX idea only) [R] | XS | candidate | B01 |
@@ -131,6 +131,13 @@ This file is the one place where every feature you might build later is written 
 | UB-098 | A static gate on the code paths that can step around row-level security | Fail the test run when a new place bypasses row-level security, a new table lacks it, or a dict-built UPDATE can rewrite an owner column. | MiniMe | Caura `scripts/tenant_scope_gate.py` and `core-storage-api/tenant_scope_allowlist.json` (Apache-2.0, read at `85519c72`) [R], my idea for the shape | M | candidate | B07 |
 | UB-099 | Destructive git commands ask even when an allow rule matches | Name the git commands that throw work away, and make them ask even under a broad allow rule for git. | M2C | Mixdog `src/rules/shared/45-destructive.md` (Apache-2.0, read at `8382c929`) [R], my idea for the list | S | candidate | B07 |
 | UB-100 | A drafting eval for the Menux Planner | Grade what the Planner writes for plain-English requests, using code and a fake connector, so a prompt change that breaks it fails. | Menux | Orca `src/cli/bot-automation-eval/` (MIT, read at `5174b9bd`) [R], Menux guide section 4.3 and `MT-Q11` | M | candidate | B07 |
+| UB-101 | A near-duplicate filter for the nightly consolidation job | Exact-equal titles merge by themselves; near-equal titles go to review, unless a rare token differs (rdlp-api vs rdlp-plugin). | Menux | claude-mem `src/services/dedup/` (Apache-2.0, read at `372dbab`) [R], Menux build guide `MT-M02` | S | candidate | B08 |
+| UB-102 | An import can never carry its own provenance | A memory file that claims owner provenance still lands untrusted: only the importing code sets provenance, never the data. | Menux | agentmemory `src/types.ts` and `src/functions/export-import.ts` (Apache-2.0, read at `5c9e2e6`) [R], Menux build guide `MT-M03` | XS | candidate | B08 |
+| UB-103 | Text marked private is never stored | A user-marked private block is cut out before any memory write; an unclosed tag cuts everything after it. | Shared | agentmemory `src/functions/privacy.ts` (Apache-2.0, read at `5c9e2e6`) [R] | XS | candidate | B08 |
+| UB-104 | Re-check stored memory against today's secret rules | A dry-run audit of memory already on disk, so a secret rule added later catches secrets saved earlier. | Shared | Mnemosyne `mnemosyne/core/hygiene.py` (MIT, read at `aa1ca31`) [R] | S | candidate | B08 |
+| UB-105 | Memory checkup: conflicts and staleness, each with a reason | A nightly model pass lists conflicting and stale memories, each with a one-line reason; the owner decides. | Menux | MemoSync `src/server/memory/checkup.ts` (MIT, read at `f2e9930`) [R], Menux build guide `MT-M02` | M | candidate | B08 |
+| UB-106 | One memory test pack, written as data, that every memory feature must pass | One set of memory cases stored as data, so a Python and a Rust build of Menux and M2C pass the same file. | Shared | my idea; Appendix A `MG-Z02`, `DM-5` and `DM-10` | S | candidate | B08 |
+| UB-107 | Four read-first checks before borrowing more from the memory repos | Four ideas were read only in headers or READMEs; read the named files before any becomes a feature. | Shared | Graphiti, MemoSync and claude-mem (licences read, see section 7) | S | candidate | B08 |
 
 ## 2. Batches
 
@@ -145,6 +152,7 @@ This file is the one place where every feature you might build later is written 
 | B05 | 2026-11-26 | Review of OpenCode, Pi, Tenuo and Prismor | 8 | UB-088 to UB-095 |
 | B06 | 2026-11-26 | Review of sandbox-runtime, codebase-memory-mcp, Django and Argus | 1 | UB-096 |
 | B07 | 2026-11-27 | Review of open-code-review, mixdog, cordum, preloop, caura and orca | 4 | UB-097 to UB-100 |
+| B08 | 2026-11-27 | Review of Mnemosyne, MemoSync, agentmemory, mempalace, claude-mem and Graphiti | 7 | UB-101 to UB-107 |
 
 ## 3. How to add features (the patch recipe)
 
@@ -384,6 +392,20 @@ The "upgrade plan" (21 Nov 2026) and its "verified spec" were split three ways. 
 | Mixdog context-efficiency layers | `docs/context-efficiency.md` lists a read cache checked by file size and modified time, a 30-second scoped cache and short references to repeated calls [README]. `context.py` caps and clears [V✓]; I did not look for a read cache elsewhere. VERIFY FIRST: read its read-state code for how stale entries are dropped, then test the gain with UB-075's replay | UB-075 traces show repeated reads |
 | Mixdog reasoning-effort judge | Written into UB-075 as a variant to test (B07), not a feature: the figures are docs level, it conflicts with D14 on M2C, and the licence of its weights is unchecked | UB-075's table shows routing pays |
 | Orca, left out at README level | Bots in Slack, Linear and GitHub, a chat-to-terminal handoff, a cloud VM per worktree, the OSC 7501 agent-status protocol, and coordinator and worker gates (only `gate-handlers.ts` opened) | Menux channels work starts |
+| MemoSync Automatic mode | Safe changes apply on their own with a Revert, and an Auto evolution setting exists [R `evolution.ts` comment; README]. It promotes without review, against UB-048 and the automatic memory writers recorded above | never, unless UB-048 is built and you want an opt-in |
+| MemoSync cross-project transfer | Two model stages (turn a memory into a rule, then rewrite it for the target project) for a rare case [R `transfer.ts` header]. M2C keys its memory per project [V✓ `memory.py`] | you keep memory in three or more projects |
+| agentmemory retention tiers | Kept as UB-051, parked: the constants are untuned defaults [R `retention.ts:24-29`] | memory volume makes prompts too big |
+| Mnemosyne veracity weights | A weight is not a gate: "unknown" (0.8) outranks tool (0.5) and imported (0.6) [R `core/veracity_consolidation.py:124`]. Its docstring says confidence is 1-0.7^n, the code adds (1-old)*weight*0.3 [R `:469-486`]. UB-048's untrusted-until-promoted rule is stronger | never |
+| Mnemosyne SHMR harmonizer | A model rewrites clusters of memories into beliefs and writes them with no review [R `core/shmr.py`]. Same objection as the automatic memory writers recorded above | never |
+| Mnemosyne polyphonic recall and binary vectors | Fixed voice weights 0.35, 0.25, 0.25, 0.15 although the docstring says learned [R `core/polyphonic_recall.py:130`]; binary vectors contradict `D9` (no embeddings). Its README benchmarks are version-labelled and one claim was withdrawn [README] | UB-047's own Q&A set shows FTS5 is not enough |
+| Memory sync between devices: Mnemosyne's encrypted event log, mempalace's hybrid logical clock, claude-mem's `synced_at` outbox | Menux memory stays on the device (Menux guide §2.1). Mnemosyne uses Fernet (AES-128-CBC) [R `core/sync.py:150-216`], not the audited AEAD crates Appendix A §8 wants. The clock [R `hlc.py` docstring] and the outbox [R `CloudSync.ts` header] only matter once memory syncs; claude-mem's outbox feeds a hosted hub | you decide to sync memory between devices |
+| Mnemosyne canonical single-slot facts | Already built as fixed slots in `backend/eo/workspace_facts.py` [V✓ docstring] | never |
+| Graphiti search recipes, communities, GLiNER2 local NER, concurrent ingestion | Each needs a graph database or a 205 to 340 million parameter model [R `search_config.py`, `community_operations.py`, `llm_client/gliner2_client.py`, `ingestion/scheduler.py`]. MiniMe has Upstash Vector and `eo/semantic_cache.py`, and no second retriever to fuse | a second retriever exists, or ingest volume is measured |
+| agentmemory capture spool and delete sweep | The spool covers a hook-to-server outage [R `capture/spool.ts`]; M2C stores events locally first and resumes by `seq` (`C02`, `Q09`). The delete sweep exists because its store has no transactions [R `functions/governance.ts:44-97`]; SQLite has | never |
+| mempalace writer lease | M2C's store already uses WAL, a busy timeout and `BEGIN IMMEDIATE` [V✓ `m2c/src/m2c/store/db.py` docstring] | a writer that is not SQLite appears |
+| mempalace layers, verbatim storage and decay math | M2C's memory index with topic files and UB-042's lossless log cover it [V✓]. Its decay module is not called by anything yet, per its own docstring [R `dynamics.py`]. Its benchmark file says the 100% LongMemEval result was tuned on three failing answers and the held-out figure is 98.4% [R `benchmarks/BENCHMARKS.md`] | never |
+| claude-mem tree-sitter file outlines | Needs a downloaded tree-sitter command-line binary, against `D14` [R `smart-file-read/` listing; the parser was not studied] | `D14` changes |
+| claude-mem `cowork/` plugin, hosted sync hub and iMessage observer | `cowork/.claude-plugin/plugin.json` says PolyForm-Noncommercial, so ideas only; the plugin streams fragments to a hosted service [R]. Never run | never |
 
 ## 7. Sources register
 
@@ -426,12 +448,12 @@ One row per source. `Checked` is `—` until you or a session has opened the sou
 | Preloop | https://github.com/preloop/preloop | Apache-2.0 (`LICENSE` read at `8c17f51c`); its `NOTICE` records code derived from Codex (Apache-2.0); the other `LICENSE` files in the tree belong to vendored front-end code | LEARN (Python and FastAPI like the backend, but its modules depend on its own models and it pins `litellm`, `fastmcp` and `mcp`: take rules, and copy a module only after reading its imports; a daily pseudonymous version check-in is on by default per its README and is switched off with `PRELOOP_DISABLE_TELEMETRY`) | UB-028, UB-037, UB-075, UB-086, UB-097, section 6 | licence read 2026-11-27; read from source, not run |
 | Caura | https://github.com/caura-ai/caura | Apache-2.0 (root `LICENSE` read at `85519c72`); the `clients/` folders carry their own `LICENSE` files, not read | LEARN (Python; its tenant gate is 2,222 lines written for its own storage layer, so take the checks and write the code fresh; the benchmark figures in `EVIDENCE.md` are its own and unverified) | UB-049, UB-087, UB-098, section 6 | licence read 2026-11-27; read from source, not run |
 | Orca | https://github.com/stablyai/orca | MIT (`LICENSE` read at `5174b9bd`, holder Lovecast Inc.); the licences of bundled third-party items are under `resources/licenses` | LEARN (TypeScript and Electron, plus a Python Linux bridge; its README says it collects anonymous usage data with an opt-out, and I did not read that code) | UB-100, section 6 | licence read 2026-11-27; read from a shallow clone, so no history; read from source, not run |
-| Mnemosyne | — | not stated | LEARN | UB-047, UB-049 | — |
-| MemoSync | — | not stated | LEARN | UB-048, UB-050 | — |
-| agentmemory | — | not stated | LEARN | UB-049, UB-051 | — |
-| mempalace | — | not stated | LEARN | UB-047 | — |
-| claude-mem | — | not stated | LEARN | UB-047 | — |
-| Graphiti / Zep | — | not stated | LEARN | UB-047 | — |
+| Mnemosyne | https://github.com/mnemosyne-oss/mnemosyne | MIT (`LICENSE` read at `aa1ca31`; has a CLA file) | LEARN (Python and a native vector extension; one idea taken: UB-104) | UB-047, UB-049, UB-104 | licence read 2026-11-27; read from source, not run |
+| MemoSync | https://github.com/SLEEPYBQ/MemoSync | MIT (`LICENSE` read at `f2e9930`; `THIRD_PARTY_NOTICES.md` lists Kanna and Magpie, both MIT) | LEARN (TypeScript; sends memory text to a DeepSeek endpoint when a key is set) | UB-048, UB-050, UB-105 | licence read 2026-11-27; read from source, not run |
+| agentmemory | https://github.com/rohitg00/agentmemory | Apache-2.0 (root `LICENSE` and two nested copies read at `5c9e2e6`) | LEARN (its CLI downloads and runs a separate engine binary; an imported file can set its own origin, UB-102) | UB-049, UB-051, UB-102, UB-103 | licence read 2026-11-27; read from source, not run; whether its metrics leave the machine not checked |
+| mempalace | https://github.com/MemPalace/mempalace | MIT (root and plugin `LICENSE` read at `7ea916d`) | LEARN (Python and chromadb) | UB-047, UB-048 | licence read 2026-11-27; read from source, not run; its telemetry is switched off in code |
+| claude-mem | https://github.com/thedotmack/claude-mem | Apache-2.0 at HEAD (`LICENSE` and `NOTICE` read at `372dbab`). It was AGPL-3.0 until v13.0.0 (2026-05-08); `cowork/.claude-plugin/plugin.json` says PolyForm-Noncommercial; it is open-core (`docs/ip-boundary.md`); no CLA file seen | LEARN (copy only from HEAD, never from older tags or forks; `cowork/` is ideas only) | UB-047, UB-051, UB-101 | licence read 2026-11-27; read from source, not run; the relicensing has not been checked with a lawyer |
+| Graphiti / Zep | https://github.com/getzep/graphiti | Apache-2.0 (`LICENSE` read at `b8ea9c5`; has a CLA file) | LEARN (needs a graph database; PostHog telemetry is on by default) | UB-047, UB-048, UB-107 | licence read 2026-11-27; read from source, not run |
 | Mem0, Letta, Cognee | — | not stated | READ | — | — |
 | ZizkaDB | — | AGPL | ideas only | UB-046 | — |
 | MiniLocker (your own project) | — | own work | REUSE (optional) | UB-046 | — |
@@ -489,6 +511,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 | 2026-11-26 | — | batch B06 created | four reference repos (sandbox-runtime, codebase-memory-mcp, Django, Argus) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-006, UB-012, UB-019, UB-021, UB-032, UB-034, UB-035, UB-040, UB-045, UB-087, UB-092), UB-096 added, 15 rows added to section 6 and 3 existing rows cross-linked. Other chapters not edited |
 | 2026-11-26 | UB-035 | candidate -> parked | the repo read as Argus is a recon toolkit with no MCP content, not the tool the entry wants; reopen when you name the right repo (batch B06) |
 | 2026-11-27 | — | batch B07 created | six reference repos (open-code-review, mixdog, cordum, preloop, caura, orca) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-028, UB-037, UB-039, UB-042, UB-043, UB-045, UB-049, UB-075, UB-086, UB-087), UB-097 to UB-100 added, 21 items recorded in section 6. Other chapters not edited |
+| 2026-11-27 | — | batch B08 created | six memory repos (Mnemosyne, MemoSync, agentmemory, mempalace, claude-mem, Graphiti) read and their licences recorded; the review's recommendations applied as the decisions: existing entries extended in place (UB-047, UB-048, UB-050, UB-051), UB-101 to UB-105 and UB-107 added, UB-106 added as my own idea, 14 rows added to section 6. Other chapters not edited; `MT-M01`, `MT-M02` and `MT-M03` need a decision (see UB-047 Notes and UB-101, UB-102) |
 
 ## Batch B01 (2026-11-24): Upgrade plan and verified spec of 21 Nov 2026, minus the finished SX series
 
@@ -1533,7 +1556,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > One migration for sources, memories with valid-from and valid-to, dependencies and a full-text index.
 
-**Product** Menux · **Source** Spec 6.1, Plan 5.2 (Mnemosyne, Graphiti/Zep, mempalace, claude-mem) · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [V✓] [R] [W]
+**Product** Menux · **Source** Spec 6.1, Plan 5.2 (Mnemosyne, Graphiti/Zep, mempalace, claude-mem); Graphiti `edges.py`, `utils/maintenance/edge_operations.py` and `temporal_edge_utils.py` (Apache-2.0, read at `b8ea9c5`) [R] · **Status** candidate · **Depends** — · **Decision** Which is the source of truth: the Markdown files of `MT-M01` or these tables (see Notes) · **Evidence** [V✓] [R] [W] [U]
 
 **What.** Tables `sources`, `memories`, `memory_deps` and `memories_fts`, with `valid_at`, `invalid_at` and `superseded_by` windows in SQLite (no graph database).
 
@@ -1546,14 +1569,20 @@ Every change of status, and every general decision about this backlog. `--set-st
 1. Write one migration in the style of `m2c/store/migrations.py`.
 2. Columns as in the spec: sources(id, uri, content_hash, trust_tier, fetched_at); memories(id, text, scope, source_id, trust_tier, created_at, valid_at, invalid_at, superseded_by, last_access, access_count); memory_deps(memory_id, depends_on).
 3. Retrieval uses plain scope filters; evaluate with end-to-end questions, not recall@k alone.
+4. Add `expired_at` beside `invalid_at`: `invalid_at` is when the fact stopped being true, `expired_at` is when the system learned that. Graphiti keeps both clocks [R `graphiti_core/edges.py:243-254`]; that is what answers "what did Menux believe on date X".
+5. Supersede by rule, not by key: a new memory ends an older one only when the older one's `valid_at` is earlier than the new one's and their windows overlap; otherwise keep both and flag the pair for review. Graphiti's `resolve_edge_contradictions` does this in about 15 lines [R `utils/maintenance/edge_operations.py:795-830`]. Do not key it on subject plus predicate alone: Mnemosyne's `TripleStore` ends the old row on every write with the same pair, and moved multi-valued facts into a separate append-only store [R docstrings of `core/triples.py` and `core/annotations.py`; whether it compares start times was not read].
+6. Future-tense rule: for "will", "plans to" or "by Friday", `valid_at` is when the thing was said and a deadline is never `invalid_at` [R `utils/maintenance/temporal_edge_utils.py`, first 60 lines]. Write your own patterns.
+7. Several sources per memory: replace the single `source_id` with a `memory_sources(memory_id, source_id)` table, or confirm that `memory_deps` can point at sources. Graphiti keeps a list of source episodes on every fact [R `edges.py:232`]. UB-101 needs it (a merged duplicate keeps both sources) and UB-049 needs it (a memory with a second source must not be retired when one source is corrected).
 
-**Done when.** A fixed Q&A set gives stable answers; the old version of a memory stays readable.
+**Done when.** A fixed Q&A set gives stable answers; the old version of a memory stays readable. A memory that is stated later but dated earlier does not end the newer one; "will finish by Friday" is not stored as ending on Friday; merging two duplicates keeps both sources.
+
+**Notes.** Graphiti is Apache-2.0 and needs a graph database: write the rules fresh and keep its notice if any text is copied. **`MT-M01` and this entry disagree about the store.** `MT-M01` makes plain Markdown files the truth under `~/.menux/memory/`, with an FTS5 index, and requires that an edit made in an editor is reindexed [V✓ Menux build guide]; this entry has tables. My suggestion [U]: keep the files as the truth and add a SQLite sidecar holding sources, provenance, validity and dependencies per memory line, with a stable id on each line (for example a trailing comment), so the editor workflow still works. Decide before the migration is written. **`MT-M02` says "newest wins unless flagged".** Newest should mean newest by `valid_at`, not by write time (step 5); that chapter was not edited.
 
 ### UB-048: Trust rule and a review queue for new memories (M)
 
 > Anything from a web page, tool output or an imported CLAUDE.md enters as an untrusted candidate; only a user action promotes it.
 
-**Product** Menux · **Source** Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin), Gemini CLI `agents/skill-extraction-agent.ts` (Apache-2.0, read at `60f8082`) [R] · **Status** candidate · **Depends** UB-047 · **Decision** none · **Evidence** [R] [W]
+**Product** Menux · **Source** Spec 6.1, Plan 5.2 (MemoSync, promptfoo memory-poisoning plugin), Gemini CLI `agents/skill-extraction-agent.ts` (Apache-2.0, read at `60f8082`) [R]; MemoSync `src/server/memory/` (MIT, read at `f2e9930`), mempalace `fact_checker.py` (MIT, read at `7ea916d`), Graphiti `ingestion/change_set.py` (Apache-2.0, read at `b8ea9c5`) [R] · **Status** candidate · **Depends** UB-047 · **Decision** none · **Evidence** [R] [W] [U]
 
 **What.** A write path with trust tiers and a queue; no code path promotes automatically.
 
@@ -1566,10 +1595,15 @@ Every change of status, and every general decision about this backlog. `--set-st
 1. Every write from external content gets tier `untrusted`.
 2. Show new candidates in a queue; importing an existing `CLAUDE.md` creates candidates. Store each candidate as a reviewable patch. Gemini's background agent writes memory changes only as unified-diff `.patch` files under `.inbox/<kind>/`, one canonical file per kind, and treats transcripts as evidence and never as instructions [R].
 3. Promotion only through a user action.
+4. Provenance comes from the code that writes, never from the data being written (UB-102).
+5. A sensitive lane: an item that the secret detector flags enters the queue as SENSITIVE. It is left out of any Markdown export, and when dismissed it is erased for good, not archived. If the redaction pass fails, the owner edits by hand; the raw text is never the fallback [R MemoSync `secrets.ts` and `sanitize.ts`, headers]. Use `m2c.secrets` as the detector.
+6. A stale-fact badge: a candidate that matches a retired memory (`invalid_at` in the past) shows a badge in the queue [R mempalace `fact_checker.py`: docstring and function list; its claim-extraction patterns were not read]. It needs no model.
+7. Where the store is rows (see the UB-047 Decision), store each candidate as typed operations (add a memory, end a memory, set a field, link a source) instead of `.patch` text: Graphiti's `ingestion/change_set.py` does that [R class docstrings; the apply code was not read]. Keep the `.patch` form for Markdown memory files.
+8. A revision candidate: when the last K post-task verdicts of a memory (UB-050) are all "violated", draft a candidate that revises it; accepting it replaces the old text. Ask-first only: MemoSync also has an Auto setting, which is not taken (section 6) [R `evolution.ts` header; the value of K was not seen].
 
-**Done when.** A poisoned web page cannot produce a trusted memory, tested with your own three-turn case: plant a memory, poison it, ask a follow-up.
+**Done when.** A poisoned web page cannot produce a trusted memory, tested with your own three-turn case: plant a memory, poison it, ask a follow-up. A candidate equal to a retired memory shows the badge; a dismissed sensitive candidate leaves no text in the database or in any export.
 
-**Notes.** promptfoo's `agentic:memory-poisoning` plugin is remote-only: its grader was read, but its cases are generated on `api.promptfoo.app` [R]. Use it only for the shape of the test and write the three turns yourself. The same plugin is in UB-014 step 2, where it returns nothing if remote generation is off. Two other reference repos write memory with no review step, so neither is copied as it is (section 6): Codex's second phase lets an agent write the memory folder with approvals set to never, and Hermes forks an agent after each turn that writes straight to its stores under a tool whitelist [S]. Two parts are safe to take: redact secrets before the extractor sees a transcript (Codex does this in its first phase [S]), and the fork-after-each-turn trick, if its output lands only in this queue.
+**Notes.** promptfoo's `agentic:memory-poisoning` plugin is remote-only: its grader was read, but its cases are generated on `api.promptfoo.app` [R]. Use it only for the shape of the test and write the three turns yourself. The same plugin is in UB-014 step 2, where it returns nothing if remote generation is off. Two other reference repos write memory with no review step, so neither is copied as it is (section 6): Codex's second phase lets an agent write the memory folder with approvals set to never, and Hermes forks an agent after each turn that writes straight to its stores under a tool whitelist [S]. Two parts are safe to take: redact secrets before the extractor sees a transcript (Codex does this in its first phase [S]), and the fork-after-each-turn trick, if its output lands only in this queue. The UB-046 chain must record only a hash of an erased sensitive item, never its text, or the erase is not real [U].
 
 ### UB-049: Correcting a source retires its dependents, and deletes cascade (M)
 
@@ -1597,7 +1631,7 @@ Every change of status, and every general decision about this backlog. `--set-st
 
 > Before each task list the memories the agent intends to use with a reason; after it, show which were followed.
 
-**Product** Menux · **Source** Spec 6.1, Plan 5.2 (MemoSync UX) · **Status** candidate · **Depends** UB-047 · **Decision** none · **Evidence** [R]
+**Product** Menux · **Source** Spec 6.1, Plan 5.2 (MemoSync UX); MemoSync `src/server/memory/trace.ts`, `use-plan.ts` and `injection.ts` (MIT, read at `f2e9930`) [R] · **Status** candidate · **Depends** UB-047 · **Decision** Whether you accept one extra cheap-class model call per run for the audit (step 5) · **Evidence** [R] [U]
 
 **What.** A confirmation step with drop or add, and a post-task record.
 
@@ -1610,14 +1644,20 @@ Every change of status, and every general decision about this backlog. `--set-st
 1. Select candidate memories for the task with one-line reasons.
 2. Let the user drop items first.
 3. After the task, record which were used.
+4. Post-task audit: a separate model call over the whole exchange rates each selected memory as operational, injected-without-effect, violated or not-applicable, and for a violated one says whether it visibly hurt the result [R MemoSync `trace.ts` header and `types.ts:60`]. This finds a violation the agent never cited, which a "which did you use" report cannot. Say in the interface that the verdict is a model's judgement and can be wrong.
+5. Budget the audit: one extra call per run, in the cheap model class under the run budget (Menux guide §12.2, `MT-A05`); skip it for runs that selected no memory.
+6. One use-plan object produces both the confirmation card and the prompt text, so the card cannot promise something the prompt did not ask for [R `use-plan.ts` header].
+7. Put the selected memories into the session once; later changes ride in the next user message as a delta, so the cached prompt prefix is not rebuilt [R `injection.ts` header; M2C `S08` already orders the memory index for cache stability].
 
-**Done when.** A dropped memory is never used in the run.
+**Done when.** A dropped memory is never used in the run. A memory the agent broke without citing it still shows as violated in the audit. Changing a memory mid-session does not change the first part of the prompt.
+
+**Notes.** MemoSync is TypeScript and MIT: take the design, write the code fresh. Its README names the labels differently ("shaped", "no visible effect") from the code, which has the four above [R]; follow the code. Its own README says citations are what the agent says it used, not proof [README]. The prompts of the audit were not read. MemoSync sends memory text to a DeepSeek endpoint by default when a key is set (section 7), so do not copy that part.
 
 ### UB-051: Retention scores and hot, warm and cold tiers (M)
 
 > Decay plus access boost to prune memory. Both documents say to skip this until volume is measured.
 
-**Product** Menux · **Source** agentmemory (Plan 5.2), Spec 6.1.6 · **Status** parked · **Depends** UB-047 · **Decision** none · **Evidence** [R]
+**Product** Menux · **Source** agentmemory (Plan 5.2), Spec 6.1.6; claude-mem `src/services/reinforcement/` (Apache-2.0, read at `372dbab`) [R] · **Status** parked · **Depends** UB-047 · **Decision** none · **Evidence** [R]
 
 **What.** A retention score and three tiers.
 
@@ -1630,10 +1670,11 @@ Every change of status, and every general decision about this backlog. `--set-st
 1. Wait until memory volume makes prompts too big.
 2. Tune the plan's reference values (decay 0.01; cut-offs 0.7, 0.4, 0.15) on your own data.
 3. Prove the fixed Q&A set does not regress after pruning.
+4. Prefer ranking to pruning: keep up to 10 re-confirmation dates per memory and score `ln(1 + age_created^-0.5 + alpha * sum(age_reinforcement^-0.5))`, so the score only decides what to show first and nothing is deleted [R claude-mem `reinforcement/rank.ts` and `strength.ts`]. A re-confirmation is the world saying the fact again (UB-101's exact-duplicate merge), not a read of it. Add a `reinforcements` column in UB-047 only when this is unparked.
 
 **Done when.** The Q&A set gives the same answers before and after pruning.
 
-**Notes.** Parked on the spec's own advice (the constants come from a project it did not examine). Reopen when memory volume grows.
+**Notes.** Parked on the spec's own advice. The constants are now examined: agentmemory ships them as untuned defaults [R `src/functions/retention.ts:24-29`], so tune them on your own data. claude-mem's ranking is off by default (alpha is 0) [R `rank.ts`], so neither project has shown that it helps. Reopen when memory volume grows.
 
 ### UB-052: Learned workflows modelled on webcmd (L)
 
@@ -2677,3 +2718,171 @@ Every change of status, and every general decision about this backlog. `--set-st
 **Done when.** The set runs against a stand-in host with no real connector; a deliberately broken Planner prompt (the ask rule removed) fails the `ask` category; a clean run prints a rate for every category.
 
 **Notes.** Orca's code is TypeScript (MIT): take the categories and the idea of grading the result, and write it in your own language. Cost is tokens per run and is not measured. Writing the requests by hand is the real work.
+
+## Batch B08 (2026-11-27): Review of Mnemosyne, MemoSync, agentmemory, mempalace, claude-mem and Graphiti
+
+*Source:* a review of six memory repos (40 capabilities, in two passes: the second finished the three agentmemory VERIFY FIRST rows and read the other three repos), read from source with nothing installed or run, made against MiniMe `121e06c`; the rest of this file was written at `cd0bc23`. Reference commits read: Mnemosyne `aa1ca31`, MemoSync `f2e9930`, agentmemory `5c9e2e6`, mempalace `7ea916d`, claude-mem `372dbab`, Graphiti `b8ea9c5`. The six licences were read. In this batch `[R]` is a reading of those repos, `[V✓]` is a check of MiniMe `121e06c` made while writing it, `[U]` is a design nobody has run, and `[README]` is a README only. **The decision column of the review was empty, so the review's recommendations are applied as the decisions**, as in the earlier review batches. Every new feature is a `candidate`; nothing is accepted. Change one with `--set-status`.
+
+**Corrections to the review found while writing:** (1) The book moved on while the review ran: other sessions added batches first (B05, B06, B07), so this is batch B08 and the new IDs start at UB-101. That B07 extended UB-049 (the old text of a corrected memory stays hidden, with only its hash in the chain) and recorded in section 6 that Caura's model judge, which supersedes memories on its own, is not taken. Both agree with this batch; UB-105 keeps to "suggest, never apply". (2) The review asked to check `m2c.secrets` for the token prefixes `npm_` and `dop_v1_`: both are already there [V✓ `m2c/src/m2c/secrets/redact.py`], and the detector is broader than agentmemory's (cloud keys, high-entropy strings next to a credential word, fails closed). UB-103 therefore takes only the user-marked block, not the patterns. (3) `MT-M01` makes Markdown files the truth and UB-047 has tables; the review had not seen that conflict. It is now the Decision field of UB-047. (4) `MT-M02` says "newest wins"; the review's temporal rule (UB-047 step 5) changes what "newest" should mean. That chapter was not edited.
+
+### UB-101: A near-duplicate filter for the nightly consolidation job (S)
+
+> Exact-equal titles merge by themselves; near-equal titles go to review, unless a rare token differs (rdlp-api vs rdlp-plugin).
+
+**Product** Menux · **Source** claude-mem `src/services/dedup/` (Apache-2.0, read at `372dbab`) [R], Menux build guide `MT-M02` · **Status** candidate · **Depends** UB-047 · **Decision** none · **Evidence** [R] [U]
+
+**What.** The "merge duplicates" part of `MT-M02`, with two tiers and no model and no embeddings. Tier 0: two titles that are equal after lower-casing and stripping punctuation, and not empty, merge on their own; the merged memory keeps both sources (UB-047 step 7) and gains a re-confirmation date (UB-051 step 4). Tier 1: IDF-weighted cosine over whitespace-split tokens, at or above a threshold, with at least two shared tokens and no veto, becomes a candidate in the UB-048 queue and is never merged by itself. The veto fires when a token found in only one of the two titles is rare, so `rdlp-api` and `rdlp-plugin` stay apart [R `dedup/nearDuplicate.ts`, `dedup/idfVeto.ts`; `tests/dedup/` exists].
+
+**Why.** `MT-M02` says "merge duplicates" and gives no method; `D9` rules out embeddings. claude-mem's own comments say a looser similarity gave mostly false positives and that this version was checked on a database of 7,651 observations [R comment only; the numbers were not seen]. An empty or emoji-only title must never merge, because that would lose data; their code says so.
+
+**Where.** The UB-047 tables and the `MT-M02` job; a new dedup module (Rust if `DM-3` goes ahead).
+
+**How.**
+
+1. Give every memory a short title (its first line, or a 5 to 12 word title written when it is saved).
+2. Write the normaliser and a tokenizer that splits on whitespace only, so `ffmpeg-7.1.conf` stays one token.
+3. Keep a document-frequency table per owner, updated on every write.
+4. Classify pairs into merge, candidate or leave alone; thresholds come from settings.
+5. Write the cases as your own fixtures (UB-106): the kinds of case in claude-mem's `tests/dedup/`, with your own text.
+
+**Done when.** A reworded duplicate with the same words merges; `rdlp-api` against `rdlp-plugin` is not proposed; empty titles never merge; only Tier 0 changes a row without the owner.
+
+**Notes.** The hard residue (a real reword whose changed words are common, against two different tasks with near-identical titles) needs a model: that is UB-105. It works on titles, so a memory without a title needs one first. claude-mem's code is TypeScript, about 230 lines [R]; write it fresh and keep the Apache-2.0 notice if any text is copied. The thresholds were not seen: tune them on your own data.
+
+### UB-102: An import can never carry its own provenance (XS)
+
+> A memory file that claims owner provenance still lands untrusted: only the importing code sets provenance, never the data.
+
+**Product** Menux · **Source** agentmemory `src/types.ts` and `src/functions/export-import.ts` (Apache-2.0, read at `5c9e2e6`) [R], Menux build guide `MT-M03` · **Status** candidate · **Depends** UB-047 · **Decision** none · **Evidence** [R] [U]
+
+**What.** Provenance (`owner`, or `source:<kind>:<id>` in `MT-M03`) is set by the code path that writes and is never read from the data being written. An import (a Menux export, an imported `CLAUDE.md`, another tool's memory file) gets a fixed `source:import:<id>` and the tier `untrusted`.
+
+**Why.** agentmemory says each memory has an immutable origin. In the code, `importOrigin` returns the file's own `origin` when it has one [R `types.ts:45-52`], and the import paths call it on the file's rows [R `export-import.ts:461` and `:641`]. An imported file can therefore say it came from the user. I did not check whether its update paths can overwrite an origin. The same hole would let a poisoned file become `owner` text, and `MT-M03` lets only `owner` lines be instructions.
+
+**Where.** The UB-047 write path; the UB-048 import step; the `MT-M03` fixtures.
+
+**How.**
+
+1. One function stamps provenance from the call site, never from a field of the input.
+2. Import, restore and any future sync path call it with a fixed value.
+3. Strip provenance, trust and validity fields from an imported payload before it is stored.
+4. Add the cases to UB-106 and to the `MT-M03` fixture list.
+
+**Done when.** A file whose rows all say `owner` imports as `untrusted`, and an instruction line in it is not treated as an instruction. A test fails if a code path reads provenance from its input.
+
+**Notes.** Restoring your own backup is a different path: it may keep tiers only if the UB-046 chain verifies [U]. Decide that when the restore is designed. `MT-M03` was not edited; this entry adds a fixture to its "Done when".
+
+### UB-103: Text marked private is never stored (XS)
+
+> A user-marked private block is cut out before any memory write; an unclosed tag cuts everything after it.
+
+**Product** Shared · **Source** agentmemory `src/functions/privacy.ts` (Apache-2.0, read at `5c9e2e6`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R] [V✓] [U]
+
+**What.** Before the memory write, remove everything between `<private>` and `</private>`; nesting is allowed, and a tag that is never closed removes the rest of the text. Leave a visible marker in its place.
+
+**Why.** The person has no way to say "do not remember this". M2C refuses secret-shaped text only: `find_secrets` in `m2c/src/m2c/context/memory.py` returns kinds and lines, and there is no private-tag handling anywhere in `m2c/src` or `backend` [V✓ grep]. Failing closed on an unclosed tag matches the rule of UB-095.
+
+**Where.** `prepare_memory_write` in `m2c/src/m2c/context/memory.py`; the Menux memory write; any transcript handed to a memory extractor.
+
+**How.**
+
+1. Write a small scanner with a depth counter; agentmemory's is about 25 lines [R `privacy.ts:1-30`].
+2. Run it before secret detection, and on model-written candidates too, because the extractor sees the transcript.
+3. Show "[private text removed]" in the write preview.
+
+**Done when.** Nested, unclosed and upper-case tags are cut; `<privately>` is not treated as a tag; the preview shows the marker.
+
+**Notes.** Do not take agentmemory's secret patterns: `m2c.secrets` is broader (`npm_`, `dop_v1_`, cloud keys, entropy near a credential word, fails closed) [V✓]. The idea is the user-controlled block only. Write it fresh.
+
+### UB-104: Re-check stored memory against today's secret rules (S)
+
+> A dry-run audit of memory already on disk, so a secret rule added later catches secrets saved earlier.
+
+**Product** Shared · **Source** Mnemosyne `mnemosyne/core/hygiene.py` (MIT, read at `aa1ca31`) [R] · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R] [V✓] [U]
+
+**What.** A command (`m2c memory audit`, and the same for Menux) that runs the shared secret detector over the memory files or rows already stored and lists the matches. Dry-run by default. Actions: delete, archive to a quarantine place outside the index that is sent, or keep. Every action is logged, and an archived item can be restored.
+
+**Why.** `memory.py` checks at write time and again inside apply [V✓ docstring]; nothing rechecks old files when the detector gets better (patch `C15` widened it). Mnemosyne's `audit_noise()` is a dry run by default, and `clean_noise()` writes an audit log and can restore archived items [R docstring and function list; the scoring code was only partly read].
+
+**Where.** `m2c/src/m2c/context/memory.py` (use `find_secrets`, which never returns the matched text [V✓]); `m2c/src/m2c/secrets/redact.py`; the Menux memory tools (`MT-M01`).
+
+**How.**
+
+1. Add `audit_memory(root)` that returns the kind and line of each match, never the text.
+2. A command with dry-run as the default and `--archive` and `--delete` as explicit choices.
+3. Archived files go to a folder that `load_memory_index` never reads.
+4. Log each action in the local event store; where UB-046 exists, record a hash and not the text.
+
+**Done when.** A secret added by hand to a topic file is found; the dry run changes nothing; an archived file never reaches the index sent to the server; the log holds no secret text.
+
+**Notes.** Take only the secrets half: Mnemosyne's scoring of terminal noise and stack traces is not needed. The detector is your own, so no licence question arises.
+
+### UB-105: Memory checkup: conflicts and staleness, each with a reason (M)
+
+> A nightly model pass lists conflicting and stale memories, each with a one-line reason; the owner decides.
+
+**Product** Menux · **Source** MemoSync `src/server/memory/checkup.ts` (MIT, read at `f2e9930`) [R], Menux build guide `MT-M02` · **Status** candidate · **Depends** UB-047, UB-048, UB-101 · **Decision** none · **Evidence** [R] [U]
+
+**What.** A step of the `MT-M02` job. Two model queries, one for conflicts and one for staleness, over a shortlist; each suggestion carries a grounded one-line reason; a merge step guarantees one row per memory and never drops a finding; the results go to the UB-048 queue as "revise" or "retire" candidates. Redundancy is UB-101 and needs no model.
+
+**Why.** `MT-M02` says "resolve contradictions (newest wins unless flagged)". Memories that are free text do not reduce to subject-predicate-object, so a rule cannot find most conflicts, and "newest wins" silently loses the true fact when the newer one is the wrong one. MemoSync runs three parallel model queries (conflicts, redundancy, staleness) with a merge pass, and uses numeric thresholds only to choose what to look at [R `checkup.ts` header; the prompts were not read].
+
+**Where.** The `MT-M02` job; the UB-048 queue; the budget rules in Menux guide §12.2 and `MT-A05`.
+
+**How.**
+
+1. Shortlist by cheap signals: FTS5 overlap, age, no recent confirmation.
+2. Two queries that return JSON with a reason field.
+3. A merge step that keeps one row per memory and never drops a finding.
+4. Write the rows to the queue; change nothing in the store.
+5. Run in the cheap model class with a daily cap; frame the memory text as data (UB-087).
+
+**Done when.** On a fixed set with five planted conflicts and five stale items, each one is listed with a reason; no row changes without the owner; with the model switched off the job still runs UB-101.
+
+**Notes.** The result is a model's judgement and can be wrong, so show the reason and let the owner dismiss it. Nobody has run this design [U]; MemoSync's cost per run was not measured. Caura's judge that supersedes memories on its own was refused in section 6 for the same reason: this entry only lists suggestions.
+
+### UB-106: One memory test pack, written as data, that every memory feature must pass (S)
+
+> One set of memory cases stored as data, so a Python and a Rust build of Menux and M2C pass the same file.
+
+**Product** Shared · **Source** my idea; Appendix A `MG-Z02`, `DM-5` and `DM-10` · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [U]
+
+**What.** A new area `memory` in the conformance vectors of `MG-Z02`: JSON lines under `protocol/conformance/memory/`, an adapter in the Python runner, and later the Rust runner. The pack grows with the memory features, starting with the cases this batch found.
+
+**Why.** Seven findings are small rules that are easy to get wrong and easy to break in a port: a late-arriving old fact, future-tense dates, an import that forges provenance, exact against near duplicates, empty titles, a sensitive item, and a stale fact. Appendix A already says a port is done when it passes what the Python reference passes (`DM-5`, `DM-10`). Writing the memory cases as data now lets Menux start in either language. The poisoned-email, web and calendar fixtures that `MT-M03` asks for belong in the same pack.
+
+**Where.** `protocol/conformance/memory/` (new, proposed) and an entry in the `ADAPTERS` table of `run_python.py` (named in `MG-Z02`); nothing exists yet.
+
+**How.**
+
+1. Read the `MG-Z02` vector format and reuse it as it is: `id`, `area`, `desc`, `input`, `expect`, `source`, `tags`.
+2. First cases: a late old fact and a future-tense statement (UB-047), `rdlp-api` against `rdlp-plugin` and an empty title (UB-101), a forged `owner` import (UB-102), a sensitive candidate and a stale-fact badge (UB-048), an unclosed private tag (UB-103).
+3. Add the three-turn poisoning case from UB-048.
+4. Never edit a vector to make an implementation pass (Appendix A §4, rule 2).
+
+**Done when.** The runner passes the Python build; a deliberately wrong vector fails it; adding a case needs no code change.
+
+**Notes.** A design nobody has run [U]. B07 asked for a sha256 manifest of the vector files in `MG-Z02` (section 6, "Pinned vector files"); the `memory` area uses it too. `MG-Z02` is a plan too, so its runner may not exist yet: check before starting. If Menux starts in Python and moves to Rust later, the same file proves the move.
+
+### UB-107: Four read-first checks before borrowing more from the memory repos (S)
+
+> Four ideas were read only in headers or READMEs; read the named files before any becomes a feature.
+
+**Product** Shared · **Source** Graphiti, MemoSync and claude-mem (licences read, see section 7) · **Status** candidate · **Depends** — · **Decision** none · **Evidence** [R] [README]
+
+**What.** Four short checks, each ending in one line in Notes: add a feature, or drop it.
+
+**Why.** Each idea looked useful but rests on a header comment or a README, and the rules of this file say not to claim what was not read.
+
+**Where.** As named below.
+
+**How.**
+
+1. MiniMe entity dedup: does `backend/eo/knowledge_graph.py` (`write_node`) or any agent create entity nodes from text? If not, Graphiti's MinHash name dedup (`utils/maintenance/dedup_helpers.py`) does not apply; if yes, add it as a feature.
+2. MemoSync stop-and-correct: read `src/server/memory/trace-correction-outbox.ts` and `src/server/enqueue-and-steer.ts` [README only so far]. Does a steering message that contradicts a memory become a UB-048 revision candidate? Compare with UB-037.
+3. MemoSync expiry and archive: read `src/server/memory/maintenance.ts` [README only so far]. Can it be done with `invalid_at` (UB-047) and a seven-day restore window?
+4. Telemetry: search the guides for what telemetry is planned (`m2c_build_plan.md` says only that metering and telemetry helpers fail open). If anything leaves the device, adopt claude-mem's deny-by-default property whitelist and its separate error-text redaction [R `src/services/telemetry/scrub.ts` and `error-scrub.ts`, headers].
+
+**Done when.** Each of the four has a verdict line in these Notes.
+
+**Notes.** The verdict lines are empty until someone reads the files.
